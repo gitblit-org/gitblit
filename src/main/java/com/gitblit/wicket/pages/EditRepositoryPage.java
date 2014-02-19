@@ -36,6 +36,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -59,6 +60,7 @@ import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserChoice;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -172,10 +174,26 @@ public class EditRepositoryPage extends RootSubPage {
 				RegistrantType.TEAM, app().users().getAllTeamNames(), repositoryTeams, getAccessPermissions());
 
 		// owners palette
-		List<String> owners = new ArrayList<String>(repositoryModel.owners);
-		List<String> persons = app().users().getAllUsernames();
-		final Palette<String> ownersPalette = new Palette<String>("owners", new ListModel<String>(owners), new CollectionModel<String>(
-		      persons), new StringChoiceRenderer(), 12, true);
+		List<UserChoice> owners = new ArrayList<UserChoice>();
+		for (String owner : repositoryModel.owners) {
+			UserModel o = app().users().getUserModel(owner);
+			if (o != null) {
+				owners.add(new UserChoice(o.getDisplayName(), o.username, o.emailAddress));
+			} else {
+				owners.add(new UserChoice(owner));
+			}
+		}
+		List<UserChoice> persons = new ArrayList<UserChoice>();
+		for (String person : app().users().getAllUsernames()) {
+			UserModel o = app().users().getUserModel(person);
+			if (o != null) {
+				persons.add(new UserChoice(o.getDisplayName(), o.username, o.emailAddress));
+			} else {
+				persons.add(new UserChoice(person));
+			}
+		}
+		final Palette<UserChoice> ownersPalette = new Palette<UserChoice>("owners", new ListModel<UserChoice>(owners), new CollectionModel<UserChoice>(
+		      persons), new ChoiceRenderer<UserChoice>(null, "userId"), 12, true);
 
 		// indexed local branches palette
 		List<String> allLocalBranches = new ArrayList<String>();
@@ -358,9 +376,9 @@ public class EditRepositoryPage extends RootSubPage {
 
 					// owners
 					repositoryModel.owners.clear();
-					Iterator<String> owners = ownersPalette.getSelectedChoices();
+					Iterator<UserChoice> owners = ownersPalette.getSelectedChoices();
 					while (owners.hasNext()) {
-						repositoryModel.addOwner(owners.next());
+						repositoryModel.addOwner(owners.next().getUserId());
 					}
 
 					// pre-receive scripts
