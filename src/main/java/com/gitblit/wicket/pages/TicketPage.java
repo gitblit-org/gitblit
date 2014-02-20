@@ -881,7 +881,7 @@ public class TicketPage extends TicketBasePage {
 								if (StringUtils.isEmpty(body)) {
 									value = "<i>" + ESC_NIL + "</i>";
 								} else {
-									value = "<i>" + StringUtils.trimString(body, Constants.LEN_SHORTLOG_REFS) + "</i>";
+									value = StringUtils.trimString(body, Constants.LEN_SHORTLOG_REFS);
 								}
 								break;
 							case status:
