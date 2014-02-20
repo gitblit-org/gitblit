@@ -15,7 +15,6 @@
  */
 package com.gitblit.git;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +23,6 @@ import java.util.TreeSet;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.ReceiveCommand;
-import org.eclipse.jgit.util.RawParseUtils;
 
 import com.gitblit.Constants;
 import com.gitblit.models.TicketModel;
@@ -269,38 +267,8 @@ public class PatchsetCommand extends ReceiveCommand {
 	 * @return
 	 */
 	private String getBody(RevCommit commit) {
-		final byte[] raw = commit.getRawBuffer();
-		int bodyEnd = raw.length - 1;
-		while (raw[bodyEnd] == '\n') {
-			// trim any trailing LFs, not interesting
-			bodyEnd--;
-		}
-
-		final int messageBegin = RawParseUtils.commitMessage(raw, 0);
-		if (messageBegin < 0) {
-			return "";
-		}
-		for (;;) {
-			bodyEnd = RawParseUtils.prevLF(raw, bodyEnd);
-			if (bodyEnd <= messageBegin) {
-				// Don't parse commit headers as footer lines.
-				break;
-			}
-			final int keyStart = bodyEnd + 2;
-			if (raw[keyStart] == '\n') {
-				// Stop at first paragraph break, no footers above it.
-				bodyEnd += 2;
-				break;
-			}
-		}
-
-		final Charset enc = RawParseUtils.parseEncoding(raw);
-		final int titleEnd = RawParseUtils.endOfParagraph(raw, messageBegin);
-		if (titleEnd < bodyEnd) {
-			String body = RawParseUtils.decode(enc, raw, titleEnd, bodyEnd);
-			return body.trim();
-		}
-		return "";
+		String body = commit.getFullMessage().substring(commit.getShortMessage().length()).trim();
+		return body;
 	}
 
 	/** Extracts a ticket field from the ref name */
