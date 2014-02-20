@@ -236,9 +236,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 				default:
 					break;
 				}
-			}
-
-			if (ref.startsWith(Constants.R_GITBLIT)) {
+			} else if (ref.startsWith(Constants.R_GITBLIT)) {
 				if (ref.equals("refs/gitblit/tickets")) {
 					// ensure pushing user is an administrator OR an owner
 					// i.e. prevent ticket tampering
@@ -247,6 +245,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 						sendRejection(cmd, "{0} is not permitted to push to {1}", user.username, ref);
 					}
 				}
+			} else if (ref.startsWith(Constants.R_FOR)) {
+				// prevent accidental push to refs/for
+				sendRejection(cmd, "{0} is not configured to receive patchsets", repository.name);
 			}
 		}
 
