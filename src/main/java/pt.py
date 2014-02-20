@@ -31,7 +31,7 @@
 #
 
 __author__ = 'James Moger'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 import subprocess
 import argparse
@@ -52,7 +52,10 @@ def fetch(args):
     # fetch the patchset from the remote repository
     print("Fetching ticket {} patchset {} from the '{}' repository".format(args.id, args.patchset, args.remote))
     patchset_ref = 'refs/tickets/{:02d}/{:d}/{:d}'.format(args.id % 100, args.id, args.patchset)
-    __call(['git', 'fetch', args.remote, patchset_ref])
+    if args.quiet:
+        __call(['git', 'fetch', args.remote, patchset_ref, '--quiet'])
+    else:
+        __call(['git', 'fetch', args.remote, patchset_ref])
 
     return
 
@@ -157,6 +160,14 @@ def push(args):
     print("Pushing your patchset to the '{}' repository".format(args.remote))
     __call(['git', 'push', args.remote, ref_spec], echo=True)
 
+    if args.force:
+        # if we had to force the push then there is a new patchset
+        # revision on the server so checkout out the new patchset
+        args.patchset = None
+        args.force = False
+        args.quiet = True
+        checkout(args)
+
     return
 
 
@@ -201,15 +212,16 @@ def propose(args):
     __resolve_uncommitted_changes_push(args)
     __resolve_remote(args)
 
+    curr_branch = None
     push_ref = None
     if args.target is None:
         # see if the topic is a ticket id
         # else default to new
         for branch in __call(['git', 'branch']):
             if branch[0] == '*':
-                b = branch[1:].strip()
-                if b.startswith('topic/'):
-                    topic = b[6:].strip()
+                curr_branch = branch[1:].strip()
+                if curr_branch.startswith('topic/'):
+                    topic = curr_branch[6:].strip()
                     try:
                         int(topic)
                         push_ref = topic
@@ -243,9 +255,22 @@ def propose(args):
 
     ref_params = __get_pushref_params(args)
     ref_spec = 'HEAD:refs/for/{}{}'.format(push_ref, ref_params)
-    print(ref_spec)
+
     print("Pushing your proposal to the '{}' repository".format(args.remote))
-    __call(['git', 'push', args.remote, ref_spec], echo=True)
+    for line in __call(['git', 'push', args.remote, ref_spec, '-q'], echo=True, err=subprocess.STDOUT):
+        fields = line.split(':')
+        if fields[0] == 'remote' and fields[1].strip().startswith('--> #'):
+            # checkout the new ticket branch
+            args.id = int(fields[1].strip()[len('--> #'):])
+            args.patchset = None
+            args.force = False
+            args.quiet = True
+            checkout(args)
+
+            if args.delete:
+                # optionally delete the former current branch
+                __call(['git', 'branch', '-D', curr_branch])
+            break
 
     return
 
@@ -544,7 +569,7 @@ def __get_pushref_params(args):
     return ''
 
 
-def __call(cmd_args, echo=False, fail=True):
+def __call(cmd_args, echo=False, fail=True, err=None):
     """
     __call(cmd_args)
 
@@ -553,7 +578,7 @@ def __call(cmd_args, echo=False, fail=True):
     exit code.  Std err of the subprocess is passed-through to the std err of the parent process.
     """
 
-    p = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, universal_newlines=True)
+    p = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=err, universal_newlines=True)
     lines = []
     for line in iter(p.stdout.readline, b''):
         line_str = str(line).strip()
@@ -595,6 +620,10 @@ parser.add_argument('--version', action='version', version='%(prog)s {}'.format(
 commands = parser.add_subparsers(dest='command', title='commands')
 
 fetch_parser = commands.add_parser('fetch', help='fetch a patchset', parents=[ticket_args])
+fetch_parser.add_argument('-q', '--quiet',
+                         help='suppress the fetch output on stderr',
+                         default=False,
+                         action='store_true')
 fetch_parser.set_defaults(func=fetch)
 
 checkout_parser = commands.add_parser('checkout', aliases=['co'],
@@ -602,7 +631,7 @@ checkout_parser = commands.add_parser('checkout', aliases=['co'],
                                       parents=[ticket_args, force_args])
 checkout_parser.set_defaults(func=checkout)
 
-pull_parser = commands.add_parser('pull',
+pull_parser = commands.add_parser('pull', aliases=['merge'],
                                   help='fetch & merge a patchset into the current branch',
                                   parents=[ticket_args, force_args])
 pull_parser.add_argument('-s', '--squash',
@@ -620,6 +649,10 @@ push_parser.set_defaults(func=push)
 
 propose_parser = commands.add_parser('propose', help='propose a new ticket or the first patchset', parents=[push_args])
 propose_parser.add_argument('target', help="the ticket id, 'new', or the integration branch", nargs='?')
+propose_parser.add_argument('-d', '--delete',
+                            help='delete the topic branch after successfully pushing the proposal',
+                            default=False,
+                            action='store_true')
 propose_parser.set_defaults(func=propose)
 
 cleanup_parser = commands.add_parser('cleanup', aliases=['rm'],
