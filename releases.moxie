@@ -21,6 +21,7 @@ r20: {
 	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
 	- Invalidate all cached repository data on "clear cache" (issue-346)
 	- Fix chart failures when an apostrophe is in a user display name (issue-350, pr-128)
+	- Fix exception in create repository when not selecting a garbage collection period (issue-366)
 	- Stop setting admin permission based on undocumented Redmine REST API behavior (issue-368)
 	- Fix support url decoding with non-ascii characters (pr-136)
 	- Fix potential NPE on removing uncached repository from cache
