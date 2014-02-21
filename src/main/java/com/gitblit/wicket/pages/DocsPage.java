@@ -138,8 +138,8 @@ public class DocsPage extends RepositoryPage {
 				PathModel entry = item.getModelObject();
 				item.add(WicketUtils.newImage("docIcon", "file_world_16x16.png"));
 				item.add(new Label("docSize", byteFormat.format(entry.size)));
-				item.add(new LinkPanel("docName", "list", entry.name, DocPage.class, WicketUtils
-						.newPathParameter(repositoryName, id, entry.path)));
+				item.add(new LinkPanel("docName", "list", StringUtils.stripFileExtension(entry.name),
+						DocPage.class, WicketUtils.newPathParameter(repositoryName, id, entry.path)));
 
 				// links
 				item.add(new BookmarkablePageLink<Void>("view", DocPage.class, WicketUtils
