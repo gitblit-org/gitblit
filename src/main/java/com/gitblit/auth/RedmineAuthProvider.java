@@ -134,11 +134,6 @@ public class RedmineAuthProvider extends UsernamePasswordAuthenticationProvider 
         user.displayName = current.user.firstname + " " + current.user.lastname;
         user.emailAddress = current.user.mail;
         user.password = Constants.EXTERNAL_ACCOUNT;
-        if (!StringUtils.isEmpty(current.user.login)) {
-        	// only admin users can get login name
-        	// evidently this is an undocumented behavior of Redmine
-        	user.canAdmin = true;
-        }
 
         // TODO consider Redmine group mapping for team membership
         // http://www.redmine.org/projects/redmine/wiki/Rest_Users
