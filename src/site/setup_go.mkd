@@ -124,6 +124,7 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
     --alias                Alias in keystore of SSL cert to use for https serving
     --storePassword        Password for SSL (https) keystore.
     --shutdownPort         Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)
+	--dailyLogFile         Redirect logging to a rolling, daily log file instead of stdout
     --tempFolder           Folder for server to extract built-in webapp
     
 **Example**
@@ -135,6 +136,6 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
 You can override Gitblit GO's default Log4j configuration with a command-line parameter to the JVM.
 
     java -Dlog4j.configuration=file:///home/james/log4j.properties -jar gitblit.jar <optional_gitblit_args>
-    
-For reference, here is [Gitblit's default Log4j configuration](https://github.com/gitblit/gitblit/blob/master/src/log4j.properties).  It includes some file appenders that are disabled by default. 
+
+You can not use override the default log4j configuration *AND* specify the `--dailyLogFile` parameter.  For reference, here is [Gitblit's default Log4j configuration](https://github.com/gitblit/gitblit/blob/master/src/log4j.properties).  It includes some file appenders that are disabled by default. 
 

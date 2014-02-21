@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -33,8 +34,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.ajp.Ajp13SocketConnector;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -179,6 +182,34 @@ public class GitBlitServer {
 				settings = new FileSettings(params.settingsfile);
 			}
 		}
+
+		if (params.dailyLogFile) {
+			// Configure log4j for daily log file generation
+			InputStream is = null;
+			try {
+				is = getClass().getResourceAsStream("/log4j.properties");
+				Properties loggingProperties = new Properties();
+				loggingProperties.load(is);
+
+				loggingProperties.put("log4j.appender.R.File", new File(baseFolder, "logs/gitblit.log").getAbsolutePath());
+				loggingProperties.put("log4j.rootCategory", "INFO, R");
+
+				if (settings.getBoolean(Keys.web.debugMode, false)) {
+					loggingProperties.put("log4j.logger.com.gitblit", "DEBUG");
+				}
+
+				PropertyConfigurator.configure(loggingProperties);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
 		logger.info("            _____  _  _    _      _  _  _");
@@ -613,6 +644,9 @@ public class GitBlitServer {
 
 		@Parameter(names = { "--tempFolder" }, description = "Folder for server to extract built-in webapp")
 		public String temp = FILESETTINGS.getString(Keys.server.tempFolder, "temp");
+
+		@Parameter(names = { "--dailyLogFile" }, description = "Log to a rolling daily log file INSTEAD of stdout.")
+		public Boolean dailyLogFile = false;
 
 		/*
 		 * GIT Servlet Parameters
