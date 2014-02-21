@@ -31,7 +31,7 @@
 #
 
 __author__ = 'James Moger'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 import subprocess
 import argparse
@@ -598,8 +598,12 @@ def __call(cmd_args, echo=False, fail=True, err=None):
 #
 
 # force argument
-force_args = argparse.ArgumentParser(add_help=False)
-force_args.add_argument('-f', '--force', default=False, help='force the command to complete', action='store_true')
+force_arg = argparse.ArgumentParser(add_help=False)
+force_arg.add_argument('-f', '--force', default=False, help='force the command to complete', action='store_true')
+
+# quiet argument
+quiet_arg = argparse.ArgumentParser(add_help=False)
+quiet_arg.add_argument('-q', '--quiet', default=False, help='suppress git stderr output', action='store_true')
 
 # ticket & patchset arguments
 ticket_args = argparse.ArgumentParser(add_help=False)
@@ -619,21 +623,17 @@ parser = argparse.ArgumentParser(description='a Patchset Tool for Gitblit Ticket
 parser.add_argument('--version', action='version', version='%(prog)s {}'.format(__version__))
 commands = parser.add_subparsers(dest='command', title='commands')
 
-fetch_parser = commands.add_parser('fetch', help='fetch a patchset', parents=[ticket_args])
-fetch_parser.add_argument('-q', '--quiet',
-                         help='suppress the fetch output on stderr',
-                         default=False,
-                         action='store_true')
+fetch_parser = commands.add_parser('fetch', help='fetch a patchset', parents=[ticket_args, quiet_arg])
 fetch_parser.set_defaults(func=fetch)
 
 checkout_parser = commands.add_parser('checkout', aliases=['co'],
                                       help='fetch & checkout a patchset to a branch',
-                                      parents=[ticket_args, force_args])
+                                      parents=[ticket_args, force_arg, quiet_arg])
 checkout_parser.set_defaults(func=checkout)
 
 pull_parser = commands.add_parser('pull', aliases=['merge'],
                                   help='fetch & merge a patchset into the current branch',
-                                  parents=[ticket_args, force_args])
+                                  parents=[ticket_args, force_arg])
 pull_parser.add_argument('-s', '--squash',
                          help='squash the pulled patchset into your working directory',
                          default=False,
@@ -642,7 +642,7 @@ pull_parser.set_defaults(func=pull)
 
 push_parser = commands.add_parser('push', aliases=['up'],
                                   help='upload your patchset changes',
-                                  parents=[push_args, force_args])
+                                  parents=[push_args, force_arg])
 push_parser.add_argument('id', help='the ticket id', nargs='?', type=int)
 push_parser.add_argument('-p', '--patchset', help='the patchset number', type=int)
 push_parser.set_defaults(func=push)
@@ -657,7 +657,7 @@ propose_parser.set_defaults(func=propose)
 
 cleanup_parser = commands.add_parser('cleanup', aliases=['rm'],
                                      help='remove local ticket branches',
-                                     parents=[force_args])
+                                     parents=[force_arg])
 cleanup_parser.add_argument('id', help='the ticket id', nargs='?', type=int)
 cleanup_parser.set_defaults(func=cleanup)
 
