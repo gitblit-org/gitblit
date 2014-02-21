@@ -30,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 
 import com.gitblit.Constants.AccountType;
 import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.auth.LdapAuthProvider;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.RuntimeManager;
@@ -90,7 +91,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		ldap = newLdapAuthentication(settings);
 	}
 
-	public LdapAuthProvider newLdapAuthentication(IStoredSettings settings) {
+	private LdapAuthProvider newLdapAuthentication(IStoredSettings settings) {
 		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
 		userManager = new UserManager(runtime).start();
 		LdapAuthProvider ldap = new LdapAuthProvider();
@@ -100,21 +101,21 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	private MemorySettings getSettings() {
 		Map<String, Object> backingMap = new HashMap<String, Object>();
-		backingMap.put("realm.userService", usersConf.getAbsolutePath());
-		backingMap.put("realm.ldap.server", "ldap://localhost:" + ldapPort);
-		backingMap.put("realm.ldap.domain", "");
-		backingMap.put("realm.ldap.username", "cn=Directory Manager");
-		backingMap.put("realm.ldap.password", "password");
-		backingMap.put("realm.ldap.backingUserService", "users.conf");
-		backingMap.put("realm.ldap.maintainTeams", "true");
-		backingMap.put("realm.ldap.accountBase", "OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain");
-		backingMap.put("realm.ldap.accountPattern", "(&(objectClass=person)(sAMAccountName=${username}))");
-		backingMap.put("realm.ldap.groupBase", "OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain");
-		backingMap.put("realm.ldap.groupPattern", "(&(objectClass=group)(member=${dn}))");
-		backingMap.put("realm.ldap.admins", "UserThree @Git_Admins \"@Git Admins\"");
-		backingMap.put("realm.ldap.displayName", "displayName");
-		backingMap.put("realm.ldap.email", "email");
-		backingMap.put("realm.ldap.uid", "sAMAccountName");
+		backingMap.put(Keys.realm.userService, usersConf.getAbsolutePath());
+		backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + ldapPort);
+//		backingMap.put(Keys.realm.ldap.domain, "");
+		backingMap.put(Keys.realm.ldap.username, "cn=Directory Manager");
+		backingMap.put(Keys.realm.ldap.password, "password");
+//		backingMap.put(Keys.realm.ldap.backingUserService, "users.conf");
+		backingMap.put(Keys.realm.ldap.maintainTeams, "true");
+		backingMap.put(Keys.realm.ldap.accountBase, "OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain");
+		backingMap.put(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+		backingMap.put(Keys.realm.ldap.groupBase, "OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain");
+		backingMap.put(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
+		backingMap.put(Keys.realm.ldap.admins, "UserThree @Git_Admins \"@Git Admins\"");
+		backingMap.put(Keys.realm.ldap.displayName, "displayName");
+		backingMap.put(Keys.realm.ldap.email, "email");
+		backingMap.put(Keys.realm.ldap.uid, "sAMAccountName");
 
 		MemorySettings ms = new MemorySettings(backingMap);
 		return ms;
@@ -194,7 +195,6 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	@Test
 	public void addingUserInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
-		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap users in gitblit user model", 5, countLdapUsersInUserManager());
@@ -202,8 +202,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	@Test
 	public void addingUserInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
-		settings.put("realm.ldap.synchronizeUsers.enable", "true");
-		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
+		settings.put(Keys.realm.ldap.synchronize, "true");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap users in gitblit user model", 6, countLdapUsersInUserManager());
@@ -211,7 +210,6 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	@Test
 	public void addingGroupsInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
-		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap groups in gitblit team model", 0, countLdapTeamsInUserManager());
@@ -219,8 +217,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	@Test
 	public void addingGroupsInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
-		settings.put("realm.ldap.synchronizeUsers.enable", "true");
-		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
+		settings.put(Keys.realm.ldap.synchronize, "true");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap groups in gitblit team model", 1, countLdapTeamsInUserManager());
