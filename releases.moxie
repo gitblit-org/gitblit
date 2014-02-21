@@ -62,6 +62,7 @@ r20: {
 	- Support Markdown image links relative to the repository root (issue-324)
 	- Added filesystem write permission check (issue-345)
 	- Added GO launch parameter for redirecting logging to a rolling, daily log file (issue-348)
+	- Added settings to Windows authentication provider to permit/prohibit BUILTIN\Administrators from being Gitblit Admins (issue-354)
 	- Support rendering confluence, mediawiki, textile, tracwiki, and twiki markup documents
 	- Added setting to globally disable anonymous pushes in the receive pack
 	- Added a normalized diffstat display to the commit, commitdiff, and compare pages
@@ -90,6 +91,7 @@ r20: {
 	- { name: 'realm.ldap.synchronize', defaultValue: 'false' }
 	- { name: 'realm.ldap.syncPeriod', defaultValue: '5 MINUTES' }
 	- { name: 'realm.ldap.removeDeletedUsers', defaultValue: 'true' }
+	- { name: 'realm.windows.permitBuiltInAdministrators', defaultValue: 'true' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
