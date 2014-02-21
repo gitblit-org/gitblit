@@ -449,6 +449,10 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
 		boolean gcEnabled = app().settings().getBoolean(Keys.git.enableGarbageCollection, false);
+		int defaultGcPeriod = app().settings().getInteger(Keys.git.defaultGarbageCollectionPeriod, 7);
+		if (repositoryModel.gcPeriod == 0) {
+			repositoryModel.gcPeriod = defaultGcPeriod;
+		}
 		List<Integer> gcPeriods = Arrays.asList(1, 2, 3, 4, 5, 7, 10, 14 );
 		form.add(new DropDownChoice<Integer>("gcPeriod", gcPeriods, new GCPeriodRenderer()).setEnabled(gcEnabled));
 		form.add(new TextField<String>("gcThreshold").setEnabled(gcEnabled));
