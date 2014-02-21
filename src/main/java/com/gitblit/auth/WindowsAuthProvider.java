@@ -158,9 +158,11 @@ public class WindowsAuthProvider extends UsernamePasswordAuthenticationProvider 
        		groupNames.add(group.getFqn());
         }
 
-        if (groupNames.contains("BUILTIN\\Administrators")) {
-        	// local administrator
-        	user.canAdmin = true;
+       	if (settings.getBoolean(Keys.realm.windows.permitBuiltInAdministrators, true)) {
+       		if (groupNames.contains("BUILTIN\\Administrators")) {
+       			// local administrator
+       			user.canAdmin = true;
+       		}
         }
 
         // TODO consider mapping Windows groups to teams
