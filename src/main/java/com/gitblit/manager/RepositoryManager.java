@@ -449,6 +449,7 @@ public class RepositoryManager implements IRepositoryManager {
 	private void clearRepositoryMetadataCache(String repositoryName) {
 		repositorySizeCache.remove(repositoryName);
 		repositoryMetricsCache.remove(repositoryName);
+		CommitCache.instance().clear(repositoryName);
 	}
 
 	/**
@@ -461,6 +462,7 @@ public class RepositoryManager implements IRepositoryManager {
 		repositoryListCache.clear();
 		repositorySizeCache.clear();
 		repositoryMetricsCache.clear();
+		CommitCache.instance().clear();
 	}
 
 	/**
