@@ -247,6 +247,5 @@ public class ServicesManager implements IManager {
 					"Next pull of {0} @ {1} scheduled for {2,date,yyyy-MM-dd HH:mm}",
 					registration.name, registration.url, registration.nextPull));
 		}
-
 	}
 }

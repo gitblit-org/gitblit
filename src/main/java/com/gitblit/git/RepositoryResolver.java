@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshSession;
 
 /**
  * Resolves repositories and grants export access.
@@ -67,6 +68,9 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 			// git request
 			GitDaemonClient client = (GitDaemonClient) req;
 			client.setRepositoryName(name);
+		} else if (req instanceof SshSession) {
+			SshSession s = (SshSession)req;
+			s.setRepositoryName(name);
 		}
 		return repo;
 	}
@@ -97,6 +101,12 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 			user = gitblit.authenticate(httpRequest);
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
+			}
+		} else if (req instanceof SshSession) {
+			SshSession s = (SshSession) req;
+			user = gitblit.authenticate(s);
+			if (user == null) {
+				throw new IOException(String.format("User %s not found",  s.getRemoteUser()));
 			}
 		}
 
