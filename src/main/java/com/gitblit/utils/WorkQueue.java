@@ -14,11 +14,6 @@
 
 package com.gitblit.utils;
 
-import com.google.common.collect.Lists;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +33,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /** Delayed execution of tasks using a background thread pool. */
 public class WorkQueue {
@@ -55,7 +53,6 @@ public class WorkQueue {
   private final IdGenerator idGenerator;
   private final CopyOnWriteArrayList<Executor> queues;
 
-  @Inject
   public WorkQueue(final IdGenerator idGenerator) {
     this.idGenerator = idGenerator;
     this.queues = new CopyOnWriteArrayList<Executor>();
@@ -268,7 +265,8 @@ public class WorkQueue {
       return startTime;
     }
 
-    public boolean cancel(boolean mayInterruptIfRunning) {
+    @Override
+	public boolean cancel(boolean mayInterruptIfRunning) {
       if (task.cancel(mayInterruptIfRunning)) {
         // Tiny abuse of running: if the task needs to know it was
         // canceled (to clean up resources) and it hasn't started
@@ -289,36 +287,44 @@ public class WorkQueue {
       }
     }
 
-    public int compareTo(Delayed o) {
+    @Override
+	public int compareTo(Delayed o) {
       return task.compareTo(o);
     }
 
-    public V get() throws InterruptedException, ExecutionException {
+    @Override
+	public V get() throws InterruptedException, ExecutionException {
       return task.get();
     }
 
-    public V get(long timeout, TimeUnit unit) throws InterruptedException,
+    @Override
+	public V get(long timeout, TimeUnit unit) throws InterruptedException,
         ExecutionException, TimeoutException {
       return task.get(timeout, unit);
     }
 
-    public long getDelay(TimeUnit unit) {
+    @Override
+	public long getDelay(TimeUnit unit) {
       return task.getDelay(unit);
     }
 
-    public boolean isCancelled() {
+    @Override
+	public boolean isCancelled() {
       return task.isCancelled();
     }
 
-    public boolean isDone() {
+    @Override
+	public boolean isDone() {
       return task.isDone();
     }
 
-    public boolean isPeriodic() {
+    @Override
+	public boolean isPeriodic() {
       return task.isPeriodic();
     }
 
-    public void run() {
+    @Override
+	public void run() {
       if (running.compareAndSet(false, true)) {
         try {
           task.run();
