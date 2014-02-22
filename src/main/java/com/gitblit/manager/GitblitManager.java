@@ -61,6 +61,7 @@ import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
@@ -623,6 +624,10 @@ public class GitblitManager implements IGitblit {
 			user = federationManager.authenticate(httpRequest);
 		}
 		return user;
+	}
+	@Override
+	public UserModel authenticate(SshSession sshSession) {
+		return authenticationManager.authenticate(sshSession);
 	}
 	@Override
 	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {

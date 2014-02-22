@@ -31,6 +31,7 @@ import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -88,6 +89,13 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 			// set timeout from Git daemon
 			timeout = client.getDaemon().getTimeout();
+		} else if (req instanceof SshSession) {
+			// SSH request is always authenticated
+			SshSession s = (SshSession) req;
+			repositoryName = s.getRepositoryName();
+			origin = s.getRemoteAddress().toString();
+			String username = s.getRemoteUser();
+			user = gitblit.getUserModel(username);
 		}
 
 		boolean allowAnonymousPushes = settings.getBoolean(Keys.git.allowAnonymousPushes, false);
