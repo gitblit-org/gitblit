@@ -25,8 +25,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Inject;
-
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.CommandFactory;
 import org.apache.sshd.server.Environment;
@@ -66,14 +64,13 @@ public class SshCommandFactory implements CommandFactory {
   private ReceivePackFactory<SshSession> receivePackFactory;
   private final ScheduledExecutorService startExecutor;
 
-  private CommandDispatcher dispatcher;
+  private DispatchCommand dispatcher;
 
-    @Inject
 	public SshCommandFactory(RepositoryResolver<SshSession> repositoryResolver,
 	    UploadPackFactory<SshSession> uploadPackFactory,
 	    ReceivePackFactory<SshSession> receivePackFactory,
 	    WorkQueue workQueue,
-	    CommandDispatcher d) {
+	    DispatchCommand d) {
 		this.repositoryResolver = repositoryResolver;
 		this.uploadPackFactory = uploadPackFactory;
 		this.receivePackFactory = receivePackFactory;
@@ -116,26 +113,32 @@ public class SshCommandFactory implements CommandFactory {
 	    // TODO Auto-generated method stub
 	    }
 
-	    public void setInputStream(final InputStream in) {
+	    @Override
+		public void setInputStream(final InputStream in) {
 	      this.in = in;
 	    }
 
-	    public void setOutputStream(final OutputStream out) {
+	    @Override
+		public void setOutputStream(final OutputStream out) {
 	      this.out = out;
 	    }
 
-	    public void setErrorStream(final OutputStream err) {
+	    @Override
+		public void setErrorStream(final OutputStream err) {
 	      this.err = err;
 	    }
 
-	    public void setExitCallback(final ExitCallback callback) {
+	    @Override
+		public void setExitCallback(final ExitCallback callback) {
 	      this.exit = callback;
 	    }
 
-	    public void start(final Environment env) throws IOException {
+	    @Override
+		public void start(final Environment env) throws IOException {
 	      this.env = env;
 	      task.set(startExecutor.submit(new Runnable() {
-	        public void run() {
+	        @Override
+			public void run() {
 	          try {
 	            onStart();
 	          } catch (Exception e) {
@@ -155,7 +158,7 @@ public class SshCommandFactory implements CommandFactory {
 	      synchronized (this) {
 	        //final Context old = sshScope.set(ctx);
 	        try {
-	          cmd = dispatcher.get();
+	          cmd = dispatcher;
 	          cmd.setArguments(argv);
 	          cmd.setInputStream(in);
 	          cmd.setOutputStream(out);
