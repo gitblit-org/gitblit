@@ -18,34 +18,70 @@ package com.gitblit.transport.ssh;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.security.InvalidKeyException;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import javax.inject.Inject;
 
-import org.apache.sshd.server.Command;
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.sshd.SshServer;
+import org.apache.sshd.common.Channel;
+import org.apache.sshd.common.Cipher;
+import org.apache.sshd.common.Compression;
+import org.apache.sshd.common.KeyExchange;
+import org.apache.sshd.common.KeyPairProvider;
+import org.apache.sshd.common.Mac;
+import org.apache.sshd.common.NamedFactory;
+import org.apache.sshd.common.Session;
+import org.apache.sshd.common.Signature;
+import org.apache.sshd.common.cipher.AES128CBC;
+import org.apache.sshd.common.cipher.AES192CBC;
+import org.apache.sshd.common.cipher.AES256CBC;
+import org.apache.sshd.common.cipher.BlowfishCBC;
+import org.apache.sshd.common.cipher.TripleDESCBC;
+import org.apache.sshd.common.compression.CompressionNone;
+import org.apache.sshd.common.mac.HMACMD5;
+import org.apache.sshd.common.mac.HMACMD596;
+import org.apache.sshd.common.mac.HMACSHA1;
+import org.apache.sshd.common.mac.HMACSHA196;
+import org.apache.sshd.common.random.BouncyCastleRandom;
+import org.apache.sshd.common.random.SingletonRandomFactory;
+import org.apache.sshd.common.signature.SignatureDSA;
+import org.apache.sshd.common.signature.SignatureRSA;
+import org.apache.sshd.common.util.SecurityUtils;
+import org.apache.sshd.server.CommandFactory;
+import org.apache.sshd.server.FileSystemFactory;
+import org.apache.sshd.server.FileSystemView;
+import org.apache.sshd.server.ForwardingFilter;
+import org.apache.sshd.server.PublickeyAuthenticator;
+import org.apache.sshd.server.SshFile;
+import org.apache.sshd.server.UserAuth;
+import org.apache.sshd.server.auth.UserAuthPublicKey;
+import org.apache.sshd.server.channel.ChannelDirectTcpip;
+import org.apache.sshd.server.channel.ChannelSession;
+import org.apache.sshd.server.kex.DHG1;
+import org.apache.sshd.server.kex.DHG14;
 import org.apache.sshd.server.keyprovider.PEMGeneratorHostKeyProvider;
+import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.server.session.SessionFactory;
 import org.eclipse.jgit.internal.JGitText;
-import org.eclipse.jgit.transport.resolver.ReceivePackFactory;
-import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.git.GitblitReceivePackFactory;
-import com.gitblit.git.GitblitUploadPackFactory;
-import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
-import com.gitblit.transport.ssh.commands.CreateRepository;
-import com.gitblit.transport.ssh.commands.VersionCommand;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
-
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
 
 /**
  * Manager for the ssh transport. Roughly analogous to the
@@ -54,9 +90,9 @@ import dagger.Provides;
  * @author Eric Myhre
  *
  */
-public class SshDaemon {
+public class SshDaemon extends SshServer {
 
-	private final Logger logger = LoggerFactory.getLogger(SshDaemon.class);
+	private final Logger log = LoggerFactory.getLogger(SshDaemon.class);
 
 	/**
 	 * 22: IANA assigned port number for ssh. Note that this is a distinct concept
@@ -71,17 +107,16 @@ public class SshDaemon {
 
 	private AtomicBoolean run;
 
-	private SshCommandServer sshd;
-
-	private IGitblit gitblit;
+	@SuppressWarnings("unused")
+    private IGitblit gitblit;
 
 	/**
 	 * Construct the Gitblit SSH daemon.
 	 *
 	 * @param gitblit
 	 */
-	public SshDaemon(IGitblit gitblit) {
-
+	@Inject
+	SshDaemon(IGitblit gitblit, IdGenerator idGenerator, SshCommandFactory factory) {
 	    this.gitblit = gitblit;
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.sshPort, 0);
@@ -93,17 +128,40 @@ public class SshDaemon {
 			myAddress = new InetSocketAddress(bindInterface, port);
 		}
 
-		ObjectGraph graph = ObjectGraph.create(new SshModule());
-		sshd = graph.get(SshCommandServer.class);
-		sshd.setPort(myAddress.getPort());
-		sshd.setHost(myAddress.getHostName());
-		sshd.setup();
-		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(new File(gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
-		sshd.setPublickeyAuthenticator(new SshKeyAuthenticator(gitblit));
+		setPort(myAddress.getPort());
+		setHost(myAddress.getHostName());
+		setup();
+		setKeyPairProvider(new PEMGeneratorHostKeyProvider(
+		    new File(gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
+		setPublickeyAuthenticator(new SshKeyAuthenticator(gitblit));
 
 		run = new AtomicBoolean(false);
-        SshCommandFactory f = graph.get(SshCommandFactory.class);
-		sshd.setCommandFactory(f);
+		setCommandFactory(factory);
+		setSessionFactory(newSessionFactory(idGenerator));
+	}
+
+	SessionFactory newSessionFactory(final IdGenerator idGenerator) {
+	  return new SessionFactory() {
+        @Override
+        protected ServerSession createSession(final IoSession io) throws Exception {
+            log.info("connection accepted on " + io);
+            if (io.getConfig() instanceof SocketSessionConfig) {
+                final SocketSessionConfig c = (SocketSessionConfig) io.getConfig();
+                c.setKeepAlive(true);
+            }
+            ServerSession s = (ServerSession) super.createSession(io);
+            SocketAddress peer = io.getRemoteAddress();
+            SshSession session = new SshSession(idGenerator.next(), peer);
+            s.setAttribute(SshSession.KEY, session);
+            io.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
+                @Override
+                public void operationComplete(IoFuture future) {
+                    log.info("connection closed on " + io);
+                }
+            });
+            return s;
+          }
+        };
 	}
 
 	public int getPort() {
@@ -133,10 +191,10 @@ public class SshDaemon {
 			throw new IllegalStateException(JGitText.get().daemonAlreadyRunning);
 		}
 
-		sshd.start();
+		super.start();
 		run.set(true);
 
-		logger.info(MessageFormat.format("SSH Daemon is listening on {0}:{1,number,0}",
+		log.info(MessageFormat.format("SSH Daemon is listening on {0}:{1,number,0}",
 				myAddress.getAddress().getHostAddress(), myAddress.getPort()));
 	}
 
@@ -148,62 +206,126 @@ public class SshDaemon {
 	/** Stop this daemon. */
 	public synchronized void stop() {
 		if (run.get()) {
-			logger.info("SSH Daemon stopping...");
+			log.info("SSH Daemon stopping...");
 			run.set(false);
 
 			try {
-				sshd.stop();
+				super.stop();
 			} catch (InterruptedException e) {
-				logger.error("SSH Daemon stop interrupted", e);
+				log.error("SSH Daemon stop interrupted", e);
 			}
 		}
 	}
 
-	@Module(library = true,
-	    injects = {
-        IGitblit.class,
-        SshCommandFactory.class,
-        SshCommandServer.class,
-	    })
-	public class SshModule {
-	  @Provides @Named("create-repository") Command provideCreateRepository() {
-	    return new CreateRepository();
-	  }
+	   /**
+     * Performs most of default configuration (setup random sources, setup ciphers,
+     * etc; also, support for forwarding and filesystem is explicitly disallowed).
+     *
+     * {@link #setKeyPairProvider(KeyPairProvider)} and
+     * {@link #setPublickeyAuthenticator(PublickeyAuthenticator)} are left for you.
+     * And applying {@link #setCommandFactory(CommandFactory)} is probably wise if you
+     * want something to actually happen when users do successfully authenticate.
+     */
+    @SuppressWarnings("unchecked")
+    public void setup() {
+        if (!SecurityUtils.isBouncyCastleRegistered())
+            throw new RuntimeException("BC crypto not available");
 
-	  @Provides @Named("version") Command provideVersion() {
-        return new VersionCommand();
-      }
+        setKeyExchangeFactories(Arrays.<NamedFactory<KeyExchange>>asList(
+                new DHG14.Factory(),
+                new DHG1.Factory())
+        );
 
-//	   @Provides(type=Type.SET) @Named("git") Command provideVersionCommand2() {
-//	        return new CreateRepository();
-//	   }
+        setRandomFactory(new SingletonRandomFactory(new BouncyCastleRandom.Factory()));
 
-//	  @Provides @Named("git") DispatchCommand providesGitCommand() {
-//	    return new DispatchCommand("git");
-//	  }
+        setupCiphers();
 
-//	  @Provides (type=Type.SET) Provider<Command> provideNonCommand() {
-//	      return new SshCommandFactory.NonCommand();
-//	  }
+        setCompressionFactories(Arrays.<NamedFactory<Compression>>asList(
+                new CompressionNone.Factory())
+        );
 
-	  @Provides @Singleton IdGenerator provideIdGenerator() {
-	     return new IdGenerator();
-	  }
+        setMacFactories(Arrays.<NamedFactory<Mac>>asList(
+                new HMACMD5.Factory(),
+                new HMACSHA1.Factory(),
+                new HMACMD596.Factory(),
+                new HMACSHA196.Factory())
+        );
 
-	  @Provides @Singleton RepositoryResolver<SshSession> provideRepositoryResolver() {
-	    return new RepositoryResolver<SshSession>(provideGitblit());
-	  }
+        setChannelFactories(Arrays.<NamedFactory<Channel>>asList(
+                new ChannelSession.Factory(),
+                new ChannelDirectTcpip.Factory())
+        );
 
-      @Provides @Singleton UploadPackFactory<SshSession> provideUploadPackFactory() {
-        return new GitblitUploadPackFactory<SshSession>(provideGitblit());
-      }
+        setSignatureFactories(Arrays.<NamedFactory<Signature>>asList(
+                new SignatureDSA.Factory(),
+                new SignatureRSA.Factory())
+        );
 
-      @Provides @Singleton ReceivePackFactory<SshSession> provideReceivePackFactory() {
-        return new GitblitReceivePackFactory<SshSession>(provideGitblit());
-      }
+        setFileSystemFactory(new FileSystemFactory() {
+            @Override
+            public FileSystemView createFileSystemView(Session session) throws IOException {
+                return new FileSystemView() {
+                    @Override
+                    public SshFile getFile(SshFile baseDir, String file) {
+                        return null;
+                    }
 
-	  @Provides @Singleton IGitblit provideGitblit() {
-	      return SshDaemon.this.gitblit;
-	  }
-	}
+                    @Override
+                    public SshFile getFile(String file) {
+                        return null;
+                    }
+                };
+            }
+        });
+
+        setForwardingFilter(new ForwardingFilter() {
+            @Override
+            public boolean canForwardAgent(ServerSession session) {
+                return false;
+            }
+
+            @Override
+            public boolean canForwardX11(ServerSession session) {
+                return false;
+            }
+
+            @Override
+            public boolean canConnect(InetSocketAddress address, ServerSession session) {
+                return false;
+            }
+
+            @Override
+            public boolean canListen(InetSocketAddress address, ServerSession session) {
+                return false;
+            }
+        });
+
+        setUserAuthFactories(Arrays.<NamedFactory<UserAuth>>asList(
+                new UserAuthPublicKey.Factory())
+        );
+    }
+
+    protected void setupCiphers() {
+        List<NamedFactory<Cipher>> avail = new LinkedList<NamedFactory<Cipher>>();
+        avail.add(new AES128CBC.Factory());
+        avail.add(new TripleDESCBC.Factory());
+        avail.add(new BlowfishCBC.Factory());
+        avail.add(new AES192CBC.Factory());
+        avail.add(new AES256CBC.Factory());
+
+        for (Iterator<NamedFactory<Cipher>> i = avail.iterator(); i.hasNext();) {
+            final NamedFactory<Cipher> f = i.next();
+            try {
+                final Cipher c = f.create();
+                final byte[] key = new byte[c.getBlockSize()];
+                final byte[] iv = new byte[c.getIVSize()];
+                c.init(Cipher.Mode.Encrypt, key, iv);
+            } catch (InvalidKeyException e) {
+                i.remove();
+            } catch (Exception e) {
+                i.remove();
+            }
+        }
+        setCipherFactories(avail);
+    }
 }
