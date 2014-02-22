@@ -36,6 +36,7 @@ public class SshSession {
 
   private volatile String username;
   private volatile String authError;
+  private volatile String repositoryName;
 
   SshSession(int sessionId, SocketAddress peer) {
     this.sessionId = sessionId;
@@ -76,6 +77,14 @@ public class SshSession {
   void authenticationError(String user, String error) {
     username = user;
     authError = error;
+  }
+
+  public void setRepositoryName(String repositoryName) {
+	this.repositoryName = repositoryName;
+  }
+
+  public String getRepositoryName() {
+	return repositoryName;
   }
 
   /** @return {@code true} if the authentication did not succeed. */
