@@ -86,18 +86,19 @@ import com.gitblit.utils.StringUtils;
 /**
  * Manager for the ssh transport. Roughly analogous to the
  * {@link com.gitblit.git.GitDaemon} class.
- *
+ * 
  * @author Eric Myhre
- *
+ * 
  */
 public class SshDaemon extends SshServer {
 
 	private final Logger log = LoggerFactory.getLogger(SshDaemon.class);
 
 	/**
-	 * 22: IANA assigned port number for ssh. Note that this is a distinct concept
-	 * from gitblit's default conf for ssh port -- this "default" is what the git
-	 * protocol itself defaults to if it sees and ssh url without a port.
+	 * 22: IANA assigned port number for ssh. Note that this is a distinct
+	 * concept from gitblit's default conf for ssh port -- this "default" is
+	 * what the git protocol itself defaults to if it sees and ssh url without a
+	 * port.
 	 */
 	public static final int DEFAULT_PORT = 22;
 
@@ -108,19 +109,21 @@ public class SshDaemon extends SshServer {
 	private AtomicBoolean run;
 
 	@SuppressWarnings("unused")
-    private IGitblit gitblit;
+	private IGitblit gitblit;
 
 	/**
 	 * Construct the Gitblit SSH daemon.
-	 *
+	 * 
 	 * @param gitblit
 	 */
 	@Inject
-	SshDaemon(IGitblit gitblit, IdGenerator idGenerator, SshCommandFactory factory) {
-	    this.gitblit = gitblit;
+	SshDaemon(IGitblit gitblit, IdGenerator idGenerator,
+			SshCommandFactory factory) {
+		this.gitblit = gitblit;
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.sshPort, 0);
-		String bindInterface = settings.getString(Keys.git.sshBindInterface, "localhost");
+		String bindInterface = settings.getString(Keys.git.sshBindInterface,
+				"localhost");
 
 		if (StringUtils.isEmpty(bindInterface)) {
 			myAddress = new InetSocketAddress(port);
@@ -131,8 +134,8 @@ public class SshDaemon extends SshServer {
 		setPort(myAddress.getPort());
 		setHost(myAddress.getHostName());
 		setup();
-		setKeyPairProvider(new PEMGeneratorHostKeyProvider(
-		    new File(gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
+		setKeyPairProvider(new PEMGeneratorHostKeyProvider(new File(
+				gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
 		setPublickeyAuthenticator(new SshKeyAuthenticator(gitblit));
 
 		run = new AtomicBoolean(false);
@@ -141,27 +144,30 @@ public class SshDaemon extends SshServer {
 	}
 
 	SessionFactory newSessionFactory(final IdGenerator idGenerator) {
-	  return new SessionFactory() {
-        @Override
-        protected ServerSession createSession(final IoSession io) throws Exception {
-            log.info("connection accepted on " + io);
-            if (io.getConfig() instanceof SocketSessionConfig) {
-                final SocketSessionConfig c = (SocketSessionConfig) io.getConfig();
-                c.setKeepAlive(true);
-            }
-            ServerSession s = (ServerSession) super.createSession(io);
-            SocketAddress peer = io.getRemoteAddress();
-            SshSession session = new SshSession(idGenerator.next(), peer);
-            s.setAttribute(SshSession.KEY, session);
-            io.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
-                @Override
-                public void operationComplete(IoFuture future) {
-                    log.info("connection closed on " + io);
-                }
-            });
-            return s;
-          }
-        };
+		return new SessionFactory() {
+			@Override
+			protected ServerSession createSession(final IoSession io)
+					throws Exception {
+				log.info("connection accepted on " + io);
+				if (io.getConfig() instanceof SocketSessionConfig) {
+					final SocketSessionConfig c = (SocketSessionConfig) io
+							.getConfig();
+					c.setKeepAlive(true);
+				}
+				ServerSession s = (ServerSession) super.createSession(io);
+				SocketAddress peer = io.getRemoteAddress();
+				SshSession session = new SshSession(idGenerator.next(), peer);
+				s.setAttribute(SshSession.KEY, session);
+				io.getCloseFuture().addListener(
+						new IoFutureListener<IoFuture>() {
+							@Override
+							public void operationComplete(IoFuture future) {
+								log.info("connection closed on " + io);
+							}
+						});
+				return s;
+			}
+		};
 	}
 
 	public int getPort() {
@@ -171,16 +177,18 @@ public class SshDaemon extends SshServer {
 	public String formatUrl(String gituser, String servername, String repository) {
 		if (getPort() == DEFAULT_PORT) {
 			// standard port
-			return MessageFormat.format("{0}@{1}/{2}", gituser, servername, repository);
+			return MessageFormat.format("{0}@{1}/{2}", gituser, servername,
+					repository);
 		} else {
 			// non-standard port
-			return MessageFormat.format("ssh://{0}@{1}:{2,number,0}/{3}", gituser, servername, getPort(), repository);
+			return MessageFormat.format("ssh://{0}@{1}:{2,number,0}/{3}",
+					gituser, servername, getPort(), repository);
 		}
 	}
 
 	/**
 	 * Start this daemon on a background thread.
-	 *
+	 * 
 	 * @throws IOException
 	 *             the server socket could not be opened.
 	 * @throws IllegalStateException
@@ -194,8 +202,9 @@ public class SshDaemon extends SshServer {
 		super.start();
 		run.set(true);
 
-		log.info(MessageFormat.format("SSH Daemon is listening on {0}:{1,number,0}",
-				myAddress.getAddress().getHostAddress(), myAddress.getPort()));
+		log.info(MessageFormat.format(
+				"SSH Daemon is listening on {0}:{1,number,0}", myAddress
+						.getAddress().getHostAddress(), myAddress.getPort()));
 	}
 
 	/** @return true if this daemon is receiving connections. */
@@ -217,115 +226,110 @@ public class SshDaemon extends SshServer {
 		}
 	}
 
-	   /**
-     * Performs most of default configuration (setup random sources, setup ciphers,
-     * etc; also, support for forwarding and filesystem is explicitly disallowed).
-     *
-     * {@link #setKeyPairProvider(KeyPairProvider)} and
-     * {@link #setPublickeyAuthenticator(PublickeyAuthenticator)} are left for you.
-     * And applying {@link #setCommandFactory(CommandFactory)} is probably wise if you
-     * want something to actually happen when users do successfully authenticate.
-     */
-    @SuppressWarnings("unchecked")
-    public void setup() {
-        if (!SecurityUtils.isBouncyCastleRegistered())
-            throw new RuntimeException("BC crypto not available");
+	/**
+	 * Performs most of default configuration (setup random sources, setup
+	 * ciphers, etc; also, support for forwarding and filesystem is explicitly
+	 * disallowed).
+	 * 
+	 * {@link #setKeyPairProvider(KeyPairProvider)} and
+	 * {@link #setPublickeyAuthenticator(PublickeyAuthenticator)} are left for
+	 * you. And applying {@link #setCommandFactory(CommandFactory)} is probably
+	 * wise if you want something to actually happen when users do successfully
+	 * authenticate.
+	 */
+	@SuppressWarnings("unchecked")
+	public void setup() {
+		if (!SecurityUtils.isBouncyCastleRegistered())
+			throw new RuntimeException("BC crypto not available");
 
-        setKeyExchangeFactories(Arrays.<NamedFactory<KeyExchange>>asList(
-                new DHG14.Factory(),
-                new DHG1.Factory())
-        );
+		setKeyExchangeFactories(Arrays.<NamedFactory<KeyExchange>> asList(
+				new DHG14.Factory(), new DHG1.Factory()));
 
-        setRandomFactory(new SingletonRandomFactory(new BouncyCastleRandom.Factory()));
+		setRandomFactory(new SingletonRandomFactory(
+				new BouncyCastleRandom.Factory()));
 
-        setupCiphers();
+		setupCiphers();
 
-        setCompressionFactories(Arrays.<NamedFactory<Compression>>asList(
-                new CompressionNone.Factory())
-        );
+		setCompressionFactories(Arrays
+				.<NamedFactory<Compression>> asList(new CompressionNone.Factory()));
 
-        setMacFactories(Arrays.<NamedFactory<Mac>>asList(
-                new HMACMD5.Factory(),
-                new HMACSHA1.Factory(),
-                new HMACMD596.Factory(),
-                new HMACSHA196.Factory())
-        );
+		setMacFactories(Arrays.<NamedFactory<Mac>> asList(
+				new HMACMD5.Factory(), new HMACSHA1.Factory(),
+				new HMACMD596.Factory(), new HMACSHA196.Factory()));
 
-        setChannelFactories(Arrays.<NamedFactory<Channel>>asList(
-                new ChannelSession.Factory(),
-                new ChannelDirectTcpip.Factory())
-        );
+		setChannelFactories(Arrays.<NamedFactory<Channel>> asList(
+				new ChannelSession.Factory(), new ChannelDirectTcpip.Factory()));
 
-        setSignatureFactories(Arrays.<NamedFactory<Signature>>asList(
-                new SignatureDSA.Factory(),
-                new SignatureRSA.Factory())
-        );
+		setSignatureFactories(Arrays.<NamedFactory<Signature>> asList(
+				new SignatureDSA.Factory(), new SignatureRSA.Factory()));
 
-        setFileSystemFactory(new FileSystemFactory() {
-            @Override
-            public FileSystemView createFileSystemView(Session session) throws IOException {
-                return new FileSystemView() {
-                    @Override
-                    public SshFile getFile(SshFile baseDir, String file) {
-                        return null;
-                    }
+		setFileSystemFactory(new FileSystemFactory() {
+			@Override
+			public FileSystemView createFileSystemView(Session session)
+					throws IOException {
+				return new FileSystemView() {
+					@Override
+					public SshFile getFile(SshFile baseDir, String file) {
+						return null;
+					}
 
-                    @Override
-                    public SshFile getFile(String file) {
-                        return null;
-                    }
-                };
-            }
-        });
+					@Override
+					public SshFile getFile(String file) {
+						return null;
+					}
+				};
+			}
+		});
 
-        setForwardingFilter(new ForwardingFilter() {
-            @Override
-            public boolean canForwardAgent(ServerSession session) {
-                return false;
-            }
+		setForwardingFilter(new ForwardingFilter() {
+			@Override
+			public boolean canForwardAgent(ServerSession session) {
+				return false;
+			}
 
-            @Override
-            public boolean canForwardX11(ServerSession session) {
-                return false;
-            }
+			@Override
+			public boolean canForwardX11(ServerSession session) {
+				return false;
+			}
 
-            @Override
-            public boolean canConnect(InetSocketAddress address, ServerSession session) {
-                return false;
-            }
+			@Override
+			public boolean canConnect(InetSocketAddress address,
+					ServerSession session) {
+				return false;
+			}
 
-            @Override
-            public boolean canListen(InetSocketAddress address, ServerSession session) {
-                return false;
-            }
-        });
+			@Override
+			public boolean canListen(InetSocketAddress address,
+					ServerSession session) {
+				return false;
+			}
+		});
 
-        setUserAuthFactories(Arrays.<NamedFactory<UserAuth>>asList(
-                new UserAuthPublicKey.Factory())
-        );
-    }
+		setUserAuthFactories(Arrays
+				.<NamedFactory<UserAuth>> asList(new UserAuthPublicKey.Factory()));
+	}
 
-    protected void setupCiphers() {
-        List<NamedFactory<Cipher>> avail = new LinkedList<NamedFactory<Cipher>>();
-        avail.add(new AES128CBC.Factory());
-        avail.add(new TripleDESCBC.Factory());
-        avail.add(new BlowfishCBC.Factory());
-        avail.add(new AES192CBC.Factory());
-        avail.add(new AES256CBC.Factory());
+	protected void setupCiphers() {
+		List<NamedFactory<Cipher>> avail = new LinkedList<NamedFactory<Cipher>>();
+		avail.add(new AES128CBC.Factory());
+		avail.add(new TripleDESCBC.Factory());
+		avail.add(new BlowfishCBC.Factory());
+		avail.add(new AES192CBC.Factory());
+		avail.add(new AES256CBC.Factory());
 
-        for (Iterator<NamedFactory<Cipher>> i = avail.iterator(); i.hasNext();) {
-            final NamedFactory<Cipher> f = i.next();
-            try {
-                final Cipher c = f.create();
-                final byte[] key = new byte[c.getBlockSize()];
-                final byte[] iv = new byte[c.getIVSize()];
-                c.init(Cipher.Mode.Encrypt, key, iv);
-            } catch (InvalidKeyException e) {
-                i.remove();
-            } catch (Exception e) {
-                i.remove();
-            }
-        }
-        setCipherFactories(avail);
-    }
+		for (Iterator<NamedFactory<Cipher>> i = avail.iterator(); i.hasNext();) {
+			final NamedFactory<Cipher> f = i.next();
+			try {
+				final Cipher c = f.create();
+				final byte[] key = new byte[c.getBlockSize()];
+				final byte[] iv = new byte[c.getIVSize()];
+				c.init(Cipher.Mode.Encrypt, key, iv);
+			} catch (InvalidKeyException e) {
+				i.remove();
+			} catch (Exception e) {
+				i.remove();
+			}
+		}
+		setCipherFactories(avail);
+	}
 }
