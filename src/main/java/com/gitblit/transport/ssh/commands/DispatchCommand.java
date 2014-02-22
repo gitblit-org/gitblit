@@ -16,12 +16,12 @@ package com.gitblit.transport.ssh.commands;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.inject.Provider;
 
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.Environment;
@@ -42,28 +42,26 @@ public class DispatchCommand extends BaseCommand {
   @Argument(index = 1, multiValued = true, metaVar = "ARG")
   private List<String> args = new ArrayList<String>();
 
-  private Set<Provider<Command>> commands;
-  private Map<String, Provider<Command>> map;
+  private Set<Class<? extends Command>> commands;
+  private Map<String, Class<? extends Command>> map;
 
-  public DispatchCommand() {}
-
-  public DispatchCommand(Map<String, Provider<Command>> map) {
-    this.map = map;
+  public DispatchCommand() {
+	  commands = new HashSet<Class<? extends Command>>();
   }
 
-  public void setMap(Map<String, Provider<Command>> m) {
-    map = m;
+  public void registerCommand(Class<? extends Command> cmd) {
+	  if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
+		  throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!",
+				  cmd.getName(), CommandMetaData.class.getName()));
+	  }
+	  commands.add(cmd);
   }
 
-  public DispatchCommand(Set<Provider<Command>> commands) {
-    this.commands = commands;
-  }
-
-  private Map<String, Provider<Command>> getMap() {
+  private Map<String, Class<? extends Command>> getMap() {
     if (map == null) {
       map = Maps.newHashMapWithExpectedSize(commands.size());
-      for (Provider<Command> cmd : commands) {
-        CommandMetaData meta = cmd.get().getClass().getAnnotation(CommandMetaData.class);
+      for (Class<? extends Command> cmd : commands) {
+        CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
         map.put(meta.name(), cmd);
       }
     }
@@ -80,15 +78,20 @@ public class DispatchCommand extends BaseCommand {
         throw new UnloggedFailure(1, msg.toString());
       }
 
-      final Provider<Command> p = getMap().get(commandName);
-      if (p == null) {
+      final Class<? extends Command> c = getMap().get(commandName);
+      if (c == null) {
         String msg =
             (getName().isEmpty() ? "Gitblit" : getName()) + ": "
                 + commandName + ": not found";
         throw new UnloggedFailure(1, msg);
       }
 
-      final Command cmd = p.get();
+      Command cmd = null;
+      try {
+    	  cmd = c.newInstance();
+      } catch (Exception e) {
+    	  throw new UnloggedFailure(1, MessageFormat.format("Failed to instantiate {0} command", commandName));
+      }
       if (cmd instanceof BaseCommand) {
         BaseCommand bc = (BaseCommand) cmd;
         if (getName().isEmpty()) {
@@ -116,7 +119,8 @@ public class DispatchCommand extends BaseCommand {
     }
   }
 
-  protected String usage() {
+  @Override
+protected String usage() {
     final StringBuilder usage = new StringBuilder();
     usage.append("Available commands");
     if (!getName().isEmpty()) {
@@ -127,15 +131,15 @@ public class DispatchCommand extends BaseCommand {
     usage.append("\n");
 
     int maxLength = -1;
-    Map<String, Provider<Command>> m = getMap();
+    Map<String, Class<? extends Command>> m = getMap();
     for (String name : m.keySet()) {
       maxLength = Math.max(maxLength, name.length());
     }
     String format = "%-" + maxLength + "s   %s";
     for (String name : Sets.newTreeSet(m.keySet())) {
-      final Provider<Command> p = m.get(name);
+      final Class<? extends Command> c = m.get(name);
       usage.append("   ");
-      CommandMetaData meta = p.get().getClass().getAnnotation(CommandMetaData.class);
+      CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
       if (meta != null) {
         usage.append(String.format(format, name,
             Strings.nullToEmpty(meta.description())));
