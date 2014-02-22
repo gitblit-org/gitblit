@@ -47,6 +47,7 @@ import com.gitblit.auth.SalesforceAuthProvider;
 import com.gitblit.auth.WindowsAuthProvider;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
@@ -288,6 +289,34 @@ public class AuthenticationManager implements IAuthenticationManager {
 		}
 		return null;
 	}
+
+	/**
+	 * Authenticate a user based on SSH session.
+	 *
+	 * @param SshSession
+	 * @return a user object or null
+	 */
+	@Override
+	public UserModel authenticate(SshSession sshSession) {
+		String username = sshSession.getRemoteUser();
+		if (username != null) {
+			if (!StringUtils.isEmpty(username)) {
+				UserModel user = userManager.getUserModel(username);
+				if (user != null) {
+					// existing user
+					logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
+							user.username, sshSession.getRemoteAddress()));
+					return validateAuthentication(user, AuthenticationType.SSH);
+				}
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted ssh authentication from {1}",
+							username, sshSession.getRemoteAddress()));
+			}
+		} else {
+			logger.warn("Empty user in SSH session");
+		}
+		return null;
+	}
+
 
 	/**
 	 * This method allows the authentication manager to reject authentication

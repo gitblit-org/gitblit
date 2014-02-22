@@ -31,20 +31,9 @@ import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.PacketLineOut;
-import org.eclipse.jgit.transport.ReceivePack;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
-import org.eclipse.jgit.transport.UploadPack;
-import org.eclipse.jgit.transport.resolver.ReceivePackFactory;
-import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
-import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.git.RepositoryResolver;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.utils.WorkQueue;
 import com.google.common.util.concurrent.Atomics;
@@ -57,23 +46,13 @@ import com.google.common.util.concurrent.Atomics;
 public class SshCommandFactory implements CommandFactory {
   private static final Logger logger = LoggerFactory
       .getLogger(SshCommandFactory.class);
-  private RepositoryResolver<SshSession> repositoryResolver;
-
-  private UploadPackFactory<SshSession> uploadPackFactory;
-
-  private ReceivePackFactory<SshSession> receivePackFactory;
   private final ScheduledExecutorService startExecutor;
 
   private DispatchCommand dispatcher;
 
-	public SshCommandFactory(RepositoryResolver<SshSession> repositoryResolver,
-	    UploadPackFactory<SshSession> uploadPackFactory,
-	    ReceivePackFactory<SshSession> receivePackFactory,
+	public SshCommandFactory(
 	    WorkQueue workQueue,
 	    DispatchCommand d) {
-		this.repositoryResolver = repositoryResolver;
-		this.uploadPackFactory = uploadPackFactory;
-		this.receivePackFactory = receivePackFactory;
 		this.dispatcher = d;
 		int threads = 2;//cfg.getInt("sshd","commandStartThreads", 2);
 	    startExecutor = workQueue.createQueue(threads, "SshCommandStart");
@@ -82,35 +61,34 @@ public class SshCommandFactory implements CommandFactory {
 	@Override
 	public Command createCommand(final String commandLine) {
 	  return new Trampoline(commandLine);
-        /*
-		if ("git-upload-pack".equals(command))
-			return new UploadPackCommand(argument);
-		if ("git-receive-pack".equals(command))
-			return new ReceivePackCommand(argument);
-		return new NonCommand();
-		*/
 	}
 
 	  private class Trampoline implements Command, SessionAware {
 	    private final String[] argv;
+	    private ServerSession session;
 	    private InputStream in;
 	    private OutputStream out;
 	    private OutputStream err;
 	    private ExitCallback exit;
 	    private Environment env;
+	    private String cmdLine;
 	    private DispatchCommand cmd;
 	    private final AtomicBoolean logged;
 	    private final AtomicReference<Future<?>> task;
 
-	    Trampoline(final String cmdLine) {
-	      argv = split(cmdLine);
+	    Trampoline(String line) {
+	      if (line.startsWith("git-")) {
+            line = "git " + line;
+	      }
+	      cmdLine = line;
+	      argv = split(line);
 	      logged = new AtomicBoolean();
 	      task = Atomics.newReference();
 	    }
 
 	    @Override
 	    public void setSession(ServerSession session) {
-	    // TODO Auto-generated method stub
+	      this.session = session;
 	    }
 
 	    @Override
@@ -148,18 +126,18 @@ public class SshCommandFactory implements CommandFactory {
 
 	        @Override
 	        public String toString() {
-	          //return "start (user " + ctx.getSession().getUsername() + ")";
-	          return "start (user TODO)";
+	          return "start (user " + session.getUsername() + ")";
 	        }
 	      }));
 	    }
 
 	    private void onStart() throws IOException {
 	      synchronized (this) {
-	        //final Context old = sshScope.set(ctx);
+		    SshContext ctx = new SshContext(session.getAttribute(SshSession.KEY), cmdLine);
 	        try {
 	          cmd = dispatcher;
 	          cmd.setArguments(argv);
+	          cmd.setContext(ctx);
 	          cmd.setInputStream(in);
 	          cmd.setOutputStream(out);
 	          cmd.setErrorStream(err);
@@ -178,7 +156,7 @@ public class SshCommandFactory implements CommandFactory {
 	          });
 	          cmd.start(env);
 	        } finally {
-	          //sshScope.set(old);
+		      ctx = null;
 	        }
 	      }
 	    }
@@ -286,101 +264,4 @@ public class SshCommandFactory implements CommandFactory {
 	    }
 	    return list.toArray(new String[list.size()]);
 	  }
-
-	public abstract class RepositoryCommand extends AbstractSshCommand {
-		protected final String repositoryName;
-
-		public RepositoryCommand(String repositoryName) {
-			this.repositoryName = repositoryName;
-		}
-
-		@Override
-		public void start(Environment env) throws IOException {
-			Repository db = null;
-			try {
-				SshSession client = session.getAttribute(SshSession.KEY);
-				db = selectRepository(client, repositoryName);
-				if (db == null) return;
-				run(client, db);
-				exit.onExit(0);
-			} catch (ServiceNotEnabledException e) {
-				// Ignored. Client cannot use this repository.
-			} catch (ServiceNotAuthorizedException e) {
-				// Ignored. Client cannot use this repository.
-			} finally {
-				if (db != null)
-					db.close();
-				exit.onExit(1);
-			}
-		}
-
-		protected Repository selectRepository(SshSession client, String name) throws IOException {
-			try {
-				return openRepository(client, name);
-			} catch (ServiceMayNotContinueException e) {
-				// An error when opening the repo means the client is expecting a ref
-				// advertisement, so use that style of error.
-				PacketLineOut pktOut = new PacketLineOut(out);
-				pktOut.writeString("ERR " + e.getMessage() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-				return null;
-			}
-		}
-
-		protected Repository openRepository(SshSession client, String name)
-				throws ServiceMayNotContinueException {
-			// Assume any attempt to use \ was by a Windows client
-			// and correct to the more typical / used in Git URIs.
-			//
-			name = name.replace('\\', '/');
-
-			// ssh://git@thishost/path should always be name="/path" here
-			//
-			if (!name.startsWith("/")) //$NON-NLS-1$
-				return null;
-
-			try {
-				return repositoryResolver.open(client, name.substring(1));
-			} catch (RepositoryNotFoundException e) {
-				// null signals it "wasn't found", which is all that is suitable
-				// for the remote client to know.
-				return null;
-			} catch (ServiceNotEnabledException e) {
-				// null signals it "wasn't found", which is all that is suitable
-				// for the remote client to know.
-				return null;
-			}
-		}
-
-		protected abstract void run(SshSession client, Repository db)
-			throws IOException, ServiceNotEnabledException, ServiceNotAuthorizedException;
-	}
-
-	public class UploadPackCommand extends RepositoryCommand {
-		public UploadPackCommand(String repositoryName) { super(repositoryName); }
-
-		@Override
-		protected void run(SshSession client, Repository db)
-				throws IOException, ServiceNotEnabledException, ServiceNotAuthorizedException {
-			UploadPack up = uploadPackFactory.create(client, db);
-			up.upload(in, out, null);
-		}
-	}
-
-	public class ReceivePackCommand extends RepositoryCommand {
-		public ReceivePackCommand(String repositoryName) { super(repositoryName); }
-
-		@Override
-		protected void run(SshSession client, Repository db)
-				throws IOException, ServiceNotEnabledException, ServiceNotAuthorizedException {
-			ReceivePack rp = receivePackFactory.create(client, db);
-			rp.receive(in, out, null);
-		}
-	}
-
-	public static class NonCommand extends AbstractSshCommand {
-		@Override
-		public void start(Environment env) {
-			exit.onExit(127);
-		}
-	}
 }
