@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.gitblit.transport.ssh;
 
-package com.gitblit.transport.ssh.commands;
+public class SshContext {
 
-import org.kohsuke.args4j.Option;
+	private final SshSession session;
+	private final String commandLine;
 
-import com.gitblit.Constants;
-import com.gitblit.transport.ssh.CommandMetaData;
+	public SshContext(SshSession session, String commandLine) {
+		this.session = session;
+		this.commandLine = commandLine;
+	}
 
-@CommandMetaData(name="version", description = "Print Gitblit version")
-public class VersionCommand extends SshCommand {
+	public SshSession getSession() {
+		return session;
+	}
 
-  @Option(name = "--verbose", aliases = {"-v"},  metaVar = "VERBOSE", usage = "Print verbose versions")
-  private boolean verbose;
-
-  @Override
-  public void run() {
-	  stdout.println(String.format("Version: %s", Constants.getGitBlitVersion(),
-        verbose));
-  }
+	public String getCommandLine() {
+		return commandLine;
+	}
 }

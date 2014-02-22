@@ -35,6 +35,8 @@ import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.commands.CreateRepository;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
+import com.gitblit.transport.ssh.commands.Receive;
+import com.gitblit.transport.ssh.commands.Upload;
 import com.gitblit.transport.ssh.commands.VersionCommand;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
@@ -65,9 +67,6 @@ public class SshDaemon {
 
 	@SuppressWarnings("unused")
 	private final IGitblit gitblit;
-
-	private final IdGenerator idGenerator;
-
 	private final SshServer sshd;
 
 	/**
@@ -77,7 +76,6 @@ public class SshDaemon {
 	 */
 	public SshDaemon(IGitblit gitblit, IdGenerator idGenerator) {
 		this.gitblit = gitblit;
-		this.idGenerator = idGenerator;
 
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.sshPort, 0);
@@ -106,15 +104,21 @@ public class SshDaemon {
 		gitblitCmd.registerCommand(CreateRepository.class);
 		gitblitCmd.registerCommand(VersionCommand.class);
 
-		DispatchCommand dispatcher = new DispatchCommand();
-		dispatcher.registerDispatcher("gitblit", gitblitCmd);
+		DispatchCommand gitCmd = new DispatchCommand();
+		gitCmd.registerCommand(Upload.class);
+		gitCmd.registerCommand(Receive.class);
+
+		DispatchCommand root = new DispatchCommand();
+		root.registerDispatcher("gitblit", gitblitCmd);
+		root.registerDispatcher("git", gitCmd);
+
+		root.setRepositoryResolver(new RepositoryResolver<SshSession>(gitblit));
+		root.setUploadPackFactory(new GitblitUploadPackFactory<SshSession>(gitblit));
+		root.setReceivePackFactory(new GitblitReceivePackFactory<SshSession>(gitblit));
 
 		SshCommandFactory commandFactory = new SshCommandFactory(
-				new RepositoryResolver<SshSession>(gitblit),
-				new GitblitUploadPackFactory<SshSession>(gitblit),
-				new GitblitReceivePackFactory<SshSession>(gitblit),
 				new WorkQueue(idGenerator),
-				dispatcher);
+				root);
 
 		sshd.setCommandFactory(commandFactory);
 

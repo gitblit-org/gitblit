@@ -27,7 +27,12 @@ import org.apache.sshd.server.Command;
 import org.apache.sshd.server.Environment;
 import org.kohsuke.args4j.Argument;
 
+import com.gitblit.git.GitblitReceivePackFactory;
+import com.gitblit.git.GitblitUploadPackFactory;
+import com.gitblit.git.RepositoryResolver;
+import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -95,11 +100,11 @@ public class DispatchCommand extends BaseCommand {
           bc.setName(getName() + " " + commandName);
         }
         bc.setArguments(args.toArray(new String[args.size()]));
-      } else if (!args.isEmpty()) {
-        throw new UnloggedFailure(1, commandName + " does not take arguments");
       }
 
-      provideStateTo(cmd);
+      provideBaseStateTo(cmd);
+      provideGitState(cmd);
+      reset();
       //atomicCmd.set(cmd);
       cmd.start(env);
 
@@ -136,7 +141,7 @@ public class DispatchCommand extends BaseCommand {
   }
 
   @Override
-protected String usage() {
+  protected String usage() {
     final StringBuilder usage = new StringBuilder();
     usage.append("Available commands");
     if (!getName().isEmpty()) {
@@ -172,5 +177,40 @@ protected String usage() {
     usage.append("COMMAND --help' for more information.\n");
     usage.append("\n");
     return usage.toString();
+  }
+
+  // This is needed because we are not using provider or
+  // clazz.newInstance() for DispatchCommand
+  private void reset() {
+	  args = new ArrayList<String>();
+  }
+
+  private void provideGitState(Command cmd) {
+	  if (cmd instanceof AbstractGitCommand) {
+		AbstractGitCommand a = (AbstractGitCommand) cmd;
+		a.setRepositoryResolver(repositoryResolver);
+		a.setUploadPackFactory(gitblitUploadPackFactory);
+		a.setReceivePackFactory(gitblitReceivePackFactory);
+	  } else if (cmd instanceof DispatchCommand) {
+		DispatchCommand d = (DispatchCommand)cmd;
+		d.setRepositoryResolver(repositoryResolver);
+		d.setUploadPackFactory(gitblitUploadPackFactory);
+		d.setReceivePackFactory(gitblitReceivePackFactory);
+	  }
+  }
+
+  private RepositoryResolver<SshSession> repositoryResolver;
+  public void setRepositoryResolver(RepositoryResolver<SshSession> repositoryResolver) {
+	  this.repositoryResolver = repositoryResolver;
+  }
+
+  private GitblitUploadPackFactory<SshSession> gitblitUploadPackFactory;
+  public void setUploadPackFactory(GitblitUploadPackFactory<SshSession> gitblitUploadPackFactory) {
+	  this.gitblitUploadPackFactory = gitblitUploadPackFactory;
+  }
+
+  private GitblitReceivePackFactory<SshSession> gitblitReceivePackFactory;
+  public void setReceivePackFactory(GitblitReceivePackFactory<SshSession> gitblitReceivePackFactory) {
+	  this.gitblitReceivePackFactory = gitblitReceivePackFactory;
   }
 }

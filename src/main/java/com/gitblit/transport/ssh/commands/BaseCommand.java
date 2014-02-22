@@ -33,8 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.transport.ssh.AbstractSshCommand;
+import com.gitblit.transport.ssh.SshContext;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.WorkQueue;
+import com.gitblit.utils.WorkQueue.CancelableRunnable;
 import com.gitblit.utils.cli.CmdLineParser;
 import com.google.common.base.Charsets;
 import com.google.common.util.concurrent.Atomics;
@@ -49,6 +51,9 @@ public abstract class BaseCommand extends AbstractSshCommand {
   /** Unparsed command line options. */
   private String[] argv;
 
+  /** Ssh context */
+  protected SshContext ctx;
+
   /** The task, as scheduled on a worker thread. */
   private final AtomicReference<Future<?>> task;
 
@@ -59,6 +64,10 @@ public abstract class BaseCommand extends AbstractSshCommand {
     IdGenerator gen = new IdGenerator();
     WorkQueue w = new WorkQueue(gen);
     this.executor = w.getDefaultQueue();
+  }
+
+  public void setContext(SshContext ctx) {
+	this.ctx = ctx;
   }
 
   public void setInputStream(final InputStream in) {
@@ -77,7 +86,10 @@ public abstract class BaseCommand extends AbstractSshCommand {
     this.exit = callback;
   }
 
-  protected void provideStateTo(final Command cmd) {
+  protected void provideBaseStateTo(final Command cmd) {
+    if (cmd instanceof BaseCommand) {
+	  ((BaseCommand)cmd).setContext(ctx);
+    }
     cmd.setInputStream(in);
     cmd.setOutputStream(out);
     cmd.setErrorStream(err);
@@ -155,31 +167,25 @@ public abstract class BaseCommand extends AbstractSshCommand {
     return "";
   }
 
-  private final class TaskThunk implements com.gitblit.utils.WorkQueue.CancelableRunnable {
+  private final class TaskThunk implements CancelableRunnable {
     private final CommandRunnable thunk;
     private final String taskName;
 
     private TaskThunk(final CommandRunnable thunk) {
       this.thunk = thunk;
 
-      // TODO
-//      StringBuilder m = new StringBuilder("foo");
-//      m.append(context.getCommandLine());
-//      if (userProvider.get().isIdentifiedUser()) {
-//        IdentifiedUser u = (IdentifiedUser) userProvider.get();
-//        m.append(" (").append(u.getAccount().getUserName()).append(")");
-//      }
-      this.taskName = "foo";//m.toString();
+      StringBuilder m = new StringBuilder();
+      m.append(ctx.getCommandLine());
+      this.taskName = m.toString();
     }
 
     @Override
     public void cancel() {
       synchronized (this) {
-        //final Context old = sshScope.set(context);
         try {
           //onExit(/*STATUS_CANCEL*/);
         } finally {
-          //sshScope.set(old);
+          ctx = null;
         }
       }
     }
@@ -190,11 +196,8 @@ public abstract class BaseCommand extends AbstractSshCommand {
         final Thread thisThread = Thread.currentThread();
         final String thisName = thisThread.getName();
         int rc = 0;
-        //final Context old = sshScope.set(context);
         try {
-          //context.started = TimeUtil.nowMs();
           thisThread.setName("SSH " + taskName);
-
           thunk.run();
 
           out.flush();
@@ -230,6 +233,11 @@ public abstract class BaseCommand extends AbstractSshCommand {
     public void run() throws Exception;
   }
 
+
+  /** Runnable function which can retrieve a project name related to the task */
+  public static interface RepositoryCommandRunnable extends CommandRunnable {
+	public String getRepository();
+  }
 
   /**
    * Spawn a function into its own thread.

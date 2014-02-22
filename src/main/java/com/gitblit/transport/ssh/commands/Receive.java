@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.gitblit.transport.ssh.commands;
 
-import org.kohsuke.args4j.Option;
+import org.eclipse.jgit.transport.ReceivePack;
 
-import com.gitblit.Constants;
+import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
 
-@CommandMetaData(name="version", description = "Print Gitblit version")
-public class VersionCommand extends SshCommand {
-
-  @Option(name = "--verbose", aliases = {"-v"},  metaVar = "VERBOSE", usage = "Print verbose versions")
-  private boolean verbose;
-
-  @Override
-  public void run() {
-	  stdout.println(String.format("Version: %s", Constants.getGitBlitVersion(),
-        verbose));
-  }
+@CommandMetaData(name = "git-receive-pack", description = "Receive pack")
+public class Receive extends AbstractGitCommand {
+	@Override
+	protected void runImpl() throws Failure {
+		try {
+			ReceivePack rp = receivePackFactory.create(ctx.getSession(), repo);
+			rp.receive(in, out, null);
+		} catch (Exception e) {
+			throw new Failure(1, "fatal: Cannot receive pack: ", e);
+		}
+	}
 }
