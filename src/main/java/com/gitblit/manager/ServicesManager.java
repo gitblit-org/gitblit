@@ -24,8 +24,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.sshd.server.Command;
+import org.eclipse.jgit.transport.resolver.ReceivePackFactory;
+import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +43,25 @@ import com.gitblit.fanout.FanoutNioService;
 import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.git.GitDaemon;
+import com.gitblit.git.GitblitReceivePackFactory;
+import com.gitblit.git.GitblitUploadPackFactory;
+import com.gitblit.git.RepositoryResolver;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.service.FederationPullService;
+import com.gitblit.transport.ssh.SshCommandFactory;
 import com.gitblit.transport.ssh.SshDaemon;
+import com.gitblit.transport.ssh.SshSession;
+import com.gitblit.transport.ssh.commands.CreateRepository;
+import com.gitblit.transport.ssh.commands.VersionCommand;
+import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 
 /**
  * Services manager manages long-running services/processes that either have no
@@ -147,7 +164,7 @@ public class ServicesManager implements IManager {
 		String bindInterface = settings.getString(Keys.git.sshBindInterface, "localhost");
 		if (port > 0) {
 			try {
-				sshDaemon = new SshDaemon(gitblit);
+				sshDaemon = ObjectGraph.create(new SshModule()).get(SshDaemon.class);
 				sshDaemon.start();
 			} catch (IOException e) {
 				sshDaemon = null;
@@ -245,4 +262,40 @@ public class ServicesManager implements IManager {
 		}
 
 	}
+
+    @Module(library = true,
+        injects = {
+        IGitblit.class,
+        SshCommandFactory.class,
+        SshDaemon.class,
+        })
+    public class SshModule {
+      @Provides @Named("create-repository") Command provideCreateRepository() {
+        return new CreateRepository();
+      }
+
+      @Provides @Named("version") Command provideVersion() {
+        return new VersionCommand();
+      }
+
+      @Provides @Singleton IdGenerator provideIdGenerator() {
+         return new IdGenerator();
+      }
+
+      @Provides @Singleton RepositoryResolver<SshSession> provideRepositoryResolver() {
+        return new RepositoryResolver<SshSession>(provideGitblit());
+      }
+
+      @Provides @Singleton UploadPackFactory<SshSession> provideUploadPackFactory() {
+        return new GitblitUploadPackFactory<SshSession>(provideGitblit());
+      }
+
+      @Provides @Singleton ReceivePackFactory<SshSession> provideReceivePackFactory() {
+        return new GitblitReceivePackFactory<SshSession>(provideGitblit());
+      }
+
+      @Provides @Singleton IGitblit provideGitblit() {
+          return ServicesManager.this.gitblit;
+      }
+    }
 }
