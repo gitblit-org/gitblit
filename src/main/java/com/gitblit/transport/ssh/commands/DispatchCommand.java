@@ -44,9 +44,17 @@ public class DispatchCommand extends BaseCommand {
 
   private Set<Class<? extends Command>> commands;
   private Map<String, Class<? extends Command>> map;
+  private Map<String, Command> root;
 
   public DispatchCommand() {
 	  commands = new HashSet<Class<? extends Command>>();
+  }
+
+  public void registerDispatcher(String name, Command cmd) {
+	  if (root == null) {
+		  root = Maps.newHashMap();
+	  }
+	  root.put(name, cmd);
   }
 
   public void registerCommand(Class<? extends Command> cmd) {
@@ -78,20 +86,7 @@ public class DispatchCommand extends BaseCommand {
         throw new UnloggedFailure(1, msg.toString());
       }
 
-      final Class<? extends Command> c = getMap().get(commandName);
-      if (c == null) {
-        String msg =
-            (getName().isEmpty() ? "Gitblit" : getName()) + ": "
-                + commandName + ": not found";
-        throw new UnloggedFailure(1, msg);
-      }
-
-      Command cmd = null;
-      try {
-    	  cmd = c.newInstance();
-      } catch (Exception e) {
-    	  throw new UnloggedFailure(1, MessageFormat.format("Failed to instantiate {0} command", commandName));
-      }
+      Command cmd = getCommand();
       if (cmd instanceof BaseCommand) {
         BaseCommand bc = (BaseCommand) cmd;
         if (getName().isEmpty()) {
@@ -117,6 +112,27 @@ public class DispatchCommand extends BaseCommand {
       err.flush();
       exit.onExit(e.exitCode);
     }
+  }
+
+  private Command getCommand() throws UnloggedFailure {
+	if (root != null && root.containsKey(commandName)) {
+		return root.get(commandName);
+	}
+	final Class<? extends Command> c = getMap().get(commandName);
+      if (c == null) {
+        String msg =
+            (getName().isEmpty() ? "Gitblit" : getName()) + ": "
+                + commandName + ": not found";
+        throw new UnloggedFailure(1, msg);
+      }
+
+      Command cmd = null;
+      try {
+    	  cmd = c.newInstance();
+      } catch (Exception e) {
+    	  throw new UnloggedFailure(1, MessageFormat.format("Failed to instantiate {0} command", commandName));
+      }
+	return cmd;
   }
 
   @Override
