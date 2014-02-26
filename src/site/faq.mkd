@@ -9,10 +9,7 @@ There are a few ways this can occur:
     2. Click the *New Entry* button
     3. <pre>Key = <em>http.sslVerify</em>
 Value = <em>false</em></pre>
-3. Gitblit GO's default self-signed certificate is bound to *localhost* and you are trying to clone/push between machines.
-    1. Review the contents of `makekeystore.cmd`
-    2. Set *your hostname* in the *HOSTNAME* variable.
-    3. Execute the script.<br/>This will generate a new certificate and keystore for *your hostname* protected by *server.storePassword*. 
+3. Gitblit GO's default self-signed certificate is bound to *localhost* and you are trying to clone/push from a client based on an old version of JGit with a known flaw.
 4. The repository is clone-restricted and you don't have access.
 5. The repository is clone-restricted and your password changed.
 6. A regression in Gitblit.  :(
@@ -32,16 +29,9 @@ Please see [this thread](https://groups.google.com/d/topic/msysgit/at8D7J-h7mw/d
 Linux requires root permissions to serve on ports < 1024.<br/>
 Run the server as *root* (security concern) or change the ports you are serving to 8080 (http) and/or 8443 (https). 
 
-### Gitblit GO does not list my repositories?!
+### Gitblit does not list my repositories?!
 1. Confirm that the value *git.repositoriesFolder* in `gitblit.properties` actually points to your repositories folder.
-2. Confirm that the Gitblit GO process has full read-write-execute permissions to your *git.repositoriesFolder*. 
-
-### Gitblit WAR does not list my repositories?!
-1. Confirm that the &lt;context-param&gt; *git.repositoriesFolder* value in your `web.xml` file actually points to your repositories folder.
-2. Confirm that the servlet container process has full read-write-execute permissions to your *git.repositoriesFolder*.
-
-### Gitblit WAR will not authenticate any users?!
-Confirm that the &lt;context-param&gt; *realm.userService* value in your `web.xml` file actually points to a `users.conf` file.
+2. Confirm that the Gitblit process has full read-write-execute permissions to your *git.repositoriesFolder*. 
 
 ### Gitblit won't open my grouped repository (/group/myrepo.git) or browse my log/branch/tag/ref?!
 This is likely an url encoding/decoding problem with forward slashes:
@@ -98,31 +88,18 @@ Small workgroups that require centralized repositories.
 
 Gitblit is not meant to be a social coding resource like [Github](http://github.com) or [Bitbucket](http://bitbucket.com) with 100s or 1000s of users.  Gitblit is designed to fulfill the same function as your centralized Subversion or CVS server.
 
-### Why does Gitblit exist when there is Git and Gitweb?
-As a Java developer I prefer that as much of my tooling as possible is Java.
-Originally, I was going to use [Mercurial](http://mercurial.selenic.com) but...
-
-- MercurialEclipse [shells to Python, writes to System.out, and captures System.in](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2694555.html)
-Parsing command-line output is fragile and suboptimal.<br/>Unfortunately this is necessary because Mercurial is an application, not a library.
-- Mercurial HTTP/HTTPS needs to run as CGI through Apache/IIS/etc, as mod_python through Apache, or served with a built-in http server.
-This requires setup and maintenance of multiple, mixed 3rd party components.
-
-Gitblit eliminates all that complication with its 100% Java stack and simple single configuration file.
-
-Additionally, Git and Gitweb do not offer repository creation or user management.
-
 ### Do I need real Git?
 No (mostly).  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].
-Everything you need for Gitblit (except Java) is either bundled in the distribution file or automatically downloaded on execution.
+Everything you need for Gitblit (except Java) is bundled in the distribution file.
 
 #### mostly
-JGit does not fully support the git-gc featureset (garbage collection) so you may want native Git to periodically run git-gc until [JGit][jgit] fully supports this feature.
+Gitblit has experimental support for Garbage Collection using JGit.  I have not used it enough to feel comfortable removing the EXPERIMENTAL label.  It may work really well, or it may not.  One thing you might consider having native git for is periodic garbage collection - when Gitblit is offline.
 
 ### Can I run Gitblit in conjunction with my existing Git tooling?
 Yes.
 
 ### Do I need a JDK or can I use a JRE?
-Gitblit will run just fine with a JRE.  Gitblit can optionally use `keytool` from the JDK to generate self-signed certificates, but normally Gitblit uses [BouncyCastle][bouncycastle] for that need.
+Gitblit will run just fine with a JRE.
 
 ### Does Gitblit use a database to store its data?
 No.  Gitblit stores its repository configuration information within the `.git/config` file and its user information in `users.conf` or whatever filename is configured in `gitblit.properties`.
@@ -146,10 +123,8 @@ Alternatively, you could use [gitolite](https://github.com/sitaramc/gitolite) an
 Yes.  The user service is pluggable.  You may write your own complete user service by implementing the *com.gitblit.IUserService* interface.  Or you may subclass *com.gitblit.GitblitUserService* and override just the authentication. Set the fully qualified classname as the *realm.userService* property.
 
 ### Why doesn't Gitblit support SSH?
-Gitblit could integrate [Apache Mina][mina] to provide SSH access.  However, doing so violates Gitblit's first design principle: [KISS](http://en.wikipedia.org/wiki/KISS_principle).<br/>
-SSH support requires creating, exchanging, and managing SSH keys (arguably not more complicated than managing users).  While this is possible, JGit's SmartHTTP implementation is a simpler and universal transport mechanism.
 
-You might consider running [Gerrit](http://gerrit.googlecode.org) which does integrate [Apache Mina][mina] and supports SSH or you might consider serving [Git][git] on Linux which would offer real SSH support and also allow use of [many other compelling Git solutions](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools).
+It will.  This feature is in development and should land in the 1.5.0 release.
 
 ### What types of Search does Gitblit support?
 
