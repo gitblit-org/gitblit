@@ -102,9 +102,12 @@ public class SshDaemon {
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setForwardingFilter(new NonForwardingFilter());
 
+		DispatchCommand gitblitCmd = new DispatchCommand();
+		gitblitCmd.registerCommand(CreateRepository.class);
+		gitblitCmd.registerCommand(VersionCommand.class);
+
 		DispatchCommand dispatcher = new DispatchCommand();
-		dispatcher.registerCommand(CreateRepository.class);
-		dispatcher.registerCommand(VersionCommand.class);
+		dispatcher.registerDispatcher("gitblit", gitblitCmd);
 
 		SshCommandFactory commandFactory = new SshCommandFactory(
 				new RepositoryResolver<SshSession>(gitblit),
