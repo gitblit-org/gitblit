@@ -16,6 +16,7 @@ r20: {
     fixes:
 	- Fixed incorrect tagger attribution in the dashboard (issue-276)
 	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
+	- Fixed injection of unnecessary explicit CLONE permissions for a fork when users or teams already had implied regex permissions (issue-320)
 	- Bind LDAP connection after establishing TLS initialization (issue-343)
 	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
 	- Invalidate all cached repository data on "clear cache" (issue-346)

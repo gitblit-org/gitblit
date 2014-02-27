@@ -172,7 +172,8 @@ public class GitblitManager implements IGitblit {
 		if (!ArrayUtils.isEmpty(repository.owners)) {
 			for (String owner : repository.owners) {
 				UserModel originOwner = userManager.getUserModel(owner);
-				if (originOwner != null) {
+				if (originOwner != null && !originOwner.canClone(cloneModel)) {
+					// origin owner can't yet clone fork, grant explicit clone access
 					originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
 					reviseUser(originOwner.username, originOwner);
 				}
@@ -185,8 +186,8 @@ public class GitblitManager implements IGitblit {
 		for (String name : users) {
 			if (!name.equalsIgnoreCase(user.username)) {
 				UserModel cloneUser = userManager.getUserModel(name);
-				if (cloneUser.canClone(repository)) {
-					// origin user can clone origin, grant clone access to fork
+				if (cloneUser.canClone(repository) && !cloneUser.canClone(cloneModel)) {
+					// origin user can't yet clone fork, grant explicit clone access
 					cloneUser.setRepositoryPermission(cloneName, AccessPermission.CLONE);
 				}
 				cloneUsers.add(cloneUser);
@@ -199,8 +200,8 @@ public class GitblitManager implements IGitblit {
 		List<TeamModel> cloneTeams = new ArrayList<TeamModel>();
 		for (String name : teams) {
 			TeamModel cloneTeam = userManager.getTeamModel(name);
-			if (cloneTeam.canClone(repository)) {
-				// origin team can clone origin, grant clone access to fork
+			if (cloneTeam.canClone(repository) && !cloneTeam.canClone(cloneModel)) {
+				// origin team can't yet clone fork, grant explicit clone access
 				cloneTeam.setRepositoryPermission(cloneName, AccessPermission.CLONE);
 			}
 			cloneTeams.add(cloneTeam);
