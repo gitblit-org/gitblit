@@ -5,15 +5,14 @@ r20: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled."
+    note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled by default."
     html: ~
-    text: ~
+    text: ''
+          This is a major release.
+          
+          The entire core has been refactored to be more modular.  Authentication providers have all been refactored to be simpler.  Both of these were precursor requirements for future planned improvements.  Markup rendering has been improved and expanded to several additional formats.  A repository mirroring service  has been added.  Commit pages now indicate diffstat information. And many bug fixes and smaller features have been introduced.''
     security:
-	- ''issue-361: Cookies were not reset on administrative password change of a user account.
-        This allowed accounts with changed passwords to continue authenticating.
-        Cookies are now reset on password changes, they are validated on each page request,
-        AND they will now expire 7 days after generation.
-        ''
+	- issue-361: Cookies were not reset on administrative password change of a user account. This allowed accounts with changed passwords to continue authenticating. Cookies are now reset on password changes, they are validated on each page request, AND they will now expire 7 days after generation.
     fixes:
 	- Fixed incorrect tagger attribution in the dashboard (issue-276)
 	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
@@ -29,7 +28,7 @@ r20: {
 	- Fix error on generating activity page when there is no activity
 	- Fix raw page content type of binaries when running behind a reverse proxy
     changes:
-	- Gitblit now rejects pushes to mirror repositories (issue-5)
+	- Gitblit now rejects pushes to identified mirror repositories (issue-5)
 	- Personal repository prefix (~) is now configurable (issue-265)
 	- Refactored user services and separated authentication into providers (issue-281)
 	- Reversed line links in blob view (issue-309)
@@ -41,7 +40,7 @@ r20: {
 	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
 	- Removed internal Gitblit ref exclusions in the upload pack
 	- Removed "show readme" setting in favor of automatic detection
-	- README files are not shown on the summary page by default, this can be changed with web.summaryShowReadme
+	- README files are not shown on the summary page by default, this can be restored with web.summaryShowReadme
 	- Support plain text, markdown, confluence, mediawiki, textile, tracwiki, or twiki "readme" files
 	- Determine best commit id (e.g. "master") for the tree and docs pages and use that in links
 	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.	
@@ -52,7 +51,7 @@ r20: {
 	- Serve repositories on both /r and /git, displaying /r because it is shorter
     additions:
 	- Added color modes for the blame page (issue-2)
-	- Added an optional MirrorExecutor which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
+	- Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)
 	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
@@ -63,12 +62,13 @@ r20: {
 	- Added filesystem write permission check (issue-345)
 	- Added GO launch parameter for redirecting logging to a rolling, daily log file (issue-348)
 	- Added settings to Windows authentication provider to permit/prohibit BUILTIN\Administrators from being Gitblit Admins (issue-354)
+	- Added canonical url setting for email notifications and web display
 	- Support rendering confluence, mediawiki, textile, tracwiki, and twiki markup documents
 	- Added setting to globally disable anonymous pushes in the receive pack
 	- Added a normalized diffstat display to the commit, commitdiff, and compare pages
 	- Added GO setting to automatically redirect all http requests to the secure https connector
 	- Automatically display common repository root documents as tabs on the docs page
-	- Support bugtraq configuration in collaboration with syntevo
+	- Support bugtraq configuration in collaboration with Syntevo,  the regex.* config keys are now DEPRECATED
 	- Added FishEye hook script (pr-137)
 	- Added Redmine Fetch hook script (issue-359)
     dependencyChanges:
@@ -83,15 +83,17 @@ r20: {
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
     - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }
-	- { name: 'git.enableMirroring', defaultValue: 'false' }
 	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
+	- { name: 'git.enableMirroring', defaultValue: 'false' }
 	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
+	- { name: 'git.userRepositoryPrefix', defaultValue: '~' }
 	- { name: 'realm.authenticationProviders', defaultValue: ' ' }
 	- { name: 'realm.ldap.groupEmptyMemberPattern', defaultValue: '(&(objectClass=group)(!(member=*)))' }
 	- { name: 'realm.ldap.synchronize', defaultValue: 'false' }
 	- { name: 'realm.ldap.syncPeriod', defaultValue: '5 MINUTES' }
 	- { name: 'realm.ldap.removeDeletedUsers', defaultValue: 'true' }
 	- { name: 'realm.windows.permitBuiltInAdministrators', defaultValue: 'true' }
+	- { name: 'web.canonicalUrl', defaultValue: ' ' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }

@@ -28,11 +28,15 @@ This documentation is the source content from which the [Gitblit website](http:/
 [[src/site/setup_authentication.mkd]]
 [[src/site/setup_client.mkd]]
 [[src/site/setup_clientmenus.mkd]]
+[[src/site/eclipse_plugin.mkd]]
+[[src/site/setup_mirrors.mkd]]
+[[src/site/setup_bugtraq.mkd]]
 [[src/site/setup_hooks.mkd]]
 [[src/site/setup_lucene.mkd]]
 [[src/site/setup_proxy.mkd]]
 [[src/site/setup_viewer.mkd]]
 [[src/site/administration.mkd]]
+[[src/site/setup_scaling.mkd]]
 
 ### Other Pages
 

@@ -547,16 +547,24 @@
 						<page name="upgrade Express" src="upgrade_express.mkd" />
 					</menu>
 					<divider />
-					<page name="administration" src="administration.mkd" />
-					<page name="authentication" src="setup_authentication.mkd" />
-					<page name="push hooks" src="setup_hooks.mkd" />
-					<page name="lucene indexing" src="setup_lucene.mkd" />
-					<page name="reverse proxies" src="setup_proxy.mkd" />
-					<page name="client app menus" src="setup_clientmenus.mkd" />
+					<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="administration" src="administration.mkd" />
+						<page name="authentication" src="setup_authentication.mkd" />
+						<page name="push hooks" src="setup_hooks.mkd" />
+						<page name="lucene indexing" src="setup_lucene.mkd" />
+						<page name="reverse proxies" src="setup_proxy.mkd" />
+						<page name="client app menus" src="setup_clientmenus.mkd" />
+						<page name="bugtraq" src="setup_bugtraq.mkd" />
+						<page name="mirrors" src="setup_mirrors.mkd" />
+						<page name="scaling" src="setup_scaling.mkd" />
+						<divider />
+						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
+					</menu>
 					<divider />
-					<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
-					<divider />
-					<page name="git client setup" src="setup_client.mkd" />
+					<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="git client setup" src="setup_client.mkd" />
+						<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+					</menu>
 					<divider />
 					<page name="federation" src="federation.mkd" />
 					<divider />
@@ -863,16 +871,24 @@
 							<page name="upgrade Express" src="upgrade_express.mkd" />
 						</menu>
 						<divider />
-						<page name="administration" src="administration.mkd" />
-						<page name="authentication" src="setup_authentication.mkd" />
-						<page name="push hooks" src="setup_hooks.mkd" />
-						<page name="lucene indexing" src="setup_lucene.mkd" />
-						<page name="reverse proxies" src="setup_proxy.mkd" />
-						<page name="client app menus" src="setup_clientmenus.mkd" />
+						<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="administration" src="administration.mkd" />
+							<page name="authentication" src="setup_authentication.mkd" />
+							<page name="push hooks" src="setup_hooks.mkd" />
+							<page name="lucene indexing" src="setup_lucene.mkd" />
+							<page name="reverse proxies" src="setup_proxy.mkd" />
+							<page name="client app menus" src="setup_clientmenus.mkd" />
+							<page name="bugtraq" src="setup_bugtraq.mkd" />
+							<page name="mirrors" src="setup_mirrors.mkd" />
+							<page name="scaling" src="setup_scaling.mkd" />
+							<divider />
+							<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
+						</menu>
 						<divider />
-						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
-						<divider />
-						<page name="git client setup" src="setup_client.mkd" />
+						<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="git client setup" src="setup_client.mkd" />
+							<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+						</menu>
 						<divider />
 						<page name="federation" src="federation.mkd" />
 						<divider />

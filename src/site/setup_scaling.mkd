@@ -1,0 +1,32 @@
+
+## Scaling Gitblit
+
+My experience with scaling Gitblit to be very large is from interacting with those who do run very large Gitblit or Gerrit installs.
+
+### Configuring Big JGit Servers
+
+-Xmx8g # gobs of JVM heap
+
+    # for `jgit daemon` or gerrit.config
+    [core]
+        packedGitLimit = 4g # around 50% of JVM heap
+        packedGitOpenFiles = 8192 # don't forget to configure ulimit
+        streamFileThreshold = 2047m # avoids pathological inflate
+        deltaBaseCacheLimit = 50m
+
+    # applies to `jgit gc`
+    [pack]
+        bigFileThreshold = 20m # don't delta compress big binaries
+        indexVersion = 2 # use index v2
+
+-- Shawn Pearce, co-team lead on JGit @ Google ([slides](http://www.eclipsecon.org/2013/sites/eclipsecon.org.2013/files/Scaling%20Up%20JGit%20-%20EclipseCon%202013.pdf))
+
+### How does these Gerrit settings apply to Gitblit?
+
+Gerrit & Gitblit are both JGit-based servers.  They have similar configuration options.  Here are the relevant Gitblit settings:
+
+    git.packedGitLimit = 4g
+    git.packedGitOpenFiles = 8192
+    git.streamFileTreshold = 2047m
+    git.deltaBaseCacheLimit = 50m
+

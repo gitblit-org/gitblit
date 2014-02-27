@@ -21,15 +21,6 @@ This application uses a combination of RSS feeds and the JSON RPC interface, bot
 **NOTE:**  
 Gitblit Manager stores your login credentials **INSECURELY** in homedir/.gitblit/config.
 
-### Eclipse/EGit "Import from Gitblit" Feature (Planning)
-
-One obvious goal of a Gitblit RPC mechanism would be to have an Eclipse/EGit Feature that allows authentication and enumeration of Gitblit repositories from the Eclipse *Import...* menu.  Batch cloning would be supported and delegated to EGit.
-
-This particular project should not be difficult as the only external dependency for `com.gitblit.utils.RpcUtils` is [google-gson](http://google-gson.googlecode.com) which is already a dependency of the EGit/GitHub Mylyn feature.
-
-One proposal from the EGit team is to define a common JSON RPC method for enumeration of repositories which can be implemented by Git hosts.  The EGit team would then implement the UI and the client-side enumeration code.  This idea was raised as part of this [feature request for EGit](https://bugs.eclipse.org/bugs/show_bug.cgi?id=361251).
-
-Currently this project is in the planning stage.
 
 ## RSS Query Interface
 

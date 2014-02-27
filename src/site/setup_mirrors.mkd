@@ -1,0 +1,28 @@
+
+## Setting up Mirrors
+
+*SINCE 1.4.0*
+
+Gitblit supports mirroring external public repositories.  The service that updates mirrors will be enabled *after a restart* with the following setting:
+
+    git.enableMirroring = true
+
+Gitblit does not yet provide a web interface to setup a repository mirror so you will need to use native git for initial setup of your repository mirror.
+
+1. Open a command prompt in your *git.repositoriesFolder*
+2. Optionally create a subfolder for the mirror repositories and cd into that directory, for example you might put all mirrors together in a *mirrors* folder.
+3. Clone the external public repository as a mirror<pre>git clone --mirror &lt;repository_url&gt;</pre>
+4. If Gitblit is currently running, login as the administrator and clear the repository cache
+
+That's it.  Gitblit will identify the newly cloned repository as a mirror, will enforce the necessary rules regarding mirrors, and will automatically fetch ref updates based on your configured *git.mirrorPeriod* setting.
+
+    git.mirrorPeriod = 30 mins
+
+### Rules, Requirements, & Gotchas
+
+1. The *origin* remote must be the mirror source
+2. The *origin* repository must be publicly accessible, or at least accessible without explicit authentication unless you embed the credentials in the origin url (not recommended).
+3. *origin* SSH urls are untested and are very unlikely to work since Gitblit and JGit are not configured to look for your personal SSH keys.  Stick to the http, https, or git transports.
+4. Gitblit will automatically repair and ref specs that it finds with a // sequence.
+5. Mirrors are *read-only*.  You may not directly push to a mirror.
+6. Mirrors can not have work trees.  They must be a bare repository cloned using the --mirror flag.
