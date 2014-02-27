@@ -975,6 +975,7 @@
 					<include name="thebuggenie.groovy" />
 					<include name="fisheye.groovy" />
 					<include name="redmine-fetch.groovy" />
+					<include name="subgit.groovy" />
 				</fileset>
 			</copy>
       </sequential>
