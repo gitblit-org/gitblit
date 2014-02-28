@@ -28,6 +28,7 @@ r20: {
 	- Ignore the default contents of .git/description file
 	- Fix error on generating activity page when there is no activity
 	- Fix raw page content type of binaries when running behind a reverse proxy
+	- Fix author search links from compare pages
     changes:
 	- Gitblit now rejects pushes to identified mirror repositories (issue-5)
 	- Personal repository prefix (~) is now configurable (issue-265)

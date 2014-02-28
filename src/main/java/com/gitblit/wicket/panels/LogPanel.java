@@ -117,7 +117,7 @@ public class LogPanel extends BasePanel {
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
 						GitSearchPage.class, WicketUtils.newSearchParameter(repositoryName,
-								objectId, author, Constants.SearchType.AUTHOR));
+								null, author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
 
