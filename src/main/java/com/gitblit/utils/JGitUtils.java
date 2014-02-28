@@ -704,6 +704,7 @@ public class JGitUtils {
 			return null;
 		}
 		RevCommit commit = null;
+		RevWalk walk = null;
 		try {
 			// resolve object id
 			ObjectId branchObject;
@@ -712,12 +713,18 @@ public class JGitUtils {
 			} else {
 				branchObject = repository.resolve(objectId);
 			}
-			RevWalk walk = new RevWalk(repository);
+			if (branchObject == null) {
+				return null;
+			}
+			walk = new RevWalk(repository);
 			RevCommit rev = walk.parseCommit(branchObject);
 			commit = rev;
-			walk.dispose();
 		} catch (Throwable t) {
 			error(t, repository, "{0} failed to get commit {1}", objectId);
+		} finally {
+			if (walk != null) {
+				walk.dispose();
+			}
 		}
 		return commit;
 	}
