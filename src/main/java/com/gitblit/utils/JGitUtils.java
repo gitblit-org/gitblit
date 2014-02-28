@@ -976,6 +976,36 @@ public class JGitUtils {
 	 *            most recent commit. if null, HEAD is assumed.
 	 * @return list of files changed in a commit range
 	 */
+	public static List<PathChangeModel> getFilesInRange(Repository repository, String startCommit, String endCommit) {
+		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		try {
+			ObjectId startRange = repository.resolve(startCommit);
+			ObjectId endRange = repository.resolve(endCommit);
+			RevWalk rw = new RevWalk(repository);
+			RevCommit start = rw.parseCommit(startRange);
+			RevCommit end = rw.parseCommit(endRange);
+			list.addAll(getFilesInRange(repository, start, end));
+			rw.release();
+		} catch (Throwable t) {
+			error(t, repository, "{0} failed to determine files in range {1}..{2}!", startCommit, endCommit);
+		}
+		return list;
+	}
+
+	/**
+	 * Returns the list of files changed in a specified commit. If the
+	 * repository does not exist or is empty, an empty list is returned.
+	 *
+	 * @param repository
+	 * @param startCommit
+	 *            earliest commit
+	 * @param endCommit
+	 *            most recent commit. if null, HEAD is assumed.
+	 * @return list of files changed in a commit range
+	 */
 	public static List<PathChangeModel> getFilesInRange(Repository repository, RevCommit startCommit, RevCommit endCommit) {
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
 		if (!hasCommits(repository)) {
@@ -989,7 +1019,7 @@ public class JGitUtils {
 
 			List<DiffEntry> diffEntries = df.scan(startCommit.getTree(), endCommit.getTree());
 			for (DiffEntry diff : diffEntries) {
-				PathChangeModel pcm = PathChangeModel.from(diff,  null);
+				PathChangeModel pcm = PathChangeModel.from(diff,  endCommit.getName());
 				list.add(pcm);
 			}
 			Collections.sort(list);
