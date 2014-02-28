@@ -520,6 +520,18 @@ th {
 	text-align: left;	
 }
 
+div.featureWelcome {
+	padding: 15px;
+	background-color: #fbfbfb;
+	border: 1px solid #ccc;
+	border-radius: 5px;	
+}
+
+div.featureWelcome div.icon {
+	color: #ccc;
+	font-size: 144px;
+}
+
 div.sourceview {
 	overflow: hidden;
 }
