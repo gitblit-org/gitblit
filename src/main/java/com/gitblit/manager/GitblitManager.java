@@ -1099,4 +1099,19 @@ public class GitblitManager implements IGitblit {
 	public boolean deletePendingFederationProposal(FederationProposal proposal) {
 		return federationManager.deletePendingFederationProposal(proposal);
 	}
+
+	@Override
+	public void closeAll() {
+		repositoryManager.closeAll();
+	}
+
+	@Override
+	public void close(String repository) {
+		repositoryManager.close(repository);
+	}
+
+	@Override
+	public boolean isIdle(Repository repository) {
+		return repositoryManager.isIdle(repository);
+	}
 }
