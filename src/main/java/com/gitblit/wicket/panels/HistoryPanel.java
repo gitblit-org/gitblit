@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -37,6 +38,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
@@ -45,6 +48,7 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BlobDiffPage;
@@ -59,6 +63,8 @@ public class HistoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private boolean hasMore;
 
 	public HistoryPanel(String wicketId, final String repositoryName, final String objectId,
@@ -71,39 +77,53 @@ public class HistoryPanel extends BasePanel {
 		}
 
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
-
-		Map<String, SubmoduleModel> submodules = new HashMap<String, SubmoduleModel>();
-		for (SubmoduleModel model : JGitUtils.getSubmodules(r, commit.getTree())) {
-			submodules.put(model.path, model);
-		}
-
 		PathModel matchingPath = null;
-		for (PathModel p : paths) {
-			if (p.path.equals(path)) {
-				matchingPath = p;
-				break;
+		List<PathChangeModel> paths;
+		Map<String, SubmoduleModel> submodules = new HashMap<String, SubmoduleModel>();
+
+		if (commit == null) {
+			// commit missing
+			String msg = MessageFormat.format("Failed to find history of **{0}** *{1}*",
+					path, objectId);
+			log.error(msg + " " + repositoryName);
+			paths = new ArrayList<PathChangeModel>();
+			add(new Label("commitHeader", MarkdownUtils.transformMarkdown(msg)).setEscapeModelStrings(false));
+			add(new Label("breadcrumbs"));
+		} else {
+			// commit found
+			paths = JGitUtils.getFilesInCommit(r, commit);
+			add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
+			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
+			for (SubmoduleModel model : JGitUtils.getSubmodules(r, commit.getTree())) {
+				submodules.put(model.path, model);
 			}
-		}
-		if (matchingPath == null) {
-			// path not in commit
-			// manually locate path in tree
-			TreeWalk tw = new TreeWalk(r);
-			tw.reset();
-			tw.setRecursive(true);
-			try {
-				tw.addTree(commit.getTree());
-				tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
-				while (tw.next()) {
-					if (tw.getPathString().equals(path)) {
-						matchingPath = new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
-							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
-							ChangeType.MODIFY);
-					}
+
+			for (PathModel p : paths) {
+				if (p.path.equals(path)) {
+					matchingPath = p;
+					break;
 				}
-			} catch (Exception e) {
-			} finally {
-				tw.release();
+			}
+			if (matchingPath == null) {
+				// path not in commit
+				// manually locate path in tree
+				TreeWalk tw = new TreeWalk(r);
+				tw.reset();
+				tw.setRecursive(true);
+				try {
+					tw.addTree(commit.getTree());
+					tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
+					while (tw.next()) {
+						if (tw.getPathString().equals(path)) {
+							matchingPath = new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
+								.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
+								ChangeType.MODIFY);
+						}
+					}
+				} catch (Exception e) {
+				} finally {
+					tw.release();
+				}
 			}
 		}
 
@@ -136,11 +156,6 @@ public class HistoryPanel extends BasePanel {
 		// inaccurate way to determine if there are more commits.
 		// works unless commits.size() represents the exact end.
 		hasMore = commits.size() >= itemsPerPage;
-
-		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
-
-		// breadcrumbs
-		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
 
 		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
