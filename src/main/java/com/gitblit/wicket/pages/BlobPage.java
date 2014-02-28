@@ -82,8 +82,7 @@ public class BlobPage extends RepositoryPage {
 				}
 			}
 
-			// manually get commit because it can be null
-			RevCommit commit = JGitUtils.getCommit(r, objectId);
+			RevCommit commit = getCommit();
 
 			// blob page links
 			add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
