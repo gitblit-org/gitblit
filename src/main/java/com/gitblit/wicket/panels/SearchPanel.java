@@ -93,7 +93,7 @@ public class SearchPanel extends BasePanel {
 				// author search link
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
-						GitSearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+						GitSearchPage.class, WicketUtils.newSearchParameter(repositoryName, null,
 								author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
