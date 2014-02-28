@@ -16,12 +16,16 @@
 package com.gitblit.wicket;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.request.RequestParameters;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
+import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +43,8 @@ import com.gitblit.Keys;
  *
  */
 public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
+
+	private final String[] parameterNames;
 
 	private Logger logger = LoggerFactory.getLogger(GitblitParamUrlCodingStrategy.class);
 
@@ -61,6 +67,7 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 			Class<C> bookmarkablePageClass, String[] parameterNames) {
 
 		super(mountPath, bookmarkablePageClass, parameterNames);
+		this.parameterNames = parameterNames;
 		this.settings = settings;
 	}
 
@@ -113,5 +120,73 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 		final PageParameters parameters = new PageParameters(decodeParameters(parametersFragment,
 				requestParameters.getParameters()));
 		return super.decode(requestParameters);
+	}
+
+	/**
+	 * @see org.apache.wicket.request.target.coding.AbstractRequestTargetUrlCodingStrategy#appendParameters(org.apache.wicket.util.string.AppendingStringBuffer,
+	 *      java.util.Map)
+	 */
+	@Override
+	protected void appendParameters(AppendingStringBuffer url, Map<String, ?> parameters)
+	{
+		if (!url.endsWith("/"))
+		{
+			url.append("/");
+		}
+
+		Set<String> parameterNamesToAdd = new HashSet<String>(parameters.keySet());
+
+		// Find index of last specified parameter
+		boolean foundParameter = false;
+		int lastSpecifiedParameter = parameterNames.length;
+		while (lastSpecifiedParameter != 0 && !foundParameter)
+		{
+			foundParameter = parameters.containsKey(parameterNames[--lastSpecifiedParameter]);
+		}
+
+		if (foundParameter)
+		{
+			for (int i = 0; i <= lastSpecifiedParameter; i++)
+			{
+				String parameterName = parameterNames[i];
+				final Object param = parameters.get(parameterName);
+				String value = param instanceof String[] ? ((String[])param)[0] : ((param == null)
+					? null : param.toString());
+				if (value == null)
+				{
+					value = "";
+				}
+				if (!url.endsWith("/"))
+				{
+					url.append("/");
+				}
+				url.append(urlEncodePathComponent(value));
+				parameterNamesToAdd.remove(parameterName);
+			}
+		}
+
+		if (!parameterNamesToAdd.isEmpty())
+		{
+			boolean first = true;
+			for (String parameterName : parameterNamesToAdd)
+			{
+				final Object param = parameters.get(parameterName);
+				if (param instanceof String[]) {
+					String [] values = (String[]) param;
+					for (String value : values) {
+						url.append(first ? '?' : '&');
+						url.append(urlEncodeQueryComponent(parameterName)).append("=").append(
+								urlEncodeQueryComponent(value));
+						first = false;
+					}
+				} else {
+					url.append(first ? '?' : '&');
+					String value = String.valueOf(param);
+					url.append(urlEncodeQueryComponent(parameterName)).append("=").append(
+						urlEncodeQueryComponent(value));
+				}
+				first = false;
+			}
+		}
 	}
 }
