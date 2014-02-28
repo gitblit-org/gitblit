@@ -147,6 +147,9 @@ public class BlamePage extends RepositoryPage {
 		}
 
 		if (pathModel == null) {
+			final String notFound = MessageFormat.format("Blame page failed to find {0} in {1} @ {2}",
+					blobPath, repositoryName, objectId);
+			logger.error(notFound);
 			add(new Label("annotation").setVisible(false));
 			add(new Label("missingBlob", missingBlob(blobPath, commit)).setEscapeModelStrings(false));
 			return;
@@ -157,7 +160,7 @@ public class BlamePage extends RepositoryPage {
 		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
 		final Map<?, String> colorMap = initializeColors(activeBlameType, lines);
 		ListDataProvider<AnnotatedLine> blameDp = new ListDataProvider<AnnotatedLine>(lines);
-		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("blameView", blameDp) {
+		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("annotation", blameDp) {
 			private static final long serialVersionUID = 1L;
 			private String lastCommitId = "";
 			private boolean showInitials = true;
