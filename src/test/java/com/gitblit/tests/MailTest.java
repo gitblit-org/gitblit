@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import com.gitblit.FileSettings;
 import com.gitblit.Keys;
+import com.gitblit.models.Mailing;
 import com.gitblit.service.MailService;
 
 public class MailTest extends GitblitUnitTest {
@@ -29,7 +30,9 @@ public class MailTest extends GitblitUnitTest {
 	public void testSendMail() throws Exception {
 		FileSettings settings = new FileSettings("mailtest.properties");
 		MailService mail = new MailService(settings);
-		Message message = mail.createMessage(settings.getStrings(Keys.mail.adminAddresses));
+		Mailing mailing = Mailing.newPlain();
+		mailing.setRecipients(settings.getStrings(Keys.mail.adminAddresses));
+		Message message = mail.createMessage(mailing);
 		message.setSubject("Test");
 		message.setText("﻿Lägger till andra stycket i ny fil. UTF-8 encoded");
 		mail.queue(message);

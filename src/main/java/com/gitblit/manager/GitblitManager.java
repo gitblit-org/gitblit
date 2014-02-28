@@ -50,6 +50,7 @@ import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.GitClientApplication;
+import com.gitblit.models.Mailing;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -584,28 +585,13 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public void sendMail(String subject, String message, String... toAddresses) {
-		notificationManager.sendMail(subject, message, toAddresses);
-	}
-
-	@Override
 	public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
 		notificationManager.sendHtmlMail(subject, message, toAddresses);
 	}
 
 	@Override
-	public void sendHtmlMail(String subject, String message, String... toAddresses) {
-		notificationManager.sendHtmlMail(subject, message, toAddresses);
-	}
-
-	@Override
-	public void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses) {
-		notificationManager.sendHtmlMail(from, subject, message, toAddresses);
-	}
-
-	@Override
-	public void sendHtmlMail(String from, String subject, String message, String... toAddresses) {
-		notificationManager.sendHtmlMail(from, subject, message, toAddresses);
+	public void send(Mailing mail) {
+		notificationManager.send(mail);
 	}
 
 	/*
