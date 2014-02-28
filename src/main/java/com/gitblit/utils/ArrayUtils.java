@@ -16,6 +16,7 @@
 package com.gitblit.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -68,6 +69,22 @@ public class ArrayUtils {
 			if (!StringUtils.isEmpty(string)) {
 				list.add(string);
 			}
+		}
+		return list;
+	}
+
+	public static <X> List<X> join(List<X>... elements) {
+		List<X> list = new ArrayList<X>();
+		for (List<X> element : elements) {
+			list.addAll(element);
+		}
+		return list;
+	}
+
+	public static <X> List<X> join(X[]... elements) {
+		List<X> list = new ArrayList<X>();
+		for (X[] element : elements) {
+			list.addAll(Arrays.asList(element));
 		}
 		return list;
 	}
