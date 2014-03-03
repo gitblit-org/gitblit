@@ -203,8 +203,7 @@ public class DigestsPanel extends BasePanel {
 						final RepositoryCommit commit = commitItem.getModelObject();
 
 						// author gravatar
-						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent().getName(),
-								commit.getAuthorIdent().getEmailAddress(), null, 16, false, false));
+						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent(), null, 16, false));
 
 						// merge icon
 						if (commit.getParentCount() > 1) {

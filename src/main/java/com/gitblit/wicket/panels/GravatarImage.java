@@ -15,22 +15,16 @@
  */
 package com.gitblit.wicket.panels;
 
-import java.text.MessageFormat;
-
-import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.link.Link;
 import org.eclipse.jgit.lib.PersonIdent;
 
 import com.gitblit.Keys;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.ActivityUtils;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.GravatarProfilePage;
 
 /**
- * Represents a Gravatar image and links to the Gravatar profile page.
+ * Represents a Gravatar image.
  *
  * @author James Moger
  *
@@ -44,21 +38,21 @@ public class GravatarImage extends BasePanel {
 	}
 
 	public GravatarImage(String id, PersonIdent person, int width) {
-		this(id, person, width, true);
+		this(id, person.getName(), person.getEmailAddress(), "gravatar", width, true);
 	}
 
-	public GravatarImage(String id, PersonIdent person, int width, boolean linked) {
-		this(id, person.getName(), person.getEmailAddress(), "gravatar", width, linked, true);
+	public GravatarImage(String id, PersonIdent person, String cssClass, int width, boolean identicon) {
+		this(id, person.getName(), person.getEmailAddress(), cssClass, width, identicon);
 	}
 
-	public GravatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean linked, boolean identicon) {
+	public GravatarImage(String id, UserModel user, String cssClass, int width, boolean identicon) {
+		this(id, user.getDisplayName(), user.emailAddress, cssClass, width, identicon);
+	}
+
+	public GravatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean identicon) {
 		super(id);
 
 		String email = emailaddress == null ? username.toLowerCase() : emailaddress.toLowerCase();
-		String hash = StringUtils.getMD5(email);
-		Link<Void> link = new BookmarkablePageLink<Void>("link", GravatarProfilePage.class,
-				WicketUtils.newObjectParameter(hash));
-		link.add(new SimpleAttributeModifier("target", "_blank"));
 		String url;
 		if (identicon) {
 			url = ActivityUtils.getGravatarIdenticonUrl(email, width);
@@ -69,14 +63,8 @@ public class GravatarImage extends BasePanel {
 		if (cssClass != null) {
 			WicketUtils.setCssClass(image, cssClass);
 		}
-		link.add(image);
-		if (linked) {
-			WicketUtils.setHtmlTooltip(link,
-				MessageFormat.format("View Gravatar profile for {0}", username));
-		} else {
-			WicketUtils.setHtmlTooltip(link, username);
-		}
-		add(link.setEnabled(linked));
+		add(image);
+		WicketUtils.setHtmlTooltip(image, username);
 		setVisible(app().settings().getBoolean(Keys.web.allowGravatar, true));
 	}
 }

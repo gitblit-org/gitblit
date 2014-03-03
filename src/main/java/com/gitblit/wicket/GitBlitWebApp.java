@@ -53,7 +53,6 @@ import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.ForkPage;
 import com.gitblit.wicket.pages.ForksPage;
 import com.gitblit.wicket.pages.GitSearchPage;
-import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.LogoutPage;
@@ -178,7 +177,6 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
 
 		mount("/activity", ActivityPage.class, "r", "h");
-		mount("/gravatar", GravatarProfilePage.class, "h");
 		mount("/lucene", LuceneSearchPage.class);
 		mount("/project", ProjectPage.class, "p");
 		mount("/projects", ProjectsPage.class);

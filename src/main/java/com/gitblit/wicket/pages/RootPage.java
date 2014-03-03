@@ -576,8 +576,7 @@ public abstract class RootPage extends BasePage {
 			boolean standardLogin = session.authenticationType.isStandard();
 
 			if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {
-				add(new GravatarImage("username", user.getDisplayName(),
-						user.emailAddress, "navbarGravatar", 20, false, false));
+				add(new GravatarImage("username", user, "navbarGravatar", 20, false));
 			} else {
 				add(new Label("username", user.getDisplayName()));
 			}
