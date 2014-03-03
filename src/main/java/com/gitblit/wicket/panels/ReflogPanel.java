@@ -149,8 +149,8 @@ public class ReflogPanel extends BasePanel {
                 	cal.set(Calendar.MINUTE, 0);
                 	cal.set(Calendar.SECOND, 0);
                 	cal.set(Calendar.MILLISECOND, 0);
-                	changeDate = cal.getTime();
-					fuzzydate = getTimeUtils().timeAgo(changeDate);
+                	Date date = cal.getTime();
+					fuzzydate = getTimeUtils().timeAgo(date);
 				}
 				changeItem.add(new Label("whenChanged", fuzzydate + ", " + df.format(changeDate)));
 

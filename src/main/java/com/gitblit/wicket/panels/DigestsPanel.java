@@ -88,13 +88,6 @@ public class DigestsPanel extends BasePanel {
 				} else if (TimeUtils.isYesterday(pushDate, timezone)) {
 					fuzzydate = tu.yesterday();
 				} else {
-					// calculate a fuzzy time ago date
-                	cal.setTime(pushDate);
-                	cal.set(Calendar.HOUR_OF_DAY, 0);
-                	cal.set(Calendar.MINUTE, 0);
-                	cal.set(Calendar.SECOND, 0);
-                	cal.set(Calendar.MILLISECOND, 0);
-                	pushDate = cal.getTime();
 					fuzzydate = getTimeUtils().timeAgo(pushDate);
 				}
 				logItem.add(new Label("whenChanged", fuzzydate + ", " + df.format(pushDate)));
