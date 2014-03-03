@@ -8,7 +8,9 @@
 <body onload="document.getElementById('username').focus();">
 <!-- User Table -->
 <form style="padding-top:5px;" wicket:id="editForm">
-	
+
+<div class="row">
+<div class="span12">
 <div class="tabbable">
 	<!-- tab titles -->
 	<ul class="nav nav-tabs">
@@ -52,7 +54,7 @@
 		
 		<!-- access permissions tab -->
 		<div class="tab-pane" id="permissions">
-		<table class="plain">
+		<table class=plain>
 			<tbody class="settings">
 				<tr><th><wicket:message key="gb.teamMemberships"></wicket:message></th><td style="padding:2px;"><span wicket:id="teams"></span></td></tr>
 				<tr><td colspan="2"><hr></hr></td></tr>
@@ -66,9 +68,13 @@
 		</div>
 	</div>
 </div>
-	
+</div>
+</div>
+
 <div class="row">
+<div class="span12">
 	<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="9" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="10" /></div>
+</div>
 </div>
 
 </form>
