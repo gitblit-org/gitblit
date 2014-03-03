@@ -35,7 +35,6 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -103,8 +102,6 @@ public class BlamePage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 
 		// blame page links
-		add(new BookmarkablePageLink<Void>("headLink", BlamePage.class,
-				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 

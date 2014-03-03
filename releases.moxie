@@ -52,6 +52,7 @@ r20: {
 	- Retrieve LDAP groups with dereferencing aliases (pr-122)
 	- Revised committer verification to require a matching displayname or account name AND the email address
 	- Serve repositories on both /r and /git, displaying /r because it is shorter
+	- Eliminate HEAD from the blob, blame, and tree pages. That assumed a resource was available in HEAD and it may not be.
     additions:
 	- Added color modes for the blame page (issue-2)
 	- Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".

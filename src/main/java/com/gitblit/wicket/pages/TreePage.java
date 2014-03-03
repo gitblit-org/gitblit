@@ -24,7 +24,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -56,8 +55,6 @@ public class TreePage extends RepositoryPage {
 		// tree page links
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, path)));
-		add(new BookmarkablePageLink<Void>("headLink", TreePage.class,
-				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
 		add(new CompressedDownloadsPanel("compressedLinks", getRequest()
 				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, path));
 

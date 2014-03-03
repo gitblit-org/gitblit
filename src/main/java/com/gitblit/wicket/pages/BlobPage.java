@@ -24,7 +24,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -60,7 +59,6 @@ public class BlobPage extends RepositoryPage {
 			add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class).setEnabled(false));
 			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-			add(new BookmarkablePageLink<Void>("headLink", BlobPage.class).setEnabled(false));
 			add(new CommitHeaderPanel("commitHeader", objectId));
 			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 			Component c = new Label("blobText", JGitUtils.getStringContent(r, objectId, encodings));
@@ -91,8 +89,6 @@ public class BlobPage extends RepositoryPage {
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-			add(new BookmarkablePageLink<Void>("headLink", BlobPage.class,
-					WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 
 			add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
