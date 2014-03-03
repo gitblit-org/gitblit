@@ -110,13 +110,6 @@ public class ReflogPanel extends BasePanel {
 	}
 
 	protected void setup(List<RefLogEntry> changes) {
-		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
-
-		String dateFormat = app().settings().getString(Keys.web.datetimestampLongFormat, "EEEE, MMMM d, yyyy HH:mm Z");
-		final TimeZone timezone = getTimeZone();
-		final DateFormat df = new SimpleDateFormat(dateFormat);
-		df.setTimeZone(timezone);
-		final Calendar cal = Calendar.getInstance(timezone);
 
 		ListDataProvider<RefLogEntry> dp = new ListDataProvider<RefLogEntry>(changes);
 		DataView<RefLogEntry> changeView = new DataView<RefLogEntry>("change", dp) {
@@ -125,6 +118,13 @@ public class ReflogPanel extends BasePanel {
 			@Override
 			public void populateItem(final Item<RefLogEntry> changeItem) {
 				final RefLogEntry change = changeItem.getModelObject();
+
+				String dateFormat = app().settings().getString(Keys.web.datetimestampLongFormat, "EEEE, MMMM d, yyyy HH:mm Z");
+				TimeZone timezone = getTimeZone();
+				DateFormat df = new SimpleDateFormat(dateFormat);
+				df.setTimeZone(timezone);
+				Calendar cal = Calendar.getInstance(timezone);
+
 				String fullRefName = change.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
 				boolean isTag = false;
@@ -286,6 +286,7 @@ public class ReflogPanel extends BasePanel {
 						commitItem.add(shortlog);
 
 						// commit hash link
+						int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 						LinkPanel commitHash = new LinkPanel("hashLink", null, commit.getName().substring(0, hashLen),
 								CommitPage.class, WicketUtils.newObjectParameter(
 										change.repository, commit.getName()));

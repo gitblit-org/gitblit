@@ -19,7 +19,6 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -55,14 +54,6 @@ public class DigestsPanel extends BasePanel {
 		super(wicketId);
 		hasChanges = digests.size() > 0;
 
-		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
-
-		String dateFormat = app().settings().getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
-		final TimeZone timezone = getTimeZone();
-		final DateFormat df = new SimpleDateFormat(dateFormat);
-		df.setTimeZone(timezone);
-		final Calendar cal = Calendar.getInstance(timezone);
-
 		ListDataProvider<DailyLogEntry> dp = new ListDataProvider<DailyLogEntry>(digests);
 		DataView<DailyLogEntry> pushView = new DataView<DailyLogEntry>("change", dp) {
 			private static final long serialVersionUID = 1L;
@@ -70,6 +61,12 @@ public class DigestsPanel extends BasePanel {
 			@Override
 			public void populateItem(final Item<DailyLogEntry> logItem) {
 				final DailyLogEntry change = logItem.getModelObject();
+
+				String dateFormat = app().settings().getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
+				TimeZone timezone = getTimeZone();
+				DateFormat df = new SimpleDateFormat(dateFormat);
+				df.setTimeZone(timezone);
+
 				String fullRefName = change.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
 				boolean isTag = false;
@@ -233,6 +230,7 @@ public class DigestsPanel extends BasePanel {
 						commitItem.add(shortlog);
 
 						// commit hash link
+						int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 						LinkPanel commitHash = new LinkPanel("hashLink", null, commit.getName().substring(0, hashLen),
 								CommitPage.class, WicketUtils.newObjectParameter(
 										change.repository, commit.getName()));
