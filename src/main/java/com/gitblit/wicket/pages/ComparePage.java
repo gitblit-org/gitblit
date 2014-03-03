@@ -171,6 +171,7 @@ public class ComparePage extends RepositoryPage {
 						item.add(new ExternalLink("patch", "").setEnabled(false));
 						item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
 								.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
+						item.add(new ExternalLink("raw", "").setEnabled(false));
 						item.add(new ExternalLink("blame", "").setEnabled(false));
 						item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
 								.newPathParameter(repositoryName, endId, entry.path))

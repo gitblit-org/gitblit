@@ -23,6 +23,7 @@ r20: {
 	- Fix chart failures when an apostrophe is in a user display name (issue-350, pr-128)
 	- Fix exception in create repository when not selecting a garbage collection period (issue-366)
 	- Stop setting admin permission based on undocumented Redmine REST API behavior (issue-368)
+	- Fix compage page failure when a submodule is changed in the commit range (issue-375)
 	- Fix support url decoding with non-ascii characters (pr-136)
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
@@ -123,6 +124,7 @@ r20: {
 	- Berke Viktor
 	- Vitaly Litvak
 	- Matthias Cullman
+	- Eduardo Guervós Narvaez
 }
 
 #
