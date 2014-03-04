@@ -609,11 +609,17 @@
 					<link name="Gitblit Demo (RELEASE)" src="https://demo-gitblit.rhcloud.com" />
 					<link name="Gitblit Next (SNAPSHOT)" src="https://next-gitblit.rhcloud.com" />
 					<divider />
+					<link name="Gitblit (Self-Hosted)" src="https://dev.gitblit.com" />
+					<divider />
 					<link name="Github" src="${project.scmUrl}" />
 					<link name="Issues" src="${project.issuesUrl}" />
 					<link name="Discussion" src="${project.forumUrl}" />
 					<link name="Google+" src="${project.socialNetworkUrl}" />
+					<link name="Twitter" src="https://twitter.com/gitblit" />
 					<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+					<divider />
+					<link name="+JamesMoger" src="https://plus.google.com/+JamesMoger" />
+					<link name="@JamesMoger" src="https://twitter.com/JamesMoger" />
 				</menu>
 				<divider />
 			</structure>
