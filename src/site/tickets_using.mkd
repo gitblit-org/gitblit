@@ -1,6 +1,6 @@
 ## Using Tickets
 
-*PREVIEW 1.4.0*
+*SINCE 1.4.0*
 
 ### Creating Standard Tickets
 
@@ -8,11 +8,15 @@ Standard tickets can be created using the web ui.  These ticket types include *B
 
 ### Creating a Proposal Ticket
 
-Proposal tickets are created by pushing a patchset to the magic ref.  They can not be created from the web ui.
+Proposal tickets are created by pushing a **single commit** to the magic ref.  They can not be created from the web ui.
 
-*Why should I create a proposal ticket?*
+*Why is there a single commit limitation for creating a Proposal Ticket?*
 
-Because you are too lazy to create a ticket in the web ui first.  The proposal ticket is a convenience mechanism.  It allows you to propose changes using Git, not your browser.
+Because the ticket which will be created for your commit will use your commit's message to define the Ticket's *title* and *description*.  After the ticket is created, you can add as many commits as you want to the ticket's branch.
+
+*Why would I create a proposal ticket?*
+
+Because you are too lazy to create a ticket in the web ui first.  The proposal ticket is a convenience mechanism.  It allows you to propose a change using Git, not your browser.
 
 *Who can create a proposal ticket?*
 
@@ -25,7 +29,7 @@ Any authenticated user who can clone your repository.
 
 ### Creating the first Patchset for an Existing Ticket
 
-If you have an existing ticket that does **not*** yet have a proposed patchset you can push using the magic ref.
+If you have an existing ticket that does **not** yet have a proposed patchset you can push using the magic ref.
 
 *Who can create the first patchset for an existing ticket?*
 
@@ -89,7 +93,7 @@ Gitblit supports two primary push ref specs: the magic ref and the patchset ref.
 
 | magic ref            | description                                  |
 | :------------------- | :------------------------------------------- |
-| refs/for/{id}        | add new patchset to an existing ticket       |
+| refs/for/{id}        | to rewrite a patchset                        |
 
 ### Ticket RefSpec Tricks
 
@@ -106,13 +110,13 @@ Gitblit supports setting some ticket fields from the push refspec.
 
 #### examples
 
-Create a new patchset for ticket *12*, add *james* and *mark* to the watch list, and set the topic to *issue-123* which will be regex-matched against the repository bugtraq configuration.
+Create a new patchset for ticket *12*, add *james* and *mark* to the watch list, and set the topic to *JIRA-123* which will be regex-matched against the repository bugtraq configuration.
 
-    git push origin HEAD:refs/for/12%cc=james,cc=mark,t=issue-123
+    git push origin HEAD:refs/for/12%cc=james,cc=mark,t=JIRA-123
 
-Add some commits to ticket *123* patchset *5*.  Set the milestone to *1.4.1*.
+Add some commits (fast-forward) to ticket *12*.  Set the milestone to *1.4.1*.
 
-    git push origin HEAD:refs/heads/ticket/123/5%m=1.4.1
+    git push origin HEAD:refs/heads/ticket/12%m=1.4.1
 
 ### Merging Patchsets
 
@@ -143,13 +147,13 @@ This allows you to continue the discussion and create a new patchset that hopefu
 
 ### Reviews
 
-Gitblit includes a very simple review scoring mechanism.
+Gitblit includes a very simple patchset scoring mechanism.  Gitblit is not  code-review system, but for those who have simple needs, this may suffice.
 
 - +2, approved: patchset can be merged
 - +1, looks good: someone else must approve for merge
 - -1, needs improvement: please do not merge
 - -2, vetoed: patchset may not be merged
 
-Only users with write (RW) permissions to the repository can give a +2 and -2 score.  Any other user is free to score +/-1.
+Only users with write (RW) permissions to the repository can give a +2 and -2 score.  All other users are allowed to score +/-1.
 
-If the patchset is updated or rewritten, all reviews are reset; reviews apply to specific revisions of patchsets - they are not blanket approvals/disapprovals.
+If the patchset is updated or rewritten, all former review scores are ignored; review scores apply to specific revisions of patchsets - they are not blanket approvals/disapprovals.

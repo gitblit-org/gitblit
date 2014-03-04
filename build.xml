@@ -566,7 +566,7 @@
 						<page name="eclipse plugin" src="eclipse_plugin.mkd" />
 					</menu>
 					<divider />
-					<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+					<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 					  <page name="overview" src="tickets_overview.mkd" />
 					  <page name="using" src="tickets_using.mkd" />
 					  <page name="barnum" src="tickets_barnum.mkd" />
@@ -630,6 +630,7 @@
 			
 			<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
 			<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
+			<regex searchPattern="\b(ticket)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://dev.gitblit.com/tickets/gitblit.git/$3'&gt;ticket $3&lt;/a&gt;" />
 			
 			<!-- Set the logo from the mx:doc resources -->
 			<logo file="${project.resources.dir}/gitblt_25_white.png" />
@@ -903,7 +904,7 @@
 							<page name="eclipse plugin" src="eclipse_plugin.mkd" />
 						</menu>
 						<divider />
-						<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 							<page name="overview" src="tickets_overview.mkd" />
 							<page name="using" src="tickets_using.mkd" />
 							<page name="barnum" src="tickets_barnum.mkd" />
@@ -938,6 +939,7 @@
 				
 				<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
 				<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
+				<regex searchPattern="\b(ticket)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://dev.gitblit.com/tickets/gitblit.git/$3'&gt;ticket $3&lt;/a&gt;" />
 
 				<!-- Set the logo from the mx:doc resources -->
 				<logo file="${project.resources.dir}/gitblt_25_white.png" />

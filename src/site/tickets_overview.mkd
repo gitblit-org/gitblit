@@ -1,10 +1,12 @@
 ## Tickets
 
-*PREVIEW 1.4.0*
+*SINCE 1.4.0*
 
 Gitblit's Tickets feature is analgous to GitHub/BitBucket Issues+Pull Requests.  Gitblit does not make a hard distinction between what is an Issue and what is a Pull Request.  In Gitblit, all tickets may have attached commits and there is no need to create a separate, new container to share & discuss these commits.  Additionally, there is no need to create multiple Tickets for different versions of the same code - a common practice in other systems.
 
-You can view a screencast of Gitblit Tickets in action [here](https://vimeo.com/86164723).
+### Screencast
+
+You can view a screencast of [Gitblit Tickets in action](https://vimeo.com/86164723) on Vimeo.
 
 ### Design
 
@@ -15,6 +17,7 @@ The Tickets feature of Gitblit is designed around a few principles:
 3. The ticket should be the canonical source of commits related to the ticket (i.e. a fork repository should not be the canonical source of commits)
 4. Additional contributors should be allowed to participate in developing the patchset for a ticket, not just the original patchset author.  The ticket should be a container for collaborative branch development, not just for code-review/gating.
 5. Contributors should be able to rewrite commits attached to a ticket without losing history.  Contributors should be encouraged to polish, hone, and rewrite as needed to ensure that what eventually is merged is logical and concise.
+6. Tickets should focus on contribution sharing and communication.  The Gitblit Tickets feature is not an elaborate code-review system, although in the future it may evolve to be more competitive for that use.
 
 Gitblit takes inspiration from GitHub, BitBucket, and Gerrit.
 
@@ -32,7 +35,7 @@ Gitblit's ticket data is based on a ridiculously simple concept: a ticket is the
 
 All ticket services inherit from the same base class which handles most of the high level logic for ticket management including caching, milestones (stored in .git/config), indexing, queries, and searches.
 
-You can find descriptions of the available persistence services in the [setup][tickets_setup.mkd] page.
+You can find descriptions of the available persistence services in [[tickets setup]].
 
 #### Limitations
 
@@ -87,25 +90,27 @@ The only difference between these two ticket types is how they are created (on-p
 
 GitHub-style Pull Requests require the following workflow:
 
-1. Fork RepoA -> MyRepoA
-2. Clone MyRepoA
-3. Create branch in MyRepoA clone and hack on contribution
-4. Push new branch upstream to MyRepoA
-5. Open Pull Request from MyRepoA -> RepoA
-6. RepoA owner pulls from MyRepoA
-7. RepoA owner pushes merge to RepoA
+1. Fork *RepoA* -> **MyRepoA**
+2. Clone **MyRepoA**
+3. Create **MyRepoA_Clone:topic_branch** and hack on contribution
+4. Push **MyRepoA_Clone:topic_branch** upstream to **MyRepoA:topic_branch**
+5. Open Pull Request from **MyRepoA:topic_branch** -> *RepoA:integration_branch*
+6. RepoA owner pulls **MyRepoA:topic_branch** -> *RepoA:integration_branch* and reviews
+7. RepoA owner pushes merged contribution upstream to *RepoA:integration_branch*
 
 Gitblit's flow looks like this:
 
-1. Clone RepoA
-2. Create branch in RepoA clone and hack on contribution
-3. Push to magic branch of RepoA
-4. RepoA owner pulls from RepoA
-5. RepoA owner pushes merge to RepoA
+1. Clone *RepoA*
+2. Create *RepoA_Clone:topic_branch* and hack on contribution
+3. Push *RepoA_Clone:topic_branch* upstream to *RepoA:refs/for/[new|id]*
+4. RepoA owner fetches & merges branch *ticket/[id]*
+5. RepoA owner pushes merged contribution upstream to *RepoA:integration_branch*
 
 The Gitblit workflow eliminates the 4-repository design of a GitHub pull request (canonical, canonical working copy, fork, & fork working copy) in favor of a 3-repository design (canonical, canonical working copy, clone working copy).
 
-You might wonder: is it a good idea to allow users to push into the canonical repository?  And the answer is, it's no different than a GitHub pull request.  When you open a GitHub pull request from MyRepoA to RepoA, your code is already being pushed to a private branch in RepoA (*refs/pull/{id}/head* and *refs/pull/{id}/merge*) so effectively you are already pushing into RepoA - you are just using an extra repository and the web ui to do it.  By pushing directly to the canonical repository, you save server resources and eliminate the web ui step.
+*You might wonder:* Is it a good idea to allow users to push into the canonical repository?
+
+The answer is, it's really not that different from a GitHub pull request.  When you open a GitHub pull request from *MyRepoA* to *RepoA*, your code is already being pushed to a private branch in *RepoA* ( *refs/pull/{id}/head* and *refs/pull/{id}/merge*) so effectively you are already pushing into *RepoA* - you are just using an extra repository and the web ui to do it.  By pushing directly to the canonical repository, you save server resources and eliminate the web ui step.
 
 Additionally, because the patchset is not linked to a user's personal fork it is possible to allow others to collaborate on development.
 
@@ -133,13 +138,12 @@ The Tickets feature is highly functional but there are several areas which need 
 
 #### TODO
 
-- need a My Tickets page
-- web ui for adding, editing, and deleting miletones
-- continue cleanup of code and templates
-- would be nice to have a collapsible ticket description (e.g. AUI expander)
-- would be nice to edit a comment
-- would be nice to delete a comment
-- Groovy hook points major ticket changes (new, close, patchset change)
+- Implement a My Tickets page (ticket-15)
+- Ticket Lifecycle Hooks (ticket-16)
+- CRUD pages for Milestones (ticket-17)
+- Ticket service migration tool (ticket-19)
+- Collapsible ticket description (e.g. AUI expander)
+- Edit a comment
+- Delete a comment
 - REST API for tooling
-- Might be nice to process Markdown previews client-side rather than round-tripping to Gitblit (another stateful example).  Perhaps using AngularMarkdown?
-- Would be nice to have a tool to import/export journals between services.  All the journals use the same format so this should be very straight-forward to migrate/convert them between services.
+- Client-side Markdown previews (AngularMarkdown?)

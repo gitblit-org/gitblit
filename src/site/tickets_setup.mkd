@@ -1,6 +1,6 @@
 ## Setting up Tickets
 
-*PREVIEW 1.4.0*
+*SINCE 1.4.0*
 
 By default, Gitblit is not configured for Tickets.  There are several reasons for this, but the most important one is that you must choose the persistence backend that works best for you.
 

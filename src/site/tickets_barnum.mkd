@@ -1,16 +1,22 @@
 ## Barnum
 
-*PREVIEW 1.4.0*
+*SINCE 1.4.0*
 
 Barnum is a command-line companion for Git.  It's purpose is to simplify the syntax and ceremony for working with Gitblit Tickets and Patchsets.
 
 The current implementation is a Python script that wraps a native Git executable.  It requires Python 3 and native Git.  It works well on Windows, Linux, and Mac OS X.
 
+Barnum is bundled with each Gitblit installation and linked on each ticket page in the propose, checkout, and merge instructions.  You can download Barnum manually using the following url or using the `/pt` url on your own Gitblit server:
+
+    https://dev.gitblit.com/pt
+
+This url serves a *zip* or a *tar.gz* of the Python script and a readme file, as appropriate based on the user-agent of the requesting client.
+
 ### Fetch
 
     pt fetch <id> [-p,--patchset <n>]
 
-If *patchset* is specified, the **fetch** command will download the specified ticket patchset to the FETCH_HEAD ref.  If *patchset* is **not*** specified, the configured remote will be fetched to download all ticket branch updates - this is the same as <pre>git fetch {remote}</pre>.
+If *patchset* is specified, the **fetch** command will download the specified ticket patchset to the FETCH_HEAD ref.  If *patchset* is **not** specified, the configured remote will be fetched to download all ticket branch updates - this is the same as <pre>git fetch {remote}</pre>.
 
 ### Checkout (co)
 
