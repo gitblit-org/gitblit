@@ -3,7 +3,7 @@
 This is not exactly a formal roadmap but it is a priority list of what might be implemented in future releases.  
 This list is volatile and may not reflect what will be in the next release.
 
-* **In-Progress**: Integrate an SSH daemon to complete the transport trifecta: http/https, git, and ssh (issue-369)
+* **In-Progress**: Integrate an SSH daemon (issue-369)
 * Diff should highlight inserted/removed fragment compared to original line
 * Respect Gerrit branch permissions, if found (issue 36)
 

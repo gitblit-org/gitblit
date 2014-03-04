@@ -38,6 +38,13 @@ This documentation is the source content from which the [Gitblit website](http:/
 [[src/site/administration.mkd]]
 [[src/site/setup_scaling.mkd]]
 
+### Gitblit Tickets
+
+[[src/site/tickets_overview.mkd]]
+[[src/site/tickets_using.mkd]]
+[[src/site/tickets_barnum.mkd]]
+[[src/site/tickets_setup.mkd]]
+
 ### Other Pages
 
 [[src/site/federation.mkd]]
