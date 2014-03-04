@@ -274,10 +274,10 @@ public class JsonUtils {
 		return builder.create();
 	}
 
-	private static class GmtDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+	public static class GmtDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 		private final DateFormat dateFormat;
 
-		private GmtDateTypeAdapter() {
+		public GmtDateTypeAdapter() {
 			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		}

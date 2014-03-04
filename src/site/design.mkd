@@ -53,6 +53,7 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [libpam4j](https://github.com/kohsuke/libpam4j) (MIT)
 - [commons-codec](http://commons.apache.org/proper/commons-codec) (Apache 2.0)
 - [pegdown](https://github.com/sirthias/pegdown) (Apache 2.0)
+- [jedis](https://github.com/xetorthio/jedis) (MIT)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

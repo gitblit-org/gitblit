@@ -40,6 +40,7 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
+import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class DigestsPanel extends BasePanel {
@@ -69,8 +70,14 @@ public class DigestsPanel extends BasePanel {
 
 				String fullRefName = change.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
+				String ticketId = "";
 				boolean isTag = false;
-				if (shortRefName.startsWith(Constants.R_HEADS)) {
+				boolean isTicket = false;
+				if (shortRefName.startsWith(Constants.R_TICKET)) {
+					ticketId = shortRefName = shortRefName.substring(Constants.R_TICKET.length());
+					shortRefName = MessageFormat.format(getString("gb.ticketN"), ticketId);
+					isTicket = true;
+				} else if (shortRefName.startsWith(Constants.R_HEADS)) {
 					shortRefName = shortRefName.substring(Constants.R_HEADS.length());
 				} else if (shortRefName.startsWith(Constants.R_TAGS)) {
 					shortRefName = shortRefName.substring(Constants.R_TAGS.length());
@@ -96,6 +103,8 @@ public class DigestsPanel extends BasePanel {
 
 				if (isTag) {
 					WicketUtils.setCssClass(changeIcon, "iconic-tag");
+				} else if (isTicket) {
+					WicketUtils.setCssClass(changeIcon, "fa fa-ticket");
 				} else {
 					WicketUtils.setCssClass(changeIcon, "iconic-loop");
 				}
@@ -158,6 +167,10 @@ public class DigestsPanel extends BasePanel {
 					// link to tag
 					logItem.add(new LinkPanel("refChanged", null, shortRefName,
 							TagPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
+				} else if (isTicket) {
+					// link to ticket
+					logItem.add(new LinkPanel("refChanged", null, shortRefName,
+							TicketsPage.class, WicketUtils.newObjectParameter(change.repository, ticketId)));
 				} else {
 					// link to tree
 					logItem.add(new LinkPanel("refChanged", null, shortRefName,

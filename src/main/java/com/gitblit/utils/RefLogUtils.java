@@ -213,6 +213,22 @@ public class RefLogUtils {
 	 */
 	public static boolean updateRefLog(UserModel user, Repository repository,
 			Collection<ReceiveCommand> commands) {
+
+		// only track branches and tags
+		List<ReceiveCommand> filteredCommands = new ArrayList<ReceiveCommand>();
+		for (ReceiveCommand cmd : commands) {
+			if (!cmd.getRefName().startsWith(Constants.R_HEADS)
+					&& !cmd.getRefName().startsWith(Constants.R_TAGS)) {
+				continue;
+			}
+			filteredCommands.add(cmd);
+		}
+
+		if (filteredCommands.isEmpty()) {
+			// nothing to log
+			return true;
+		}
+
 		RefModel reflogBranch = getRefLogBranch(repository);
 		if (reflogBranch == null) {
 			JGitUtils.createOrphanBranch(repository, GB_REFLOG, null);
@@ -443,7 +459,15 @@ public class RefLogUtils {
 			Date date = push.getAuthorIdent().getWhen();
 
 			RefLogEntry log = new RefLogEntry(repositoryName, date, user);
-			List<PathChangeModel> changedRefs = JGitUtils.getFilesInCommit(repository, push);
+
+			// only report HEADS and TAGS for now
+			List<PathChangeModel> changedRefs = new ArrayList<PathChangeModel>();
+			for (PathChangeModel refChange : JGitUtils.getFilesInCommit(repository, push)) {
+				if (refChange.path.startsWith(Constants.R_HEADS)
+						|| refChange.path.startsWith(Constants.R_TAGS)) {
+					changedRefs.add(refChange);
+				}
+			}
 			if (changedRefs.isEmpty()) {
 				// skip empty commits
 				continue;
@@ -466,12 +490,16 @@ public class RefLogUtils {
 						// ref deletion
 						continue;
 					}
-					List<RevCommit> pushedCommits = JGitUtils.getRevLog(repository, oldId, newId);
-					for (RevCommit pushedCommit : pushedCommits) {
-						RepositoryCommit repoCommit = log.addCommit(change.path, pushedCommit);
-						if (repoCommit != null) {
-							repoCommit.setRefs(allRefs.get(pushedCommit.getId()));
+					try {
+						List<RevCommit> pushedCommits = JGitUtils.getRevLog(repository, oldId, newId);
+						for (RevCommit pushedCommit : pushedCommits) {
+							RepositoryCommit repoCommit = log.addCommit(change.path, pushedCommit);
+							if (repoCommit != null) {
+								repoCommit.setRefs(allRefs.get(pushedCommit.getId()));
+							}
 						}
+					} catch (Exception e) {
+
 					}
 				}
 			}

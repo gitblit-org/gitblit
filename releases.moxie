@@ -59,6 +59,7 @@ r20: {
 	- Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)
+	- Added Ticket tracker and Patchset collaboration feature (issue-215) 
 	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
 	- Set Link: <url>; rel="canonical" http header for SEO (issue-304)
 	- Added raw links to the commit, commitdiff, and compare pages (issue-319)
@@ -86,6 +87,7 @@ r20: {
 	- added Dagger 1.1.0
 	- added Eclipse WikiText libraries for processing confluence, mediawiki, textile, tracwiki, and twiki
 	- added FontAwesome 4.0.3
+	- added Jedis 2.3.1
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
     - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }
@@ -105,6 +107,10 @@ r20: {
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
 	- { name: 'web.summaryShowReadme', defaultValue: 'false' }
 	- { name: 'server.redirectToHttpsPort', defaultValue: 'false' }
+	- { name: 'tickets.service', defaultValue: ' ' }
+	- { name: 'tickets.acceptNewTickets', defaultValue: 'true' }
+	- { name: 'tickets.acceptNewPatchsets', defaultValue: 'true' }
+	- { name: 'tickets.requireApproval', defaultValue: 'false' }
     contributors:
 	- James Moger
 	- Robin Rosenberg

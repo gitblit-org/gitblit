@@ -1,0 +1,49 @@
+Barnum, a Patchset Tool (pt)
+
+This Git wrapper script is designed to reduce the ceremony of working with Gitblit patchsets.
+
+Copyright 2014 gitblit.com.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+Linux
+
+1. This script should work out-of-the-box, assuming you have Python 3 and Git.
+2. Put the pt script in a directory on your PATH
+
+Mac OS X
+
+1. Download and install Python 3, if you have not (http://www.python.org)
+2. Put the pt script in a directory on your PATH
+
+Windows
+
+1. Download and install Python 3, if you have not (http://www.python.org)
+2. Download and install Git for Windows, if you have not (http://git-scm.com)
+3. Put the pt.cmd and pt.py file together in a directory on your PATH
+
+
+Usage
+
+    pt fetch <id> [-p,--patchset <n>]
+    pt checkout <id> [-p,--patchset <n>] [-f,--force]
+    pt push [<id>] [-i,--ignore] [-f,--force] [-t,--topic <topic>]
+            [-m,--milestone <milestone>] [-cc <user> <user>]
+    pt pull <id>
+    pt start <topic> | <id>
+    pt propose [new | <branch> | <id>] [-i,--ignore] [-t,--topic <topic>]
+               [-m,--milestone <milestone>] [-cc <user> <user>]
+    pt cleanup [<id>]
+
+    
