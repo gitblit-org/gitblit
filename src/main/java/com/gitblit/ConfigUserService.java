@@ -98,6 +98,8 @@ public class ConfigUserService implements IUserService {
 
 	private static final String ACCOUNTTYPE = "accountType";
 
+	private static final String DISABLED = "disabled";
+
 	private final File realmFile;
 
 	private final Logger logger = LoggerFactory.getLogger(ConfigUserService.class);
@@ -701,6 +703,9 @@ public class ConfigUserService implements IUserService {
 			if (!StringUtils.isEmpty(model.countryCode)) {
 				config.setString(USER, model.username, COUNTRYCODE, model.countryCode);
 			}
+			if (model.disabled) {
+				config.setBoolean(USER, model.username, DISABLED, true);
+			}
 			if (model.getPreferences() != null) {
 				if (!StringUtils.isEmpty(model.getPreferences().locale)) {
 					config.setString(USER, model.username, LOCALE, model.getPreferences().locale);
@@ -868,6 +873,7 @@ public class ConfigUserService implements IUserService {
 					if (Constants.EXTERNAL_ACCOUNT.equals(user.password) && user.accountType.isLocal()) {
 						user.accountType = AccountType.EXTERNAL;
 					}
+					user.disabled = config.getBoolean(USER, username, DISABLED, false);
 					user.organizationalUnit = config.getString(USER, username, ORGANIZATIONALUNIT);
 					user.organization = config.getString(USER, username, ORGANIZATION);
 					user.locality = config.getString(USER, username, LOCALITY);

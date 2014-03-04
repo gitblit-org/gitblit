@@ -198,7 +198,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 						flagWicketSession(AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
-						return user;
+						return validateAuthentication(user, AuthenticationType.CONTAINER);
 					} else if (settings.getBoolean(Keys.realm.container.autoCreateAccounts, false)
 							&& !internalAccount) {
 						// auto-create user from an authenticated container principal
@@ -210,7 +210,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 						flagWicketSession(AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
-						return user;
+						return validateAuthentication(user, AuthenticationType.CONTAINER);
 					} else if (!internalAccount) {
 						logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted servlet container authentication from {1}",
 								principal.getName(), httpRequest.getRemoteAddr()));
@@ -231,7 +231,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 				flagWicketSession(AuthenticationType.CERTIFICATE);
 				logger.debug(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
 						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
-				return user;
+				return validateAuthentication(user, AuthenticationType.CERTIFICATE);
 			} else {
 				logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted client certificate ({1}) authentication from {2}",
 						model.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
@@ -253,7 +253,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 				flagWicketSession(AuthenticationType.COOKIE);
 				logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
 					user.username, httpRequest.getRemoteAddr()));
-				return user;
+				return validateAuthentication(user, AuthenticationType.COOKIE);
 			}
 		}
 
@@ -275,7 +275,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 					flagWicketSession(AuthenticationType.CREDENTIALS);
 					logger.debug(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
 							user.username, httpRequest.getRemoteAddr()));
-					return user;
+					return validateAuthentication(user, AuthenticationType.CREDENTIALS);
 				} else {
 					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}",
 							username, httpRequest.getRemoteAddr()));
@@ -283,6 +283,27 @@ public class AuthenticationManager implements IAuthenticationManager {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * This method allows the authentication manager to reject authentication
+	 * attempts.  It is called after the username/secret have been verified to
+	 * ensure that the authentication technique has been logged.
+	 *
+	 * @param user
+	 * @return
+	 */
+	protected UserModel validateAuthentication(UserModel user, AuthenticationType type) {
+		if (user == null) {
+			return null;
+		}
+		if (user.disabled) {
+			// user has been disabled
+			logger.warn("Rejected {} authentication attempt by disabled account \"{}\"",
+					type, user.username);
+			return null;
+		}
+		return user;
 	}
 
 	protected void flagWicketSession(AuthenticationType authenticationType) {
@@ -338,7 +359,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 				// plain-text password
 				returnedUser = user;
 			}
-			return returnedUser;
+			return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
 		}
 
 		// try registered external authentication providers
@@ -349,12 +370,12 @@ public class AuthenticationManager implements IAuthenticationManager {
 					if (user != null) {
 						// user authenticated
 						user.accountType = provider.getAccountType();
-						return user;
+						return validateAuthentication(user, AuthenticationType.CREDENTIALS);
 					}
 				}
 			}
 		}
-		return user;
+		return validateAuthentication(user, AuthenticationType.CREDENTIALS);
 	}
 
 	/**

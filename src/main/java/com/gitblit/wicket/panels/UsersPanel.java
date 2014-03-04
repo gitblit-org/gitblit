@@ -57,7 +57,8 @@ public class UsersPanel extends BasePanel {
 			@Override
 			public void populateItem(final Item<UserModel> item) {
 				final UserModel entry = item.getModelObject();
-				LinkPanel editLink = new LinkPanel("username", "list", entry.username,
+				String css = "list" + (entry.disabled ? "-strikethrough":"");
+				LinkPanel editLink = new LinkPanel("username", css, entry.username,
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
 				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 				item.add(editLink);
@@ -65,7 +66,7 @@ public class UsersPanel extends BasePanel {
 				if (StringUtils.isEmpty(entry.displayName)) {
 					item.add(new Label("displayName").setVisible(false));
 				} else {
-					editLink = new LinkPanel("displayName", "list", entry.getDisplayName(),
+					editLink = new LinkPanel("displayName", css, entry.getDisplayName(),
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
 					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 					item.add(editLink);
@@ -74,7 +75,7 @@ public class UsersPanel extends BasePanel {
 				if (StringUtils.isEmpty(entry.emailAddress)) {
 					item.add(new Label("emailAddress").setVisible(false));
 				} else {
-					editLink = new LinkPanel("emailAddress", "list", entry.emailAddress,
+					editLink = new LinkPanel("emailAddress", css, entry.emailAddress,
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
 					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 					item.add(editLink);

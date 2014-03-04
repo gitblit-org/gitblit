@@ -64,7 +64,7 @@ import com.gitblit.utils.JGitUtils;
 		GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
 		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdAuthenticationTest.class,
 		ModelUtilsTest.class, JnaUtilsTest.class, LdapSyncServiceTest.class, FileTicketServiceTest.class,
-		BranchTicketServiceTest.class, RedisTicketServiceTest.class  })
+		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class })
 public class GitBlitSuite {
 
 	public static final File BASEFOLDER = new File("data");

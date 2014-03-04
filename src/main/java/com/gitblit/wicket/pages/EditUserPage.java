@@ -243,6 +243,8 @@ public class EditUserPage extends RootSubPage {
 		form.add(new CheckBox("canFork").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
+		form.add(new CheckBox("disabled"));
+
 		form.add(new RegistrantPermissionsPanel("repositories",	RegistrantType.REPOSITORY, repos, permissions, getAccessPermissions()));
 		form.add(teams.setEnabled(editTeams));
 

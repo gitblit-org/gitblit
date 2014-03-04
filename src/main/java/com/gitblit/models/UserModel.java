@@ -67,6 +67,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean canFork;
 	public boolean canCreate;
 	public boolean excludeFromFederation;
+	public boolean disabled;
 	// retained for backwards-compatibility with RPC clients
 	@Deprecated
 	public final Set<String> repositories = new HashSet<String>();

@@ -78,6 +78,7 @@ r20: {
 	- Added FishEye hook script (pr-137)
 	- Added Redmine Fetch hook script (issue-359)
 	- Added Subgit hook contributed by TMate Software
+	- Added function to retain a user account but prohibit authentication. This is an alternative to deleting a user account.
     dependencyChanges:
 	- updated to Jetty 8.1.13
 	- updated to JGit 3.2.0

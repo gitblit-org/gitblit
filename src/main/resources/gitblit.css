@@ -993,6 +993,11 @@ a.list {
 	color: inherit;
 }
 
+a.list-strikethrough {
+	text-decoration: line-through;
+	color: inherit;
+}
+
 a.list.subject {
 	font-weight: bold;
 }
