@@ -1,0 +1,1 @@
+[{"date":"2014-03-04T04:15:17Z","author":"james","fields":{"title":"Ticket Lifecycle Hooks","body":"There should be Groovy hook points for:\r\n\r\n- Ticket created\r\n- Patchset uploaded\r\n- Ticket closed","topic":"issue-215","type":"Enhancement","milestone":"v1.5.0","watchers":"+james","status":"New"}}]
