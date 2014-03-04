@@ -110,6 +110,7 @@ public class LogPanel extends BasePanel {
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);
+				final boolean isMerge = entry.getParentCount() > 1;
 
 				item.add(WicketUtils.createDateLabel("commitDate", date, getTimeZone(), getTimeUtils()));
 
@@ -122,7 +123,7 @@ public class LogPanel extends BasePanel {
 				item.add(authorLink);
 
 				// merge icon
-				if (entry.getParentCount() > 1) {
+				if (isMerge) {
 					item.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
 				} else {
 					item.add(WicketUtils.newBlankImage("commitIcon"));
@@ -136,7 +137,7 @@ public class LogPanel extends BasePanel {
 				} else {
 					trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG);
 				}
-				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject",
+				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject" + (isMerge ? " merge" : ""),
 						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
 								repositoryName, entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {

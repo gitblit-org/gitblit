@@ -1712,6 +1712,14 @@ tr.dark:hover a {
 	color: white;	
 }
 
+.merge {
+	opacity: 0.5;
+}
+
+.merge:hover {
+	opacity: 1;
+}
+
 td.author {
 	font-style: italic !important;
 	white-space: nowrap;
@@ -1768,7 +1776,7 @@ span.metricsTitle {
 	font-size: 9px;
 	font-weight: normal;
 	border: 1px solid;
-	color: black;	
+	color: black;
 }
 
 .tagRef a, .headRef a, .localBranch a, .remoteBranch a, .otherRef a, .pullRef a {
