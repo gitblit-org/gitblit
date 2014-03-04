@@ -31,7 +31,7 @@
 #
 
 __author__ = 'James Moger'
-__version__ = '1.0.5'
+__version__ = '1.0.6'
 
 import subprocess
 import argparse
@@ -187,15 +187,6 @@ def push(args):
 
     print("Pushing your patchset to the '{}' repository".format(args.remote))
     __call(['git', 'push', args.remote, ref_spec], echo=True)
-
-    if args.force and args.patchset is not None and args.patchset is not 0:
-        # if we had to force the push then there is a new patchset
-        # revision on the server so checkout out the new patchset
-        args.patchset = None
-        args.force = False
-        args.quiet = True
-        checkout(args)
-
     return
 
 
