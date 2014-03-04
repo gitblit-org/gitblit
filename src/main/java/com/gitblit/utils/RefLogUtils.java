@@ -478,8 +478,6 @@ public class RefLogUtils {
 				case DELETE:
 					log.updateRef(change.path, ReceiveCommand.Type.DELETE);
 					break;
-				case ADD:
-					log.updateRef(change.path, ReceiveCommand.Type.CREATE);
 				default:
 					String content = JGitUtils.getStringContent(repository, push.getTree(), change.path);
 					String [] fields = content.split(" ");
