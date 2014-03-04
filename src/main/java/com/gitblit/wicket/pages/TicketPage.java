@@ -491,7 +491,7 @@ public class TicketPage extends TicketBasePage {
 			add(new Label("ticketTopic").setVisible(false));
 		} else {
 			// process the topic using the bugtraq config to link things
-			String topic = messageProcessor().processPlainCommitMessage(getRepository(), repositoryName, ticket.topic);
+			String topic = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, ticket.topic);
 			add(new Label("ticketTopic", topic).setEscapeModelStrings(false));
 		}
 

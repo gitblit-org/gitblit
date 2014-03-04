@@ -8,3 +8,9 @@
   loglinkregex = "(?:pull request|pull|pr)\\s*[-#]?[0-9]+"
   logregex = "\\d+"
   loglinktext = "pull request #%BUGID%"
+[bugtraq "tickets"]
+  url = "https://dev.gitblit.com/tickets/gitblit.git/%BUGID%"
+  loglinkregex = "(?:ticket)\\s*[-#]?[0-9]+"
+  logregex = "\\d+"
+  loglinktext = "ticket #%BUGID%"
+  

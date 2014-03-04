@@ -529,7 +529,7 @@ public class TicketsPage extends TicketBasePage {
 
 					@Override
 					public void populateItem(final Item<String> labelItem) {
-						String content = messageProcessor().processPlainCommitMessage(getRepository(), repositoryName, labelItem.getModelObject());
+						String content = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, labelItem.getModelObject());
 						Label label = new Label("label", content);
 						label.setEscapeModelStrings(false);
 						TicketLabel tLabel = app().tickets().getLabel(getRepositoryModel(), labelItem.getModelObject());

@@ -107,7 +107,7 @@ public class CommitDiffPage extends RepositoryPage {
 				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
-				item.add(new Label("noteContent", messageProcessor().processPlainCommitMessage(getRepository(), repositoryName,
+				item.add(new Label("noteContent", bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName,
 						entry.content)).setEscapeModelStrings(false));
 			}
 		};

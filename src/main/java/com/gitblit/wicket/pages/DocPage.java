@@ -24,6 +24,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
@@ -65,6 +66,9 @@ public class DocPage extends RepositoryPage {
 				}
 			}
 		}
+
+		BugtraqProcessor bugtraq = new BugtraqProcessor(app().settings());
+		markupText = bugtraq.processText(getRepository(), repositoryName, markupText);
 
 		Fragment fragment;
 		MarkupDocument markupDoc = processor.parse(repositoryName, getBestCommitId(commit), documentPath, markupText);

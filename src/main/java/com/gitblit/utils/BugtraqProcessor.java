@@ -34,13 +34,13 @@ import com.syntevo.bugtraq.BugtraqConfig;
 import com.syntevo.bugtraq.BugtraqFormatter;
 import com.syntevo.bugtraq.BugtraqFormatter.OutputHandler;
 
-public class MessageProcessor {
+public class BugtraqProcessor {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final IStoredSettings settings;
 
-	public MessageProcessor(IStoredSettings settings) {
+	public BugtraqProcessor(IStoredSettings settings) {
 		this.settings = settings;
 	}
 
@@ -59,7 +59,7 @@ public class MessageProcessor {
 		switch (model.commitMessageRenderer) {
 		case MARKDOWN:
 			try {
-				String prepared = processCommitMessageRegex(repository, model.name, text);
+				String prepared = processTextRegex(repository, model.name, text);
 				return MarkdownUtils.transformMarkdown(prepared);
 			} catch (Exception e) {
 				logger.error("Failed to render commit message as markdown", e);
@@ -86,21 +86,35 @@ public class MessageProcessor {
 	 */
 	public String processPlainCommitMessage(Repository repository, String repositoryName, String text) {
 		String html = StringUtils.escapeForHtml(text, false);
-		html = processCommitMessageRegex(repository, repositoryName, html);
+		html = processTextRegex(repository, repositoryName, html);
 		return StringUtils.breakLinesForHtml(html);
 
 	}
 
 	/**
-	 * Apply globally or per-repository specified regex substitutions to the
-	 * commit message.
+	 * Returns an processed version of the text with any global or
+	 * repository-specific regular expression substitution applied.
 	 *
 	 * @param repository
 	 * @param repositoryName
 	 * @param text
-	 * @return the processed commit message
+	 * @return processed version of the text
 	 */
-	protected String processCommitMessageRegex(Repository repository, String repositoryName, String text) {
+	public String processText(Repository repository, String repositoryName, String text) {
+		String html = processTextRegex(repository, repositoryName, text);
+		return html;
+	}
+
+	/**
+	 * Apply globally or per-repository specified regex substitutions to the
+	 * text.
+	 *
+	 * @param repository
+	 * @param repositoryName
+	 * @param text
+	 * @return the processed text
+	 */
+	protected String processTextRegex(Repository repository, String repositoryName, String text) {
 		Map<String, String> map = new HashMap<String, String>();
 		// global regex keys
 		if (settings.getBoolean(Keys.regex.global, false)) {

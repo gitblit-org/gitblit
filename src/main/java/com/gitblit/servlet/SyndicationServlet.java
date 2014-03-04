@@ -40,9 +40,9 @@ import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.servlet.AuthenticationFilter.AuthenticatedRequest;
+import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.MessageProcessor;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
 
@@ -257,7 +257,7 @@ public class SyndicationServlet extends DaggerServlet {
 						offset, length);
 			}
 			Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository, model.showRemoteBranches);
-			MessageProcessor processor = new MessageProcessor(settings);
+			BugtraqProcessor processor = new BugtraqProcessor(settings);
 
 			// convert RevCommit to SyndicatedEntryModel
 			for (RevCommit commit : commits) {

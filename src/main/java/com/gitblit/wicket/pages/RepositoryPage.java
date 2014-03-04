@@ -58,9 +58,9 @@ import com.gitblit.servlet.PagesServlet;
 import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.MessageProcessor;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
@@ -177,8 +177,8 @@ public abstract class RepositoryPage extends RootPage {
 		return getClass();
 	}
 
-	protected MessageProcessor messageProcessor() {
-		return new MessageProcessor(app().settings());
+	protected BugtraqProcessor bugtraqProcessor() {
+		return new BugtraqProcessor(app().settings());
 	}
 
 	private Map<String, PageRegistration> registerPages() {
@@ -531,7 +531,7 @@ public abstract class RepositoryPage extends RootPage {
 
 	protected void addFullText(String wicketId, String text) {
 		RepositoryModel model = getRepositoryModel();
-		String content = messageProcessor().processCommitMessage(r, model, text);
+		String content = bugtraqProcessor().processCommitMessage(r, model, text);
 		String html;
 		switch (model.commitMessageRenderer) {
 		case MARKDOWN:
