@@ -79,6 +79,7 @@ r20: {
 	- Added Redmine Fetch hook script (issue-359)
 	- Added Subgit hook contributed by TMate Software
 	- Added function to retain a user account but prohibit authentication. This is an alternative to deleting a user account.
+	- Added setting to hide the top-level navigation header to facilitate embedding Gitblit in something else.
     dependencyChanges:
 	- updated to Jetty 8.1.13
 	- updated to JGit 3.2.0
@@ -105,6 +106,7 @@ r20: {
 	- { name: 'web.canonicalUrl', defaultValue: ' ' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
+	- { name: 'web.hideHeader', defaultValue: 'false' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
 	- { name: 'web.summaryShowReadme', defaultValue: 'false' }
 	- { name: 'server.redirectToHttpsPort', defaultValue: 'false' }

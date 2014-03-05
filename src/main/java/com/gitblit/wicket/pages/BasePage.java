@@ -93,6 +93,9 @@ public abstract class BasePage extends SessionPage {
 		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
 			add(CSSPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
 		}
+		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
+			add(CSSPackageResource.getHeaderContribution("hideheader.css"));
+		}
 	}
 
 	protected String getCanonicalUrl() {
