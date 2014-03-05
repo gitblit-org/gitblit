@@ -284,6 +284,13 @@ public class EditTicketPage extends RepositoryPage {
 					break;
 				}
 			}
+			if (milestoneModel.getObject() == null && !StringUtils.isEmpty(ticket.milestone)) {
+				// ensure that this unrecognized milestone is listed
+				// so that we get the <nil> selection.
+				TicketMilestone tms = new TicketMilestone(ticket.milestone);
+				milestones.add(tms);
+				milestoneModel.setObject(tms);
+			}
 			if (!milestones.isEmpty()) {
 				milestones.add(new TicketMilestone(NIL));
 			}
