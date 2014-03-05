@@ -82,7 +82,7 @@ r20: {
 	- Added setting to hide the top-level navigation header to facilitate embedding Gitblit in something else.
     dependencyChanges:
 	- updated to Jetty 8.1.13
-	- updated to JGit 3.2.0
+	- updated to JGit 3.3.0
 	- updated to Lucene 4.6.0
 	- updated to BouncyCastle 1.49
 	- replaced MarkdownPapers with pegdown 1.4.2
