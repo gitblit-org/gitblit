@@ -31,7 +31,9 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TicketModel;
@@ -67,6 +69,8 @@ public class EditTicketPage extends RepositoryPage {
 	private MarkdownTextArea descriptionEditor;
 
 	private IModel<String> topicModel;
+
+	private IModel<String> mergeToModel;
 
 	private IModel<TicketResponsible> responsibleModel;
 
@@ -105,6 +109,7 @@ public class EditTicketPage extends RepositoryPage {
 		topicModel = Model.of(ticket.topic == null ? "" : ticket.topic);
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
+		mergeToModel = Model.of(ticket.mergeTo == null ? "" : ticket.mergeTo);
 
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -172,6 +177,13 @@ public class EditTicketPage extends RepositoryPage {
 					} else {
 						change.setField(Field.milestone, milestone.name);
 					}
+				}
+
+				String mergeTo = mergeToModel.getObject();
+				if ((StringUtils.isEmpty(ticket.mergeTo) && !StringUtils.isEmpty(mergeTo))
+						|| (!StringUtils.isEmpty(mergeTo) && !mergeTo.equals(ticket.mergeTo))) {
+					// integration branch change
+					change.setField(Field.mergeTo, mergeTo);
 				}
 
 				if (change.hasFieldChanges()) {
@@ -258,10 +270,27 @@ public class EditTicketPage extends RepositoryPage {
 
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
+
+			// mergeTo (integration branch)
+			List<String> branches = new ArrayList<String>();
+			for (String branch : getRepositoryModel().getLocalBranches()) {
+				// exclude ticket branches
+				if (!branch.startsWith(Constants.R_TICKET)) {
+					branches.add(Repository.shortenRefName(branch));
+				}
+			}
+			branches.remove(Repository.shortenRefName(getRepositoryModel().HEAD));
+			branches.add(0, Repository.shortenRefName(getRepositoryModel().HEAD));
+
+			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", this);
+			mergeto.add(new DropDownChoice<String>("mergeto", mergeToModel, branches));
+			form.add(mergeto.setVisible(!branches.isEmpty()));
+
 		} else {
 			// user does not have permission to assign milestone or responsible
 			form.add(new Label("responsible").setVisible(false));
 			form.add(new Label("milestone").setVisible(false));
+			form.add(new Label("mergeto").setVisible(false));
 		}
 
 		form.add(new Button("update"));
@@ -275,7 +304,6 @@ public class EditTicketPage extends RepositoryPage {
 		};
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
-
 	}
 
 	@Override
