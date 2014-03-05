@@ -61,7 +61,7 @@ public abstract class DaggerContext implements ServletContextListener {
 	@Override
 	public final void contextDestroyed(ServletContextEvent contextEvent) {
 		ServletContext context = contextEvent.getServletContext();
-		context.setAttribute(INJECTOR_NAME, null);
+		context.removeAttribute(INJECTOR_NAME);
 		destroyContext(context);
 	}
 }
