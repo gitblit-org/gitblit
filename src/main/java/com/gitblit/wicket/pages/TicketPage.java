@@ -456,7 +456,7 @@ public class TicketPage extends TicketBasePage {
 						public void onClick(AjaxRequestTarget target) {
 							TicketMilestone milestone = getModel().getObject();
 							Change change = new Change(user.username);
-							if (NIL.equals(milestone.name)) {
+							if (NIL.equals(milestone.name) || ESC_NIL.equals(milestone.name)) {
 								change.setField(Field.milestone, "");
 							} else {
 								change.setField(Field.milestone, milestone.name);
