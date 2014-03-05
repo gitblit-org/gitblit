@@ -72,6 +72,8 @@ public class EditTicketPage extends RepositoryPage {
 
 	private IModel<String> mergeToModel;
 
+	private IModel<Status> statusModel;
+
 	private IModel<TicketResponsible> responsibleModel;
 
 	private IModel<TicketMilestone> milestoneModel;
@@ -110,6 +112,7 @@ public class EditTicketPage extends RepositoryPage {
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
 		mergeToModel = Model.of(ticket.mergeTo == null ? "" : ticket.mergeTo);
+		statusModel = Model.of(ticket.status);
 
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -143,6 +146,12 @@ public class EditTicketPage extends RepositoryPage {
 				if (!ticket.body.equals(description)) {
 					// description change
 					change.setField(Field.body, description);
+				}
+
+				Status status = statusModel.getObject();
+				if (!ticket.status.equals(status)) {
+					// status change
+					change.setField(Field.status, status);
 				}
 
 				Type type = typeModel.getObject();
@@ -213,6 +222,19 @@ public class EditTicketPage extends RepositoryPage {
 			typeChoices = Arrays.asList(TicketModel.Type.choices());
 		}
 		form.add(new DropDownChoice<TicketModel.Type>("type", typeModel, typeChoices));
+
+		List<Status> statusChoices;
+		if (ticket.isClosed()) {
+			statusChoices = Arrays.asList(ticket.status, Status.Open);
+		} else if (ticket.isProposal()) {
+			statusChoices = Arrays.asList(TicketModel.Status.proposalWorkflow);
+		} else if (ticket.isBug()) {
+			statusChoices = Arrays.asList(TicketModel.Status.bugWorkflow);
+		} else {
+			statusChoices = Arrays.asList(TicketModel.Status.requestWorkflow);
+		}
+		form.add(new DropDownChoice<TicketModel.Status>("status", statusModel, statusChoices));
+
 		form.add(new TextField<String>("title", titleModel));
 		form.add(new TextField<String>("topic", topicModel));
 

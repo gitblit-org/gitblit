@@ -335,7 +335,10 @@ public class TicketPage extends TicketBasePage {
 			 * STATUS
 			 */
 			List<Status> choices = new ArrayList<Status>();
-			if (ticket.isProposal()) {
+			if (ticket.isClosed()) {
+				// re-open
+				choices.addAll(Arrays.asList(TicketModel.Status.Open));
+			} else if (ticket.isProposal()) {
 				choices.addAll(Arrays.asList(TicketModel.Status.proposalWorkflow));
 			} else if (ticket.isBug()) {
 				choices.addAll(Arrays.asList(TicketModel.Status.bugWorkflow));
