@@ -136,8 +136,8 @@ pt push</pre>
 </wicket:fragment>
 
 
-<!-- TICKET CONTROLS FRAGMENT -->
-<wicket:fragment wicket:id="controlsFragment">
+<!-- OPEN TICKET CONTROLS FRAGMENT -->
+<wicket:fragment wicket:id="openControlsFragment">
 	<div class="hidden-phone hidden-tablet">
 		<div class="btn-group" style="display:inline-block;">
 			<a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.status"></wicket:message> <span class="caret"></span></a>
@@ -159,6 +159,17 @@ pt push</pre>
 				<li wicket:id="newMilestone"><a wicket:id="link">[milestone]</a></li>    						
 			</ul>
 		</div>
+		
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn btn-small" wicket:id="editLink"></a>
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- CLOSED TICKET CONTROLS FRAGMENT -->
+<wicket:fragment wicket:id="closedControlsFragment">
+	<div class="hidden-phone hidden-tablet">
 		
 		<div class="btn-group" style="display:inline-block;">
 			<a class="btn btn-small" wicket:id="editLink"></a>

@@ -328,159 +328,170 @@ public class TicketPage extends TicketBasePage {
 		 * UPDATE FORM (DISCUSSION TAB)
 		 */
 		if (isAuthenticated && app().tickets().isAcceptingTicketUpdates(repository)) {
-			Fragment controls = new Fragment("controls", "controlsFragment", this);
+			if (ticket.isOpen()) {
+				/*
+				 * OPEN TICKET
+				 */
+				Fragment controls = new Fragment("controls", "openControlsFragment", this);
 
-
-			/*
-			 * STATUS
-			 */
-			List<Status> choices = new ArrayList<Status>();
-			if (ticket.isClosed()) {
-				// re-open
-				choices.addAll(Arrays.asList(TicketModel.Status.Open));
-			} else if (ticket.isProposal()) {
-				choices.addAll(Arrays.asList(TicketModel.Status.proposalWorkflow));
-			} else if (ticket.isBug()) {
-				choices.addAll(Arrays.asList(TicketModel.Status.bugWorkflow));
-			} else {
-				choices.addAll(Arrays.asList(TicketModel.Status.requestWorkflow));
-			}
-			choices.remove(ticket.status);
-
-			ListDataProvider<Status> workflowDp = new ListDataProvider<Status>(choices);
-			DataView<Status> statusView = new DataView<Status>("newStatus", workflowDp) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void populateItem(final Item<Status> item) {
-					SimpleAjaxLink<Status> link = new SimpleAjaxLink<Status>("link", item.getModel()) {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							Status status = getModel().getObject();
-							Change change = new Change(user.username);
-							change.setField(Field.status, status);
-							if (!ticket.isWatching(user.username)) {
-								change.watch(user.username);
-							}
-							TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
-							app().tickets().createNotifier().sendMailing(update);
-							setResponsePage(TicketsPage.class, getPageParameters());
-						}
-					};
-					String css = getStatusClass(item.getModel().getObject());
-					WicketUtils.setCssClass(link, css);
-					item.add(link);
+				/*
+				 * STATUS
+				 */
+				List<Status> choices = new ArrayList<Status>();
+				if (ticket.isProposal()) {
+					choices.addAll(Arrays.asList(TicketModel.Status.proposalWorkflow));
+				} else if (ticket.isBug()) {
+					choices.addAll(Arrays.asList(TicketModel.Status.bugWorkflow));
+				} else {
+					choices.addAll(Arrays.asList(TicketModel.Status.requestWorkflow));
 				}
-			};
-			controls.add(statusView);
+				choices.remove(ticket.status);
 
-			/*
-			 * RESPONSIBLE LIST
-			 */
-			Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
-			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
-				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-					userlist.add(rp.registrant);
-				}
-			}
-			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
-			if (!StringUtils.isEmpty(ticket.responsible)) {
-				// exclude the current responsible
-				userlist.remove(ticket.responsible);
-			}
-			for (String username : userlist) {
-				UserModel u = app().users().getUserModel(username);
-				if (u != null) {
-					responsibles.add(new TicketResponsible(u));
-				}
-			}
-			Collections.sort(responsibles);
-			responsibles.add(new TicketResponsible(ESC_NIL, "", ""));
-			ListDataProvider<TicketResponsible> responsibleDp = new ListDataProvider<TicketResponsible>(responsibles);
-			DataView<TicketResponsible> responsibleView = new DataView<TicketResponsible>("newResponsible", responsibleDp) {
-				private static final long serialVersionUID = 1L;
+				ListDataProvider<Status> workflowDp = new ListDataProvider<Status>(choices);
+				DataView<Status> statusView = new DataView<Status>("newStatus", workflowDp) {
+					private static final long serialVersionUID = 1L;
 
-				@Override
-				public void populateItem(final Item<TicketResponsible> item) {
-					SimpleAjaxLink<TicketResponsible> link = new SimpleAjaxLink<TicketResponsible>("link", item.getModel()) {
+					@Override
+					public void populateItem(final Item<Status> item) {
+						SimpleAjaxLink<Status> link = new SimpleAjaxLink<Status>("link", item.getModel()) {
 
-						private static final long serialVersionUID = 1L;
+							private static final long serialVersionUID = 1L;
 
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							TicketResponsible responsible = getModel().getObject();
-							Change change = new Change(user.username);
-							change.setField(Field.responsible, responsible.username);
-							if (!StringUtils.isEmpty(responsible.username)) {
-								if (!ticket.isWatching(responsible.username)) {
-									change.watch(responsible.username);
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								Status status = getModel().getObject();
+								Change change = new Change(user.username);
+								change.setField(Field.status, status);
+								if (!ticket.isWatching(user.username)) {
+									change.watch(user.username);
 								}
+								TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
+								app().tickets().createNotifier().sendMailing(update);
+								setResponsePage(TicketsPage.class, getPageParameters());
 							}
-							if (!ticket.isWatching(user.username)) {
-								change.watch(user.username);
-							}
-							TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
-							app().tickets().createNotifier().sendMailing(update);
-							setResponsePage(TicketsPage.class, getPageParameters());
-						}
-					};
-					item.add(link);
-				}
-			};
-			controls.add(responsibleView);
+						};
+						String css = getStatusClass(item.getModel().getObject());
+						WicketUtils.setCssClass(link, css);
+						item.add(link);
+					}
+				};
+				controls.add(statusView);
 
-			/*
-			 * MILESTONE LIST
-			 */
-			List<TicketMilestone> milestones = app().tickets().getMilestones(repository, Status.Open);
-			if (!StringUtils.isEmpty(ticket.milestone)) {
-				for (TicketMilestone milestone : milestones) {
-					if (milestone.name.equals(ticket.milestone)) {
-						milestones.remove(milestone);
-						break;
+				/*
+				 * RESPONSIBLE LIST
+				 */
+				Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
+				for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
+					if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
+						userlist.add(rp.registrant);
 					}
 				}
-			}
-			milestones.add(new TicketMilestone(ESC_NIL));
-			ListDataProvider<TicketMilestone> milestoneDp = new ListDataProvider<TicketMilestone>(milestones);
-			DataView<TicketMilestone> milestoneView = new DataView<TicketMilestone>("newMilestone", milestoneDp) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void populateItem(final Item<TicketMilestone> item) {
-					SimpleAjaxLink<TicketMilestone> link = new SimpleAjaxLink<TicketMilestone>("link", item.getModel()) {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							TicketMilestone milestone = getModel().getObject();
-							Change change = new Change(user.username);
-							if (NIL.equals(milestone.name) || ESC_NIL.equals(milestone.name)) {
-								change.setField(Field.milestone, "");
-							} else {
-								change.setField(Field.milestone, milestone.name);
-							}
-							if (!ticket.isWatching(user.username)) {
-								change.watch(user.username);
-							}
-							TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
-							app().tickets().createNotifier().sendMailing(update);
-							setResponsePage(TicketsPage.class, getPageParameters());
-						}
-					};
-					item.add(link);
+				List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+				if (!StringUtils.isEmpty(ticket.responsible)) {
+					// exclude the current responsible
+					userlist.remove(ticket.responsible);
 				}
-			};
-			controls.add(milestoneView);
+				for (String username : userlist) {
+					UserModel u = app().users().getUserModel(username);
+					if (u != null) {
+						responsibles.add(new TicketResponsible(u));
+					}
+				}
+				Collections.sort(responsibles);
+				responsibles.add(new TicketResponsible(ESC_NIL, "", ""));
+				ListDataProvider<TicketResponsible> responsibleDp = new ListDataProvider<TicketResponsible>(responsibles);
+				DataView<TicketResponsible> responsibleView = new DataView<TicketResponsible>("newResponsible", responsibleDp) {
+					private static final long serialVersionUID = 1L;
 
-			String editHref = urlFor(EditTicketPage.class, params).toString();
-			controls.add(new ExternalLink("editLink", editHref, getString("gb.edit")));
+					@Override
+					public void populateItem(final Item<TicketResponsible> item) {
+						SimpleAjaxLink<TicketResponsible> link = new SimpleAjaxLink<TicketResponsible>("link", item.getModel()) {
 
-			add(controls);
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								TicketResponsible responsible = getModel().getObject();
+								Change change = new Change(user.username);
+								change.setField(Field.responsible, responsible.username);
+								if (!StringUtils.isEmpty(responsible.username)) {
+									if (!ticket.isWatching(responsible.username)) {
+										change.watch(responsible.username);
+									}
+								}
+								if (!ticket.isWatching(user.username)) {
+									change.watch(user.username);
+								}
+								TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
+								app().tickets().createNotifier().sendMailing(update);
+								setResponsePage(TicketsPage.class, getPageParameters());
+							}
+						};
+						item.add(link);
+					}
+				};
+				controls.add(responsibleView);
+
+				/*
+				 * MILESTONE LIST
+				 */
+				List<TicketMilestone> milestones = app().tickets().getMilestones(repository, Status.Open);
+				if (!StringUtils.isEmpty(ticket.milestone)) {
+					for (TicketMilestone milestone : milestones) {
+						if (milestone.name.equals(ticket.milestone)) {
+							milestones.remove(milestone);
+							break;
+						}
+					}
+				}
+				milestones.add(new TicketMilestone(ESC_NIL));
+				ListDataProvider<TicketMilestone> milestoneDp = new ListDataProvider<TicketMilestone>(milestones);
+				DataView<TicketMilestone> milestoneView = new DataView<TicketMilestone>("newMilestone", milestoneDp) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void populateItem(final Item<TicketMilestone> item) {
+						SimpleAjaxLink<TicketMilestone> link = new SimpleAjaxLink<TicketMilestone>("link", item.getModel()) {
+
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								TicketMilestone milestone = getModel().getObject();
+								Change change = new Change(user.username);
+								if (NIL.equals(milestone.name) || ESC_NIL.equals(milestone.name)) {
+									change.setField(Field.milestone, "");
+								} else {
+									change.setField(Field.milestone, milestone.name);
+								}
+								if (!ticket.isWatching(user.username)) {
+									change.watch(user.username);
+								}
+								TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
+								app().tickets().createNotifier().sendMailing(update);
+								setResponsePage(TicketsPage.class, getPageParameters());
+							}
+						};
+						item.add(link);
+					}
+				};
+				controls.add(milestoneView);
+
+				String editHref = urlFor(EditTicketPage.class, params).toString();
+				controls.add(new ExternalLink("editLink", editHref, getString("gb.edit")));
+
+				add(controls);
+			} else {
+				/*
+				 * CLOSED TICKET
+				 */
+				Fragment controls = new Fragment("controls", "closedControlsFragment", this);
+
+				String editHref = urlFor(EditTicketPage.class, params).toString();
+				controls.add(new ExternalLink("editLink", editHref, getString("gb.edit")));
+
+				add(controls);
+			}
 		} else {
 			add(new Label("controls").setVisible(false));
 		}
