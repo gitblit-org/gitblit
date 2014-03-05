@@ -895,7 +895,11 @@ public class TicketPage extends TicketBasePage {
 								break;
 						}
 						sb.append("<tr><th style=\"width:70px;\">");
-						sb.append(entry.getKey().name());
+						try {
+							sb.append(getString("gb." + entry.getKey().name()));
+						} catch (Exception e) {
+							sb.append(entry.getKey().name());
+						}
 						sb.append("</th><td>");
 						sb.append(value);
 						sb.append("</td></tr>");
