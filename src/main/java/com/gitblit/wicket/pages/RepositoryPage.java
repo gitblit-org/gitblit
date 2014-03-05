@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -109,7 +110,7 @@ public abstract class RepositoryPage extends RootPage {
 		}
 
 		if (!getRepositoryModel().hasCommits) {
-			setResponsePage(EmptyRepositoryPage.class, params);
+			throw new RestartResponseException(EmptyRepositoryPage.class, params);
 		}
 
 		if (getRepositoryModel().isCollectingGarbage) {
