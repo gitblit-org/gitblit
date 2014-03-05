@@ -115,7 +115,6 @@ public class TicketPage extends TicketBasePage {
 		super(params);
 
 		final UserModel user = GitBlitWebSession.get().getUser() == null ? UserModel.ANONYMOUS : GitBlitWebSession.get().getUser();
-		final boolean isAuthenticated = !UserModel.ANONYMOUS.equals(user) && user.isAuthenticated;
 		final RepositoryModel repository = getRepositoryModel();
 		final String id = WicketUtils.getObject(params);
 		long ticketId = Long.parseLong(id);
@@ -327,7 +326,7 @@ public class TicketPage extends TicketBasePage {
 		/*
 		 * UPDATE FORM (DISCUSSION TAB)
 		 */
-		if (isAuthenticated && app().tickets().isAcceptingTicketUpdates(repository)) {
+		if (user.canEdit(ticket, repository) && app().tickets().isAcceptingTicketUpdates(repository)) {
 			if (ticket.isOpen()) {
 				/*
 				 * OPEN TICKET

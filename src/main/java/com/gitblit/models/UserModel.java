@@ -447,16 +447,23 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return canAdmin() || model.isUsersPersonalRepository(username) || model.isOwner(username);
 	}
 
+	public boolean canEdit(TicketModel ticket, RepositoryModel repository) {
+		 return isAuthenticated() &&
+				 (username.equals(ticket.createdBy)
+				 || username.equals(ticket.responsible)
+				 || canPush(repository));
+	}
+
 	public boolean canReviewPatchset(RepositoryModel model) {
-		return isAuthenticated && canClone(model);
+		return isAuthenticated() && canClone(model);
 	}
 
 	public boolean canApprovePatchset(RepositoryModel model) {
-		return isAuthenticated && canPush(model);
+		return isAuthenticated() && canPush(model);
 	}
 
 	public boolean canVetoPatchset(RepositoryModel model) {
-		return isAuthenticated && canPush(model);
+		return isAuthenticated() && canPush(model);
 	}
 
 	/**
@@ -538,6 +545,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 		}
 		return false;
+	}
+
+	public boolean isAuthenticated() {
+		return !UserModel.ANONYMOUS.equals(this) && isAuthenticated;
 	}
 
 	public boolean isTeamMember(String teamname) {
