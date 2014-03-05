@@ -87,7 +87,7 @@ public class TicketsPage extends TicketBasePage {
 		// set stateless page preference
 		setStatelessHint(true);
 
-		any = new TicketResponsible("any", "[* TO *]", null);
+		any = new TicketResponsible(getString("gb.any"), "[* TO *]", null);
 
 		UserModel user = GitBlitWebSession.get().getUser();
 		boolean isAuthenticated = user != null && user.isAuthenticated;
@@ -185,16 +185,16 @@ public class TicketsPage extends TicketBasePage {
 			milestonePanel.add(label);
 
 			milestonePanel.add(new LinkPanel("openTickets", null,
-					currentMilestone.getOpenTickets() + " open",
+					MessageFormat.format(getString("gb.nOpenTickets"), currentMilestone.getOpenTickets()),
 					TicketsPage.class,
 					queryParameters(null, currentMilestone.name, openStatii, null, sortBy, desc, 1)));
 
 			milestonePanel.add(new LinkPanel("closedTickets", null,
-					currentMilestone.getClosedTickets() + " closed",
+					MessageFormat.format(getString("gb.nClosedTickets"), currentMilestone.getClosedTickets()),
 					TicketsPage.class,
 					queryParameters(null, currentMilestone.name, closedStatii, null, sortBy, desc, 1)));
 
-			milestonePanel.add(new Label("totalTickets", currentMilestone.getTotalTickets() + " total"));
+			milestonePanel.add(new Label("totalTickets", MessageFormat.format(getString("gb.nTotalTickets"), currentMilestone.getTotalTickets())));
 			add(milestonePanel);
 		}
 

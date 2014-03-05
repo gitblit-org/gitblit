@@ -265,7 +265,7 @@ public class TicketPage extends TicketBasePage {
 			Label label = new Label("progress");
 			WicketUtils.setCssStyle(label, "width:" + progress + "%;");
 			milestoneProgress.add(label);
-			WicketUtils.setHtmlTooltip(milestoneProgress, MessageFormat.format("{0} open, {1} closed", open, closed));
+			WicketUtils.setHtmlTooltip(milestoneProgress, MessageFormat.format(getString("gb.milestoneProgress"), open, closed));
 			add(milestoneProgress);
 		}
 
