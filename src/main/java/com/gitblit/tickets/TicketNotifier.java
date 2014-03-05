@@ -174,52 +174,13 @@ public class TicketNotifier {
 		fieldExclusions.addAll(Arrays.asList(Field.watchers, Field.voters));
 
 		StringBuilder sb = new StringBuilder();
-		boolean newTicket = false;
+		boolean newTicket = lastChange.isStatusChange() && Status.New == lastChange.getStatus();
 		boolean isFastForward = true;
 		List<RevCommit> commits = null;
 		DiffStat diffstat = null;
 
 		String pattern;
-		if (lastChange.isStatusChange()) {
-			Status state = lastChange.getStatus();
-			switch (state) {
-			case New:
-				// new ticket
-				newTicket = true;
-				fieldExclusions.add(Field.status);
-				fieldExclusions.add(Field.title);
-				fieldExclusions.add(Field.body);
-				if (lastChange.hasPatchset()) {
-					pattern = "**{0}** is proposing a change.";
-				} else {
-					pattern = "**{0}** created this ticket.";
-				}
-				sb.append(MessageFormat.format(pattern, user.getDisplayName()));
-				break;
-			default:
-				// some form of resolved
-				if (lastChange.hasField(Field.mergeSha)) {
-					// closed by push (merged patchset)
-					pattern = "**{0}** closed this ticket by pushing {1} to {2}.";
-
-					// identify patch that closed the ticket
-					String merged = ticket.mergeSha;
-					for (Patchset patchset : ticket.getPatchsets()) {
-						if (patchset.tip.equals(ticket.mergeSha)) {
-							merged = patchset.toString();
-							break;
-						}
-					}
-					sb.append(MessageFormat.format(pattern, user.getDisplayName(), merged, ticket.mergeTo));
-				} else {
-					// workflow status change by user
-					pattern = "**{0}** changed the status of this ticket to **{1}**.";
-					sb.append(MessageFormat.format(pattern, user.getDisplayName(), lastChange.getStatus().toString().toUpperCase()));
-				}
-				break;
-			}
-			sb.append(HARD_BRK);
-		} else if (lastChange.hasPatchset()) {
+		if (lastChange.hasPatchset()) {
 			// patchset uploaded
 			Patchset patchset = lastChange.patchset;
 			String base = "";
@@ -246,16 +207,24 @@ public class TicketNotifier {
 				repo.close();
 			}
 
-			// describe the patchset
 			String compareUrl = ticketService.getCompareUrl(ticket, base, patchset.tip);
-			if (patchset.isFF()) {
-				pattern = "**{0}** added {1} {2} to patchset {3}.";
-				sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset.added, patchset.added == 1 ? "commit" : "commits", patchset.number));
+
+			if (newTicket) {
+				// new proposal
+				pattern = "**{0}** is proposing a change.";
+				sb.append(MessageFormat.format(pattern, user.getDisplayName()));
 			} else {
-				pattern = "**{0}** uploaded patchset {1}. *({2})*";
-				sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset.number, patchset.type.toString().toUpperCase()));
+				// describe the patchset
+				if (patchset.isFF()) {
+					pattern = "**{0}** added {1} {2} to patchset {3}.";
+					sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset.added, patchset.added == 1 ? "commit" : "commits", patchset.number));
+				} else {
+					pattern = "**{0}** uploaded patchset {1}. *({2})*";
+					sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset.number, patchset.type.toString().toUpperCase()));
+				}
 			}
 			sb.append(HARD_BRK);
+
 			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span style=\"color:darkgreen;\">+{4} insertions</span>, <span style=\"color:darkred;\">-{5} deletions</span> from {6}. [compare]({7})",
 					commits.size(), commits.size() == 1 ? "commit" : "commits",
 					diffstat.paths.size(),
@@ -275,6 +244,32 @@ public class TicketNotifier {
 				break;
 			default:
 				break;
+			}
+			sb.append(HARD_BRK);
+		} else if (lastChange.isStatusChange()) {
+			if (newTicket) {
+				fieldExclusions.add(Field.status);
+				fieldExclusions.add(Field.title);
+				fieldExclusions.add(Field.body);
+				pattern = "**{0}** created this ticket.";
+				sb.append(MessageFormat.format(pattern, user.getDisplayName()));
+			} else if (lastChange.hasField(Field.mergeSha)) {
+				// closed by merged
+				pattern = "**{0}** closed this ticket by merging {1} to {2}.";
+
+				// identify patchset that closed the ticket
+				String merged = ticket.mergeSha;
+				for (Patchset patchset : ticket.getPatchsets()) {
+					if (patchset.tip.equals(ticket.mergeSha)) {
+						merged = patchset.toString();
+						break;
+					}
+				}
+				sb.append(MessageFormat.format(pattern, user.getDisplayName(), merged, ticket.mergeTo));
+			} else {
+				// workflow status change by user
+				pattern = "**{0}** changed the status of this ticket to **{1}**.";
+				sb.append(MessageFormat.format(pattern, user.getDisplayName(), lastChange.getStatus().toString().toUpperCase()));
 			}
 			sb.append(HARD_BRK);
 		} else if (lastChange.hasReview()) {
