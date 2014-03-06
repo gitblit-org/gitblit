@@ -213,6 +213,9 @@ public class TicketNotifier {
 				// new proposal
 				pattern = "**{0}** is proposing a change.";
 				sb.append(MessageFormat.format(pattern, user.getDisplayName()));
+				fieldExclusions.add(Field.status);
+				fieldExclusions.add(Field.title);
+				fieldExclusions.add(Field.body);
 			} else {
 				// describe the patchset
 				if (patchset.isFF()) {
