@@ -59,7 +59,7 @@ public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int PROTOCOL_VERSION = 6;
+	public static final int PROTOCOL_VERSION = 7;
 
 	private IStoredSettings settings;
 
@@ -380,6 +380,19 @@ public class RpcServlet extends JsonServlet {
 			// clear the repository list cache
 			if (allowManagement) {
 				gitblit.resetRepositoryListCache();
+			} else {
+				response.sendError(notAllowedCode);
+			}
+		} else if (RpcRequest.REINDEX_TICKETS.equals(reqType)) {
+			if (allowManagement) {
+				if (StringUtils.isEmpty(objectName)) {
+					// reindex all tickets
+					gitblit.getTicketService().reindex();
+				} else {
+					// reindex tickets in a specific repository
+					RepositoryModel model = gitblit.getRepositoryModel(objectName);
+					gitblit.getTicketService().reindex(model);
+				}
 			} else {
 				response.sendError(notAllowedCode);
 			}

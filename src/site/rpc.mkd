@@ -59,6 +59,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td>Gitblit v1.1.0</td><td>4</td></tr>
 <tr><td>Gitblit v1.2.0+</td><td>5</td></tr>
 <tr><td>Gitblit v1.3.1+</td><td>6</td></tr>
+<tr><td>Gitblit v1.4.0+</td><td>7</td></tr>
 </tbody>
 </table>
 
@@ -102,6 +103,7 @@ Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 <tr><td>SET_REPOSITORY_TEAM_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>List&lt;String&gt;</td><td>-</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>ServerSettings (management keys)</td></tr>
 <tr><td>CLEAR_REPOSITORY_CACHE</td><td>-</td><td><em>-</em></td><td>4</td><td>-</td><td>-</td></tr>
+<tr><td>REINDEX_TICKETS</td><td>repository name</td><td><em>-</em></td><td>7</td><td>-</td><td>-</td></tr>
 <tr><td colspan='6'><em>web.enableRpcAdministration=true</em></td></tr>
 <tr><td>LIST_FEDERATION_REGISTRATIONS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
 <tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
