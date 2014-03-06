@@ -897,6 +897,7 @@ public abstract class ITicketService {
 	public boolean deleteAll(RepositoryModel repository) {
 		boolean success = deleteAllImpl(repository);
 		if (success) {
+			log.info("Deleted all tickets for {}", repository.name);
 			resetCaches(repository);
 			indexer.deleteAll(repository);
 		}
@@ -936,6 +937,8 @@ public abstract class ITicketService {
 		TicketModel ticket = getTicket(repository, ticketId);
 		boolean success = deleteTicketImpl(repository, ticket, deletedBy);
 		if (success) {
+			log.info(MessageFormat.format("Deleted {0} ticket #{1,number,0}: {2}",
+					repository.name, ticketId, ticket.title));
 			ticketsCache.invalidate(new TicketKey(repository, ticketId));
 			indexer.delete(ticket);
 			return true;
@@ -1074,6 +1077,7 @@ public abstract class ITicketService {
 		long end = System.nanoTime();
 		long secs = TimeUnit.NANOSECONDS.toMillis(end - start);
 		log.info("reindexing completed in {} msecs.", secs);
+		resetCaches(repository);
 	}
 
 	/**
