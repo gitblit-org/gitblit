@@ -44,6 +44,7 @@ This documentation is the source content from which the [Gitblit website](http:/
 [[src/site/tickets_using.mkd]]
 [[src/site/tickets_barnum.mkd]]
 [[src/site/tickets_setup.mkd]]
+[[src/site/tickets_replication.mkd]]
 
 ### Other Pages
 
