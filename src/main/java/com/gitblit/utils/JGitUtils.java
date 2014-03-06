@@ -2329,7 +2329,7 @@ public class JGitUtils {
 					RefUpdate mergeRefUpdate = repository.updateRef(toBranch);
 					mergeRefUpdate.setNewObjectId(mergeCommitId);
 					mergeRefUpdate.setRefLogMessage("commit: " + mergeCommit.getShortMessage(), false);
-					RefUpdate.Result rc = mergeRefUpdate.forceUpdate();
+					RefUpdate.Result rc = mergeRefUpdate.update();
 					switch (rc) {
 					case FAST_FORWARD:
 						// successful, clean merge
