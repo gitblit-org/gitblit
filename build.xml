@@ -571,6 +571,7 @@
 					  <page name="using" src="tickets_using.mkd" />
 					  <page name="barnum" src="tickets_barnum.mkd" />
 					  <page name="setup" src="tickets_setup.mkd" />
+					  <page name="replication &amp; advanced administration" src="tickets_replication.mkd" />
 					</menu>
 					<divider />
 					<page name="federation" src="federation.mkd" />
@@ -909,6 +910,7 @@
 							<page name="using" src="tickets_using.mkd" />
 							<page name="barnum" src="tickets_barnum.mkd" />
 							<page name="setup" src="tickets_setup.mkd" />
+							<page name="replication &amp; advanced administration" src="tickets_replication.mkd" />
 						</menu>
 						<divider />
 						<page name="federation" src="federation.mkd" />
