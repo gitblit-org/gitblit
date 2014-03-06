@@ -1207,7 +1207,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public static Status [] bugWorkflow = { Open, Fixed, Wontfix, Duplicate, Invalid, On_Hold };
 
-		public static Status [] proposalWorkflow = { Open, Declined, On_Hold};
+		public static Status [] proposalWorkflow = { Open, Resolved, Declined, On_Hold};
 
 		@Override
 		public String toString() {
