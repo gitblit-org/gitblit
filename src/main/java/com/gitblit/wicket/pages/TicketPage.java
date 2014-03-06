@@ -1254,16 +1254,13 @@ public class TicketPage extends TicketBasePage {
 	}
 
 	protected void addGitReviewInstructions(UserModel user, RepositoryModel repository, MarkupContainer panel) {
-		String repoUrl = getRepositoryUrl(user, repository);
-
 		panel.add(new Label("gitStep1", MessageFormat.format(getString("gb.stepN"), 1)));
 		panel.add(new Label("gitStep2", MessageFormat.format(getString("gb.stepN"), 2)));
 
 		String ticketBranch  = Repository.shortenRefName(PatchsetCommand.getTicketBranch(ticket.number));
-		String reviewBranch = PatchsetCommand.getReviewBranch(ticket.number);
 
-		String step1 = MessageFormat.format("git fetch {0} {1}", repoUrl, ticketBranch);
-		String step2 = MessageFormat.format("git checkout -B {0} FETCH_HEAD", reviewBranch);
+		String step1 = "git fetch";
+		String step2 = MessageFormat.format("git checkout {0} && git pull -ff-only\nOR\ngit checkout {0} && git reset --hard origin/{0}", ticketBranch);
 
 		panel.add(new Label("gitPreStep1", step1));
 		panel.add(new Label("gitPreStep2", step2));
@@ -1417,7 +1414,6 @@ public class TicketPage extends TicketBasePage {
 	protected Component getMergeInstructions(UserModel user, RepositoryModel repository, String markupId, String infoKey) {
 		Fragment cmd = new Fragment(markupId, "commandlineMergeFragment", this);
 		cmd.add(new Label("instructions", MessageFormat.format(getString(infoKey), ticket.mergeTo)));
-		String repoUrl = getRepositoryUrl(user, repository);
 
 		// git instructions
 		cmd.add(new Label("mergeStep1", MessageFormat.format(getString("gb.stepN"), 1)));
@@ -1427,9 +1423,9 @@ public class TicketPage extends TicketBasePage {
 		String ticketBranch = Repository.shortenRefName(PatchsetCommand.getTicketBranch(ticket.number));
 		String reviewBranch = PatchsetCommand.getReviewBranch(ticket.number);
 
-		String step1 = MessageFormat.format("git checkout -B {0} {1}", reviewBranch, ticket.mergeTo);
-		String step2 = MessageFormat.format("git pull {0} {1}", repoUrl, ticketBranch);
-		String step3 = MessageFormat.format("git checkout {0}\ngit merge {1}\ngit push origin {0}", ticket.mergeTo, reviewBranch);
+		String step1 = MessageFormat.format("git checkout -b {0} {1}", reviewBranch, ticket.mergeTo);
+		String step2 = MessageFormat.format("git pull origin {0}", ticketBranch);
+		String step3 = MessageFormat.format("git checkout {0}\ngit merge {1}\ngit push origin {0}\ngit branch -d {1}", ticket.mergeTo, reviewBranch);
 
 		cmd.add(new Label("mergePreStep1", step1));
 		cmd.add(new Label("mergePreStep2", step2));

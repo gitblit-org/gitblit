@@ -1,11 +1,11 @@
 #### To review with Git
 
-on a detached HEAD...
+To review an updated patchset
 
-    git fetch ${repositoryUrl} ${ticketRef} && git checkout FETCH_HEAD
+    git fetch && git checkout ${reviewBranch} && git pull --ff-only
 
-on a new branch...
+To review a rewritten patchset
 
-    git fetch ${repositoryUrl} ${ticketRef} && git checkout -B ${reviewBranch} FETCH_HEAD
+    git fetch && git checkout ${reviewBranch} && git reset --hard origin/${reviewBranch}
 
 

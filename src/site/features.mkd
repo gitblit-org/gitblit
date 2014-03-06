@@ -1,8 +1,11 @@
 ## Standard Features (GO/WAR)
 - JGit http/https SmartHTTP servlet
 - JGit git protocol daemon
-- Menu driven native platform clone links for all popular Git clients
-- Browser and git client authentication
+- Optional feature to allow users to create personal repositories
+- Optional feature to fork a repository to a personal repository
+- Optional feature to create a repository on push
+- Optional feature to automatically fetch ref updates for repository mirrors
+- Optional Issue Tracker and Pull-Request-like mechanism
 - Four *per-repository* access restriction configurations with a Read-Only control flag
     - ![anonymous](blank.png) *Anonymous View, Clone & Push*
     - ![push](lock_go_16x16.png) *Authenticated Push*
@@ -16,19 +19,15 @@
     - **RWC** (clone and push with ref creation)
     - **RWD** (clone and push with ref creation, deletion)
     - **RW+** (clone and push with ref creation, deletion, rewind)
-- Optional feature to allow users to create personal repositories
-- Optional feature to fork a repository to a personal repository
-- Optional feature to create a repository on push
-- Optional feature to automatically fetch ref updates for repository mirrors
-- Optional Issue Tracker and Pull-Request-like mechanism
+- Menu driven native platform clone links for all popular Git clients
 - *Experimental* built-in Garbage Collection
 - Ability to federate with one or more other Gitblit instances
 - RSS/JSON RPC interface
 - Java/Swing Gitblit Manager tool
-- Gitweb inspired web UI
 - Responsive web UI that subtracts elements to be usable on phones, tablets, and desktop browsers
 - Groovy pre- and post- push hook scripts, per-repository or globally for all repositories
-- Email push notifications *(via sendmail.groovy push script)*
+- Rich Push email notifications *(via sendmail.groovy push script)*
+- Rich Ticket email notifications
 - Lucene indexing of specified repository branches
 - Administrators may create, edit, rename, or delete repositories through the web UI or RPC interface
 - Administrators may create, edit, rename, or delete users through the web UI or RPC interface
@@ -53,12 +52,11 @@
 - Display of Author and Committer email addresses can be disabled
 - Case-insensitive searching of commit messages, authors, or committers
 - Dynamic zip downloads feature
+- Docs page which enumerates all Markdown files within a repository
 - Markdown, Confluence, Textile, Twiki, Tracwiki, & Mediawiki markup rendering support
 - Syntax highlighting for popular source code types
 - Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
 - Single text file for users configuration
-- Optional Docs page which enumerates all Markdown files within a repository
-2009-01-27)*
 - Translations
     - English
     - Japanese
@@ -67,7 +65,7 @@
     - Korean
     - Brazilian Portuguese
     - Dutch
-    - Chinese (zh_CN)
+    - Simplified Chinese (zh_CN)
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration
@@ -78,7 +76,7 @@
 - Built-in AJP connector for Apache httpd
 
 ## Limitations
-- HTTP/HTTPS/GIT are the only supported Git protocols (SSH is in progress)
-- Built-in access controls are not path-based, they are repository-based.
+- HTTP/HTTPS/GIT are the only supported Git protocols (SSH is in progress, ticket-6)
+- Built-in access controls are not branch-based, they are repository-based.
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
