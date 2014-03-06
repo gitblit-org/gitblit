@@ -205,7 +205,9 @@ public class GitBlit extends GitblitManager {
 		try {
 			Class<? extends ITicketService> serviceClass = (Class<? extends ITicketService>) Class.forName(clazz);
 			ticketService = injector.get(serviceClass).start();
-			if (ticketService.isReady()) {
+			if (ticketService instanceof NullTicketService) {
+				logger.warn("No ticket service configured.");
+			} else if (ticketService.isReady()) {
 				logger.info("{} is ready.", ticketService);
 			} else {
 				logger.warn("{} is disabled.", ticketService);
@@ -283,6 +285,38 @@ public class GitBlit extends GitblitManager {
 
 		@Provides @Singleton IGitblit provideGitblit() {
 			return GitBlit.this;
+		}
+
+		@Provides @Singleton NullTicketService provideNullTicketService() {
+			return new NullTicketService(
+					runtimeManager,
+					notificationManager,
+					userManager,
+					repositoryManager);
+		}
+
+		@Provides @Singleton FileTicketService provideFileTicketService() {
+			return new FileTicketService(
+					runtimeManager,
+					notificationManager,
+					userManager,
+					repositoryManager);
+		}
+
+		@Provides @Singleton BranchTicketService provideBranchTicketService() {
+			return new BranchTicketService(
+					runtimeManager,
+					notificationManager,
+					userManager,
+					repositoryManager);
+		}
+
+		@Provides @Singleton RedisTicketService provideRedisTicketService() {
+			return new RedisTicketService(
+					runtimeManager,
+					notificationManager,
+					userManager,
+					repositoryManager);
 		}
 	}
 }

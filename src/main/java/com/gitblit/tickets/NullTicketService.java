@@ -18,8 +18,6 @@ package com.gitblit.tickets;
 import java.util.Collections;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -37,7 +35,6 @@ import com.gitblit.models.TicketModel.Change;
  */
 public class NullTicketService extends ITicketService {
 
-	@Inject
 	public NullTicketService(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,

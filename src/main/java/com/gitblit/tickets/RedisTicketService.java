@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.Client;
@@ -61,7 +59,6 @@ public class RedisTicketService extends ITicketService {
 		journal, ticket, counter
 	}
 
-	@Inject
 	public RedisTicketService(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,

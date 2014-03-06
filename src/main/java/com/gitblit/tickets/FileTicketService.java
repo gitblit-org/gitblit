@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
@@ -58,7 +56,6 @@ public class FileTicketService extends ITicketService {
 
 	private final Map<String, AtomicLong> lastAssignedId;
 
-	@Inject
 	public FileTicketService(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,

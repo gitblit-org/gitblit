@@ -30,8 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.dircache.DirCache;
@@ -90,7 +88,6 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 
 	private final Map<String, AtomicLong> lastAssignedId;
 
-	@Inject
 	public BranchTicketService(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
