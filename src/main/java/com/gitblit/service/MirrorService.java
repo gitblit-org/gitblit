@@ -38,6 +38,8 @@ import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.BranchTicketService;
+import com.gitblit.tickets.BranchTicketService.TicketsBranchUpdated;
 import com.gitblit.utils.JGitUtils;
 
 /**
@@ -145,6 +147,7 @@ public class MirrorService implements Runnable {
 				FetchResult result = git.fetch().setRemote(mirror.getName()).setDryRun(testing).call();
 				Collection<TrackingRefUpdate> refUpdates = result.getTrackingRefUpdates();
 				if (refUpdates.size() > 0) {
+					boolean ticketBranchUpdated = false;
 					for (TrackingRefUpdate ru : refUpdates) {
 						StringBuilder sb = new StringBuilder();
 						sb.append("updated mirror ");
@@ -161,6 +164,14 @@ public class MirrorService implements Runnable {
 						sb.append("..");
 						sb.append(ru.getNewObjectId() == null ? "" : ru.getNewObjectId().abbreviate(7).name());
 						logger.info(sb.toString());
+						
+						if (BranchTicketService.BRANCH.equals(ru.getLocalName())) {
+							ticketBranchUpdated = true;
+						}
+					}
+					
+					if (ticketBranchUpdated) {
+						repository.fireEvent(new TicketsBranchUpdated(model));
 					}
 				}
 			} catch (Exception e) {

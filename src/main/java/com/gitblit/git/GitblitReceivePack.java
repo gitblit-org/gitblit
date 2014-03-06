@@ -51,6 +51,7 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.BranchTicketService;
+import com.gitblit.tickets.BranchTicketService.TicketsBranchUpdated;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.CommitCache;
@@ -342,6 +343,14 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			LOGGER.debug(MessageFormat.format("{0} push log updated", repository.name));
 		} catch (Exception e) {
 			LOGGER.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
+		}
+		
+		// check for updates pushed to the BranchTicketService branch
+		for (ReceiveCommand cmd : commands) {
+			if (Result.OK.equals(cmd.getResult())
+					&& BranchTicketService.BRANCH.equals(cmd.getRefName())) {
+				rp.getRepository().fireEvent(new TicketsBranchUpdated(repository));
+			}
 		}
 
 		// run Groovy hook scripts

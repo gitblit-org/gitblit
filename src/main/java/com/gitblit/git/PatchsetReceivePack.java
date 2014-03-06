@@ -436,10 +436,12 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				case CREATE:
 				case UPDATE:
 				case UPDATE_NONFASTFORWARD:
-					Collection<TicketModel> tickets = processMergedTickets(cmd);
-					ticketsProcessed += tickets.size();
-					for (TicketModel ticket : tickets) {
-						ticketNotifier.queueMailing(ticket);
+					if (cmd.getRefName().startsWith(Constants.R_HEADS)) {
+						Collection<TicketModel> tickets = processMergedTickets(cmd);
+						ticketsProcessed += tickets.size();
+						for (TicketModel ticket : tickets) {
+							ticketNotifier.queueMailing(ticket);
+						}
 					}
 					break;
 				default:

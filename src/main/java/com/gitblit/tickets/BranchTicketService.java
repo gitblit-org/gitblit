@@ -36,6 +36,8 @@ import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
+import org.eclipse.jgit.events.RefsChangedEvent;
+import org.eclipse.jgit.events.RefsChangedListener;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.FileMode;
@@ -74,8 +76,20 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class BranchTicketService extends ITicketService {
+public class BranchTicketService extends ITicketService implements RefsChangedListener {
 
+	/**
+	 *  The event fired by other classes to allow this service to index tickets.
+	 */
+	public static class TicketsBranchUpdated extends RefsChangedEvent {
+		
+		public final RepositoryModel model;
+		
+		public TicketsBranchUpdated(RepositoryModel model) {
+			this.model = model;
+		}
+	}
+	
 	public static final String BRANCH = "refs/gitblit/tickets";
 
 	private static final String JOURNAL = "journal.json";
@@ -97,6 +111,9 @@ public class BranchTicketService extends ITicketService {
 				repositoryManager);
 
 		lastAssignedId = new ConcurrentHashMap<String, AtomicLong>();
+		
+		// register the branch ticket service for repository ref changes
+		Repository.getGlobalListenerList().addRefsChangedListener(this);
 	}
 
 	@Override
@@ -118,6 +135,22 @@ public class BranchTicketService extends ITicketService {
 
 	@Override
 	protected void close() {
+	}
+
+	/**
+	 * Listen for refs changed events and reindex that repository.
+	 */
+	@Override
+	public void onRefsChanged(RefsChangedEvent event) {
+		if (!(event instanceof TicketsBranchUpdated)) {
+			return;
+		}
+		RepositoryModel repository = ((TicketsBranchUpdated) event).model;
+		try {
+			reindex(repository);
+		} catch (Exception e) {
+			log.error("failed to reindex " + repository.name, e);
+		}
 	}
 
 	/**
