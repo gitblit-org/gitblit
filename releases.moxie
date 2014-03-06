@@ -54,6 +54,10 @@ r20: {
 	- Serve repositories on both /r and /git, displaying /r because it is shorter
 	- Eliminate HEAD from the blob, blame, and tree pages. That assumed a resource was available in HEAD and it may not be.
 	- Eliminate Gravatar profile linking.
+	- Updated Spanish translation
+	- Updated Simplified Chinese translation
+	- Updated Dutch translation
+	- Updated Korean translation
     additions:
 	- Added color modes for the blame page (issue-2)
 	- Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
@@ -80,6 +84,7 @@ r20: {
 	- Added Subgit hook contributed by TMate Software
 	- Added function to retain a user account but prohibit authentication. This is an alternative to deleting a user account.
 	- Added setting to hide the top-level navigation header to facilitate embedding Gitblit in something else.
+	- Added RPC request to reindex tickets
     dependencyChanges:
 	- updated to Jetty 8.1.13
 	- updated to JGit 3.3.0
@@ -149,6 +154,9 @@ r20: {
 	- Matthias Cullman
 	- Johann Fischer
 	- Tamás Papp
+	- Liyu Wang
+	- Jeroen Baten
+	- Dongsu, KIM
 }
 
 #
