@@ -33,9 +33,9 @@ import java.util.List;
  * folders and then calls the application main. Using this technique we do not
  * have to specify a classpath and we can dynamically add jars to the
  * distribution.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class Launcher {
 
@@ -120,7 +120,7 @@ public class Launcher {
 
 	/**
 	 * Adds a file to the classpath
-	 * 
+	 *
 	 * @param f
 	 *            the file to be added
 	 * @throws IOException

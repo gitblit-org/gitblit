@@ -40,9 +40,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Utility class to add an indexBranch setting to matching repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class AddIndexedBranch {
 
@@ -56,17 +56,17 @@ public class AddIndexedBranch {
 			jc.usage();
 			return;
 		}
-		
+
 		// create a lowercase set of excluded repositories
 		Set<String> exclusions = new TreeSet<String>();
 		for (String exclude : params.exclusions) {
 			exclusions.add(exclude.toLowerCase());
 		}
-		
+
 		// determine available repositories
 		File folder = new File(params.folder);
 		List<String> repoList = JGitUtils.getRepositoryList(folder, false, true, -1, null);
-		
+
 		int modCount = 0;
 		int skipCount = 0;
 		for (String repo : repoList) {
@@ -77,23 +77,23 @@ public class AddIndexedBranch {
 					break;
 				}
 			}
-			
+
 			if (skip) {
 				System.out.println("skipping " + repo);
 				skipCount++;
 				continue;
 			}
 
-			
+
 			try {
 				// load repository config
 				File gitDir = FileKey.resolve(new File(folder, repo), FS.DETECTED);
 				Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
 				StoredConfig config = repository.getConfig();
 				config.load();
-				
+
 				Set<String> indexedBranches = new LinkedHashSet<String>();
-				
+
 				// add all local branches to index
 				if(params.addAllLocalBranches) {
 					List<RefModel> list = JGitUtils.getLocalBranches(repository, true, -1);
@@ -107,7 +107,7 @@ public class AddIndexedBranch {
 					System.out.println(MessageFormat.format("adding [gitblit] indexBranch={0} for {1}", params.branch, repo));
 					indexedBranches.add(params.branch);
 				}
-				
+
 				String [] branches = config.getStringList("gitblit", null, "indexBranch");
 				if (!ArrayUtils.isEmpty(branches)) {
 					for (String branch : branches) {
@@ -122,11 +122,11 @@ public class AddIndexedBranch {
 				e.printStackTrace();
 			}
 		}
-		
+
 		System.out.println(MessageFormat.format("updated {0} repository configurations, skipped {1}", modCount, skipCount));
 	}
 
-	
+
 
 	/**
 	 * JCommander Parameters class for AddIndexedBranch.
@@ -142,7 +142,7 @@ public class AddIndexedBranch {
 
 		@Parameter(names = { "--skip" }, description = "Skip the named repository (simple fizzy matching is supported)", required = false)
 		public List<String> exclusions = new ArrayList<String>();
-		
+
 		@Parameter(names = { "--all-local-branches" }, description = "Add all local branches to index. If specified, the --branch parameter is not considered.", required = false)
 		public boolean addAllLocalBranches = false;
 	}

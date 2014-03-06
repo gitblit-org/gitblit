@@ -16,35 +16,53 @@
 package com.gitblit.utils;
 
 import static org.eclipse.jgit.lib.Constants.encode;
+import static org.eclipse.jgit.lib.Constants.encodeASCII;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.util.RawParseUtils;
 
+import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.utils.DiffUtils.DiffStat;
+
 /**
- * Generates an html snippet of a diff in Gitblit's style.
- * 
+ * Generates an html snippet of a diff in Gitblit's style, tracks changed paths,
+ * and calculates diff stats.
+ *
  * @author James Moger
- * 
+ *
  */
-public class GitBlitDiffFormatter extends GitWebDiffFormatter {
+public class GitBlitDiffFormatter extends DiffFormatter {
 
 	private final OutputStream os;
 
+	private final DiffStat diffStat;
+
+	private PathChangeModel currentPath;
+
 	private int left, right;
 
-	public GitBlitDiffFormatter(OutputStream os) {
+	public GitBlitDiffFormatter(OutputStream os, String commitId) {
 		super(os);
 		this.os = os;
+		this.diffStat = new DiffStat(commitId);
+	}
+
+	@Override
+	public void format(DiffEntry ent) throws IOException {
+		currentPath = diffStat.addPath(ent);
+		super.format(ent);
 	}
 
 	/**
 	 * Output a hunk header
-	 * 
+	 *
 	 * @param aStartLine
 	 *            within first source
 	 * @param aEndLine
@@ -71,9 +89,46 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 		right = bStartLine + 1;
 	}
 
+	protected void writeRange(final char prefix, final int begin, final int cnt) throws IOException {
+		os.write(' ');
+		os.write(prefix);
+		switch (cnt) {
+		case 0:
+			// If the range is empty, its beginning number must
+			// be the
+			// line just before the range, or 0 if the range is
+			// at the
+			// start of the file stream. Here, begin is always 1
+			// based,
+			// so an empty file would produce "0,0".
+			//
+			os.write(encodeASCII(begin - 1));
+			os.write(',');
+			os.write('0');
+			break;
+
+		case 1:
+			// If the range is exactly one line, produce only
+			// the number.
+			//
+			os.write(encodeASCII(begin));
+			break;
+
+		default:
+			os.write(encodeASCII(begin));
+			os.write(',');
+			os.write(encodeASCII(cnt));
+			break;
+		}
+	}
+
 	@Override
 	protected void writeLine(final char prefix, final RawText text, final int cur)
 			throws IOException {
+		// update entry diffstat
+		currentPath.update(prefix);
+
+		// output diff
 		os.write("<tr>".getBytes());
 		switch (prefix) {
 		case '+':
@@ -107,10 +162,9 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 	/**
 	 * Workaround function for complex private methods in DiffFormatter. This
 	 * sets the html for the diff headers.
-	 * 
+	 *
 	 * @return
 	 */
-	@Override
 	public String getHtml() {
 		ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
 		String html = RawParseUtils.decode(bos.toByteArray());
@@ -137,10 +191,10 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 				} else {
 					// use a
 					line = line.substring("diff --git ".length()).trim();
-					line = line.substring(line.startsWith("\"a/") ? 3 : 2);					
+					line = line.substring(line.startsWith("\"a/") ? 3 : 2);
 					line = line.substring(0, line.indexOf(" b/") > -1 ? line.indexOf(" b/") : line.indexOf("\"b/")).trim();
 				}
-				
+
 				if (line.charAt(0) == '"') {
 					line = line.substring(1);
 				}
@@ -151,7 +205,7 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 					sb.append("</tbody></table></div>\n");
 					inFile = false;
 				}
-				
+
 				sb.append(MessageFormat.format("<div class='header'><div class=\"diffHeader\" id=\"{0}\"><i class=\"icon-file\"></i> ", line)).append(line).append("</div></div>");
 				sb.append("<div class=\"diff\">");
 				sb.append("<table><tbody>");
@@ -174,5 +228,9 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 		}
 		sb.append("</table></div>");
 		return sb.toString();
+	}
+
+	public DiffStat getDiffStat() {
+		return diffStat;
 	}
 }

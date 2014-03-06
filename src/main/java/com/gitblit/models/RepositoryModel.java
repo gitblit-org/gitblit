@@ -26,16 +26,18 @@ import java.util.TreeSet;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
  * RepositoryModel is a serializable model class that represents a Gitblit
  * repository including its configuration settings and access restriction.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RepositoryModel implements Serializable, Comparable<RepositoryModel> {
 
@@ -49,15 +51,12 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String lastChangeAuthor;
 	public boolean hasCommits;
 	public boolean showRemoteBranches;
-	public boolean useTickets;
-	public boolean useDocs;
 	public boolean useIncrementalPushTags;
 	public String incrementalPushTagPrefix;
 	public AccessRestrictionType accessRestriction;
 	public AuthorizationControl authorizationControl;
 	public boolean allowAuthenticated;
 	public boolean isFrozen;
-	public boolean showReadme;
 	public FederationStrategy federationStrategy;
 	public List<String> federationSets;
 	public boolean isFederated;
@@ -65,6 +64,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean skipSummaryMetrics;
 	public String frequency;
 	public boolean isBare;
+	public boolean isMirror;
 	public String origin;
 	public String HEAD;
 	public List<String> availableRefs;
@@ -82,13 +82,17 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean verifyCommitter;
 	public String gcThreshold;
 	public int gcPeriod;
-	public int maxActivityCommits;	
+	public int maxActivityCommits;
 	public List<String> metricAuthorExclusions;
-	
+	public CommitMessageRenderer commitMessageRenderer;
+	public boolean acceptNewPatchsets;
+	public boolean acceptNewTickets;
+	public boolean requireApproval;
+
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;
 	public String sparkleshareId;
-	
+
 	public RepositoryModel() {
 		this("", "", "", new Date(0));
 	}
@@ -100,14 +104,16 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.accessRestriction = AccessRestrictionType.NONE;
 		this.authorizationControl = AuthorizationControl.NAMED;
 		this.federationSets = new ArrayList<String>();
-		this.federationStrategy = FederationStrategy.FEDERATE_THIS;	
+		this.federationStrategy = FederationStrategy.FEDERATE_THIS;
 		this.projectPath = StringUtils.getFirstPathElement(name);
 		this.owners = new ArrayList<String>();
 		this.isBare = true;
-		
+		this.acceptNewTickets = true;
+		this.acceptNewPatchsets = true;
+
 		addOwner(owner);
 	}
-	
+
 	public List<String> getLocalBranches() {
 		if (ArrayUtils.isEmpty(availableRefs)) {
 			return new ArrayList<String>();
@@ -120,30 +126,34 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		}
 		return localBranches;
 	}
-	
+
 	public void addFork(String repository) {
 		if (forks == null) {
 			forks = new TreeSet<String>();
 		}
 		forks.add(repository);
 	}
-	
+
 	public void removeFork(String repository) {
 		if (forks == null) {
 			return;
 		}
 		forks.remove(repository);
 	}
-	
+
 	public void resetDisplayName() {
 		displayName = null;
 	}
-	
+
+	public String getRID() {
+		return StringUtils.getSHA1(name);
+	}
+
 	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof RepositoryModel) {
@@ -164,38 +174,38 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public int compareTo(RepositoryModel o) {
 		return StringUtils.compareRepositoryNames(name, o.name);
 	}
-	
+
 	public boolean isFork() {
 		return !StringUtils.isEmpty(originRepository);
 	}
-	
+
 	public boolean isOwner(String username) {
 		if (StringUtils.isEmpty(username) || ArrayUtils.isEmpty(owners)) {
 			return false;
 		}
 		return owners.contains(username.toLowerCase());
 	}
-	
+
 	public boolean isPersonalRepository() {
-		return !StringUtils.isEmpty(projectPath) && projectPath.charAt(0) == '~';
+		return !StringUtils.isEmpty(projectPath) && ModelUtils.isPersonalRepository(projectPath);
 	}
-	
+
 	public boolean isUsersPersonalRepository(String username) {
-		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username);
+		return !StringUtils.isEmpty(projectPath) && ModelUtils.isUsersPersonalRepository(username, projectPath);
 	}
-	
+
 	public boolean allowAnonymousView() {
 		return !accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
-	
+
 	public boolean isShowActivity() {
 		return maxActivityCommits > -1;
 	}
-	
+
 	public boolean isSparkleshared() {
 		return !StringUtils.isEmpty(sparkleshareId);
 	}
-	
+
 	public RepositoryModel cloneAs(String cloneName) {
 		RepositoryModel clone = new RepositoryModel();
 		clone.originRepository = name;
@@ -206,14 +216,13 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.accessRestriction = AccessRestrictionType.PUSH;
 		clone.authorizationControl = AuthorizationControl.NAMED;
 		clone.federationStrategy = federationStrategy;
-		clone.showReadme = showReadme;
 		clone.showRemoteBranches = false;
 		clone.allowForks = false;
-		clone.useDocs = useDocs;
-		clone.useTickets = useTickets;
+		clone.acceptNewPatchsets = false;
+		clone.acceptNewTickets = false;
 		clone.skipSizeCalculation = skipSizeCalculation;
 		clone.skipSummaryMetrics = skipSummaryMetrics;
-		clone.sparkleshareId = sparkleshareId; 
+		clone.sparkleshareId = sparkleshareId;
 		return clone;
 	}
 

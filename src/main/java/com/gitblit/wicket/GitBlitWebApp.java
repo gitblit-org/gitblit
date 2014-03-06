@@ -15,21 +15,32 @@
  */
 package com.gitblit.wicket;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.wicket.Application;
-import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 
-import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IAuthenticationManager;
+import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IGitblit;
+import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IProjectManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IUserManager;
+import com.gitblit.tickets.ITicketService;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
-import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
@@ -37,19 +48,21 @@ import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
+import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.EditTicketPage;
+import com.gitblit.wicket.pages.ExportTicketPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.ForkPage;
 import com.gitblit.wicket.pages.ForksPage;
 import com.gitblit.wicket.pages.GitSearchPage;
-import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
-import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.MyDashboardPage;
+import com.gitblit.wicket.pages.NewTicketPage;
 import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.ProjectPage;
@@ -61,7 +74,6 @@ import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
-import com.gitblit.wicket.pages.TicketPage;
 import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
@@ -69,28 +81,70 @@ import com.gitblit.wicket.pages.UsersPage;
 
 public class GitBlitWebApp extends WebApplication {
 
-	public final static Class<? extends BasePage> HOME_PAGE_CLASS = MyDashboardPage.class;
-	
+	private final Class<? extends WebPage> homePageClass = MyDashboardPage.class;
+
+	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
+
+	private final IStoredSettings settings;
+
+	private final IRuntimeManager runtimeManager;
+
+	private final INotificationManager notificationManager;
+
+	private final IUserManager userManager;
+
+	private final IAuthenticationManager authenticationManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	private final IProjectManager projectManager;
+
+	private final IFederationManager federationManager;
+
+	private final IGitblit gitblit;
+
+	public GitBlitWebApp(
+			IRuntimeManager runtimeManager,
+			INotificationManager notificationManager,
+			IUserManager userManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager,
+			IFederationManager federationManager,
+			IGitblit gitblit) {
+
+		super();
+		this.settings = runtimeManager.getSettings();
+		this.runtimeManager = runtimeManager;
+		this.notificationManager = notificationManager;
+		this.userManager = userManager;
+		this.authenticationManager = authenticationManager;
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
+		this.federationManager = federationManager;
+		this.gitblit = gitblit;
+	}
+
 	@Override
 	public void init() {
 		super.init();
 
 		// Setup page authorization mechanism
-		boolean useAuthentication = GitBlit.getBoolean(Keys.web.authenticateViewPages, false)
-				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, false);
+		boolean useAuthentication = settings.getBoolean(Keys.web.authenticateViewPages, false)
+				|| settings.getBoolean(Keys.web.authenticateAdminPages, false);
 		if (useAuthentication) {
-			AuthorizationStrategy authStrategy = new AuthorizationStrategy();
+			AuthorizationStrategy authStrategy = new AuthorizationStrategy(settings, homePageClass);
 			getSecuritySettings().setAuthorizationStrategy(authStrategy);
 			getSecuritySettings().setUnauthorizedComponentInstantiationListener(authStrategy);
 		}
 
 		// Grab Browser info (like timezone, etc)
-		if (GitBlit.getBoolean(Keys.web.useClientTimezone, false)) {
+		if (settings.getBoolean(Keys.web.useClientTimezone, false)) {
 			getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 		}
 
 		// configure the resource cache duration to 90 days for deployment
-		if (!GitBlit.isDebugMode()) {
+		if (!isDebugMode()) {
 			getResourceSettings().setDefaultCacheDuration(90 * 86400);
 		}
 
@@ -120,56 +174,139 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/logout", LogoutPage.class);
 
 		// setup ticket urls
-		mount("/tickets", TicketsPage.class, "r");
-		mount("/ticket", TicketPage.class, "r", "f");
+		mount("/tickets", TicketsPage.class, "r", "h");
+		mount("/tickets/new", NewTicketPage.class, "r");
+		mount("/tickets/edit", EditTicketPage.class, "r", "h");
+		mount("/tickets/export", ExportTicketPage.class, "r", "h");
 
-		// setup the markdown urls
+		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r");
-		mount("/markdown", MarkdownPage.class, "r", "h", "f");
+		mount("/doc", DocPage.class, "r", "h", "f");
 
 		// federation urls
 		mount("/proposal", ReviewProposalPage.class, "t");
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
 
 		mount("/activity", ActivityPage.class, "r", "h");
-		mount("/gravatar", GravatarProfilePage.class, "h");
 		mount("/lucene", LuceneSearchPage.class);
 		mount("/project", ProjectPage.class, "p");
 		mount("/projects", ProjectsPage.class);
 		mount("/user", UserPage.class, "user");
 		mount("/forks", ForksPage.class, "r");
 		mount("/fork", ForkPage.class, "r");
+
+		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
+		super.init();
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
 		if (parameters == null) {
 			parameters = new String[] {};
 		}
-		if (!GitBlit.getBoolean(Keys.web.mountParameters, true)) {
+		if (!settings.getBoolean(Keys.web.mountParameters, true)) {
 			parameters = new String[] {};
 		}
-		mount(new GitblitParamUrlCodingStrategy(location, clazz, parameters));
+		mount(new GitblitParamUrlCodingStrategy(settings, location, clazz, parameters));
+
+		// map the mount point to the cache control definition
+		if (clazz.isAnnotationPresent(CacheControl.class)) {
+			CacheControl cacheControl = clazz.getAnnotation(CacheControl.class);
+			cacheablePages.put(location.substring(1), cacheControl);
+		}
 	}
 
 	@Override
-	public Class<? extends Page> getHomePage() {
-		return HOME_PAGE_CLASS;
+	public Class<? extends WebPage> getHomePage() {
+		return homePageClass;
 	}
-	
+
+	public boolean isCacheablePage(String mountPoint) {
+		return cacheablePages.containsKey(mountPoint);
+	}
+
+	public CacheControl getCacheControl(String mountPoint) {
+		return cacheablePages.get(mountPoint);
+	}
+
 	@Override
 	public final Session newSession(Request request, Response response) {
 		GitBlitWebSession gitBlitWebSession = new GitBlitWebSession(request);
 
-		String forcedLocale = GitBlit.getString(Keys.web.forceDefaultLocale, null);
+		String forcedLocale = settings.getString(Keys.web.forceDefaultLocale, null);
 		if (!StringUtils.isEmpty(forcedLocale)) {
 			gitBlitWebSession.setLocale(new Locale(forcedLocale));
 		}
 		return gitBlitWebSession;
 	}
 
+	public IStoredSettings settings() {
+		return settings;
+	}
+
+	/**
+	 * Is Gitblit running in debug mode?
+	 *
+	 * @return true if Gitblit is running in debug mode
+	 */
+	public boolean isDebugMode() {
+		return runtimeManager.isDebugMode();
+	}
+
+	/*
+	 * These methods look strange... and they are... but they are the first
+	 * step towards modularization across multiple commits.
+	 */
+	public Date getBootDate() {
+		return runtimeManager.getBootDate();
+	}
+
+	public Date getLastActivityDate() {
+		return repositoryManager.getLastActivityDate();
+	}
+
+	public IRuntimeManager runtime() {
+		return runtimeManager;
+	}
+
+	public INotificationManager notifier() {
+		return notificationManager;
+	}
+
+	public IUserManager users() {
+		return userManager;
+	}
+
+	public IAuthenticationManager authentication() {
+		return authenticationManager;
+	}
+
+	public IRepositoryManager repositories() {
+		return repositoryManager;
+	}
+
+	public IProjectManager projects() {
+		return projectManager;
+	}
+
+	public IFederationManager federation() {
+		return federationManager;
+	}
+
+	public IGitblit gitblit() {
+		return gitblit;
+	}
+
+	public ITicketService tickets() {
+		return gitblit.getTicketService();
+	}
+
+	public TimeZone getTimezone() {
+		return runtimeManager.getTimezone();
+	}
+
 	@Override
 	public final String getConfigurationType() {
-		if (GitBlit.isDebugMode()) {
+		if (runtimeManager.isDebugMode()) {
 			return Application.DEVELOPMENT;
 		}
 		return Application.DEPLOYMENT;

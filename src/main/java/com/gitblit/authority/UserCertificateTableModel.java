@@ -26,9 +26,9 @@ import com.gitblit.client.Translation;
 
 /**
  * Table model of a list of user certificate models.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class UserCertificateTableModel extends AbstractTableModel {
 
@@ -82,11 +82,12 @@ public class UserCertificateTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {

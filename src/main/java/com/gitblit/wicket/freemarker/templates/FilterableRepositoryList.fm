@@ -1,4 +1,4 @@
-<div ng-controller="${ngCtrl}" style="border: 1px solid #ddd;border-radius: 4px;">
+<div ng-controller="${ngCtrl}" style="border: 1px solid #ddd;">
 	<div class="header" style="padding: 5px;border: none;"><i wicket:id="${ngList}Icon"></i> <span wicket:id="${ngList}Title"></span>
 		<div class="hidden-phone pull-right">
 			<span wicket:id="${ngList}Button"></span>

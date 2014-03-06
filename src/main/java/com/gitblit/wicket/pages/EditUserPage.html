@@ -8,7 +8,9 @@
 <body onload="document.getElementById('username').focus();">
 <!-- User Table -->
 <form style="padding-top:5px;" wicket:id="editForm">
-	
+
+<div class="row">
+<div class="span12">
 <div class="tabbable">
 	<!-- tab titles -->
 	<ul class="nav nav-tabs">
@@ -29,10 +31,11 @@
 				<tr><th><wicket:message key="gb.confirmPassword"></wicket:message></th><td class="edit"><input type="password" wicket:id="confirmPassword" size="30" tabindex="3" /></td></tr>
 				<tr><th><wicket:message key="gb.displayName"></wicket:message></th><td class="edit"><input type="text" wicket:id="displayName" size="30" tabindex="4" /></td></tr>
 				<tr><th><wicket:message key="gb.emailAddress"></wicket:message></th><td class="edit"><input type="text" wicket:id="emailAddress" size="30" tabindex="5" /></td></tr>
-				<tr><th><wicket:message key="gb.canAdmin"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canAdmin" tabindex="6" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canAdminDescription"></wicket:message></span></label></td></tr>				
-				<tr><th><wicket:message key="gb.canCreate"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canCreate" tabindex="7" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canCreateDescription"></wicket:message></span></label></td></tr>				
-				<tr><th><wicket:message key="gb.canFork"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canFork" tabindex="8" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canForkDescription"></wicket:message></span></label></td></tr>				
+				<tr><th><wicket:message key="gb.canAdmin"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canAdmin" tabindex="6" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canAdminDescription"></wicket:message></span></label></td></tr>
+				<tr><th><wicket:message key="gb.canCreate"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canCreate" tabindex="7" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canCreateDescription"></wicket:message></span></label></td></tr>
+				<tr><th><wicket:message key="gb.canFork"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canFork" tabindex="8" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canForkDescription"></wicket:message></span></label></td></tr>
 				<tr><th><wicket:message key="gb.excludeFromFederation"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="excludeFromFederation" tabindex="9" /> &nbsp;<span class="help-inline"><wicket:message key="gb.excludeFromFederationDescription"></wicket:message></span></label></td></tr>				
+				<tr><th><wicket:message key="gb.disableUser"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="disabled" tabindex="10" /> &nbsp;<span class="help-inline"><wicket:message key="gb.disableUserDescription"></wicket:message></span></label></td></tr>
 			</tbody>
 		</table>
 		</div>
@@ -52,7 +55,7 @@
 		
 		<!-- access permissions tab -->
 		<div class="tab-pane" id="permissions">
-		<table class="plain">
+		<table class=plain>
 			<tbody class="settings">
 				<tr><th><wicket:message key="gb.teamMemberships"></wicket:message></th><td style="padding:2px;"><span wicket:id="teams"></span></td></tr>
 				<tr><td colspan="2"><hr></hr></td></tr>
@@ -66,9 +69,13 @@
 		</div>
 	</div>
 </div>
-	
+</div>
+</div>
+
 <div class="row">
-	<div class="form-actions"><input class="btn btn-primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="9" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="10" /></div>
+<div class="span12">
+	<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="9" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="10" /></div>
+</div>
 </div>
 
 </form>

@@ -15,8 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 
@@ -41,7 +39,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
@@ -50,11 +47,11 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Test class for Groovy scripts. Mostly this is to facilitate development.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
-public class GroovyScriptTest {
+public class GroovyScriptTest extends GitblitUnitTest {
 
 	private static final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -83,7 +80,7 @@ public class GroovyScriptTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
 
-		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.customFields = new HashMap<String,String>();
 		repository.customFields.put( "fogbugzUrl", "http://bugs.test.com" );
 		repository.customFields.put( "fogbugzRepositoryId", "1" );
@@ -105,7 +102,7 @@ public class GroovyScriptTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
 
-		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
 
 		test("sendmail-html.groovy", gitblit, logger, clientLogger, commands, repository);
@@ -130,7 +127,7 @@ public class GroovyScriptTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
 
-		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
 
 		test("sendmail.groovy", gitblit, logger, clientLogger, commands, repository);
@@ -140,7 +137,7 @@ public class GroovyScriptTest {
 		assertEquals(5, m.toAddresses.size());
 		assertTrue(m.message.contains("BIT"));
 	}
-	
+
 	@Test
 	public void testProtectRefsCreateBranch() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -149,12 +146,12 @@ public class GroovyScriptTest {
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
-		
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
+
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 	}
-	
+
 	@Test
 	public void testProtectRefsCreateTag() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -163,13 +160,13 @@ public class GroovyScriptTest {
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/tags/v1.0"));
-		
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
+
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
 	}
-	
+
 	@Test
 	public void testProtectRefsFastForward() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -179,13 +176,13 @@ public class GroovyScriptTest {
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
-		
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
+
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
 	}
-	
+
 	@Test
 	public void testProtectRefsDeleteMasterBranch() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -196,14 +193,14 @@ public class GroovyScriptTest {
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
 				"refs/heads/master");
 		commands.add(command);
-		
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
+
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(ReceiveCommand.Result.REJECTED_NODELETE, command.getResult());
 		assertEquals(0, logger.messages.size());
 	}
-	
+
 	@Test
 	public void testProtectRefsDeleteOtherBranch() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -213,13 +210,13 @@ public class GroovyScriptTest {
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
 				"refs/heads/other"));
-		
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
+
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
 	}
-	
+
 	@Test
 	public void testProtectRefsDeleteTag() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -230,14 +227,14 @@ public class GroovyScriptTest {
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
 				"refs/tags/v1.0");
 		commands.add(command);
-		
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
+
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(ReceiveCommand.Result.REJECTED_NODELETE, command.getResult());
 		assertEquals(0, logger.messages.size());
 	}
-	
+
 	@Test
 	public void testBlockPush() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -247,8 +244,8 @@ public class GroovyScriptTest {
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
-		
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
+
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
 		try {
 			test("blockpush.groovy", gitblit, logger, clientLogger, commands, repository);
@@ -257,7 +254,7 @@ public class GroovyScriptTest {
 			assertTrue(e.getMessage().contains("failed"));
 		}
 	}
-	
+
 	@Test
 	public void testClientLogging() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
@@ -267,15 +264,15 @@ public class GroovyScriptTest {
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
-		
+
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
-		
-		File groovyDir = GitBlit.getGroovyScriptsFolder();
+
+		File groovyDir = repositories().getHooksFolder();
 		File tempScript = File.createTempFile("testClientLogging", "groovy", groovyDir);
 		tempScript.deleteOnExit();
-		
+
 		BufferedWriter writer = new BufferedWriter(new FileWriter(tempScript));
-		
+
 		writer.write("clientLogger.info('this is a test message')\n");
 		writer.flush();
 		writer.close();
@@ -291,7 +288,7 @@ public class GroovyScriptTest {
 
 		String gitblitUrl = GitBlitSuite.url;
 
-		File groovyDir = GitBlit.getGroovyScriptsFolder();
+		File groovyDir = repositories().getHooksFolder();
 		GroovyScriptEngine gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
 
 		Binding binding = new Binding();
@@ -341,6 +338,10 @@ public class GroovyScriptTest {
 			return dv;
 		}
 
+		public int getInteger(String key, int defaultValue) {
+			return defaultValue;
+		}
+
 		public void sendMail(String subject, String message, Collection<String> toAddresses) {
 			messages.add(new MockMail(subject, message, toAddresses));
 		}
@@ -356,18 +357,18 @@ public class GroovyScriptTest {
 			messages.add(message);
 		}
 	}
-	
+
 	class MockClientLogger {
 		List<String> messages = new ArrayList<String>();
 
 		public void info(String message) {
 			messages.add(message);
 		}
-		
+
 		public void error(String message) {
 			messages.add(message);
 		}
-		
+
 		public void error(String message, Throwable t) {
 			PrintWriter writer = new PrintWriter(new StringWriter());
 			if (!StringUtils.isEmpty(message)) {

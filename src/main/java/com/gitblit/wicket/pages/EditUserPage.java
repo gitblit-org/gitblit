@@ -35,7 +35,6 @@ import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -51,14 +50,10 @@ import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 public class EditUserPage extends RootSubPage {
 
 	private final boolean isCreate;
-	
+
 	public EditUserPage() {
 		// create constructor
 		super();
-		if (!GitBlit.self().supportsAddUser()) {
-			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitAddUser"),
-					GitBlit.getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
-		}
 		isCreate = true;
 		setupPage(new UserModel(""));
 		setStatelessHint(false);
@@ -70,17 +65,17 @@ public class EditUserPage extends RootSubPage {
 		super(params);
 		isCreate = false;
 		String name = WicketUtils.getUsername(params);
-		UserModel model = GitBlit.self().getUserModel(name);
+		UserModel model = app().users().getUserModel(name);
 		setupPage(model);
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 	}
-	
+
 	@Override
 	protected boolean requiresPageMap() {
 		return true;
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return UsersPage.class;
@@ -99,26 +94,26 @@ public class EditUserPage extends RootSubPage {
 
 		// build list of projects including all repositories wildcards
 		List<String> repos = getAccessRestrictedRepositoryList(true, userModel);
-		
+
 		List<String> userTeams = new ArrayList<String>();
 		for (TeamModel team : userModel.teams) {
 			userTeams.add(team.name);
 		}
 		Collections.sort(userTeams);
-		
+
 		final String oldName = userModel.username;
-		final List<RegistrantAccessPermission> permissions = GitBlit.self().getUserAccessPermissions(userModel);
+		final List<RegistrantAccessPermission> permissions = app().repositories().getUserAccessPermissions(userModel);
 
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
-				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()
-				.getAllTeamnames()), new StringChoiceRenderer(), 10, false);
+				new ArrayList<String>(userTeams)), new CollectionModel<String>(app().users()
+				.getAllTeamNames()), new StringChoiceRenderer(), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
-			
+
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see org.apache.wicket.markup.html.form.Form#onSubmit()
 			 */
 			@Override
@@ -131,7 +126,7 @@ public class EditUserPage extends RootSubPage {
 				userModel.username = userModel.username.toLowerCase();
 				String username = userModel.username;
 				if (isCreate) {
-					UserModel model = GitBlit.self().getUserModel(username);
+					UserModel model = app().users().getUserModel(username);
 					if (model != null) {
 						error(MessageFormat.format(getString("gb.usernameUnavailable"), username));
 						return;
@@ -139,7 +134,7 @@ public class EditUserPage extends RootSubPage {
 				}
 				boolean rename = !StringUtils.isEmpty(oldName)
 						&& !oldName.equalsIgnoreCase(username);
-				if (GitBlit.self().supportsCredentialChanges(userModel)) {
+				if (app().authentication().supportsCredentialChanges(userModel)) {
 					if (!userModel.password.equals(confirmPassword.getObject())) {
 						error(getString("gb.passwordsDoNotMatch"));
 						return;
@@ -149,7 +144,7 @@ public class EditUserPage extends RootSubPage {
 							&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
 						// This is a plain text password.
 						// Check length.
-						int minLength = GitBlit.getInteger(Keys.realm.minPasswordLength, 5);
+						int minLength = app().settings().getInteger(Keys.realm.minPasswordLength, 5);
 						if (minLength < 4) {
 							minLength = 4;
 						}
@@ -158,9 +153,12 @@ public class EditUserPage extends RootSubPage {
 									minLength));
 							return;
 						}
-	
+
+						// change the cookie
+						userModel.cookie = StringUtils.getSHA1(userModel.username + password);
+
 						// Optionally store the password MD5 digest.
-						String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
+						String type = app().settings().getString(Keys.realm.passwordStorage, "md5");
 						if (type.equalsIgnoreCase("md5")) {
 							// store MD5 digest of password
 							userModel.password = StringUtils.MD5_TYPE
@@ -185,15 +183,19 @@ public class EditUserPage extends RootSubPage {
 				Iterator<String> selectedTeams = teams.getSelectedChoices();
 				userModel.teams.clear();
 				while (selectedTeams.hasNext()) {
-					TeamModel team = GitBlit.self().getTeamModel(selectedTeams.next());
+					TeamModel team = app().users().getTeamModel(selectedTeams.next());
 					if (team == null) {
 						continue;
 					}
 					userModel.teams.add(team);
 				}
 
-				try {					
-					GitBlit.self().updateUserModel(oldName, userModel, isCreate);
+				try {
+					if (isCreate) {
+						app().gitblit().addUser(userModel);
+					} else {
+						app().gitblit().reviseUser(oldName, userModel);
+					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;
@@ -210,21 +212,21 @@ public class EditUserPage extends RootSubPage {
 				}
 			}
 		};
-		
+
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
-		
+
 		// not all user services support manipulating username and password
-		boolean editCredentials = GitBlit.self().supportsCredentialChanges(userModel);
-		
+		boolean editCredentials = app().authentication().supportsCredentialChanges(userModel);
+
 		// not all user services support manipulating display name
-		boolean editDisplayName = GitBlit.self().supportsDisplayNameChanges(userModel);
+		boolean editDisplayName = app().authentication().supportsDisplayNameChanges(userModel);
 
 		// not all user services support manipulating email address
-		boolean editEmailAddress = GitBlit.self().supportsEmailAddressChanges(userModel);
+		boolean editEmailAddress = app().authentication().supportsEmailAddressChanges(userModel);
 
 		// not all user services support manipulating team memberships
-		boolean editTeams = GitBlit.self().supportsTeamMembershipChanges(userModel);
+		boolean editTeams = app().authentication().supportsTeamMembershipChanges(userModel);
 
 		// field names reflective match UserModel fields
 		form.add(new TextField<String>("username").setEnabled(editCredentials));
@@ -238,9 +240,11 @@ public class EditUserPage extends RootSubPage {
 		form.add(new TextField<String>("displayName").setEnabled(editDisplayName));
 		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));
 		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
+		form.add(new CheckBox("canFork").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
+		form.add(new CheckBox("disabled"));
+
 		form.add(new RegistrantPermissionsPanel("repositories",	RegistrantType.REPOSITORY, repos, permissions, getAccessPermissions()));
 		form.add(teams.setEnabled(editTeams));
 

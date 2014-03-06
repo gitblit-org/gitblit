@@ -24,16 +24,16 @@ import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
  * RootSubPage is a non-topbar navigable RootPage. It also has a page header.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class RootSubPage extends RootPage {
 
@@ -46,11 +46,11 @@ public abstract class RootSubPage extends RootPage {
 		super(params);
 		createPageMapIfNeeded();
 	}
-	
+
 	protected boolean requiresPageMap() {
 		return false;
 	}
-	
+
 	protected void createPageMapIfNeeded() {
 		if (requiresPageMap()) {
 			// because Gitblit strives for page-statelessness
@@ -71,7 +71,7 @@ public abstract class RootSubPage extends RootPage {
 		add(new Label("pageSubName", subName));
 		super.setupPage("", pageName);
 	}
-	
+
 	protected List<String> getAccessRestrictedRepositoryList(boolean includeWildcards, UserModel user) {
 		// build list of access-restricted projects
 		String lastProject = null;
@@ -80,11 +80,13 @@ public abstract class RootSubPage extends RootPage {
 			// all repositories
 			repos.add(".*");
 			// all repositories excluding personal repositories
-			repos.add("[^~].*");
+			if (ModelUtils.getUserRepoPrefix().length() == 1) {
+				repos.add("[^" + ModelUtils.getUserRepoPrefix() + "].*");
+			}
 		}
-		
-		for (String repo : GitBlit.self().getRepositoryList()) {
-			RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repo);
+
+		for (String repo : app().repositories().getRepositoryList()) {
+			RepositoryModel repositoryModel = app().repositories().getRepositoryModel(repo);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)
 					&& repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED)) {
 				if (user != null &&

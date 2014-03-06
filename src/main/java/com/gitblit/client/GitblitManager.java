@@ -70,9 +70,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Gitblit Manager issues JSON RPC requests to a Gitblit server.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitblitManager extends JFrame implements RegistrationsDialog.RegistrationListener {
 
@@ -173,6 +173,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 		JMenuItem manage = new JMenuItem(Translation.get("gb.manage") + "...");
 		manage.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, KeyEvent.CTRL_DOWN_MASK, false));
 		manage.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				manageRegistrations();
 			}
@@ -287,6 +288,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1 + i, KeyEvent.CTRL_DOWN_MASK,
 					false));
 			item.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					login(reg);
 				}
@@ -317,6 +319,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				GitblitRegistration reg = new GitblitRegistration(server, url, account, password) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					protected void cacheFeeds() {
 						writeFeedCache(this);
 					}
@@ -444,6 +447,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

@@ -30,9 +30,9 @@ import com.gitblit.models.RepositoryModel;
 /**
  * Renders the type indicators (tickets, frozen, access restriction, etc) in a
  * single cell.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Serializable {
 
@@ -46,17 +46,17 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 
 	private final ImageIcon viewIcon;
 
-	private final ImageIcon tixIcon;
-
 	private final ImageIcon doxIcon;
 
 	private final ImageIcon frozenIcon;
 
 	private final ImageIcon federatedIcon;
-	
+
 	private final ImageIcon forkIcon;
-	
+
 	private final ImageIcon sparkleshareIcon;
+
+	private final ImageIcon mirrorIcon;
 
 	public IndicatorsRenderer() {
 		super(new FlowLayout(FlowLayout.RIGHT, 1, 0));
@@ -64,12 +64,12 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 		pushIcon = new ImageIcon(getClass().getResource("/lock_go_16x16.png"));
 		pullIcon = new ImageIcon(getClass().getResource("/lock_pull_16x16.png"));
 		viewIcon = new ImageIcon(getClass().getResource("/shield_16x16.png"));
-		tixIcon = new ImageIcon(getClass().getResource("/bug_16x16.png"));
 		doxIcon = new ImageIcon(getClass().getResource("/book_16x16.png"));
 		frozenIcon = new ImageIcon(getClass().getResource("/cold_16x16.png"));
 		federatedIcon = new ImageIcon(getClass().getResource("/federated_16x16.png"));
 		forkIcon = new ImageIcon(getClass().getResource("/commit_divide_16x16.png"));
 		sparkleshareIcon = new ImageIcon(getClass().getResource("/star_16x16.png"));
+		mirrorIcon = new ImageIcon(getClass().getResource("/mirror_16x16.png"));
 	}
 
 	@Override
@@ -88,19 +88,14 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 				tooltip.append(Translation.get("gb.isSparkleshared")).append("<br/>");
 				add(icon);
 			}
+			if (model.isMirror) {
+				JLabel icon = new JLabel(mirrorIcon);
+				tooltip.append(Translation.get("gb.isMirror")).append("<br/>");
+				add(icon);
+			}
 			if (model.isFork()) {
 				JLabel icon = new JLabel(forkIcon);
 				tooltip.append(Translation.get("gb.isFork")).append("<br/>");
-				add(icon);
-			}
-			if (model.useTickets) {
-				JLabel icon = new JLabel(tixIcon);
-				tooltip.append(Translation.get("gb.tickets")).append("<br/>");
-				add(icon);
-			}
-			if (model.useDocs) {
-				JLabel icon = new JLabel(doxIcon);
-				tooltip.append(Translation.get("gb.docs")).append("<br/>");
 				add(icon);
 			}
 			if (model.isFrozen) {

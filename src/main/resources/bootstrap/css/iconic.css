@@ -104,16 +104,16 @@
     content: '\270e';
   }
   .iconic-x:before {
-    content: '\2717';
-  }
-  .iconic-o-x:before {
-    content: '\2718';
-  }
-  .iconic-check:before {
     content: '\2713';
   }
-  .iconic-o-check:before {
+  .iconic-o-x:before {
     content: '\2714';
+  }
+  .iconic-check:before {
+    content: '\2717';
+  }
+  .iconic-o-check:before {
+    content: '\2718';
   }
   .iconic-left-quote:before {
     content: '\275d';

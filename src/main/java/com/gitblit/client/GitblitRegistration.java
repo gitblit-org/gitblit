@@ -25,9 +25,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Simple class to encapsulate a Gitblit server registration.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitblitRegistration implements Serializable, Comparable<GitblitRegistration> {
 

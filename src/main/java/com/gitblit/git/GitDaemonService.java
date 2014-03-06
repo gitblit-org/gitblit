@@ -68,6 +68,7 @@ public abstract class GitDaemonService {
 	GitDaemonService(final String cmdName, final String cfgName) {
 		command = cmdName.startsWith("git-") ? cmdName : "git-" + cmdName; //$NON-NLS-1$ //$NON-NLS-2$
 		configKey = new SectionParser<ServiceConfig>() {
+			@Override
 			public ServiceConfig parse(final Config cfg) {
 				return new ServiceConfig(GitDaemonService.this, cfg, cfgName);
 			}

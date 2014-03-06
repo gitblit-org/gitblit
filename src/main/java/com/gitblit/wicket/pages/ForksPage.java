@@ -27,7 +27,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.PersonIdent;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.RepositoryModel;
@@ -42,22 +41,23 @@ public class ForksPage extends RepositoryPage {
 
 	public ForksPage(PageParameters params) {
 		super(params);
-		
+
 		final RepositoryModel pageRepository = getRepositoryModel();
-		
-		ForkModel root = GitBlit.self().getForkNetwork(pageRepository.name);
+
+		ForkModel root = app().repositories().getForkNetwork(pageRepository.name);
 		List<FlatFork> network = flatten(root);
-		
+
 		ListDataProvider<FlatFork> forksDp = new ListDataProvider<FlatFork>(network);
 		DataView<FlatFork> forksList = new DataView<FlatFork>("fork", forksDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<FlatFork> item) {
 				FlatFork fork = item.getModelObject();
 				RepositoryModel repository = fork.repository;
-				
+
 				if (repository.isPersonalRepository()) {
-					UserModel user = GitBlit.self().getUserModel(repository.projectPath.substring(1));
+					UserModel user = app().users().getUserModel(repository.projectPath.substring(1));
 					if (user == null) {
 						// user account no longer exists
 						user = new UserModel(repository.projectPath.substring(1));
@@ -83,7 +83,7 @@ public class ForksPage extends RepositoryPage {
 					item.add(swatch);
 					String projectName = repository.projectPath;
 					if (StringUtils.isEmpty(projectName)) {
-						projectName = GitBlit.getString(Keys.web.repositoryRootGroupName, "main");
+						projectName = app().settings().getString(Keys.web.repositoryRootGroupName, "main");
 					}
 					if (pageRepository.equals(repository)) {
 						// do not link to self
@@ -92,7 +92,7 @@ public class ForksPage extends RepositoryPage {
 						item.add(new LinkPanel("aProject", null, projectName, ProjectPage.class, WicketUtils.newProjectParameter(projectName)));
 					}
 				}
-				
+
 				String repo = StringUtils.getLastPathElement(repository.name);
 				UserModel user = GitBlitWebSession.get().getUser();
 				if (user == null) {
@@ -110,7 +110,7 @@ public class ForksPage extends RepositoryPage {
 					item.add(new Label("aFork", repo));
 					item.add(new Label("lastChange").setVisible(false));
 				}
-				
+
 				WicketUtils.setCssStyle(item, "margin-left:" + (32*fork.level) + "px;");
 				if (fork.level == 0) {
 					WicketUtils.setCssClass(item, "forkSource");
@@ -119,7 +119,7 @@ public class ForksPage extends RepositoryPage {
 				}
 			}
 		};
-		
+
 		add(forksList);
 	}
 
@@ -127,13 +127,13 @@ public class ForksPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.forks");
 	}
-	
+
 	protected List<FlatFork> flatten(ForkModel root) {
 		List<FlatFork> list = new ArrayList<FlatFork>();
 		list.addAll(flatten(root, 0));
 		return list;
 	}
-	
+
 	protected List<FlatFork> flatten(ForkModel node, int level) {
 		List<FlatFork> list = new ArrayList<FlatFork>();
 		list.add(new FlatFork(node.repository, level));
@@ -144,14 +144,14 @@ public class ForksPage extends RepositoryPage {
 		}
 		return list;
 	}
-	
+
 	private class FlatFork implements Serializable {
-		
+
 		private static final long serialVersionUID = 1L;
 
 		public final RepositoryModel repository;
 		public final int level;
-		
+
 		public FlatFork(RepositoryModel repository, int level) {
 			this.repository = repository;
 			this.level = level;

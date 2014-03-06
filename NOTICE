@@ -56,14 +56,6 @@ WicketStuff GoogleCharts
    https://github.com/wicketstuff/core/wiki/GoogleCharts   
    
 ---------------------------------------------------------------------------
-MarkdownPapers
----------------------------------------------------------------------------
-   MarkdownPapers, released under the
-   Apache Software License, Version 2.0.
-
-   http://markdown.tautua.org
-   
----------------------------------------------------------------------------
 Jetty
 ---------------------------------------------------------------------------
    Jetty, released under the
@@ -302,4 +294,51 @@ Guava
    Apache License 2.0.
    
    https://code.google.com/p/guava-libraries
-  
+
+---------------------------------------------------------------------------
+libpam4j
+---------------------------------------------------------------------------
+   libpam4j, release under the
+   MIT license.
+   
+   https://github.com/kohsuke/libpam4j
+
+---------------------------------------------------------------------------
+commons-codec
+---------------------------------------------------------------------------
+   commons-codec, release under the
+   Apache License 2.0.
+   
+   http://commons.apache.org/proper/commons-codec
+
+---------------------------------------------------------------------------
+pegdown
+---------------------------------------------------------------------------
+   pegdown, release under the
+   Apache License 2.0.
+   
+   https://github.com/sirthias/pegdown
+
+---------------------------------------------------------------------------
+font-awesome
+---------------------------------------------------------------------------
+   font-awesome, release under the
+   SIL OFL 1.1.
+   
+   https://github.com/FortAwesome/Font-Awesome
+
+---------------------------------------------------------------------------
+AUI (excerpts)
+---------------------------------------------------------------------------
+   AUI, release under the
+   Apache License 2.0
+   
+   https://bitbucket.org/atlassian/aui
+
+---------------------------------------------------------------------------
+Jedis
+---------------------------------------------------------------------------
+   Jedis, release under the
+   MIT license
+   
+   https://github.com/xetorthio/jedis

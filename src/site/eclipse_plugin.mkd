@@ -1,0 +1,22 @@
+
+## Egitblit
+
+There is an Eclipse plugin, *Egitblit*, provided by the [Baloise Group](http://baloise.github.io).
+
+Features include:
+
+- Filtering repositories
+- Support for multiple Gitblit servers
+- Copying git repo urls to the clipboard
+- or via drag&drop to any drag&drop enabled target as text (or as type URL)
+- Integration with the EGit Clone Wizard
+- Opening the Gitblit summary page of the selected repository
+
+
+### Installation
+
+You can install it from the Eclipse Marketplace.
+
+### Source Code & Issue Tracker
+
+The source and issue tracker for *Egitblit* are hosted on [Github](https://github.com/baloise/egitblit).

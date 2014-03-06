@@ -40,9 +40,9 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * Utility class of string functions.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class StringUtils {
 
@@ -52,7 +52,7 @@ public class StringUtils {
 
 	/**
 	 * Returns true if the string is null or empty.
-	 * 
+	 *
 	 * @param value
 	 * @return true if string is null or empty
 	 */
@@ -62,7 +62,7 @@ public class StringUtils {
 
 	/**
 	 * Replaces carriage returns and line feeds with html line breaks.
-	 * 
+	 *
 	 * @param string
 	 * @return plain text with html line breaks
 	 */
@@ -73,7 +73,7 @@ public class StringUtils {
 	/**
 	 * Prepare text for html presentation. Replace sensitive characters with
 	 * html entities.
-	 * 
+	 *
 	 * @param inStr
 	 * @param changeSpace
 	 * @return plain text escaped for html
@@ -104,7 +104,7 @@ public class StringUtils {
 
 	/**
 	 * Decode html entities back into plain text characters.
-	 * 
+	 *
 	 * @param inStr
 	 * @return returns plain text from html
 	 */
@@ -115,7 +115,7 @@ public class StringUtils {
 
 	/**
 	 * Encodes a url parameter by escaping troublesome characters.
-	 * 
+	 *
 	 * @param inStr
 	 * @return properly escaped url
 	 */
@@ -127,6 +127,8 @@ public class StringUtils {
 				retStr.append("%2F");
 			} else if (inStr.charAt(i) == ' ') {
 				retStr.append("%20");
+			} else if (inStr.charAt(i) == '&') {
+				retStr.append("%26");
 			} else {
 				retStr.append(inStr.charAt(i));
 			}
@@ -136,8 +138,20 @@ public class StringUtils {
 	}
 
 	/**
+	 * Flatten the list of strings into a single string with the specified
+	 * separator.
+	 *
+	 * @param values
+	 * @param separator
+	 * @return flattened list
+	 */
+	public static String flattenStrings(String[]  values, String separator) {
+		return flattenStrings(Arrays.asList(values), separator);
+	}
+
+	/**
 	 * Flatten the list of strings into a single string with a space separator.
-	 * 
+	 *
 	 * @param values
 	 * @return flattened list
 	 */
@@ -148,7 +162,7 @@ public class StringUtils {
 	/**
 	 * Flatten the list of strings into a single string with the specified
 	 * separator.
-	 * 
+	 *
 	 * @param values
 	 * @param separator
 	 * @return flattened list
@@ -169,7 +183,7 @@ public class StringUtils {
 	 * Returns a string trimmed to a maximum length with trailing ellipses. If
 	 * the string length is shorter than the max, the original string is
 	 * returned.
-	 * 
+	 *
 	 * @param value
 	 * @param max
 	 * @return trimmed string
@@ -184,7 +198,7 @@ public class StringUtils {
 	/**
 	 * Left pad a string with the specified character, if the string length is
 	 * less than the specified length.
-	 * 
+	 *
 	 * @param input
 	 * @param length
 	 * @param pad
@@ -205,7 +219,7 @@ public class StringUtils {
 	/**
 	 * Right pad a string with the specified character, if the string length is
 	 * less then the specified length.
-	 * 
+	 *
 	 * @param input
 	 * @param length
 	 * @param pad
@@ -225,7 +239,7 @@ public class StringUtils {
 
 	/**
 	 * Calculates the SHA1 of the string.
-	 * 
+	 *
 	 * @param text
 	 * @return sha1 of the string
 	 */
@@ -240,7 +254,7 @@ public class StringUtils {
 
 	/**
 	 * Calculates the SHA1 of the byte array.
-	 * 
+	 *
 	 * @param bytes
 	 * @return sha1 of the byte array
 	 */
@@ -257,7 +271,7 @@ public class StringUtils {
 
 	/**
 	 * Calculates the MD5 of the string.
-	 * 
+	 *
 	 * @param string
 	 * @return md5 of the string
 	 */
@@ -268,10 +282,10 @@ public class StringUtils {
 			throw new RuntimeException(u);
 		}
 	}
-	
+
 	/**
 	 * Calculates the MD5 of the string.
-	 * 
+	 *
 	 * @param string
 	 * @return md5 of the string
 	 */
@@ -289,17 +303,17 @@ public class StringUtils {
 
 	/**
 	 * Returns the hex representation of the byte array.
-	 * 
+	 *
 	 * @param bytes
 	 * @return byte array as hex string
 	 */
 	private static String toHex(byte[] bytes) {
 		StringBuilder sb = new StringBuilder(bytes.length * 2);
 		for (int i = 0; i < bytes.length; i++) {
-			if (((int) bytes[i] & 0xff) < 0x10) {
+			if ((bytes[i] & 0xff) < 0x10) {
 				sb.append('0');
 			}
-			sb.append(Long.toString((int) bytes[i] & 0xff, 16));
+			sb.append(Long.toString(bytes[i] & 0xff, 16));
 		}
 		return sb.toString();
 	}
@@ -307,7 +321,7 @@ public class StringUtils {
 	/**
 	 * Returns the root path of the specified path. Returns a blank string if
 	 * there is no root path.
-	 * 
+	 *
 	 * @param path
 	 * @return root path or blank
 	 */
@@ -321,7 +335,7 @@ public class StringUtils {
 	/**
 	 * Returns the path remainder after subtracting the basePath from the
 	 * fullPath.
-	 * 
+	 *
 	 * @param basePath
 	 * @param fullPath
 	 * @return the relative path
@@ -341,7 +355,7 @@ public class StringUtils {
 
 	/**
 	 * Splits the space-separated string into a list of strings.
-	 * 
+	 *
 	 * @param value
 	 * @return list of strings
 	 */
@@ -351,7 +365,7 @@ public class StringUtils {
 
 	/**
 	 * Splits the string into a list of string by the specified separator.
-	 * 
+	 *
 	 * @param value
 	 * @param separator
 	 * @return list of strings
@@ -359,7 +373,7 @@ public class StringUtils {
 	public static List<String> getStringsFromValue(String value, String separator) {
         List<String> strings = new ArrayList<String>();
         try {
-            String[] chunks = value.split(separator + "(?=([^\"]*\"[^\"]*\")*[^\"]*$)");            
+            String[] chunks = value.split(separator + "(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
             for (String chunk : chunks) {
                 chunk = chunk.trim();
                 if (chunk.length() > 0) {
@@ -379,7 +393,7 @@ public class StringUtils {
 	/**
 	 * Validates that a name is composed of letters, digits, or limited other
 	 * characters.
-	 * 
+	 *
 	 * @param name
 	 * @return the first invalid character found or null if string is acceptable
 	 */
@@ -402,7 +416,7 @@ public class StringUtils {
 	/**
 	 * Simple fuzzy string comparison. This is a case-insensitive check. A
 	 * single wildcard * value is supported.
-	 * 
+	 *
 	 * @param value
 	 * @param pattern
 	 * @return true if the value matches the pattern
@@ -431,7 +445,7 @@ public class StringUtils {
 
 	/**
 	 * Compare two repository names for proper group sorting.
-	 * 
+	 *
 	 * @param r1
 	 * @param r2
 	 * @return
@@ -459,7 +473,7 @@ public class StringUtils {
 
 	/**
 	 * Sort grouped repository names.
-	 * 
+	 *
 	 * @param list
 	 */
 	public static void sortRepositorynames(List<String> list) {
@@ -476,7 +490,7 @@ public class StringUtils {
 		for (char c : getMD5(value.toLowerCase()).toCharArray()) {
 			cs += c;
 		}
-		int n = (cs % 360);		
+		int n = (cs % 360);
 		float hue = ((float) n) / 360;
 		return hsvToRgb(hue, 0.90f, 0.65f);
 	}
@@ -514,10 +528,10 @@ public class StringUtils {
 		String bs = Integer.toHexString((int) (b * 256));
 		return "#" + rs + gs + bs;
 	}
-	
+
 	/**
 	 * Strips a trailing ".git" from the value.
-	 * 
+	 *
 	 * @param value
 	 * @return a stripped value or the original value if .git is not found
 	 */
@@ -527,10 +541,10 @@ public class StringUtils {
 		}
 		return value;
 	}
-	
+
 	/**
 	 * Count the number of lines in a string.
-	 * 
+	 *
 	 * @param value
 	 * @return the line count
 	 */
@@ -540,10 +554,10 @@ public class StringUtils {
 		}
 		return value.split("\n").length;
 	}
-	
+
 	/**
 	 * Returns the file extension of a path.
-	 * 
+	 *
 	 * @param path
 	 * @return a blank string or a file extension
 	 */
@@ -554,13 +568,27 @@ public class StringUtils {
 		}
 		return "";
 	}
-	
+
+	/**
+	 * Returns the file extension of a path.
+	 *
+	 * @param path
+	 * @return a blank string or a file extension
+	 */
+	public static String stripFileExtension(String path) {
+		int lastDot = path.lastIndexOf('.');
+		if (lastDot > -1) {
+			return path.substring(0, lastDot);
+		}
+		return path;
+	}
+
 	/**
 	 * Replace all occurences of a substring within a string with
 	 * another string.
-	 * 
+	 *
 	 * From Spring StringUtils.
-	 * 
+	 *
 	 * @param inString String to examine
 	 * @param oldPattern String to replace
 	 * @param newPattern String to insert
@@ -582,12 +610,12 @@ public class StringUtils {
 		// remember to append any characters to the right of a match
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Decodes a string by trying several charsets until one does not throw a
 	 * coding exception.  Last resort is to interpret as UTF-8 with illegal
 	 * character substitution.
-	 * 
+	 *
 	 * @param content
 	 * @param charsets optional
 	 * @return a string
@@ -620,12 +648,12 @@ public class StringUtils {
         }
 		return value;
 	}
-	
+
 	/**
 	 * Attempt to extract a repository name from a given url using regular
 	 * expressions.  If no match is made, then return whatever trails after
 	 * the final / character.
-	 * 
+	 *
 	 * @param regexUrls
 	 * @return a repository path
 	 */
@@ -644,7 +672,7 @@ public class StringUtils {
 		}
 		return url;
 	}
-	
+
 	/**
 	 * Converts a string with \nnn sequences into a UTF-8 encoded string.
 	 * @param input
@@ -662,7 +690,7 @@ public class StringUtils {
 				// strip leading \ character
 				String oct = m.group().substring(1);
 				bytes.write(Integer.parseInt(oct, 8));
-				i = m.end();			
+				i = m.end();
 			}
 			if (bytes.size() == 0) {
 				// no octal matches
@@ -679,11 +707,11 @@ public class StringUtils {
 		}
 		return input;
 	}
-	
+
 	/**
 	 * Returns the first path element of a path string.  If no path separator is
-	 * found in the path, an empty string is returned. 
-	 * 
+	 * found in the path, an empty string is returned.
+	 *
 	 * @param path
 	 * @return the first element in the path
 	 */
@@ -693,10 +721,10 @@ public class StringUtils {
 		}
 		return "";
 	}
-	
+
 	/**
 	 * Returns the last path element of a path string
-	 * 
+	 *
 	 * @param path
 	 * @return the last element in the path
 	 */
@@ -706,10 +734,10 @@ public class StringUtils {
 		}
 		return path;
 	}
-	
+
 	/**
 	 * Variation of String.matches() which disregards case issues.
-	 * 
+	 *
 	 * @param regex
 	 * @param input
 	 * @return true if the pattern matches
@@ -719,11 +747,11 @@ public class StringUtils {
 		Matcher m = p.matcher(input);
 		return m.matches();
 	}
-	
+
 	/**
 	 * Removes new line and carriage return chars from a string.
 	 * If input value is null an empty string is returned.
-	 *  
+	 *
 	 * @param input
 	 * @return a sanitized or empty string
 	 */
@@ -732,5 +760,26 @@ public class StringUtils {
 			return "";
 		}
 		return input.replace('\n',' ').replace('\r',  ' ').trim();
+	}
+
+
+	/**
+	 * Encode the username for user in an url.
+	 *
+	 * @param name
+	 * @return the encoded name
+	 */
+	public static String encodeUsername(String name) {
+		return name.replace("@", "%40").replace(" ", "%20").replace("\\", "%5C");
+	}
+
+	/**
+	 * Decode a username from an encoded url.
+	 *
+	 * @param name
+	 * @return the decoded name
+	 */
+	public static String decodeUsername(String name) {
+		return name.replace("%40", "@").replace("%20", " ").replace("%5C", "\\");
 	}
 }

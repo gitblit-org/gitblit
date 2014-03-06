@@ -25,7 +25,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.FederationModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
@@ -39,9 +38,9 @@ public class FederationRegistrationsPanel extends BasePanel {
 	public FederationRegistrationsPanel(String wicketId) {
 		super(wicketId);
 
-		final List<FederationModel> list = new ArrayList<FederationModel>(GitBlit.self()
+		final List<FederationModel> list = new ArrayList<FederationModel>(app().federation()
 				.getFederationRegistrations());
-		list.addAll(GitBlit.self().getFederationResultRegistrations());
+		list.addAll(app().federation().getFederationResultRegistrations());
 		Collections.sort(list);
 		hasRegistrations = list.size() > 0;
 		DataView<FederationModel> dataView = new DataView<FederationModel>("row",
@@ -55,6 +54,7 @@ public class FederationRegistrationsPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<FederationModel> item) {
 				final FederationModel entry = item.getModelObject();
 				item.add(new LinkPanel("url", "list", entry.url, FederationRegistrationPage.class,

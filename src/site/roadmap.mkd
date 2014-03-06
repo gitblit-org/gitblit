@@ -3,15 +3,7 @@
 This is not exactly a formal roadmap but it is a priority list of what might be implemented in future releases.  
 This list is volatile and may not reflect what will be in the next release.
 
-* Integrate an SSH daemon to complete the transport trifecta: http/https, git, and ssh
-* GitHub-style Pull Requests or Gerrit-style Patchsets (issue 215)
-* Clone/Mirror Repository feature (issue 5)
-    * optional scheduled pulls
-    * optional automatic push to origin/remotes?
-    * optional manual push to origin/remotes?
-* Re-use the EGit branch visualization table cell renderer as some sort of servlet (issue 194)
+* **In-Progress**: Integrate an SSH daemon (issue-369)
 * Diff should highlight inserted/removed fragment compared to original line
 * Respect Gerrit branch permissions, if found (issue 36)
-* Repository regex substitutions should be stored in .git/.config, not gitblit.properties
-* Editable settings page in GO/WAR
-* Create Eclipse plugin to enumerate repositories and delegate cloning to EGit
+

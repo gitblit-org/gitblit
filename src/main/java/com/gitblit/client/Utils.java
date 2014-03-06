@@ -51,14 +51,14 @@ public class Utils {
 	public static JTable newTable(TableModel model, String datePattern) {
 		return newTable(model, datePattern, null);
 	}
-	
+
 	public static JTable newTable(TableModel model, String datePattern, final RowRenderer rowRenderer) {
 		JTable table;
 		if (rowRenderer == null) {
 			table = new JTable(model);
 		} else {
 			table = new JTable(model) {
-				
+
 				@Override
 				public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 					Component c = super.prepareRenderer(renderer, row, column);
@@ -166,7 +166,7 @@ public class Utils {
 			showException(null, x);
 		}
 	}
-	
+
 	public static abstract class RowRenderer {
 		public abstract void prepareRow(Component c, boolean isSelected, int row, int column);
 	}

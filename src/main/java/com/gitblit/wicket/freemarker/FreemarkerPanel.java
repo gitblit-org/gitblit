@@ -43,9 +43,9 @@ import freemarker.template.TemplateException;
  * snippet injector for something like a CMS.  There are some cases where Wicket
  * is not flexible enough to generate content, especially when you need to generate
  * hybrid HTML/JS content outside the scope of Wicket.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 public class FreemarkerPanel extends Panel
@@ -62,10 +62,10 @@ public class FreemarkerPanel extends Panel
 	private transient String stackTraceAsString;
 	private transient String evaluatedTemplate;
 
-	
+
 	/**
 	 * Construct.
-	 * 
+	 *
 	 * @param id
 	 *            Component id
 	 * @param template
@@ -77,10 +77,10 @@ public class FreemarkerPanel extends Panel
 	{
 		this(id, template, Model.ofMap(values));
 	}
-	
+
 	/**
 	 * Construct.
-	 * 
+	 *
 	 * @param id
 	 *            Component id
 	 * @param templateResource
@@ -96,7 +96,7 @@ public class FreemarkerPanel extends Panel
 
 	/**
 	 * Gets the Freemarker template.
-	 * 
+	 *
 	 * @return the Freemarker template
 	 */
 	private Template getTemplate()
@@ -155,7 +155,7 @@ public class FreemarkerPanel extends Panel
 
 	/**
 	 * Either print or rethrow the throwable.
-	 * 
+	 *
 	 * @param exception
 	 *            the cause
 	 * @param markupStream
@@ -179,7 +179,7 @@ public class FreemarkerPanel extends Panel
 
 	/**
 	 * Gets whether to escape HTML characters.
-	 * 
+	 *
 	 * @return whether to escape HTML characters. The default value is false.
 	 */
 	public void setEscapeHtml(boolean value)
@@ -189,7 +189,7 @@ public class FreemarkerPanel extends Panel
 
 	/**
 	 * Evaluates the template and returns the result.
-	 * 
+	 *
 	 * @param templateReader
 	 *            used to read the template
 	 * @return the result of evaluating the velocity template
@@ -237,7 +237,7 @@ public class FreemarkerPanel extends Panel
 
 	/**
 	 * Gets whether to parse the resulting Wicket markup.
-	 * 
+	 *
 	 * @return whether to parse the resulting Wicket markup. The default is false.
 	 */
 	public void setParseGeneratedMarkup(boolean value)
@@ -256,7 +256,7 @@ public class FreemarkerPanel extends Panel
 	 * want them to be able to have them correct them while the rest of the application keeps on
 	 * working.
 	 * </p>
-	 * 
+	 *
 	 * @return Whether any Freemarker exceptions should be thrown or trapped. The default is false.
 	 */
 	public void setThrowFreemarkerExceptions(boolean value)
@@ -268,6 +268,7 @@ public class FreemarkerPanel extends Panel
 	 * @see org.apache.wicket.markup.IMarkupResourceStreamProvider#getMarkupResourceStream(org.apache
 	 *      .wicket.MarkupContainer, java.lang.Class)
 	 */
+	@Override
 	public final IResourceStream getMarkupResourceStream(MarkupContainer container,
 			Class< ? > containerClass)
 	{
@@ -289,6 +290,7 @@ public class FreemarkerPanel extends Panel
 	 * @see org.apache.wicket.markup.IMarkupCacheKeyProvider#getCacheKey(org.apache.wicket.
 	 *      MarkupContainer, java.lang.Class)
 	 */
+	@Override
 	public final String getCacheKey(MarkupContainer container, Class< ? > containerClass)
 	{
 		// don't cache the evaluated template

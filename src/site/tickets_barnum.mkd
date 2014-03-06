@@ -1,0 +1,85 @@
+## Barnum
+
+*SINCE 1.4.0*
+
+Barnum is a command-line companion for Git.  It's purpose is to simplify the syntax and ceremony for working with Gitblit Tickets and Patchsets.
+
+The current implementation is a Python script that wraps a native Git executable.  It requires Python 3 and native Git.  It works well on Windows, Linux, and Mac OS X.
+
+Barnum is bundled with each Gitblit installation and linked on each ticket page in the propose, checkout, and merge instructions.  You can download Barnum manually using the following url or using the `/pt` url on your own Gitblit server:
+
+    https://dev.gitblit.com/pt
+
+This url serves a *zip* or a *tar.gz* of the Python script and a readme file, as appropriate based on the user-agent of the requesting client.
+
+### Fetch
+
+    pt fetch <id> [-p,--patchset <n>]
+
+If *patchset* is specified, the **fetch** command will download the specified ticket patchset to the FETCH_HEAD ref.  If *patchset* is **not** specified, the configured remote will be fetched to download all ticket branch updates - this is the same as <pre>git fetch {remote}</pre>.
+
+### Checkout (co)
+
+    pt checkout <id> [-p,--patchset <n>] [--force]
+
+The **checkout** command fetches and checks-out the patchset to a predetermined branch.
+
+If *patchset* is not specified, the current patchset is checked-out to `ticket/{id}`.  If *patchset* is specified, the patchset is checked-out to `patchset/{id}/{patchset}`.
+
+### Pull
+
+    pt pull <id> [-s,--squash]
+
+The **pull** command fetches and merges the ticket patchset into your current branch.
+
+You may specify the `--squash` flag to squash the pulled patchset into one commit.  This will leave your working directory dirty and you must stage and commit the pending changes yourself.
+
+### Push (up)
+
+    pt push [<id>] [--force] [-r, --responsible <user>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+
+The **push** command allows you to upload a fast-forward update to an existing patchset or to upload a rewrite of an existing patchset (amend, rebase, or squash).
+
+You may set several ticket fields during the push such as *milestone*, *topic*, and *responsible*.  Use the *cc* argument to add users to the watch list for the ticket.
+
+One thing to note about the *topic* field is that Gitblit will match the *topic* against the repository bugtraq configuration which allows you to link your ticket with an external issue tracker.
+
+### Start
+
+    pt start <topic>
+    pt start <id>
+
+The **start** command is used to start development of a topic branch that will eventually be pushed to a Ticket. 
+
+You must specify what you are starting.  If you specify a ticket id, the branch `topid/{id}` will be created.  If you specify a topic string, the branch `topic/{topic}` will be created.  The main difference will be how the **propose** command treats your branch name.
+
+### Propose
+
+    pt propose [new | <branch> | <id>] [-r, --responsible <user>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+
+The **propose** command pushes an initial patchset to an existing ticket OR allows you to create a new ticket from your patchset on push.
+
+If you created your topic branch with the **start** command and you specified an existing ticket id as what you were starting, then Barnum will identify the id from the branch name and assume that is the target ticket for your patchset.
+
+If you created your topic branch with the **start** command and you specified a topic string as what you were starting, Barnum will identify that and specify that as the *topic* push ref parameter, but will still require a proposal target: *new*, *branch*, or *id*.
+
+#### Create Ticket on Push
+
+In order to create a ticket from your patchset, your patchset *must* contain only a *single* commit.  The first line of the commit message will specify the ticket title.  The remainder of the commit message will define the ticket description.
+
+    Fix null pointer exception in StringUtils
+    
+    It is possible to throw a null pointer exception in the trim method.
+    This can be triggered by yada, yada, yada.
+
+After the ticket is created from the single commit, you can push as many additional commits as you want.  It is just the first push with one commit that is special.
+
+One helpful tip to note about the *topic* field is that Gitblit will match the *topic* against the repository bugtraq configuration which allows you to link your ticket with an external issue tracker.
+
+### Cleanup (rm)
+
+    pt cleanup <id> [--force]
+
+The **cleanup** command is used to delete ticket branches from your local repository.
+
+The *force* argument is necessary for **cleanup** to actually remove the local branches.  Running **cleanup** by itself will identify the branches that can be removed.

@@ -1,0 +1,16 @@
+[bugtraq "issues"]
+  url = http://code.google.com/p/gitblit/issues/detail?id=%BUGID%
+  loglinkregex = "[Ii]ssue[-#:\\s]{1}\\d+"
+  logregex = "\\d+"
+  loglinktext = issue-%BUGID%
+[bugtraq "pullrequests"]
+  url = "https://github.com/gitblit/gitblit/pull/%BUGID%"
+  loglinkregex = "(?:pull request|pull|pr)\\s*[-#]?[0-9]+"
+  logregex = "\\d+"
+  loglinktext = "pull request #%BUGID%"
+[bugtraq "tickets"]
+  url = "https://dev.gitblit.com/tickets/gitblit.git/%BUGID%"
+  loglinkregex = "(?:ticket)\\s*[-#]?[0-9]+"
+  logregex = "\\d+"
+  loglinktext = "ticket #%BUGID%"
+  

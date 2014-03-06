@@ -27,9 +27,9 @@ import com.gitblit.models.SettingModel;
 /**
  * SettingModel cell renderer that indicates if a setting is the default or
  * modified.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SettingCellRenderer extends DefaultTableCellRenderer {
 
@@ -44,6 +44,7 @@ public class SettingCellRenderer extends DefaultTableCellRenderer {
 		modifiedFont = defaultFont.deriveFont(Font.BOLD);
 	}
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

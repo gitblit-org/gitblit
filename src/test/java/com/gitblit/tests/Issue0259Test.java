@@ -17,7 +17,6 @@ package com.gitblit.tests;
 
 import java.io.File;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.gitblit.ConfigUserService;
@@ -29,18 +28,18 @@ import com.gitblit.models.UserModel;
 
 /**
  * https://code.google.com/p/gitblit/issues/detail?id=259
- * 
+ *
  * Reported Problem:
  * We have an user with RWD access rights, but he can’t push.
- * 
+ *
  * @see src/test/resources/issue0259.conf
- * 
+ *
  * At the next day he try again and he can push to the project.
- * 
+ *
  * @author James Moger
  *
  */
-public class Issue0259Test extends Assert {
+public class Issue0259Test extends GitblitUnitTest {
 
 	RepositoryModel repo(String name, AccessRestrictionType restriction) {
 		RepositoryModel repo = new RepositoryModel();
@@ -48,29 +47,29 @@ public class Issue0259Test extends Assert {
 		repo.accessRestriction = restriction;
 		return repo;
 	}
-	
+
 	/**
 	 * Test the provided users.conf file for expected access permissions.
-	 *  
+	 *
 	 * @throws Exception
 	 */
 	@Test
 	public void testFile() throws Exception {
 		File realmFile = new File("src/test/resources/issue0259.conf");
 		ConfigUserService service = new ConfigUserService(realmFile);
-		
+
 		RepositoryModel test = repo("test.git", AccessRestrictionType.VIEW);
 		RepositoryModel projects_test = repo("projects/test.git", AccessRestrictionType.VIEW);
-		
+
 		UserModel a = service.getUserModel("a");
 		UserModel b = service.getUserModel("b");
 		UserModel c = service.getUserModel("c");
-		
+
 		// assert RWD or RW+ for projects/test.git
 		assertEquals(AccessPermission.DELETE, a.getRepositoryPermission(projects_test).permission);
 		assertEquals(AccessPermission.DELETE, b.getRepositoryPermission(projects_test).permission);
 		assertEquals(AccessPermission.REWIND, c.getRepositoryPermission(projects_test).permission);
-		
+
 		assertTrue(a.canPush(projects_test));
 		assertTrue(b.canPush(projects_test));
 		assertTrue(c.canPush(projects_test));
@@ -82,7 +81,7 @@ public class Issue0259Test extends Assert {
 		assertFalse(a.canRewindRef(projects_test));
 		assertFalse(b.canRewindRef(projects_test));
 		assertTrue(c.canRewindRef(projects_test));
-		
+
 		// assert R for test.git
 		assertEquals(AccessPermission.CLONE, a.getRepositoryPermission(test).permission);
 		assertEquals(AccessPermission.CLONE, b.getRepositoryPermission(test).permission);
@@ -95,7 +94,7 @@ public class Issue0259Test extends Assert {
 		assertFalse(b.canPush(test));
 		assertTrue(c.canPush(test));
 	}
-	
+
 	@Test
 	public void testTeamsOrder() throws Exception {
 		testTeams(false);
@@ -109,20 +108,20 @@ public class Issue0259Test extends Assert {
 	/**
 	 * Tests multiple teams each with a regex permisson that will match.  The
 	 * highest matching permission should be used.  Order should be irrelevant.
-	 *  
+	 *
 	 * @param reverseOrder
 	 * @throws Exception
 	 */
 	private void testTeams(boolean reverseOrder) throws Exception {
 		RepositoryModel test = repo("test.git", AccessRestrictionType.VIEW);
 		RepositoryModel projects_test = repo("projects/test.git", AccessRestrictionType.VIEW);
-		
+
 		TeamModel t1 = new TeamModel("t1");
 		t1.setRepositoryPermission(".*", AccessPermission.CLONE);
-		
+
 		TeamModel t2 = new TeamModel("t2");
-		t2.setRepositoryPermission("projects/.*", AccessPermission.DELETE);		
-		
+		t2.setRepositoryPermission("projects/.*", AccessPermission.DELETE);
+
 		UserModel a = new UserModel("a");
 		if (reverseOrder) {
 			a.teams.add(t2);
@@ -131,7 +130,7 @@ public class Issue0259Test extends Assert {
 			a.teams.add(t1);
 			a.teams.add(t2);
 		}
-		
+
 		// simulate a repository rename
 		a.setRepositoryPermission("projects/renamed.git", null);
 		t1.setRepositoryPermission("projects/renamed.git", null);
@@ -139,47 +138,47 @@ public class Issue0259Test extends Assert {
 
 		assertEquals(AccessPermission.CLONE, a.getRepositoryPermission(test).permission);
 		assertEquals(AccessPermission.DELETE, a.getRepositoryPermission(projects_test).permission);
-		
+
 		assertTrue(a.canClone(test));
 		assertTrue(a.canClone(projects_test));
-		
+
 		assertFalse(a.canDeleteRef(test));
 		assertTrue(a.canDeleteRef(projects_test));
 	}
-	
+
 	@Test
 	public void testTeam() throws Exception {
-		testTeam(false);		
+		testTeam(false);
 	}
-	
+
 	@Test
 	public void testTeamReverseOrder() throws Exception {
 		testTeam(true);
 	}
-	
+
 	/**
 	 * Test a single team that has multiple repository permissions that all match.
 	 * Here defined order IS important.  The first permission match wins so it is
 	 * important to define permissions from most-specific match to least-specific
 	 * match.
-	 * 
+	 *
 	 * If the defined permissions are:
 	 *   R:.*
 	 *   RWD:projects/.*
 	 * then the expected result is R for all repositories because it is first.
-	 * 
+	 *
 	 * But if the defined permissions are:
 	 *   RWD:projects/.*
 	 *   R:.*
 	 * then the expected result is RWD for projects/test.git and R for test.git
-	 *  
+	 *
 	 * @param reverseOrder
 	 * @throws Exception
 	 */
 	private void testTeam(boolean reverseOrder) throws Exception {
 		RepositoryModel test = repo("test.git", AccessRestrictionType.VIEW);
 		RepositoryModel projects_test = repo("projects/test.git", AccessRestrictionType.VIEW);
-		
+
 		TeamModel t1 = new TeamModel("t1");
 		if (reverseOrder) {
 			t1.setRepositoryPermission("projects/.*", AccessPermission.DELETE);
@@ -194,7 +193,7 @@ public class Issue0259Test extends Assert {
 		// simulate a repository rename
 		a.setRepositoryPermission("projects/renamed.git", null);
 		t1.setRepositoryPermission("projects/renamed.git", null);
-		
+
 		assertEquals(AccessPermission.CLONE, a.getRepositoryPermission(test).permission);
 		assertTrue(a.canClone(test));
 		assertFalse(a.canDeleteRef(test));
@@ -208,6 +207,6 @@ public class Issue0259Test extends Assert {
 			// R permission is found first
 			assertEquals(AccessPermission.CLONE, a.getRepositoryPermission(projects_test).permission);
 			assertFalse(a.canDeleteRef(projects_test));
-		}		
+		}
 	}
 }

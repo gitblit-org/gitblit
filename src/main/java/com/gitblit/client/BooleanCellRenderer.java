@@ -25,9 +25,9 @@ import javax.swing.table.TableCellRenderer;
 
 /**
  * Boolean checkbox cell renderer.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class BooleanCellRenderer extends JCheckBox implements TableCellRenderer, Serializable {
 
@@ -39,6 +39,7 @@ public class BooleanCellRenderer extends JCheckBox implements TableCellRenderer,
 		setHorizontalAlignment(SwingConstants.CENTER);
 	}
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		if (value instanceof Boolean) {

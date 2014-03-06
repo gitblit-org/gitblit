@@ -17,7 +17,6 @@ package com.gitblit.tests;
 
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.gitblit.Constants.AccessPermission;
@@ -29,11 +28,11 @@ import com.gitblit.models.UserModel;
 
 /**
  * Comprehensive, brute-force test of all permutations of discrete permissions.
- * 
+ *
  * @author James Moger
  *
  */
-public class PermissionsTest extends Assert {
+public class PermissionsTest extends GitblitUnitTest {
 
 	/**
 	 * Admin access rights/permissions
@@ -42,45 +41,45 @@ public class PermissionsTest extends Assert {
 	public void testAdmin() throws Exception {
 		UserModel user = new UserModel("admin");
 		user.canAdmin = true;
-		
+
 		for (AccessRestrictionType ar : AccessRestrictionType.values()) {
 			RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 			repository.authorizationControl = AuthorizationControl.NAMED;
 			repository.accessRestriction = ar;
-				
+
 			assertTrue("admin CAN NOT view!", user.canView(repository));
 			assertTrue("admin CAN NOT clone!", user.canClone(repository));
 			assertTrue("admin CAN NOT push!", user.canPush(repository));
-			
+
 			assertTrue("admin CAN NOT create ref!", user.canCreateRef(repository));
 			assertTrue("admin CAN NOT delete ref!", user.canDeleteRef(repository));
 			assertTrue("admin CAN NOT rewind ref!", user.canRewindRef(repository));
-			
+
 			assertEquals("admin has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 			assertTrue("admin CAN NOT fork!", user.canFork(repository));
-			
+
 			assertTrue("admin CAN NOT delete!", user.canDelete(repository));
 			assertTrue("admin CAN NOT edit!", user.canEdit(repository));
 		}
 	}
-	
+
 	/**
-	 * Anonymous access rights/permissions 
+	 * Anonymous access rights/permissions
 	 */
 	@Test
 	public void testAnonymous_NONE() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
-		
+
 		UserModel user = UserModel.ANONYMOUS;
-				
+
 		// all permissions, except fork
 		assertTrue("anonymous CAN NOT view!", user.canView(repository));
 		assertTrue("anonymous CAN NOT clone!", user.canClone(repository));
 		assertTrue("anonymous CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("anonymous CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("anonymous CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("anonymous CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -91,11 +90,11 @@ public class PermissionsTest extends Assert {
 		assertFalse("anonymous CAN fork!", user.canFork(repository));
 		repository.allowForks = true;
 		assertFalse("anonymous CAN fork!", user.canFork(repository));
-		
+
 		assertFalse("anonymous CAN delete!", user.canDelete(repository));
 		assertFalse("anonymous CAN edit!", user.canEdit(repository));
 	}
-	
+
 	@Test
 	public void testAnonymous_PUSH() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
@@ -107,11 +106,11 @@ public class PermissionsTest extends Assert {
 		assertTrue("anonymous CAN NOT view!", user.canView(repository));
 		assertTrue("anonymous CAN NOT clone!", user.canClone(repository));
 		assertFalse("anonymous CAN push!", user.canPush(repository));
-		
+
 		assertFalse("anonymous CAN create ref!", user.canCreateRef(repository));
 		assertFalse("anonymous CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("anonymous CAN rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("anonymous has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -119,7 +118,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertFalse("anonymous CAN fork!", user.canFork(repository));
 	}
-	
+
 	@Test
 	public void testAnonymous_CLONE() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
@@ -131,7 +130,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("anonymous CAN NOT view!", user.canView(repository));
 		assertFalse("anonymous CAN clone!", user.canClone(repository));
 		assertFalse("anonymous CAN push!", user.canPush(repository));
-		
+
 		assertFalse("anonymous CAN create ref!", user.canCreateRef(repository));
 		assertFalse("anonymous CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("anonymous CAN rewind ref!", user.canRewindRef(repository));
@@ -143,19 +142,19 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertFalse("anonymous CAN fork!", user.canFork(repository));
 	}
-	
+
 	@Test
 	public void testAnonymous_VIEW() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = UserModel.ANONYMOUS;
 
 		assertFalse("anonymous CAN view!", user.canView(repository));
 		assertFalse("anonymous CAN clone!", user.canClone(repository));
 		assertFalse("anonymous CAN push!", user.canPush(repository));
-		
+
 		assertFalse("anonymous CAN create ref!", user.canCreateRef(repository));
 		assertFalse("anonymous CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("anonymous CAN rewind ref!", user.canRewindRef(repository));
@@ -167,23 +166,23 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertFalse("anonymous CAN fork!", user.canFork(repository));
 	}
-	
+
 	/**
-	 * Authenticated access rights/permissions 
+	 * Authenticated access rights/permissions
 	 */
 	@Test
 	public void testAuthenticated_NONE() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
-		
+
 		UserModel user = new UserModel("test");
-		
+
 		// all permissions, except fork
 		assertTrue("authenticated CAN NOT view!", user.canView(repository));
 		assertTrue("authenticated CAN NOT clone!", user.canClone(repository));
 		assertTrue("authenticated CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("authenticated CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("authenticated CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("authenticated CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -197,7 +196,7 @@ public class PermissionsTest extends Assert {
 		assertFalse("authenticated CAN fork!", user.canFork(repository));
 		user.canFork = true;
 		assertTrue("authenticated CAN NOT fork!", user.canFork(repository));
-		
+
 		assertFalse("authenticated CAN delete!", user.canDelete(repository));
 		assertFalse("authenticated CAN edit!", user.canEdit(repository));
 	}
@@ -207,13 +206,13 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
 
 		assertTrue("authenticated CAN NOT view!", user.canView(repository));
 		assertTrue("authenticated CAN NOT clone!", user.canClone(repository));
 		assertTrue("authenticated CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("authenticated CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("authenticated CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("authenticated CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -228,19 +227,19 @@ public class PermissionsTest extends Assert {
 		user.canFork = true;
 		assertTrue("authenticated CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	@Test
 	public void testAuthenticated_CLONE() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-			
+
 		UserModel user = new UserModel("test");
 
 		assertTrue("authenticated CAN NOT view!", user.canView(repository));
 		assertTrue("authenticated CAN NOT clone!", user.canClone(repository));
 		assertTrue("authenticated CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("authenticated CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("authenticated CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("authenticated CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -255,19 +254,19 @@ public class PermissionsTest extends Assert {
 		user.canFork = true;
 		assertTrue("authenticated CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	@Test
 	public void testAuthenticated_VIEW() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-			
+
 		UserModel user = new UserModel("test");
 
 		assertTrue("authenticated CAN NOT view!", user.canView(repository));
 		assertTrue("authenticated CAN NOT clone!", user.canClone(repository));
 		assertTrue("authenticated CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("authenticated CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("authenticated CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("authenticated CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -282,7 +281,7 @@ public class PermissionsTest extends Assert {
 		user.canFork = true;
 		assertTrue("authenticated CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * NONE_NONE = NO access restriction, NO access permission
 	 */
@@ -293,15 +292,15 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
 		UserModel user = new UserModel("test");
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -311,11 +310,11 @@ public class PermissionsTest extends Assert {
 		assertFalse("named CAN fork!", user.canFork(repository));
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
-		
+
 		assertFalse("named CAN delete!", user.canDelete(repository));
 		assertFalse("named CAN edit!", user.canEdit(repository));
 	}
-	
+
 	/**
 	 * PUSH_NONE = PUSH access restriction, NO access permission
 	 */
@@ -324,13 +323,13 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -345,7 +344,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * CLONE_NONE = CLONE access restriction, NO access permission
 	 */
@@ -354,13 +353,13 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-		
+
 		UserModel user = new UserModel("test");
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertFalse("named CAN clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -375,7 +374,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertFalse("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * VIEW_NONE = VIEW access restriction, NO access permission
 	 */
@@ -384,17 +383,17 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = new UserModel("test");
-		
+
 		assertFalse("named CAN view!", user.canView(repository));
 		assertFalse("named CAN clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.NONE, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -406,7 +405,7 @@ public class PermissionsTest extends Assert {
 		assertFalse("named CAN NOT fork!", user.canFork(repository));
 	}
 
-	
+
 	/**
 	 * NONE_VIEW = NO access restriction, VIEW access permission.
 	 * (not useful scenario)
@@ -419,11 +418,11 @@ public class PermissionsTest extends Assert {
 
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.VIEW);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -438,7 +437,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * PUSH_VIEW = PUSH access restriction, VIEW access permission
 	 */
@@ -447,14 +446,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.VIEW);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -469,7 +468,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * CLONE_VIEW = CLONE access restriction, VIEW access permission
 	 */
@@ -478,14 +477,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.VIEW);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertFalse("named CAN clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -500,7 +499,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertFalse("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * VIEW_VIEW = VIEW access restriction, VIEW access permission
 	 */
@@ -509,18 +508,18 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.VIEW);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertFalse("named CAN clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.VIEW, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -531,7 +530,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertFalse("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * NONE_CLONE = NO access restriction, CLONE access permission.
 	 * (not useful scenario)
@@ -544,15 +543,15 @@ public class PermissionsTest extends Assert {
 
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CLONE);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -563,7 +562,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * PUSH_CLONE = PUSH access restriction, CLONE access permission
 	 */
@@ -572,14 +571,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CLONE);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -594,7 +593,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * CLONE_CLONE = CLONE access restriction, CLONE access permission
 	 */
@@ -603,14 +602,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CLONE);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -625,7 +624,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * VIEW_CLONE = VIEW access restriction, CLONE access permission
 	 */
@@ -634,18 +633,18 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CLONE);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertFalse("named CAN push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -655,7 +654,7 @@ public class PermissionsTest extends Assert {
 		assertFalse("named CAN fork!", user.canFork(repository));
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
-	}	
+	}
 
 	/**
 	 * NONE_PUSH = NO access restriction, PUSH access permission.
@@ -669,15 +668,15 @@ public class PermissionsTest extends Assert {
 
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.PUSH);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -688,7 +687,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * PUSH_PUSH = PUSH access restriction, PUSH access permission
 	 */
@@ -697,14 +696,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.PUSH);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -719,7 +718,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * CLONE_PUSH = CLONE access restriction, PUSH access permission
 	 */
@@ -728,14 +727,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.PUSH);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete red!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -750,7 +749,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * VIEW_PUSH = VIEW access restriction, PUSH access permission
 	 */
@@ -759,18 +758,18 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.PUSH);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN not push!", user.canPush(repository));
-		
+
 		assertFalse("named CAN create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.PUSH, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -794,15 +793,15 @@ public class PermissionsTest extends Assert {
 
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CREATE);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -813,7 +812,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * PUSH_CREATE = PUSH access restriction, CREATE access permission
 	 */
@@ -822,14 +821,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CREATE);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -844,7 +843,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * CLONE_CREATE = CLONE access restriction, CREATE access permission
 	 */
@@ -853,14 +852,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CREATE);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete red!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -875,7 +874,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * VIEW_CREATE = VIEW access restriction, CREATE access permission
 	 */
@@ -884,18 +883,18 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.CREATE);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN not push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertFalse("named CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.CREATE, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -919,15 +918,15 @@ public class PermissionsTest extends Assert {
 
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.DELETE);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -938,7 +937,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * PUSH_DELETE = PUSH access restriction, DELETE access permission
 	 */
@@ -947,14 +946,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.DELETE);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -969,7 +968,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * CLONE_DELETE = CLONE access restriction, DELETE access permission
 	 */
@@ -978,14 +977,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.DELETE);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete red!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
@@ -1000,7 +999,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * VIEW_DELETE = VIEW access restriction, DELETE access permission
 	 */
@@ -1009,18 +1008,18 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.DELETE);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN not push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertFalse("named CAN rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.DELETE, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -1031,7 +1030,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * NONE_REWIND = NO access restriction, REWIND access permission.
 	 * (not useful scenario)
@@ -1044,15 +1043,15 @@ public class PermissionsTest extends Assert {
 
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.REWIND);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -1063,7 +1062,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * PUSH_REWIND = PUSH access restriction, REWIND access permission
 	 */
@@ -1072,14 +1071,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.REWIND);
-		
+
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -1094,7 +1093,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * CLONE_REWIND = CLONE access restriction, REWIND access permission
 	 */
@@ -1103,14 +1102,14 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.REWIND);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -1125,7 +1124,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * VIEW_REWIND = VIEW access restriction, REWIND access permission
 	 */
@@ -1134,18 +1133,18 @@ public class PermissionsTest extends Assert {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(repository.name, AccessPermission.REWIND);
 
 		assertTrue("named CAN NOT view!", user.canView(repository));
 		assertTrue("named CAN NOT clone!", user.canClone(repository));
 		assertTrue("named CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("named CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("named CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("named CAN NOT rewind ref!", user.canRewindRef(repository));
-		
+
 		assertEquals("named has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		repository.allowForks = false;
@@ -1156,7 +1155,7 @@ public class PermissionsTest extends Assert {
 		repository.allowForks = true;
 		assertTrue("named CAN NOT fork!", user.canFork(repository));
 	}
-	
+
 	/**
 	 * NONE_NONE = NO access restriction, NO access permission
 	 */
@@ -1167,19 +1166,19 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
 		TeamModel team = new TeamModel("test");
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 
 	}
-	
+
 	/**
 	 * PUSH_NONE = PUSH access restriction, NO access permission
 	 */
@@ -1190,15 +1189,15 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
 		TeamModel team = new TeamModel("test");
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repository).permission);
 
 	}
@@ -1213,15 +1212,15 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
 		TeamModel team = new TeamModel("test");
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertFalse("team CAN clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.VIEW, team.getRepositoryPermission(repository).permission);
 	}
 
@@ -1235,18 +1234,18 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		TeamModel team = new TeamModel("test");
-		
+
 		assertFalse("team CAN view!", team.canView(repository));
 		assertFalse("team CAN clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.NONE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_PUSH = NO access restriction, PUSH access permission
 	 * (not useful scenario)
@@ -1259,18 +1258,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_PUSH = PUSH access restriction, PUSH access permission
 	 */
@@ -1282,18 +1281,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.PUSH, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_PUSH = CLONE access restriction, PUSH access permission
 	 */
@@ -1305,18 +1304,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.PUSH, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_PUSH = VIEW access restriction, PUSH access permission
 	 */
@@ -1328,18 +1327,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.PUSH, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_CREATE = NO access restriction, CREATE access permission
 	 * (not useful scenario)
@@ -1352,18 +1351,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_CREATE = PUSH access restriction, CREATE access permission
 	 */
@@ -1375,18 +1374,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.CREATE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_CREATE = CLONE access restriction, CREATE access permission
 	 */
@@ -1398,18 +1397,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.CREATE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_CREATE = VIEW access restriction, CREATE access permission
 	 */
@@ -1421,11 +1420,11 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
@@ -1445,18 +1444,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_DELETE = PUSH access restriction, DELETE access permission
 	 */
@@ -1468,18 +1467,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.DELETE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_DELETE = CLONE access restriction, DELETE access permission
 	 */
@@ -1491,18 +1490,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
-		
+
 		assertEquals("team has wrong permission!", AccessPermission.DELETE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_DELETE = VIEW access restriction, DELETE access permission
 	 */
@@ -1514,18 +1513,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.DELETE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_REWIND = NO access restriction, REWIND access permission
 	 * (not useful scenario)
@@ -1538,18 +1537,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_REWIND = PUSH access restriction, REWIND access permission
 	 */
@@ -1561,18 +1560,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_REWIND = CLONE access restriction, REWIND access permission
 	 */
@@ -1584,18 +1583,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_REWIND = VIEW access restriction, REWIND access permission
 	 */
@@ -1607,18 +1606,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_CLONE = NO access restriction, CLONE access permission
 	 * (not useful scenario)
@@ -1631,11 +1630,11 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
@@ -1654,11 +1653,11 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
@@ -1677,18 +1676,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_CLONE = VIEW access restriction, CLONE access permission
 	 */
@@ -1700,11 +1699,11 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
@@ -1724,11 +1723,11 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertTrue("team CAN NOT push!", team.canPush(repository));
-		
+
 		assertTrue("team CAN NOT create ref!", team.canCreateRef(repository));
 		assertTrue("team CAN NOT delete ref!", team.canDeleteRef(repository));
 		assertTrue("team CAN NOT rewind ref!", team.canRewindRef(repository));
@@ -1747,18 +1746,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertTrue("team CAN NOT clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_VIEW = CLONE access restriction, VIEW access permission
 	 */
@@ -1770,18 +1769,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertFalse("team CAN clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.VIEW, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_VIEW = VIEW access restriction, VIEW access permission
 	 */
@@ -1793,18 +1792,18 @@ public class PermissionsTest extends Assert {
 
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
-		
+
 		assertTrue("team CAN NOT view!", team.canView(repository));
 		assertFalse("team CAN clone!", team.canClone(repository));
 		assertFalse("team CAN push!", team.canPush(repository));
-		
+
 		assertFalse("team CAN create ref!", team.canCreateRef(repository));
 		assertFalse("team CAN delete ref!", team.canDeleteRef(repository));
 		assertFalse("team CAN rewind ref!", team.canRewindRef(repository));
 
 		assertEquals("team has wrong permission!", AccessPermission.VIEW, team.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_NONE = NO access restriction, NO access permission
 	 */
@@ -1817,18 +1816,18 @@ public class PermissionsTest extends Assert {
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_NONE = PUSH access restriction, NO access permission
 	 */
@@ -1841,11 +1840,11 @@ public class PermissionsTest extends Assert {
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
@@ -1865,11 +1864,11 @@ public class PermissionsTest extends Assert {
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
@@ -1889,18 +1888,18 @@ public class PermissionsTest extends Assert {
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertFalse("team member CAN view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.NONE, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_PUSH = NO access restriction, PUSH access permission
 	 * (not useful scenario)
@@ -1915,18 +1914,18 @@ public class PermissionsTest extends Assert {
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_PUSH = PUSH access restriction, PUSH access permission
 	 */
@@ -1944,14 +1943,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.PUSH, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_PUSH = CLONE access restriction, PUSH access permission
 	 */
@@ -1969,14 +1968,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.PUSH, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_PUSH = VIEW access restriction, PUSH access permission
 	 */
@@ -1994,14 +1993,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.PUSH, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_CREATE = NO access restriction, CREATE access permission
 	 * (not useful scenario)
@@ -2016,18 +2015,18 @@ public class PermissionsTest extends Assert {
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_CREATE = PUSH access restriction, CREATE access permission
 	 */
@@ -2045,14 +2044,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.CREATE, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_CREATE = CLONE access restriction, CREATE access permission
 	 */
@@ -2070,14 +2069,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.CREATE, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_CREATE = VIEW access restriction, CREATE access permission
 	 */
@@ -2095,7 +2094,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
@@ -2117,18 +2116,18 @@ public class PermissionsTest extends Assert {
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_DELETE = PUSH access restriction, DELETE access permission
 	 */
@@ -2146,14 +2145,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.DELETE, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_DELETE = CLONE access restriction, DELETE access permission
 	 */
@@ -2171,14 +2170,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.DELETE, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_DELETE = VIEW access restriction, DELETE access permission
 	 */
@@ -2196,7 +2195,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
@@ -2218,18 +2217,18 @@ public class PermissionsTest extends Assert {
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
 		UserModel user = new UserModel("test");
 		user.teams.add(team);
-		
+
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * PUSH_REWIND = PUSH access restriction, REWIND access permission
 	 */
@@ -2247,14 +2246,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_REWIND = CLONE access restriction, REWIND access permission
 	 */
@@ -2272,14 +2271,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_REWIND = VIEW access restriction, REWIND access permission
 	 */
@@ -2297,14 +2296,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * NONE_CLONE = NO access restriction, CLONE access permission
 	 * (not useful scenario)
@@ -2323,7 +2322,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -2348,7 +2347,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
@@ -2373,14 +2372,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_CLONE = VIEW access restriction, CLONE access permission
 	 */
@@ -2398,7 +2397,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
@@ -2424,7 +2423,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertTrue("team member CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("team member CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("team member CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("team member CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -2449,14 +2448,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * CLONE_VIEW = CLONE access restriction, VIEW access permission
 	 */
@@ -2474,14 +2473,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.VIEW, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	/**
 	 * VIEW_VIEW = VIEW access restriction, VIEW access permission
 	 */
@@ -2499,14 +2498,14 @@ public class PermissionsTest extends Assert {
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
 		assertFalse("team member CAN push!", user.canPush(repository));
-		
+
 		assertFalse("team member CAN create ref!", user.canCreateRef(repository));
 		assertFalse("team member CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("team member CAN rewind ref!", user.canRewindRef(repository));
 
 		assertEquals("team member has wrong permission!", AccessPermission.VIEW, user.getRepositoryPermission(repository).permission);
 	}
-	
+
 	@Test
 	public void testOwner() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
@@ -2520,7 +2519,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("owner CAN NOT view!", user.canView(repository));
 		assertTrue("owner CAN NOT clone!", user.canClone(repository));
 		assertTrue("owner CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("owner CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("owner CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("owner CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -2528,11 +2527,11 @@ public class PermissionsTest extends Assert {
 		assertEquals("owner has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		assertTrue("owner CAN NOT fork!", user.canFork(repository));
-		
+
 		assertFalse("owner CAN NOT delete!", user.canDelete(repository));
 		assertTrue("owner CAN NOT edit!", user.canEdit(repository));
 	}
-	
+
 	@Test
 	public void testMultipleOwners() throws Exception {
 		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
@@ -2549,7 +2548,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("owner CAN NOT view!", user.canView(repository));
 		assertTrue("owner CAN NOT clone!", user.canClone(repository));
 		assertTrue("owner CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("owner CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("owner CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("owner CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -2557,16 +2556,16 @@ public class PermissionsTest extends Assert {
 		assertEquals("owner has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		assertTrue("owner CAN NOT fork!", user.canFork(repository));
-		
+
 		assertFalse("owner CAN NOT delete!", user.canDelete(repository));
 		assertTrue("owner CAN NOT edit!", user.canEdit(repository));
-		
+
 		// second owner
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user2.hasRepositoryPermission(repository.name));
 		assertTrue("owner CAN NOT view!", user2.canView(repository));
 		assertTrue("owner CAN NOT clone!", user2.canClone(repository));
 		assertTrue("owner CAN NOT push!", user2.canPush(repository));
-		
+
 		assertTrue("owner CAN NOT create ref!", user2.canCreateRef(repository));
 		assertTrue("owner CAN NOT delete ref!", user2.canDeleteRef(repository));
 		assertTrue("owner CAN NOT rewind ref!", user2.canRewindRef(repository));
@@ -2574,14 +2573,14 @@ public class PermissionsTest extends Assert {
 		assertEquals("owner has wrong permission!", AccessPermission.REWIND, user2.getRepositoryPermission(repository).permission);
 
 		assertTrue("owner CAN NOT fork!", user2.canFork(repository));
-		
+
 		assertFalse("owner CAN NOT delete!", user2.canDelete(repository));
 		assertTrue("owner CAN NOT edit!", user2.canEdit(repository));
-		
+
 		assertTrue(repository.isOwner(user.username));
-		assertTrue(repository.isOwner(user2.username));	
+		assertTrue(repository.isOwner(user2.username));
 	}
-	
+
 	@Test
 	public void testOwnerPersonalRepository() throws Exception {
 		RepositoryModel repository = new RepositoryModel("~test/myrepo.git", null, null, new Date());
@@ -2595,7 +2594,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("user CAN NOT view!", user.canView(repository));
 		assertTrue("user CAN NOT clone!", user.canClone(repository));
 		assertTrue("user CAN NOT push!", user.canPush(repository));
-		
+
 		assertTrue("user CAN NOT create ref!", user.canCreateRef(repository));
 		assertTrue("user CAN NOT delete ref!", user.canDeleteRef(repository));
 		assertTrue("user CAN NOT rewind ref!", user.canRewindRef(repository));
@@ -2603,7 +2602,7 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repository).permission);
 
 		assertFalse("user CAN fork!", user.canFork(repository));
-		
+
 		assertTrue("user CAN NOT delete!", user.canDelete(repository));
 		assertTrue("user CAN NOT edit!", user.canEdit(repository));
 	}
@@ -2621,7 +2620,7 @@ public class PermissionsTest extends Assert {
 		assertFalse("user CAN view!", user.canView(repository));
 		assertFalse("user CAN clone!", user.canClone(repository));
 		assertFalse("user CAN push!", user.canPush(repository));
-		
+
 		assertFalse("user CAN create ref!", user.canCreateRef(repository));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(repository));
@@ -2629,11 +2628,11 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.NONE, user.getRepositoryPermission(repository).permission);
 
 		assertFalse("user CAN fork!", user.canFork(repository));
-		
+
 		assertFalse("user CAN delete!", user.canDelete(repository));
 		assertFalse("user CAN edit!", user.canEdit(repository));
 	}
-	
+
 	@Test
 	public void testRegexMatching() throws Exception {
 		RepositoryModel repository = new RepositoryModel("ubercool/_my-r/e~po.git", null, null, new Date());
@@ -2647,7 +2646,7 @@ public class PermissionsTest extends Assert {
 		assertTrue("user CAN NOT view!", user.canView(repository));
 		assertTrue("user CAN NOT clone!", user.canClone(repository));
 		assertFalse("user CAN push!", user.canPush(repository));
-		
+
 		assertFalse("user CAN create ref!", user.canCreateRef(repository));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(repository));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(repository));
@@ -2655,14 +2654,14 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repository).permission);
 
 		assertFalse("user CAN fork!", user.canFork(repository));
-		
+
 		assertFalse("user CAN delete!", user.canDelete(repository));
 		assertFalse("user CAN edit!", user.canEdit(repository));
 	}
 
 	@Test
 	public void testRegexIncludeCommonExcludePersonal() throws Exception {
-		
+
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission("[^~].*", AccessPermission.CLONE);
 
@@ -2670,12 +2669,12 @@ public class PermissionsTest extends Assert {
 		RepositoryModel common = new RepositoryModel("ubercool/_my-r/e~po.git", null, null, new Date());
 		common.authorizationControl = AuthorizationControl.NAMED;
 		common.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(common.name));
 		assertTrue("user CAN NOT view!", user.canView(common));
 		assertTrue("user CAN NOT clone!", user.canClone(common));
 		assertFalse("user CAN push!", user.canPush(common));
-		
+
 		assertFalse("user CAN create ref!", user.canCreateRef(common));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(common));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(common));
@@ -2683,7 +2682,7 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(common).permission);
 
 		assertFalse("user CAN fork!", user.canFork(common));
-		
+
 		assertFalse("user CAN delete!", user.canDelete(common));
 		assertFalse("user CAN edit!", user.canEdit(common));
 
@@ -2691,12 +2690,12 @@ public class PermissionsTest extends Assert {
 		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
 		personal.authorizationControl = AuthorizationControl.NAMED;
 		personal.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		assertFalse("user HAS a repository permission!", user.hasRepositoryPermission(personal.name));
 		assertFalse("user CAN NOT view!", user.canView(personal));
 		assertFalse("user CAN NOT clone!", user.canClone(personal));
 		assertFalse("user CAN push!", user.canPush(personal));
-		
+
 		assertFalse("user CAN create ref!", user.canCreateRef(personal));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
@@ -2704,11 +2703,11 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.NONE, user.getRepositoryPermission(personal).permission);
 
 		assertFalse("user CAN fork!", user.canFork(personal));
-		
+
 		assertFalse("user CAN delete!", user.canDelete(personal));
 		assertFalse("user CAN edit!", user.canEdit(personal));
 	}
-	
+
 	@Test
 	public void testRegexMatching2() throws Exception {
 		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
@@ -2720,13 +2719,13 @@ public class PermissionsTest extends Assert {
 		user.setRepositoryPermission("[^~].*", AccessPermission.CLONE);
 		// permitall  ~ubercool repositories
 		user.setRepositoryPermission("~ubercool/.*", AccessPermission.CLONE);
-		
+
 		// personal
 		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(personal.name));
 		assertTrue("user CAN NOT view!", user.canView(personal));
 		assertTrue("user CAN NOT clone!", user.canClone(personal));
 		assertFalse("user CAN push!", user.canPush(personal));
-		
+
 		assertFalse("user CAN create ref!", user.canCreateRef(personal));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
@@ -2734,11 +2733,11 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(personal).permission);
 
 		assertFalse("user CAN fork!", user.canFork(personal));
-		
+
 		assertFalse("user CAN delete!", user.canDelete(personal));
 		assertFalse("user CAN edit!", user.canEdit(personal));
 	}
-	
+
 	@Test
 	public void testRegexOrder() throws Exception {
 		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
@@ -2748,13 +2747,13 @@ public class PermissionsTest extends Assert {
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission(".*", AccessPermission.PUSH);
 		user.setRepositoryPermission("~ubercool/.*", AccessPermission.CLONE);
-		
-		// has PUSH access because first match is PUSH permission 
+
+		// has PUSH access because first match is PUSH permission
 		assertTrue("user HAS a repository permission!", user.hasRepositoryPermission(personal.name));
 		assertTrue("user CAN NOT view!", user.canView(personal));
 		assertTrue("user CAN NOT clone!", user.canClone(personal));
 		assertTrue("user CAN NOT push!", user.canPush(personal));
-		
+
 		assertFalse("user CAN create ref!", user.canCreateRef(personal));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
@@ -2762,20 +2761,20 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.PUSH, user.getRepositoryPermission(personal).permission);
 
 		assertFalse("user CAN fork!", user.canFork(personal));
-		
+
 		assertFalse("user CAN delete!", user.canDelete(personal));
 		assertFalse("user CAN edit!", user.canEdit(personal));
-				
+
 		user.permissions.clear();
 		user.setRepositoryPermission("~ubercool/.*", AccessPermission.CLONE);
 		user.setRepositoryPermission(".*", AccessPermission.PUSH);
-		
+
 		// has CLONE access because first match is CLONE permission
 		assertTrue("user HAS a repository permission!", user.hasRepositoryPermission(personal.name));
 		assertTrue("user CAN NOT view!", user.canView(personal));
 		assertTrue("user CAN NOT clone!", user.canClone(personal));
 		assertFalse("user CAN push!", user.canPush(personal));
-				
+
 		assertFalse("user CAN create ref!", user.canCreateRef(personal));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
@@ -2783,11 +2782,11 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(personal).permission);
 
 		assertFalse("user CAN fork!", user.canFork(personal));
-				
+
 		assertFalse("user CAN delete!", user.canDelete(personal));
 		assertFalse("user CAN edit!", user.canEdit(personal));
 	}
-	
+
 	@Test
 	public void testExclusion() throws Exception {
 		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
@@ -2797,13 +2796,13 @@ public class PermissionsTest extends Assert {
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission("~ubercool/.*", AccessPermission.EXCLUDE);
 		user.setRepositoryPermission(".*", AccessPermission.PUSH);
-		
+
 		// has EXCLUDE access because first match is EXCLUDE permission
 		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(personal.name));
 		assertFalse("user CAN NOT view!", user.canView(personal));
 		assertFalse("user CAN NOT clone!", user.canClone(personal));
 		assertFalse("user CAN push!", user.canPush(personal));
-				
+
 		assertFalse("user CAN create ref!", user.canCreateRef(personal));
 		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
 		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
@@ -2811,7 +2810,7 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.EXCLUDE, user.getRepositoryPermission(personal).permission);
 
 		assertFalse("user CAN fork!", user.canFork(personal));
-				
+
 		assertFalse("user CAN delete!", user.canDelete(personal));
 		assertFalse("user CAN edit!", user.canEdit(personal));
 	}
@@ -2824,7 +2823,7 @@ public class PermissionsTest extends Assert {
 		user.teams.add(team);
 		assertTrue("User did not inherit admin privileges", user.canAdmin());
 	}
-	
+
 	@Test
 	public void testForkTeamInheritance() throws Exception {
 		UserModel user = new UserModel("test");
@@ -2854,13 +2853,13 @@ public class PermissionsTest extends Assert {
 
 		assertEquals("user has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repo).permission);
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repo).permission);
-		
+
 		// freeze repo
 		repo.isFrozen = true;
 		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repo).permission);
 		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repo).permission);
 	}
-	
+
 	@Test
 	public void testIsBare() throws Exception {
 		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
@@ -2872,9 +2871,27 @@ public class PermissionsTest extends Assert {
 
 		assertEquals("user has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repo).permission);
 		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repo).permission);
-		
+
 		// set repo to have a working copy, pushes prohibited
 		repo.isBare = false;
+		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repo).permission);
+	}
+
+	@Test
+	public void testIsMirror() throws Exception {
+		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
+		repo.authorizationControl = AuthorizationControl.NAMED;
+		repo.accessRestriction = AccessRestrictionType.NONE;
+
+		UserModel user = new UserModel("test");
+		TeamModel team = new TeamModel("team");
+
+		assertEquals("user has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repo).permission);
+
+		// set repo to be a mirror, pushes prohibited
+		repo.isMirror = true;
 		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repo).permission);
 		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repo).permission);
 	}

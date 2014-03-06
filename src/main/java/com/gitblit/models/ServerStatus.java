@@ -25,9 +25,9 @@ import com.gitblit.Constants;
 /**
  * ServerStatus encapsulates runtime status information about the server
  * including some information about the system environment.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ServerStatus implements Serializable {
 
@@ -39,8 +39,6 @@ public class ServerStatus implements Serializable {
 
 	public final String releaseDate;
 
-	public final boolean isGO;
-
 	public final Map<String, String> systemProperties;
 
 	public final long heapMaximum;
@@ -49,13 +47,14 @@ public class ServerStatus implements Serializable {
 
 	public volatile long heapFree;
 
+	public boolean isGO;
+
 	public String servletContainer;
 
-	public ServerStatus(boolean isGO) {
+	public ServerStatus() {
 		this.bootDate = new Date();
 		this.version = Constants.getVersion();
 		this.releaseDate = Constants.getBuildDate();
-		this.isGO = isGO;
 
 		this.heapMaximum = Runtime.getRuntime().maxMemory();
 

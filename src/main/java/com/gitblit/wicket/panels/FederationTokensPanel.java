@@ -28,7 +28,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -42,22 +41,22 @@ public class FederationTokensPanel extends BasePanel {
 		super(wicketId);
 
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
-		add(new ExternalLink("federatedUsers", FederationUtils.asLink(baseUrl, GitBlit.self()
+		add(new ExternalLink("federatedUsers", FederationUtils.asLink(baseUrl, app().federation()
 				.getFederationToken(FederationToken.USERS_AND_REPOSITORIES),
 				FederationRequest.PULL_USERS)));
 
-		add(new ExternalLink("federatedSettings", FederationUtils.asLink(baseUrl, GitBlit
-				.self().getFederationToken(FederationToken.ALL), FederationRequest.PULL_SETTINGS)));
+		add(new ExternalLink("federatedSettings", FederationUtils.asLink(baseUrl, app().federation()
+				.getFederationToken(FederationToken.ALL), FederationRequest.PULL_SETTINGS)));
 
 		final List<String[]> data = new ArrayList<String[]>();
 		for (FederationToken token : FederationToken.values()) {
-			data.add(new String[] { token.name(), GitBlit.self().getFederationToken(token), null });
+			data.add(new String[] { token.name(), app().federation().getFederationToken(token), null });
 		}
-		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
+		List<String> sets = app().settings().getStrings(Keys.federation.sets);
 		Collections.sort(sets);
 		for (String set : sets) {
 			data.add(new String[] { FederationToken.REPOSITORIES.name(),
-					GitBlit.self().getFederationToken(set), set });
+					app().federation().getFederationToken(set), set });
 		}
 
 		DataView<String[]> dataView = new DataView<String[]>("row", new ListDataProvider<String[]>(
@@ -71,6 +70,7 @@ public class FederationTokensPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<String[]> item) {
 				final String[] entry = item.getModelObject();
 				final FederationToken token = FederationToken.fromName(entry[0]);

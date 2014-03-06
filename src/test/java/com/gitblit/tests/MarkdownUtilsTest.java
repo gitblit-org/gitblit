@@ -15,21 +15,16 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.text.ParseException;
-
 import org.junit.Test;
 
 import com.gitblit.utils.MarkdownUtils;
 
-public class MarkdownUtilsTest {
+public class MarkdownUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testMarkdown() throws Exception {
-		assertEquals("<h1> H1</h1>", MarkdownUtils.transformMarkdown("# H1"));
-		assertEquals("<h2> H2</h2>", MarkdownUtils.transformMarkdown("## H2"));
+		assertEquals("<h1>H1</h1>", MarkdownUtils.transformMarkdown("# H1"));
+		assertEquals("<h2>H2</h2>", MarkdownUtils.transformMarkdown("## H2"));
 		assertEquals("<p><strong>THIS</strong> is a test</p>",
 				MarkdownUtils.transformMarkdown("**THIS** is a test"));
 		assertEquals("<p>** THIS ** is a test</p>",
@@ -43,12 +38,5 @@ public class MarkdownUtilsTest {
 				MarkdownUtils.transformMarkdown("<table><tr><td>test</td></tr></table>"));
 		assertEquals("<table><tr><td>&lt;test&gt;</td></tr></table>",
 				MarkdownUtils.transformMarkdown("<table><tr><td>&lt;test&gt;</td></tr></table>"));
-
-		try {
-			MarkdownUtils.transformMarkdown((String) null);
-			assertTrue(false);
-		} catch (ParseException p) {
-			assertTrue(p != null);
-		}
 	}
 }

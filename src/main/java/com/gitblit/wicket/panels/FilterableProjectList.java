@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.utils.StringUtils;
@@ -39,8 +38,8 @@ import com.gitblit.wicket.ng.NgController;
 
 /**
  * A client-side filterable rich project list which uses Freemarker, Wicket,
- * and AngularJS. 
- * 
+ * and AngularJS.
+ *
  * @author James Moger
  *
  */
@@ -49,21 +48,21 @@ public class FilterableProjectList extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final List<ProjectModel> projects;
-	
+
 	private String title;
-	
+
 	private String iconClass;
-	
+
 	public FilterableProjectList(String id, List<ProjectModel> projects) {
 		super(id);
 		this.projects = projects;
 	}
-	
+
 	public void setTitle(String title, String iconClass) {
 		this.title = title;
 		this.iconClass = iconClass;
 	}
-	
+
 	@Override
 	protected void onInitialize() {
 		super.onInitialize();
@@ -71,18 +70,18 @@ public class FilterableProjectList extends BasePanel {
 		String id = getId();
 		String ngCtrl = id + "Ctrl";
 		String ngList = id + "List";
-		
+
 		Map<String, Object> values = new HashMap<String, Object>();
 		values.put("ngCtrl",  ngCtrl);
 		values.put("ngList",  ngList);
-		
+
 		// use Freemarker to setup an AngularJS/Wicket html snippet
 		FreemarkerPanel panel = new FreemarkerPanel("listComponent", "FilterableProjectList.fm", values);
 		panel.setParseGeneratedMarkup(true);
 		panel.setRenderBodyOnly(true);
 		add(panel);
-		
-		// add the Wicket controls that are referenced in the snippet 
+
+		// add the Wicket controls that are referenced in the snippet
 		String listTitle = StringUtils.isEmpty(title) ? getString("gb.projects") : title;
 		panel.add(new Label(ngList + "Title", MessageFormat.format("{0} ({1})", listTitle, projects.size())));
 		if (StringUtils.isEmpty(iconClass)) {
@@ -92,8 +91,8 @@ public class FilterableProjectList extends BasePanel {
 			WicketUtils.setCssClass(icon, iconClass);
 			panel.add(icon);
 		}
-		
-		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
+
+		String format = app().settings().getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
 		Collections.sort(projects, new Comparator<ProjectModel>() {
@@ -118,7 +117,7 @@ public class FilterableProjectList extends BasePanel {
 			item.c = proj.repositories.size();
 			list.add(item);
 		}
-		
+
 		// inject an AngularJS controller with static data
 		NgController ctrl = new NgController(ngCtrl);
 		ctrl.addVariable(ngList, list);
@@ -128,7 +127,7 @@ public class FilterableProjectList extends BasePanel {
 	protected class ProjectListItem implements Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		String p; // path
 		String n; // name
 		String t; // time ago

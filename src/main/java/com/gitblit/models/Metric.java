@@ -20,9 +20,9 @@ import java.io.Serializable;
 /**
  * Metric is a serializable model class that encapsulates metrics for some given
  * type.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class Metric implements Serializable, Comparable<Metric> {
 

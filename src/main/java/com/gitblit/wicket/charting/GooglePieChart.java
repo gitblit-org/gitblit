@@ -24,9 +24,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Builds an interactive pie chart using the Visualization API.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GooglePieChart extends GoogleChart {
 
@@ -47,15 +47,15 @@ public class GooglePieChart extends GoogleChart {
 
 		Collections.sort(values);
 		List<ChartValue> list = new ArrayList<ChartValue>();
-		
+
 		int maxSlices = 10;
-		
+
 		if (values.size() > maxSlices) {
 			list.addAll(values.subList(0,  maxSlices));
 		} else {
 			list.addAll(values);
 		}
-		
+
 		StringBuilder colors = new StringBuilder("colors:[");
 		for (int i = 0; i < list.size(); i++) {
 			ChartValue value = list.get(i);
@@ -65,7 +65,7 @@ public class GooglePieChart extends GoogleChart {
 			if (i < values.size() - 1) {
 				colors.append(',');
 			}
-			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 0, ''{2}'');", dName, i,
+			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 0, \"{2}\");", dName, i,
 					value.name));
 			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 1, {2,number,0.0});", dName,
 					i, value.value));

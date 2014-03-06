@@ -25,9 +25,9 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  * Table model of a map of properties.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class PropertiesTableModel extends AbstractTableModel {
 
@@ -82,11 +82,12 @@ public class PropertiesTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		return String.class;
 	}

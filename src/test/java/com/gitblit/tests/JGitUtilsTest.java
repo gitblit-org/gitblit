@@ -15,12 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -37,6 +31,10 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
+import org.eclipse.jgit.revplot.PlotCommit;
+import org.eclipse.jgit.revplot.PlotCommitList;
+import org.eclipse.jgit.revplot.PlotLane;
+import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.util.FS;
@@ -44,17 +42,16 @@ import org.eclipse.jgit.util.FileUtils;
 import org.junit.Test;
 
 import com.gitblit.Constants.SearchType;
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.CompressionUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JnaUtils;
 import com.gitblit.utils.StringUtils;
 
-public class JGitUtilsTest {
+public class JGitUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testDisplayName() throws Exception {
@@ -149,6 +146,139 @@ public class JGitUtilsTest {
 	}
 
 	@Test
+	public void testCreateRepositoryShared() throws Exception {
+		String[] repositories = { "NewSharedTestRepository.git" };
+		for (String repositoryName : repositories) {
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
+					repositoryName, "group");
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName),
+					FS.DETECTED);
+			assertNotNull(repository);
+			assertFalse(JGitUtils.hasCommits(repository));
+			assertNull(JGitUtils.getFirstCommit(repository, null));
+
+			assertEquals("1", repository.getConfig().getString("core", null, "sharedRepository"));
+
+			assertTrue(folder.exists());
+			if (! JnaUtils.isWindows()) {
+				int mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+				assertEquals(JnaUtils.S_IRWXG, mode & JnaUtils.S_IRWXG);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+			}
+
+			repository.close();
+			RepositoryCache.close(repository);
+			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+		}
+	}
+
+	@Test
+	public void testCreateRepositorySharedCustom() throws Exception {
+		String[] repositories = { "NewSharedTestRepository.git" };
+		for (String repositoryName : repositories) {
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
+					repositoryName, "660");
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName),
+					FS.DETECTED);
+			assertNotNull(repository);
+			assertFalse(JGitUtils.hasCommits(repository));
+			assertNull(JGitUtils.getFirstCommit(repository, null));
+
+			assertEquals("0660", repository.getConfig().getString("core", null, "sharedRepository"));
+
+			assertTrue(folder.exists());
+			if (! JnaUtils.isWindows()) {
+				int mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+				assertEquals(JnaUtils.S_IRWXG, mode & JnaUtils.S_IRWXG);
+				assertEquals(0, mode & JnaUtils.S_IRWXO);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(0, mode & JnaUtils.S_IRWXO);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(0, mode & JnaUtils.S_IRWXO);
+			}
+
+			repository.close();
+			RepositoryCache.close(repository);
+			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+		}
+	}
+
+	@Test
+	public void testCreateRepositorySharedSgidParent() throws Exception {
+		if (! JnaUtils.isWindows()) {
+			String repositoryAll = "NewTestRepositoryAll.git";
+			String repositoryUmask = "NewTestRepositoryUmask.git";
+			String sgidParent = "sgid";
+
+			File parent = new File(GitBlitSuite.REPOSITORIES, sgidParent);
+			File folder = null;
+			boolean parentExisted = parent.exists();
+			try {
+				if (!parentExisted) {
+					assertTrue("Could not create SGID parent folder.", parent.mkdir());
+				}
+				int mode = JnaUtils.getFilemode(parent);
+				assertTrue(mode > 0);
+				assertEquals(0, JnaUtils.setFilemode(parent, mode | JnaUtils.S_ISGID | JnaUtils.S_IWGRP));
+
+				Repository repository = JGitUtils.createRepository(parent, repositoryAll, "all");
+				folder = FileKey.resolve(new File(parent, repositoryAll), FS.DETECTED);
+				assertNotNull(repository);
+
+				assertEquals("2", repository.getConfig().getString("core", null, "sharedRepository"));
+
+				assertTrue(folder.exists());
+				mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(JnaUtils.S_IROTH, mode & JnaUtils.S_IRWXO);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(JnaUtils.S_IROTH, mode & JnaUtils.S_IRWXO);
+
+				repository.close();
+				RepositoryCache.close(repository);
+
+
+
+				repository = JGitUtils.createRepository(parent, repositoryUmask, "umask");
+				folder = FileKey.resolve(new File(parent, repositoryUmask), FS.DETECTED);
+				assertNotNull(repository);
+
+				assertEquals(null, repository.getConfig().getString("core", null, "sharedRepository"));
+
+				assertTrue(folder.exists());
+				mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+
+				repository.close();
+				RepositoryCache.close(repository);
+			}
+			finally {
+				FileUtils.delete(new File(parent, repositoryAll), FileUtils.RECURSIVE | FileUtils.IGNORE_ERRORS);
+				FileUtils.delete(new File(parent, repositoryUmask), FileUtils.RECURSIVE | FileUtils.IGNORE_ERRORS);
+				if (!parentExisted) {
+					FileUtils.delete(parent, FileUtils.RECURSIVE | FileUtils.IGNORE_ERRORS);
+				}
+			}
+		}
+	}
+
+	@Test
 	public void testRefs() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
 		Map<ObjectId, List<RefModel>> map = JGitUtils.getAllRefs(repository);
@@ -234,7 +364,7 @@ public class JGitUtilsTest {
 		assertEquals("183474d554e6f68478a02d9d7888b67a9338cdff", list.get(0).notesRef
 				.getReferencedObjectId().getName());
 	}
-	
+
 	@Test
 	public void testRelinkHEAD() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
@@ -243,7 +373,7 @@ public class JGitUtilsTest {
 		assertEquals("refs/heads/master", currentRef);
 		List<String> availableHeads = JGitUtils.getAvailableHeadTargets(repository);
 		assertTrue(availableHeads.size() > 0);
-		
+
 		// set HEAD to stable-1.2
 		JGitUtils.setHEADtoRef(repository, "refs/heads/stable-1.2");
 		currentRef = JGitUtils.getHEADRef(repository);
@@ -253,19 +383,19 @@ public class JGitUtilsTest {
 		JGitUtils.setHEADtoRef(repository, "refs/heads/master");
 		currentRef = JGitUtils.getHEADRef(repository);
 		assertEquals("refs/heads/master", currentRef);
-		
+
 		repository.close();
 	}
 
 	@Test
 	public void testRelinkBranch() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
-		
+
 		// create/set the branch
 		JGitUtils.setBranchRef(repository, "refs/heads/reftest", "3b358ce514ec655d3ff67de1430994d8428cdb04");
 		assertEquals(1, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("3b358ce514ec655d3ff67de1430994d8428cdb04")).size());
 		assertEquals(null, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("755dfdb40948f5c1ec79e06bde3b0a78c352f27f")));
-		
+
 		// reset the branch
 		JGitUtils.setBranchRef(repository, "refs/heads/reftest", "755dfdb40948f5c1ec79e06bde3b0a78c352f27f");
 		assertEquals(null, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("3b358ce514ec655d3ff67de1430994d8428cdb04")));
@@ -346,14 +476,11 @@ public class JGitUtilsTest {
 	@Test
 	public void testDocuments() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
-		List<String> extensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+		List<String> extensions = Arrays.asList(new String[] { ".mkd", ".md" });
 		List<PathModel> markdownDocs = JGitUtils.getDocuments(repository, extensions);
-		List<PathModel> markdownDocs2 = JGitUtils.getDocuments(repository,
-				Arrays.asList(new String[] { ".mkd", ".md" }));
 		List<PathModel> allFiles = JGitUtils.getDocuments(repository, null);
 		repository.close();
 		assertTrue(markdownDocs.size() > 0);
-		assertTrue(markdownDocs2.size() > 0);
 		assertTrue(allFiles.size() > markdownDocs.size());
 	}
 
@@ -391,7 +518,7 @@ public class JGitUtilsTest {
 		// grab the commits since 2008-07-15
 		commits = JGitUtils.getRevLog(repository, null,
 				new SimpleDateFormat("yyyy-MM-dd").parse("2008-07-15"));
-		assertEquals(12, commits.size());
+		assertEquals(19, commits.size());
 		repository.close();
 	}
 
@@ -469,4 +596,16 @@ public class JGitUtilsTest {
 		zipFileB.delete();
 	}
 
+	@Test
+	public void testPlots() throws Exception {
+		Repository repository = GitBlitSuite.getTicgitRepository();
+		PlotWalk pw = new PlotWalk(repository);
+		PlotCommitList<PlotLane> commits = new PlotCommitList<PlotLane>();
+		commits.source(pw);
+		commits.fillTo(25);
+		for (PlotCommit<PlotLane> commit : commits) {
+			System.out.println(commit);
+		}
+		repository.close();
+	}
 }

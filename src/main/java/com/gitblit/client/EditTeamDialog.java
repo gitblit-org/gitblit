@@ -44,9 +44,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
@@ -68,11 +70,11 @@ public class EditTeamDialog extends JDialog {
 	private boolean canceled = true;
 
 	private JTextField teamnameField;
-	
+
 	private JCheckBox canAdminCheckbox;
-	
+
 	private JCheckBox canForkCheckbox;
-	
+
 	private JCheckBox canCreateCheckbox;
 
 	private JTextField mailingListsField;
@@ -115,6 +117,7 @@ public class EditTeamDialog extends JDialog {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 		JRootPane rootPane = new JRootPane();
 		rootPane.registerKeyboardAction(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				setVisible(false);
 			}
@@ -125,7 +128,7 @@ public class EditTeamDialog extends JDialog {
 	private void initialize(int protocolVersion, TeamModel aTeam) {
 		teamnameField = new JTextField(aTeam.name == null ? "" : aTeam.name, 25);
 
-		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), aTeam.canAdmin);		
+		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), aTeam.canAdmin);
 		canForkCheckbox = new JCheckBox(Translation.get("gb.canForkDescription"), aTeam.canFork);
 		canCreateCheckbox = new JCheckBox(Translation.get("gb.canCreateDescription"), aTeam.canCreate);
 
@@ -143,8 +146,7 @@ public class EditTeamDialog extends JDialog {
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new RegistrantPermissionsPanel(RegistrantType.REPOSITORY);
 		userPalette = new JPalette<String>();
-		userPalette.setEnabled(settings.supportsTeamMembershipChanges);
-		
+
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
 
@@ -152,6 +154,7 @@ public class EditTeamDialog extends JDialog {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Insets getInsets() {
 				return _insets;
 			}
@@ -162,6 +165,7 @@ public class EditTeamDialog extends JDialog {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Insets getInsets() {
 				return _insets;
 			}
@@ -173,11 +177,11 @@ public class EditTeamDialog extends JDialog {
 		JPanel preReceivePanel = new JPanel(new BorderLayout(5, 5));
 		preReceivePanel.add(preReceivePalette, BorderLayout.CENTER);
 		preReceivePanel.add(preReceiveInherited, BorderLayout.WEST);
-		
+
 		postReceivePalette = new JPalette<String>(true);
 		postReceiveInherited = new JLabel();
 		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
-		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);		
+		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);
 		postReceivePanel.add(postReceiveInherited, BorderLayout.WEST);
 
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
@@ -189,6 +193,7 @@ public class EditTeamDialog extends JDialog {
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (validateFields()) {
 					canceled = false;
@@ -199,6 +204,7 @@ public class EditTeamDialog extends JDialog {
 
 		JButton cancelButton = new JButton(Translation.get("gb.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				canceled = true;
 				setVisible(false);
@@ -315,15 +321,29 @@ public class EditTeamDialog extends JDialog {
 			if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)
 					&& repo.authorizationControl.equals(AuthorizationControl.NAMED)) {
 				restricted.add(repo.name);
-			}				
+			}
 		}
 		StringUtils.sortRepositorynames(restricted);
-		
+
 		List<String> list = new ArrayList<String>();
 		// repositories
 		list.add(".*");
-		// all repositories excluding personal repositories
-		list.add("[^~].*");
+
+		String prefix;
+		if (settings.hasKey(Keys.git.userRepositoryPrefix)) {
+			prefix = settings.get(Keys.git.userRepositoryPrefix).currentValue;
+			if (StringUtils.isEmpty(prefix)) {
+				prefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
+			}
+		} else {
+			prefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
+		}
+
+		if (prefix.length() == 1) {
+			// all repositories excluding personal repositories
+			list.add("[^" + prefix + "].*");
+		}
+
 		String lastProject = null;
 		for (String repo : restricted) {
 			String projectPath = StringUtils.getFirstPathElement(repo);

@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
 /**
  * FanoutServiceConnection handles reading/writing messages from a remote fanout
  * connection.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class FanoutServiceConnection implements Comparable<FanoutServiceConnection> {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FanoutServiceConnection.class);
-	
+
 	public final String id;
 
 	protected FanoutServiceConnection(Socket socket) {
@@ -42,25 +42,25 @@ public abstract class FanoutServiceConnection implements Comparable<FanoutServic
 
 	/**
 	 * Send the connection a debug channel connected message.
-	 * 
+	 *
 	 * @param message
 	 */
 	protected void connected() {
 		reply(FanoutConstants.CH_DEBUG, FanoutConstants.MSG_CONNECTED);
 	}
-	
+
 	/**
 	 * Send the connection a debug channel busy message.
-	 * 
+	 *
 	 * @param message
 	 */
 	protected void busy() {
 		reply(FanoutConstants.CH_DEBUG, FanoutConstants.MSG_BUSY);
 	}
-	
+
 	/**
 	 * Send the connection a message for the specified channel.
-	 * 
+	 *
 	 * @param channel
 	 * @param message
 	 * @return the reply

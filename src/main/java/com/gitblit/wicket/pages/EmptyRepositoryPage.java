@@ -16,12 +16,16 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.protocol.http.WebRequest;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
@@ -36,32 +40,35 @@ public class EmptyRepositoryPage extends RootPage {
 		setVersioned(false);
 
 		String repositoryName = WicketUtils.getRepositoryName(params);
-		RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+		RepositoryModel repository = app().repositories().getRepositoryModel(repositoryName);
 		if (repository == null) {
 			error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
 		}
-		
+
 		if (repository.hasCommits) {
 			// redirect to the summary page if this repository is not empty
 			throw new GitblitRedirectException(SummaryPage.class, params);
 		}
-		
+
 		setupPage(repositoryName, getString("gb.emptyRepository"));
 
 		UserModel user = GitBlitWebSession.get().getUser();
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
 		}
-		
-		RepositoryUrlPanel urlPanel = new RepositoryUrlPanel("pushurl", false, user, repository);
-		String primaryUrl = urlPanel.getPrimaryUrl();
-		
+
+		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
+		List<RepositoryUrl> repositoryUrls = app().gitblit().getRepositoryUrls(req, user, repository);
+		RepositoryUrl primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
+		String url = primaryUrl != null ? primaryUrl.url : "";
+
 		add(new Label("repository", repositoryName));
-		add(urlPanel);
-		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", primaryUrl)));
-		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", primaryUrl)));
+		add(new RepositoryUrlPanel("pushurl", false, user, repository));
+		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", url)));
+		add(new Label("remoteSyntax", MessageFormat.format("git remote add origin {0}\ngit push -u origin --all\ngit push -u origin --tags", url)));
+		add(new Label("upstreamSyntax", "git remote add upstream <upstream repository url>"));
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return RepositoriesPage.class;

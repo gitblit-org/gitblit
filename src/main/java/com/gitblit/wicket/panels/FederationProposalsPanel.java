@@ -25,7 +25,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.ReviewProposalPage;
@@ -39,7 +38,7 @@ public class FederationProposalsPanel extends BasePanel {
 	public FederationProposalsPanel(String wicketId) {
 		super(wicketId);
 
-		final List<FederationProposal> list = GitBlit.self().getPendingFederationProposals();
+		final List<FederationProposal> list = app().federation().getPendingFederationProposals();
 		hasProposals = list.size() > 0;
 		DataView<FederationProposal> dataView = new DataView<FederationProposal>("row",
 				new ListDataProvider<FederationProposal>(list)) {
@@ -52,6 +51,7 @@ public class FederationProposalsPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<FederationProposal> item) {
 				final FederationProposal entry = item.getModelObject();
 				item.add(new LinkPanel("url", "list", entry.url, ReviewProposalPage.class,
@@ -67,7 +67,7 @@ public class FederationProposalsPanel extends BasePanel {
 
 					@Override
 					public void onClick() {
-						if (GitBlit.self().deletePendingFederationProposal(entry)) {
+						if (app().federation().deletePendingFederationProposal(entry)) {
 							list.remove(entry);
 							info(MessageFormat.format("Proposal ''{0}'' deleted.", entry.name));
 						} else {

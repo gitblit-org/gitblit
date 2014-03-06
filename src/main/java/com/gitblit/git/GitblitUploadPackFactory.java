@@ -15,33 +15,32 @@
  */
 package com.gitblit.git;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.RefFilter;
 import org.eclipse.jgit.transport.UploadPack;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
-import com.gitblit.GitBlit;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 
 /**
  * The upload pack factory creates an upload pack which controls what refs are
  * advertised to cloning/pulling clients.
- * 
+ *
  * @author James Moger
- * 
+ *
  * @param <X> the connection type
  */
 public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
+
+	private final IAuthenticationManager authenticationManager;
+
+	public GitblitUploadPackFactory(IAuthenticationManager authenticationManager) {
+		this.authenticationManager = authenticationManager;
+	}
 
 	@Override
 	public UploadPack create(X req, Repository db)
@@ -51,8 +50,8 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 		int timeout = 0;
 
 		if (req instanceof HttpServletRequest) {
-			// http/https request may or may not be authenticated 
-			user = GitBlit.self().authenticate((HttpServletRequest) req);
+			// http/https request may or may not be authenticated
+			user = authenticationManager.authenticate((HttpServletRequest) req);
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
 			}
@@ -63,45 +62,9 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 			timeout = client.getDaemon().getTimeout();
 		}
 
-		RefFilter refFilter = new UserRefFilter(user);
 		UploadPack up = new UploadPack(db);
-		up.setRefFilter(refFilter);
 		up.setTimeout(timeout);
-		
+
 		return up;
-	}
-
-	/**
-	 * Restricts advertisement of certain refs based on the permission of the
-	 * requesting user.
-	 */
-	public static class UserRefFilter implements RefFilter {
-		
-		final UserModel user;
-		
-		public UserRefFilter(UserModel user) {
-			this.user = user;
-		}
-		
-		@Override
-		public Map<String, Ref> filter(Map<String, Ref> refs) {
-			if (user.canAdmin()) {
-				// admins can see all refs
-				return refs;
-			}
-
-			// normal users can not clone any gitblit refs
-			// JGit's RefMap is custom and does not support iterator removal :(
-			List<String> toRemove = new ArrayList<String>();
-			for (String ref : refs.keySet()) {
-				if (ref.startsWith("refs/gitblit/")) {
-					toRemove.add(ref);
-				}
-			}
-			for (String ref : toRemove) {
-				refs.remove(ref);
-			}
-			return refs;
-		}
 	}
 }

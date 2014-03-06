@@ -30,7 +30,7 @@ import com.gitblit.utils.StringUtils;
  * Gitblit instance to pull the repositories and configuration from another
  * Gitblit instance. This is a backup operation and can be considered something
  * like svn-sync.
- * 
+ *
  */
 public class FederationModel implements Serializable, Comparable<FederationModel> {
 
@@ -45,7 +45,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 	public String frequency;
 
 	public String folder;
-	
+
 	public boolean bare;
 
     public boolean mirror;
@@ -68,7 +68,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 
 	/**
 	 * The constructor for a remote server configuration.
-	 * 
+	 *
 	 * @param serverName
 	 */
 	public FederationModel(String serverName) {
@@ -109,7 +109,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 	/**
 	 * Updates the pull status of a particular repository in this federation
 	 * registration.
-	 * 
+	 *
 	 * @param repository
 	 * @param status
 	 */
@@ -133,7 +133,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 	/**
 	 * Iterates over the current pull results and returns the lowest pull
 	 * status.
-	 * 
+	 *
 	 * @return the lowest pull status of the registration
 	 */
 	public FederationPullStatus getLowestStatus() {
@@ -152,7 +152,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 	/**
 	 * Returns true if this registration represents the result data sent by a
 	 * pulling Gitblit instance.
-	 * 
+	 *
 	 * @return true, if this is result data
 	 */
 	public boolean isResultData() {
@@ -181,7 +181,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 
 	/**
 	 * Class that encapsulates a point-in-time pull result.
-	 * 
+	 *
 	 */
 	public static class RepositoryStatus implements Serializable, Comparable<RepositoryStatus> {
 

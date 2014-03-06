@@ -30,15 +30,15 @@ import com.gitblit.utils.X509Utils.X509Metadata;
 
 /**
  * Collection of utility methods for http requests.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class HttpUtils {
 
 	/**
 	 * Returns the Gitblit URL based on the request.
-	 * 
+	 *
 	 * @param request
 	 * @return the host url
 	 */
@@ -59,7 +59,7 @@ public class HttpUtils {
         	} catch (Throwable t) {
         	}
         }
-        
+
 		// try to use reverse-proxy server's scheme
         String forwardedScheme = request.getHeader("X-Forwarded-Proto");
         if (StringUtils.isEmpty(forwardedScheme)) {
@@ -68,7 +68,7 @@ public class HttpUtils {
         if (!StringUtils.isEmpty(forwardedScheme)) {
         	// reverse-proxy server has supplied the original scheme
         	scheme = forwardedScheme;
-        	
+
         	if ("https".equals(scheme) && port == 80) {
         		// proxy server is https, inside server is 80
         		// this is likely because the proxy server has not supplied
@@ -77,21 +77,21 @@ public class HttpUtils {
         		port = 443;
         	}
         }
-        
+
         String context = request.getContextPath();
         String forwardedContext = request.getHeader("X-Forwarded-Context");
-        if (forwardedContext != null) {
+        if (StringUtils.isEmpty(forwardedContext)) {
         	forwardedContext = request.getHeader("X_Forwarded_Context");
         }
         if (!StringUtils.isEmpty(forwardedContext)) {
         	context = forwardedContext;
         }
-        
+
         // trim any trailing slash
         if (context.length() > 0 && context.charAt(context.length() - 1) == '/') {
         	context = context.substring(1);
         }
-        
+
 		StringBuilder sb = new StringBuilder();
 		sb.append(scheme);
 		sb.append("://");
@@ -103,11 +103,11 @@ public class HttpUtils {
 		sb.append(context);
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Returns a user model object built from attributes in the SSL certificate.
 	 * This model is not retrieved from the user service.
-	 *  
+	 *
 	 * @param httpRequest
 	 * @param checkValidity ensure certificate can be used now
 	 * @param usernameOIDs if unspecified, CN is used as the username
@@ -136,7 +136,7 @@ public class HttpUtils {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Creates a UserModel from a certificate
 	 * @param cert
@@ -145,16 +145,16 @@ public class HttpUtils {
 	 */
 	public static UserModel getUserModelFromCertificate(X509Certificate cert, String... usernameOIDs) {
 		X509Metadata metadata = X509Utils.getMetadata(cert);
-		
+
 		UserModel user = new UserModel(metadata.commonName);
 		user.emailAddress = metadata.emailAddress;
 		user.isAuthenticated = false;
-		
+
 		if (usernameOIDs == null || usernameOIDs.length == 0) {
 			// use default usename<->CN mapping
 			usernameOIDs = new String [] { "CN" };
 		}
-		
+
 		// determine username from OID fingerprint
 		StringBuilder an = new StringBuilder();
 		for (String oid : usernameOIDs) {
@@ -163,10 +163,10 @@ public class HttpUtils {
 				an.append(val).append(' ');
 			}
 		}
-		user.username = an.toString().trim();		
+		user.username = an.toString().trim();
 		return user;
 	}
-	
+
 	public static X509Metadata getCertificateMetadata(HttpServletRequest httpRequest) {
 		if (httpRequest.getAttribute("javax.servlet.request.X509Certificate") != null) {
 			X509Certificate[] certChain = (X509Certificate[]) httpRequest
@@ -178,7 +178,7 @@ public class HttpUtils {
 		}
 		return null;
 	}
-	
+
 	public static boolean isIpAddress(String address) {
 		if (StringUtils.isEmpty(address)) {
 			return false;

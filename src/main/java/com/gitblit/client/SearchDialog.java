@@ -51,9 +51,9 @@ import com.gitblit.utils.StringUtils;
 /**
  * The search dialog allows searching of a repository branch. This matches the
  * search implementation of the site.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SearchDialog extends JFrame {
 
@@ -103,6 +103,7 @@ public class SearchDialog extends JFrame {
 		prev.setToolTipText(Translation.get("gb.pagePrevious"));
 		prev.setEnabled(false);
 		prev.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				search(--page);
 			}
@@ -112,6 +113,7 @@ public class SearchDialog extends JFrame {
 		next.setToolTipText(Translation.get("gb.pageNext"));
 		next.setEnabled(false);
 		next.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				search(++page);
 			}
@@ -119,6 +121,7 @@ public class SearchDialog extends JFrame {
 
 		final JButton search = new JButton(Translation.get(isSearch ? "gb.search" : "gb.refresh"));
 		search.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				search(0);
 			}
@@ -127,6 +130,7 @@ public class SearchDialog extends JFrame {
 		final JButton viewCommit = new JButton(Translation.get("gb.view"));
 		viewCommit.setEnabled(false);
 		viewCommit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				viewCommit();
 			}
@@ -135,6 +139,7 @@ public class SearchDialog extends JFrame {
 		final JButton viewCommitDiff = new JButton(Translation.get("gb.commitdiff"));
 		viewCommitDiff.setEnabled(false);
 		viewCommitDiff.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				viewCommitDiff();
 			}
@@ -143,6 +148,7 @@ public class SearchDialog extends JFrame {
 		final JButton viewTree = new JButton(Translation.get("gb.tree"));
 		viewTree.setEnabled(false);
 		viewTree.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				viewTree();
 			}
@@ -171,6 +177,7 @@ public class SearchDialog extends JFrame {
 		table.getColumn(name).setCellRenderer(new MessageRenderer());
 
 		table.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
 					if (e.isControlDown()) {
@@ -199,6 +206,7 @@ public class SearchDialog extends JFrame {
 		repositorySelector.setRenderer(nameRenderer);
 		repositorySelector.setForeground(nameRenderer.getForeground());
 		repositorySelector.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				// repopulate the branch list based on repository selection
 				// preserve branch selection, if possible
@@ -234,6 +242,7 @@ public class SearchDialog extends JFrame {
 
 		searchFragment = new JTextField(25);
 		searchFragment.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				search(0);
 			}

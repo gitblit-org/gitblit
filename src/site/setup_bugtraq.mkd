@@ -1,0 +1,35 @@
+
+## Setting up Bugtraq
+
+*SINCE 1.4.0*
+
+[Bugtraq](https://github.com/mstrap/bugtraq) is a specification started by Syntevo & supported by Gitblit to establish a standard to define and parse commit messages for linkable text.
+
+### Why do I care?
+
+It's a portable way for your repository to have linkable issue, pull request, change-id, etc text fragments.  SmartGit/Hg and Gitblit both use the reference implementation available in the aforementioned Github project so if you configure Bugtraq for one you automatically get linked text in the other.
+
+### How do I define the configuration?
+
+You add a *.gitbugtraq* file to the root of your repository on the default branch.
+
+This file is formatted like a standard Git config file.  Here are some quick examples:
+
+    [bugtraq "googlecode"]
+        url = http://code.google.com/p/yourproject/issues/detail?id=%BUGID%
+        logregex = "[Ii]ssues?:?(\\s*(,|and)?\\s*#?\\d+)+\n(\\d+)"
+    
+    [bugtraq "gerrit"]
+        url = "https://git.eclipse.org/r/#q,%BUGID%,n,z"
+        logregex = "Change-Id:\\s*(I[A-Fa-f0-9]{40})"
+    
+    [bugtraq "jira"]
+        https://jira.atlassian.com/browse/%BUGID%
+        logregex = (JRA-\\d+)
+
+    [bugtraq "github"]
+        url = "https://github.com/gitblit/gitblit/pull/%BUGID%"
+        loglinkregex = "(?:pull request|pull|pr)\\s*[-#]?[0-9]+"
+        logregex = "\\d+"
+        loglinktext = "pull request #%BUGID%"
+

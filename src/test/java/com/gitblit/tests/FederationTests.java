@@ -15,10 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +38,7 @@ import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.RpcUtils;
 
-public class FederationTests {
+public class FederationTests extends GitblitUnitTest {
 
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;
@@ -129,23 +125,23 @@ public class FederationTests {
 		assertNotNull(users);
 		// admin is excluded
 		assertEquals(0, users.size());
-		
+
 		UserModel newUser = new UserModel("test");
 		newUser.password = "whocares";
 		assertTrue(RpcUtils.createUser(newUser, url, account, password.toCharArray()));
-		
+
 		TeamModel team = new TeamModel("testteam");
 		team.addUser("test");
 		team.addRepositoryPermission("helloworld.git");
 		assertTrue(RpcUtils.createTeam(team, url, account, password.toCharArray()));
-		
+
 		users = FederationUtils.getUsers(getRegistration());
 		assertNotNull(users);
 		assertEquals(1, users.size());
-		
+
 		newUser = users.get(0);
-		assertTrue(newUser.isTeamMember("testteam"));		
-		
+		assertTrue(newUser.isTeamMember("testteam"));
+
 		assertTrue(RpcUtils.deleteUser(newUser, url, account, password.toCharArray()));
 		assertTrue(RpcUtils.deleteTeam(team, url, account, password.toCharArray()));
 	}
@@ -156,14 +152,14 @@ public class FederationTests {
 		team.addUser("test");
 		team.addRepositoryPermission("helloworld.git");
 		assertTrue(RpcUtils.createTeam(team, url, account, password.toCharArray()));
-		
+
 		List<TeamModel> teams = FederationUtils.getTeams(getRegistration());
 		assertNotNull(teams);
 		assertTrue(teams.size() > 0);
-		
+
 		assertTrue(RpcUtils.deleteTeam(team, url, account, password.toCharArray()));
 	}
-	
+
 	@Test
 	public void testPullScripts() throws Exception {
 		Map<String, String> scripts = FederationUtils.getScripts(getRegistration());

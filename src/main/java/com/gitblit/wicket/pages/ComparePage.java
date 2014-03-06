@@ -37,25 +37,25 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitLegendPanel;
+import com.gitblit.wicket.panels.DiffStatPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.LogPanel;
 
 /**
  * The compare page allows you to compare two branches, tags, or hash ids.
- * 
+ *
  * @author James Moger
  *
  */
@@ -71,7 +71,7 @@ public class ComparePage extends RepositoryPage {
 		super(params);
 		Repository r = getRepository();
 		RepositoryModel repository = getRepositoryModel();
-		
+
 		if (StringUtils.isEmpty(objectId)) {
 			// seleciton form
 			add(new Label("comparison").setVisible(false));
@@ -79,33 +79,30 @@ public class ComparePage extends RepositoryPage {
 			// active comparison
 			Fragment comparison = new Fragment("comparison", "comparisonFragment", this);
 			add(comparison);
-			
-			DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
-					DiffOutputType.GITBLIT.name()));
 
 			RevCommit fromCommit;
 			RevCommit toCommit;
-			
+
 			String[] parts = objectId.split("\\.\\.");
 			if (parts[0].startsWith("refs/") && parts[1].startsWith("refs/")) {
 				// set the ref models
 				fromRefId.setObject(parts[0]);
 				toRefId.setObject(parts[1]);
-				
+
 				fromCommit = getCommit(r, fromRefId.getObject());
 				toCommit = getCommit(r, toRefId.getObject());
 			} else {
 				// set the id models
 				fromCommitId.setObject(parts[0]);
 				toCommitId.setObject(parts[1]);
-				
+
 				fromCommit = getCommit(r, fromCommitId.getObject());
 				toCommit = getCommit(r, toCommitId.getObject());
 			}
 
 			// prepare submodules
 			getSubmodules(toCommit);
-			
+
 			final String startId = fromCommit.getId().getName();
 			final String endId = toCommit.getId().getName();
 
@@ -113,7 +110,16 @@ public class ComparePage extends RepositoryPage {
 			fromCommitId.setObject(startId);
 			toCommitId.setObject(endId);
 
-			String diff = DiffUtils.getDiff(r, fromCommit, toCommit, diffType);
+			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML);
+
+			// add compare diffstat
+			int insertions = 0;
+			int deletions = 0;
+			for (PathChangeModel pcm : diff.stat.paths) {
+				insertions += pcm.insertions;
+				deletions += pcm.deletions;
+			}
+			comparison.add(new DiffStatPanel("diffStat", insertions, deletions));
 
 			// compare page links
 //			comparison.add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
@@ -123,20 +129,20 @@ public class ComparePage extends RepositoryPage {
 			comparison.add(new LogPanel("commitList", repositoryName, objectId, r, 0, 0, repository.showRemoteBranches));
 
 			// changed paths list
-			List<PathChangeModel> paths = JGitUtils.getFilesInRange(r, fromCommit, toCommit);
-
-			comparison.add(new CommitLegendPanel("commitLegend", paths));
-			ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
+			comparison.add(new CommitLegendPanel("commitLegend", diff.stat.paths));
+			ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(diff.stat.paths);
 			DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 				private static final long serialVersionUID = 1L;
 				int counter;
 
+				@Override
 				public void populateItem(final Item<PathChangeModel> item) {
 					final PathChangeModel entry = item.getModelObject();
 					Label changeType = new Label("changeType", "");
 					WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 					setChangeTypeTooltip(changeType, entry.changeType);
 					item.add(changeType);
+					item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
 
 					boolean hasSubmodule = false;
 					String submodulePath = null;
@@ -165,6 +171,7 @@ public class ComparePage extends RepositoryPage {
 						item.add(new ExternalLink("patch", "").setEnabled(false));
 						item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
 								.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
+						item.add(new ExternalLink("raw", "").setEnabled(false));
 						item.add(new ExternalLink("blame", "").setEnabled(false));
 						item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
 								.newPathParameter(repositoryName, endId, entry.path))
@@ -175,6 +182,9 @@ public class ComparePage extends RepositoryPage {
 								.newBlobDiffParameter(repositoryName, startId, endId, entry.path))
 								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 						item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
+								.newPathParameter(repositoryName, endId, entry.path))
+								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
+						item.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
 								.newPathParameter(repositoryName, endId, entry.path))
 								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 						item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
@@ -190,7 +200,7 @@ public class ComparePage extends RepositoryPage {
 				}
 			};
 			comparison.add(pathsView);
-			comparison.add(new Label("diffText", diff).setEscapeModelStrings(false));
+			comparison.add(new Label("diffText", diff.content).setEscapeModelStrings(false));
 		}
 
 		//
@@ -204,14 +214,14 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromRefId.getObject();
 				String to = ComparePage.this.toRefId.getObject();
-				
+
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 			}
 		};
-		
+
 		List<String> refs = new ArrayList<String>();
 		for (RefModel ref : JGitUtils.getLocalBranches(r, true, -1)) {
 			refs.add(ref.getName());
@@ -227,7 +237,7 @@ public class ComparePage extends RepositoryPage {
 		refsForm.add(new DropDownChoice<String>("fromRef", fromRefId, refs).setEnabled(refs.size() > 0));
 		refsForm.add(new DropDownChoice<String>("toRef", toRefId, refs).setEnabled(refs.size() > 0));
 		add(refsForm);
-		
+
 		//
 		// manual ids form
 		//
@@ -239,23 +249,23 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromCommitId.getObject();
 				String to = ComparePage.this.toCommitId.getObject();
-				
+
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 			}
 		};
-		
+
 		TextField<String> fromIdField = new TextField<String>("fromId", fromCommitId);
 		WicketUtils.setInputPlaceholder(fromIdField, getString("gb.from") + "...");
 		idsForm.add(fromIdField);
-		
+
 		TextField<String> toIdField = new TextField<String>("toId", toCommitId);
 		WicketUtils.setInputPlaceholder(toIdField, getString("gb.to") + "...");
 		idsForm.add(toIdField);
 		add(idsForm);
-		
+
 		r.close();
 	}
 
@@ -263,7 +273,7 @@ public class ComparePage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.compare");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return ComparePage.class;

@@ -27,14 +27,16 @@ import java.util.Set;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Fragment;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
@@ -48,10 +50,12 @@ import com.gitblit.wicket.panels.ActivityPanel;
 /**
  * Activity Page shows a list of recent commits across all visible Gitblit
  * repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
+
+@CacheControl(LastModified.ACTIVITY)
 public class ActivityPage extends RootPage {
 
 	public ActivityPage(PageParameters params) {
@@ -61,14 +65,19 @@ public class ActivityPage extends RootPage {
 		// parameters
 		int daysBack = WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
-			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+			daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		}
 		String objectId = WicketUtils.getObject(params);
 
 		// determine repositories to view and retrieve the activity
 		List<RepositoryModel> models = getRepositories(params);
-		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models, 
-				daysBack, objectId, getTimeZone());
+		List<Activity> recentActivity = ActivityUtils.getRecentActivity(
+				app().settings(),
+				app().repositories(),
+				models,
+				daysBack,
+				objectId,
+				getTimeZone());
 
 		String headerPattern;
 		if (daysBack == 1) {
@@ -86,11 +95,12 @@ public class ActivityPage extends RootPage {
 				headerPattern = getString("gb.recentActivityStats");
 			}
 		}
-		
+
 		if (recentActivity.size() == 0) {
 			// no activity, skip graphs and activity panel
 			add(new Label("subheader", MessageFormat.format(headerPattern,
 					daysBack)));
+			add(new Label("chartsPanel").setVisible(false));
 			add(new Label("activityPanel"));
 		} else {
 			// calculate total commits and total authors
@@ -107,8 +117,13 @@ public class ActivityPage extends RootPage {
 					daysBack, totalCommits, totalAuthors)));
 
 			// create the activity charts
-			GoogleCharts charts = createCharts(recentActivity);
-			add(new HeaderContributor(charts));
+			if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+				GoogleCharts charts = createCharts(recentActivity);
+				add(new HeaderContributor(charts));
+				add(new Fragment("chartsPanel", "chartsFragment", this));
+			} else {
+				add(new Label("chartsPanel").setVisible(false));
+			}
 
 			// add activity panel
 			add(new ActivityPanel("activityPanel", recentActivity));
@@ -126,7 +141,7 @@ public class ActivityPage extends RootPage {
 				ActivityPage.class);
 
 		PageParameters currentParameters = getPageParameters();
-		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+		int daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		if (currentParameters != null && !currentParameters.containsKey("db")) {
 			currentParameters.put("db", daysBack);
 		}
@@ -147,7 +162,7 @@ public class ActivityPage extends RootPage {
 	/**
 	 * Creates the daily activity line chart, the active repositories pie chart,
 	 * and the active authors pie chart
-	 * 
+	 *
 	 * @param recentActivity
 	 * @return
 	 */

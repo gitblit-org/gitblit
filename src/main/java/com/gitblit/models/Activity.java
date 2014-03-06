@@ -35,7 +35,7 @@ import com.gitblit.utils.TimeUtils;
 /**
  * Model class to represent the commit activity across many repositories. This
  * class is used by the Activity page.
- * 
+ *
  * @author James Moger
  */
 public class Activity implements Serializable, Comparable<Activity> {
@@ -45,7 +45,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 	public final Date startDate;
 
 	public final Date endDate;
-	
+
 	private final Set<RepositoryCommit> commits;
 
 	private final Map<String, Metric> authorMetrics;
@@ -56,7 +56,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 
 	/**
 	 * Constructor for one day of activity.
-	 * 
+	 *
 	 * @param date
 	 */
 	public Activity(Date date) {
@@ -65,7 +65,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 
 	/**
 	 * Constructor for specified duration of activity from start date.
-	 * 
+	 *
 	 * @param date
 	 *            the start date of the activity
 	 * @param duration
@@ -79,10 +79,10 @@ public class Activity implements Serializable, Comparable<Activity> {
 		repositoryMetrics = new HashMap<String, Metric>();
 		authorExclusions = new TreeSet<String>();
 	}
-	
+
 	/**
 	 * Exclude the specified authors from the metrics.
-	 * 
+	 *
 	 * @param authors
 	 */
 	public void excludeAuthors(Collection<String> authors) {
@@ -94,7 +94,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 	/**
 	 * Adds a commit to the activity object as long as the commit is not a
 	 * duplicate.
-	 * 
+	 *
 	 * @param repository
 	 * @param branch
 	 * @param commit
@@ -109,7 +109,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 	/**
 	 * Adds a commit to the activity object as long as the commit is not a
 	 * duplicate.
-	 * 
+	 *
 	 * @param repository
 	 * @param branch
 	 * @param commit
@@ -140,7 +140,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 	public int getCommitCount() {
 		return commits.size();
 	}
-	
+
 	public List<RepositoryCommit> getCommits() {
 		List<RepositoryCommit> list = new ArrayList<RepositoryCommit>(commits);
 		Collections.sort(list);

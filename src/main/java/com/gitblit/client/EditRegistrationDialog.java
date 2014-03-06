@@ -42,9 +42,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Dialog to create or edit a Gitblit registration.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class EditRegistrationDialog extends JDialog {
 
@@ -71,6 +71,7 @@ public class EditRegistrationDialog extends JDialog {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 		JRootPane rootPane = new JRootPane();
 		rootPane.registerKeyboardAction(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				setVisible(false);
 			}
@@ -98,6 +99,7 @@ public class EditRegistrationDialog extends JDialog {
 
 		JButton cancel = new JButton(Translation.get("gb.cancel"));
 		cancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				setVisible(false);
 			}
@@ -105,6 +107,7 @@ public class EditRegistrationDialog extends JDialog {
 
 		final JButton save = new JButton(Translation.get(isLogin ? "gb.login" : "gb.save"));
 		save.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (validateFields()) {
 					canceled = false;
@@ -115,6 +118,7 @@ public class EditRegistrationDialog extends JDialog {
 
 		// on enter in password field, save or login
 		passwordField.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				save.doClick();
 			}

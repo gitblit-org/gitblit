@@ -15,10 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +22,7 @@ import org.junit.Test;
 
 import com.gitblit.utils.StringUtils;
 
-public class StringUtilsTest {
+public class StringUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testIsEmpty() throws Exception {
@@ -150,7 +146,7 @@ public class StringUtilsTest {
 		assertFalse(StringUtils.fuzzyMatch("123", "12345"));
 		assertFalse(StringUtils.fuzzyMatch("AbCdEfHIJ", "abc*hhh"));
 	}
-	
+
 	@Test
 	public void testGetRepositoryPath() throws Exception {
 		assertEquals("gitblit/gitblit.git", StringUtils.extractRepositoryPath("git://github.com/gitblit/gitblit.git", new String [] { ".*?://github.com/(.*)" }));

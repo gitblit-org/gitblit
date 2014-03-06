@@ -20,14 +20,14 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 /**
  * Choice renderer for a palette or list of string values.  This renderer
  * controls the id value of each option such that palettes are case insensitive.
- * 
+ *
  * @author James Moger
  *
  */
 public class StringChoiceRenderer extends ChoiceRenderer<String> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public StringChoiceRenderer() {
 		super("", "");
 	}

@@ -41,7 +41,7 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 		public UserCertificateModel(UserModel user) {
 			this.user = user;
 		}
-		
+
 		public void update(Config config) {
 			if (expires == null) {
 				config.unset("user",  user.username, "expires");
@@ -65,7 +65,7 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 		public int compareTo(UserCertificateModel o) {
 			return user.compareTo(o.user);
 		}
-		
+
 		public void revoke(BigInteger serial, RevocationReason reason) {
 			if (revoked == null) {
 				revoked = new ArrayList<String>();
@@ -82,7 +82,7 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 				}
 			}
 		}
-		
+
 		public boolean isRevoked(BigInteger serial) {
 			return isRevoked(serial.toString());
 		}
@@ -99,7 +99,7 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 			}
 			return false;
 		}
-		
+
 		public RevocationReason getRevocationReason(BigInteger serial) {
 			try {
 				String sn = serial + ":";
@@ -114,7 +114,7 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 			}
 			return RevocationReason.unspecified;
 		}
-		
+
 		public CertificateStatus getStatus() {
 			if (expires == null) {
 				return CertificateStatus.unknown;
@@ -140,11 +140,11 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 			}
 			return CertificateStatus.ok;
 		}
-		
+
 		private boolean isExpiring(Date date) {
 			return (date.getTime() - System.currentTimeMillis()) <= TimeUtils.ONEDAY * 30;
 		}
-		
+
 		private boolean isExpired(Date date) {
 			return date.getTime() < System.currentTimeMillis();
 		}

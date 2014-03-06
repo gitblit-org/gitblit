@@ -19,14 +19,15 @@ package com.gitblit.wicket.charting;
 /**
  * This class is a pristine fork of org.wicketstuff.googlecharts.ChartDataEncoding
  * to bring the package-protected convert methods to SecureChart.
- * 
+ *
  * @author Daniel Spiewak
  */
 public enum SecureChartDataEncoding {
 
     SIMPLE("s", "", ",") {
 
-        CharSequence convert(double value, double max) {
+        @Override
+		CharSequence convert(double value, double max) {
             if (value < 0) {
                 return "_";
             }
@@ -42,7 +43,8 @@ public enum SecureChartDataEncoding {
     },
     TEXT("t", ",", "|") {
 
-    	CharSequence convert(double value, double max) {
+    	@Override
+		CharSequence convert(double value, double max) {
             if (value < 0) {
                 value = -1;
             }
@@ -56,7 +58,8 @@ public enum SecureChartDataEncoding {
     },
     EXTENDED("e", "", ",") {
 
-    	CharSequence convert(double value, double max) {
+    	@Override
+		CharSequence convert(double value, double max) {
             if (value < 0) {
                 return "__";
             }

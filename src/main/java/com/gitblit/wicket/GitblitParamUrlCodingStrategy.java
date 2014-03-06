@@ -16,35 +16,43 @@
 package com.gitblit.wicket;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.request.RequestParameters;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
+import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 
 /**
  * Simple subclass of mixed parameter url coding strategy that works around the
  * encoded forward-slash issue that is present in some servlet containers.
- * 
+ *
  * https://issues.apache.org/jira/browse/WICKET-1303
  * http://tomcat.apache.org/security-6.html
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 
+	private final String[] parameterNames;
+
 	private Logger logger = LoggerFactory.getLogger(GitblitParamUrlCodingStrategy.class);
+
+	private IStoredSettings settings;
 
 	/**
 	 * Construct.
-	 * 
+	 *
 	 * @param <C>
 	 * @param mountPath
 	 *            mount path (not empty)
@@ -53,20 +61,26 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 	 * @param parameterNames
 	 *            the parameter names (not null)
 	 */
-	public <C extends Page> GitblitParamUrlCodingStrategy(String mountPath,
+	public <C extends Page> GitblitParamUrlCodingStrategy(
+			IStoredSettings settings,
+			String mountPath,
 			Class<C> bookmarkablePageClass, String[] parameterNames) {
+
 		super(mountPath, bookmarkablePageClass, parameterNames);
+		this.parameterNames = parameterNames;
+		this.settings = settings;
 	}
 
 	/**
 	 * Url encodes a string that is mean for a URL path (e.g., between slashes)
-	 * 
+	 *
 	 * @param string
 	 *            string to be encoded
 	 * @return encoded string
 	 */
+	@Override
 	protected String urlEncodePathComponent(String string) {
-		char altChar = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
+		char altChar = settings.getChar(Keys.web.forwardSlashCharacter, '/');
 		if (altChar != '/') {
 			string = string.replace('/', altChar);
 		}
@@ -76,12 +90,13 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 	/**
 	 * Returns a decoded value of the given value (taken from a URL path
 	 * section)
-	 * 
+	 *
 	 * @param value
 	 * @return Decodes the value
 	 */
+	@Override
 	protected String urlDecodePathComponent(String value) {
-		char altChar = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
+		char altChar = settings.getChar(Keys.web.forwardSlashCharacter, '/');
 		if (altChar != '/') {
 			value = value.replace(altChar, '/');
 		}
@@ -90,7 +105,7 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 
 	/**
 	 * Gets the decoded request target.
-	 * 
+	 *
 	 * @param requestParameters
 	 *            the request parameters
 	 * @return the decoded request target
@@ -105,5 +120,73 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 		final PageParameters parameters = new PageParameters(decodeParameters(parametersFragment,
 				requestParameters.getParameters()));
 		return super.decode(requestParameters);
+	}
+
+	/**
+	 * @see org.apache.wicket.request.target.coding.AbstractRequestTargetUrlCodingStrategy#appendParameters(org.apache.wicket.util.string.AppendingStringBuffer,
+	 *      java.util.Map)
+	 */
+	@Override
+	protected void appendParameters(AppendingStringBuffer url, Map<String, ?> parameters)
+	{
+		if (!url.endsWith("/"))
+		{
+			url.append("/");
+		}
+
+		Set<String> parameterNamesToAdd = new HashSet<String>(parameters.keySet());
+
+		// Find index of last specified parameter
+		boolean foundParameter = false;
+		int lastSpecifiedParameter = parameterNames.length;
+		while (lastSpecifiedParameter != 0 && !foundParameter)
+		{
+			foundParameter = parameters.containsKey(parameterNames[--lastSpecifiedParameter]);
+		}
+
+		if (foundParameter)
+		{
+			for (int i = 0; i <= lastSpecifiedParameter; i++)
+			{
+				String parameterName = parameterNames[i];
+				final Object param = parameters.get(parameterName);
+				String value = param instanceof String[] ? ((String[])param)[0] : ((param == null)
+					? null : param.toString());
+				if (value == null)
+				{
+					value = "";
+				}
+				if (!url.endsWith("/"))
+				{
+					url.append("/");
+				}
+				url.append(urlEncodePathComponent(value));
+				parameterNamesToAdd.remove(parameterName);
+			}
+		}
+
+		if (!parameterNamesToAdd.isEmpty())
+		{
+			boolean first = true;
+			for (String parameterName : parameterNamesToAdd)
+			{
+				final Object param = parameters.get(parameterName);
+				if (param instanceof String[]) {
+					String [] values = (String[]) param;
+					for (String value : values) {
+						url.append(first ? '?' : '&');
+						url.append(urlEncodeQueryComponent(parameterName)).append("=").append(
+								urlEncodeQueryComponent(value));
+						first = false;
+					}
+				} else {
+					url.append(first ? '?' : '&');
+					String value = String.valueOf(param);
+					url.append(urlEncodeQueryComponent(parameterName)).append("=").append(
+						urlEncodeQueryComponent(value));
+				}
+				first = false;
+			}
+		}
 	}
 }

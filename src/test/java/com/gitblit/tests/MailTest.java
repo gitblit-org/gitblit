@@ -15,23 +15,24 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertTrue;
-
 import javax.mail.Message;
 
 import org.junit.Test;
 
 import com.gitblit.FileSettings;
 import com.gitblit.Keys;
-import com.gitblit.MailExecutor;
+import com.gitblit.models.Mailing;
+import com.gitblit.service.MailService;
 
-public class MailTest {
+public class MailTest extends GitblitUnitTest {
 
 	@Test
 	public void testSendMail() throws Exception {
 		FileSettings settings = new FileSettings("mailtest.properties");
-		MailExecutor mail = new MailExecutor(settings);
-		Message message = mail.createMessage(settings.getStrings(Keys.mail.adminAddresses));
+		MailService mail = new MailService(settings);
+		Mailing mailing = Mailing.newPlain();
+		mailing.setRecipients(settings.getStrings(Keys.mail.adminAddresses));
+		Message message = mail.createMessage(mailing);
 		message.setSubject("Test");
 		message.setText("﻿Lägger till andra stycket i ny fil. UTF-8 encoded");
 		mail.queue(message);

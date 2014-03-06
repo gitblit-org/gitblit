@@ -58,6 +58,7 @@ public class JPalette<T> extends JPanel {
 
 		add = new JButton("->");
 		add.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				List<T> move = new ArrayList<T>();
 				if (available.getSelectedRowCount() <= 0) {
@@ -65,7 +66,7 @@ public class JPalette<T> extends JPanel {
 				}
 				for (int row : available.getSelectedRows()) {
 					int modelIndex = available.convertRowIndexToModel(row);
-					T item = (T) availableModel.list.get(modelIndex);
+					T item = availableModel.list.get(modelIndex);
 					move.add(item);
 				}
 				availableModel.list.removeAll(move);
@@ -76,6 +77,7 @@ public class JPalette<T> extends JPanel {
 		});
 		subtract = new JButton("<-");
 		subtract.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				List<T> move = new ArrayList<T>();
 				if (selected.getSelectedRowCount() <= 0) {
@@ -83,7 +85,7 @@ public class JPalette<T> extends JPanel {
 				}
 				for (int row : selected.getSelectedRows()) {
 					int modelIndex = selected.convertRowIndexToModel(row);
-					T item = (T) selectedModel.list.get(modelIndex);
+					T item = selectedModel.list.get(modelIndex);
 					move.add(item);
 				}
 				selectedModel.list.removeAll(move);
@@ -96,6 +98,7 @@ public class JPalette<T> extends JPanel {
 
 		up = new JButton("\u2191");
 		up.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				int row = selected.getSelectedRow();
 				if (row > 0) {
@@ -108,6 +111,7 @@ public class JPalette<T> extends JPanel {
 
 		down = new JButton("\u2193");
 		down.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				int row = selected.getSelectedRow();
 				if (row < selected.getRowCount() - 1) {
@@ -152,7 +156,7 @@ public class JPalette<T> extends JPanel {
 		panel.add(jsp, BorderLayout.CENTER);
 		return panel;
 	}
-	
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
@@ -211,6 +215,7 @@ public class JPalette<T> extends JPanel {
 			return Translation.get("gb.name");
 		}
 
+		@Override
 		public Class<?> getColumnClass(int columnIndex) {
 			return String.class;
 		}

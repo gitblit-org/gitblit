@@ -43,15 +43,15 @@ import com.sun.syndication.io.XmlReader;
 
 /**
  * Utility class for RSS feeds.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SyndicationUtils {
 
 	/**
 	 * Outputs an RSS feed of the list of entries to the outputstream.
-	 * 
+	 *
 	 * @param hostUrl
 	 * @param feedLink
 	 * @param title
@@ -118,7 +118,7 @@ public class SyndicationUtils {
 
 	/**
 	 * Reads a Gitblit RSS feed.
-	 * 
+	 *
 	 * @param url
 	 *            the url of the Gitblit server
 	 * @param repository
@@ -153,7 +153,7 @@ public class SyndicationUtils {
 
 	/**
 	 * Reads a Gitblit RSS search feed.
-	 * 
+	 *
 	 * @param url
 	 *            the url of the Gitblit server
 	 * @param repository
@@ -195,7 +195,7 @@ public class SyndicationUtils {
 
 	/**
 	 * Reads a Gitblit RSS feed.
-	 * 
+	 *
 	 * @param url
 	 *            the url of the Gitblit server
 	 * @param parameters

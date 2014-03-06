@@ -19,9 +19,9 @@ import java.text.MessageFormat;
 
 /**
  * Builds an interactive line chart using the Visualization API.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GoogleLineChart extends GoogleChart {
 
@@ -41,7 +41,7 @@ public class GoogleLineChart extends GoogleChart {
 
 		for (int i = 0; i < values.size(); i++) {
 			ChartValue value = values.get(i);
-			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 0, ''{2}'');", dName, i,
+			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 0, \"{2}\");", dName, i,
 					value.name));
 			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 1, {2,number,0.0});", dName,
 					i, value.value));

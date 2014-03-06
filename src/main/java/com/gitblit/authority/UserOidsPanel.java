@@ -23,9 +23,9 @@ import javax.swing.JTextField;
 import com.gitblit.client.Translation;
 
 public class UserOidsPanel extends JPanel {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private JTextField displayname;
 	private JTextField username;
 	private JTextField emailAddress;
@@ -37,7 +37,7 @@ public class UserOidsPanel extends JPanel {
 
 	public UserOidsPanel() {
 		super();
-		
+
 		displayname = new JTextField(20);
 		username = new JTextField(20);
 		username.setEditable(false);
@@ -47,7 +47,7 @@ public class UserOidsPanel extends JPanel {
 		locality = new JTextField(20);
 		stateProvince = new JTextField(20);
 		countryCode = new JTextField(20);
-				
+
 		setLayout(new GridLayout(0, 1, Utils.MARGIN, Utils.MARGIN));
 		add(Utils.newFieldPanel(Translation.get("gb.displayName"), displayname));
 		add(Utils.newFieldPanel(Translation.get("gb.username") + " (CN)", username));
@@ -58,7 +58,7 @@ public class UserOidsPanel extends JPanel {
 		add(Utils.newFieldPanel(Translation.get("gb.stateProvince") + " (ST)", stateProvince));
 		add(Utils.newFieldPanel(Translation.get("gb.countryCode") + " (C)", countryCode));
 	}
-	
+
 	public void setUserCertificateModel(UserCertificateModel ucm) {
 		setEditable(false);
 		displayname.setText(ucm == null ? "" : ucm.user.getDisplayName());
@@ -70,7 +70,7 @@ public class UserOidsPanel extends JPanel {
 		stateProvince.setText(ucm == null ? "" : ucm.user.stateProvince);
 		countryCode.setText(ucm == null ? "" : ucm.user.countryCode);
 	}
-	
+
 	public void setEditable(boolean editable) {
 		displayname.setEditable(editable);
 //		username.setEditable(editable);
@@ -81,7 +81,7 @@ public class UserOidsPanel extends JPanel {
 		stateProvince.setEditable(editable);
 		countryCode.setEditable(editable);
 	}
-	
+
 	protected void updateUser(UserCertificateModel ucm) {
 		ucm.user.displayName = displayname.getText();
 		ucm.user.username = username.getText();

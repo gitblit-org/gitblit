@@ -69,7 +69,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Dialog to create/edit a repository.
- * 
+ *
  * @author James Moger
  */
 public class EditRepositoryDialog extends JDialog {
@@ -88,15 +88,15 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JTextField descriptionField;
 
-	private JCheckBox useTickets;
+	private JCheckBox acceptNewPatchsets;
 
-	private JCheckBox useDocs;
+	private JCheckBox acceptNewTickets;
+
+	private JCheckBox requireApproval;
 
 	private JCheckBox useIncrementalPushTags;
-	
-	private JCheckBox showRemoteBranches;
 
-	private JCheckBox showReadme;
+	private JCheckBox showRemoteBranches;
 
 	private JCheckBox skipSizeCalculation;
 
@@ -107,11 +107,11 @@ public class EditRepositoryDialog extends JDialog {
 	private JTextField mailingListsField;
 
 	private JComboBox accessRestriction;
-	
+
 	private JRadioButton allowAuthenticated;
-	
+
 	private JRadioButton allowNamed;
-	
+
 	private JCheckBox allowForks;
 
 	private JCheckBox verifyCommitter;
@@ -121,19 +121,19 @@ public class EditRepositoryDialog extends JDialog {
 	private JPalette<String> ownersPalette;
 
 	private JComboBox headRefField;
-	
+
 	private JComboBox gcPeriod;
-	
+
 	private JTextField gcThreshold;
-	
+
 	private JComboBox maxActivityCommits;
-	
+
 	private RegistrantPermissionsPanel usersPalette;
 
 	private JPalette<String> setsPalette;
 
 	private RegistrantPermissionsPanel teamsPalette;
-	
+
 	private JPalette<String> indexedBranchesPalette;
 
 	private JPalette<String> preReceivePalette;
@@ -145,9 +145,9 @@ public class EditRepositoryDialog extends JDialog {
 	private JLabel postReceiveInherited;
 
 	private Set<String> repositoryNames;
-	
+
 	private JPanel customFieldsPanel;
-	
+
 	private List<JTextField> customTextfields;
 
 	public EditRepositoryDialog(int protocolVersion) {
@@ -175,6 +175,7 @@ public class EditRepositoryDialog extends JDialog {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 		JRootPane rootPane = new JRootPane();
 		rootPane.registerKeyboardAction(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				setVisible(false);
 			}
@@ -194,33 +195,33 @@ public class EditRepositoryDialog extends JDialog {
 
 		if (ArrayUtils.isEmpty(anRepository.availableRefs)) {
 			headRefField = new JComboBox();
-			headRefField.setEnabled(false);			
+			headRefField.setEnabled(false);
 		} else {
 			headRefField = new JComboBox(
 					anRepository.availableRefs.toArray());
 			headRefField.setSelectedItem(anRepository.HEAD);
 		}
-		
+
 		Integer []  gcPeriods =  { 1, 2, 3, 4, 5, 7, 10, 14 };
 		gcPeriod = new JComboBox(gcPeriods);
 		gcPeriod.setSelectedItem(anRepository.gcPeriod);
-		
+
 		gcThreshold = new JTextField(8);
 		gcThreshold.setText(anRepository.gcThreshold);
 
 		ownersPalette = new JPalette<String>(true);
 
-		useTickets = new JCheckBox(Translation.get("gb.useTicketsDescription"),
-				anRepository.useTickets);
-		useDocs = new JCheckBox(Translation.get("gb.useDocsDescription"),
-				anRepository.useDocs);
+		acceptNewTickets = new JCheckBox(Translation.get("gb.acceptsNewTicketsDescription"),
+				anRepository.acceptNewTickets);
+		acceptNewPatchsets = new JCheckBox(Translation.get("gb.acceptsNewPatchsetsDescription"),
+				anRepository.acceptNewPatchsets);
+		requireApproval = new JCheckBox(Translation.get("gb.requireApprovalDescription"),
+				anRepository.requireApproval);
 		useIncrementalPushTags = new JCheckBox(Translation.get("gb.useIncrementalPushTagsDescription"),
 				anRepository.useIncrementalPushTags);
 		showRemoteBranches = new JCheckBox(
 				Translation.get("gb.showRemoteBranchesDescription"),
 				anRepository.showRemoteBranches);
-		showReadme = new JCheckBox(Translation.get("gb.showReadmeDescription"),
-				anRepository.showReadme);
 		skipSizeCalculation = new JCheckBox(
 				Translation.get("gb.skipSizeCalculationDescription"),
 				anRepository.skipSizeCalculation);
@@ -250,21 +251,21 @@ public class EditRepositoryDialog extends JDialog {
 				}
 			}
 		});
-		
-		boolean authenticated = anRepository.authorizationControl != null 
+
+		boolean authenticated = anRepository.authorizationControl != null
 				&& AuthorizationControl.AUTHENTICATED.equals(anRepository.authorizationControl);
 		allowAuthenticated = new JRadioButton(Translation.get("gb.allowAuthenticatedDescription"));
 		allowAuthenticated.setSelected(authenticated);
 		allowAuthenticated.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {					
+				if (e.getStateChange() == ItemEvent.SELECTED) {
 					usersPalette.setEnabled(false);
 					teamsPalette.setEnabled(false);
 				}
 			}
 		});
-		
+
 		allowNamed = new JRadioButton(Translation.get("gb.allowNamedDescription"));
 		allowNamed.setSelected(!authenticated);
 		allowNamed.addItemListener(new ItemListener() {
@@ -276,15 +277,15 @@ public class EditRepositoryDialog extends JDialog {
 				}
 			}
 		});
-		
+
 		ButtonGroup group = new ButtonGroup();
 		group.add(allowAuthenticated);
 		group.add(allowNamed);
-		
+
 		JPanel authorizationPanel = new JPanel(new GridLayout(0, 1));
 		authorizationPanel.add(allowAuthenticated);
 		authorizationPanel.add(allowNamed);
-		
+
 		allowForks = new JCheckBox(Translation.get("gb.allowForksDescription"), anRepository.allowForks);
 		verifyCommitter = new JCheckBox(Translation.get("gb.verifyCommitterDescription"), anRepository.verifyCommitter);
 
@@ -309,16 +310,16 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcPeriod"), gcPeriod));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcThreshold"), gcThreshold));
 
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"),
-				useTickets));
-		fieldsPanel
-				.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.acceptsNewTickets"),
+				acceptNewTickets));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.acceptsNewPatchsets"),
+				acceptNewPatchsets));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.requireApproval"),
+				requireApproval));
 		fieldsPanel
 		.add(newFieldPanel(Translation.get("gb.enableIncrementalPushTags"), useIncrementalPushTags));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showRemoteBranches"),
 				showRemoteBranches));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"),
-				showReadme));
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.skipSizeCalculation"),
 						skipSizeCalculation));
@@ -387,7 +388,7 @@ public class EditRepositoryDialog extends JDialog {
 		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
 		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);
 		postReceivePanel.add(postReceiveInherited, BorderLayout.WEST);
-		
+
 		customFieldsPanel = new JPanel();
 		customFieldsPanel.setLayout(new BoxLayout(customFieldsPanel, BoxLayout.Y_AXIS));
 		JScrollPane customFieldsScrollPane = new JScrollPane(customFieldsPanel);
@@ -406,14 +407,15 @@ public class EditRepositoryDialog extends JDialog {
 		}
 		panel.addTab(Translation.get("gb.preReceiveScripts"), preReceivePanel);
 		panel.addTab(Translation.get("gb.postReceiveScripts"), postReceivePanel);
-		
+
 		panel.addTab(Translation.get("gb.customFields"), customFieldsScrollPane);
-		
+
 
 		setupAccessPermissions(anRepository.accessRestriction);
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (validateFields()) {
 					canceled = false;
@@ -424,6 +426,7 @@ public class EditRepositoryDialog extends JDialog {
 
 		JButton cancelButton = new JButton(Translation.get("gb.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				canceled = true;
 				setVisible(false);
@@ -452,7 +455,7 @@ public class EditRepositoryDialog extends JDialog {
 		pack();
 		nameField.requestFocus();
 	}
-	
+
 	private JPanel newFieldPanel(String label, JComponent comp) {
 		return newFieldPanel(label, 150, comp);
 	}
@@ -466,12 +469,12 @@ public class EditRepositoryDialog extends JDialog {
 		panel.add(comp);
 		return panel;
 	}
-	
+
 	private void setupAccessPermissions(AccessRestrictionType art) {
 		if (AccessRestrictionType.NONE.equals(art)) {
 			usersPalette.setEnabled(false);
 			teamsPalette.setEnabled(false);
-			
+
 			allowAuthenticated.setEnabled(false);
 			allowNamed.setEnabled(false);
 			verifyCommitter.setEnabled(false);
@@ -479,7 +482,7 @@ public class EditRepositoryDialog extends JDialog {
 			allowAuthenticated.setEnabled(true);
 			allowNamed.setEnabled(true);
 			verifyCommitter.setEnabled(true);
-			
+
 			if (allowNamed.isSelected()) {
 				usersPalette.setEnabled(true);
 				teamsPalette.setEnabled(true);
@@ -567,15 +570,15 @@ public class EditRepositoryDialog extends JDialog {
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
 		repository.gcThreshold = gcThreshold.getText();
-		repository.useTickets = useTickets.isSelected();
-		repository.useDocs = useDocs.isSelected();
+		repository.acceptNewPatchsets = acceptNewPatchsets.isSelected();
+		repository.acceptNewTickets = acceptNewTickets.isSelected();
+		repository.requireApproval = requireApproval.isSelected();
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
-		repository.showReadme = showReadme.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();
 		repository.skipSummaryMetrics = skipSummaryMetrics.isSelected();
 		repository.maxActivityCommits = (Integer) maxActivityCommits.getSelectedItem();
-		
+
 		repository.isFrozen = isFrozen.isSelected();
 		repository.allowForks = allowForks.isSelected();
 		repository.verifyCommitter = verifyCommitter.isSelected();
@@ -594,7 +597,7 @@ public class EditRepositoryDialog extends JDialog {
 
 		repository.accessRestriction = (AccessRestrictionType) accessRestriction
 				.getSelectedItem();
-		repository.authorizationControl = allowAuthenticated.isSelected() ? 
+		repository.authorizationControl = allowAuthenticated.isSelected() ?
 				AuthorizationControl.AUTHENTICATED : AuthorizationControl.NAMED;
 		repository.federationStrategy = (FederationStrategy) federationStrategy
 				.getSelectedItem();
@@ -602,11 +605,11 @@ public class EditRepositoryDialog extends JDialog {
 		if (repository.federationStrategy.exceeds(FederationStrategy.EXCLUDE)) {
 			repository.federationSets = setsPalette.getSelections();
 		}
-		
+
 		repository.indexedBranches = indexedBranchesPalette.getSelections();
 		repository.preReceiveScripts = preReceivePalette.getSelections();
 		repository.postReceiveScripts = postReceivePalette.getSelections();
-		
+
 		// Custom Fields
 		repository.customFields = new LinkedHashMap<String, String>();
 		if (customTextfields != null) {
@@ -623,7 +626,7 @@ public class EditRepositoryDialog extends JDialog {
 		JOptionPane.showMessageDialog(EditRepositoryDialog.this, message,
 				Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 	public void setAccessRestriction(AccessRestrictionType restriction) {
 		this.accessRestriction.setSelectedItem(restriction);
 		setupAccessPermissions(restriction);
@@ -658,7 +661,7 @@ public class EditRepositoryDialog extends JDialog {
 	public void setFederationSets(List<String> all, List<String> selected) {
 		setsPalette.setObjects(all, selected);
 	}
-	
+
 	public void setIndexedBranches(List<String> all, List<String> selected) {
 		indexedBranchesPalette.setObjects(all, selected);
 	}
@@ -701,11 +704,11 @@ public class EditRepositoryDialog extends JDialog {
 	public List<RegistrantAccessPermission> getTeamAccessPermissions() {
 		return teamsPalette.getPermissions();
 	}
-	
+
 	public void setCustomFields(RepositoryModel repository, Map<String, String> customFields) {
 		customFieldsPanel.removeAll();
 		customTextfields = new ArrayList<JTextField>();
-		
+
 		final Insets insets = new Insets(5, 5, 5, 5);
 		JPanel fields = new JPanel(new GridLayout(0, 1, 0, 5)) {
 
@@ -715,8 +718,8 @@ public class EditRepositoryDialog extends JDialog {
 			public Insets getInsets() {
 				return insets;
 			}
-		};		
-		
+		};
+
 		for (Map.Entry<String, String> entry : customFields.entrySet()) {
 			String field = entry.getKey();
 			String value = "";
@@ -725,14 +728,14 @@ public class EditRepositoryDialog extends JDialog {
 			}
 			JTextField textField = new JTextField(value);
 			textField.setName(field);
-			
+
 			textField.setPreferredSize(new Dimension(450, 26));
-			
+
 			fields.add(newFieldPanel(entry.getValue(), 250, textField));
-			
+
 			customTextfields.add(textField);
 		}
-		JScrollPane jsp = new JScrollPane(fields);		
+		JScrollPane jsp = new JScrollPane(fields);
 		jsp.getVerticalScrollBar().setBlockIncrement(100);
 		jsp.getVerticalScrollBar().setUnitIncrement(100);
 		jsp.setViewportBorder(null);
@@ -743,7 +746,7 @@ public class EditRepositoryDialog extends JDialog {
 	/**
 	 * ListCellRenderer to display descriptive text about the access
 	 * restriction.
-	 * 
+	 *
 	 */
 	private class AccessRestrictionRenderer extends DefaultListCellRenderer {
 
@@ -753,7 +756,7 @@ public class EditRepositoryDialog extends JDialog {
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			
+
 			if (value instanceof AccessRestrictionType) {
 				AccessRestrictionType restriction = (AccessRestrictionType) value;
 				switch (restriction) {

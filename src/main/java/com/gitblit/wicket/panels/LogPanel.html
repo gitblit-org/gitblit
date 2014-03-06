@@ -11,13 +11,29 @@
 	<div class="header"><i class="icon-refresh"></i> <b><span wicket:id="header">[log header]</span></b></div>
 	<table class="pretty">
 		<tbody>
-       		<tr wicket:id="commit">
+			<tr class="hidden-phone hidden-tablet">
+				<td wicket:id="graph" class="graph"><img wicket:id="image"></img></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+       		<tr class="commit" wicket:id="commit">
          		<td class="date" style="width:6em;"><span wicket:id="commitDate">[commit date]</span></td>
          		<td class="hidden-phone author"><span wicket:id="commitAuthor">[commit author]</span></td>
-         		<td class="hidden-phone icon"><img wicket:id="commitIcon" /></td>
-         		<td class="message"><table class="nestedTable"><tr><td><span style="vertical-align:middle;" wicket:id="commitShortMessage">[commit short message]</span></td><td><div style="text-align:right;" wicket:id="commitRefs">[commit refs]</div></td></tr></table></td>
+				<td class="hidden-phone icon"><img wicket:id="commitIcon" /></td>
+         		<td class="message ellipsize">
+         			<table class="nestedTable">
+         				<tr>
+         					<td class="ellipsize"><span style="vertical-align:middle;" wicket:id="commitShortMessage">[commit short message]</span></td>
+         					<td class="hidden-phone"><div style="text-align:right;" wicket:id="commitRefs">[commit refs]</div></td>
+         				</tr>
+         			</table>
+         		</td>
          		<td class="hidden-phone hidden-tablet rightAlign"><span wicket:id="hashLink">[hash link]</span></td>
-         		<td class="hidden-phone hidden-tablet rightAlign">
+         		<td class="hidden-phone hidden-tablet rightAlign" style="white-space: nowrap;">
          			<span class="link">
 						<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
 					</span>

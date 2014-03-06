@@ -35,7 +35,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Constants;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
@@ -43,11 +42,14 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.FilterableProjectList;
 import com.gitblit.wicket.panels.FilterableRepositoryList;
 
+@CacheControl(LastModified.ACTIVITY)
 public class MyDashboardPage extends DashboardPage {
 
 	public MyDashboardPage() {
@@ -68,9 +70,9 @@ public class MyDashboardPage extends DashboardPage {
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
-			String messageSource = GitBlit.getString(Keys.web.loginMessage, "gitblit");
+			String messageSource = app().settings().getString(Keys.web.loginMessage, "gitblit");
 			String message = readMarkdown(messageSource, "login.mkd");
 			Component repositoriesMessage = new Label("repositoriesMessage", message);
 			add(repositoriesMessage.setEscapeModelStrings(false));
@@ -80,7 +82,7 @@ public class MyDashboardPage extends DashboardPage {
 		}
 
 		// Load the markdown welcome message
-		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
+		String messageSource = app().settings().getString(Keys.web.repositoriesMessage, "gitblit");
 		String message = readMarkdown(messageSource, "welcome.mkd");
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
@@ -93,14 +95,18 @@ public class MyDashboardPage extends DashboardPage {
 
 		// parameters
 		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
+		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 		if (daysBack < 1) {
-			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+			daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
+		}
+		if (maxDaysBack > 0 && daysBack > maxDaysBack) {
+			daysBack = maxDaysBack;
 		}
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
-		
-		// build repo lists 
+
+		// build repo lists
 		List<RepositoryModel> starred = new ArrayList<RepositoryModel>();
 		List<RepositoryModel> owned = new ArrayList<RepositoryModel>();
 		List<RepositoryModel> active = new ArrayList<RepositoryModel>();
@@ -109,27 +115,27 @@ public class MyDashboardPage extends DashboardPage {
 			if (model.isUsersPersonalRepository(user.username) || model.isOwner(user.username)) {
 				owned.add(model);
 			}
-			
+
 			if (user.getPreferences().isStarredRepository(model.name)) {
 				starred.add(model);
 			}
-			
+
 			if (model.isShowActivity() && model.lastChange.after(minimumDate)) {
 				active.add(model);
 			}
 		}
-		
+
 		Comparator<RepositoryModel> lastUpdateSort = new Comparator<RepositoryModel>() {
 			@Override
 			public int compare(RepositoryModel o1, RepositoryModel o2) {
 				return o2.lastChange.compareTo(o1.lastChange);
 			}
 		};
-		
+
 		Collections.sort(owned, lastUpdateSort);
 		Collections.sort(starred, lastUpdateSort);
 		Collections.sort(active, lastUpdateSort);
-		
+
 		String activityTitle;
 		Set<RepositoryModel> feed = new HashSet<RepositoryModel>();
 		feed.addAll(starred);
@@ -148,22 +154,22 @@ public class MyDashboardPage extends DashboardPage {
 			// starred and owned repositories
 			activityTitle = getString("gb.starredAndOwned");
 		}
-		
+
 		addActivity(user, feed, activityTitle, daysBack);
-		
+
 		Fragment repositoryTabs;
 		if (UserModel.ANONYMOUS.equals(user)) {
 			repositoryTabs = new Fragment("repositoryTabs", "anonymousTabsFragment", this);
 		} else {
 			repositoryTabs = new Fragment("repositoryTabs", "authenticatedTabsFragment", this);
 		}
-		
+
 		add(repositoryTabs);
-		
+
 		// projects list
-		List<ProjectModel> projects = GitBlit.self().getProjectModels(getRepositoryModels(), false);
+		List<ProjectModel> projects = app().projects().getProjectModels(getRepositoryModels(), false);
 		repositoryTabs.add(new FilterableProjectList("projects", projects));
-		
+
 		// active repository list
 		if (active.isEmpty()) {
 			repositoryTabs.add(new Label("active").setVisible(false));
@@ -172,7 +178,7 @@ public class MyDashboardPage extends DashboardPage {
 			repoList.setTitle(getString("gb.activeRepositories"), "icon-time");
 			repositoryTabs.add(repoList);
 		}
-		
+
 		// starred repository list
 		if (ArrayUtils.isEmpty(starred)) {
 			repositoryTabs.add(new Label("starred").setVisible(false));
@@ -181,7 +187,7 @@ public class MyDashboardPage extends DashboardPage {
 			repoList.setTitle(getString("gb.starredRepositories"), "icon-star");
 			repositoryTabs.add(repoList);
 		}
-		
+
 		// owned repository list
 		if (ArrayUtils.isEmpty(owned)) {
 			repositoryTabs.add(new Label("owned").setVisible(false));
@@ -192,7 +198,7 @@ public class MyDashboardPage extends DashboardPage {
 			repositoryTabs.add(repoList);
 		}
 	}
-	
+
 	private String readMarkdown(String messageSource, String resource) {
 		String message = "";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
@@ -201,7 +207,7 @@ public class MyDashboardPage extends DashboardPage {
 		} else {
 			// Read user-supplied message
 			if (!StringUtils.isEmpty(messageSource)) {
-				File file = GitBlit.getFileOrFolder(messageSource);
+				File file = app().runtime().getFileOrFolder(messageSource);
 				if (file.exists()) {
 					try {
 						FileInputStream fis = new FileInputStream(file);
@@ -232,7 +238,7 @@ public class MyDashboardPage extends DashboardPage {
 		if (!StringUtils.isEmpty(lc)) {
 			if (!StringUtils.isEmpty(cc)) {
 				files.add(base + "_" + lc + "-" + cc + ext);
-				files.add(base + "_" + lc + "_" + cc + ext);
+				files.add(base + "_" + lc + "_" + cc.toUpperCase() + ext);
 			}
 			files.add(base + "_" + lc + ext);
 		}
@@ -261,7 +267,7 @@ public class MyDashboardPage extends DashboardPage {
 					} catch (Exception e) {
 					}
 				}
-			}			
+			}
 		}
 		return MessageFormat.format(getString("gb.failedToReadMessage"), file);
 	}

@@ -25,7 +25,7 @@ import org.eclipse.jgit.transport.ReceiveCommand;
  * Model class to simulate a push for presentation in the push log news feed
  * for a repository that does not have a Gitblit push log.  Commits are grouped
  * by date and may be additionally split by ref.
- * 
+ *
  * @author James Moger
  */
 public class DailyLogEntry extends RefLogEntry implements Serializable {
@@ -45,7 +45,7 @@ public class DailyLogEntry extends RefLogEntry implements Serializable {
 		if (getAuthorCount() == 1) {
 			return getCommits().get(0).getCommitterIdent();
 		}
-		
+
 		return super.getCommitterIdent();
 	}
 
@@ -54,20 +54,21 @@ public class DailyLogEntry extends RefLogEntry implements Serializable {
 		if (getAuthorCount() == 1) {
 			return getCommits().get(0).getAuthorIdent();
 		}
-		
+
 		return super.getAuthorIdent();
 	}
-	
+
 	/**
 	 * Tracks the change type for the specified ref.
-	 * 
+	 *
 	 * @param ref
 	 * @param type
 	 * @param oldId
 	 * @param newId
 	 */
+	@Override
 	public void updateRef(String ref, ReceiveCommand.Type type, String oldId, String newId) {
-		// daily digests are filled from most recent to oldest 
+		// daily digests are filled from most recent to oldest
 		String preservedNewId = getNewId(ref);
 		if (preservedNewId == null) {
 			// no preserved new id, this is newest commit

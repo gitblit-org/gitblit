@@ -24,7 +24,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -33,12 +32,15 @@ import com.gitblit.models.PathModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CompressedDownloadsPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
+@CacheControl(LastModified.BOOT)
 public class TreePage extends RepositoryPage {
 
 	public TreePage(PageParameters params) {
@@ -53,8 +55,6 @@ public class TreePage extends RepositoryPage {
 		// tree page links
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, path)));
-		add(new BookmarkablePageLink<Void>("headLink", TreePage.class,
-				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
 		add(new CompressedDownloadsPanel("compressedLinks", getRequest()
 				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, path));
 
@@ -73,8 +73,8 @@ public class TreePage extends RepositoryPage {
 			paths.add(0, model);
 		}
 
+		final String id = getBestCommitId(commit);
 		final ByteFormat byteFormat = new ByteFormat();
-
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 
 		// changed paths list
@@ -83,6 +83,7 @@ public class TreePage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<PathModel> item) {
 				PathModel entry = item.getModelObject();
 				item.add(new Label("pathPermissions", JGitUtils.getPermissionsFromMode(entry.mode)));
@@ -92,7 +93,7 @@ public class TreePage extends RepositoryPage {
 					item.add(new Label("pathSize", ""));
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class,
 							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, entry.path)));
+									.newPathParameter(repositoryName, id, entry.path)));
 					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
@@ -100,36 +101,36 @@ public class TreePage extends RepositoryPage {
 						item.add(WicketUtils.newImage("pathIcon", "folder_16x16.png"));
 						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
 						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
-										entry.path)));						
+								WicketUtils.newPathParameter(repositoryName, id,
+										entry.path)));
 						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
 								repositoryName, objectId, entry.path));
 
 						item.add(links);
 					} else if (entry.isSubmodule()) {
 						// submodule
-						String submoduleId = entry.objectId;						
+						String submoduleId = entry.objectId;
 						String submodulePath;
 						boolean hasSubmodule = false;
 						SubmoduleModel submodule = getSubmodule(entry.path);
 						submodulePath = submodule.gitblitPath;
 						hasSubmodule = submodule.hasSubmodule;
-						
+
 						item.add(WicketUtils.newImage("pathIcon", "git-orange-16x16.png"));
 						item.add(new Label("pathSize", ""));
-						item.add(new LinkPanel("pathName", "list", entry.name + " @ " + 
+						item.add(new LinkPanel("pathName", "list", entry.name + " @ " +
 								getShortObjectId(submoduleId), TreePage.class,
 								WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
-						
+
 						Fragment links = new Fragment("pathLinks", "submoduleLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", SummaryPage.class,
 								WicketUtils.newRepositoryParameter(submodulePath)).setEnabled(hasSubmodule));
@@ -137,11 +138,11 @@ public class TreePage extends RepositoryPage {
 								WicketUtils.newPathParameter(submodulePath, submoduleId,
 										"")).setEnabled(hasSubmodule));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
 						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
 								submodulePath, submoduleId, "").setEnabled(hasSubmodule));
-						item.add(links);						
+						item.add(links);
 					} else {
 						// blob link
 						String displayPath = entry.name;
@@ -153,21 +154,21 @@ public class TreePage extends RepositoryPage {
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
-								.newPathParameter(repositoryName, entry.commitId, path)));
+								.newPathParameter(repositoryName, id, path)));
 						links.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 						item.add(links);
 					}

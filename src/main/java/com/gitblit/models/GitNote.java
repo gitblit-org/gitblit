@@ -21,9 +21,9 @@ import java.io.Serializable;
  * GitNote is a serializable model class that represents a git note. This class
  * retains an instance of the RefModel which contains the commit in which this
  * git note was created.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitNote implements Serializable {
 

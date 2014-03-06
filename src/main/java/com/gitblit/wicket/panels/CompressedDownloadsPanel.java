@@ -17,31 +17,28 @@ package com.gitblit.wicket.panels;
 
 import java.util.List;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.DownloadZipServlet;
-import com.gitblit.DownloadZipServlet.Format;
-import com.gitblit.GitBlit;
+import com.gitblit.servlet.DownloadZipServlet;
+import com.gitblit.servlet.DownloadZipServlet.Format;
 import com.gitblit.Keys;
 
-public class CompressedDownloadsPanel extends Panel {
+public class CompressedDownloadsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	public CompressedDownloadsPanel(String id, final String baseUrl, final String repositoryName, final String objectId, final String path) {
 		super(id);
-		
-		List<String> types = GitBlit.getStrings(Keys.web.compressedDownloads);
+
+		List<String> types = app().settings().getStrings(Keys.web.compressedDownloads);
 		if (types.isEmpty()) {
 			types.add(Format.zip.name());
 			types.add(Format.gz.name());
 		}
-		
+
 		ListDataProvider<String> refsDp = new ListDataProvider<String>(types);
 		DataView<String> refsView = new DataView<String>("compressedLinks", refsDp) {
 			private static final long serialVersionUID = 1L;
@@ -52,12 +49,12 @@ public class CompressedDownloadsPanel extends Panel {
 				super.onBeforeRender();
 				counter = 0;
 			}
-			
+
 			@Override
 			public void populateItem(final Item<String> item) {
 				String compressionType = item.getModelObject();
 				Format format = Format.fromName(compressionType);
-				
+
 				String href = DownloadZipServlet.asLink(baseUrl, repositoryName,
 						objectId, path, format);
 				LinkPanel c = new LinkPanel("compressedLink", null, format.name(), href);
@@ -72,7 +69,7 @@ public class CompressedDownloadsPanel extends Panel {
 			}
 		};
 		add(refsView);
-		
-		setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true));
+
+		setVisible(app().settings().getBoolean(Keys.web.allowZipDownloads, true));
 	}
 }

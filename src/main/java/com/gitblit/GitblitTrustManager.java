@@ -32,20 +32,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * GitblitTrustManager is a wrapper trust manager that hot-reloads a local file 
+ * GitblitTrustManager is a wrapper trust manager that hot-reloads a local file
  * CRL and enforces client certificate revocations.  The GitblitTrustManager
  * also implements fuzzy revocation enforcement in case of issuer mismatch BUT
  * serial number match.  These rejecions are specially noted in the log.
- *  
+ *
  * @author James Moger
  */
 public class GitblitTrustManager implements X509TrustManager {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GitblitTrustManager.class);
-	
+
 	private final X509TrustManager delegate;
 	private final File caRevocationList;
-	
+
 	private final AtomicLong lastModified = new AtomicLong(0);
 	private volatile X509CRL crl;
 
@@ -77,7 +77,7 @@ public class GitblitTrustManager implements X509TrustManager {
 	public X509Certificate[] getAcceptedIssuers() {
 		return delegate.getAcceptedIssuers();
 	}
-	
+
 	protected boolean isRevoked(X509Certificate cert) {
 		if (!caRevocationList.exists()) {
 			return false;
@@ -88,7 +88,7 @@ public class GitblitTrustManager implements X509TrustManager {
 			// exact cert is revoked
 			return true;
 		}
-		
+
 		X509CRLEntry entry = crl.getRevokedCertificate(cert.getSerialNumber());
 		if (entry != null) {
 			logger.warn("Certificate issuer does not match CRL issuer, but serial number has been revoked!");
@@ -96,10 +96,10 @@ public class GitblitTrustManager implements X509TrustManager {
 			logger.warn("   crl issuer  = " + crl.getIssuerX500Principal());
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	protected synchronized void read() {
 		if (lastModified.get() == caRevocationList.lastModified()) {
 			return;

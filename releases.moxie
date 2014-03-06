@@ -1,10 +1,204 @@
 #
 # ${project.version} release
 #
-r18: {
+r20: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
+    note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled by default."
+    html: ~
+    text: ''
+          This is a major release.
+          
+          The entire core has been refactored to be more modular.  Authentication providers have all been refactored to be simpler.  Both of these were precursor requirements for future planned improvements.  Markup rendering has been improved and expanded to several additional formats.  A repository mirroring service  has been added.  Commit pages now indicate diffstat information. And many bug fixes and smaller features have been introduced.''
+    security:
+	- issue-361: Cookies were not reset on administrative password change of a user account. This allowed accounts with changed passwords to continue authenticating. Cookies are now reset on password changes, they are validated on each page request, AND they will now expire 7 days after generation.
+    fixes:
+	- Fixed incorrect tagger attribution in the dashboard (issue-276)
+	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
+	- Fixed injection of unnecessary explicit CLONE permissions for a fork when users or teams already had implied regex permissions (issue-320)
+	- Bind LDAP connection after establishing TLS initialization (issue-343)
+	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
+	- Invalidate all cached repository data on "clear cache" (issue-346)
+	- Fix chart failures when an apostrophe is in a user display name (issue-350, pr-128)
+	- Fix exception in create repository when not selecting a garbage collection period (issue-366)
+	- Stop setting admin permission based on undocumented Redmine REST API behavior (issue-368)
+	- Fix compage page failure when a submodule is changed in the commit range (issue-375)
+	- Fix support url decoding with non-ascii characters (pr-136)
+	- Fix potential NPE on removing uncached repository from cache
+	- Ignore the default contents of .git/description file
+	- Fix error on generating activity page when there is no activity
+	- Fix raw page content type of binaries when running behind a reverse proxy
+	- Fix author search links from compare pages
+    changes:
+	- Gitblit now rejects pushes to identified mirror repositories (issue-5)
+	- Personal repository prefix (~) is now configurable (issue-265)
+	- Refactored user services and separated authentication into providers (issue-281)
+	- Reversed line links in blob view (issue-309)
+	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-310)
+	- Do not log passwords on failed authentication attempts (issue-316)
+	- LDAP synchronization is now scheduled rather than on-demand (issue-336)
+	- Show displayname and username in palettes (issue-364)
+	- Updated default binary and Lucene ignore extensions
+	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
+	- Removed internal Gitblit ref exclusions in the upload pack
+	- Removed "show readme" setting in favor of automatic detection
+	- README files are not shown on the summary page by default, this can be restored with web.summaryShowReadme
+	- Support plain text, markdown, confluence, mediawiki, textile, tracwiki, or twiki "readme" files
+	- Determine best commit id (e.g. "master") for the tree and docs pages and use that in links
+	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.	
+	- Removed docs indicator on the repositories page
+	- Removed the repository setting to enable Markdown document enumeration, this is now automatic and expanded
+	- Retrieve LDAP groups with dereferencing aliases (pr-122)
+	- Revised committer verification to require a matching displayname or account name AND the email address
+	- Serve repositories on both /r and /git, displaying /r because it is shorter
+	- Eliminate HEAD from the blob, blame, and tree pages. That assumed a resource was available in HEAD and it may not be.
+	- Eliminate Gravatar profile linking.
+    additions:
+	- Added color modes for the blame page (issue-2)
+	- Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
+	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
+	- Added option to render Markdown commit messages (issue-203)
+	- Added Ticket tracker and Patchset collaboration feature (issue-215) 
+	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
+	- Set Link: <url>; rel="canonical" http header for SEO (issue-304)
+	- Added raw links to the commit, commitdiff, and compare pages (issue-319)
+	- Support intradocument linking in Markdown content using [[WikiLinks]] syntax (issue-324)
+	- Support Markdown image links relative to the repository root (issue-324)
+	- Added filesystem write permission check (issue-345)
+	- Added GO launch parameter for redirecting logging to a rolling, daily log file (issue-348)
+	- Added settings to Windows authentication provider to permit/prohibit BUILTIN\Administrators from being Gitblit Admins (issue-354)
+	- Added canonical url setting for email notifications and web display
+	- Support rendering confluence, mediawiki, textile, tracwiki, and twiki markup documents
+	- Added setting to globally disable anonymous pushes in the receive pack
+	- Added a normalized diffstat display to the commit, commitdiff, and compare pages
+	- Added GO setting to automatically redirect all http requests to the secure https connector
+	- Automatically display common repository root documents as tabs on the docs page
+	- Support bugtraq configuration in collaboration with Syntevo,  the regex.* config keys are now DEPRECATED
+	- Added FishEye hook script (pr-137)
+	- Added Redmine Fetch hook script (issue-359)
+	- Added Subgit hook contributed by TMate Software
+	- Added function to retain a user account but prohibit authentication. This is an alternative to deleting a user account.
+	- Added setting to hide the top-level navigation header to facilitate embedding Gitblit in something else.
+    dependencyChanges:
+	- updated to Jetty 8.1.13
+	- updated to JGit 3.3.0
+	- updated to Lucene 4.6.0
+	- updated to BouncyCastle 1.49
+	- replaced MarkdownPapers with pegdown 1.4.2
+	- added Dagger 1.1.0
+	- added Eclipse WikiText libraries for processing confluence, mediawiki, textile, tracwiki, and twiki
+	- added FontAwesome 4.0.3
+	- added Jedis 2.3.1
+    settings:
+    - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
+    - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }
+	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
+	- { name: 'git.enableMirroring', defaultValue: 'false' }
+	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
+	- { name: 'git.userRepositoryPrefix', defaultValue: '~' }
+	- { name: 'realm.authenticationProviders', defaultValue: ' ' }
+	- { name: 'realm.ldap.groupEmptyMemberPattern', defaultValue: '(&(objectClass=group)(!(member=*)))' }
+	- { name: 'realm.ldap.synchronize', defaultValue: 'false' }
+	- { name: 'realm.ldap.syncPeriod', defaultValue: '5 MINUTES' }
+	- { name: 'realm.ldap.removeDeletedUsers', defaultValue: 'true' }
+	- { name: 'realm.windows.permitBuiltInAdministrators', defaultValue: 'true' }
+	- { name: 'web.canonicalUrl', defaultValue: ' ' }
+	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
+	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
+	- { name: 'web.hideHeader', defaultValue: 'false' }
+	- { name: 'web.showBranchGraph', defaultValue: 'true' }
+	- { name: 'web.summaryShowReadme', defaultValue: 'false' }
+	- { name: 'server.redirectToHttpsPort', defaultValue: 'false' }
+	- { name: 'tickets.service', defaultValue: ' ' }
+	- { name: 'tickets.acceptNewTickets', defaultValue: 'true' }
+	- { name: 'tickets.acceptNewPatchsets', defaultValue: 'true' }
+	- { name: 'tickets.requireApproval', defaultValue: 'false' }
+    contributors:
+	- James Moger
+	- Robin Rosenberg
+	- Klaus Nuber
+	- Florian Zschocke
+	- Bret Ikehara
+	- Chad Horohoe
+	- Domingo Oropeza
+	- Chris Graham
+	- Guenter Dressel
+	- fpeters.fae
+	- David Ostrovsky
+	- Alex Lewis
+	- Marc Strapetz
+	- Benjamin Asbach
+	- Alfred Schmid
+	- Gareth Collins
+	- Martijn van der Kleijn
+	- Berke Viktor
+	- Vitaly Litvak
+	- Matthias Cullman
+	- Eduardo Guervós Narvaez
+	- Stardrad Yin
+	- Markus Foempe
+	- Nasrollah Kavian
+	- M. Holmquist
+	- Stephan Krull
+	- Duncan Jauncey
+	- Rhys Evans
+	- Michael Wowro
+	- I. Tagliani
+	- Rick Sladkey
+	- Matthias Cullman
+	- Johann Fischer
+	- Tamás Papp
+}
+
+#
+# 1.3.2 release
+#
+r19: {
+    title: Gitblit 1.3.2 released
+    id: 1.3.2
+    date: 2013-08-22
+    note: ~
+    html: ~
+    text: ~
+    security: ~
+    fixes:
+    - Fixed Gitblit Authority startup failures when using alternate user services (issue-280)
+    - Manually redirect after branch deletion (issue 282)
+    - Simplify when repository size is calculated to ensure we have one IF we want one (issue-295)
+    - Fixed anonymous LDAP connections (issue-297)
+    - Improved branch deletion-reflog interaction
+    - Encode page url parameters as UTF-8
+    - Encode filename for binary files on RawPage according to browser
+    - Added pptx extension for tree page icon lookup
+    - Fixed project links on dashboard page when web.mountParameters=false
+    changes: ~
+    additions:
+    - Add setting for maximum number of days of activity to that may be requested
+    - Added HtpasswdUserService to authenticate users against an htpasswd file
+    - Automatically maintain the .git/description file used by some other tooling
+    dependencyChanges:
+    - Added commons-codec 1.7
+    contributors:
+    - github/guriguri
+    - Doug Ayers
+    - Ori Livneh
+    - Florian Zschocke
+    - Tito Nobre
+    - Hugo Questroy
+    settings:
+    - { name: 'web.activityDurationMaximum', defaultValue: 30 }
+    - { name: 'realm.htpasswd.userFile', defaultValue: '${baseFolder}/htpasswd' }
+    - { name: 'realm.htpasswd.overrideLocalAuthentication', defaultValue: 'false' }
+}
+
+#
+# 1.3.1 release
+#
+r18: {
+    title: Gitblit 1.3.1 released
+    id: 1.3.1
+    date: 2013-07-24
     note: ''
           If you have forked repositories and your are upgrading from 1.2.x to 1.3.x, please DO NOT RELOCATE your repositories folder when running 1.3.x the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
           ''
@@ -13,19 +207,49 @@ r18: {
     security: ~
     fixes:
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
+	- Fixed incorrect tagger in the dashboard pages (issue-276)
+	- Automatically decode %7E in repository names from git clients that encode ~ (issue-278)
+	- Fixed missing Keys class in WAR and Express builds
 	- Fixed missing model class dependencies in Gitblit Manager build
-	- Fix for IE10 compatability mode
+	- Fix for IE10 compatibility mode
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
 	- Fixed bug with adding new local users with external authentication
-    changes:
-	- updated Chinese translation	
-    additions: ~
-    dependencyChanges: ~
+	- Fixed missing clone url on the empty repository page
+	- Fixed Ubuntu service script for LSB compliance
+	- Inserted "sleep 5" in Ubuntu & Centos bash script for service restart
+    changes:    
+	- Use trash icon in Gitblit Reflog for branch and tag deletion
+	- Update Gitblit Reflog on branch deletion from web UI
+	- Updated Chinese translation
+	- Updated Dutch translation
+	- Updated Spanish translation
+	- Updated Korean translation
+	- Updated Brazilian Portuguese translation
+    additions:
+	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages (issue-274)
+	- Added a GET_USER request type for the RPC mechanism (issue-275)
+	- Added PAMUserService to authenticate against a local Linux/Unix/MacOSX server
+    dependencyChanges:
+    - Added libpam4j 1.7
+	settings:
+	- { name: 'web.pageCacheExpires', defaultValue: 0 }
+	- { name: 'realm.pam.backingUserService', defaultValue: 'users.conf' }
+	- { name: 'realm.pam.serviceName', defaultValue: 'system-auth' }
     contributors:
 	- Rainer Alföldi 
 	- Liyu Wang
+	- Jeroen Baten
 	- James Moger
 	- Stardrad Yin
+	- Chad Horohoe
+	- Eduardo Guervós Narvaez
+	- Dongsu, KIM
+	- Gareth Collins
+	- Rafael Cavazin
+	- Tamás Papp
+	- Florian Zschocke
+	- Amélie Benoit
+	- Gustavo Henrique
 }
 
 #
@@ -258,8 +482,8 @@ r16: {
     contributors:
 	- James Moger
     - github/mystygage
-    - github/ds5apn
-    - github/kwoot
+    - Dongsu, KIM
+    - Jeroen Baten
     - github/inaiat
 }
 
@@ -904,6 +1128,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r18
-release: &r17
-releases: &r[1..17]
+snapshot: &r20
+release: &r19
+releases: &r[1..19]

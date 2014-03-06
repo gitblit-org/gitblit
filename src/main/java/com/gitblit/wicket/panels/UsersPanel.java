@@ -26,7 +26,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -40,11 +39,10 @@ public class UsersPanel extends BasePanel {
 		super(wicketId);
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
-		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class)
-				.setVisible(GitBlit.self().supportsAddUser()));
+		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
-		final List<UserModel> users = GitBlit.self().getAllUsers();
+		final List<UserModel> users = app().users().getAllUsers();
 		DataView<UserModel> usersView = new DataView<UserModel>("userRow",
 				new ListDataProvider<UserModel>(users)) {
 			private static final long serialVersionUID = 1L;
@@ -56,17 +54,19 @@ public class UsersPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<UserModel> item) {
 				final UserModel entry = item.getModelObject();
-				LinkPanel editLink = new LinkPanel("username", "list", entry.username,
+				String css = "list" + (entry.disabled ? "-strikethrough":"");
+				LinkPanel editLink = new LinkPanel("username", css, entry.username,
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
 				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 				item.add(editLink);
-				
+
 				if (StringUtils.isEmpty(entry.displayName)) {
 					item.add(new Label("displayName").setVisible(false));
 				} else {
-					editLink = new LinkPanel("displayName", "list", entry.getDisplayName(),
+					editLink = new LinkPanel("displayName", css, entry.getDisplayName(),
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
 					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 					item.add(editLink);
@@ -75,7 +75,7 @@ public class UsersPanel extends BasePanel {
 				if (StringUtils.isEmpty(entry.emailAddress)) {
 					item.add(new Label("emailAddress").setVisible(false));
 				} else {
-					editLink = new LinkPanel("emailAddress", "list", entry.emailAddress,
+					editLink = new LinkPanel("emailAddress", css, entry.emailAddress,
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
 					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 					item.add(editLink);
@@ -94,7 +94,7 @@ public class UsersPanel extends BasePanel {
 
 					@Override
 					public void onClick() {
-						if (GitBlit.self().deleteUser(entry.username)) {
+						if (app().users().deleteUser(entry.username)) {
 							users.remove(entry);
 							info(MessageFormat.format(getString("gb.userDeleted"), entry.username));
 						} else {

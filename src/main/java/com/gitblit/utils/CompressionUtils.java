@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Collection of static methods for retrieving information from a repository.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class CompressionUtils {
 
@@ -53,7 +53,7 @@ public class CompressionUtils {
 
 	/**
 	 * Log an error message and exception.
-	 * 
+	 *
 	 * @param t
 	 * @param repository
 	 *            if repository is not null it MUST be the {0} parameter in the
@@ -77,7 +77,7 @@ public class CompressionUtils {
 	/**
 	 * Zips the contents of the tree at the (optionally) specified revision and
 	 * the (optionally) specified basepath to the supplied outputstream.
-	 * 
+	 *
 	 * @param repository
 	 * @param basePath
 	 *            if unspecified, entire repository is assumed.
@@ -137,11 +137,11 @@ public class CompressionUtils {
 		}
 		return success;
 	}
-	
+
 	/**
 	 * tar the contents of the tree at the (optionally) specified revision and
 	 * the (optionally) specified basepath to the supplied outputstream.
-	 * 
+	 *
 	 * @param repository
 	 * @param basePath
 	 *            if unspecified, entire repository is assumed.
@@ -155,11 +155,11 @@ public class CompressionUtils {
 			OutputStream os) {
 		return tar(null, repository, basePath, objectId, os);
 	}
-	
+
 	/**
 	 * tar.gz the contents of the tree at the (optionally) specified revision and
 	 * the (optionally) specified basepath to the supplied outputstream.
-	 * 
+	 *
 	 * @param repository
 	 * @param basePath
 	 *            if unspecified, entire repository is assumed.
@@ -173,11 +173,11 @@ public class CompressionUtils {
 			OutputStream os) {
 		return tar(CompressorStreamFactory.GZIP, repository, basePath, objectId, os);
 	}
-	
+
 	/**
 	 * tar.xz the contents of the tree at the (optionally) specified revision and
 	 * the (optionally) specified basepath to the supplied outputstream.
-	 * 
+	 *
 	 * @param repository
 	 * @param basePath
 	 *            if unspecified, entire repository is assumed.
@@ -191,11 +191,11 @@ public class CompressionUtils {
 			OutputStream os) {
 		return tar(CompressorStreamFactory.XZ, repository, basePath, objectId, os);
 	}
-	
+
 	/**
 	 * tar.bzip2 the contents of the tree at the (optionally) specified revision and
 	 * the (optionally) specified basepath to the supplied outputstream.
-	 * 
+	 *
 	 * @param repository
 	 * @param basePath
 	 *            if unspecified, entire repository is assumed.
@@ -207,15 +207,15 @@ public class CompressionUtils {
 	 */
 	public static boolean bzip2(Repository repository, String basePath, String objectId,
 			OutputStream os) {
-		
+
 		return tar(CompressorStreamFactory.BZIP2, repository, basePath, objectId, os);
 	}
-	
+
 	/**
 	 * Compresses/archives the contents of the tree at the (optionally)
 	 * specified revision and the (optionally) specified basepath to the
 	 * supplied outputstream.
-	 * 
+	 *
 	 * @param algorithm
 	 *            compression algorithm for tar (optional)
 	 * @param repository
@@ -233,7 +233,7 @@ public class CompressionUtils {
 		if (commit == null) {
 			return false;
 		}
-		
+
 		OutputStream cos = os;
 		if (!StringUtils.isEmpty(algorithm)) {
 			try {
@@ -264,7 +264,7 @@ public class CompressionUtils {
 					continue;
 				}
 				tw.getObjectId(id, 0);
-				
+
 				ObjectLoader loader = repository.open(id);
 				if (FileMode.SYMLINK == mode) {
 					TarArchiveEntry entry = new TarArchiveEntry(tw.getPathString(),TarArchiveEntry.LF_SYMLINK);
@@ -279,7 +279,7 @@ public class CompressionUtils {
 					entry.setMode(mode.getBits());
 					entry.setModTime(modified);
 					entry.setSize(loader.getSize());
-					tos.putArchiveEntry(entry);					
+					tos.putArchiveEntry(entry);
 					loader.copyTo(tos);
 					tos.closeArchiveEntry();
 				}

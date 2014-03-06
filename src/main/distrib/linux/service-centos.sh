@@ -9,6 +9,7 @@ GITBLIT_PATH=/opt/gitblit
 GITBLIT_BASE_FOLDER=/opt/gitblit/data
 GITBLIT_HTTP_PORT=0
 GITBLIT_HTTPS_PORT=8443
+GITBLIT_LOG=/var/log/gitblit.log
 source ${GITBLIT_PATH}/java-proxy-config.sh
 JAVA="java -server -Xmx1024M ${JAVA_PROXY_CONFIG} -Djava.awt.headless=true -jar"
 
@@ -20,7 +21,7 @@ case "$1" in
       then
       echo $"Starting gitblit server"
       cd $GITBLIT_PATH
-      $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER > /dev/null &
+      $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER > $GITBLIT_LOG 2>&1 &
       echo "."
       exit $RETVAL
     fi
@@ -39,6 +40,7 @@ case "$1" in
   
   force-reload|restart)
       $0 stop
+      sleep 5
       $0 start
   ;;
 

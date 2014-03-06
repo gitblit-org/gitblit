@@ -500,9 +500,9 @@ mailWriter.baseCommitDiffUrl = baseCommitDiffUrl
 mailWriter.forwardSlashChar = forwardSlashChar
 mailWriter.commands = commands
 mailWriter.url = url
-mailWriter.mountParameters = GitBlit.getBoolean(Keys.web.mountParameters, true)
-mailWriter.includeGravatar = GitBlit.getBoolean(Keys.web.allowGravatar, true)
-mailWriter.shortCommitIdLength = GitBlit.getInteger(Keys.web.shortCommitIdLength, 8)
+mailWriter.mountParameters = gitblit.getBoolean(Keys.web.mountParameters, true)
+mailWriter.includeGravatar = gitblit.getBoolean(Keys.web.allowGravatar, true)
+mailWriter.shortCommitIdLength = gitblit.getInteger(Keys.web.shortCommitIdLength, 8)
 
 def content = mailWriter.write()
 

@@ -28,7 +28,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.PersonIdent;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
@@ -46,7 +45,7 @@ import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ProjectRepositoryPanel;
 
 public class UserPage extends RootPage {
-	
+
 	List<ProjectModel> projectModels = new ArrayList<ProjectModel>();
 
 	public UserPage() {
@@ -67,7 +66,7 @@ public class UserPage extends RootPage {
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
 			authenticationError("Please login");
 			return;
@@ -78,28 +77,28 @@ public class UserPage extends RootPage {
 			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
 
-		UserModel user = GitBlit.self().getUserModel(userName);
+		UserModel user = app().users().getUserModel(userName);
 		if (user == null) {
 			// construct a temporary user model
 			user = new UserModel(userName);
 		}
-		
-		String projectName = "~" + userName;
-		
-		ProjectModel project = GitBlit.self().getProjectModel(projectName);
+
+		String projectName = user.getPersonalPath();
+
+		ProjectModel project = app().projects().getProjectModel(projectName);
 		if (project == null) {
 			project = new ProjectModel(projectName);
 		}
-		
+
 		add(new Label("userDisplayName", user.getDisplayName()));
 		add(new Label("userUsername", user.username));
 		LinkPanel email = new LinkPanel("userEmail", null, user.emailAddress, "mailto:#");
 		email.setRenderBodyOnly(true);
-		add(email.setVisible(GitBlit.getBoolean(Keys.web.showEmailAddresses, true) && !StringUtils.isEmpty(user.emailAddress)));
-		
+		add(email.setVisible(app().settings().getBoolean(Keys.web.showEmailAddresses, true) && !StringUtils.isEmpty(user.emailAddress)));
+
 		PersonIdent person = new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.getDisplayName() : user.emailAddress);
 		add(new GravatarImage("gravatar", person, 210));
-		
+
 		UserModel sessionUser = GitBlitWebSession.get().getUser();
 		if (sessionUser != null && user.canCreate() && sessionUser.equals(user)) {
 			// user can create personal repositories
@@ -107,9 +106,9 @@ public class UserPage extends RootPage {
 		} else {
 			add(new Label("newRepository").setVisible(false));
 		}
-		
+
 		List<RepositoryModel> repositories = getRepositories(params);
-		
+
 		Collections.sort(repositories, new Comparator<RepositoryModel>() {
 			@Override
 			public int compare(RepositoryModel o1, RepositoryModel o2) {
@@ -122,10 +121,11 @@ public class UserPage extends RootPage {
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repositoryList", dp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
-				
-				ProjectRepositoryPanel row = new ProjectRepositoryPanel("repository", 
+
+				ProjectRepositoryPanel row = new ProjectRepositoryPanel("repository",
 						getLocalizer(), this, showAdmin, entry, getAccessRestrictions());
 				item.add(row);
 			}

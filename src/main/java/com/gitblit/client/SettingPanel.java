@@ -33,7 +33,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * This panel displays the metadata for a particular setting.
- * 
+ *
  * @author James Moger
  */
 public class SettingPanel extends JPanel {

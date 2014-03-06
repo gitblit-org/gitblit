@@ -6,10 +6,35 @@
 
 <body>
 <wicket:extend>
-	
-	<!-- header -->
-	<div style="margin-top:5px;" class="header"><i class="icon-book" style="vertical-align: middle;"></i> <b><span wicket:id="header">[header]</span></b></div>
-	
+
+<div class="docs" wicket:id="docs"></div>
+
+<wicket:fragment wicket:id="tabsFragment">
+	<ul class="nav nav-tabs">
+		<li wicket:id="tabTitle">
+			<a data-toggle="tab" wicket:id="link"><span wicket:id="label">[label]</span></a>
+		</li>
+		<li><a data-toggle="tab" href="#pages"><wicket:message key="gb.pages">[pages]</wicket:message></a></li>
+	</ul>
+	<div class="tab-content">
+		<div wicket:id="tabContent" class="tab-pane">
+			<!-- doc nav links -->	
+			<div style="float: right;" class="docnav">
+				<a wicket:id="blameLink"><wicket:message key="gb.blame"></wicket:message></a>  | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a>
+			</div>
+			<div class="content" wicket:id="content"></div>
+		</div>
+		<div id="pages" class="tab-pane">
+			<div style="padding-top: 5px;" wicket:id="documents"></div>
+		</div>
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="noIndexFragment">
+	<div wicket:id="documents"></div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="documentsFragment">
 	<!-- documents -->	
 	<table style="width:100%" class="pretty">
 		<tr wicket:id="document">
@@ -22,7 +47,8 @@
 				</span>	
 			</td>
 		</tr>
-	</table>	
+	</table>
+</wicket:fragment>
 </wicket:extend>	
 </body>
 </html>

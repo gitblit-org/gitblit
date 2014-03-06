@@ -22,10 +22,12 @@
 		review the defaults for any new settings.  Settings are always versioned
 		with a SINCE x.y.z attribute and also noted in the release changelog.
 		-->
-	<context-param>
-		<param-name>baseFolder</param-name>
-		<param-value>${contextFolder}/WEB-INF/data</param-value>
-	</context-param>
+	<env-entry>
+		<description>The base folder is used to specify the root location of your Gitblit data.</description>
+		<env-entry-name>baseFolder</env-entry-name>
+		<env-entry-type>java.lang.String</env-entry-type>
+		<env-entry-value>${contextFolder}/WEB-INF/data</env-entry-value>
+	</env-entry>
 	
 	<!-- Gitblit Displayname -->
 	<display-name>
@@ -34,9 +36,10 @@
 
 	<!-- PARAMS --> 
 	 
-	<!-- Gitblit Context Listener --><!-- STRIP	 
+	 
+<!-- Gitblit Context Listener --><!-- STRIP	 
 	<listener>
- 		<listener-class>com.gitblit.GitBlit</listener-class>
+ 		<listener-class>com.gitblit.servlet.GitblitContext</listener-class>
  	</listener>STRIP --> 	
 	
 	
@@ -47,11 +50,15 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>GitServlet</servlet-name>
-		<servlet-class>com.gitblit.git.GitServlet</servlet-class>
+		<servlet-class>com.gitblit.servlet.GitServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>GitServlet</servlet-name>		
 		<url-pattern>/git/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>GitServlet</servlet-name>		
+		<url-pattern>/r/*</url-pattern>
 	</servlet-mapping>
 
 	
@@ -61,7 +68,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>SparkleShareInviteServlet</servlet-name>
-		<servlet-class>com.gitblit.SparkleShareInviteServlet</servlet-class>
+		<servlet-class>com.gitblit.servlet.SparkleShareInviteServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>SparkleShareInviteServlet</servlet-name>		
@@ -76,7 +83,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>SyndicationServlet</servlet-name>
-		<servlet-class>com.gitblit.SyndicationServlet</servlet-class>		
+		<servlet-class>com.gitblit.servlet.SyndicationServlet</servlet-class>		
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>SyndicationServlet</servlet-name>
@@ -91,7 +98,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>ZipServlet</servlet-name>
-		<servlet-class>com.gitblit.DownloadZipServlet</servlet-class>		
+		<servlet-class>com.gitblit.servlet.DownloadZipServlet</servlet-class>		
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ZipServlet</servlet-name>
@@ -105,7 +112,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>FederationServlet</servlet-name>
-		<servlet-class>com.gitblit.FederationServlet</servlet-class>		
+		<servlet-class>com.gitblit.servlet.FederationServlet</servlet-class>		
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FederationServlet</servlet-name>
@@ -119,7 +126,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>RpcServlet</servlet-name>
-		<servlet-class>com.gitblit.RpcServlet</servlet-class>		
+		<servlet-class>com.gitblit.servlet.RpcServlet</servlet-class>		
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>RpcServlet</servlet-name>
@@ -134,7 +141,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>PagesServlet</servlet-name>
-		<servlet-class>com.gitblit.PagesServlet</servlet-class>
+		<servlet-class>com.gitblit.servlet.PagesServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>PagesServlet</servlet-name>		
@@ -147,7 +154,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>LogoServlet</servlet-name>
-		<servlet-class>com.gitblit.LogoServlet</servlet-class>
+		<servlet-class>com.gitblit.servlet.LogoServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>LogoServlet</servlet-name>		
@@ -155,12 +162,37 @@
 	</servlet-mapping>
 
 
+	<!-- PT Servlet
+		 <url-pattern> MUST match: 
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>PtServlet</servlet-name>
+		<servlet-class>com.gitblit.servlet.PtServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PtServlet</servlet-name>		
+		<url-pattern>/pt</url-pattern>
+	</servlet-mapping>
+
+
+	<!-- Branch Graph Servlet
+		 <url-pattern> MUST match: 
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>BranchGraphServlet</servlet-name>
+		<servlet-class>com.gitblit.servlet.BranchGraphServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BranchGraphServlet</servlet-name>		
+		<url-pattern>/graph/*</url-pattern>
+	</servlet-mapping>
+
 	<!-- Robots.txt Servlet
 		 <url-pattern> MUST match: 
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>RobotsTxtServlet</servlet-name>
-		<servlet-class>com.gitblit.RobotsTxtServlet</servlet-class>
+		<servlet-class>com.gitblit.servlet.RobotsTxtServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>RobotsTxtServlet</servlet-name>		
@@ -175,11 +207,15 @@
 			* Wicket Filter ignorePaths parameter -->
 	<filter>
 		<filter-name>GitFilter</filter-name>
-		<filter-class>com.gitblit.GitFilter</filter-class>
+		<filter-class>com.gitblit.servlet.GitFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>GitFilter</filter-name>
 		<url-pattern>/git/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>GitFilter</filter-name>
+		<url-pattern>/r/*</url-pattern>
 	</filter-mapping>
 	
 	
@@ -190,7 +226,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<filter>
 		<filter-name>SyndicationFilter</filter-name>
-		<filter-class>com.gitblit.SyndicationFilter</filter-class>
+		<filter-class>com.gitblit.servlet.SyndicationFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>SyndicationFilter</filter-name>
@@ -205,7 +241,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<filter>
 		<filter-name>ZipFilter</filter-name>
-		<filter-class>com.gitblit.DownloadZipFilter</filter-class>
+		<filter-class>com.gitblit.servlet.DownloadZipFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>ZipFilter</filter-name>
@@ -220,7 +256,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<filter>
 		<filter-name>RpcFilter</filter-name>
-		<filter-class>com.gitblit.RpcFilter</filter-class>
+		<filter-class>com.gitblit.servlet.RpcFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>RpcFilter</filter-name>
@@ -235,7 +271,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<filter>
 		<filter-name>PagesFilter</filter-name>
-		<filter-class>com.gitblit.PagesFilter</filter-class>
+		<filter-class>com.gitblit.servlet.PagesFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>PagesFilter</filter-name>
@@ -244,7 +280,7 @@
 	
 	<filter>
 		<filter-name>EnforceAuthenticationFilter</filter-name>
-		<filter-class>com.gitblit.EnforceAuthenticationFilter</filter-class>
+		<filter-class>com.gitblit.servlet.EnforceAuthenticationFilter</filter-class>
 	</filter>
 	<filter-mapping>
         <filter-name>EnforceAuthenticationFilter</filter-name>
@@ -256,12 +292,8 @@
     <filter>
         <filter-name>wicketFilter</filter-name>
         <filter-class>
-            org.apache.wicket.protocol.http.WicketFilter
-        </filter-class>
-        <init-param>
-            <param-name>applicationClassName</param-name>
-            <param-value>com.gitblit.wicket.GitBlitWebApp</param-value>
-        </init-param>
+            com.gitblit.wicket.GitblitWicketFilter
+        </filter-class>        
         <init-param>
             <param-name>ignorePaths</param-name>
             <!-- Paths should match 
@@ -282,11 +314,12 @@
              	* PagesFilter <url-pattern>
              	* PagesServlet <url-pattern>
              	* com.gitblit.Constants.PAGES_PATH -->
-            <param-value>git/,feed/,zip/,federation/,rpc/,pages/,robots.txt,logo.png,sparkleshare/</param-value>
+            <param-value>r/,git/,pt,feed/,zip/,federation/,rpc/,pages/,robots.txt,logo.png,graph/,sparkleshare/</param-value>
         </init-param>
     </filter>
     <filter-mapping>
         <filter-name>wicketFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+    
 </web-app>

@@ -22,14 +22,14 @@ import com.gitblit.utils.TimeUtils;
 
 /**
  * Loads the Gitblit language resource file.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class Translation {
 
 	private final static ResourceBundle translation;
-	
+
 	private final static TimeUtils timeUtils;
 
 	static {
@@ -42,7 +42,7 @@ public class Translation {
 			bundle = ResourceBundle.getBundle("GitBlitWebApp");
 		}
 		translation = bundle;
-		
+
 		timeUtils = new TimeUtils(translation, null);
 	}
 
@@ -52,7 +52,7 @@ public class Translation {
 		}
 		return key;
 	}
-	
+
 	public static TimeUtils getTimeUtils() {
 		return timeUtils;
 	}

@@ -8,7 +8,8 @@
 <body onload="document.getElementById('name').focus();">
 <!-- Team Table -->
 <form style="padding-top:5px;" wicket:id="editForm">
-
+<div class="row">
+<div class="span12">
 <div class="tabbable">
 	<!-- tab titles -->
 	<ul class="nav nav-tabs">
@@ -55,9 +56,13 @@
 		</div>
 	</div>
 </div>	
+</div>
+</div>
 
 <div class="row">
-	<div class="form-actions"><input class="btn btn-primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="6" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="7" /></div>
+<div class="span12">
+	<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="6" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="7" /></div>
+</div>
 </div>
 
 </form>	

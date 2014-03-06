@@ -26,9 +26,9 @@ import org.apache.wicket.request.target.basic.RedirectRequestTarget;
  * This exception bypasses the servlet container rewriting relative redirect
  * urls.  The container can and does decode the carefully crafted %2F path
  * separators on a redirect.  :(  Bad, bad servlet container.
- * 
+ *
  * org.eclipse.jetty.server.Response#L447: String path=uri.getDecodedPath();
- * 
+ *
  * @author James Moger
  */
 public class GitblitRedirectException extends AbstractRestartResponseException {

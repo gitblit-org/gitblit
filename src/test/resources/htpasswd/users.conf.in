@@ -1,0 +1,26 @@
+[user "admin"]
+	password = admin
+	cookie = dd94709528bb1c83d08f3088d4043f4742891f4f
+	role = "#admin"
+	role = "#notfederated"
+[user "user1"]
+	password = "#externalAccount"
+	cookie = 6c7d13cf0aa43054d0fb620546e3a4d79e3d3e89
+	displayName = El Capitan
+	emailAddress = cheffe@example.com
+	role = "#admin"
+[user "user2"]
+	password = "#externalAccount"
+	cookie = d15eabb3a83c44a05ccbdaf3bf5fd1402d971e99
+	displayName = User Two
+	role = "#create"
+	role = "#fork"
+[user "staylocal"]
+	password = localUser
+	cookie = 0a99767e0259dc06ccae5ee6349177be289968f3
+	displayName = Local User
+	role = "#none"
+[user "leaderRed"]
+	password = localPassword
+	displayName = Red Leader
+	role = "#create"

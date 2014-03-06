@@ -20,9 +20,9 @@ import java.util.List;
 
 /**
  * Represents a Gravatar profile.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GravatarProfile implements Serializable {
 
@@ -35,7 +35,7 @@ public class GravatarProfile implements Serializable {
 	public String preferredUsername;
 	public String currentLocation;
 	public String aboutMe;
-	
+
 	public String profileUrl;
 	public String thumbnailUrl;
 	public List<ProfileObject> photos;

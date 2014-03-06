@@ -25,9 +25,9 @@ import com.gitblit.models.RepositoryModel;
 /**
  * Displays a subscribed icon on the left of the repository name, if there is at
  * least one subscribed branch.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SubscribedRepositoryRenderer extends NameRenderer {
 
@@ -46,6 +46,7 @@ public class SubscribedRepositoryRenderer extends NameRenderer {
 		subscribedIcon = new ImageIcon(getClass().getResource("/bullet_feed.png"));
 	}
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

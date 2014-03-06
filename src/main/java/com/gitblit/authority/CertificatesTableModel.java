@@ -28,16 +28,16 @@ import com.gitblit.utils.X509Utils.RevocationReason;
 
 /**
  * Table model of a list of user certificate models.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class CertificatesTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
 	UserCertificateModel ucm;
-	
+
 	enum Columns {
 		SerialNumber, Status, Reason, Issued, Expires;
 
@@ -80,11 +80,12 @@ public class CertificatesTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
@@ -127,7 +128,7 @@ public class CertificatesTableModel extends AbstractTableModel {
 			if (ucm.getStatus(cert).equals(CertificateStatus.revoked)) {
 				RevocationReason r = ucm.getRevocationReason(cert.getSerialNumber());
 				return Translation.get("gb." + r.name());
-			}			
+			}
 		}
 		return null;
 	}
@@ -135,7 +136,7 @@ public class CertificatesTableModel extends AbstractTableModel {
 	public X509Certificate get(int modelRow) {
 		return ucm.certs.get(modelRow);
 	}
-	
+
 	public void setUserCertificateModel(UserCertificateModel ucm) {
 		this.ucm = ucm;
 		if (ucm == null) {

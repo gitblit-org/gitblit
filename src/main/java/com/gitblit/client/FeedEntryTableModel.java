@@ -26,9 +26,9 @@ import com.gitblit.models.FeedEntryModel;
 
 /**
  * Table model for a list of retrieved feed entries.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class FeedEntryTableModel extends AbstractTableModel {
 
@@ -84,11 +84,12 @@ public class FeedEntryTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		if (Columns.Date.ordinal() == columnIndex) {
 			return Date.class;

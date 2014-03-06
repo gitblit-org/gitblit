@@ -2,18 +2,19 @@
 
 1. Download and unzip Gitblit GO [${project.releaseVersion} (Windows)](%GCURL%gitblit-${project.releaseVersion}.zip) or [${project.releaseVersion} (Linux/OSX)](%GCURL%gitblit-${project.releaseVersion}.tar.gz).  
 *Its best to eliminate spaces in the path name.* 
-2. The server itself is configured through a simple text file.<br/>
+2. The server itself is configured through a simple text file.
 Open `data/gitblit.properties` in your favorite text editor and make sure to review and set:
     - *server.httpPort* and *server.httpsPort*
-    - *server.httpBindInterface* and *server.httpsBindInterface*  
-	- *server.storePassword*
+    - *server.storePassword*
     **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!
     - *git.packedGitLimit* (set larger than the size of your largest repository)
     - *git.streamFileThreshold* (set larger than the size of your largest committed file)
-3. Execute `authority.cmd` or `java -cp gitblit.jar com.gitblit.authority.Launcher --baseFolder data` from a command-line<br/>**NOTE:** The Authority is a Swing GUI application.  Use of this tool is not required as Gitblit GO will startup and create SSL certificates itself, BUT use of this tool allows you to control the identification metadata used in the generated certificates.  Skipping this step will result in certificates with default metadata.
+3. Execute `authority.cmd` or `java -cp gitblit.jar com.gitblit.authority.Launcher --baseFolder data` from a command-line
+**NOTE:** The Authority is a Swing GUI application.  Use of this tool is not required as Gitblit GO will startup and create SSL certificates itself, BUT use of this tool allows you to control the identification metadata used in the generated certificates.  Skipping this step will result in certificates with default metadata.
     1. fill out the fields in the *new certificate defaults* dialog
 	2. enter the store password used in *server.storePassword* when prompted.  This generates an SSL certificate for **localhost**.
-	3. you may want to generate an SSL certificate for the hostname or ip address hostnames you are serving from<br/>**NOTE:** You can only have **one** SSL certificate specified for a port.
+	3. you may want to generate an SSL certificate for the hostname or ip address hostnames you are serving from
+	**NOTE:** You can only have **one** SSL certificate specified for a port.
 	5. exit the authority app
 4. Execute `gitblit.cmd` or `java -jar gitblit.jar --baseFolder data` from a command-line
 5. Open your browser to <http://localhost:8080> or <https://localhost:8443> depending on your chosen configuration.
@@ -94,20 +95,20 @@ Gitblit uses [Apache Commons Daemon](http://commons.apache.org/daemon) to instal
 3. Add any necessary *--StartParams* as enumerated below in **Command-Line Parameters**.
 4. Execute the script.
 
-After service installation you can use the `gitblitw.exe` utility to control and modify the runtime settings of the service.<br/>
+After service installation you can use the `gitblitw.exe` utility to control and modify the runtime settings of the service.
 Additional service definition options and runtime capabilities of `gitblitw.exe` (prunmgr.exe) are documented [here](http://commons.apache.org/daemon/procrun.html).
 
-**NOTE:**<br/>
+**NOTE:**
 If you change the name of the service from *gitblit* you must also change the name of `gitblitw.exe` to match the new service name otherwise the connection between the service and the utility is lost, at least to double-click execution. 
 
 #### VM Considerations
-By default, the service installation script configures your Windows service to use your default JVM.  This setup usually defaults to a client VM.<br/>
+By default, the service installation script configures your Windows service to use your default JVM.  This setup usually defaults to a client VM.
 If you have installed a JDK, you might consider using the `gitblitw.exe` utility to manually specify the *server* VM.
 
 1. Execute `gitblitw.exe`
 2. On the *Java* tab uncheck *Use default*.
-3. Manually navigate your filesystem and specify the server VM with the `...` button<br/><pre>
-Java Virtual Machine:
+3. Manually navigate your filesystem and specify the server VM with the `...` button
+<pre>Java Virtual Machine:
 C:\Program Files\Java\jre6\bin\server\jvm.dll</pre>
 
 #### Command-Line Parameters
@@ -123,6 +124,7 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
     --alias                Alias in keystore of SSL cert to use for https serving
     --storePassword        Password for SSL (https) keystore.
     --shutdownPort         Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)
+	--dailyLogFile         Redirect logging to a rolling, daily log file instead of stdout
     --tempFolder           Folder for server to extract built-in webapp
     
 **Example**
@@ -134,6 +136,6 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
 You can override Gitblit GO's default Log4j configuration with a command-line parameter to the JVM.
 
     java -Dlog4j.configuration=file:///home/james/log4j.properties -jar gitblit.jar <optional_gitblit_args>
-    
-For reference, here is [Gitblit's default Log4j configuration](https://github.com/gitblit/gitblit/blob/master/src/log4j.properties).  It includes some file appenders that are disabled by default. 
+
+You can not use override the default log4j configuration *AND* specify the `--dailyLogFile` parameter.  For reference, here is [Gitblit's default Log4j configuration](https://github.com/gitblit/gitblit/blob/master/src/log4j.properties).  It includes some file appenders that are disabled by default. 
 

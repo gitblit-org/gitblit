@@ -23,11 +23,11 @@ import com.gitblit.wicket.panels.UsersPanel;
 public class UsersPage extends RootPage {
 
 	public UsersPage() {
-		super();		
+		super();
 		setupPage("", "");
 
 		add(new TeamsPanel("teamsPanel", showAdmin).setVisible(showAdmin));
-		
+
 		add(new UsersPanel("usersPanel", showAdmin).setVisible(showAdmin));
 	}
 }

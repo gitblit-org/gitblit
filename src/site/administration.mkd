@@ -94,22 +94,22 @@ You may optionally enable committer verification which requires that each commit
 
 **How is this enforced?**
 
-Bob must set his *user.name* and *user.email* values for the repository to match his Gitblit user account **BEFORE** committing to his repository.
-<pre>
+Bob must properly set his *user.name* and *user.email* values for the repository to match his Gitblit user account **BEFORE** committing to his repository.
+
+```
 [user "bob"]
     displayName = Bob Jones
     emailAddress = bob@somewhere.com
-</pre>
-<pre>
+```
+
     git config user.name "Bob Jones"
     git config user.email bob@somewhere.com	
-</pre>
 or
 
     git config user.name bob
     git config user.email bob@somewhere.com	
 
-If the Gitblit account does not specify an email address, then the committer email address is ignored.  However, if the account does specify an address it must match the committer's email address.  Display name or username can be used as the committer name.
+The committer email address is required to be identical.  Display name or username can be used as the committer name.
 
 All checks are case-insensitive.
 

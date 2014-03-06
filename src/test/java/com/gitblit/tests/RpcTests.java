@@ -15,11 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,9 +32,9 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
-import com.gitblit.RpcServlet;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -49,15 +44,16 @@ import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.RpcServlet;
 import com.gitblit.utils.RpcUtils;
 
 /**
  * Tests all the rpc client utility methods, the rpc filter and rpc servlet.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
-public class RpcTests {
+public class RpcTests extends GitblitUnitTest {
 
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;
@@ -101,6 +97,20 @@ public class RpcTests {
 
 		list = RpcUtils.getUsers(url, "admin", "admin".toCharArray());
 		assertTrue("User list is empty!", list.size() > 0);
+	}
+
+	@Test
+	public void testGetUser() throws IOException {
+		UserModel user = null;
+		try {
+			user = RpcUtils.getUser("admin", url, null, null);
+		} catch (ForbiddenException e) {
+		}
+		assertNull("Server allows anyone to get user!", user);
+
+		user = RpcUtils.getUser("admin", url, "admin", "admin".toCharArray());
+		assertEquals("User is not the admin!", "admin", user.username);
+		assertTrue("User is not an administrator!", user.canAdmin());
 	}
 
 	@Test
@@ -200,7 +210,7 @@ public class RpcTests {
 		assertTrue("Failed to update repository!", RpcUtils.updateRepository(retrievedRepository.name, retrievedRepository,
 				url, account, password.toCharArray()));
 		retrievedRepository = findRepository(retrievedRepository.name);
-		
+
 		// memberships
 		UserModel testMember = new UserModel("justadded");
 		assertTrue(RpcUtils.createUser(testMember, url, account, password.toCharArray()));
@@ -257,7 +267,7 @@ public class RpcTests {
 	public void testTeamAdministration() throws IOException {
 		List<TeamModel> teams = RpcUtils.getTeams(url, account, password.toCharArray());
 		assertEquals(1, teams.size());
-		
+
 		// Create the A-Team
 		TeamModel aTeam = new TeamModel("A-Team");
 		aTeam.users.add("admin");
@@ -287,7 +297,7 @@ public class RpcTests {
 			}
 		}
 		assertNotNull(helloworld);
-		
+
 		// Confirm that we have added the team
 		List<String> helloworldTeams = RpcUtils.getRepositoryTeams(helloworld, url, account,
 				password.toCharArray());
@@ -304,7 +314,7 @@ public class RpcTests {
 		helloworldTeams = RpcUtils.getRepositoryTeams(helloworld, url, account,
 				password.toCharArray());
 		assertEquals(0, helloworldTeams.size());
-		
+
 		// delete the A-Team
 		assertTrue(RpcUtils.deleteTeam(aTeam, url, account, password.toCharArray()));
 

@@ -6,6 +6,8 @@ Gitblit supports additional authentication mechanisms aside from it's internal o
 
 * LDAP authentication
 * Windows authentication
+* PAM authentication
+* Htpasswd authentication
 * Redmine auhentication
 * Salesforce.com authentication
 * Servlet container authentication
@@ -13,11 +15,11 @@ Gitblit supports additional authentication mechanisms aside from it's internal o
 ### LDAP Authentication
 *SINCE 1.0.0*
 
-LDAP can be used to authenticate Users and optionally control Team memberships.  When properly configured, Gitblit will delegate authentication to your LDAP server and will cache some user information in the usual users file (.conf or .properties).
+LDAP can be used to authenticate Users and optionally control Team memberships.  When properly configured, Gitblit will delegate authentication to your LDAP server and will cache some user information in the usual users.conf file.
 
 When using the LDAP User Service, new user accounts can not be manually created from Gitblit.  Gitblit user accounts are automatically created for new users on their first succesful authentication through Gitblit against the LDAP server.  It is also important to note that the LDAP User Service does not retrieve or store user passwords nor does it implement any LDAP-write functionality.
 
-To use the *LdapUserService* set *realm.userService=com.gitblit.LdapUserService* in your `gitblit.properties` file or your `web.xml` file and then configure the *realm.ldap* settings appropriately for your LDAP environment.
+To use the *LdapUserService* set *realm.authenticationProviders=ldap* in your `gitblit.properties` file and then configure the *realm.ldap* settings appropriately for your LDAP environment.
 
 #### Example LDAP Layout
 ![block diagram](ldapSample.png "LDAP Sample")
@@ -43,10 +45,6 @@ The following are the settings required to configure Gitblit to authenticate aga
 <tr>
   <th>realm.ldap.password</th><td>password</td>
   <td>The credentials that will log into the LDAP server</td>
-</tr>
-<tr>
-  <th>realm.ldap.backingUserService</th><td>users.conf</td>
-  <td>Where to store all information that is used by Gitblit.  All information will be synced here upon user login.</td>
 </tr>
 <tr>
   <th>realm.ldap.maintainTeams</th><td>true</td>
@@ -80,21 +78,35 @@ You can start Gitblit GO with an in-memory LDAP server by specifying the *--ldap
 
 Windows authentication is based on the use of Waffle and JNA.  It is known to work properly for authenticating against the local Windows machine, but it is unclear if it works properly with a domain controller and Active Directory.  To use this service, your Gitblit server must be installed on a Windows machine.
 
-    realm.userService = com.gitblit.WindowsUserService
+    realm.authenticationProviders = windows
     realm.windows.defaultDomain =
+
+### PAM Authentication
+
+PAM authentication is based on the use of libpam4j and JNA.  To use this service, your Gitblit server must be installed on a Linux/Unix/MacOSX machine and the user that Gitblit runs-as must have root permissions.
+
+    realm.authenticationProviders = pam
+    realm.pam.serviceName = system-auth
+
+### Htpasswd Authentication
+
+Htpasswd authentication allows you to maintain your user credentials in an Apache htpasswd file thay may be shared with other htpasswd-capable servers.
+
+    realm.authenticationProviders = htpasswd
+    realm.htpasswd.userFile = /path/to/htpasswd
 
 ### Redmine Authentication
 
 You may authenticate your users against a Redmine installation as long as your Redmine install has properly enabled [API authentication](http://www.redmine.org/projects/redmine/wiki/Rest_Api#Authentication).  This user service only supports user authentication; it does not support team creation based on Redmine groups.  Redmine administrators will also be Gitblit administrators.
 
-    realm.userService = com.gitblit.RedmineUserService
+    realm.authenticationProviders = redmine
     realm.redmine.url = http://example.com/redmine
 
 ### Salesforce.com Authentication
 
 You may authenticate your users against Salesforce.com.  You can require that user's belong to a particular organization by specifying a non-zero organization id.
 
-    realm.userService = com.gitblit.SalesforceUserService
+    realm.authenticationProviders = salesforce
     realm.salesforce.orgId = 0
 
 ### Container Authentication
@@ -107,10 +119,9 @@ If you are using the WAR variant and deploying into your own servlet container w
 
 This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations.  This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.
 
-Please subclass [com.gitblit.GitblitUserService](https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/GitblitUserService.java) and override the *setup()* and *authenticate()* methods.  
-Make sure to set the *serviceImpl* field in your *setup()* method.
+Please subclass [com.gitblit.auth.AuthenticationProvider](https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java).
 
-You may use your subclass by specifying its fully qualified classname in the *realm.userService* setting.
+You may use your subclass by specifying its fully qualified classname in the *realm.authenticationProviders* setting.
 
 Your subclass must be on Gitblit's classpath and must have a public default constructor.  
 

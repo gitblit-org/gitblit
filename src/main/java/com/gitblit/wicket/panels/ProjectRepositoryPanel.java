@@ -28,20 +28,17 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
-import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class ProjectRepositoryPanel extends BasePanel {
@@ -53,8 +50,8 @@ public class ProjectRepositoryPanel extends BasePanel {
 			final Map<AccessRestrictionType, String> accessRestrictions) {
 		super(wicketId);
 
-		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
+		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
+		final boolean showSize = app().settings().getBoolean(Keys.web.showRepositorySizes, true);
 
 		// repository swatch
 		Component swatch;
@@ -78,7 +75,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(new Label("originRepository").setVisible(false));
 		} else {
 			Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
-			forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(entry.originRepository), 
+			forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(entry.originRepository),
 					SummaryPage.class, WicketUtils.newRepositoryParameter(entry.originRepository)));
 			add(forkFrag);
 		}
@@ -89,8 +86,11 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 		}
 
-		add(new BookmarkablePageLink<Void>("tickets", TicketsPage.class, pp).setVisible(entry.useTickets));
-		add(new BookmarkablePageLink<Void>("docs", DocsPage.class, pp).setVisible(entry.useDocs));
+		if (entry.isMirror) {
+			add(WicketUtils.newImage("mirrorIcon", "mirror_16x16.png", localizer.getString("gb.isMirror", parent)));
+		} else {
+			add(WicketUtils.newClearPixel("mirrorIcon").setVisible(false));
+		}
 
 		if (entry.isFrozen) {
 			add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", localizer.getString("gb.isFrozen", parent)));
@@ -109,11 +109,11 @@ public class ProjectRepositoryPanel extends BasePanel {
 		} else {
 			String owner = "";
 			for (String username : entry.owners) {
-				UserModel ownerModel = GitBlit.self().getUserModel(username);
-			
+				UserModel ownerModel = app().users().getUserModel(username);
+
 				if (ownerModel != null) {
 					owner = ownerModel.getDisplayName();
-				}				
+				}
 			}
 			if (entry.owners.size() > 1) {
 				owner += ", ...";
@@ -145,7 +145,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 
 					@Override
 					public void onClick() {
-						if (GitBlit.self().deleteRepositoryModel(entry)) {
+						if (app().repositories().deleteRepositoryModel(entry)) {
 							// redirect to the owning page
 							if (entry.isPersonalRepository()) {
 								setResponsePage(getPage().getClass(), WicketUtils.newUsernameParameter(entry.projectPath.substring(1)));

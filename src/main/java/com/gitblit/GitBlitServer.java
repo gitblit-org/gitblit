@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -33,9 +34,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.ajp.Ajp13SocketConnector;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -44,6 +49,7 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -58,6 +64,7 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.authority.GitblitAuthority;
 import com.gitblit.authority.NewCertificateConfig;
+import com.gitblit.servlet.GitblitContext;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils;
@@ -75,9 +82,9 @@ import com.unboundid.ldif.LDIFReader;
  * simplify command line parameter processing. This class also automatically
  * generates a self-signed certificate for localhost, if the keystore does not
  * already exist.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitBlitServer {
 
@@ -85,7 +92,7 @@ public class GitBlitServer {
 
 	public static void main(String... args) {
 		GitBlitServer server = new GitBlitServer();
-		
+
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
 		String folder = "data";
@@ -95,7 +102,7 @@ public class GitBlitServer {
 				if (i + 1 == args.length) {
 					System.out.println("Invalid --baseFolder parameter!");
 					System.exit(-1);
-				} else if (args[i + 1] != ".") {
+				} else if (!".".equals(args[i + 1])) {
 					folder = args[i + 1];
 				}
 				i = i + 1;
@@ -103,7 +110,7 @@ public class GitBlitServer {
 				filtered.add(arg);
 			}
 		}
-		
+
 		Params.baseFolder = folder;
 		Params params = new Params();
 		JCommander jc = new JCommander(params);
@@ -125,7 +132,7 @@ public class GitBlitServer {
 
 	/**
 	 * Display the command line usage of Gitblit GO.
-	 * 
+	 *
 	 * @param jc
 	 * @param t
 	 */
@@ -172,9 +179,37 @@ public class GitBlitServer {
 		FileSettings settings = params.FILESETTINGS;
 		if (!StringUtils.isEmpty(params.settingsfile)) {
 			if (new File(params.settingsfile).exists()) {
-				settings = new FileSettings(params.settingsfile);				
+				settings = new FileSettings(params.settingsfile);
 			}
 		}
+
+		if (params.dailyLogFile) {
+			// Configure log4j for daily log file generation
+			InputStream is = null;
+			try {
+				is = getClass().getResourceAsStream("/log4j.properties");
+				Properties loggingProperties = new Properties();
+				loggingProperties.load(is);
+
+				loggingProperties.put("log4j.appender.R.File", new File(baseFolder, "logs/gitblit.log").getAbsolutePath());
+				loggingProperties.put("log4j.rootCategory", "INFO, R");
+
+				if (settings.getBoolean(Keys.web.debugMode, false)) {
+					loggingProperties.put("log4j.logger.com.gitblit", "DEBUG");
+				}
+
+				PropertyConfigurator.configure(loggingProperties);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
 		logger.info("            _____  _  _    _      _  _  _");
@@ -198,7 +233,7 @@ public class GitBlitServer {
 		String osname = System.getProperty("os.name");
 		String osversion = System.getProperty("os.version");
 		logger.info("Running on " + osname + " (" + osversion + ")");
-		
+
 		List<Connector> connectors = new ArrayList<Connector>();
 
 		// conditionally configure the http connector
@@ -212,6 +247,14 @@ public class GitBlitServer {
 			}
 			if (params.port < 1024 && !isWindows()) {
 				logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
+			}
+			if (params.port > 0 && params.securePort > 0 && settings.getBoolean(Keys.server.redirectToHttpsPort, true)) {
+				// redirect HTTP requests to HTTPS
+				if (httpConnector instanceof SelectChannelConnector) {
+					((SelectChannelConnector) httpConnector).setConfidentialPort(params.securePort);
+				} else {
+					((SocketConnector) httpConnector).setConfidentialPort(params.securePort);
+				}
 			}
 			connectors.add(httpConnector);
 		}
@@ -236,7 +279,7 @@ public class GitBlitServer {
 				NewCertificateConfig certificateConfig = NewCertificateConfig.KEY.parse(config);
 				certificateConfig.update(metadata);
 			}
-			
+
 			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
 			X509Utils.prepareX509Infrastructure(metadata, baseFolder, new X509Log() {
 				@Override
@@ -260,7 +303,7 @@ public class GitBlitServer {
 				}
 			});
 
-			if (serverKeyStore.exists()) {		        
+			if (serverKeyStore.exists()) {
 				Connector secureConnector = createSSLConnector(params.alias, serverKeyStore, serverTrustStore, params.storePassword,
 						caRevocationList, params.useNIO, params.securePort, settings.getInteger(Keys.server.threadPoolSize, 50), params.requireClientCertificates);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
@@ -297,7 +340,7 @@ public class GitBlitServer {
 
 		// tempDir is where the embedded Gitblit web application is expanded and
 		// where Jetty creates any necessary temporary files
-		File tempDir = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.temp);		
+		File tempDir = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.temp);
 		if (tempDir.exists()) {
 			try {
 				FileUtils.delete(tempDir, FileUtils.RECURSIVE | FileUtils.RETRY);
@@ -329,7 +372,7 @@ public class GitBlitServer {
 		HashSessionManager sessionManager = new HashSessionManager();
 		sessionManager.setHttpOnly(true);
 		// Use secure cookies if only serving https
-		sessionManager.setSecureCookies(params.port <= 0 && params.securePort > 0);
+		sessionManager.setSecureRequestOnly(params.port <= 0 && params.securePort > 0);
 		rootContext.getSessionHandler().setSessionManager(sessionManager);
 
 		// Ensure there is a defined User Service
@@ -343,10 +386,10 @@ public class GitBlitServer {
 		settings.overrideSetting(Keys.realm.userService, params.userService);
 		settings.overrideSetting(Keys.git.repositoriesFolder, params.repositoriesFolder);
 		settings.overrideSetting(Keys.git.daemonPort, params.gitPort);
-		
+
 		// Start up an in-memory LDAP server, if configured
 		try {
-			if (StringUtils.isEmpty(params.ldapLdifFile) == false) {
+			if (!StringUtils.isEmpty(params.ldapLdifFile)) {
 				File ldifFile = new File(params.ldapLdifFile);
 				if (ldifFile != null && ldifFile.exists()) {
 					URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
@@ -354,21 +397,21 @@ public class GitBlitServer {
 					String rootDN = firstLine.substring(4);
 					String bindUserName = settings.getString(Keys.realm.ldap.username, "");
 					String bindPassword = settings.getString(Keys.realm.ldap.password, "");
-					
+
 					// Get the port
 					int port = ldapUrl.getPort();
 					if (port == -1)
 						port = 389;
-					
+
 					InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(rootDN);
 					config.addAdditionalBindCredentials(bindUserName, bindPassword);
 					config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", port));
 					config.setSchema(null);
-					
+
 					InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
 					ds.importFromLDIF(true, new LDIFReader(ldifFile));
 					ds.startListening();
-					
+
 					logger.info("LDAP Server started at ldap://localhost:" + port);
 				}
 			}
@@ -380,9 +423,26 @@ public class GitBlitServer {
 		// Set the server's contexts
 		server.setHandler(rootContext);
 
-		// Setup the GitBlit context
-		GitBlit gitblit = getGitBlitInstance();
-		gitblit.configureContext(settings, baseFolder, true);
+		// redirect HTTP requests to HTTPS
+		if (params.port > 0 && params.securePort > 0 && settings.getBoolean(Keys.server.redirectToHttpsPort, true)) {
+			logger.info(String.format("Configuring automatic http(%1$s) -> https(%2$s) redirects", params.port, params.securePort));
+			// Create the internal mechanisms to handle secure connections and redirects
+			Constraint constraint = new Constraint();
+			constraint.setDataConstraint(Constraint.DC_CONFIDENTIAL);
+
+			ConstraintMapping cm = new ConstraintMapping();
+			cm.setConstraint(constraint);
+			cm.setPathSpec("/*");
+
+			ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
+			sh.setConstraintMappings(new ConstraintMapping[] { cm });
+
+			// Configure this context to use the Security Handler defined before
+			rootContext.setHandler(sh);
+		}
+
+		// Setup the Gitblit context
+		GitblitContext gitblit = newGitblit(settings, baseFolder);
 		rootContext.addEventListener(gitblit);
 
 		try {
@@ -400,14 +460,14 @@ public class GitBlitServer {
 			System.exit(100);
 		}
 	}
-	
-	protected GitBlit getGitBlitInstance() {
-		return GitBlit.self();
+
+	protected GitblitContext newGitblit(IStoredSettings settings, File baseFolder) {
+		return new GitblitContext(settings, baseFolder);
 	}
 
 	/**
 	 * Creates an http connector.
-	 * 
+	 *
 	 * @param useNIO
 	 * @param port
 	 * @param threadPoolSize
@@ -439,10 +499,10 @@ public class GitBlitServer {
 
 	/**
 	 * Creates an https connector.
-	 * 
+	 *
 	 * SSL renegotiation will be enabled if the JVM is 1.6.0_22 or later.
 	 * oracle.com/technetwork/java/javase/documentation/tlsreadme2-176330.html
-	 * 
+	 *
 	 * @param certAlias
 	 * @param keyStore
 	 * @param clientTrustStore
@@ -455,7 +515,7 @@ public class GitBlitServer {
 	 * @return an https connector
 	 */
 	private Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
-			String storePassword, File caRevocationList, boolean useNIO,  int port, int threadPoolSize, 
+			String storePassword, File caRevocationList, boolean useNIO,  int port, int threadPoolSize,
 			boolean requireClientCertificates) {
 		GitblitSslContextFactory factory = new GitblitSslContextFactory(certAlias,
 				keyStore, clientTrustStore, storePassword, caRevocationList);
@@ -486,10 +546,10 @@ public class GitBlitServer {
 
 		return connector;
 	}
-	
+
 	/**
 	 * Creates an ajp connector.
-	 * 
+	 *
 	 * @param port
 	 * @return an ajp connector
 	 */
@@ -505,7 +565,7 @@ public class GitBlitServer {
 
 	/**
 	 * Tests to see if the operating system is Windows.
-	 * 
+	 *
 	 * @return true if this is a windows machine
 	 */
 	private boolean isWindows() {
@@ -516,9 +576,9 @@ public class GitBlitServer {
 	 * The ShutdownMonitorThread opens a socket on a specified port and waits
 	 * for an incoming connection. When that connection is accepted a shutdown
 	 * message is issued to the running Jetty server.
-	 * 
+	 *
 	 * @author James Moger
-	 * 
+	 *
 	 */
 	private static class ShutdownMonitorThread extends Thread {
 
@@ -585,6 +645,9 @@ public class GitBlitServer {
 		@Parameter(names = { "--tempFolder" }, description = "Folder for server to extract built-in webapp")
 		public String temp = FILESETTINGS.getString(Keys.server.tempFolder, "temp");
 
+		@Parameter(names = { "--dailyLogFile" }, description = "Log to a rolling daily log file INSTEAD of stdout.")
+		public Boolean dailyLogFile = false;
+
 		/*
 		 * GIT Servlet Parameters
 		 */
@@ -634,7 +697,7 @@ public class GitBlitServer {
 		 */
 		@Parameter(names = { "--settings" }, description = "Path to alternative settings")
 		public String settingsfile;
-		
+
 		@Parameter(names = { "--ldapLdifFile" }, description = "Path to LDIF file.  This will cause an in-memory LDAP server to be started according to gitblit settings")
 		public String ldapLdifFile;
 

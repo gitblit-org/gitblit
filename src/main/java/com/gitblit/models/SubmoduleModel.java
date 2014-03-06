@@ -20,9 +20,9 @@ import java.io.Serializable;
 /**
  * SubmoduleModel is a serializable model class that represents a git submodule
  * definition.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SubmoduleModel implements Serializable {
 
@@ -40,7 +40,8 @@ public class SubmoduleModel implements Serializable {
 		this.path = path;
 		this.url = url;
 	}
-	
+
+	@Override
 	public String toString() {
 		return path + "=" + url;
 	}

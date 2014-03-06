@@ -22,7 +22,7 @@ import com.gitblit.Constants.AccessPermission;
 /**
  * Represents a git repository url and it's associated access permission for the
  * current user.
- *  
+ *
  * @author James Moger
  *
  */
@@ -37,7 +37,7 @@ public class RepositoryUrl implements Serializable {
 		this.url = url;
 		this.permission = permission;
 	}
-	
+
 	public boolean isExternal() {
 		return permission == null;
 	}

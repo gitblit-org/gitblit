@@ -1,0 +1,149 @@
+## Tickets
+
+*SINCE 1.4.0*
+
+Gitblit's Tickets feature is analgous to GitHub/BitBucket Issues+Pull Requests.  Gitblit does not make a hard distinction between what is an Issue and what is a Pull Request.  In Gitblit, all tickets may have attached commits and there is no need to create a separate, new container to share & discuss these commits.  Additionally, there is no need to create multiple Tickets for different versions of the same code - a common practice in other systems.
+
+### Screencast
+
+You can view a screencast of [Gitblit Tickets in action](https://vimeo.com/86164723) on Vimeo.
+
+### Design
+
+The Tickets feature of Gitblit is designed around a few principles:
+
+1. Tickets should be simple enough to use quickly to track action items or user reports
+2. Any ticket can contain commits shared by a contributor
+3. The ticket should be the canonical source of commits related to the ticket (i.e. a fork repository should not be the canonical source of commits)
+4. Additional contributors should be allowed to participate in developing the patchset for a ticket, not just the original patchset author.  The ticket should be a container for collaborative branch development, not just for code-review/gating.
+5. Contributors should be able to rewrite commits attached to a ticket without losing history.  Contributors should be encouraged to polish, hone, and rewrite as needed to ensure that what eventually is merged is logical and concise.
+6. Tickets should focus on contribution sharing and communication.  The Gitblit Tickets feature is not an elaborate code-review system, although in the future it may evolve to be more competitive for that use.
+
+Gitblit takes inspiration from GitHub, BitBucket, and Gerrit.
+
+#### Ticket Model
+
+Gitblit stores each ticket as a journal (list of changes).  A ticket journal is retrieved from the chosen persistence engine and an effective ticket is built by applying the ordered changes from the journal.  These changes are usually additive, but in some cases a change may represent a deletion.  Tickets are indexed by Lucene against which all ticket queries are executed.
+
+#### Collaboration Workflow
+
+Gitblit uses a 3-repository workflow.  This means that Gitblit cuts the *fork* repository out of the collaboration workflow: patchsets are pushed directly to a special branch of the canonical repository, not to a fork.  You may also push to fork, if you want, but all collaboration occurs in the canonical repository, not your fork.
+
+#### Persistence Choices
+
+Gitblit's ticket data is based on a ridiculously simple concept: a ticket is the end result of applying a sequence of changes to an empty ticket.  Each change is serialized as JSON and stored in a journal.  The journal may be a simple text file (`journal.json`) or it may be a Redis LIST or some future persistence type.
+
+All ticket services inherit from the same base class which handles most of the high level logic for ticket management including caching, milestones (stored in .git/config), indexing, queries, and searches.
+
+You can find descriptions of the available persistence services in [[tickets setup]].
+
+#### Limitations
+
+- Ticket data is non-relational to user accounts.  If *james* comments on a ticket, *james* is preserved forever in the ticket data.  This is similar to git commits which are also non-relational.  This could be overcome by writing a tool to deserialize all the journals and rewrite the authors, so it is not impossible to change, but following KISS - ticket data is non-relational to user accounts.
+- The *Branch Ticket Service* does not currently permit ticket journal pushes from clones.  This is an area of exploration and may be possible given that a ticket is constructed from an append-only journal of changes.
+- Gitblit does not currently offer commit comments nor line comments, only overall ticket comments .
+
+#### How did GitHub influence the design of Tickets?
+
+**UI.** GitHub has a very efficient, and clean UI for their Issues.  It offers the basics and give you labels to fill in the gaps.  It is not overly complex.
+
+Gitblit's Ticket querying and discussion ui are modeled after GitHub's ui design.
+
+#### How did BitBucket influence the design of Tickets?
+
+**UI.** BitBucket has a more rigid issue tracker and a clean issue viewing ui.  The rigidity makes it more like a traditional issue tracker with status, priority, kind, etc.
+
+Gitblit's Ticket page ui is partially inspired by BitBucket.  Gitblit Tickets have state and types, which makes it a more rigid/traditional tracker.  Atlassian has also gifted the community with the AUI, a webapp toolkit of CSS & JS.  Gitblit has borrowed some of these Apache licensed CSS elements.
+
+**Branch Pull Requests.** BitBucket has a very cool feature of creating a pull request from a branch within the same repository.  GitHub may also be able to do this.  Gitblit does not currently allow you to create a ticket from an existing branch, but Gitblit tracks ticket commits using normal branches with the canonical repository.
+
+#### How did Gerrit influence the design of Tickets?
+
+**Patchsets.** Gerrit employs a clever patchset workflow that requires repeated use of `git commit --amend` to hone and polish a commit until it is ready for merging to the proposed integration branch.  This technique is a much improved analog of patch revision.
+
+After working with this design for many months and dogfooding dozens of tickets with hundreds of amends, rebases, and squashes, I have concluded that this workflow doesn't work like I wanted it to for active, in-development code.  It is best suited for it's original intention: code-review.  It also introduces many, many refs.
+
+Gitblit has adopted Gerrit's three-repository workflow and *magic ref* design for pushes of new ticket patchsets or rewrites of existing ticket patchsets.
+
+### Nomenclature
+
+1. The organizational unit of the Gitblit Tickets feature is the *ticket*.
+2. A *ticket* can be used to report a bug, request an enhancement, ask a question, etc.  A ticket can also be used to collaborate on a *patchset* that addresses the request.
+3. A *patchset* is a series of commits from a merge base that exists in the target branch of your repository to the tip of the patchset.  A patchset may only contain a single commit, or it may contain dozens.  This is similar to the commits in a *Pull Request*.  One important distinction here is that in Gitblit, each *Patchset* is developed on a separate branch and can be completely rewritten without losing the previous patchsets (this creates a new patchset).
+4. A *ticket* monitors the development of *patchsets* by tracking *revisions* to *patchsets*.  The ticket alslo monitors rewritten patchsets. Each *patchset* is developed on it's own Git branch.
+ 
+Tracking *patchsets* is similar in concept to Gerrit, but there is a critical difference.  In Gerrit, *every* commit in the *patchset* has it's own ticket  **AND** Git branch.  In Gerrit, *patchsets* can be easily rewritten and for each rewritten commit, a new branch ref is created.  This leads to an explosion in refs for the repository over time.  In Gitblit, only the tip of the *patchset* gets a branch ref and this branch ref is updated, like a regular branch, unless a rewrite is detected.
+
+If you prefer the Gerrit-style workflow, you can achieve a fair approximation by only pushing single commit patchsets and always amending them.  You will not be able to chain tickets together, like you can chain reviews in Gerrit.
+
+### Types of Tickets
+
+Gitblit has two primary ticket types with a subtle distinction between them.
+
+1. *Proposal Ticket*.  This ticket type is created when a contributor pushes a single commit to Gitblit using the **for** magic ref.  The title and body of the commit message become the title and description of the ticket.  If you want to adopt a Gerrit-style workflow then you may *--amend* this commit and push it again and again.  Each *--amend* and push will update the Ticket's title and description from the commit message.  However, if you push new commits that build on the initial commit then this title/description updating behavior will not apply.
+
+2. *Request Ticket*.  This is a ticket that is manually created by a user using the web ui.  These tickets have assignable types like *Bug*, *Enhancement*, *Task*, or *Question*.
+
+The only difference between these two ticket types is how they are created (on-push or through the ui) and the aforementioned special behavior of amending the initial commit.  Otherwise, both types are identical.
+
+### Why not GitHub-style Pull/Merge Requests?
+
+GitHub-style Pull Requests require the following workflow:
+
+1. Fork *RepoA* -> **MyRepoA**
+2. Clone **MyRepoA**
+3. Create **MyRepoA_Clone:topic_branch** and hack on contribution
+4. Push **MyRepoA_Clone:topic_branch** upstream to **MyRepoA:topic_branch**
+5. Open Pull Request from **MyRepoA:topic_branch** -> *RepoA:integration_branch*
+6. RepoA owner pulls **MyRepoA:topic_branch** -> *RepoA:integration_branch* and reviews
+7. RepoA owner pushes merged contribution upstream to *RepoA:integration_branch*
+
+Gitblit's flow looks like this:
+
+1. Clone *RepoA*
+2. Create *RepoA_Clone:topic_branch* and hack on contribution
+3. Push *RepoA_Clone:topic_branch* upstream to *RepoA:refs/for/[new|id]*
+4. RepoA owner fetches & merges branch *ticket/[id]*
+5. RepoA owner pushes merged contribution upstream to *RepoA:integration_branch*
+
+The Gitblit workflow eliminates the 4-repository design of a GitHub pull request (canonical, canonical working copy, fork, & fork working copy) in favor of a 3-repository design (canonical, canonical working copy, clone working copy).
+
+*You might wonder:* Is it a good idea to allow users to push into the canonical repository?
+
+The answer is, it's really not that different from a GitHub pull request.  When you open a GitHub pull request from *MyRepoA* to *RepoA*, your code is already being pushed to a private branch in *RepoA* ( *refs/pull/{id}/head* and *refs/pull/{id}/merge*) so effectively you are already pushing into *RepoA* - you are just using an extra repository and the web ui to do it.  By pushing directly to the canonical repository, you save server resources and eliminate the web ui step.
+
+Additionally, because the patchset is not linked to a user's personal fork it is possible to allow others to collaborate on development.
+
+## Status
+
+The Tickets feature is highly functional but there are several areas which need further refinements.
+
+#### What is working
+
+- Ticket creation and editing
+- Ticket creation on patchset push
+- Comments with Markdown syntax support
+- Rich email notifications
+- Fast-forward patchset updates and patchset rewrites
+- Voting
+- Watching
+- Mentions
+- Partial milestone support
+- Querying
+- Searching
+- Is Mergeable test on view ticket page load
+- Close-on-push of detected merge
+- Multiple backend choices
+- Server-side merge (testing)
+
+#### TODO
+
+- Implement a My Tickets page (ticket-15)
+- Ticket Lifecycle Hooks (ticket-16)
+- CRUD pages for Milestones (ticket-17)
+- Ticket service migration tool (ticket-19)
+- Collapsible ticket description (e.g. AUI expander)
+- Edit a comment
+- Delete a comment
+- REST API for tooling
+- Client-side Markdown previews (AngularMarkdown?)

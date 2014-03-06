@@ -29,7 +29,6 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [JGit][jgit] (EDL 1.0)
 - [Wicket](http://wicket.apache.org) (Apache 2.0)
 - [WicketStuff GoogleCharts](https://github.com/wicketstuff/core/wiki/GoogleCharts) (Apache 2.0)
-- [MarkdownPapers](http://markdown.tautua.org) (Apache 2.0)
 - [Jetty](http://eclipse.org/jetty) (Apache 2.0, EPL 1.0)
 - [SLF4J](http://www.slf4j.org) (MIT/X11)
 - [Log4j](http://logging.apache.org/log4j) (Apache 2.0)
@@ -51,6 +50,10 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [Waffle](http://dblock.github.io/waffle) (EPL 1.0)
 - [JNA](https://github.com/twall/jna) (LGPL 2.1)
 - [Guava](https://code.google.com/p/guava-libraries) (Apache 2.0)
+- [libpam4j](https://github.com/kohsuke/libpam4j) (MIT)
+- [commons-codec](http://commons.apache.org/proper/commons-codec) (Apache 2.0)
+- [pegdown](https://github.com/sirthias/pegdown) (Apache 2.0)
+- [jedis](https://github.com/xetorthio/jedis) (MIT)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

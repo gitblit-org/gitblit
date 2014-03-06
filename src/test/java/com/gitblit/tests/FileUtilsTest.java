@@ -15,16 +15,13 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 
 import org.junit.Test;
 
 import com.gitblit.utils.FileUtils;
 
-public class FileUtilsTest {
+public class FileUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testReadContent() throws Exception {
@@ -55,7 +52,7 @@ public class FileUtilsTest {
 		size = FileUtils.folderSize(file);
 		assertEquals("size is actually " + size, 11556L, size);
 	}
-	
+
 	@Test
 	public void testStringSizes() throws Exception {
 		assertEquals(50 * FileUtils.KB, FileUtils.convertSizeToInt("50k", 0));
@@ -73,7 +70,7 @@ public class FileUtilsTest {
 		assertEquals(50L * FileUtils.KB, FileUtils.convertSizeToLong("50kb", 0));
 		assertEquals(50L * FileUtils.MB, FileUtils.convertSizeToLong("50mb", 0));
 		assertEquals(50L * FileUtils.GB, FileUtils.convertSizeToLong("50gb", 0));
-		
+
 		assertEquals(50 * FileUtils.KB, FileUtils.convertSizeToInt("50 k", 0));
 		assertEquals(50 * FileUtils.MB, FileUtils.convertSizeToInt("50 m", 0));
 		assertEquals(2 * FileUtils.GB, FileUtils.convertSizeToInt("2 g", 0));

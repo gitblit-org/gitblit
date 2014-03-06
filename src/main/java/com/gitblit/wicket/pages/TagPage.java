@@ -28,11 +28,14 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
+@CacheControl(LastModified.BOOT)
 public class TagPage extends RepositoryPage {
 
 	public TagPage(PageParameters params) {
@@ -75,7 +78,7 @@ public class TagPage extends RepositoryPage {
 			break;
 		}
 		add(new GravatarImage("taggerAvatar", tagRef.getAuthorIdent()));
-		
+
 		add(new RefsPanel("tagName", repositoryName, Arrays.asList(tagRef)));
 		add(new Label("tagId", tagRef.getObjectId().getName()));
 		add(new LinkPanel("taggedObject", "list", tagRef.getReferencedObjectId().getName(),
@@ -89,14 +92,14 @@ public class TagPage extends RepositoryPage {
 		}
 		add(WicketUtils.createTimestampLabel("tagDate", when, getTimeZone(), getTimeUtils()));
 
-		addFullText("fullMessage", tagRef.getFullMessage(), true);
+		addFullText("fullMessage", tagRef.getFullMessage());
 	}
 
 	@Override
 	protected String getPageName() {
 		return getString("gb.tag");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;

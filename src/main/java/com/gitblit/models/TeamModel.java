@@ -27,17 +27,17 @@ import java.util.Set;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.Constants.Unused;
 import com.gitblit.utils.StringUtils;
 
 /**
  * TeamModel is a serializable model class that represents a group of users and
  * a list of accessible repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class TeamModel implements Serializable, Comparable<TeamModel> {
 
@@ -48,6 +48,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public boolean canAdmin;
 	public boolean canFork;
 	public boolean canCreate;
+	public AccountType accountType;
 	public final Set<String> users = new HashSet<String>();
 	// retained for backwards-compatibility with RPC clients
 	@Deprecated
@@ -59,41 +60,12 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 
 	public TeamModel(String name) {
 		this.name = name;
+		this.accountType = AccountType.LOCAL;
 	}
 
-	/**
-	 * @use hasRepositoryPermission
-	 * @param name
-	 * @return
-	 */
-	@Deprecated
-	@Unused
-	public boolean hasRepository(String name) {
-		return hasRepositoryPermission(name);
-	}
-
-	@Deprecated
-	@Unused
-	public void addRepository(String name) {
-		addRepositoryPermission(name);
-	}
-	
-	@Deprecated
-	@Unused
-	public void addRepositories(Collection<String> names) {
-		addRepositoryPermissions(names);
-	}
-
-	@Deprecated
-	@Unused
-	public void removeRepository(String name) {
-		removeRepositoryPermission(name);
-	}
-
-	
 	/**
 	 * Returns a list of repository permissions for this team.
-	 * 
+	 *
 	 * @return the team's list of permissions
 	 */
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
@@ -117,11 +89,11 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
 	 * Returns true if the team has any type of specified access permission for
 	 * this repository.
-	 * 
+	 *
 	 * @param name
 	 * @return true if team has a specified access permission for the repository
 	 */
@@ -143,11 +115,11 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if the team has an explicitly specified access permission for
 	 * this repository.
-	 * 
+	 *
 	 * @param name
 	 * @return if the team has an explicitly specified access permission
 	 */
@@ -155,7 +127,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
 		return permissions.containsKey(repository);
 	}
-	
+
 	/**
 	 * Adds a repository permission to the team.
 	 * <p>
@@ -178,13 +150,13 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			addRepositoryPermission(role);
 		}
 	}
-	
+
 	public AccessPermission removeRepositoryPermission(String name) {
 		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
 		repositories.remove(repository);
 		return permissions.remove(repository);
 	}
-	
+
 	public void setRepositoryPermission(String repository, AccessPermission permission) {
 		if (permission == null) {
 			// remove the permission
@@ -196,17 +168,17 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			repositories.add(repository.toLowerCase());
 		}
 	}
-	
+
 	public RegistrantAccessPermission getRepositoryPermission(RepositoryModel repository) {
 		RegistrantAccessPermission ap = new RegistrantAccessPermission();
 		ap.registrant = name;
 		ap.registrantType = RegistrantType.TEAM;
 		ap.permission = AccessPermission.NONE;
 		ap.mutable = false;
-		
+
 		// determine maximum permission for the repository
-		final AccessPermission maxPermission = 
-				(repository.isFrozen || !repository.isBare) ?
+		final AccessPermission maxPermission =
+				(repository.isFrozen || !repository.isBare || repository.isMirror) ?
 						AccessPermission.CLONE : AccessPermission.REWIND;
 
 		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {
@@ -219,7 +191,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			}
 			return ap;
 		}
-		
+
 		if (canAdmin) {
 			ap.permissionType = PermissionType.ADMINISTRATOR;
 			if (AccessPermission.REWIND.atMost(maxPermission)) {
@@ -229,7 +201,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			}
 			return ap;
 		}
-		
+
 		if (permissions.containsKey(repository.name.toLowerCase())) {
 			// exact repository permission specified
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
@@ -262,7 +234,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 				}
 			}
 		}
-		
+
 		// still no explicit or regex, check for implicit permissions
 		if (AccessPermission.NONE == ap.permission) {
 			switch (repository.accessRestriction) {
@@ -289,7 +261,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 
 		return ap;
 	}
-	
+
 	protected boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
 		if (repository.accessRestriction.atLeast(ifRestriction)) {
 			RegistrantAccessPermission ap = getRepositoryPermission(repository);
@@ -297,7 +269,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		}
 		return true;
 	}
-	
+
 	public boolean canView(RepositoryModel repository) {
 		return canAccess(repository, AccessRestrictionType.VIEW, AccessPermission.VIEW);
 	}
@@ -356,6 +328,10 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		for (String address:addresses) {
 			mailingLists.add(address.toLowerCase());
 		}
+	}
+
+	public boolean isLocalTeam() {
+		return accountType.isLocal();
 	}
 
 	@Override

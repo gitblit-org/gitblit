@@ -23,7 +23,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
@@ -37,35 +36,26 @@ public class ReviewProposalPage extends RootSubPage {
 
 	private final String PROPS_PATTERN = "{0} = {1}\n";
 
-	private final String WEBXML_PATTERN = "\n<context-param>\n\t<param-name>{0}</param-name>\n\t<param-value>{1}</param-value>\n</context-param>\n";
-
 	public ReviewProposalPage(PageParameters params) {
 		super(params);
 
 		final String token = WicketUtils.getToken(params);
 
-		FederationProposal proposal = GitBlit.self().getPendingFederationProposal(token);
+		FederationProposal proposal = app().federation().getPendingFederationProposal(token);
 		if (proposal == null) {
 			error(getString("gb.couldNotFindFederationProposal"), true);
 		}
 
 		setupPage(getString("gb.proposals"), proposal.url);
-		
+
 
 		add(new Label("url", proposal.url));
 		add(new Label("message", proposal.message));
 		add(WicketUtils.createTimestampLabel("received", proposal.received, getTimeZone(), getTimeUtils()));
 		add(new Label("token", proposal.token));
 		add(new Label("tokenType", proposal.tokenType.name()));
-		
-		String p;
-		if (GitBlit.isGO()) {
-			// gitblit.properties definition
-			p = PROPS_PATTERN;
-		} else {
-			// web.xml definition
-			p = WEBXML_PATTERN;
-		}
+
+		String p = PROPS_PATTERN;
 
 		// build proposed definition
 		StringBuilder sb = new StringBuilder();
@@ -77,7 +67,7 @@ public class ReviewProposalPage extends RootSubPage {
 			sb.append(asParam(p, proposal.name, "mergeAccounts", "false"));
 		}
 		sb.append(asParam(p, proposal.name, "frequency",
-				GitBlit.getString(Keys.federation.defaultFrequency, "60 mins")));
+				app().settings().getString(Keys.federation.defaultFrequency, "60 mins")));
 		sb.append(asParam(p, proposal.name, "folder", proposal.name));
 		sb.append(asParam(p, proposal.name, "bare", "true"));
 		sb.append(asParam(p, proposal.name, "mirror", "true"));

@@ -34,7 +34,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.Metric;
@@ -75,7 +74,7 @@ public abstract class DashboardPage extends RootPage {
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
 		TimeZone timezone = getTimeZone();
-		
+
 		// create daily commit digest feed
 		List<DailyLogEntry> digests = new ArrayList<DailyLogEntry>();
 		for (RepositoryModel model : repositories) {
@@ -83,13 +82,13 @@ public abstract class DashboardPage extends RootPage {
 				continue;
 			}
 			if (model.hasCommits && model.lastChange.after(minimumDate)) {
-				Repository repository = GitBlit.self().getRepository(model.name);
+				Repository repository = app().repositories().getRepository(model.name);
 				List<DailyLogEntry> entries = RefLogUtils.getDailyLogByRef(model.name, repository, minimumDate, timezone);
 				digests.addAll(entries);
 				repository.close();
 			}
 		}
-		
+
 		Fragment activityFragment = new Fragment("activity", "activityFragment", this);
 		add(activityFragment);
 		activityFragment.add(new Label("feedTitle", feedTitle));
@@ -118,12 +117,12 @@ public abstract class DashboardPage extends RootPage {
 			DigestsPanel digestsPanel = new DigestsPanel("digests", digests);
 			activityFragment.add(digestsPanel);
 		}
-		
+
 		// add the nifty charts
 		if (!ArrayUtils.isEmpty(digests)) {
 			// aggregate author exclusions
 			Set<String> authorExclusions = new TreeSet<String>();
-			for (String author : GitBlit.getStrings(Keys.web.metricAuthorExclusions)) {
+			for (String author : app().settings().getStrings(Keys.web.metricAuthorExclusions)) {
 				authorExclusions.add(author.toLowerCase());
 			}
 			for (RepositoryModel model : repositories) {
@@ -140,13 +139,13 @@ public abstract class DashboardPage extends RootPage {
 			activityFragment.add(new Label("feedheader").setVisible(false));
 		}
 	}
-	
+
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 		PageParameters params = getPageParameters();
 
 		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
-				GitBlitWebApp.HOME_PAGE_CLASS);
+				GitBlitWebApp.get().getHomePage());
 
 		// preserve repository filter option on time choices
 		menu.menuItems.addAll(getTimeFilterItems(params));
@@ -163,7 +162,7 @@ public abstract class DashboardPage extends RootPage {
 	/**
 	 * Creates the daily activity line chart, the active repositories pie chart,
 	 * and the active authors pie chart
-	 * 
+	 *
 	 * @param recentChanges
 	 * @param authorExclusions
 	 * @param daysBack
@@ -183,7 +182,7 @@ public abstract class DashboardPage extends RootPage {
 				repositoryMetrics.put(repository, new Metric(repository));
 			}
 			repositoryMetrics.get(repository).count += 1;
-			
+
 			for (RepositoryCommit commit : change.getCommits()) {
 				totalCommits++;
 				String author = StringUtils.removeNewlines(commit.getAuthorIdent().getName());
@@ -197,7 +196,7 @@ public abstract class DashboardPage extends RootPage {
 				}
 			}
 		}
-		
+
 		String headerPattern;
 		if (daysBack == 1) {
 			// today
@@ -217,28 +216,32 @@ public abstract class DashboardPage extends RootPage {
 		frag.add(new Label("feedheader", MessageFormat.format(headerPattern,
 				daysBack, totalCommits, authorMetrics.size())));
 
-		// build google charts
-		GoogleCharts charts = new GoogleCharts();
+		if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+			// build google charts
+			GoogleCharts charts = new GoogleCharts();
 
-		// active repositories pie chart
-		GoogleChart chart = new GooglePieChart("chartRepositories", getString("gb.activeRepositories"),
-				getString("gb.repository"), getString("gb.commits"));
-		for (Metric metric : repositoryMetrics.values()) {
-			chart.addValue(metric.name, metric.count);
+			// active repositories pie chart
+			GoogleChart chart = new GooglePieChart("chartRepositories", getString("gb.activeRepositories"),
+					getString("gb.repository"), getString("gb.commits"));
+			for (Metric metric : repositoryMetrics.values()) {
+				chart.addValue(metric.name, metric.count);
+			}
+			chart.setShowLegend(false);
+			charts.addChart(chart);
+
+			// active authors pie chart
+			chart = new GooglePieChart("chartAuthors", getString("gb.activeAuthors"),
+					getString("gb.author"), getString("gb.commits"));
+			for (Metric metric : authorMetrics.values()) {
+				chart.addValue(metric.name, metric.count);
+			}
+			chart.setShowLegend(false);
+			charts.addChart(chart);
+
+			add(new HeaderContributor(charts));
+			frag.add(new Fragment("charts", "chartsFragment", this));
+		} else {
+			frag.add(new Label("charts").setVisible(false));
 		}
-		chart.setShowLegend(false);
-		charts.addChart(chart);
-
-		// active authors pie chart
-		chart = new GooglePieChart("chartAuthors", getString("gb.activeAuthors"),
-				getString("gb.author"), getString("gb.commits"));
-		for (Metric metric : authorMetrics.values()) {
-			chart.addValue(metric.name, metric.count);
-		}
-		chart.setShowLegend(false);
-		charts.addChart(chart);
-
-		add(new HeaderContributor(charts));		
-		frag.add(new Fragment("charts", "chartsFragment", this));
 	}
 }

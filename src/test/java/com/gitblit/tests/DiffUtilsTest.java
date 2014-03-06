@@ -15,9 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 
 import org.eclipse.jgit.lib.Repository;
@@ -29,13 +26,12 @@ import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 
-public class DiffUtilsTest {
+public class DiffUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testDiffOutputTypes() throws Exception {
 		assertEquals(DiffOutputType.PLAIN, DiffOutputType.forName("plain"));
-		assertEquals(DiffOutputType.GITWEB, DiffOutputType.forName("gitweb"));
-		assertEquals(DiffOutputType.GITBLIT, DiffOutputType.forName("gitblit"));
+		assertEquals(DiffOutputType.HTML, DiffOutputType.forName("html"));
 		assertEquals(null, DiffOutputType.forName(null));
 	}
 
@@ -44,7 +40,7 @@ public class DiffUtilsTest {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = DiffUtils.getCommitDiff(repository, commit, DiffOutputType.PLAIN);
+		String diff = DiffUtils.getCommitDiff(repository, commit, DiffOutputType.PLAIN).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";
@@ -58,7 +54,7 @@ public class DiffUtilsTest {
 				"8baf6a833b5579384d9b9ceb8a16b5d0ea2ec4ca");
 		RevCommit commit = JGitUtils.getCommit(repository,
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = DiffUtils.getDiff(repository, baseCommit, commit, DiffOutputType.PLAIN);
+		String diff = DiffUtils.getDiff(repository, baseCommit, commit, DiffOutputType.PLAIN).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";
@@ -70,7 +66,7 @@ public class DiffUtilsTest {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = DiffUtils.getDiff(repository, commit, "java.java", DiffOutputType.PLAIN);
+		String diff = DiffUtils.getDiff(repository, commit, "java.java", DiffOutputType.PLAIN).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";

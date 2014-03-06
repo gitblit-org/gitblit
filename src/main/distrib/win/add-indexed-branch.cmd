@@ -14,7 +14,7 @@
 @REM Set BRANCH ("default" or fully qualified ref - i.e. refs/heads/master)
 @REM Set EXCLUSIONS for any repositories that you do not want to change
 @REM --------------------------------------------------------------------------
-@SET FOLDER=c:/gitblit/git
+@SET FOLDER=data/git
 @SET EXCLUSIONS=--skip test.git --skip group/test*
 @SET BRANCH=default
 @java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.AddIndexedBranch --repositoriesFolder %FOLDER% --branch %BRANCH% %EXCLUSIONS% %*

@@ -55,9 +55,9 @@ import com.gitblit.utils.SyndicationUtils;
 /**
  * GitblitClient is a object that retrieves data from a Gitblit server, caches
  * it for local operations, and allows updating or creating Gitblit objects.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitblitClient implements Serializable {
 
@@ -191,9 +191,9 @@ public class GitblitClient implements Serializable {
 			return sb.toString();
 		}
 	}
-	
+
 	public AccessRestrictionType getDefaultAccessRestriction() {
-		String restriction = null;
+		String restriction = "PUSH";
 		if (settings.hasKey(Keys.git.defaultAccessRestriction)) {
 			restriction = settings.get(Keys.git.defaultAccessRestriction).currentValue;
 		}
@@ -211,7 +211,7 @@ public class GitblitClient implements Serializable {
 	/**
 	 * Returns the list of pre-receive scripts the repository inherited from the
 	 * global settings and team affiliations.
-	 * 
+	 *
 	 * @param repository
 	 *            if null only the globally specified scripts are returned
 	 * @return a list of scripts
@@ -243,7 +243,7 @@ public class GitblitClient implements Serializable {
 	 * Returns the list of all available Groovy pre-receive push hook scripts
 	 * that are not already inherited by the repository. Script files must have
 	 * .groovy extension
-	 * 
+	 *
 	 * @param repository
 	 *            optional parameter
 	 * @return list of available hook scripts
@@ -264,7 +264,7 @@ public class GitblitClient implements Serializable {
 	/**
 	 * Returns the list of post-receive scripts the repository inherited from
 	 * the global settings and team affiliations.
-	 * 
+	 *
 	 * @param repository
 	 *            if null only the globally specified scripts are returned
 	 * @return a list of scripts
@@ -295,7 +295,7 @@ public class GitblitClient implements Serializable {
 	 * Returns the list of unused Groovy post-receive push hook scripts that are
 	 * not already inherited by the repository. Script files must have .groovy
 	 * extension
-	 * 
+	 *
 	 * @param repository
 	 *            optional parameter
 	 * @return list of available hook scripts
@@ -305,7 +305,7 @@ public class GitblitClient implements Serializable {
 
 		// create list of available scripts by excluding inherited scripts
 		List<String> scripts = new ArrayList<String>();
-		if (!ArrayUtils.isEmpty(settings.pushScripts)) {			
+		if (!ArrayUtils.isEmpty(settings.pushScripts)) {
 			for (String script : settings.pushScripts) {
 				if (!inherited.contains(script)) {
 					scripts.add(script);
@@ -478,7 +478,7 @@ public class GitblitClient implements Serializable {
 	public List<UserModel> getUsers() {
 		return allUsers;
 	}
-	
+
 	public UserModel getUser(String username) {
 		for (UserModel user : getUsers()) {
 			if (user.username.equalsIgnoreCase(username)) {
@@ -506,11 +506,11 @@ public class GitblitClient implements Serializable {
 		}
 		return usernames;
 	}
-	
+
 	/**
 	 * Returns the effective list of permissions for this user, taking into account
 	 * team memberships, ownerships.
-	 * 
+	 *
 	 * @param user
 	 * @return the effective list of permissions for the user
 	 */
@@ -541,12 +541,12 @@ public class GitblitClient implements Serializable {
 				set.add(rp);
 			}
 		}
-		
+
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>(set);
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {
@@ -593,7 +593,7 @@ public class GitblitClient implements Serializable {
 		}
 		return teamnames;
 	}
-	
+
 	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (TeamModel team : allTeams) {
@@ -626,7 +626,7 @@ public class GitblitClient implements Serializable {
 	public List<RepositoryModel> getRepositories() {
 		return allRepositories;
 	}
-	
+
 	public RepositoryModel getRepository(String name) {
 		for (RepositoryModel repository : allRepositories) {
 			if (repository.name.equalsIgnoreCase(name)) {
@@ -682,7 +682,7 @@ public class GitblitClient implements Serializable {
 	public boolean deleteRepository(RepositoryModel repository) throws IOException {
 		return RpcUtils.deleteRepository(repository, url, account, password);
 	}
-	
+
 	public boolean clearRepositoryCache() throws IOException {
 		return RpcUtils.clearRepositoryCache(url, account, password);
 	}

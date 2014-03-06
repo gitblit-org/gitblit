@@ -24,9 +24,9 @@ import com.gitblit.client.Translation;
 import com.gitblit.utils.X509Utils.X509Metadata;
 
 public class DefaultOidsPanel extends JPanel {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private JTextField organizationalUnit;
 	private JTextField organization;
 	private JTextField locality;
@@ -35,13 +35,13 @@ public class DefaultOidsPanel extends JPanel {
 
 	public DefaultOidsPanel(X509Metadata metadata) {
 		super();
-		
+
 		organizationalUnit = new JTextField(metadata.getOID("OU", ""), 20);
 		organization = new JTextField(metadata.getOID("O", ""), 20);
 		locality = new JTextField(metadata.getOID("L", ""), 20);
 		stateProvince = new JTextField(metadata.getOID("ST", ""), 20);
 		countryCode = new JTextField(metadata.getOID("C", ""), 20);
-				
+
 		setLayout(new GridLayout(0, 1, Utils.MARGIN, Utils.MARGIN));
 		add(Utils.newFieldPanel(Translation.get("gb.organizationalUnit") + " (OU)", organizationalUnit));
 		add(Utils.newFieldPanel(Translation.get("gb.organization") + " (O)", organization));
@@ -49,7 +49,7 @@ public class DefaultOidsPanel extends JPanel {
 		add(Utils.newFieldPanel(Translation.get("gb.stateProvince") + " (ST)", stateProvince));
 		add(Utils.newFieldPanel(Translation.get("gb.countryCode") + " (C)", countryCode));
 	}
-	
+
 	public void update(X509Metadata metadata) {
 		metadata.setOID("OU", organizationalUnit.getText());
 		metadata.setOID("O", organization.getText());
@@ -57,15 +57,15 @@ public class DefaultOidsPanel extends JPanel {
 		metadata.setOID("ST", stateProvince.getText());
 		metadata.setOID("C", countryCode.getText());
 	}
-	
+
 	public String getOrganizationalUnit() {
 		return organizationalUnit.getText();
 	}
-	
+
 	public String getOrganization() {
 		return organization.getText();
 	}
-	
+
 	public String getLocality() {
 		return locality.getText();
 	}

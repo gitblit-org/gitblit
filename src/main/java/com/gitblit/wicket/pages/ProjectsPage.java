@@ -23,7 +23,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -49,7 +48,7 @@ public class ProjectsPage extends RootPage {
 	protected boolean reusePageParameters() {
 		return true;
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return RepositoriesPage.class;
@@ -57,13 +56,13 @@ public class ProjectsPage extends RootPage {
 
 	@Override
 	protected List<ProjectModel> getProjectModels() {
-		return GitBlit.self().getProjectModels(getRepositoryModels(), false);
+		return app().projects().getProjectModels(getRepositoryModels(), false);
 	}
 
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
 			add(new Label("projectsPanel"));
 			return;
@@ -83,6 +82,7 @@ public class ProjectsPage extends RootPage {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<ProjectModel> item) {
 				final ProjectModel entry = item.getModelObject();
 
@@ -117,7 +117,7 @@ public class ProjectsPage extends RootPage {
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 		PageParameters params = getPageParameters();
-		
+
 		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
 				ProjectsPage.class);
 		// preserve time filter option on repository choices

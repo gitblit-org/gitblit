@@ -43,13 +43,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.SyndicationServlet;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -71,7 +71,7 @@ public class RepositoriesPanel extends BasePanel {
 		super(wicketId);
 
 		final boolean linksActive = enableLinks;
-		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
+		final boolean showSize = app().settings().getBoolean(Keys.web.showRepositorySizes, true);
 
 		final UserModel user = GitBlitWebSession.get().getUser();
 
@@ -87,10 +87,10 @@ public class RepositoriesPanel extends BasePanel {
 
 				@Override
 				public void onClick() {
-					GitBlit.self().resetRepositoryListCache();
+					app().repositories().resetRepositoryListCache();
 					setResponsePage(RepositoriesPage.class);
 				}
-			}.setVisible(GitBlit.getBoolean(Keys.git.cacheRepositoryList, true)));
+			}.setVisible(app().settings().getBoolean(Keys.git.cacheRepositoryList, true)));
 			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
 			add(managementLinks);
 		} else if (showManagement && user != null && user.canCreate()) {
@@ -103,7 +103,7 @@ public class RepositoriesPanel extends BasePanel {
 			add (new Label("managementPanel").setVisible(false));
 		}
 
-		if (GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
+		if (app().settings().getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
 			List<RepositoryModel> rootRepositories = new ArrayList<RepositoryModel>();
 			Map<String, List<RepositoryModel>> groups = new HashMap<String, List<RepositoryModel>>();
 			for (RepositoryModel model : models) {
@@ -127,11 +127,11 @@ public class RepositoriesPanel extends BasePanel {
 				roots.add(0, "");
 				groups.put("", rootRepositories);
 			}
-						
+
 			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
 			for (String root : roots) {
 				List<RepositoryModel> subModels = groups.get(root);
-				ProjectModel project = GitBlit.self().getProjectModel(root);
+				ProjectModel project = app().projects().getProjectModel(root);
 				GroupRepositoryModel group = new GroupRepositoryModel(project == null ? root : project.name, subModels.size());
 				if (project != null) {
 					group.title = project.title;
@@ -147,8 +147,8 @@ public class RepositoriesPanel extends BasePanel {
 		}
 
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
-		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-		
+		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
+
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
@@ -160,6 +160,7 @@ public class RepositoriesPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
 				if (entry instanceof GroupRepositoryModel) {
@@ -167,12 +168,12 @@ public class RepositoriesPanel extends BasePanel {
 					currGroupName = entry.name;
 					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
 					item.add(row);
-					
+
 					String name = groupRow.name;
-					if (name.charAt(0) == '~') {
+					if (name.startsWith(ModelUtils.getUserRepoPrefix())) {
 						// user page
-						String username = name.substring(1);
-						UserModel user = GitBlit.self().getUserModel(username);
+						String username = ModelUtils.getUserNameFromRepoPath(name);
+						UserModel user = app().users().getUserModel(username);
 						row.add(new LinkPanel("groupName", null, (user == null ? username : user.getDisplayName()) + " (" + groupRow.count + ")", UserPage.class, WicketUtils.newUsernameParameter(username)));
 						row.add(new Label("groupDescription", getString("gb.personalRepositories")));
 					} else {
@@ -193,7 +194,7 @@ public class RepositoriesPanel extends BasePanel {
 				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
 					repoName = repoName.substring(currGroupName.length() + 1);
 				}
-								
+
 				// repository swatch
 				Component swatch;
 				if (entry.isBare){
@@ -240,26 +241,19 @@ public class RepositoriesPanel extends BasePanel {
 				} else {
 					row.add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 				}
-				
+
+				if (entry.isMirror) {
+					row.add(WicketUtils.newImage("mirrorIcon", "mirror_16x16.png",
+							getString("gb.isMirror")));
+				} else {
+					row.add(WicketUtils.newClearPixel("mirrorIcon").setVisible(false));
+				}
+
 				if (entry.isFork()) {
 					row.add(WicketUtils.newImage("forkIcon", "commit_divide_16x16.png",
 							getString("gb.isFork")));
 				} else {
 					row.add(WicketUtils.newClearPixel("forkIcon").setVisible(false));
-				}
-
-				if (entry.useTickets) {
-					row.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png",
-							getString("gb.tickets")));
-				} else {
-					row.add(WicketUtils.newBlankImage("ticketsIcon"));
-				}
-
-				if (entry.useDocs) {
-					row.add(WicketUtils
-							.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));
-				} else {
-					row.add(WicketUtils.newBlankImage("docsIcon"));
 				}
 
 				if (entry.isFrozen) {
@@ -299,7 +293,7 @@ public class RepositoriesPanel extends BasePanel {
 				if (!ArrayUtils.isEmpty(entry.owners)) {
 					// display first owner
 					for (String username : entry.owners) {
-						UserModel ownerModel = GitBlit.self().getUserModel(username);
+						UserModel ownerModel = app().users().getUserModel(username);
 						if (ownerModel != null) {
 							owner = ownerModel.getDisplayName();
 							break;
@@ -340,7 +334,7 @@ public class RepositoriesPanel extends BasePanel {
 
 						@Override
 						public void onClick() {
-							if (GitBlit.self().deleteRepositoryModel(entry)) {
+							if (app().repositories().deleteRepositoryModel(entry)) {
 								if (dp instanceof SortableRepositoriesProvider) {
 									info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
 									((SortableRepositoriesProvider) dp).remove(entry);

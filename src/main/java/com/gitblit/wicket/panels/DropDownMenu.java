@@ -38,6 +38,7 @@ public class DropDownMenu extends Panel {
 		DataView<DropDownMenuItem> view = new DataView<DropDownMenuItem>("menuItems", items) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<DropDownMenuItem> item) {
 				DropDownMenuItem entry = item.getModelObject();
 				if (entry.isDivider()) {

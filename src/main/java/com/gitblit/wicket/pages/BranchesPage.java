@@ -17,8 +17,11 @@ package com.gitblit.wicket.pages;
 
 import org.apache.wicket.PageParameters;
 
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.BranchesPanel;
 
+@CacheControl(LastModified.REPOSITORY)
 public class BranchesPage extends RepositoryPage {
 
 	public BranchesPage(PageParameters params) {

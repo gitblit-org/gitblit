@@ -25,9 +25,9 @@ import com.gitblit.models.FeedModel;
 
 /**
  * Table model of a list of available feeds.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class FeedsTableModel extends AbstractTableModel {
 
@@ -77,11 +77,12 @@ public class FeedsTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {

@@ -49,9 +49,9 @@ import com.gitblit.utils.StringUtils;
 /**
  * RSS Feeds Panel displays recent entries and launches the browser to view the
  * commit. commitdiff, or tree of a commit.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class FeedsPanel extends JPanel {
 
@@ -95,6 +95,7 @@ public abstract class FeedsPanel extends JPanel {
 		prev.setToolTipText(Translation.get("gb.pagePrevious"));
 		prev.setEnabled(false);
 		prev.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshFeeds(--page);
 			}
@@ -104,6 +105,7 @@ public abstract class FeedsPanel extends JPanel {
 		next.setToolTipText(Translation.get("gb.pageNext"));
 		next.setEnabled(false);
 		next.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshFeeds(++page);
 			}
@@ -111,6 +113,7 @@ public abstract class FeedsPanel extends JPanel {
 
 		JButton refreshFeeds = new JButton(Translation.get("gb.refresh"));
 		refreshFeeds.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshFeeds(0);
 			}
@@ -119,6 +122,7 @@ public abstract class FeedsPanel extends JPanel {
 		final JButton viewCommit = new JButton(Translation.get("gb.view"));
 		viewCommit.setEnabled(false);
 		viewCommit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				viewCommit();
 			}
@@ -127,6 +131,7 @@ public abstract class FeedsPanel extends JPanel {
 		final JButton viewCommitDiff = new JButton(Translation.get("gb.commitdiff"));
 		viewCommitDiff.setEnabled(false);
 		viewCommitDiff.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				viewCommitDiff();
 			}
@@ -135,6 +140,7 @@ public abstract class FeedsPanel extends JPanel {
 		final JButton viewTree = new JButton(Translation.get("gb.tree"));
 		viewTree.setEnabled(false);
 		viewTree.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				viewTree();
 			}
@@ -142,6 +148,7 @@ public abstract class FeedsPanel extends JPanel {
 
 		JButton subscribeFeeds = new JButton(Translation.get("gb.subscribe") + "...");
 		subscribeFeeds.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				subscribeFeeds(gitblit.getAvailableFeeds());
 			}
@@ -171,6 +178,7 @@ public abstract class FeedsPanel extends JPanel {
 		table.getColumn(name).setCellRenderer(new MessageRenderer(gitblit));
 
 		table.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
 					if (e.isControlDown()) {
@@ -200,6 +208,7 @@ public abstract class FeedsPanel extends JPanel {
 		repositorySelector.setRenderer(nameRenderer);
 		repositorySelector.setForeground(nameRenderer.getForeground());
 		repositorySelector.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				// repopulate the author list based on repository selection
 				// preserve author selection, if possible
@@ -221,6 +230,7 @@ public abstract class FeedsPanel extends JPanel {
 		authorSelector.setRenderer(nameRenderer);
 		authorSelector.setForeground(nameRenderer.getForeground());
 		authorSelector.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				filterFeeds();
 			}
@@ -371,6 +381,7 @@ public abstract class FeedsPanel extends JPanel {
 		if (repository.equals(ALL)) {
 			// author filter
 			containsFilter = new RowFilter<FeedEntryTableModel, Object>() {
+				@Override
 				public boolean include(
 						Entry<? extends FeedEntryTableModel, ? extends Object> entry) {
 					return entry.getStringValue(authorIndex).equalsIgnoreCase(author);
@@ -379,6 +390,7 @@ public abstract class FeedsPanel extends JPanel {
 		} else if (author.equals(ALL)) {
 			// repository filter
 			containsFilter = new RowFilter<FeedEntryTableModel, Object>() {
+				@Override
 				public boolean include(
 						Entry<? extends FeedEntryTableModel, ? extends Object> entry) {
 					return entry.getStringValue(repositoryIndex).equalsIgnoreCase(repository);
@@ -387,6 +399,7 @@ public abstract class FeedsPanel extends JPanel {
 		} else {
 			// repository-author filter
 			containsFilter = new RowFilter<FeedEntryTableModel, Object>() {
+				@Override
 				public boolean include(
 						Entry<? extends FeedEntryTableModel, ? extends Object> entry) {
 					boolean authorMatch = entry.getStringValue(authorIndex)

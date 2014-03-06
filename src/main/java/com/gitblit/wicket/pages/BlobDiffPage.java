@@ -21,16 +21,17 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
+@CacheControl(LastModified.BOOT)
 public class BlobDiffPage extends RepositoryPage {
 
 	public BlobDiffPage(PageParameters params) {
@@ -42,19 +43,16 @@ public class BlobDiffPage extends RepositoryPage {
 		Repository r = getRepository();
 		RevCommit commit = getCommit();
 
-		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
-				DiffOutputType.GITBLIT.name()));
-
 		String diff;
 		if (StringUtils.isEmpty(baseObjectId)) {
 			// use first parent
-			diff = DiffUtils.getDiff(r, commit, blobPath, diffType);
+			diff = DiffUtils.getDiff(r, commit, blobPath, DiffOutputType.HTML).content;
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		} else {
 			// base commit specified
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
-			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, diffType);
+			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, DiffOutputType.HTML).content;
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 					WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId,
 							blobPath)));
@@ -82,7 +80,7 @@ public class BlobDiffPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.diff");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return TreePage.class;

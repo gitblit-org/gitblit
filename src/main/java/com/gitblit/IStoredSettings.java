@@ -28,9 +28,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Base class for stored settings implementations.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class IStoredSettings {
 
@@ -53,7 +53,7 @@ public abstract class IStoredSettings {
 	/**
 	 * Returns the list of keys whose name starts with the specified prefix. If
 	 * the prefix is null or empty, all key names are returned.
-	 * 
+	 *
 	 * @param startingWith
 	 * @return list of keys
 	 */
@@ -78,7 +78,7 @@ public abstract class IStoredSettings {
 	 * Returns the boolean value for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as a boolean, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @param key
 	 * @param defaultValue
 	 * @return key value or defaultValue
@@ -98,7 +98,7 @@ public abstract class IStoredSettings {
 	 * Returns the integer value for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as an integer, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @param key
 	 * @param defaultValue
 	 * @return key value or defaultValue
@@ -123,7 +123,7 @@ public abstract class IStoredSettings {
 	 * Returns the long value for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as an long, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @param key
 	 * @param defaultValue
 	 * @return key value or defaultValue
@@ -143,7 +143,7 @@ public abstract class IStoredSettings {
 		}
 		return defaultValue;
 	}
-	
+
 	/**
 	 * Returns an int filesize from a string value such as 50m or 50mb
 	 * @param name
@@ -158,7 +158,7 @@ public abstract class IStoredSettings {
 		}
 		return com.gitblit.utils.FileUtils.convertSizeToInt(val, defaultValue);
 	}
-	
+
 	/**
 	 * Returns an long filesize from a string value such as 50m or 50mb
 	 * @param n
@@ -178,7 +178,7 @@ public abstract class IStoredSettings {
 	 * Returns the char value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a char, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @param key
 	 * @param defaultValue
 	 * @return key value or defaultValue
@@ -198,7 +198,7 @@ public abstract class IStoredSettings {
 	 * Returns the string value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a string, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @param key
 	 * @param defaultValue
 	 * @return key value or defaultValue
@@ -213,11 +213,11 @@ public abstract class IStoredSettings {
 		}
 		return defaultValue;
 	}
-	
+
 	/**
 	 * Returns the string value for the specified key.  If the key does not
 	 * exist an exception is thrown.
-	 * 
+	 *
 	 * @param key
 	 * @return key value
 	 */
@@ -228,13 +228,13 @@ public abstract class IStoredSettings {
 			if (value != null) {
 				return value.trim();
 			}
-		}		
+		}
 		throw new RuntimeException("Property (" + name + ") does not exist");
 	}
 
 	/**
 	 * Returns a list of space-separated strings from the specified key.
-	 * 
+	 *
 	 * @param name
 	 * @return list of strings
 	 */
@@ -245,7 +245,7 @@ public abstract class IStoredSettings {
 	/**
 	 * Returns a list of strings from the specified key using the specified
 	 * string separator.
-	 * 
+	 *
 	 * @param name
 	 * @param separator
 	 * @return list of strings
@@ -259,10 +259,10 @@ public abstract class IStoredSettings {
 		}
 		return strings;
 	}
-	
+
 	/**
 	 * Returns a list of space-separated integers from the specified key.
-	 * 
+	 *
 	 * @param name
 	 * @return list of strings
 	 */
@@ -273,7 +273,7 @@ public abstract class IStoredSettings {
 	/**
 	 * Returns a list of integers from the specified key using the specified
 	 * string separator.
-	 * 
+	 *
 	 * @param name
 	 * @param separator
 	 * @return list of integers
@@ -294,10 +294,10 @@ public abstract class IStoredSettings {
 		}
 		return ints;
 	}
-	
+
 	/**
 	 * Returns a map of strings from the specified key.
-	 * 
+	 *
 	 * @param name
 	 * @return map of string, string
 	 */
@@ -306,7 +306,7 @@ public abstract class IStoredSettings {
 		for (String string : getStrings(name)) {
 			String[] kvp = string.split("=", 2);
 			String key = kvp[0];
-			String value = kvp[1];				
+			String value = kvp[1];
 			map.put(key,  value);
 		}
 		return map;
@@ -314,7 +314,7 @@ public abstract class IStoredSettings {
 
 	/**
 	 * Override the specified key with the specified value.
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */
@@ -324,7 +324,7 @@ public abstract class IStoredSettings {
 
 	/**
 	 * Override the specified key with the specified value.
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */
@@ -333,12 +333,31 @@ public abstract class IStoredSettings {
 	}
 
 	/**
+	 * Override the specified key with the specified value.
+	 *
+	 * @param key
+	 * @param value
+	 */
+	public void overrideSetting(String key, boolean value) {
+		overrides.put(key, "" + value);
+	}
+
+	/**
 	 * Updates the values for the specified keys and persists the entire
 	 * configuration file.
-	 * 
+	 *
 	 * @param map
 	 *            of key, value pairs
 	 * @return true if successful
 	 */
 	public abstract boolean saveSettings(Map<String, String> updatedSettings);
+
+	/**
+	 * Merge all settings from the settings parameter into this instance.
+	 *
+	 * @param settings
+	 */
+	public void merge(IStoredSettings settings) {
+		getSettings().putAll(settings.getSettings());
+	}
 }

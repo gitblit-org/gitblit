@@ -89,43 +89,43 @@ import com.gitblit.Constants;
 
 /**
  * Utility class to generate X509 certificates, keystores, and truststores.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class X509Utils {
-	
+
 	public static final String SERVER_KEY_STORE = "serverKeyStore.jks";
-	
+
 	public static final String SERVER_TRUST_STORE = "serverTrustStore.jks";
 
 	public static final String CERTS = "certs";
-	
+
 	public static final String CA_KEY_STORE = "certs/caKeyStore.p12";
 
 	public static final String CA_REVOCATION_LIST = "certs/caRevocationList.crl";
-	
+
 	public static final String CA_CONFIG = "certs/authority.conf";
 
 	public static final String CA_CN = "Gitblit Certificate Authority";
-	
+
 	public static final String CA_ALIAS = CA_CN;
 
 	private static final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
-	
+
 	private static final int KEY_LENGTH = 2048;
-	
+
 	private static final String KEY_ALGORITHM = "RSA";
-	
+
 	private static final String SIGNING_ALGORITHM = "SHA512withRSA";
-	
+
 	public static final boolean unlimitedStrength;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(X509Utils.class);
-	
+
 	static {
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-		
+
 		// check for JCE Unlimited Strength
 		int maxKeyLen = 0;
 		try {
@@ -140,28 +140,28 @@ public class X509Utils {
 			logger.info("Using JCE Standard Encryption Policy files, encryption key lengths will be limited");
 		}
 	}
-	
+
 	public static enum RevocationReason {
 		// https://en.wikipedia.org/wiki/Revocation_list
 		 unspecified, keyCompromise, caCompromise, affiliationChanged, superseded,
 		 cessationOfOperation, certificateHold, unused, removeFromCRL, privilegeWithdrawn,
 		 ACompromise;
-		 
+
 		 public static RevocationReason [] reasons = {
-			 	unspecified, keyCompromise, caCompromise, 
-				 affiliationChanged, superseded, cessationOfOperation, 
+			 	unspecified, keyCompromise, caCompromise,
+				 affiliationChanged, superseded, cessationOfOperation,
 				 privilegeWithdrawn };
-		 
+
 		 @Override
 		 public String toString() {
 			 return name() +  " (" + ordinal() + ")";
 		 }
 	}
-	
+
 	public interface X509Log {
 		void log(String message);
 	}
-	
+
 	public static class X509Metadata {
 
 		// map for distinguished name OIDs
@@ -169,10 +169,10 @@ public class X509Utils {
 
 		// CN in distingiushed name
 		public final String commonName;
-		
+
 		// password for store
 		public final String password;
-		
+
 		// password hint for README in bundle
 		public String passwordHint;
 
@@ -181,13 +181,13 @@ public class X509Utils {
 
 		// start date of generated certificate
 		public Date notBefore;
-		
+
 		// expiraiton date of generated certificate
 		public Date notAfter;
-		
+
 		// hostname of server for which certificate is generated
 		public String serverHostname;
-		
+
 		// displayname of user for README in bundle
 		public String userDisplayname;
 
@@ -213,7 +213,7 @@ public class X509Utils {
 			notAfter = c.getTime();
 			oids = new HashMap<String, String>();
 		}
-		
+
 		public X509Metadata clone(String commonName, String password) {
 			X509Metadata clone = new X509Metadata(commonName, password);
 			clone.emailAddress = emailAddress;
@@ -225,14 +225,14 @@ public class X509Utils {
 			clone.userDisplayname = userDisplayname;
 			return clone;
 		}
-		
+
 		public String getOID(String oid, String defaultValue) {
 			if (oids.containsKey(oid)) {
 				return oids.get(oid);
 			}
 			return defaultValue;
 		}
-		
+
 		public void setOID(String oid, String value) {
 			if (StringUtils.isEmpty(value)) {
 				oids.remove(oid);
@@ -241,10 +241,10 @@ public class X509Utils {
 			}
 		}
 	}
-	
+
 	/**
 	 * Prepare all the certificates and stores necessary for a Gitblit GO server.
-	 * 
+	 *
 	 * @param metadata
 	 * @param folder
 	 * @param x509log
@@ -252,9 +252,9 @@ public class X509Utils {
 	public static void prepareX509Infrastructure(X509Metadata metadata, File folder, X509Log x509log) {
 		// make the specified folder, if necessary
 		folder.mkdirs();
-		
+
 		// Gitblit CA certificate
-		File caKeyStore = new File(folder, CA_KEY_STORE);			
+		File caKeyStore = new File(folder, CA_KEY_STORE);
 		if (!caKeyStore.exists()) {
 			logger.info(MessageFormat.format("Generating {0} ({1})", CA_CN, caKeyStore.getAbsolutePath()));
 			X509Certificate caCert = newCertificateAuthority(metadata, caKeyStore, x509log);
@@ -262,7 +262,7 @@ public class X509Utils {
 		}
 
 		// Gitblit CRL
-		File caRevocationList = new File(folder, CA_REVOCATION_LIST);			
+		File caRevocationList = new File(folder, CA_REVOCATION_LIST);
 		if (!caRevocationList.exists()) {
 			logger.info(MessageFormat.format("Generating {0} CRL ({1})", CA_CN, caRevocationList.getAbsolutePath()));
 			newCertificateRevocationList(caRevocationList, caKeyStore, metadata.password);
@@ -273,7 +273,7 @@ public class X509Utils {
 		File oldKeyStore = new File(folder, "keystore");
 		if (oldKeyStore.exists()) {
 			oldKeyStore.renameTo(new File(folder, SERVER_KEY_STORE));
-			logger.info(MessageFormat.format("Renaming {0} to {1}", oldKeyStore.getName(), SERVER_KEY_STORE));				
+			logger.info(MessageFormat.format("Renaming {0} to {1}", oldKeyStore.getName(), SERVER_KEY_STORE));
 		}
 
 		// create web SSL certificate signed by CA
@@ -282,7 +282,7 @@ public class X509Utils {
 			logger.info(MessageFormat.format("Generating SSL certificate for {0} signed by {1} ({2})", metadata.commonName, CA_CN, serverKeyStore.getAbsolutePath()));
 			PrivateKey caPrivateKey = getPrivateKey(CA_ALIAS, caKeyStore, metadata.password);
 			X509Certificate caCert = getCertificate(CA_ALIAS, caKeyStore, metadata.password);
-			newSSLCertificate(metadata, caPrivateKey, caCert, serverKeyStore, x509log);			
+			newSSLCertificate(metadata, caPrivateKey, caCert, serverKeyStore, x509log);
 		}
 
 		// server certificate trust store holds trusted public certificates
@@ -293,11 +293,11 @@ public class X509Utils {
 			addTrustedCertificate(CA_ALIAS, caCert, serverTrustStore, metadata.password);
 		}
 	}
-	
+
 	/**
 	 * Open a keystore.  Store type is determined by file extension of name. If
 	 * undetermined, JKS is assumed.  The keystore does not need to exist.
-	 *  
+	 *
 	 * @param storeFile
 	 * @param storePassword
 	 * @return a KeyStore
@@ -336,10 +336,10 @@ public class X509Utils {
 			throw new RuntimeException("Could not open keystore " + storeFile, e);
 		}
 	}
-	
+
 	/**
 	 * Saves the keystore to the specified file.
-	 * 
+	 *
 	 * @param targetStoreFile
 	 * @param store
 	 * @param password
@@ -376,17 +376,17 @@ public class X509Utils {
 				} catch (IOException e) {
 				}
 			}
-			
+
 			if (tmpFile.exists()) {
 				tmpFile.delete();
 			}
 		}
-	}	
+	}
 
 	/**
 	 * Retrieves the X509 certificate with the specified alias from the certificate
 	 * store.
-	 * 
+	 *
 	 * @param alias
 	 * @param storeFile
 	 * @param storePassword
@@ -401,11 +401,11 @@ public class X509Utils {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Retrieves the private key for the specified alias from the certificate
 	 * store.
-	 * 
+	 *
 	 * @param alias
 	 * @param storeFile
 	 * @param storePassword
@@ -425,7 +425,7 @@ public class X509Utils {
 	 * Saves the certificate to the file system.  If the destination filename
 	 * ends with the pem extension, the certificate is written in the PEM format,
 	 * otherwise the certificate is written in the DER format.
-	 * 
+	 *
 	 * @param cert
 	 * @param targetFile
 	 */
@@ -443,7 +443,7 @@ public class X509Utils {
 				try {
 					pemWriter = new PEMWriter(new FileWriter(tmpFile));
 					pemWriter.writeObject(cert);
-					pemWriter.flush();					
+					pemWriter.flush();
 				} finally {
 					if (pemWriter != null) {
 						pemWriter.close();
@@ -462,9 +462,9 @@ public class X509Utils {
 					}
 				}
 			}
-			
+
 			// rename tmp file to target
-			if (targetFile.exists()) { 
+			if (targetFile.exists()) {
 				targetFile.delete();
 			}
 			tmpFile.renameTo(targetFile);
@@ -475,10 +475,10 @@ public class X509Utils {
 			throw new RuntimeException("Failed to save certificate " + cert.getSubjectX500Principal().getName(), e);
 		}
 	}
-	
+
 	/**
 	 * Generate a new keypair.
-	 * 
+	 *
 	 * @return a keypair
 	 * @throws Exception
 	 */
@@ -487,10 +487,10 @@ public class X509Utils {
 		kpGen.initialize(KEY_LENGTH, new SecureRandom());
 		return kpGen.generateKeyPair();
 	}
-	
+
 	/**
 	 * Builds a distinguished name from the X509Metadata.
-	 * 
+	 *
 	 * @return a DN
 	 */
 	private static X500Name buildDistinguishedName(X509Metadata metadata) {
@@ -501,14 +501,14 @@ public class X509Utils {
 		setOID(dnBuilder, metadata, "O", Constants.NAME);
 		setOID(dnBuilder, metadata, "OU", Constants.NAME);
 		setOID(dnBuilder, metadata, "E", metadata.emailAddress);
-		setOID(dnBuilder, metadata, "CN", metadata.commonName);		
+		setOID(dnBuilder, metadata, "CN", metadata.commonName);
 		X500Name dn = dnBuilder.build();
 		return dn;
 	}
-	
+
 	private static void setOID(X500NameBuilder dnBuilder, X509Metadata metadata,
 			String oid, String defaultValue) {
-		
+
 		String value = null;
 		if (metadata.oids != null && metadata.oids.containsKey(oid)) {
 			value = metadata.oids.get(oid);
@@ -516,7 +516,7 @@ public class X509Utils {
 		if (StringUtils.isEmpty(value)) {
 			value = defaultValue;
 		}
-		
+
 		if (!StringUtils.isEmpty(value)) {
 			try {
 				Field field = BCStyle.class.getField(oid);
@@ -531,7 +531,7 @@ public class X509Utils {
 	/**
 	 * Creates a new SSL certificate signed by the CA private key and stored in
 	 * keyStore.
-	 * 
+	 *
 	 * @param sslMetadata
 	 * @param caPrivateKey
 	 * @param caCert
@@ -544,15 +544,15 @@ public class X509Utils {
 
 			X500Name webDN = buildDistinguishedName(sslMetadata);
 			X500Name issuerDN = new X500Name(PrincipalUtil.getIssuerX509Principal(caCert).getName());
-			
+
 			X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(
 					issuerDN,
-					BigInteger.valueOf(System.currentTimeMillis()), 
+					BigInteger.valueOf(System.currentTimeMillis()),
 					sslMetadata.notBefore,
 					sslMetadata.notAfter,
 					webDN,
 					pair.getPublic());
-			
+
 			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
 			certBuilder.addExtension(X509Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(pair.getPublic()));
 			certBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
@@ -561,7 +561,7 @@ public class X509Utils {
 			// support alternateSubjectNames for SSL certificates
 			List<GeneralName> altNames = new ArrayList<GeneralName>();
 			if (HttpUtils.isIpAddress(sslMetadata.commonName)) {
-				altNames.add(new GeneralName(GeneralName.iPAddress, sslMetadata.commonName));				
+				altNames.add(new GeneralName(GeneralName.iPAddress, sslMetadata.commonName));
 			}
 			if (altNames.size() > 0) {
 				GeneralNames subjectAltName = new GeneralNames(altNames.toArray(new GeneralName [altNames.size()]));
@@ -572,7 +572,7 @@ public class X509Utils {
 					.setProvider(BC).build(caPrivateKey);
 			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC)
 					.getCertificate(certBuilder.build(caSigner));
-			
+
 			cert.checkValidity(new Date());
 			cert.verify(caCert.getPublicKey());
 
@@ -581,9 +581,9 @@ public class X509Utils {
 			serverStore.setKeyEntry(sslMetadata.commonName, pair.getPrivate(), sslMetadata.password.toCharArray(),
 					new Certificate[] { cert, caCert });
 			saveKeyStore(targetStoreFile, serverStore, sslMetadata.password);
-			
+
 	        x509log.log(MessageFormat.format("New SSL certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getSubjectDN().getName()));
-	        
+
 	        // update serial number in metadata object
 	        sslMetadata.serialNumber = cert.getSerialNumber().toString();
 
@@ -596,7 +596,7 @@ public class X509Utils {
 	/**
 	 * Creates a new certificate authority PKCS#12 store.  This function will
 	 * destroy any existing CA store.
-	 * 
+	 *
 	 * @param metadata
 	 * @param storeFile
 	 * @param keystorePassword
@@ -606,13 +606,13 @@ public class X509Utils {
 	public static X509Certificate newCertificateAuthority(X509Metadata metadata, File storeFile, X509Log x509log) {
 		try {
 			KeyPair caPair = newKeyPair();
-			
+
 			ContentSigner caSigner = new JcaContentSignerBuilder(SIGNING_ALGORITHM).setProvider(BC).build(caPair.getPrivate());
-			
+
 			// clone metadata
 			X509Metadata caMetadata = metadata.clone(CA_CN, metadata.password);
 			X500Name issuerDN = buildDistinguishedName(caMetadata);
-			
+
 			// Generate self-signed certificate
 			X509v3CertificateBuilder caBuilder = new JcaX509v3CertificateBuilder(
 					issuerDN,
@@ -621,16 +621,16 @@ public class X509Utils {
 					caMetadata.notAfter,
 					issuerDN,
 					caPair.getPublic());
-			
+
 			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
 			caBuilder.addExtension(X509Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(caPair.getPublic()));
 			caBuilder.addExtension(X509Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caPair.getPublic()));
 			caBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(true));
 			caBuilder.addExtension(X509Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyCertSign | KeyUsage.cRLSign));
-						
+
 			JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider(BC);
 			X509Certificate cert = converter.getCertificate(caBuilder.build(caSigner));
-			
+
 			// confirm the validity of the CA certificate
 			cert.checkValidity(new Date());
 			cert.verify(cert.getPublicKey());
@@ -639,13 +639,13 @@ public class X509Utils {
 			if (storeFile.exists()) {
 				storeFile.delete();
 			}
-			
+
 			// Save private key and certificate to new keystore
 			KeyStore store = openKeyStore(storeFile, caMetadata.password);
 			store.setKeyEntry(CA_ALIAS, caPair.getPrivate(), caMetadata.password.toCharArray(),
 					new Certificate[] { cert });
 			saveKeyStore(storeFile, store, caMetadata.password);
-			
+
 			x509log.log(MessageFormat.format("New CA certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getIssuerDN().getName()));
 
 	        // update serial number in metadata object
@@ -656,11 +656,11 @@ public class X509Utils {
 			throw new RuntimeException("Failed to generate Gitblit CA certificate!", t);
 		}
 	}
-	
+
 	/**
 	 * Creates a new certificate revocation list (CRL).  This function will
 	 * destroy any existing CRL file.
-	 * 
+	 *
 	 * @param caRevocationList
 	 * @param storeFile
 	 * @param keystorePassword
@@ -675,7 +675,7 @@ public class X509Utils {
 
 			X500Name issuerDN = new X500Name(PrincipalUtil.getIssuerX509Principal(caCert).getName());
 			X509v2CRLBuilder crlBuilder = new X509v2CRLBuilder(issuerDN, new Date());
-			
+
 			// build and sign CRL with CA private key
 			ContentSigner signer = new JcaContentSignerBuilder(SIGNING_ALGORITHM).setProvider(BC).build(caPrivateKey);
 			X509CRLHolder crl = crlBuilder.build(signer);
@@ -703,10 +703,10 @@ public class X509Utils {
 			throw new RuntimeException("Failed to create new certificate revocation list " + caRevocationList, e);
 		}
 	}
-	
+
 	/**
 	 * Imports a certificate into the trust store.
-	 * 
+	 *
 	 * @param alias
 	 * @param cert
 	 * @param storeFile
@@ -716,33 +716,33 @@ public class X509Utils {
 		try {
 			KeyStore store = openKeyStore(storeFile, storePassword);
 			store.setCertificateEntry(alias, cert);
-			saveKeyStore(storeFile, store, storePassword);			
+			saveKeyStore(storeFile, store, storePassword);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to import certificate into trust store " + storeFile, e);
 		}
 	}
-	
+
 	/**
 	 * Creates a new client certificate PKCS#12 and PEM store.  Any existing
 	 * stores are destroyed.  After generation, the certificates are bundled
 	 * into a zip file with a personalized README file.
-	 * 
-	 * The zip file reference is returned. 
-	 * 
+	 *
+	 * The zip file reference is returned.
+	 *
 	 * @param clientMetadata a container for dynamic parameters needed for generation
 	 * @param caKeystoreFile
 	 * @param caKeystorePassword
 	 * @param x509log
 	 * @return a zip file containing the P12, PEM, and personalized README
 	 */
-	public static File newClientBundle(X509Metadata clientMetadata, File caKeystoreFile, 
+	public static File newClientBundle(X509Metadata clientMetadata, File caKeystoreFile,
 			String caKeystorePassword, X509Log x509log) {
 		try {
 			// read the Gitblit CA key and certificate
 			KeyStore store = openKeyStore(caKeystoreFile, caKeystorePassword);
 			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_ALIAS, caKeystorePassword.toCharArray());
 			X509Certificate caCert = (X509Certificate) store.getCertificate(CA_ALIAS);
-			
+
 			// generate the P12 and PEM files
 			File targetFolder = new File(caKeystoreFile.getParentFile(), clientMetadata.commonName);
 			X509Certificate cert = newClientCertificate(clientMetadata, caPrivateKey, caCert, targetFolder);
@@ -750,7 +750,7 @@ public class X509Utils {
 
 	        // process template message
 	        String readme = processTemplate(new File(caKeystoreFile.getParentFile(), "instructions.tmpl"), clientMetadata);
-	        
+
 	        // Create a zip bundle with the p12, pem, and a personalized readme
 	        File zipFile = new File(targetFolder, clientMetadata.commonName + ".zip");
 	        if (zipFile.exists()) {
@@ -764,24 +764,24 @@ public class X509Utils {
 	        		zos.putNextEntry(new ZipEntry(p12File.getName()));
 	        		zos.write(FileUtils.readContent(p12File));
 	        		zos.closeEntry();
-	        	}	        	
+	        	}
 	        	File pemFile = new File(targetFolder, clientMetadata.commonName + ".pem");
 	        	if (pemFile.exists()) {
 	        		zos.putNextEntry(new ZipEntry(pemFile.getName()));
 	        		zos.write(FileUtils.readContent(pemFile));
 	        		zos.closeEntry();
 	        	}
-	        	
+
 	        	// include user's public certificate
 	        	zos.putNextEntry(new ZipEntry(clientMetadata.commonName + ".cer"));
         		zos.write(cert.getEncoded());
         		zos.closeEntry();
-        		
+
 	        	// include CA public certificate
 	        	zos.putNextEntry(new ZipEntry("ca.cer"));
         		zos.write(caCert.getEncoded());
         		zos.closeEntry();
-        		
+
 	        	if (readme != null) {
 	        		zos.putNextEntry(new ZipEntry("README.TXT"));
 	        		zos.write(readme.getBytes("UTF-8"));
@@ -793,17 +793,17 @@ public class X509Utils {
 	        		zos.close();
 	        	}
 	        }
-	        
+
 			return zipFile;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate client bundle!", t);
 		}
 	}
-	
+
 	/**
 	 * Creates a new client certificate PKCS#12 and PEM store.  Any existing
 	 * stores are destroyed.
-	 * 
+	 *
 	 * @param clientMetadata a container for dynamic parameters needed for generation
 	 * @param caKeystoreFile
 	 * @param caKeystorePassword
@@ -814,10 +814,10 @@ public class X509Utils {
 			PrivateKey caPrivateKey, X509Certificate caCert, File targetFolder) {
 		try {
 			KeyPair pair = newKeyPair();
-			
-			X500Name userDN = buildDistinguishedName(clientMetadata);			
+
+			X500Name userDN = buildDistinguishedName(clientMetadata);
 			X500Name issuerDN = new X500Name(PrincipalUtil.getIssuerX509Principal(caCert).getName());
-			
+
 			// create a new certificate signed by the Gitblit CA certificate
 			X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(
 					issuerDN,
@@ -826,7 +826,7 @@ public class X509Utils {
 					clientMetadata.notAfter,
 					userDN,
 					pair.getPublic());
-			
+
 			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
 			certBuilder.addExtension(X509Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(pair.getPublic()));
 			certBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
@@ -844,7 +844,7 @@ public class X509Utils {
 			PKCS12BagAttributeCarrier bagAttr = (PKCS12BagAttributeCarrier)pair.getPrivate();
 			bagAttr.setBagAttribute(PKCSObjectIdentifiers.pkcs_9_at_localKeyId,
 					extUtils.createSubjectKeyIdentifier(pair.getPublic()));
-			 
+
 			// confirm the validity of the user certificate
 			userCert.checkValidity();
 			userCert.verify(caCert.getPublicKey());
@@ -854,7 +854,7 @@ public class X509Utils {
 	        verifyChain(userCert, caCert);
 
 	        targetFolder.mkdirs();
-	        
+
 	        // save certificate, stamped with unique name
 	        String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
 	        String id = date;
@@ -865,7 +865,7 @@ public class X509Utils {
 	        	certFile = new File(targetFolder, id + ".cer");
 	        	count++;
 	        }
-	        
+
 	        // save user private key, user certificate and CA certificate to a PKCS#12 store
 	        File p12File = new File(targetFolder, clientMetadata.commonName + ".p12");
 	        if (p12File.exists()) {
@@ -873,9 +873,9 @@ public class X509Utils {
 	        }
 	        KeyStore userStore = openKeyStore(p12File, clientMetadata.password);
 	        userStore.setKeyEntry(MessageFormat.format("Gitblit ({0}) {1} {2}", clientMetadata.serverHostname, clientMetadata.userDisplayname, id), pair.getPrivate(), null, new Certificate [] { userCert });
-	        userStore.setCertificateEntry(MessageFormat.format("Gitblit ({0}) Certificate Authority", clientMetadata.serverHostname), caCert);	        
+	        userStore.setCertificateEntry(MessageFormat.format("Gitblit ({0}) Certificate Authority", clientMetadata.serverHostname), caCert);
 	        saveKeyStore(p12File, userStore, clientMetadata.password);
-	        
+
 	        // save user private key, user certificate, and CA certificate to a PEM store
 	        File pemFile = new File(targetFolder, clientMetadata.commonName + ".pem");
 	        if (pemFile.exists()) {
@@ -887,22 +887,22 @@ public class X509Utils {
 	        pemWriter.writeObject(caCert);
 	        pemWriter.flush();
 	        pemWriter.close();
-	        
+
 	        // save certificate after successfully creating the key stores
 	        saveCertificate(userCert, certFile);
-	        
+
 	        // update serial number in metadata object
 	        clientMetadata.serialNumber = userCert.getSerialNumber().toString();
-	        
+
 	        return userCert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate client certificate!", t);
 		}
 	}
-	
+
 	/**
 	 * Verifies a certificate's chain to ensure that it will function properly.
-	 * 
+	 *
 	 * @param testCert
 	 * @param additionalCerts
 	 * @return
@@ -913,19 +913,19 @@ public class X509Utils {
 			if (isSelfSigned(testCert)) {
 				throw new RuntimeException("The certificate is self-signed.  Nothing to verify.");
 			}
-			
+
 			// Prepare a set of all certificates
 			// chain builder must have all certs, including cert to validate
 			// http://stackoverflow.com/a/10788392
 			Set<X509Certificate> certs = new HashSet<X509Certificate>();
 			certs.add(testCert);
 			certs.addAll(Arrays.asList(additionalCerts));
-			
+
 			// Attempt to build the certification chain and verify it
 			// Create the selector that specifies the starting certificate
-			X509CertSelector selector = new X509CertSelector(); 
+			X509CertSelector selector = new X509CertSelector();
 		    selector.setCertificate(testCert);
-		    
+
 		    // Create the trust anchors (set of root CA certificates)
 		    Set<TrustAnchor> trustAnchors = new HashSet<TrustAnchor>();
 		    for (X509Certificate cert : additionalCerts) {
@@ -933,16 +933,16 @@ public class X509Utils {
 		    		trustAnchors.add(new TrustAnchor(cert, null));
 		    	}
 		    }
-		    
+
 		    // Configure the PKIX certificate builder
 		    PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(trustAnchors, selector);
 			pkixParams.setRevocationEnabled(false);
 			pkixParams.addCertStore(CertStore.getInstance("Collection", new CollectionCertStoreParameters(certs), BC));
-		
+
 			// Build and verify the certification chain
 			CertPathBuilder builder = CertPathBuilder.getInstance("PKIX", BC);
 			PKIXCertPathBuilderResult verifiedCertChain = (PKIXCertPathBuilderResult) builder.build(pkixParams);
-			
+
 			// The chain is built and verified
 			return verifiedCertChain;
 		} catch (CertPathBuilderException e) {
@@ -951,10 +951,10 @@ public class X509Utils {
 			throw new RuntimeException("Error verifying the certificate: " + testCert.getSubjectX500Principal(), e);
 		}
 	}
-	
+
 	/**
 	 * Checks whether given X.509 certificate is self-signed.
-	 * 
+	 *
 	 * @param cert
 	 * @return true if the certificate is self-signed
 	 */
@@ -970,7 +970,7 @@ public class X509Utils {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static String processTemplate(File template, X509Metadata metadata) {
 		String content = null;
 		if (template.exists()) {
@@ -993,10 +993,10 @@ public class X509Utils {
 		}
 		return content;
 	}
-	
+
 	/**
 	 * Revoke a certificate.
-	 * 
+	 *
 	 * @param cert
 	 * @param reason
 	 * @param caRevocationList
@@ -1019,10 +1019,10 @@ public class X509Utils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Revoke a certificate.
-	 * 
+	 *
 	 * @param cert
 	 * @param reason
 	 * @param caRevocationList
@@ -1036,16 +1036,16 @@ public class X509Utils {
 			X500Name issuerDN = new X500Name(PrincipalUtil.getIssuerX509Principal(cert).getName());
 			X509v2CRLBuilder crlBuilder = new X509v2CRLBuilder(issuerDN, new Date());
 			if (caRevocationList.exists()) {
-				byte [] data = FileUtils.readContent(caRevocationList);				
+				byte [] data = FileUtils.readContent(caRevocationList);
 				X509CRLHolder crl = new X509CRLHolder(data);
 				crlBuilder.addCRL(crl);
 			}
 			crlBuilder.addCRLEntry(cert.getSerialNumber(), new Date(), reason.ordinal());
-			
+
 			// build and sign CRL with CA private key
 			ContentSigner signer = new JcaContentSignerBuilder("SHA1WithRSA").setProvider(BC).build(caPrivateKey);
 			X509CRLHolder crl = crlBuilder.build(signer);
-			
+
 			File tmpFile = new File(caRevocationList.getParentFile(), Long.toHexString(System.currentTimeMillis()) + ".tmp");
 			FileOutputStream fos = null;
 			try {
@@ -1057,7 +1057,7 @@ public class X509Utils {
 					caRevocationList.delete();
 				}
 				tmpFile.renameTo(caRevocationList);
-				
+
 			} finally {
 				if (fos != null) {
 					fos.close();
@@ -1066,7 +1066,7 @@ public class X509Utils {
 					tmpFile.delete();
 				}
 			}
-			
+
 			x509log.log(MessageFormat.format("Revoked certificate {0,number,0} reason: {1} [{2}]",
 					cert.getSerialNumber(), reason.toString(), cert.getSubjectDN().getName()));
 			return true;
@@ -1076,10 +1076,10 @@ public class X509Utils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if the certificate has been revoked.
-	 * 
+	 *
 	 * @param cert
 	 * @param caRevocationList
 	 * @return true if the certificate is revoked
@@ -1107,7 +1107,7 @@ public class X509Utils {
 		}
 		return false;
 	}
-	
+
 	public static X509Metadata getMetadata(X509Certificate cert) {
 		// manually split DN into OID components
 		// this is instead of parsing with LdapName which:
@@ -1121,7 +1121,7 @@ public class X509Utils {
 			String data = val[1].trim();
 			oids.put(oid, data);
 		}
-		
+
 		X509Metadata metadata = new X509Metadata(oids.get("CN"), "whocares");
 		metadata.oids.putAll(oids);
 		metadata.serialNumber = cert.getSerialNumber().toString();

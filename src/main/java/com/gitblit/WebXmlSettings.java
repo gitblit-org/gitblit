@@ -31,9 +31,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Loads Gitblit settings from the context-parameter values of a web.xml file.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class WebXmlSettings extends IStoredSettings {
 
@@ -54,7 +54,7 @@ public class WebXmlSettings extends IStoredSettings {
 
 	public void applyOverrides(File overrideFile) {
 		this.overrideFile = overrideFile;
-		
+
 		// apply any web-configured overrides
 		if (overrideFile.exists()) {
 			try {

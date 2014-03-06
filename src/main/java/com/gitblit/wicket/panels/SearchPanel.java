@@ -29,7 +29,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
@@ -51,7 +50,7 @@ public class SearchPanel extends BasePanel {
 			boolean showRemoteRefs) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
+		int itemsPerPage = app().settings().getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -84,6 +83,7 @@ public class SearchPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);
@@ -93,7 +93,7 @@ public class SearchPanel extends BasePanel {
 				// author search link
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
-						GitSearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+						GitSearchPage.class, WicketUtils.newSearchParameter(repositoryName, null,
 								author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);

@@ -25,11 +25,11 @@ public class FanoutConstants {
 	public final static String CH_DEBUG = "debug";
 	public final static String MSG_CONNECTED = "connected...";
 	public final static String MSG_BUSY = "busy";
-	
+
 	public static String getRemoteSocketId(Socket socket) {
 		return socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
 	}
-	
+
 	public static String getLocalSocketId(Socket socket) {
 		return socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort();
 	}

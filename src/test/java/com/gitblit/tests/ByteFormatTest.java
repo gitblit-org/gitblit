@@ -15,22 +15,30 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Locale;
 
 import org.junit.Test;
 
 import com.gitblit.utils.ByteFormat;
 
-public class ByteFormatTest {
+public class ByteFormatTest extends GitblitUnitTest {
 
 	@Test
 	public void testByteFormat() throws Exception {
-		ByteFormat format = new ByteFormat();
-		assertEquals("10 b", format.format(10));
-		assertEquals("10 KB", format.format(1024 * 10));
-		assertEquals("1,000 KB", format.format(1024 * 1000));
-		assertEquals("2.0 MB", format.format(2 * 1024 * 1000));
-		assertEquals("1,000.0 MB", format.format(1024 * 1024 * 1000));
-		assertEquals("2.0 GB", format.format(2 * 1024 * 1024 * 1000));
+		// sets locale for this test
+		Locale defaultLocale = Locale.getDefault();
+
+		try {
+			Locale.setDefault(Locale.ENGLISH);
+			ByteFormat format = new ByteFormat();
+			assertEquals("10 b", format.format(10));
+			assertEquals("10 KB", format.format(1024 * 10));
+			assertEquals("1,000 KB", format.format(1024 * 1000));
+			assertEquals("2.0 MB", format.format(2 * 1024 * 1000));
+			assertEquals("1,000.0 MB", format.format(1024 * 1024 * 1000));
+			assertEquals("2.0 GB", format.format(2 * 1024 * 1024 * 1000));
+		} finally {
+			Locale.setDefault(defaultLocale);
+		}
 	}
 }

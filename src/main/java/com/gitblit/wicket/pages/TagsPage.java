@@ -17,8 +17,11 @@ package com.gitblit.wicket.pages;
 
 import org.apache.wicket.PageParameters;
 
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.TagsPanel;
 
+@CacheControl(LastModified.REPOSITORY)
 public class TagsPage extends RepositoryPage {
 
 	public TagsPage(PageParameters params) {
@@ -32,7 +35,7 @@ public class TagsPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.tags");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;

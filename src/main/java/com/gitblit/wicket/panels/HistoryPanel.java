@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -37,15 +38,17 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BlobDiffPage;
@@ -60,60 +63,76 @@ public class HistoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private boolean hasMore;
 
 	public HistoryPanel(String wicketId, final String repositoryName, final String objectId,
 			final String path, Repository r, int limit, int pageOffset, boolean showRemoteRefs) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
+		int itemsPerPage = app().settings().getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
 
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
-
-		Map<String, SubmoduleModel> submodules = new HashMap<String, SubmoduleModel>();
-		for (SubmoduleModel model : JGitUtils.getSubmodules(r, commit.getTree())) {
-			submodules.put(model.path, model);
-		}
-
 		PathModel matchingPath = null;
-		for (PathModel p : paths) {
-			if (p.path.equals(path)) {
-				matchingPath = p;
-				break;
+		List<PathChangeModel> paths;
+		Map<String, SubmoduleModel> submodules = new HashMap<String, SubmoduleModel>();
+
+		if (commit == null) {
+			// commit missing
+			String msg = MessageFormat.format("Failed to find history of **{0}** *{1}*",
+					path, objectId);
+			log.error(msg + " " + repositoryName);
+			paths = new ArrayList<PathChangeModel>();
+			add(new Label("commitHeader", MarkdownUtils.transformMarkdown(msg)).setEscapeModelStrings(false));
+			add(new Label("breadcrumbs"));
+		} else {
+			// commit found
+			paths = JGitUtils.getFilesInCommit(r, commit);
+			add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
+			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
+			for (SubmoduleModel model : JGitUtils.getSubmodules(r, commit.getTree())) {
+				submodules.put(model.path, model);
 			}
-		}
-		if (matchingPath == null) {
-			// path not in commit
-			// manually locate path in tree
-			TreeWalk tw = new TreeWalk(r);
-			tw.reset();
-			tw.setRecursive(true);
-			try {
-				tw.addTree(commit.getTree());
-				tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
-				while (tw.next()) {
-					if (tw.getPathString().equals(path)) {
-						matchingPath = new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
-							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
-							ChangeType.MODIFY);
-					}
+
+			for (PathModel p : paths) {
+				if (p.path.equals(path)) {
+					matchingPath = p;
+					break;
 				}
-			} catch (Exception e) {
-			} finally {
-				tw.release();
+			}
+			if (matchingPath == null) {
+				// path not in commit
+				// manually locate path in tree
+				TreeWalk tw = new TreeWalk(r);
+				tw.reset();
+				tw.setRecursive(true);
+				try {
+					tw.addTree(commit.getTree());
+					tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
+					while (tw.next()) {
+						if (tw.getPathString().equals(path)) {
+							matchingPath = new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
+								.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
+								ChangeType.MODIFY);
+						}
+					}
+				} catch (Exception e) {
+				} finally {
+					tw.release();
+				}
 			}
 		}
-		
+
 		final boolean isTree = matchingPath == null ? true : matchingPath.isTree();
 		final boolean isSubmodule = matchingPath == null ? false : matchingPath.isSubmodule();
 
 		// submodule
 		final String submodulePath;
-		final boolean hasSubmodule; 
+		final boolean hasSubmodule;
 		if (isSubmodule) {
 			SubmoduleModel submodule = getSubmodule(submodules, repositoryName, matchingPath == null ? null : matchingPath.path);
 			submodulePath = submodule.gitblitPath;
@@ -122,7 +141,7 @@ public class HistoryPanel extends BasePanel {
 			submodulePath = "";
 			hasSubmodule = false;
 		}
-		
+
 		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r, showRemoteRefs);
 		List<RevCommit> commits;
 		if (pageResults) {
@@ -138,17 +157,13 @@ public class HistoryPanel extends BasePanel {
 		// works unless commits.size() represents the exact end.
 		hasMore = commits.size() >= itemsPerPage;
 
-		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
-
-		// breadcrumbs
-		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
-
-		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
+		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);
@@ -159,7 +174,7 @@ public class HistoryPanel extends BasePanel {
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
 						GitSearchPage.class,
-						WicketUtils.newSearchParameter(repositoryName, objectId,
+						WicketUtils.newSearchParameter(repositoryName, null,
 								author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
@@ -195,16 +210,16 @@ public class HistoryPanel extends BasePanel {
 							TreePage.class, WicketUtils.newObjectParameter(
 									repositoryName, entry.getName()));
 					WicketUtils.setCssClass(commitHash, "shortsha1");
-					WicketUtils.setHtmlTooltip(commitHash, entry.getName());					
+					WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 					item.add(commitHash);
-					
+
 					Fragment links = new Fragment("historyLinks", "treeLinks", this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
 				} else if (isSubmodule) {
 					// submodule
-					Repository repository = GitBlit.self().getRepository(repositoryName);
+					Repository repository = app().repositories().getRepository(repositoryName);
 					String submoduleId = JGitUtils.getSubmoduleCommitId(repository, path, entry);
 					repository.close();
 					if (StringUtils.isEmpty(submoduleId)) {
@@ -218,14 +233,14 @@ public class HistoryPanel extends BasePanel {
 								TreePage.class, WicketUtils.newObjectParameter(
 										submodulePath, submoduleId));
 						WicketUtils.setCssClass(commitHash, "shortsha1");
-						WicketUtils.setHtmlTooltip(commitHash, submoduleId);					
+						WicketUtils.setHtmlTooltip(commitHash, submoduleId);
 						item.add(commitHash.setEnabled(hasSubmodule));
 					}
 					Fragment links = new Fragment("historyLinks", "treeLinks", this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
-				} else {					
+				} else {
 					// commit
 					item.add(new Label("hashLabel", getString("gb.blob") + "@"));
 					LinkPanel commitHash = new LinkPanel("hashLink", null, entry.getName().substring(0, hashLen),
@@ -234,7 +249,7 @@ public class HistoryPanel extends BasePanel {
 					WicketUtils.setCssClass(commitHash, "sha1");
 					WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 					item.add(commitHash);
-					
+
 					Fragment links = new Fragment("historyLinks", "blobLinks", this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
@@ -276,7 +291,7 @@ public class HistoryPanel extends BasePanel {
 	public boolean hasMore() {
 		return hasMore;
 	}
-	
+
 	protected SubmoduleModel getSubmodule(Map<String, SubmoduleModel> submodules, String repositoryName, String path) {
 		SubmoduleModel model = submodules.get(path);
 		if (model == null) {
@@ -287,9 +302,9 @@ public class HistoryPanel extends BasePanel {
 			return model;
 		} else {
 			// extract the repository name from the clone url
-			List<String> patterns = GitBlit.getStrings(Keys.git.submoduleUrlPatterns);
+			List<String> patterns = app().settings().getStrings(Keys.git.submoduleUrlPatterns);
 			String submoduleName = StringUtils.extractRepositoryPath(model.url, patterns.toArray(new String[0]));
-			
+
 			// determine the current path for constructing paths relative
 			// to the current repository
 			String currentPath = "";
@@ -326,16 +341,16 @@ public class HistoryPanel extends BasePanel {
 			// create a unique, ordered set of candidate paths
 			Set<String> paths = new LinkedHashSet<String>(candidates);
 			for (String candidate : paths) {
-				if (GitBlit.self().hasRepository(candidate)) {
+				if (app().repositories().hasRepository(candidate)) {
 					model.hasSubmodule = true;
 					model.gitblitPath = candidate;
 					return model;
 				}
 			}
-			
+
 			// we do not have a copy of the submodule, but we need a path
 			model.gitblitPath = candidates.get(0);
 			return model;
-		}		
+		}
 	}
 }

@@ -19,7 +19,7 @@ import java.util.Arrays;
  * href="http://iharder.net/base64">http://iharder.net/base64</a> periodically
  * to check for updates or to contribute improvements.
  * </p>
- * 
+ *
  * @author Robert Harder
  * @author rob@iharder.net
  * @version 2.1, stripped to minimum feature set used by JGit.
@@ -89,7 +89,7 @@ public class Base64 {
 	 * <var>destOffset</var> + 4 for the <var>destination</var> array. The
 	 * actual number of significant bytes in your array is given by
 	 * <var>numSigBytes</var>.
-	 * 
+	 *
 	 * @param source
 	 *            the array to convert
 	 * @param srcOffset
@@ -146,7 +146,7 @@ public class Base64 {
 
 	/**
 	 * Encodes a byte array into Base64 notation.
-	 * 
+	 *
 	 * @param source
 	 *            The data to convert
 	 * @return encoded base64 representation of source.
@@ -157,7 +157,7 @@ public class Base64 {
 
 	/**
 	 * Encodes a byte array into Base64 notation.
-	 * 
+	 *
 	 * @param source
 	 *            The data to convert
 	 * @param off
@@ -199,7 +199,7 @@ public class Base64 {
 	 * <var>destOffset</var> + 3 for the <var>destination</var> array. This
 	 * method returns the actual number of bytes that were converted from the
 	 * Base64 encoding.
-	 * 
+	 *
 	 * @param source
 	 *            the array to convert
 	 * @param srcOffset
@@ -246,7 +246,7 @@ public class Base64 {
 
 	/**
 	 * Low-level decoding ASCII characters from a byte array.
-	 * 
+	 *
 	 * @param source
 	 *            The Base64 encoded data
 	 * @param off
@@ -294,7 +294,7 @@ public class Base64 {
 
 	/**
 	 * Decodes data from Base64 notation.
-	 * 
+	 *
 	 * @param s
 	 *            the string to decode
 	 * @return the decoded data

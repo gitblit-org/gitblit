@@ -47,6 +47,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
@@ -78,29 +79,31 @@ public class EditUserDialog extends JDialog {
 	private JPasswordField passwordField;
 
 	private JPasswordField confirmPasswordField;
-	
+
 	private JTextField displayNameField;
-	
+
 	private JTextField emailAddressField;
 
 	private JCheckBox canAdminCheckbox;
-	
+
 	private JCheckBox canForkCheckbox;
-	
+
 	private JCheckBox canCreateCheckbox;
 
 	private JCheckBox notFederatedCheckbox;
-	
+
+	private JCheckBox disabledCheckbox;
+
 	private JTextField organizationalUnitField;
-	
+
 	private JTextField organizationField;
 
 	private JTextField localityField;
-	
+
 	private JTextField stateProvinceField;
-	
+
 	private JTextField countryCodeField;
-	
+
 	private RegistrantPermissionsPanel repositoryPalette;
 
 	private JPalette<TeamModel> teamsPalette;
@@ -131,6 +134,7 @@ public class EditUserDialog extends JDialog {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 		JRootPane rootPane = new JRootPane();
 		rootPane.registerKeyboardAction(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				setVisible(false);
 			}
@@ -145,32 +149,24 @@ public class EditUserDialog extends JDialog {
 				25);
 		displayNameField = new JTextField(anUser.displayName == null ? "" : anUser.displayName, 25);
 		emailAddressField = new JTextField(anUser.emailAddress == null ? "" : anUser.emailAddress, 25);
-		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), anUser.canAdmin);		
+		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), anUser.canAdmin);
 		canForkCheckbox = new JCheckBox(Translation.get("gb.canForkDescription"), anUser.canFork);
 		canCreateCheckbox = new JCheckBox(Translation.get("gb.canCreateDescription"), anUser.canCreate);
 		notFederatedCheckbox = new JCheckBox(
 				Translation.get("gb.excludeFromFederationDescription"),
 				anUser.excludeFromFederation);
-		
+		disabledCheckbox = new JCheckBox(Translation.get("gb.disableUserDescription"), anUser.disabled);
+
 		organizationalUnitField = new JTextField(anUser.organizationalUnit == null ? "" : anUser.organizationalUnit, 25);
 		organizationField = new JTextField(anUser.organization == null ? "" : anUser.organization, 25);
 		localityField = new JTextField(anUser.locality == null ? "" : anUser.locality, 25);
 		stateProvinceField = new JTextField(anUser.stateProvince == null ? "" : anUser.stateProvince, 25);
 		countryCodeField = new JTextField(anUser.countryCode == null ? "" : anUser.countryCode, 15);
-		
-		// credentials are optionally controlled by 3rd-party authentication
-		usernameField.setEnabled(settings.supportsCredentialChanges);
-		passwordField.setEnabled(settings.supportsCredentialChanges);
-		confirmPasswordField.setEnabled(settings.supportsCredentialChanges);
 
-		displayNameField.setEnabled(settings.supportsDisplayNameChanges);
-		emailAddressField.setEnabled(settings.supportsEmailAddressChanges);
-		
-		organizationalUnitField.setEnabled(settings.supportsDisplayNameChanges);
-		organizationField.setEnabled(settings.supportsDisplayNameChanges);
-		localityField.setEnabled(settings.supportsDisplayNameChanges);
-		stateProvinceField.setEnabled(settings.supportsDisplayNameChanges);
-		countryCodeField.setEnabled(settings.supportsDisplayNameChanges);
+		// credentials are optionally controlled by 3rd-party authentication
+		usernameField.setEnabled(anUser.isLocalAccount());
+		passwordField.setEnabled(anUser.isLocalAccount());
+		confirmPasswordField.setEnabled(anUser.isLocalAccount());
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.username"), usernameField));
@@ -183,6 +179,7 @@ public class EditUserDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.canCreate"), canCreateCheckbox));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.excludeFromFederation"),
 				notFederatedCheckbox));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.disableUser"), disabledCheckbox));
 
 		JPanel attributesPanel = new JPanel(new GridLayout(0, 1, 5, 2));
 		attributesPanel.add(newFieldPanel(Translation.get("gb.organizationalUnit") + " (OU)", organizationalUnitField));
@@ -190,11 +187,10 @@ public class EditUserDialog extends JDialog {
 		attributesPanel.add(newFieldPanel(Translation.get("gb.locality") + " (L)", localityField));
 		attributesPanel.add(newFieldPanel(Translation.get("gb.stateProvince") + " (ST)", stateProvinceField));
 		attributesPanel.add(newFieldPanel(Translation.get("gb.countryCode") + " (C)", countryCodeField));
-		
+
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new RegistrantPermissionsPanel(RegistrantType.REPOSITORY);
 		teamsPalette = new JPalette<TeamModel>();
-		teamsPalette.setEnabled(settings.supportsTeamMembershipChanges);
 
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
@@ -206,6 +202,7 @@ public class EditUserDialog extends JDialog {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Insets getInsets() {
 				return _insets;
 			}
@@ -216,6 +213,7 @@ public class EditUserDialog extends JDialog {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Insets getInsets() {
 				return _insets;
 			}
@@ -232,6 +230,7 @@ public class EditUserDialog extends JDialog {
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				if (validateFields()) {
 					canceled = false;
@@ -242,6 +241,7 @@ public class EditUserDialog extends JDialog {
 
 		JButton cancelButton = new JButton(Translation.get("gb.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				canceled = true;
 				setVisible(false);
@@ -329,6 +329,9 @@ public class EditUserDialog extends JDialog {
 				return false;
 			}
 
+			// change the cookie
+			user.cookie = StringUtils.getSHA1(user.username + password);
+
 			String type = settings.get(Keys.realm.passwordStorage).getString("md5");
 			if (type.equalsIgnoreCase("md5")) {
 				// store MD5 digest of password
@@ -348,7 +351,7 @@ public class EditUserDialog extends JDialog {
 			// no change in password
 			user.password = password;
 		}
-		
+
 		user.displayName = displayNameField.getText().trim();
 		user.emailAddress = emailAddressField.getText().trim();
 
@@ -356,13 +359,14 @@ public class EditUserDialog extends JDialog {
 		user.canFork = canForkCheckbox.isSelected();
 		user.canCreate = canCreateCheckbox.isSelected();
 		user.excludeFromFederation = notFederatedCheckbox.isSelected();
+		user.disabled = disabledCheckbox.isSelected();
 
 		user.organizationalUnit = organizationalUnitField.getText().trim();
 		user.organization = organizationField.getText().trim();
 		user.locality = localityField.getText().trim();
 		user.stateProvince = stateProvinceField.getText().trim();
 		user.countryCode = countryCodeField.getText().trim();
-		
+
 		for (RegistrantAccessPermission rp : repositoryPalette.getPermissions()) {
 			user.setRepositoryPermission(rp.registrant, rp.permission);
 		}
@@ -393,17 +397,31 @@ public class EditUserDialog extends JDialog {
 				if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)
 						&& repo.authorizationControl.equals(AuthorizationControl.NAMED)) {
 					restricted.add(repo.name);
-				}				
+				}
 			}
 			repoMap.put(repo.name.toLowerCase(), repo);
 		}
 		StringUtils.sortRepositorynames(restricted);
-		
+
 		List<String> list = new ArrayList<String>();
 		// repositories
 		list.add(".*");
-		// all repositories excluding personal repositories
-		list.add("[^~].*");
+
+		String prefix;
+		if (settings.hasKey(Keys.git.userRepositoryPrefix)) {
+			prefix = settings.get(Keys.git.userRepositoryPrefix).currentValue;
+			if (StringUtils.isEmpty(prefix)) {
+				prefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
+			}
+		} else {
+			prefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
+		}
+
+		if (prefix.length() == 1) {
+			// all repositories excluding personal repositories
+			list.add("[^" + prefix + "].*");
+		}
+
 		String lastProject = null;
 		for (String repo : restricted) {
 			String projectPath = StringUtils.getFirstPathElement(repo).toLowerCase();
@@ -425,7 +443,7 @@ public class EditUserDialog extends JDialog {
 				list.remove(rp.registrant.toLowerCase());
 			}
 		}
-		
+
 		// update owner and missing permissions for editing
 		for (RegistrantAccessPermission permission : permissions) {
 			if (permission.mutable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
@@ -456,7 +474,7 @@ public class EditUserDialog extends JDialog {
 		}
 		teamsPalette.setObjects(teams, selected);
 	}
-	
+
 	public UserModel getUser() {
 		if (canceled) {
 			return null;

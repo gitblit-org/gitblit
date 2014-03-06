@@ -26,15 +26,17 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
+import com.gitblit.utils.StringUtils;
 
 /**
- * The receive pack factory creates a receive pack which accepts pushes from
- * clients.
- * 
+ * The receive pack factory creates the receive pack which processes pushes.
+ *
  * @author James Moger
  *
  * @param <X> the connection type
@@ -42,20 +44,29 @@ import com.gitblit.utils.HttpUtils;
 public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 	protected final Logger logger = LoggerFactory.getLogger(GitblitReceivePackFactory.class);
-	
+
+	private final IStoredSettings settings;
+
+	private final IGitblit gitblit;
+
+	public GitblitReceivePackFactory(IGitblit gitblit) {
+		super();
+		this.settings = gitblit.getSettings();
+		this.gitblit = gitblit;
+	}
+
 	@Override
 	public ReceivePack create(X req, Repository db)
 			throws ServiceNotEnabledException, ServiceNotAuthorizedException {
 
-		final ReceivePack rp = new ReceivePack(db);
 		UserModel user = UserModel.ANONYMOUS;
 		String repositoryName = "";
 		String origin = "";
 		String gitblitUrl = "";
 		int timeout = 0;
-		
+
 		if (req instanceof HttpServletRequest) {
-			// http/https request may or may not be authenticated 
+			// http/https request may or may not be authenticated
 			HttpServletRequest request = (HttpServletRequest) req;
 			repositoryName = request.getAttribute("gitblitRepositoryName").toString();
 			origin = request.getRemoteHost();
@@ -63,40 +74,46 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 			// determine pushing user
 			String username = request.getRemoteUser();
-			if (username != null && !"".equals(username)) {
-				user = GitBlit.self().getUserModel(username);
-				if (user == null) {
-					// anonymous push, create a temporary usermodel
-					user = new UserModel(username);
+			if (!StringUtils.isEmpty(username)) {
+				UserModel u = gitblit.getUserModel(username);
+				if (u != null) {
+					user = u;
 				}
 			}
 		} else if (req instanceof GitDaemonClient) {
-			// git daemon request is alway anonymous
+			// git daemon request is always anonymous
 			GitDaemonClient client = (GitDaemonClient) req;
 			repositoryName = client.getRepositoryName();
 			origin = client.getRemoteAddress().getHostAddress();
+
 			// set timeout from Git daemon
 			timeout = client.getDaemon().getTimeout();
 		}
 
-		// set pushing user identity for reflog
+		boolean allowAnonymousPushes = settings.getBoolean(Keys.git.allowAnonymousPushes, false);
+		if (!allowAnonymousPushes && UserModel.ANONYMOUS.equals(user)) {
+			// prohibit anonymous pushes
+			throw new ServiceNotEnabledException();
+		}
+
+		String url = settings.getString(Keys.web.canonicalUrl, null);
+		if (StringUtils.isEmpty(url)) {
+			url = gitblitUrl;
+		}
+
+		final RepositoryModel repository = gitblit.getRepositoryModel(repositoryName);
+
+		// Determine which receive pack to use for pushes
+		final GitblitReceivePack rp;
+		if (gitblit.getTicketService().isAcceptingNewPatchsets(repository)) {
+			rp = new PatchsetReceivePack(gitblit, db, repository, user);
+		} else {
+			rp = new GitblitReceivePack(gitblit, db, repository, user);
+		}
+
+		rp.setGitblitUrl(url);
 		rp.setRefLogIdent(new PersonIdent(user.username, user.username + "@" + origin));
 		rp.setTimeout(timeout);
-		
-		// set advanced ref permissions
-		RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
-		rp.setAllowCreates(user.canCreateRef(repository));
-		rp.setAllowDeletes(user.canDeleteRef(repository));
-		rp.setAllowNonFastForwards(user.canRewindRef(repository));
-
-		// setup the receive hook
-		ReceiveHook hook = new ReceiveHook();
-		hook.user = user;
-		hook.repository = repository;
-		hook.gitblitUrl = gitblitUrl;
-
-		rp.setPreReceiveHook(hook);
-		rp.setPostReceiveHook(hook);
 
 		return rp;
 	}

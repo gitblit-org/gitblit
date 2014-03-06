@@ -22,7 +22,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * FeedModel represents a syndication (RSS) feed.
- * 
+ *
  * @author James Moger
  */
 public class FeedModel implements Serializable, Comparable<FeedModel> {

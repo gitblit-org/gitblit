@@ -15,11 +15,13 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -29,15 +31,19 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
-import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.SyndicationServlet;
+import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -94,15 +100,16 @@ public class BranchesPanel extends BasePanel {
 			// branches page
 			add(new Label("branches", new StringResourceModel("gb.branches", this, null)));
 		}
-		
+
 		// only allow delete if we have multiple branches
 		final boolean showDelete = showAdmin && branches.size() > 1;
-		
+
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
 		DataView<RefModel> branchesView = new DataView<RefModel>("branch", branchesDp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RefModel> item) {
 				final RefModel entry = item.getModelObject();
 
@@ -129,7 +136,7 @@ public class BranchesPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 				}
 				item.add(shortlog);
-				
+
 				if (maxCount <= 0) {
 					Fragment fragment = new Fragment("branchLinks", showDelete? "branchPageAdminLinks" : "branchPageLinks", this);
 					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
@@ -182,28 +189,53 @@ public class BranchesPanel extends BasePanel {
 
 			@Override
 			public void onClick() {
-				Repository r = GitBlit.self().getRepository(repositoryModel.name);
+				Repository r = app().repositories().getRepository(repositoryModel.name);
 				if (r == null) {
-					if (GitBlit.self().isCollectingGarbage(repositoryModel.name)) {
+					if (app().repositories().isCollectingGarbage(repositoryModel.name)) {
 						error(MessageFormat.format(getString("gb.busyCollectingGarbage"), repositoryModel.name));
 					} else {
 						error(MessageFormat.format("Failed to find repository {0}", repositoryModel.name));
 					}
 					return;
 				}
-				boolean success = JGitUtils.deleteBranchRef(r, entry.getName());
+				final String branch = entry.getName();
+				Ref ref = null;
+				try {
+					ref = r.getRef(branch);
+					if (ref == null && !branch.startsWith(Constants.R_HEADS)) {
+						ref = r.getRef(Constants.R_HEADS + branch);
+					}
+				} catch (IOException e) {
+				}
+				if (ref != null) {
+					boolean success = JGitUtils.deleteBranchRef(r, ref.getName());
+					if (success) {
+						// clear commit cache
+						CommitCache.instance().clear(repositoryModel.name, branch);
+
+						// optionally update reflog
+						if (RefLogUtils.hasRefLogBranch(r)) {
+							UserModel user = GitBlitWebSession.get().getUser();
+							RefLogUtils.deleteRef(user, r, ref);
+						}
+					}
+
+					if (success) {
+						info(MessageFormat.format("Branch \"{0}\" deleted", branch));
+					} else {
+						error(MessageFormat.format("Failed to delete branch \"{0}\"", branch));
+					}
+				}
 				r.close();
-				if (success) {
-					info(MessageFormat.format("Branch \"{0}\" deleted", entry.displayName));
-					// redirect to the owning page
-					setResponsePage(getPage().getClass(), WicketUtils.newRepositoryParameter(repositoryModel.name));
-				}
-				else {
-					error(MessageFormat.format("Failed to delete branch \"{0}\"", entry.displayName));
-				}
+
+				// redirect to the owning page
+				PageParameters params = WicketUtils.newRepositoryParameter(repositoryModel.name);
+				String relativeUrl = urlFor(getPage().getClass(), params).toString();
+				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 			}
 		};
-		
+
 		deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
 				"Delete branch \"{0}\"?", entry.displayName )));
 		return deleteLink;

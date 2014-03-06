@@ -46,11 +46,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
@@ -64,9 +64,9 @@ import com.gitblit.wicket.panels.NavigationPanel;
 /**
  * Root page is a topbar, navigable page like Repositories, Users, or
  * Federation.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class RootPage extends BasePage {
 
@@ -91,26 +91,27 @@ public abstract class RootPage extends BasePage {
 		add(new HeaderContributor(new IHeaderContributor() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void renderHead(IHeaderResponse response) {
 				StringBuilder buffer = new StringBuilder();
 				buffer.append("<style type=\"text/css\">\n");
 				buffer.append(".navbar-inner {\n");
-				final String headerBackground = GitBlit.getString(Keys.web.headerBackgroundColor, null);
+				final String headerBackground = app().settings().getString(Keys.web.headerBackgroundColor, null);
 				if (!StringUtils.isEmpty(headerBackground)) {
 					buffer.append(MessageFormat.format("background-color: {0};\n", headerBackground));
 				}
-				final String headerBorder = GitBlit.getString(Keys.web.headerBorderColor, null);
+				final String headerBorder = app().settings().getString(Keys.web.headerBorderColor, null);
 				if (!StringUtils.isEmpty(headerBorder)) {
 					buffer.append(MessageFormat.format("border-bottom: 1px solid {0} !important;\n", headerBorder));
 				}
 				buffer.append("}\n");
-				final String headerBorderFocus = GitBlit.getString(Keys.web.headerBorderFocusColor, null);
+				final String headerBorderFocus = app().settings().getString(Keys.web.headerBorderFocusColor, null);
 				if (!StringUtils.isEmpty(headerBorderFocus)) {
 					buffer.append(".navbar ul li:focus, .navbar .active {\n");
 					buffer.append(MessageFormat.format("border-bottom: 4px solid {0};\n", headerBorderFocus));
 					buffer.append("}\n");
 				}
-				final String headerForeground = GitBlit.getString(Keys.web.headerForegroundColor, null);
+				final String headerForeground = app().settings().getString(Keys.web.headerForegroundColor, null);
 				if (!StringUtils.isEmpty(headerForeground)) {
 					buffer.append(".navbar ul.nav li a {\n");
 					buffer.append(MessageFormat.format("color: {0};\n", headerForeground));
@@ -119,7 +120,7 @@ public abstract class RootPage extends BasePage {
 					buffer.append(MessageFormat.format("color: {0};\n", headerForeground));
 					buffer.append("}\n");
 				}
-				final String headerHover = GitBlit.getString(Keys.web.headerHoverColor, null);
+				final String headerHover = app().settings().getString(Keys.web.headerHoverColor, null);
 				if (!StringUtils.isEmpty(headerHover)) {
 					buffer.append(".navbar ul.nav li a:hover {\n");
 					buffer.append(MessageFormat.format("color: {0} !important;\n", headerHover));
@@ -129,10 +130,10 @@ public abstract class RootPage extends BasePage {
 				response.renderString(buffer.toString());
 				}
 			}));
-		
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
-		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
-		boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
+
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, false);
+		boolean authenticateAdmin = app().settings().getBoolean(Keys.web.authenticateAdminPages, true);
+		boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, true);
 
 		if (authenticateAdmin) {
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
@@ -148,7 +149,7 @@ public abstract class RootPage extends BasePage {
 				setStatelessHint(true);
 			}
 		}
-		
+
 		if (authenticateView || authenticateAdmin) {
 			if (GitBlitWebSession.get().isLoggedIn()) {
 				UserMenu userFragment = new UserMenu("userPanel", "userMenuFragment", RootPage.this);
@@ -160,9 +161,9 @@ public abstract class RootPage extends BasePage {
 		} else {
 			add(new Label("userPanel").setVisible(false));
 		}
-		
-		boolean showRegistrations = GitBlit.canFederate()
-				&& GitBlit.getBoolean(Keys.web.showFederationRegistrations, false);
+
+		boolean showRegistrations = app().federation().canFederate()
+				&& app().settings().getBoolean(Keys.web.showFederationRegistrations, false);
 
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
@@ -172,7 +173,7 @@ public abstract class RootPage extends BasePage {
 			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
 			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
-			if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)) {
+			if (app().settings().getBoolean(Keys.web.allowLuceneIndexing, true)) {
 				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
 			}
 			if (showAdmin) {
@@ -186,7 +187,7 @@ public abstract class RootPage extends BasePage {
 				addDropDownMenus(pages);
 			}
 		}
-		
+
 		NavigationPanel navPanel = new NavigationPanel("navPanel", getRootNavPageClass(), pages);
 		add(navPanel);
 
@@ -195,7 +196,7 @@ public abstract class RootPage extends BasePage {
 		if (!StringUtils.isEmpty(cachedMessage)) {
 			error(cachedMessage);
 		} else if (showAdmin) {
-			int pendingProposals = GitBlit.self().getPendingFederationProposals().size();
+			int pendingProposals = app().federation().getPendingFederationProposals().size();
 			if (pendingProposals == 1) {
 				info(getString("gb.OneProposalToReview"));
 			} else if (pendingProposals > 1) {
@@ -206,7 +207,7 @@ public abstract class RootPage extends BasePage {
 
 		super.setupPage(repositoryName, pageName);
 	}
-	
+
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return getClass();
 	}
@@ -227,11 +228,11 @@ public abstract class RootPage extends BasePage {
 
 				// remove days back parameter if it is the default value
 				if (params.containsKey("db")
-						&& params.getInt("db") == GitBlit.getInteger(Keys.web.activityDuration, 7)) {
+						&& params.getInt("db") == app().settings().getInteger(Keys.web.activityDuration, 7)) {
 					params.remove("db");
 				}
 				return params;
-			}			
+			}
 		}
 		return null;
 	}
@@ -249,9 +250,9 @@ public abstract class RootPage extends BasePage {
 			session.setUser(user);
 
 			// Set Cookie
-			if (GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {
+			if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
 				WebResponse response = (WebResponse) getRequestCycle().getResponse();
-				GitBlit.self().setCookie(response, user);
+				app().authentication().setCookie(response.getHttpServletResponse(), user);
 			}
 
 			if (!session.continueRequest()) {
@@ -268,11 +269,11 @@ public abstract class RootPage extends BasePage {
 			}
 		}
 	}
-	
+
 	protected List<RepositoryModel> getRepositoryModels() {
 		if (repositoryModels.isEmpty()) {
 			final UserModel user = GitBlitWebSession.get().getUser();
-			List<RepositoryModel> repositories = GitBlit.self().getRepositoryModels(user);
+			List<RepositoryModel> repositories = app().repositories().getRepositoryModels(user);
 			repositoryModels.addAll(repositories);
 			Collections.sort(repositoryModels);
 		}
@@ -324,7 +325,7 @@ public abstract class RootPage extends BasePage {
 		}
 
 		// custom filters
-		String customFilters = GitBlit.getString(Keys.web.customFilters, null);
+		String customFilters = app().settings().getString(Keys.web.customFilters, null);
 		if (!StringUtils.isEmpty(customFilters)) {
 			boolean addedExpression = false;
 			List<String> expressions = StringUtils.getStringsFromValue(customFilters, "!!!");
@@ -344,9 +345,13 @@ public abstract class RootPage extends BasePage {
 
 	protected List<DropDownMenuItem> getTimeFilterItems(PageParameters params) {
 		// days back choices - additive parameters
-		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+		int daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
+		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 		if (daysBack < 1) {
 			daysBack = 7;
+		}
+		if (daysBack > maxDaysBack) {
+			daysBack = maxDaysBack;
 		}
 		PageParameters clonedParams;
 		if (params == null) {
@@ -354,13 +359,13 @@ public abstract class RootPage extends BasePage {
 		} else {
 			clonedParams = new PageParameters(params);
 		}
-		
+
 		if (!clonedParams.containsKey("db")) {
 			clonedParams.put("db",  daysBack);
 		}
-		
+
 		List<DropDownMenuItem> items = new ArrayList<DropDownMenuItem>();
-		Set<Integer> choicesSet = new TreeSet<Integer>(GitBlit.getIntegers(Keys.web.activityDurationChoices));
+		Set<Integer> choicesSet = new TreeSet<Integer>(app().settings().getIntegers(Keys.web.activityDurationChoices));
 		if (choicesSet.isEmpty()) {
 			 choicesSet.addAll(Arrays.asList(1, 3, 7, 14, 21, 28));
 		}
@@ -389,7 +394,7 @@ public abstract class RootPage extends BasePage {
 		String userName = WicketUtils.getUsername(params);
 		if (StringUtils.isEmpty(projectName)) {
 			if (!StringUtils.isEmpty(userName)) {
-				projectName = "~" + userName;
+				projectName = ModelUtils.getPersonalPath(userName);
 			}
 		}
 		String repositoryName = WicketUtils.getRepositoryName(params);
@@ -397,6 +402,7 @@ public abstract class RootPage extends BasePage {
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
 		int daysBack = params.getInt("db", 0);
+		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 
 		List<RepositoryModel> availableModels = getRepositoryModels();
 		Set<RepositoryModel> models = new HashSet<RepositoryModel>();
@@ -414,8 +420,8 @@ public abstract class RootPage extends BasePage {
 
 		if (!StringUtils.isEmpty(projectName)) {
 			// try named project
-			hasParameter = true;			
-			if (projectName.equalsIgnoreCase(GitBlit.getString(Keys.web.repositoryRootGroupName, "main"))) {
+			hasParameter = true;
+			if (projectName.equalsIgnoreCase(app().settings().getString(Keys.web.repositoryRootGroupName, "main"))) {
 				// root project/group
 				for (RepositoryModel model : availableModels) {
 					if (model.name.indexOf('/') == -1) {
@@ -465,7 +471,7 @@ public abstract class RootPage extends BasePage {
 			// need TeamModels first
 			List<TeamModel> teamModels = new ArrayList<TeamModel>();
 			for (String name : teams) {
-				TeamModel teamModel = GitBlit.self().getTeamModel(name);
+				TeamModel teamModel = app().users().getTeamModel(name);
 				if (teamModel != null) {
 					teamModels.add(teamModel);
 				}
@@ -487,6 +493,9 @@ public abstract class RootPage extends BasePage {
 
 		// time-filter the list
 		if (daysBack > 0) {
+			if (maxDaysBack > 0 && daysBack > maxDaysBack) {
+				daysBack = maxDaysBack;
+			}
 			Calendar cal = Calendar.getInstance();
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
@@ -502,14 +511,14 @@ public abstract class RootPage extends BasePage {
 			}
 			models = timeFiltered;
 		}
-		
+
 		List<RepositoryModel> list = new ArrayList<RepositoryModel>(models);
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
-	 * Inline login form. 
+	 * Inline login form.
 	 */
 	private class LoginForm extends Fragment {
 		private static final long serialVersionUID = 1L;
@@ -527,7 +536,7 @@ public abstract class RootPage extends BasePage {
 					String username = RootPage.this.username.getObject();
 					char[] password = RootPage.this.password.getObject().toCharArray();
 
-					UserModel user = GitBlit.self().authenticate(username, password);
+					UserModel user = app().authentication().authenticate(username, password);
 					if (user == null) {
 						error(getString("gb.invalidUsernameOrPassword"));
 					} else if (user.username.equals(Constants.FEDERATION_USER)) {
@@ -549,11 +558,11 @@ public abstract class RootPage extends BasePage {
 			add(loginForm);
 		}
 	}
-	
+
 	/**
 	 * Menu for the authenticated user.
 	 */
-	static class UserMenu extends Fragment {
+	class UserMenu extends Fragment {
 
 		private static final long serialVersionUID = 1L;
 
@@ -563,12 +572,11 @@ public abstract class RootPage extends BasePage {
 
 			GitBlitWebSession session = GitBlitWebSession.get();
 			UserModel user = session.getUser();
-			boolean editCredentials = GitBlit.self().supportsCredentialChanges(user);
+			boolean editCredentials = app().authentication().supportsCredentialChanges(user);
 			boolean standardLogin = session.authenticationType.isStandard();
 
-			if (GitBlit.getBoolean(Keys.web.allowGravatar, true)) {
-				add(new GravatarImage("username", user.getDisplayName(),
-						user.emailAddress, "navbarGravatar", 20, false, false));
+			if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {
+				add(new GravatarImage("username", user, "navbarGravatar", 20, false));
 			} else {
 				add(new Label("username", user.getDisplayName()));
 			}
@@ -578,12 +586,12 @@ public abstract class RootPage extends BasePage {
 			add(new BookmarkablePageLink<Void>("newRepository",
 					EditRepositoryPage.class).setVisible(user.canAdmin() || user.canCreate()));
 
-			add(new BookmarkablePageLink<Void>("myProfile", 
+			add(new BookmarkablePageLink<Void>("myProfile",
 					UserPage.class, WicketUtils.newUsernameParameter(user.username)));
 
-			add(new BookmarkablePageLink<Void>("changePassword", 
+			add(new BookmarkablePageLink<Void>("changePassword",
 					ChangePasswordPage.class).setVisible(editCredentials));
-			
+
 			add(new BookmarkablePageLink<Void>("logout",
 					LogoutPage.class).setVisible(standardLogin));
 		}

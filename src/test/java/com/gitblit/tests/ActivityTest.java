@@ -15,8 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -24,10 +22,10 @@ import org.junit.Test;
 import com.gitblit.models.GravatarProfile;
 import com.gitblit.utils.ActivityUtils;
 
-public class ActivityTest {
+public class ActivityTest extends GitblitUnitTest {
 
 	@Test
-	public void testGravatarProfile() throws IOException {		
+	public void testGravatarProfile() throws IOException {
 		GravatarProfile profile = ActivityUtils.getGravatarProfile("beau@dentedreality.com.au");
 		assertEquals("beau", profile.preferredUsername);
 	}

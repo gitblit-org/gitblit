@@ -26,7 +26,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.TeamModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.EditTeamPage;
@@ -40,9 +39,9 @@ public class TeamsPanel extends BasePanel {
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newTeam", EditTeamPage.class));
-		add(adminLinks.setVisible(showAdmin && GitBlit.self().supportsTeamMembershipChanges(null)));
+		add(adminLinks.setVisible(showAdmin));
 
-		final List<TeamModel> teams = GitBlit.self().getAllTeams();
+		final List<TeamModel> teams = app().users().getAllTeams();
 		DataView<TeamModel> teamsView = new DataView<TeamModel>("teamRow",
 				new ListDataProvider<TeamModel>(teams)) {
 			private static final long serialVersionUID = 1L;
@@ -54,6 +53,7 @@ public class TeamsPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<TeamModel> item) {
 				final TeamModel entry = item.getModelObject();
 				LinkPanel editLink = new LinkPanel("teamname", "list", entry.name,
@@ -73,7 +73,7 @@ public class TeamsPanel extends BasePanel {
 
 					@Override
 					public void onClick() {
-						if (GitBlit.self().deleteTeam(entry.name)) {
+						if (app().users().deleteTeam(entry.name)) {
 							teams.remove(entry);
 							info(MessageFormat.format("Team ''{0}'' deleted.", entry.name));
 						} else {

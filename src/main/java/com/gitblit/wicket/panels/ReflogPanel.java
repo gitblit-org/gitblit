@@ -30,9 +30,9 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.ReceiveCommand.Type;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryCommit;
@@ -46,6 +46,7 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.ReflogPage;
 import com.gitblit.wicket.pages.TagPage;
+import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 
@@ -54,13 +55,13 @@ public class ReflogPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final boolean hasChanges;
-	
+
 	private boolean hasMore;
 
 	public ReflogPanel(String wicketId, final RepositoryModel model, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int changesPerPage = GitBlit.getInteger(Keys.web.reflogChangesPerPage, 10);
+		int changesPerPage = app().settings().getInteger(Keys.web.reflogChangesPerPage, 10);
 		if (changesPerPage <= 1) {
 			changesPerPage = 10;
 		}
@@ -76,9 +77,9 @@ public class ReflogPanel extends BasePanel {
 		// works unless commits.size() represents the exact end.
 		hasMore = changes.size() >= changesPerPage;
 		hasChanges = changes.size() > 0;
-		
+
 		setup(changes);
-		
+
 		// determine to show pager, more, or neither
 		if (limit <= 0) {
 			// no display limit
@@ -101,39 +102,46 @@ public class ReflogPanel extends BasePanel {
 			}
 		}
 	}
-	
+
 	public ReflogPanel(String wicketId, List<RefLogEntry> changes) {
 		super(wicketId);
 		hasChanges = changes.size() > 0;
 		setup(changes);
 		add(new Label("moreChanges").setVisible(false));
 	}
-	
-	protected void setup(List<RefLogEntry> changes) {
-		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 
-		String dateFormat = GitBlit.getString(Keys.web.datetimestampLongFormat, "EEEE, MMMM d, yyyy HH:mm Z");
-		final TimeZone timezone = getTimeZone();
-		final DateFormat df = new SimpleDateFormat(dateFormat);
-		df.setTimeZone(timezone);
-		final Calendar cal = Calendar.getInstance(timezone);
-		
+	protected void setup(List<RefLogEntry> changes) {
+
 		ListDataProvider<RefLogEntry> dp = new ListDataProvider<RefLogEntry>(changes);
 		DataView<RefLogEntry> changeView = new DataView<RefLogEntry>("change", dp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<RefLogEntry> changeItem) {
 				final RefLogEntry change = changeItem.getModelObject();
+
+				String dateFormat = app().settings().getString(Keys.web.datetimestampLongFormat, "EEEE, MMMM d, yyyy HH:mm Z");
+				TimeZone timezone = getTimeZone();
+				DateFormat df = new SimpleDateFormat(dateFormat);
+				df.setTimeZone(timezone);
+				Calendar cal = Calendar.getInstance(timezone);
+
 				String fullRefName = change.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
+				String ticketId = null;
 				boolean isTag = false;
-				if (shortRefName.startsWith(Constants.R_HEADS)) {
+				boolean isTicket = false;
+				if (shortRefName.startsWith(Constants.R_TICKET)) {
+					ticketId = fullRefName.substring(Constants.R_TICKET.length());
+					shortRefName = MessageFormat.format(getString("gb.ticketN"), ticketId);
+					isTicket = true;
+				} else if (shortRefName.startsWith(Constants.R_HEADS)) {
 					shortRefName = shortRefName.substring(Constants.R_HEADS.length());
 				} else if (shortRefName.startsWith(Constants.R_TAGS)) {
 					shortRefName = shortRefName.substring(Constants.R_TAGS.length());
 					isTag = true;
 				}
-				
+
 				String fuzzydate;
 				TimeUtils tu = getTimeUtils();
 				Date changeDate = change.date;
@@ -148,14 +156,18 @@ public class ReflogPanel extends BasePanel {
                 	cal.set(Calendar.MINUTE, 0);
                 	cal.set(Calendar.SECOND, 0);
                 	cal.set(Calendar.MILLISECOND, 0);
-                	changeDate = cal.getTime();
-					fuzzydate = getTimeUtils().timeAgo(changeDate);
+                	Date date = cal.getTime();
+					fuzzydate = getTimeUtils().timeAgo(date);
 				}
 				changeItem.add(new Label("whenChanged", fuzzydate + ", " + df.format(changeDate)));
 
 				Label changeIcon = new Label("changeIcon");
-				if (isTag) {
+				if (Type.DELETE.equals(change.getChangeType(fullRefName))) {
+					WicketUtils.setCssClass(changeIcon, "iconic-trash-stroke");
+				} else if (isTag) {
 					WicketUtils.setCssClass(changeIcon, "iconic-tag");
+				} else if (isTicket) {
+					WicketUtils.setCssClass(changeIcon, "fa fa-ticket");
 				} else {
 					WicketUtils.setCssClass(changeIcon, "iconic-upload");
 				}
@@ -172,7 +184,7 @@ public class ReflogPanel extends BasePanel {
 					changeItem.add(new LinkPanel("whoChanged", null, change.user.getDisplayName(),
 							UserPage.class, WicketUtils.newUsernameParameter(change.user.username)));
 				}
-				
+
 				boolean isDelete = false;
 				boolean isRewind = false;
 				String what;
@@ -198,20 +210,19 @@ public class ReflogPanel extends BasePanel {
 				case UPDATE_NONFASTFORWARD:
 					isRewind = true;
 				default:
-					what = MessageFormat.format(change.getCommitCount() > 1 ? getString("gb.pushedNCommitsTo") : getString("gb.pushedOneCommitTo") , change.getCommitCount());
-					
+					what = MessageFormat.format(change.getCommitCount() > 1 ? getString("gb.pushedNCommitsTo") : getString("gb.pushedOneCommitTo"), change.getCommitCount());
+
 					if (change.getAuthorCount() == 1) {
 						by = MessageFormat.format(getString("gb.byOneAuthor"), change.getAuthorIdent().getName());
 					} else {
-						by = MessageFormat.format(getString("gb.byNAuthors"), change.getAuthorCount());	
+						by = MessageFormat.format(getString("gb.byNAuthors"), change.getAuthorCount());
 					}
 					break;
 				}
 				changeItem.add(new Label("whatChanged", what));
 				changeItem.add(new Label("byAuthors", by).setVisible(!StringUtils.isEmpty(by)));
-				
 				changeItem.add(new Label("refRewind", getString("gb.rewind")).setVisible(isRewind));
-				
+
 				if (isDelete) {
 					// can't link to deleted ref
 					changeItem.add(new Label("refChanged", shortRefName));
@@ -219,18 +230,22 @@ public class ReflogPanel extends BasePanel {
 					// link to tag
 					changeItem.add(new LinkPanel("refChanged", null, shortRefName,
 							TagPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
+				} else if (isTicket) {
+					// link to ticket
+					changeItem.add(new LinkPanel("refChanged", null, shortRefName,
+							TicketsPage.class, WicketUtils.newObjectParameter(change.repository, ticketId)));
 				} else {
 					// link to tree
 					changeItem.add(new LinkPanel("refChanged", null, shortRefName,
 						TreePage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
 				}
-				
+
 				int maxCommitCount = 5;
 				List<RepositoryCommit> commits = change.getCommits();
 				if (commits.size() > maxCommitCount) {
-					commits = new ArrayList<RepositoryCommit>(commits.subList(0,  maxCommitCount));					
+					commits = new ArrayList<RepositoryCommit>(commits.subList(0,  maxCommitCount));
 				}
-				
+
 				// compare link
 				String compareLinkText = null;
 				if ((change.getCommitCount() <= maxCommitCount) && (change.getCommitCount() > 1)) {
@@ -246,18 +261,18 @@ public class ReflogPanel extends BasePanel {
 					String startRangeId = change.getOldId(fullRefName);
 					changeItem.add(new LinkPanel("compareLink", null, compareLinkText, ComparePage.class, WicketUtils.newRangeParameter(change.repository, startRangeId, endRangeId)));
 				}
-				
+
 				ListDataProvider<RepositoryCommit> cdp = new ListDataProvider<RepositoryCommit>(commits);
 				DataView<RepositoryCommit> commitsView = new DataView<RepositoryCommit>("commit", cdp) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					public void populateItem(final Item<RepositoryCommit> commitItem) {
 						final RepositoryCommit commit = commitItem.getModelObject();
 
 						// author gravatar
-						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent().getName(),
-								commit.getAuthorIdent().getEmailAddress(), null, 16, false, false));
-						
+						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent(), null, 16, false));
+
 						// merge icon
 						if (commit.getParentCount() > 1) {
 							commitItem.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
@@ -282,6 +297,7 @@ public class ReflogPanel extends BasePanel {
 						commitItem.add(shortlog);
 
 						// commit hash link
+						int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 						LinkPanel commitHash = new LinkPanel("hashLink", null, commit.getName().substring(0, hashLen),
 								CommitPage.class, WicketUtils.newObjectParameter(
 										change.repository, commit.getName()));
@@ -294,14 +310,14 @@ public class ReflogPanel extends BasePanel {
 				changeItem.add(commitsView);
 			}
 		};
-		
+
 		add(changeView);
 	}
 
 	public boolean hasMore() {
 		return hasMore;
 	}
-	
+
 	public boolean hideIfEmpty() {
 		setVisible(hasChanges);
 		return hasChanges;

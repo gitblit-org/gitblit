@@ -19,6 +19,8 @@
 - Optional feature to allow users to create personal repositories
 - Optional feature to fork a repository to a personal repository
 - Optional feature to create a repository on push
+- Optional feature to automatically fetch ref updates for repository mirrors
+- Optional Issue Tracker and Pull-Request-like mechanism
 - *Experimental* built-in Garbage Collection
 - Ability to federate with one or more other Gitblit instances
 - RSS/JSON RPC interface
@@ -37,6 +39,7 @@
 - Redmine authentication
 - Salesforce.com authentication
 - Windows authentication
+- PAM authentication
 - Gravatar integration
 - Git-notes display support
 - Submodule support
@@ -50,13 +53,12 @@
 - Display of Author and Committer email addresses can be disabled
 - Case-insensitive searching of commit messages, authors, or committers
 - Dynamic zip downloads feature
-- Markdown file view support
+- Markdown, Confluence, Textile, Twiki, Tracwiki, & Mediawiki markup rendering support
 - Syntax highlighting for popular source code types
 - Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
 - Single text file for users configuration
-- Optional utility pages
-    - ![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository
-    - ![tickets](bug_16x16.png) **readonly and deprecated** Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
+- Optional Docs page which enumerates all Markdown files within a repository
+2009-01-27)*
 - Translations
     - English
     - Japanese
@@ -76,7 +78,7 @@
 - Built-in AJP connector for Apache httpd
 
 ## Limitations
-- HTTP/HTTPS/GIT are the only supported Git protocols
+- HTTP/HTTPS/GIT are the only supported Git protocols (SSH is in progress)
 - Built-in access controls are not path-based, they are repository-based.
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

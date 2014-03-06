@@ -38,6 +38,7 @@ public class BulletListPanel extends Panel {
 		DataView<String> listView = new DataView<String>("list", listDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<String> item) {
 				String entry = item.getModelObject();
 				item.add(new Label("listItem", entry));

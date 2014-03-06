@@ -65,7 +65,7 @@ public class GitDaemonClient {
 	private InputStream rawIn;
 
 	private OutputStream rawOut;
-	
+
 	private String repositoryName;
 
 	GitDaemonClient(final GitDaemon d) {
@@ -95,11 +95,11 @@ public class GitDaemonClient {
 	public OutputStream getOutputStream() {
 		return rawOut;
 	}
-	
+
 	public void setRepositoryName(String repositoryName) {
 		this.repositoryName = repositoryName;
 	}
-	
+
 	/** @return the name of the requested repository. */
 	public String getRepositoryName() {
 		return repositoryName;

@@ -9,6 +9,11 @@
 	<div class="dashboardTitle">
 		<wicket:message key="gb.recentActivity"></wicket:message> <small><span class="hidden-phone"><span wicket:id="subheader">[days back]</span></span></small>
 	</div>
+	<div wicket:id="chartsPanel"></div>
+	<div wicket:id="activityPanel" style="padding-top:5px;" >[activity panel]</div>
+	</div>
+	
+<wicket:fragment wicket:id="chartsFragment">
 	<div class="hidden-phone" style="text-align: center;">
 		<table>
 		<tr>
@@ -18,8 +23,7 @@
 		</tr>
 		</table>
 	</div>
-	<div wicket:id="activityPanel" style="padding-top:5px;" >[activity panel]</div>
-	</div>
+</wicket:fragment>	
 </wicket:extend>
 </body>
 </html>

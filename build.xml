@@ -8,14 +8,14 @@
 		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.7.4" />
+	<property name="moxie.version" value="0.9.1" />
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
 	
 	<!-- Download Moxie from it's Maven repository to user.home -->
 	<mkdir dir="${moxie.dir}" />
-	<get src="${moxie.url}/org/moxie/moxie-toolkit/${moxie.version}/${moxie.jar}"
+	<get src="${moxie.url}/com/gitblit/moxie/moxie-toolkit/${moxie.version}/${moxie.jar}"
 		dest="${moxie.dir}" skipexisting="true" verbose="true" />
 	
 	<!-- Register Moxie tasks -->
@@ -49,7 +49,8 @@
 		<property name="authority.zipfile" value="authority-${project.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${project.version}.zip" />
 		<property name="express.zipfile" value="express-${project.version}.zip" />
-		
+		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
+
 		<!-- Download links -->
 		<property name="gc.url" value="http://code.google.com/p/gitblit/downloads/detail?name=" />
 	</target>
@@ -61,22 +62,6 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="clean" depends="prepare" description="Cleanup all build artifacts and directories">
-		<!-- cleanup legacy build structure -->
-		<!-- this can be eliminated after 1.3.0 release -->
-		<delete>
-			<fileset dir="${basedir}">
-				<include name="*.zip" />
-				<include name="*.war" />
-				<include name="*.jar" />
-			</fileset>
-		</delete>
-		<delete dir="${basedir}/deploy" failonerror="false" />
-		<delete dir="${basedir}/express" failonerror="false" />
-		<delete dir="${basedir}/jar" failonerror="false" />
-		<delete dir="${basedir}/javadoc" failonerror="false" />
-		<delete dir="${basedir}/site" failonerror="false" />
-		<delete dir="${basedir}/temp" failonerror="false" />
-		<delete dir="${basedir}/war" failonerror="false" />
 		
 		<!-- Clean build and target directories -->
 		<mx:clean />
@@ -106,29 +91,7 @@
 		     this file is only used if a local file is not provided. -->
 		<copy tofile="${project.src.dir}/clientapps.json" overwrite="true"
 			file="${project.distrib.dir}/data/clientapps.json" />
-		
-		<!-- 
-			upgrade existing workspace to data directory
-			this code can be eliminated after 1.3.0 release
-		 -->
-		<move todir="${basedir}/data" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}">
-				<include name="users.conf" />
-				<include name="projects.conf" />
-				<include name="gitblit.properties" />
-				<include name="serverKeyStore.jks" />
-				<include name="serverTrustStore.jks" />
-			</fileset>
-		</move>
-		<move todir="${basedir}/data/certs" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}/certs" />
-		</move>
-		<move todir="${basedir}/data/git" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}/git" />
-		</move>
-		<move todir="${basedir}/data/proposals" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}/proposals" />
-		</move>
+
 	</target>
 
 
@@ -185,6 +148,13 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="run" depends="compile" description="Run Gitblit GO">
+        <!-- copy static files -->
+        <copy todir="${basedir}/build/classes" overwrite="false">
+            <fileset dir="${project.resources.dir}">
+                <exclude name="thumbs.db" />
+                <exclude name="*.mkd" />
+            </fileset>
+        </copy>
 		
 		<!-- run the mainclass in a separate JVM -->
 		<mx:run fork="true" />
@@ -277,32 +247,7 @@
 		</mx:webxml>
 
 		<!-- Gitblit jar -->
-		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
-			<!-- Specify all web.xml servlets and filters -->
-			<class name="com.gitblit.GitBlit" />
-			<class name="com.gitblit.Keys" />
-			<class name="com.gitblit.DownloadZipFilter" />
-			<class name="com.gitblit.DownloadZipServlet" />
-			<class name="com.gitblit.EnforceAuthenticationFilter" />
-			<class name="com.gitblit.FederationServlet" />
-			<class name="com.gitblit.GitFilter" />
-			<class name="com.gitblit.git.GitServlet" />
-			<class name="com.gitblit.LogoServlet" />
-			<class name="com.gitblit.PagesFilter" />
-			<class name="com.gitblit.PagesServlet" />
-			<class name="com.gitblit.RobotsTxtServlet" />
-			<class name="com.gitblit.RpcFilter" />
-			<class name="com.gitblit.RpcServlet" />
-			<class name="com.gitblit.SyndicationFilter" />
-			<class name="com.gitblit.SyndicationServlet" />
-			<class name="com.gitblit.SparkleShareInviteServlet" />
-			<class name="com.gitblit.wicket.GitBlitWebApp" />
-			<!-- Manually include alternative User Services -->
-			<class name="com.gitblit.LdapUserService" />
-			<class name="com.gitblit.RedmineUserService" />
-			<class name="com.gitblit.SalesforceUserService" />
-			<class name="com.gitblit.WindowsUserService" />
-		</mx:genjar>
+		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
 
 		<!-- Build the WAR file -->
 		<mx:zip basedir="${war.dir}" destfile="${project.targetDirectory}/${distribution.warfile}" compress="true" >
@@ -334,7 +279,8 @@
 		<!-- generate jar by traversing the class hierarchy of the specified
 			 classes, exclude any classes in classpath jars -->
 		<mx:genjar tag="" includeresources="false" excludeClasspathJars="true"
-			destfile="${project.targetDirectory}/fedclient.jar">
+			destfile="${project.targetDirectory}/fedclient.jar"
+			excludes="**/.class,**/*.java, **/Thumbs.db, **/*.mkd, com/gitblit/wicket/**">
 			<mainclass name="com.gitblit.FederationClient" />
 			<class name="com.gitblit.Keys" />
 			<launcher paths="ext" />
@@ -396,32 +342,7 @@
 		</mx:webxml>
 
 		<!-- Gitblit classes -->
-		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
-			<class name="com.gitblit.Keys" />
-			<!-- Specify all web.xml servlets and filters -->
-			<class name="com.gitblit.GitBlit" />
-			<class name="com.gitblit.DownloadZipFilter" />
-			<class name="com.gitblit.DownloadZipServlet" />
-			<class name="com.gitblit.EnforceAuthenticationFilter" />
-			<class name="com.gitblit.FederationServlet" />
-			<class name="com.gitblit.GitFilter" />
-			<class name="com.gitblit.git.GitServlet" />
-			<class name="com.gitblit.LogoServlet" />
-			<class name="com.gitblit.PagesFilter" />
-			<class name="com.gitblit.PagesServlet" />
-			<class name="com.gitblit.RobotsTxtServlet" />
-			<class name="com.gitblit.RpcFilter" />
-			<class name="com.gitblit.RpcServlet" />
-			<class name="com.gitblit.SyndicationFilter" />
-			<class name="com.gitblit.SyndicationServlet" />
-			<class name="com.gitblit.SparkleShareInviteServlet" />
-			<class name="com.gitblit.wicket.GitBlitWebApp" />
-			<!-- Manually include alternative User Services -->
-			<class name="com.gitblit.LdapUserService" />
-			<class name="com.gitblit.RedmineUserService" />
-			<class name="com.gitblit.SalesforceUserService" />
-			<class name="com.gitblit.WindowsUserService" />
-		</mx:genjar>
+		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
 
 		<!-- Build Express Zip file -->
 		<mx:zip basedir="${express.dir}" destfile="${project.targetDirectory}/${express.zipfile}">
@@ -477,6 +398,7 @@
 			<resource file="${project.resources.dir}/commit_merge_16x16.png" />
 			<resource file="${project.resources.dir}/commit_divide_16x16.png" />
 			<resource file="${project.resources.dir}/star_16x16.png" />
+			<resource file="${project.resources.dir}/mirror_16x16.png" />
 			<resource file="${project.resources.dir}/blank.png" />
 			<resource file="${project.src.dir}/log4j.properties" />
 			<resource>
@@ -513,76 +435,7 @@
 		<!-- Cleanup -->
 		<delete file="${project.targetDirectory}/manager.jar" />
 	</target>
-	
-	
-	<!-- 
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		Build the stand-alone, Gitblit Authority
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	-->
-	<target name="buildAuthority" depends="compile" description="Builds the stand-alone Gitblit Authority">
-		<echo>Building Gitblit Authority ${project.version}</echo>
 
-		<!-- generate jar by traversing the class hierarchy of the specified
-			 classes, exclude any classes in "authority" classpath jars -->
-		<mx:genjar tag="authority" excludeClasspathJars="true" 
-			destfile="${project.targetDirectory}/authority.jar">
-			<resource file="${project.src.dir}/com/gitblit/client/splash.png" />
-			<resource file="${project.resources.dir}/gitblt-favicon.png" />
-			<resource file="${project.resources.dir}/user_16x16.png" />
-			<resource file="${project.resources.dir}/users_16x16.png" />
-			<resource file="${project.resources.dir}/rosette_16x16.png" />
-			<resource file="${project.resources.dir}/rosette_32x32.png" />
-			<resource file="${project.resources.dir}/vcard_16x16.png" />
-			<resource file="${project.resources.dir}/settings_16x16.png" />
-			<resource file="${project.resources.dir}/settings_32x32.png" />
-			<resource file="${project.resources.dir}/search-icon.png" />
-			<resource file="${project.resources.dir}/mail_16x16.png" />
-			<resource file="${project.resources.dir}/script_16x16.png" />
-			<resource file="${project.resources.dir}/blank.png" />
-			<resource file="${project.resources.dir}/bullet_green.png" />
-			<resource file="${project.resources.dir}/bullet_orange.png" />
-			<resource file="${project.resources.dir}/bullet_red.png" />
-			<resource file="${project.resources.dir}/bullet_white.png" />
-			<resource file="${project.resources.dir}/bullet_delete.png" />
-			<resource file="${project.resources.dir}/bullet_key.png" />
-			<resource file="${project.src.dir}/log4j.properties" />
-			<resource>
-				<!-- inlcude all translations -->
-				<fileset dir="${project.src.dir}/com/gitblit/wicket">
-					<include name="*.properties" />
-				</fileset>
-			</resource>
-
-			<mainclass name="com.gitblit.authority.Launcher" />
-			<class name="com.gitblit.Keys" />
-			<manifest>
-				<attribute name="SplashScreen-Image" value="splash.png" />
-			</manifest>
-		</mx:genjar>
-
-		<!-- Build Authority Zip file -->
-		<mx:zip destfile="${project.targetDirectory}/${authority.zipfile}">
-			<fileset dir="${basedir}">
-				<include name="LICENSE" />
-				<include name="NOTICE" />
-			</fileset>
-			<fileset dir="${project.targetDirectory}">
-				<include name="authority.jar" />
-			</fileset>
-			<zipfileset dir="${project.distrib.dir}/data" prefix="data">
-				<include name="users.conf" />
-				<include name="gitblit.properties" />
-			</zipfileset>
-			<!-- Gitblit Authority data -->
-			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
-			<!-- include "authority" tagged dependencies -->
-			<dependencies prefix="ext" tag="authority" />
-		</mx:zip>
-				
-		<!-- Cleanup -->
-		<delete file="${project.targetDirectory}/authority.jar" />
-	</target>
 					
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -653,9 +506,6 @@
 		<delete>
 			<fileset dir="${project.targetDirectory}">
 				<include name="javadoc/**" />
-				<include name="gbapi-${project.version}.jar" />
-				<include name="gbapi-${project.version}-sources.jar" />
-				<include name="gbapi-${project.version}-javadoc.jar" />
 		</fileset>
 		</delete>
 	</target>
@@ -697,16 +547,31 @@
 						<page name="upgrade Express" src="upgrade_express.mkd" />
 					</menu>
 					<divider />
-					<page name="administration" src="administration.mkd" />
-					<page name="authentication" src="setup_authentication.mkd" />
-					<page name="push hooks" src="setup_hooks.mkd" />
-					<page name="lucene indexing" src="setup_lucene.mkd" />
-					<page name="reverse proxies" src="setup_proxy.mkd" />
-					<page name="client app menus" src="setup_clientmenus.mkd" />
+					<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="administration" src="administration.mkd" />
+						<page name="authentication" src="setup_authentication.mkd" />
+						<page name="push hooks" src="setup_hooks.mkd" />
+						<page name="lucene indexing" src="setup_lucene.mkd" />
+						<page name="reverse proxies" src="setup_proxy.mkd" />
+						<page name="client app menus" src="setup_clientmenus.mkd" />
+						<page name="bugtraq" src="setup_bugtraq.mkd" />
+						<page name="mirrors" src="setup_mirrors.mkd" />
+						<page name="scaling" src="setup_scaling.mkd" />
+						<divider />
+						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
+					</menu>
 					<divider />
-					<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
+					<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="git client setup" src="setup_client.mkd" />
+						<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+					</menu>
 					<divider />
-					<page name="git client setup" src="setup_client.mkd" />
+					<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+					  <page name="overview" src="tickets_overview.mkd" />
+					  <page name="using" src="tickets_using.mkd" />
+					  <page name="barnum" src="tickets_barnum.mkd" />
+					  <page name="setup" src="tickets_setup.mkd" />
+					</menu>
 					<divider />
 					<page name="federation" src="federation.mkd" />
 					<divider />
@@ -744,11 +609,17 @@
 					<link name="Gitblit Demo (RELEASE)" src="https://demo-gitblit.rhcloud.com" />
 					<link name="Gitblit Next (SNAPSHOT)" src="https://next-gitblit.rhcloud.com" />
 					<divider />
+					<link name="Gitblit (Self-Hosted)" src="https://dev.gitblit.com" />
+					<divider />
 					<link name="Github" src="${project.scmUrl}" />
 					<link name="Issues" src="${project.issuesUrl}" />
 					<link name="Discussion" src="${project.forumUrl}" />
 					<link name="Google+" src="${project.socialNetworkUrl}" />
+					<link name="Twitter" src="https://twitter.com/gitblit" />
 					<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+					<divider />
+					<link name="+JamesMoger" src="https://plus.google.com/+JamesMoger" />
+					<link name="@JamesMoger" src="https://twitter.com/JamesMoger" />
 				</menu>
 				<divider />
 			</structure>
@@ -758,6 +629,8 @@
 			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/gitblit.properties" />
 			
 			<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
+			<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
+			<regex searchPattern="\b(ticket)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://dev.gitblit.com/tickets/gitblit.git/$3'&gt;ticket $3&lt;/a&gt;" />
 			
 			<!-- Set the logo from the mx:doc resources -->
 			<logo file="${project.resources.dir}/gitblt_25_white.png" />
@@ -801,13 +674,26 @@
 
 	</target>
 
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Package and deploy RELEASE artifacts to the Maven repository
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildMavenArtifacts" depends="buildApiLibrary">
+		<mx:package />
+		<mx:deploy basedir="${maven.directory}" allowsnapshots="false" />
+		<mx:deploy basedir="${maven.directory}" allowsnapshots="false"
+			name="Gitblit API" description="Gitblit JSON/RSS API client library"
+			tags="api" artifactid="gbapi" />
+	</target>
+
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Build all binaries and site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildAuthority,buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
+	<target name="buildAll" depends="buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
 
 	
 	<!--
@@ -921,7 +807,7 @@
 		Tag a new version and prepare for the next development cycle.
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 	-->
-	<target name="tagRelease" depends="prepare">
+	<target name="tagRelease" depends="prepare" description="tag a new version and prepare for the next development cycle">
 		<!-- release -->
 		<property name="dryrun" value="false" />
 		<mx:version stage="release" dryrun="${dryrun}" />		
@@ -955,6 +841,8 @@
 				<filter token="project.version" value="${project.version}" />
 				<filter token="project.commitId" value="${project.commitId}" />
 				<filter token="project.tag" value="${project.tag}" />
+				<filter token="project.directory" value="${basedir}" />
+				<filter token="maven.directory" value="${maven.directory}" />
 			</filterset>
 		</copy>
 		<chmod file="${recipe}" perm="ugo+rx" />
@@ -997,16 +885,31 @@
 							<page name="upgrade Express" src="upgrade_express.mkd" />
 						</menu>
 						<divider />
-						<page name="administration" src="administration.mkd" />
-						<page name="authentication" src="setup_authentication.mkd" />
-						<page name="push hooks" src="setup_hooks.mkd" />
-						<page name="lucene indexing" src="setup_lucene.mkd" />
-						<page name="reverse proxies" src="setup_proxy.mkd" />
-						<page name="client app menus" src="setup_clientmenus.mkd" />
+						<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="administration" src="administration.mkd" />
+							<page name="authentication" src="setup_authentication.mkd" />
+							<page name="push hooks" src="setup_hooks.mkd" />
+							<page name="lucene indexing" src="setup_lucene.mkd" />
+							<page name="reverse proxies" src="setup_proxy.mkd" />
+							<page name="client app menus" src="setup_clientmenus.mkd" />
+							<page name="bugtraq" src="setup_bugtraq.mkd" />
+							<page name="mirrors" src="setup_mirrors.mkd" />
+							<page name="scaling" src="setup_scaling.mkd" />
+							<divider />
+							<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
+						</menu>
 						<divider />
-						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
+						<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="git client setup" src="setup_client.mkd" />
+							<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+						</menu>
 						<divider />
-						<page name="git client setup" src="setup_client.mkd" />
+						<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="overview" src="tickets_overview.mkd" />
+							<page name="using" src="tickets_using.mkd" />
+							<page name="barnum" src="tickets_barnum.mkd" />
+							<page name="setup" src="tickets_setup.mkd" />
+						</menu>
 						<divider />
 						<page name="federation" src="federation.mkd" />
 						<divider />
@@ -1035,7 +938,9 @@
 				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/gitblit.properties" />
 				
 				<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
-				
+				<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
+				<regex searchPattern="\b(ticket)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://dev.gitblit.com/tickets/gitblit.git/$3'&gt;ticket $3&lt;/a&gt;" />
+
 				<!-- Set the logo from the mx:doc resources -->
 				<logo file="${project.resources.dir}/gitblt_25_white.png" />
 				<favicon file="${project.resources.dir}/gitblt-favicon.png" />
@@ -1086,8 +991,13 @@
 					<include name="sendmail-html.groovy" />
 					<include name="jenkins.groovy" />
 					<include name="protect-refs.groovy" />
+					<include name="blockpush.groovy" />
+					<include name="localclone.groovy" />
 					<include name="fogbugz.groovy" />
 					<include name="thebuggenie.groovy" />
+					<include name="fisheye.groovy" />
+					<include name="redmine-fetch.groovy" />
+					<include name="subgit.groovy" />
 				</fileset>
 			</copy>
       </sequential>
@@ -1156,5 +1066,6 @@
 			<arg value="-DrepositoryId=${project.maven.repo.id}" />
 			<arg value="-DcreateChecksum=true" />
 		</exec>
-	</target>					
+	</target>
+	
 </project>

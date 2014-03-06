@@ -25,7 +25,6 @@ import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -34,16 +33,18 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.TagPage;
+import com.gitblit.wicket.pages.TicketsPage;
 
-public class RefsPanel extends Panel {
+public class RefsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public RefsPanel(String id, final String repositoryName, RevCommit c,
 			Map<ObjectId, List<RefModel>> refs) {
 		this(id, repositoryName, refs.get(c.getId()));
@@ -65,7 +66,7 @@ public class RefsPanel extends Panel {
 				boolean remote2 = o2.displayName.startsWith(Constants.R_REMOTES);
 				if (remote1 && remote2) {
 					// both are remote heads, sort by name
-					return o1.displayName.compareTo(o2.displayName);	
+					return o1.displayName.compareTo(o2.displayName);
 				}
 				if (remote1) {
 					// o1 is remote, o2 comes first
@@ -79,7 +80,7 @@ public class RefsPanel extends Panel {
 				return o1.displayName.compareTo(o2.displayName);
 			}
 		});
-		
+
 		// count remote and determine if we should insert a break
 		int remoteCount = 0;
 		for (RefModel ref : refs) {
@@ -88,12 +89,15 @@ public class RefsPanel extends Panel {
 			}
 		}
 		final boolean shouldBreak = remoteCount < refs.size();
-		
+		RepositoryModel repository = app().repositories().getRepositoryModel(repositoryName);
+		final boolean hasTickets = app().tickets().hasTickets(repository);
+
 		ListDataProvider<RefModel> refsDp = new ListDataProvider<RefModel>(refs);
 		DataView<RefModel> refsView = new DataView<RefModel>("ref", refsDp) {
 			private static final long serialVersionUID = 1L;
 			private boolean alreadyInsertedBreak = !shouldBreak;
 
+			@Override
 			public void populateItem(final Item<RefModel> item) {
 				RefModel entry = item.getModelObject();
 				String name = entry.displayName;
@@ -102,7 +106,13 @@ public class RefsPanel extends Panel {
 				Class<? extends WebPage> linkClass = CommitPage.class;
 				String cssClass = "";
 				String tooltip = "";
-				if (name.startsWith(Constants.R_HEADS)) {
+				if (name.startsWith(Constants.R_TICKET)) {
+					// Gitblit ticket ref
+					objectid = name.substring(Constants.R_TICKET.length());
+					name = name.substring(Constants.R_HEADS.length());
+					linkClass = TicketsPage.class;
+					cssClass = "localBranch";
+				} else if (name.startsWith(Constants.R_HEADS)) {
 					// local branch
 					linkClass = LogPage.class;
 					name = name.substring(Constants.R_HEADS.length());
@@ -112,20 +122,32 @@ public class RefsPanel extends Panel {
 					linkClass = LogPage.class;
 					cssClass = "headRef";
 				} else if (name.startsWith(Constants.R_CHANGES)) {
-					// Gerrit change ref
+					// Gitblit change ref
 					name = name.substring(Constants.R_CHANGES.length());
 					// strip leading nn/ from nn/#####nn/ps = #####nn-ps
 					name = name.substring(name.indexOf('/') + 1).replace('/', '-');
 					String [] values = name.split("-");
+					// Gerrit change
 					tooltip = MessageFormat.format(getString("gb.reviewPatchset"), values[0], values[1]);
+					cssClass = "otherRef";
+				} else if (name.startsWith(Constants.R_TICKETS_PATCHSETS)) {
+					// Gitblit patchset ref
+					name = name.substring(Constants.R_TICKETS_PATCHSETS.length());
+					// strip leading nn/ from nn/#####nn/ps = #####nn-ps
+					name = name.substring(name.indexOf('/') + 1).replace('/', '-');
+					String [] values = name.split("-");
+					tooltip = MessageFormat.format(getString("gb.ticketPatchset"), values[0], values[1]);
+					linkClass = LogPage.class;
 					cssClass = "otherRef";
 				} else if (name.startsWith(Constants.R_PULL)) {
 					// Pull Request ref
-					name = "pull #" + name.substring(Constants.R_PULL.length());
-					if (name.endsWith("/head")) {
-						// strip pull request head from name 
-						name = name.substring(0, name.length() - "/head".length());
-					}					
+					String num = name.substring(Constants.R_PULL.length());
+					if (num.endsWith("/head")) {
+						// strip pull request head from name
+						num = num.substring(0, num.length() - "/head".length());
+					}
+					name = "pr #" + num;
+					tooltip = "pull request #" + num;
 					cssClass = "pullRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote branch

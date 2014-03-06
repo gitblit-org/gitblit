@@ -37,14 +37,14 @@ public class FederationProposal implements Serializable {
 	public FederationToken tokenType;
 
 	public String token;
-	
+
 	public String message;
 
 	public Map<String, RepositoryModel> repositories;
 
 	/**
 	 * The constructor for a federation proposal.
-	 * 
+	 *
 	 * @param url
 	 *            the url of the source Gitblit instance
 	 * @param tokenType

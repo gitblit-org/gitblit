@@ -54,9 +54,9 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * Utility methods for json calls to a Gitblit server.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class JsonUtils {
 
@@ -68,7 +68,7 @@ public class JsonUtils {
 
 	/**
 	 * Creates JSON from the specified object.
-	 * 
+	 *
 	 * @param o
 	 * @return json
 	 */
@@ -79,7 +79,7 @@ public class JsonUtils {
 
 	/**
 	 * Convert a json string to an object of the specified type.
-	 * 
+	 *
 	 * @param json
 	 * @param clazz
 	 * @return an object
@@ -90,7 +90,7 @@ public class JsonUtils {
 
 	/**
 	 * Convert a json string to an object of the specified type.
-	 * 
+	 *
 	 * @param json
 	 * @param clazz
 	 * @return an object
@@ -101,7 +101,7 @@ public class JsonUtils {
 
 	/**
 	 * Reads a gson object from the specified url.
-	 * 
+	 *
 	 * @param url
 	 * @param type
 	 * @return the deserialized object
@@ -114,7 +114,7 @@ public class JsonUtils {
 
 	/**
 	 * Reads a gson object from the specified url.
-	 * 
+	 *
 	 * @param url
 	 * @param type
 	 * @return the deserialized object
@@ -127,7 +127,7 @@ public class JsonUtils {
 
 	/**
 	 * Reads a gson object from the specified url.
-	 * 
+	 *
 	 * @param url
 	 * @param type
 	 * @param username
@@ -146,7 +146,7 @@ public class JsonUtils {
 
 	/**
 	 * Reads a gson object from the specified url.
-	 * 
+	 *
 	 * @param url
 	 * @param clazz
 	 * @param username
@@ -165,7 +165,7 @@ public class JsonUtils {
 
 	/**
 	 * Retrieves a JSON message.
-	 * 
+	 *
 	 * @param url
 	 * @return the JSON message as a string
 	 * @throws {@link IOException}
@@ -205,7 +205,7 @@ public class JsonUtils {
 
 	/**
 	 * Sends a JSON message.
-	 * 
+	 *
 	 * @param url
 	 *            the url to write to
 	 * @param json
@@ -219,7 +219,7 @@ public class JsonUtils {
 
 	/**
 	 * Sends a JSON message.
-	 * 
+	 *
 	 * @param url
 	 *            the url to write to
 	 * @param json
@@ -274,10 +274,10 @@ public class JsonUtils {
 		return builder.create();
 	}
 
-	private static class GmtDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+	public static class GmtDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 		private final DateFormat dateFormat;
 
-		private GmtDateTypeAdapter() {
+		public GmtDateTypeAdapter() {
 			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		}
@@ -296,7 +296,7 @@ public class JsonUtils {
 				JsonDeserializationContext jsonDeserializationContext) {
 			try {
 				synchronized (dateFormat) {
-					Date date = dateFormat.parse(jsonElement.getAsString());					
+					Date date = dateFormat.parse(jsonElement.getAsString());
 					return new Date((date.getTime() / 1000) * 1000);
 				}
 			} catch (ParseException e) {
@@ -304,7 +304,7 @@ public class JsonUtils {
 			}
 		}
 	}
-	
+
 	private static class AccessPermissionTypeAdapter implements JsonSerializer<AccessPermission>, JsonDeserializer<AccessPermission> {
 
 		private AccessPermissionTypeAdapter() {
@@ -319,7 +319,7 @@ public class JsonUtils {
 		@Override
 		public synchronized AccessPermission deserialize(JsonElement jsonElement, Type type,
 				JsonDeserializationContext jsonDeserializationContext) {
-			return AccessPermission.fromCode(jsonElement.getAsString());					
+			return AccessPermission.fromCode(jsonElement.getAsString());
 		}
 	}
 
@@ -334,10 +334,12 @@ public class JsonUtils {
 			this.fieldName = fqfn.substring(fqfn.lastIndexOf(".") + 1);
 		}
 
+		@Override
 		public boolean shouldSkipClass(Class<?> arg0) {
 			return false;
 		}
 
+		@Override
 		public boolean shouldSkipField(FieldAttributes f) {
 			return (f.getDeclaringClass() == c && f.getName().equals(fieldName));
 		}

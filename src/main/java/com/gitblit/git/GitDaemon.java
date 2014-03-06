@@ -43,7 +43,6 @@
  */
 package com.gitblit.git;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -68,14 +67,17 @@ import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.utils.StringUtils;
 
 /**
  * Gitblit's Git Daemon ignores any and all per-repository daemon settings and
  * integrates into Gitblit's security model.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitDaemon {
 
@@ -106,45 +108,24 @@ public class GitDaemon {
 
 	private ReceivePackFactory<GitDaemonClient> receivePackFactory;
 
-	/** Configure a daemon to listen on any available network port. */
-	public GitDaemon() {
-		this(null);
-	}
+	public GitDaemon(IGitblit gitblit) {
 
-	/**
-	 * Construct the Gitblit Git daemon.
-	 * 
-	 * @param bindInterface
-	 *            the ip address of the interface to bind
-	 * @param port
-	 *            the port to serve on
-	 * @param folder
-	 *            the folder to serve from
-	 */
-	public GitDaemon(String bindInterface, int port, File folder) {
-		this(StringUtils.isEmpty(bindInterface) ? new InetSocketAddress(port)
-				: new InetSocketAddress(bindInterface, port));
+		IStoredSettings settings = gitblit.getSettings();
+		int port = settings.getInteger(Keys.git.daemonPort, 0);
+		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
 
-		// set the repository resolver and pack factories
-		repositoryResolver = new RepositoryResolver<GitDaemonClient>(folder);
-	}
-	
-	/**
-	 * Configure a new daemon for the specified network address.
-	 * 
-	 * @param addr
-	 *            address to listen for connections on. If null, any available
-	 *            port will be chosen on all network interfaces.
-	 */
-	public GitDaemon(final InetSocketAddress addr) {
-		myAddress = addr;
-		processors = new ThreadGroup("Git-Daemon");
+		if (StringUtils.isEmpty(bindInterface)) {
+			myAddress = new InetSocketAddress(port);
+		} else {
+			myAddress = new InetSocketAddress(bindInterface, port);
+		}
+
+		repositoryResolver = new RepositoryResolver<GitDaemonClient>(gitblit);
+		uploadPackFactory = new GitblitUploadPackFactory<GitDaemonClient>(gitblit);
+		receivePackFactory = new GitblitReceivePackFactory<GitDaemonClient>(gitblit);
 
 		run = new AtomicBoolean(false);
-		repositoryResolver = null;
-		uploadPackFactory = new GitblitUploadPackFactory<GitDaemonClient>();
-		receivePackFactory = new GitblitReceivePackFactory<GitDaemonClient>();
-
+		processors = new ThreadGroup("Git-Daemon");
 		services = new GitDaemonService[] { new GitDaemonService("upload-pack", "uploadpack") {
 					{
 						setEnabled(true);
@@ -177,11 +158,11 @@ public class GitDaemon {
 					}
 				} };
 	}
-	
+
 	public int getPort() {
 		return myAddress.getPort();
 	}
-	
+
 	public String formatUrl(String servername, String repository) {
 		if (getPort() == 9418) {
 			// standard port
@@ -199,7 +180,7 @@ public class GitDaemon {
 
 	/**
 	 * Set the timeout before willing to abort an IO call.
-	 * 
+	 *
 	 * @param seconds
 	 *            number of seconds to wait (with no data transfer occurring)
 	 *            before aborting an IO read or write operation with the
@@ -211,7 +192,7 @@ public class GitDaemon {
 
 	/**
 	 * Start this daemon on a background thread.
-	 * 
+	 *
 	 * @throws IOException
 	 *             the server socket could not be opened.
 	 * @throws IllegalStateException
@@ -228,6 +209,7 @@ public class GitDaemon {
 		run.set(true);
 		acceptSocket = listenSock;
 		acceptThread = new Thread(processors, "Git-Daemon-Accept") {
+			@Override
 			public void run() {
 				while (isRunning()) {
 					try {
@@ -250,7 +232,7 @@ public class GitDaemon {
 			}
 		};
 		acceptThread.start();
-		
+
 		logger.info(MessageFormat.format("Git Daemon is listening on {0}:{1,number,0}", myAddress.getAddress().getHostAddress(), myAddress.getPort()));
 	}
 
@@ -290,6 +272,7 @@ public class GitDaemon {
 			dc.setRemoteAddress(((InetSocketAddress) peer).getAddress());
 
 		new Thread(processors, "Git-Daemon-Client " + peer.toString()) {
+			@Override
 			public void run() {
 				try {
 					dc.execute(s);

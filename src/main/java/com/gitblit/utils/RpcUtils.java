@@ -39,9 +39,9 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * Utility methods for rpc calls.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RpcUtils {
 
@@ -76,7 +76,7 @@ public class RpcUtils {
 	}.getType();
 
 	/**
-	 * 
+	 *
 	 * @param remoteURL
 	 *            the url of the remote gitblit instance
 	 * @param req
@@ -88,7 +88,7 @@ public class RpcUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param remoteURL
 	 *            the url of the remote gitblit instance
 	 * @param req
@@ -110,7 +110,7 @@ public class RpcUtils {
 
 	/**
 	 * Returns the version of the RPC protocol on the server.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -124,7 +124,7 @@ public class RpcUtils {
 		try {
 			protocol = JsonUtils.retrieveJson(url, Integer.class, account, password);
 		} catch (UnknownRequestException e) {
-			// v0.7.0 (protocol 1) did not have this request type 
+			// v0.7.0 (protocol 1) did not have this request type
 		}
 		return protocol;
 	}
@@ -132,7 +132,7 @@ public class RpcUtils {
 	/**
 	 * Retrieves a map of the repositories at the remote gitblit instance keyed
 	 * by the repository clone url.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -149,7 +149,7 @@ public class RpcUtils {
 
 	/**
 	 * Tries to pull the gitblit user accounts from the remote gitblit instance.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -167,7 +167,7 @@ public class RpcUtils {
 	/**
 	 * Tries to pull the gitblit team definitions from the remote gitblit
 	 * instance.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -184,7 +184,7 @@ public class RpcUtils {
 
 	/**
 	 * Create a repository on the Gitblit server.
-	 * 
+	 *
 	 * @param repository
 	 * @param serverUrl
 	 * @param account
@@ -205,7 +205,7 @@ public class RpcUtils {
 
 	/**
 	 * Send a revised version of the repository model to the Gitblit server.
-	 * 
+	 *
 	 * @param repository
 	 * @param serverUrl
 	 * @param account
@@ -221,7 +221,7 @@ public class RpcUtils {
 
 	/**
 	 * Delete a repository from the Gitblit server.
-	 * 
+	 *
 	 * @param repository
 	 * @param serverUrl
 	 * @param account
@@ -235,17 +235,17 @@ public class RpcUtils {
 				password);
 
 	}
-	
+
 	/**
 	 * Clears the repository cache on the Gitblit server.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
 	 * @return true if the action succeeded
 	 * @throws IOException
 	 */
-	public static boolean clearRepositoryCache(String serverUrl, String account, 
+	public static boolean clearRepositoryCache(String serverUrl, String account,
 			char[] password) throws IOException {
 		return doAction(RpcRequest.CLEAR_REPOSITORY_CACHE, null, null, serverUrl, account,
 				password);
@@ -253,7 +253,7 @@ public class RpcUtils {
 
 	/**
 	 * Create a user on the Gitblit server.
-	 * 
+	 *
 	 * @param user
 	 * @param serverUrl
 	 * @param account
@@ -269,7 +269,7 @@ public class RpcUtils {
 
 	/**
 	 * Send a revised version of the user model to the Gitblit server.
-	 * 
+	 *
 	 * @param user
 	 * @param serverUrl
 	 * @param account
@@ -285,7 +285,7 @@ public class RpcUtils {
 
 	/**
 	 * Deletes a user from the Gitblit server.
-	 * 
+	 *
 	 * @param user
 	 * @param serverUrl
 	 * @param account
@@ -299,8 +299,26 @@ public class RpcUtils {
 	}
 
 	/**
+	 * Tries to get the specified gitblit user account from the remote gitblit instance.
+	 * If the username is null or empty, the current user is returned.
+	 *
+	 * @param username
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return a UserModel or null
+	 * @throws IOException
+	 */
+	public static UserModel getUser(String username, String serverUrl, String account, char[] password)
+			throws IOException {
+		String url = asLink(serverUrl, RpcRequest.GET_USER);
+		UserModel model = JsonUtils.retrieveJson(url, UserModel.class, account, password);
+		return model;
+	}
+
+	/**
 	 * Create a team on the Gitblit server.
-	 * 
+	 *
 	 * @param team
 	 * @param serverUrl
 	 * @param account
@@ -316,7 +334,7 @@ public class RpcUtils {
 
 	/**
 	 * Send a revised version of the team model to the Gitblit server.
-	 * 
+	 *
 	 * @param team
 	 * @param serverUrl
 	 * @param account
@@ -332,7 +350,7 @@ public class RpcUtils {
 
 	/**
 	 * Deletes a team from the Gitblit server.
-	 * 
+	 *
 	 * @param team
 	 * @param serverUrl
 	 * @param account
@@ -347,7 +365,7 @@ public class RpcUtils {
 
 	/**
 	 * Retrieves the list of users that can access the specified repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param serverUrl
 	 * @param account
@@ -361,10 +379,10 @@ public class RpcUtils {
 		Collection<String> list = JsonUtils.retrieveJson(url, NAMES_TYPE, account, password);
 		return new ArrayList<String>(list);
 	}
-	
+
 	/**
 	 * Retrieves the list of user access permissions for the specified repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param serverUrl
 	 * @param account
@@ -372,7 +390,7 @@ public class RpcUtils {
 	 * @return list of User-AccessPermission tuples
 	 * @throws IOException
 	 */
-	public static List<RegistrantAccessPermission> getRepositoryMemberPermissions(RepositoryModel repository, 
+	public static List<RegistrantAccessPermission> getRepositoryMemberPermissions(RepositoryModel repository,
 			String serverUrl, String account, char [] password) throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORY_MEMBER_PERMISSIONS, repository.name);
 		Collection<RegistrantAccessPermission> list = JsonUtils.retrieveJson(url, REGISTRANT_PERMISSIONS_TYPE, account, password);
@@ -381,7 +399,7 @@ public class RpcUtils {
 
 	/**
 	 * Sets the repository user access permissions
-	 * 
+	 *
 	 * @param repository
 	 * @param permissions
 	 * @param serverUrl
@@ -396,10 +414,10 @@ public class RpcUtils {
 		return doAction(RpcRequest.SET_REPOSITORY_MEMBER_PERMISSIONS, repository.name, permissions, serverUrl,
 				account, password);
 	}
-	
+
 	/**
 	 * Retrieves the list of teams that can access the specified repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param serverUrl
 	 * @param account
@@ -413,10 +431,10 @@ public class RpcUtils {
 		Collection<String> list = JsonUtils.retrieveJson(url, NAMES_TYPE, account, password);
 		return new ArrayList<String>(list);
 	}
-	
+
 	/**
 	 * Retrieves the list of team access permissions for the specified repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param serverUrl
 	 * @param account
@@ -424,7 +442,7 @@ public class RpcUtils {
 	 * @return list of Team-AccessPermission tuples
 	 * @throws IOException
 	 */
-	public static List<RegistrantAccessPermission> getRepositoryTeamPermissions(RepositoryModel repository, 
+	public static List<RegistrantAccessPermission> getRepositoryTeamPermissions(RepositoryModel repository,
 			String serverUrl, String account, char [] password) throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORY_TEAM_PERMISSIONS, repository.name);
 		Collection<RegistrantAccessPermission> list = JsonUtils.retrieveJson(url, REGISTRANT_PERMISSIONS_TYPE, account, password);
@@ -433,7 +451,7 @@ public class RpcUtils {
 
 	/**
 	 * Sets the repository team access permissions
-	 * 
+	 *
 	 * @param repository
 	 * @param permissions
 	 * @param serverUrl
@@ -448,11 +466,11 @@ public class RpcUtils {
 		return doAction(RpcRequest.SET_REPOSITORY_TEAM_PERMISSIONS, repository.name, permissions, serverUrl,
 				account, password);
 	}
-	
+
 	/**
 	 * Retrieves the list of federation registrations. These are the list of
 	 * registrations that this Gitblit instance is pulling from.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -471,7 +489,7 @@ public class RpcUtils {
 	/**
 	 * Retrieves the list of federation result registrations. These are the
 	 * results reported back to this Gitblit instance from a federation client.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -489,7 +507,7 @@ public class RpcUtils {
 
 	/**
 	 * Retrieves the list of federation proposals.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -507,7 +525,7 @@ public class RpcUtils {
 
 	/**
 	 * Retrieves the list of federation repository sets.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -524,7 +542,7 @@ public class RpcUtils {
 
 	/**
 	 * Retrieves the settings of the Gitblit server.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -541,7 +559,7 @@ public class RpcUtils {
 
 	/**
 	 * Update the settings on the Gitblit server.
-	 * 
+	 *
 	 * @param settings
 	 *            the settings to update
 	 * @param serverUrl
@@ -558,7 +576,7 @@ public class RpcUtils {
 
 	/**
 	 * Retrieves the server status object.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -575,7 +593,7 @@ public class RpcUtils {
 	/**
 	 * Retrieves a map of local branches in the Gitblit server keyed by
 	 * repository.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -592,7 +610,7 @@ public class RpcUtils {
 
 	/**
 	 * Retrieves a list of available branch feeds in the Gitblit server.
-	 * 
+	 *
 	 * @param serverUrl
 	 * @param account
 	 * @param password
@@ -616,7 +634,7 @@ public class RpcUtils {
 
 	/**
 	 * Do the specified administrative action on the Gitblit server.
-	 * 
+	 *
 	 * @param request
 	 * @param name
 	 *            the name of the object (may be null)

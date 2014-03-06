@@ -28,11 +28,12 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Constants;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
@@ -40,6 +41,7 @@ import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
+@CacheControl(LastModified.ACTIVITY)
 public class RepositoriesPage extends RootPage {
 
 	public RepositoriesPage() {
@@ -60,9 +62,9 @@ public class RepositoriesPage extends RootPage {
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
-			String messageSource = GitBlit.getString(Keys.web.loginMessage, "gitblit");
+			String messageSource = app().settings().getString(Keys.web.loginMessage, "gitblit");
 			String message = readMarkdown(messageSource, "login.mkd");
 			Component repositoriesMessage = new Label("repositoriesMessage", message);
 			add(repositoriesMessage.setEscapeModelStrings(false));
@@ -71,7 +73,7 @@ public class RepositoriesPage extends RootPage {
 		}
 
 		// Load the markdown welcome message
-		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
+		String messageSource = app().settings().getString(Keys.web.repositoriesMessage, "gitblit");
 		String message = readMarkdown(messageSource, "welcome.mkd");
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
@@ -117,7 +119,7 @@ public class RepositoriesPage extends RootPage {
 		} else {
 			// Read user-supplied message
 			if (!StringUtils.isEmpty(messageSource)) {
-				File file = GitBlit.getFileOrFolder(messageSource);
+				File file = app().runtime().getFileOrFolder(messageSource);
 				if (file.exists()) {
 					try {
 						FileInputStream fis = new FileInputStream(file);
@@ -148,7 +150,7 @@ public class RepositoriesPage extends RootPage {
 		if (!StringUtils.isEmpty(lc)) {
 			if (!StringUtils.isEmpty(cc)) {
 				files.add(base + "_" + lc + "-" + cc + ext);
-				files.add(base + "_" + lc + "_" + cc + ext);
+				files.add(base + "_" + lc + "_" + cc.toUpperCase() + ext);
 			}
 			files.add(base + "_" + lc + ext);
 		}
@@ -177,7 +179,7 @@ public class RepositoriesPage extends RootPage {
 					} catch (Exception e) {
 					}
 				}
-			}			
+			}
 		}
 		return MessageFormat.format(getString("gb.failedToReadMessage"), file);
 	}

@@ -1,0 +1,5 @@
+dn: CN=Git_Group_Without_Members,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
+objectClass: top
+objectClass: group
+cn: Git_Group_Without_Members
+sAMAccountName: Git_Group_Without_Members

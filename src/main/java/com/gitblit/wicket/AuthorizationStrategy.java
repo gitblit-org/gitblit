@@ -19,8 +19,9 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorizationStrategy;
+import org.apache.wicket.markup.html.WebPage;
 
-import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.pages.BasePage;
@@ -28,22 +29,27 @@ import com.gitblit.wicket.pages.BasePage;
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements
 		IUnauthorizedComponentInstantiationListener {
 
-	public AuthorizationStrategy() {
+	IStoredSettings settings;
+	Class<? extends WebPage> homepageClass;
+
+	public AuthorizationStrategy(IStoredSettings settings, Class<? extends WebPage> homepageClass) {
+		this.settings = settings;
+		this.homepageClass = homepageClass;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected boolean isPageAuthorized(Class pageClass) {
-		if (GitBlitWebApp.HOME_PAGE_CLASS.equals(pageClass)) {
+		if (homepageClass.equals(pageClass)) {
 			// allow all requests to get to the HomePage with its inline
 			// authentication form
 			return true;
 		}
 
 		if (BasePage.class.isAssignableFrom(pageClass)) {
-			boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
-			boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
-			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
+			boolean authenticateView = settings.getBoolean(Keys.web.authenticateViewPages, true);
+			boolean authenticateAdmin = settings.getBoolean(Keys.web.authenticateAdminPages, true);
+			boolean allowAdmin = settings.getBoolean(Keys.web.allowAdministration, true);
 
 			GitBlitWebSession session = GitBlitWebSession.get();
 			if (authenticateView && !session.isLoggedIn()) {
@@ -77,9 +83,9 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 
 	@Override
 	public void onUnauthorizedInstantiation(Component component) {
-		
+
 		if (component instanceof BasePage) {
-			throw new RestartResponseException(GitBlitWebApp.HOME_PAGE_CLASS);
+			throw new RestartResponseException(homepageClass);
 		}
 	}
 }

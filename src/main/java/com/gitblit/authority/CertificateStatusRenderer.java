@@ -26,9 +26,9 @@ import com.gitblit.client.Translation;
 /**
  * Displays a subscribed icon on the left of the repository name, if there is at
  * least one subscribed branch.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class CertificateStatusRenderer extends DefaultTableCellRenderer {
 
@@ -49,6 +49,7 @@ public class CertificateStatusRenderer extends DefaultTableCellRenderer {
 		okIcon = new ImageIcon(getClass().getResource("/bullet_green.png"));
 	}
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

@@ -42,27 +42,28 @@ public final class GitBlitWebSession extends WebSession {
 	private UserModel user;
 
 	private String errorMessage;
-	
+
 	private String requestUrl;
-	
+
 	private AtomicBoolean isForking;
-	
+
 	public AuthenticationType authenticationType;
-	
+
 	public GitBlitWebSession(Request request) {
 		super(request);
 		isForking = new AtomicBoolean();
 		authenticationType = AuthenticationType.CREDENTIALS;
 	}
 
+	@Override
 	public void invalidate() {
 		super.invalidate();
 		user = null;
 	}
-	
+
 	/**
 	 * Cache the requested protected resource pending successful authentication.
-	 * 
+	 *
 	 * @param pageClass
 	 */
 	public void cacheRequest(Class<? extends Page> pageClass) {
@@ -81,14 +82,14 @@ public final class GitBlitWebSession extends WebSession {
 			bind();
 		}
 	}
-	
+
 	/**
 	 * Continue any cached request.  This is used when a request for a protected
 	 * resource is aborted/redirected pending proper authentication.  Gitblit
 	 * no longer uses Wicket's built-in mechanism for this because of Wicket's
 	 * failure to properly handle parameters with forward-slashes.  This is a
 	 * constant source of headaches with Wicket.
-	 *  
+	 *
 	 * @return false if there is no cached request to process
 	 */
 	public boolean continueRequest() {
@@ -110,7 +111,7 @@ public final class GitBlitWebSession extends WebSession {
 		}
 		return user.canAdmin();
 	}
-	
+
 	public String getUsername() {
 		return user == null ? "anonymous" : user.username;
 	}
@@ -150,11 +151,11 @@ public final class GitBlitWebSession extends WebSession {
 		errorMessage = null;
 		return msg;
 	}
-	
+
 	public boolean isForking() {
 		return isForking.get();
 	}
-	
+
 	public void isForking(boolean val) {
 		isForking.set(val);
 	}

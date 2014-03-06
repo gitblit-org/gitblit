@@ -24,19 +24,21 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.ExternalImage;
+import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
+@CacheControl(LastModified.BOOT)
 public class BlobPage extends RepositoryPage {
 
 	protected String fileExtension;
@@ -46,8 +48,8 @@ public class BlobPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		final String blobPath = WicketUtils.getPath(params);
-		String [] encodings = GitBlit.getEncodings();
-		
+		String [] encodings = getEncodings();
+
 		if (StringUtils.isEmpty(blobPath)) {
 			// blob by objectid
 
@@ -57,7 +59,6 @@ public class BlobPage extends RepositoryPage {
 			add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class).setEnabled(false));
 			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-			add(new BookmarkablePageLink<Void>("headLink", BlobPage.class).setEnabled(false));
 			add(new CommitHeaderPanel("commitHeader", objectId));
 			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 			Component c = new Label("blobText", JGitUtils.getStringContent(r, objectId, encodings));
@@ -70,16 +71,16 @@ public class BlobPage extends RepositoryPage {
 				extension = blobPath.substring(blobPath.lastIndexOf('.') + 1).toLowerCase();
 			}
 
-			// see if we should redirect to the markdown page
-			for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
+			// see if we should redirect to the doc page
+			MarkupProcessor processor = new MarkupProcessor(app().settings());
+			for (String ext : processor.getMarkupExtensions()) {
 				if (ext.equals(extension)) {
-					setResponsePage(MarkdownPage.class, params);
+					setResponsePage(DocPage.class, params);
 					return;
 				}
 			}
 
-			// manually get commit because it can be null
-			RevCommit commit = JGitUtils.getCommit(r, objectId);
+			RevCommit commit = getCommit();
 
 			// blob page links
 			add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
@@ -88,8 +89,6 @@ public class BlobPage extends RepositoryPage {
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-			add(new BookmarkablePageLink<Void>("headLink", BlobPage.class,
-					WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 
 			add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -97,13 +96,13 @@ public class BlobPage extends RepositoryPage {
 
 			// Map the extensions to types
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			for (String ext : GitBlit.getStrings(Keys.web.prettyPrintExtensions)) {
+			for (String ext : app().settings().getStrings(Keys.web.prettyPrintExtensions)) {
 				map.put(ext.toLowerCase(), 1);
 			}
-			for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
+			for (String ext : app().settings().getStrings(Keys.web.imageExtensions)) {
 				map.put(ext.toLowerCase(), 2);
 			}
-			for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
+			for (String ext : app().settings().getStrings(Keys.web.binaryExtensions)) {
 				map.put(ext.toLowerCase(), 3);
 			}
 
@@ -150,7 +149,7 @@ public class BlobPage extends RepositoryPage {
 			}
 		}
 	}
-	
+
 	protected String missingBlob(String blobPath, RevCommit commit) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"alert alert-error\">");
@@ -162,23 +161,23 @@ public class BlobPage extends RepositoryPage {
 
 	protected String generateSourceView(String source, String extension, boolean prettyPrint) {
 		String [] lines = source.split("\n");
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!-- start blob table -->");
 		sb.append("<table width=\"100%\"><tbody><tr>");
-		
+
 		// nums column
 		sb.append("<!-- start nums column -->");
 		sb.append("<td id=\"nums\">");
 		sb.append("<pre>");
-		String numPattern = "<span id=\"L{0}\" class=\"num\">{0}</span>\n";
+		String numPattern = "<span id=\"L{0}\" class=\"jump\"></span><a href=\"#L{0}\">{0}</a>\n";
 		for (int i = 0; i < lines.length; i++) {
 			sb.append(MessageFormat.format(numPattern, "" + (i + 1)));
 		}
 		sb.append("</pre>");
 		sb.append("<!-- end nums column -->");
 		sb.append("</td>");
-		
+
 		sb.append("<!-- start lines column -->");
 		sb.append("<td id=\"lines\">");
 		sb.append("<div class=\"sourceview\">");
@@ -188,13 +187,16 @@ public class BlobPage extends RepositoryPage {
 			sb.append("<pre class=\"plainprint\">");
 		}
 		lines = StringUtils.escapeForHtml(source, true).split("\n");
-		
+
 		sb.append("<table width=\"100%\"><tbody>");
-		
-		String linePattern = "<tr class=\"{0}\"><td><a href=\"#L{2}\">{1}</a>\r</tr>";
+
+		String linePattern = "<tr class=\"{0}\"><td><div><span class=\"line\">{1}</span></div>\r</tr>";
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i].replace('\r', ' ');
 			String cssClass = (i % 2 == 0) ? "even" : "odd";
+			if (StringUtils.isEmpty(line.trim())) {
+				line = "&nbsp;";
+			}
 			sb.append(MessageFormat.format(linePattern, cssClass, line, "" + (i + 1)));
 		}
 		sb.append("</tbody></table></pre>");
@@ -202,10 +204,10 @@ public class BlobPage extends RepositoryPage {
 		sb.append("</div>");
 		sb.append("</td>");
 		sb.append("<!-- end lines column -->");
-		
+
 		sb.append("</tr></tbody></table>");
 		sb.append("<!-- end blob table -->");
-		
+
 		return sb.toString();
 	}
 
@@ -213,7 +215,7 @@ public class BlobPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.view");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return TreePage.class;

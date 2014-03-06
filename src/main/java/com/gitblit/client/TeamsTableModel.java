@@ -25,9 +25,9 @@ import com.gitblit.models.TeamModel;
 
 /**
  * Table model of a list of teams.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class TeamsTableModel extends AbstractTableModel {
 
@@ -79,11 +79,12 @@ public class TeamsTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		return String.class;
 	}

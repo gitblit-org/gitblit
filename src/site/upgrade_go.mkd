@@ -9,12 +9,12 @@ All platforms support the *--baseFolder* command-line argument.
 
 ## Upgrading Gitblit GO (pre-1.2.1)
 1. Create a `data` folder and copy the following files and folders to it:
-    - **users.conf*
+    - **users.conf**
 	- **projects.conf** *(if you have one)*
 	- **gitblit.properties**
 	- **serverKeystore.jks**
 	- **serverTrustStore.jks**
-	- *certs** folder
+	- **certs** folder
 	- **git** folder
 	- **groovy** folder
 	- **proposals** folder

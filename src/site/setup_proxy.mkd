@@ -5,17 +5,21 @@ Gitblit runs fine behind Apache.  You may use either *mod_proxy* (GO or WAR) or 
 Each Linux distribution may vary on the exact configuration of Apache 2.2.  
 Here is a sample configuration that works on Debian 7.0 (Wheezy), your distribution may be different.
 
-1. First we need to make sure we have Apache's proxy modules available.  
----FIXED---
+### Make sure we have Apache's proxy modules
+
+```
 sudo su
 cd /etc/apache2/mods-enabled
 ln -s ../mods-available/proxy.load proxy.load
 ln -s ../mods-available/proxy_balancer.load proxy_balancer.load
 ln -s ../mods-available/proxy_http.load proxy_http.load
 ln -s ../mods-available/proxy_ajp.load proxy_ajp.load
----FIXED---
-2. Then we need to make sure we are configuring Apache to use the proxy modules and to setup the proxied connection from Apache to Gitblit GO or from Apache to your chosen servlet container.  The following snippet is stored as `/etc/apache2/conf.d/gitblit`.  
----FIXED---
+```
+### Configuring Apache to use the proxy modules
+
+Now we must configure Apache to use the proxy modules and  the proxied connection from Apache to Gitblit GO or from Apache to your chosen servlet container.  The following snippet is stored as `/etc/apache2/conf.d/gitblit`.  
+
+```
 # Turn off support for true Proxy behaviour as we are acting as 
 # a transparent proxy
 ProxyRequests Off
@@ -55,7 +59,8 @@ ProxyPreserveHost On
 #RequestHeader set X-Forwarded-Context /
 
 #ProxyPass /gitblit ajp://localhost:8009/gitblit
----FIXED---  
+```
+
 **Please** make sure to:  
     1. Review the security of these settings as appropriate for your deployment
     2. Uncomment the *ProxyPass* setting for whichever connection you prefer (http/ajp)

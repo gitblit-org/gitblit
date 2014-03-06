@@ -16,19 +16,20 @@
 package com.gitblit.wicket.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
-public class PatchPage extends WebPage {
+@CacheControl(LastModified.BOOT)
+public class PatchPage extends SessionPage {
 
 	public PatchPage(PageParameters params) {
 		super(params);
@@ -44,7 +45,7 @@ public class PatchPage extends WebPage {
 		final String objectId = WicketUtils.getObject(params);
 		final String blobPath = WicketUtils.getPath(params);
 
-		Repository r = GitBlit.self().getRepository(repositoryName);
+		Repository r = app().repositories().getRepository(repositoryName);
 		if (r == null) {
 			GitBlitWebSession.get().cacheErrorMessage(getString("gb.canNotLoadRepository") + " " + repositoryName);
 			redirectToInterceptPage(new RepositoriesPage());
