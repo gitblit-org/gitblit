@@ -11,5 +11,14 @@
 #
 # --------------------------------------------------------------------------
 
+if [ -z $1 ]; then
+    echo "Please specify your baseFolder!";
+    echo "";
+    echo "usage:";
+    echo "    reindex-tickets <baseFolder>";
+    echo "";
+    exit 1;
+fi
+
 java -cp gitblit.jar:./ext/* com.gitblit.ReindexTickets --baseFolder $1
 

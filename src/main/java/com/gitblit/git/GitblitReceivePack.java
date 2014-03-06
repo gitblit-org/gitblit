@@ -344,6 +344,15 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			LOGGER.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
 		}
 
+		// check for updates pushed to the BranchTicketService branch
+		// if the BranchTicketService is active it will reindex, as appropriate
+		for (ReceiveCommand cmd : commands) {
+			if (Result.OK.equals(cmd.getResult())
+					&& BranchTicketService.BRANCH.equals(cmd.getRefName())) {
+				rp.getRepository().fireEvent(new ReceiveCommandEvent(repository, cmd));
+			}
+		}
+
 		// run Groovy hook scripts
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(gitblit.getPostReceiveScriptsInherited(repository));

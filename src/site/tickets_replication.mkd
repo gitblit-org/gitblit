@@ -1,0 +1,135 @@
+## Ticket Replication & Advanced Administration
+
+*SINCE 1.4.0*
+
+**Ticket Replication**
+Gitblit does *not* provide a generic/universal replication mechanism that works across all persistence backends.
+
+**Advanced Administration**
+Gitblit does *not* provide a generic/universal for advanced administration (i.e. manually tweaking ticket data) however each service does have a strategy for that case.
+
+### FileTicketService
+
+#### Ticket Replication
+Replication is not supported.
+
+#### Advanced Administration
+Use your favorite text editor to **carefully** manipulate a ticket's journal file.  I recommend using a JSON validation service to ensure your changes are valid JSON.
+
+After you've done this, you will need to reset Gitblit's internal ticket cache and you may need to reindex the tickets, depending on your changes.
+
+### BranchTicketService
+
+#### Ticket Replication
+Gitblit supports ticket replication for a couple of scenarios with the *BranchTicketService*.  This requires that the Gitblit instance receiving the ticket data be configured for the *BranchTicketService*.  Likewise, the source of the ticket data must be a repository that has ticket data persisted using the *BranchTicketService*.
+
+##### Manually Pushing refs/gitblit/tickets
+
+Let's say you wanted to create a perfect clone of the Gitblit repository hosted at https://dev.gitblit.com in your own Gitblit instance.  We'll use this repository as an example because it is configured for the *BranchTicketService*.
+
+**Assumptions**
+
+1. We are pushing to our local Gitblit with the admin account, or some other privileged account
+2. Our local Gitblit is configured for create-on-push
+3. Our local Gitblit is configured for the *BranchTicketService*
+
+**Procedure**
+
+1. First we'll clone a mirror of the source repository:<pre>git clone --mirror https://dev.gitblit.com/r/gitblit.git </pre>
+2. Then we'll add a remote for our local Gitblit instance:<pre>cd gitblit.git<br/>git remote add local https://localhost:8443/gitblit.git </pre>
+3. Then we'll push *everything* to our local Gitblit:<pre>git push --mirror local</pre>
+
+If your push was successful you should have a new repository with the entire official Gitblit tickets data.
+
+##### Mirroring refs/gitblit/tickets
+
+Gitblit 1.4.0 introduces a mirroring service.  This is not the same as the federation feature - although there are similarities.
+
+If you setup a mirror of another Gitblit repository which uses the *BranchTicketService* **AND** your Gitblit instance is configured for *BranchTicketService*, then your Gitblit will automatically fetch and reindex all tickets without intervention or further configuration.
+
+**Things to note about mirrors...**
+
+1. You must set *git.enableMirroring=true* and optionally change *git.mirrorPeriod*
+2. Mirrors are read-only.  You can not push to a mirror.  You can not manipulate a mirror's ticket data.
+3. Mirrors are a Git feature - not a Gitblit invention.  To create one you must currently use Git within your *git.repositoriesFolder*, you must reset your cache, and you must trigger a ticket reindex.<pre>git clone --mirror &lt;url&gt;<br/>curl --insecure --user admin:admin "https://localhost:8443/rpc?req=clear_repository_cache"<br/>curl --insecure --user admin:admin "https://localhost:8443/rpc?req=reindex_tickets&name=&lt;repo&gt;"</pre>
+4. After you have indexed the repository, Gitblit will take over and incrementally update your tickets data on each fetch.
+
+#### Advanced Administration
+Repository owners or Gitblit administrators have the option of manually editing ticket data.  To do this you must fetch and checkout the `refs/gitblit/tickets` ref.  This orphan branch is where ticket data is stored.  You may then use a text editor to **carefully** manipulate journals and push your changes back upstream.  I recommend using a JSON validation tool to ensure your changes are valid JSON.
+
+    git fetch origin refs/gitblit/tickets
+    git checkout -B tix FETCH_HEAD
+    ...fix data...
+    git add .
+    git commit
+    git push origin HEAD:refs/gitblit/tickets
+
+Gitblit will identify the incoming `refs/gitblit/tickets` ref update and will incrementally index the changed tickets OR, if the update is non-fast-forward, all tickets on that branch will be reindexed.
+
+### RedisTicketService
+
+#### Ticket Replication
+Redis is capable of sophisticated replication and clustering.  I have not configured Redis replication myself.  If this topic interests you please document your procedure and open a pull request to improve this section for others who may also be interested in Redis replication.
+
+#### Advanced Administration
+You can directly manipulate the journals in Redis.  The most convenient way do manipulate data is using the simple, but very competent, [RedisDesktopManager](http://redisdesktop.com).  It even provides JSON pretty printing which faciliates editing.
+
+After you've done this, you will need to reset Gitblit's internal ticket cache and you may need to reindex the tickets, depending on your changes.
+
+The schema of the Redis backend looks like this *repository:object:id*.
+
+    redis 127.0.0.1:6379> keys *
+    1) "~james/mytickets.git:ticket:8"
+    2) "~james/mytickets.git:journal:8"
+    3) "~james/mytickets.git:ticket:4"
+    4) "~james/mytickets.git:counter"
+    5) "~james/mytickets.git:journal:2"
+    6) "~james/mytickets.git:journal:4"
+    7) "~james/mytickets.git:journal:7"
+    8) "~james/mytickets.git:ticket:3"
+    9) "~james/mytickets.git:ticket:6"
+    10) "~james/mytickets.git:journal:1"
+    11) "~james/mytickets.git:ticket:2"
+    12) "~james/mytickets.git:journal:6"
+    13) "~james/mytickets.git:ticket:7"
+    14) "~james/mytickets.git:ticket:1"
+    15) "~james/mytickets.git:journal:3"
+
+**Some notes about the Redis backend**
+The *ticket* object keys are provided as a convenience for integration with other systems.  Gitblit does not read those keys, but it does update them.
+
+The *journal* object keys are the important ones.  Gitblit maintains ticket change journals.  The *journal* object keys are Redis LISTs where each list entry is a JSON change document.
+
+The other important object key is the *counter* which is used to assign ticket ids.
+
+### Resetting the Tickets Cache and Reindexing Tickets
+
+Reindexing can be memory exhaustive.  It obviously depends on the number of tickets you have.  Normally, you won't need to manually reindex but if you do, offline reindexing is recommended.
+
+#### Offline Reindexing
+
+##### Gitblit GO
+
+Gitblit GO ships with a script that executes the *com.gitblit.ReindexTickets* tool included in the Gitblit jar file.  This tool will reindex *all* tickets in *all* repositories **AND** must be run when Gitblit is offline.
+
+    reindex-tickets <baseFolder>
+
+##### Gitblit WAR/Express
+
+Gitblit WAR/Express does not ship with anything other than the WAR, but you can still reindex tickets offline with a little extra effort.
+
+*Windows*
+
+    java -cp "C:/path/to/WEB-INF/lib/*" com.gitblit.ReindexTickets --baseFolder <baseFolder>
+
+*Linux/Unix/Mac OSX*
+
+    java -cp /path/to/WEB-INF/lib/* com.gitblit.ReindexTickets --baseFolder <baseFolder>
+
+#### Live Reindexing
+
+You can trigger a live reindex of tickets for any backend using Gitblit's RPC interface and curl or your browser.  This will also reset Gitblit's internal ticket cache.  Use of this RPC requires *web.enableRpcServlet=true* and *web.enableRpcManagement=true* along with administrator credentials.
+
+    curl --insecure --user admin:admin "https://localhost:8443/rpc?req=reindex_tickets"
+    curl --insecure --user admin:admin "https://localhost:8443/rpc?req=reindex_tickets&name=gitblit.git"
+

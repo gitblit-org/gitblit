@@ -252,6 +252,37 @@ public class RpcUtils {
 	}
 
 	/**
+	 * Reindex all tickets on the Gitblit server.
+	 *
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean reindexTickets(String serverUrl, String account,
+			char[] password) throws IOException {
+		return doAction(RpcRequest.REINDEX_TICKETS, null, null, serverUrl, account,
+				password);
+	}
+
+	/**
+	 * Reindex tickets for the specified repository on the Gitblit server.
+	 *
+	 * @param serverUrl
+	 * @param repositoryName
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean reindexTickets(String serverUrl, String repositoryName,
+			String account, char[] password) throws IOException {
+		return doAction(RpcRequest.REINDEX_TICKETS, repositoryName, null, serverUrl,
+				account, password);
+	}
+
+	/**
 	 * Create a user on the Gitblit server.
 	 *
 	 * @param user

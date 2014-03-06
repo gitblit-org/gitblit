@@ -4,10 +4,19 @@
 @REM Since the Tickets feature is undergoing massive churn it may be necessary 
 @REM to reindex tickets due to model or index changes.
 @REM
-@REM Always use forward-slashes for the path separator in your parameters!!
+@REM usage:
+@REM     reindex-tickets <baseFolder>
 @REM
-@REM Set FOLDER to the baseFolder.
 @REM --------------------------------------------------------------------------
-@SET FOLDER=data
+@if [%1]==[] goto nobasefolder
 
-@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.ReindexTickets --baseFolder %FOLDER%
+@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.ReindexTickets --baseFolder %1
+@goto end
+
+:nobasefolder
+@echo "Please specify your baseFolder!"
+@echo
+@echo "    reindex-tickets c:/gitblit-data"
+@echo
+
+:end

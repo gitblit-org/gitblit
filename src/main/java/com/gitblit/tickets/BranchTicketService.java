@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.inject.Inject;
@@ -36,6 +37,8 @@ import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
+import org.eclipse.jgit.events.RefsChangedEvent;
+import org.eclipse.jgit.events.RefsChangedListener;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.FileMode;
@@ -48,15 +51,18 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.ReceiveCommand;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 import com.gitblit.Constants;
+import com.gitblit.git.ReceiveCommandEvent;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.PathModel;
+import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
@@ -74,7 +80,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class BranchTicketService extends ITicketService {
+public class BranchTicketService extends ITicketService implements RefsChangedListener {
 
 	public static final String BRANCH = "refs/gitblit/tickets";
 
@@ -97,6 +103,9 @@ public class BranchTicketService extends ITicketService {
 				repositoryManager);
 
 		lastAssignedId = new ConcurrentHashMap<String, AtomicLong>();
+
+		// register the branch ticket service for repository ref changes
+		Repository.getGlobalListenerList().addRefsChangedListener(this);
 	}
 
 	@Override
@@ -118,6 +127,66 @@ public class BranchTicketService extends ITicketService {
 
 	@Override
 	protected void close() {
+	}
+
+	/**
+	 * Listen for tickets branch changes and (re)index tickets, as appropriate
+	 */
+	@Override
+	public synchronized void onRefsChanged(RefsChangedEvent event) {
+		if (!(event instanceof ReceiveCommandEvent)) {
+			return;
+		}
+
+		ReceiveCommandEvent branchUpdate = (ReceiveCommandEvent) event;
+		RepositoryModel repository = branchUpdate.model;
+		ReceiveCommand cmd = branchUpdate.cmd;
+		try {
+			switch (cmd.getType()) {
+			case CREATE:
+			case UPDATE_NONFASTFORWARD:
+				// reindex everything
+				reindex(repository);
+				break;
+			case UPDATE:
+				// incrementally index ticket updates
+				resetCaches(repository);
+				long start = System.nanoTime();
+				log.info("incrementally indexing {} ticket branch due to received ref update", repository.name);
+				Repository db = repositoryManager.getRepository(repository.name);
+				try {
+					Set<Long> ids = new HashSet<Long>();
+					List<PathChangeModel> paths = JGitUtils.getFilesInRange(db,
+							cmd.getOldId().getName(), cmd.getNewId().getName());
+					for (PathChangeModel path : paths) {
+						String name = path.name.substring(path.name.lastIndexOf('/') + 1);
+						if (!JOURNAL.equals(name)) {
+							continue;
+						}
+						String tid = path.path.split("/")[2];
+						long ticketId = Long.parseLong(tid);
+						if (!ids.contains(ticketId)) {
+							ids.add(ticketId);
+							TicketModel ticket = getTicket(repository, ticketId);
+							log.info(MessageFormat.format("indexing ticket #{0,number,0}: {1}",
+									ticketId, ticket.title));
+							indexer.index(ticket);
+						}
+					}
+					long end = System.nanoTime();
+					log.info("incremental indexing of {0} ticket(s) completed in {1} msecs",
+							ids.size(), TimeUnit.NANOSECONDS.toMillis(end - start));
+				} finally {
+					db.close();
+				}
+				break;
+			default:
+				log.warn("Unexpected receive type {} in BranchTicketService.onRefsChanged" + cmd.getType());
+				break;
+			}
+		} catch (Exception e) {
+			log.error("failed to reindex " + repository.name, e);
+		}
 	}
 
 	/**

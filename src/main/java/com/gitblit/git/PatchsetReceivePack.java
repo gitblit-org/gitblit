@@ -60,6 +60,7 @@ import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.BranchTicketService;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketNotifier;
@@ -105,7 +106,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 	protected final TicketNotifier ticketNotifier;
 
-	private boolean requireCleanMerge;
+	private boolean requireMergeablePatchset;
 
 	public PatchsetReceivePack(IGitblit gitblit, Repository db, RepositoryModel repository, UserModel user) {
 		super(gitblit, db, repository, user);
@@ -257,12 +258,26 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	/** Execute commands to update references. */
 	@Override
 	protected void executeCommands() {
+		// we process patchsets unless the user is pushing something special
+		boolean processPatchsets = true;
+		for (ReceiveCommand cmd : filterCommands(Result.NOT_ATTEMPTED)) {
+			if (ticketService instanceof BranchTicketService
+					&& BranchTicketService.BRANCH.equals(cmd.getRefName())) {
+				// the user is pushing an update to the BranchTicketService data
+				processPatchsets = false;
+			}
+		}
+
 		// workaround for JGit's awful scoping choices
 		//
 		// reset the patchset refs to NOT_ATTEMPTED (see validateCommands)
 		for (ReceiveCommand cmd : filterCommands(Result.OK)) {
 			if (isPatchsetRef(cmd.getRefName())) {
 				cmd.setResult(Result.NOT_ATTEMPTED);
+			} else if (ticketService instanceof BranchTicketService
+					&& BranchTicketService.BRANCH.equals(cmd.getRefName())) {
+				// the user is pushing an update to the BranchTicketService data
+				processPatchsets = false;
 			}
 		}
 
@@ -292,7 +307,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				continue;
 			}
 
-			if (isPatchsetRef(cmd.getRefName())) {
+			if (isPatchsetRef(cmd.getRefName()) && processPatchsets) {
 				if (ticketService == null) {
 					sendRejection(cmd, "Sorry, the ticket service is unavailable and can not accept patchsets at this time.");
 					continue;
@@ -393,6 +408,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				for (ReceiveCommand cmd : toApply) {
 					if (cmd.getResult() == Result.NOT_ATTEMPTED) {
 						sendRejection(cmd, "lock error: {0}", err.getMessage());
+						LOGGER.error(MessageFormat.format("failed to lock {0}:{1}",
+								repository.name, cmd.getRefName()), err);
 					}
 				}
 			}
@@ -436,10 +453,12 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				case CREATE:
 				case UPDATE:
 				case UPDATE_NONFASTFORWARD:
-					Collection<TicketModel> tickets = processMergedTickets(cmd);
-					ticketsProcessed += tickets.size();
-					for (TicketModel ticket : tickets) {
-						ticketNotifier.queueMailing(ticket);
+					if (cmd.getRefName().startsWith(Constants.R_HEADS)) {
+						Collection<TicketModel> tickets = processMergedTickets(cmd);
+						ticketsProcessed += tickets.size();
+						for (TicketModel ticket : tickets) {
+							ticketNotifier.queueMailing(ticket);
+						}
 					}
 					break;
 				default:
@@ -537,7 +556,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		case MERGEABLE:
 			break;
 		default:
-			if (ticket == null || requireCleanMerge) {
+			if (ticket == null || requireMergeablePatchset) {
 				sendError("");
 				sendError("Your patchset can not be cleanly merged into {0}.", forBranch);
 				sendError("Please rebase your patchset and push again.");

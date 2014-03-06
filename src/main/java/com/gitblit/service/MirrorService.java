@@ -28,6 +28,8 @@ import org.eclipse.jgit.lib.RefUpdate.Result;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.ReceiveCommand;
+import org.eclipse.jgit.transport.ReceiveCommand.Type;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.slf4j.Logger;
@@ -35,9 +37,11 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.git.ReceiveCommandEvent;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.BranchTicketService;
 import com.gitblit.utils.JGitUtils;
 
 /**
@@ -145,6 +149,7 @@ public class MirrorService implements Runnable {
 				FetchResult result = git.fetch().setRemote(mirror.getName()).setDryRun(testing).call();
 				Collection<TrackingRefUpdate> refUpdates = result.getTrackingRefUpdates();
 				if (refUpdates.size() > 0) {
+					ReceiveCommand ticketBranchCmd = null;
 					for (TrackingRefUpdate ru : refUpdates) {
 						StringBuilder sb = new StringBuilder();
 						sb.append("updated mirror ");
@@ -161,6 +166,33 @@ public class MirrorService implements Runnable {
 						sb.append("..");
 						sb.append(ru.getNewObjectId() == null ? "" : ru.getNewObjectId().abbreviate(7).name());
 						logger.info(sb.toString());
+
+						if (BranchTicketService.BRANCH.equals(ru.getLocalName())) {
+							ReceiveCommand.Type type = null;
+							switch (ru.getResult()) {
+							case NEW:
+								type = Type.CREATE;
+								break;
+							case FAST_FORWARD:
+								type = Type.UPDATE;
+								break;
+							case FORCED:
+								type = Type.UPDATE_NONFASTFORWARD;
+								break;
+							default:
+								type = null;
+								break;
+							}
+
+							if (type != null) {
+								ticketBranchCmd = new ReceiveCommand(ru.getOldObjectId(),
+									ru.getNewObjectId(), ru.getLocalName(), type);
+							}
+						}
+					}
+
+					if (ticketBranchCmd != null) {
+						repository.fireEvent(new ReceiveCommandEvent(model, ticketBranchCmd));
 					}
 				}
 			} catch (Exception e) {
