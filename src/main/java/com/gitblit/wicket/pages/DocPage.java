@@ -67,6 +67,10 @@ public class DocPage extends RepositoryPage {
 			}
 		}
 
+		if (markupText == null) {
+			markupText = "";
+		}
+
 		BugtraqProcessor bugtraq = new BugtraqProcessor(app().settings());
 		markupText = bugtraq.processText(getRepository(), repositoryName, markupText);
 
