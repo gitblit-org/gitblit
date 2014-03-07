@@ -731,15 +731,22 @@ public class TicketPage extends TicketBasePage {
 		 *  PATCHSET TAB
 		 */
 		if (currentPatchset == null) {
-			// no patchset yet, show propose fragment
-			String repoUrl = getRepositoryUrl(user, repository);
-			Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
-			changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
-			changeIdFrag.add(new Label("ptWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")));
-			changeIdFrag.add(new Label("ptWorkflowSteps", getProposeWorkflow("propose_pt.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
-			changeIdFrag.add(new Label("gitWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Git")));
-			changeIdFrag.add(new Label("gitWorkflowSteps", getProposeWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
-			add(changeIdFrag);
+			// no patchset available
+			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository)) {
+				// ticket & repo will accept a proposal patchset
+				// show the instructions for proposing a patchset
+				String repoUrl = getRepositoryUrl(user, repository);
+				Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
+				changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
+				changeIdFrag.add(new Label("ptWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")));
+				changeIdFrag.add(new Label("ptWorkflowSteps", getProposeWorkflow("propose_pt.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
+				changeIdFrag.add(new Label("gitWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Git")));
+				changeIdFrag.add(new Label("gitWorkflowSteps", getProposeWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
+				add(changeIdFrag);
+			} else {
+				// ticket is resolved OR repository is rejecting new patchsets
+				add(new Label("patchset").setVisible(false));
+			}
 		} else {
 			// show current patchset
 			Fragment patchsetFrag = new Fragment("patchset", "patchsetFragment", this);
