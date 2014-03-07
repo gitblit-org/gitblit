@@ -744,8 +744,22 @@ public class TicketPage extends TicketBasePage {
 				changeIdFrag.add(new Label("gitWorkflowSteps", getProposeWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
 				add(changeIdFrag);
 			} else {
-				// ticket is resolved OR repository is rejecting new patchsets
-				add(new Label("patchset").setVisible(false));
+				// explain why you can't propose a patchset
+				Fragment fragment = new Fragment("patchset", "canNotProposeFragment", this);
+				String reason = "";
+				if (ticket.isClosed()) {
+					reason = getString("gb.ticketIsClosed");
+				} else if (repository.isMirror) {
+					reason = getString("gb.repositoryIsMirror");
+				} else if (repository.isFrozen) {
+					reason = getString("gb.repositoryIsFrozen");
+				} else if (!repository.acceptNewPatchsets) {
+					reason = getString("gb.repositoryDoesNotAcceptPatchsets");
+				} else {
+					reason = getString("gb.serverDoesNotAcceptPatchsets");
+				}
+				fragment.add(new Label("reason", reason));
+				add(fragment);
 			}
 		} else {
 			// show current patchset

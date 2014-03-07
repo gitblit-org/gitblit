@@ -298,6 +298,22 @@ pt push</pre>
 </wicket:fragment>
 
 
+<!-- CAN NOT PROPOSE FRAGMENT -->
+<wicket:fragment wicket:id="canNotProposeFragment">
+	<div class="featureWelcome">
+		<div class="row">
+			<div class="icon span2 hidden-phone"><i class="fa fa-ban"></i></div>
+			<div class="span9">		
+				<h1><wicket:message key="gb.canNotProposePatchset"></wicket:message></h1>
+				<div class="markdown">
+					<p><span wicket:id="reason"></span></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</wicket:fragment>
+
+
 <!-- PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="patchsetFragment">
 	<div class="row" style="padding: 0px 0px 20px;">
