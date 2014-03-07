@@ -48,8 +48,8 @@ Any authenticated user who can clone your repository.
 
 *Who can add commits to an existing patchset?*
 
-1. The author of the ticket
-2. The author of the initial patchset
+1. The ticket author
+2. The initial patchset author
 3. The person set as *responsible*
 4. Any user with write (RW) permissions to the repository
 
@@ -76,12 +76,12 @@ OR if you have RW+ permissions, then you can push using *-f* flag.
 
 ### Updating your copy of a rewritten Patchset
 
-If a patchset has been rewritten you can no longer simply *pull* to update.  Let's assume your checkout *does not* have any unshared commits - i.e. it represents the previous patchset.  The simplest way to update your branch to the current patchset is to reset it.
+If a patchset has been rewritten you can no longer simply *pull* to update.  Let's assume your checkout **does not** have any unshared commits - i.e. it represents the previous patchset.  The simplest way to update your branch to the current patchset is to reset it.
 
     git fetch && git checkout ticket/{id}
     git reset --hard origin/ticket/{id}
 
-If you *do* have unshared commits then you'll could make a new temporary branch and then cherry-pick your changes onto the rewritten patchset.
+If you **do** have unshared commits then you'll could make a new temporary branch and then cherry-pick your changes onto the rewritten patchset.
 
     git branch oldticket ticket/{id}
     git fetch && git checkout ticket/{id}
@@ -89,7 +89,7 @@ If you *do* have unshared commits then you'll could make a new temporary branch 
     git cherry-pick <commitid1> <commitid2>
     git branch -D oldticket
 
-Since Git is a powerful and flexible tool, there are no doubt several other strategies you could use to resolve this situation.
+Git is a very flexible tool, there are no doubt several other strategies you could use to resolve this situation.  The above solution is just one way.
 
 
 ### Ticket RefSpecs
@@ -183,6 +183,8 @@ Gitblit includes a very simple patchset scoring mechanism.  Gitblit is not  code
 - -1, needs improvement: please do not merge
 - -2, vetoed: patchset may not be merged
 
-Only users with write (RW) permissions to the repository can give a +2 and -2 score.  All other users are allowed to score +/-1.
+Only users with write (RW) permissions to the repository can give a +2 and -2 score.  All other users are allowed to score +/-1.  If the repository is configured to *require approval* then then +2 score has an important meaning.  The merge button will only be shown if there is at least one +2 score and no -2 scores.  If there is a -2 score, the merge is blocked by the web ui.  Users with RW permissions, however, can still manually merge and push the patchset to the integration branch; Gitblit does not enforce vetoed patchsets on push.
+
+#### Reviews and Updated or Rewritten Patchsets
 
 If the patchset is updated or rewritten, all former review scores are ignored; review scores apply to specific revisions of patchsets - they are not blanket approvals/disapprovals.

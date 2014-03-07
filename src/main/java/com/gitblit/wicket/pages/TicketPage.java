@@ -1260,7 +1260,7 @@ public class TicketPage extends TicketBasePage {
 		String ticketBranch  = Repository.shortenRefName(PatchsetCommand.getTicketBranch(ticket.number));
 
 		String step1 = "git fetch";
-		String step2 = MessageFormat.format("git checkout {0} && git pull -ff-only\nOR\ngit checkout {0} && git reset --hard origin/{0}", ticketBranch);
+		String step2 = MessageFormat.format("git checkout {0} && git pull --ff-only\nOR\ngit checkout {0} && git reset --hard origin/{0}", ticketBranch);
 
 		panel.add(new Label("gitPreStep1", step1));
 		panel.add(new Label("gitPreStep2", step2));
