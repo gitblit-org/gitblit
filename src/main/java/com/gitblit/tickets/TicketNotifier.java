@@ -523,7 +523,7 @@ public class TicketNotifier {
 		Set<String> toAddresses = new TreeSet<String>();
 		for (String name : ticket.getParticipants()) {
 			UserModel user = userManager.getUserModel(name);
-			if (user != null) {
+			if (user != null && !user.disabled) {
 				if (!StringUtils.isEmpty(user.emailAddress)) {
 					if (user.canView(repository)) {
 						toAddresses.add(user.emailAddress);
@@ -561,7 +561,7 @@ public class TicketNotifier {
 		Set<String> ccAddresses = new TreeSet<String>();
 		for (String name : ccs) {
 			UserModel user = userManager.getUserModel(name);
-			if (user != null) {
+			if (user != null && !user.disabled) {
 				if (!StringUtils.isEmpty(user.emailAddress)) {
 					if (user.canView(repository)) {
 						ccAddresses.add(user.emailAddress);
