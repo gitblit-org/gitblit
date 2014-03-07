@@ -52,7 +52,7 @@
 		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
 
 		<!-- Download links -->
-		<property name="gc.url" value="http://code.google.com/p/gitblit/downloads/detail?name=" />
+		<property name="gc.url" value="http://dl.bintray.com/jamesmoger/generic/" />
 	</target>
 
 	
@@ -604,6 +604,9 @@
 					<link name="Federation Client" src="${gc.url}fedclient-${project.releaseVersion}.zip" />
 					<divider />
 					<link name="API Library" src="${gc.url}gbapi-${project.releaseVersion}.zip" />
+					<divider />
+					<link name="Bintray (1.4.0+)" src="https://bintray.com/jamesmoger/generic/Gitblit" />
+					<link name="GoogleCode (pre-1.4.0)" src="https://code.google.com/p/gitblit/downloads/list?can=1" />
 				</menu>
 				
 				<menu name="links">
@@ -710,79 +713,51 @@
 
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		Publish binaries to Google Code
+		Publish binaries to Bintray
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishBinaries" depends="prepare" description="Publish the Gitblit binaries to Google Code">
+	<target name="publishBinaries" depends="prepare" description="Publish the Gitblit binaries to Bintray">
 
 		<echo>Uploading Gitblit ${project.version} binaries</echo>
 
 		<!-- Upload Gitblit GO Windows ZIP file -->
-		<mx:gcupload 
-			username="${googlecode.user}"
-			password="${googlecode.password}"
-			projectname="gitblit"
-			filename="${project.targetDirectory}/${distribution.zipfile}" 
-			targetFilename="gitblit-${project.version}.zip"
-			summary="Gitblit GO v${project.version} (standalone, integrated Gitblit server for Windows)" />
+		<bintrayUpload
+			source="${project.targetDirectory}/${distribution.zipfile}" 
+			target="gitblit-${project.version}.zip" />
 
 		<!-- Upload Gitblit GO Linux/Unix tar.gz file -->
-		<mx:gcupload
-			username="${googlecode.user}"
-			password="${googlecode.password}"
-			projectname="gitblit"
-			filename="${project.targetDirectory}/${distribution.tgzfile}" 
-			targetFilename="gitblit-${project.version}.tar.gz"
-			summary="Gitblit GO v${project.version} (standalone, integrated Gitblit server for Linux/Unix)" />
+		<bintrayUpload
+			source="${project.targetDirectory}/${distribution.tgzfile}" 
+			target="gitblit-${project.version}.tar.gz" />
 
 		<!-- Upload Gitblit WAR file -->
-		<mx:gcupload
-			username="${googlecode.user}"
-			password="${googlecode.password}"
-			projectname="gitblit"
-			filename="${project.targetDirectory}/${distribution.warfile}" 
-			targetFilename="gitblit-${project.version}.war"
-			summary="Gitblit WAR v${project.version} (standard WAR webapp for servlet containers)" />
+		<bintrayUpload
+			source="${project.targetDirectory}/${distribution.warfile}" 
+			target="gitblit-${project.version}.war" />
 
 		<!-- Upload Gitblit FedClient -->
-		<mx:gcupload
-			username="${googlecode.user}"
-			password="${googlecode.password}"
-		    projectname="gitblit"
-			filename="${project.targetDirectory}/${fedclient.zipfile}" 
-			targetFilename="fedclient-${project.version}.zip"
-		    summary="Gitblit Federation Client v${project.version} (command-line tool to clone data from federated Gitblit instances)" />
+		<bintrayUpload
+			source="${project.targetDirectory}/${fedclient.zipfile}" 
+			target="fedclient-${project.version}.zip" />
 
 		<!-- Upload Gitblit Manager -->
-		<mx:gcupload
-			username="${googlecode.user}"
-			password="${googlecode.password}"
-			projectname="gitblit"
-			filename="${project.targetDirectory}/${manager.zipfile}" 
-			targetFilename="manager-${project.version}.zip"
-			summary="Gitblit Manager v${project.version} (Swing tool to remotely administer a Gitblit server)" />
+		<bintrayUpload
+			source="${project.targetDirectory}/${manager.zipfile}" 
+			target="manager-${project.version}.zip" />
 
 		<!-- Upload Gitblit API Library -->
-		<mx:gcupload
-			username="${googlecode.user}"
-			password="${googlecode.password}"
-			projectname="gitblit"
-			filename="${project.targetDirectory}/${gbapi.zipfile}" 
-			targetFilename="gbapi-${project.version}.zip"
-			summary="Gitblit API Library v${project.version} (JSON RPC library to integrate with your software)" />
+		<bintrayUpload
+			source="${project.targetDirectory}/${gbapi.zipfile}" 
+			target="gbapi-${project.version}.zip" />
 
 		<!-- Upload Gitblit Express for RedHat OpenShift -->
-		<mx:gcupload
-			username="${googlecode.user}"
-			password="${googlecode.password}"
-			projectname="gitblit"
-			filename="${project.targetDirectory}/${express.zipfile}" 
-			targetFilename="express-${project.version}.zip"
-			summary="Gitblit Express v${project.version} (run Gitblit on RedHat's OpenShift cloud)" />
+		<bintrayUpload
+			source="${project.targetDirectory}/${express.zipfile}" 
+			target="express-${project.version}.zip" />
 
 	</target>
 
-
+	
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Publish site to site hosting service
@@ -1007,25 +982,19 @@
 	
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-		Macro to upload binaries to GoogleCode
+		Macro to upload binaries to Bintray
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<macrodef name="googleUpload">
-		<attribute name="sourceFile"/>
-		<attribute name="targetFile"/>
-		<attribute name="description"/>
+	<macrodef name="bintrayUpload">
+		<attribute name="source"/>
+		<attribute name="target"/>
 		<sequential>
-			<gcupload 
-				username="${googlecode.user}" 
-				password="${googlecode.password}" 
-				projectname="gitblit" 
-				filename="${project.targetDirectory}/@{sourceFile}" 
-				targetfilename="@{targetFile}"
-				summary="@{description}"
-				labels="Featured, Type-Package, OpSys-All" />		
-	     </sequential>
+			<echo>uploading @{source} to Bintray</echo>
+			<exec executable="curl">
+				<arg line="--silent --show-error -T @{source} -u${bintray.username}:${bintray.apikey} https://api.bintray.com/content/${bintray.username}/generic/${project.name}/${project.version}/@{target}"></arg>
+			</exec>
+		</sequential>
 	</macrodef>
-
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
