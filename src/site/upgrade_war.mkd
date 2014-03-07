@@ -15,3 +15,6 @@ If it is, move your `WEB-INF/data` folder to a location writeable by your servle
 5. Manually apply any changes you made to your original web.xml file to the gitblit.properties file you copied to your data folder
 6. Edit the new WAR's `WEB-INF/web.xml` file and set the *baseFolder* context parameter to your external baseFolder.
 
+## Upgrading Gitblit WAR (1.4.0+)
+
+The *baseFolder* context parameter has been replaced with a *baseFolder* JNDI env-entry.  This means you can define the *baseFolder* from the administrative console of your servlet container and not have to manipulate anything in the web.xml file.

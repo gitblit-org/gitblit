@@ -664,8 +664,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				sendError("  1. you created the ticket");
 				sendError("  2. you created the first patchset");
 				sendError("  3. you are specified as responsible for the ticket");
-				sendError("  4. you are listed as a reviewer for the ticket");
-				sendError("  5. you have push (RW) permission to {0}", repository.name);
+				sendError("  4. you have push (RW) permissions to {0}", repository.name);
 				sendError("");
 				sendRejection(cmd, "not permitted to push to ticket {0,number,0}", ticket.number);
 				return null;

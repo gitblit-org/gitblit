@@ -16,3 +16,8 @@ These steps are necessary to ensure that you end up using the specified librarie
 - Added SparkleShareInviteServlet
 - Added EnforceAuthenticationFilter
 - Moved GitServlet
+
+### 1.4.0 web.xml
+
+- Changed baseFolder from a context-parameter to a JNDI env-entry
+- Added pt servlet
