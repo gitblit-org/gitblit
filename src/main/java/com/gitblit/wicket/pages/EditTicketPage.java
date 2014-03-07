@@ -134,13 +134,14 @@ public class EditTicketPage extends RepositoryPage {
 				Change change = new Change(createdBy);
 
 				String title = titleModel.getObject();
-				if (!ticket.title.equals(title)) {
+				if (!StringUtils.isEmpty(title) && !ticket.title.equals(title)) {
 					// title change
 					change.setField(Field.title, title);
 				}
 
 				String description = descriptionEditor.getText();
-				if (!ticket.body.equals(description)) {
+				if ((StringUtils.isEmpty(ticket.body) && !StringUtils.isEmpty(description))
+						|| (!StringUtils.isEmpty(ticket.body) && !ticket.body.equals(description))) {
 					// description change
 					change.setField(Field.body, description);
 				}
