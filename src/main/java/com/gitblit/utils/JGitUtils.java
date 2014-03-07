@@ -711,7 +711,7 @@ public class JGitUtils {
 		try {
 			// resolve object id
 			ObjectId branchObject;
-			if (StringUtils.isEmpty(objectId)) {
+			if (StringUtils.isEmpty(objectId) || "HEAD".equalsIgnoreCase(objectId)) {
 				branchObject = getDefaultBranch(repository);
 			} else {
 				branchObject = repository.resolve(objectId);
