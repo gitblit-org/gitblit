@@ -173,11 +173,11 @@ public class RefsPanel extends BasePanel {
 					// codereview refs
 					linkClass = CommitPage.class;
 					cssClass = "otherRef";
-				} else if (name.startsWith(com.gitblit.Constants.R_GITBLIT)) {
-					// gitblit refs
+				} else if (name.startsWith(com.gitblit.Constants.R_META)) {
+					// internal meta refs
 					linkClass = LogPage.class;
 					cssClass = "otherRef";
-					name = name.substring(com.gitblit.Constants.R_GITBLIT.length());
+					name = name.substring(com.gitblit.Constants.R_META.length());
 				}
 
 				Component c = new LinkPanel("refName", null, name, linkClass,

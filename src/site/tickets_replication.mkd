@@ -23,7 +23,7 @@ After you've done this, you will need to reset Gitblit's internal ticket cache a
 #### Ticket Replication
 Gitblit supports ticket replication for a couple of scenarios with the *BranchTicketService*.  This requires that the Gitblit instance receiving the ticket data be configured for the *BranchTicketService*.  Likewise, the source of the ticket data must be a repository that has ticket data persisted using the *BranchTicketService*.
 
-##### Manually Pushing refs/gitblit/tickets
+##### Manually Pushing refs/meta/gitblit/tickets
 
 Let's say you wanted to create a perfect clone of the Gitblit repository hosted at https://dev.gitblit.com in your own Gitblit instance.  We'll use this repository as an example because it is configured for the *BranchTicketService*.
 
@@ -41,7 +41,7 @@ Let's say you wanted to create a perfect clone of the Gitblit repository hosted 
 
 If your push was successful you should have a new repository with the entire official Gitblit tickets data.
 
-##### Mirroring refs/gitblit/tickets
+##### Mirroring refs/meta/gitblit/tickets
 
 Gitblit 1.4.0 introduces a mirroring service.  This is not the same as the federation feature - although there are similarities.
 
@@ -55,16 +55,16 @@ If you setup a mirror of another Gitblit repository which uses the *BranchTicket
 4. After you have indexed the repository, Gitblit will take over and incrementally update your tickets data on each fetch.
 
 #### Advanced Administration
-Repository owners or Gitblit administrators have the option of manually editing ticket data.  To do this you must fetch and checkout the `refs/gitblit/tickets` ref.  This orphan branch is where ticket data is stored.  You may then use a text editor to **carefully** manipulate journals and push your changes back upstream.  I recommend using a JSON validation tool to ensure your changes are valid JSON.
+Repository owners or Gitblit administrators have the option of manually editing ticket data.  To do this you must fetch and checkout the `refs/meta/gitblit/tickets` ref.  This orphan branch is where ticket data is stored.  You may then use a text editor to **carefully** manipulate journals and push your changes back upstream.  I recommend using a JSON validation tool to ensure your changes are valid JSON.
 
-    git fetch origin refs/gitblit/tickets
+    git fetch origin refs/meta/gitblit/tickets
     git checkout -B tix FETCH_HEAD
     ...fix data...
     git add .
     git commit
-    git push origin HEAD:refs/gitblit/tickets
+    git push origin HEAD:refs/meta/gitblit/tickets
 
-Gitblit will identify the incoming `refs/gitblit/tickets` ref update and will incrementally index the changed tickets OR, if the update is non-fast-forward, all tickets on that branch will be reindexed.
+Gitblit will identify the incoming `refs/meta/gitblit/tickets` ref update and will incrementally index the changed tickets OR, if the update is non-fast-forward, all tickets on that branch will be reindexed.
 
 ### RedisTicketService
 

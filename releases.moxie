@@ -54,6 +54,7 @@ r20: {
 	- Serve repositories on both /r and /git, displaying /r because it is shorter
 	- Eliminate HEAD from the blob, blame, and tree pages. That assumed a resource was available in HEAD and it may not be.
 	- Eliminate Gravatar profile linking.
+	- Moved Gitblit reflog from refs/gitblit/reflog to refs/meta/gitblit/reflog
 	- Updated Spanish translation
 	- Updated Simplified Chinese translation
 	- Updated Dutch translation

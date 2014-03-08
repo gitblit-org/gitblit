@@ -100,7 +100,7 @@ public class Constants {
 
 	public static final String HEAD = "HEAD";
 
-	public static final String R_GITBLIT = "refs/gitblit/";
+	public static final String R_META = "refs/meta/";
 
 	public static final String R_HEADS = "refs/heads/";
 

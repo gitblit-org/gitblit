@@ -43,6 +43,8 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefRename;
 import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.RefUpdate.Result;
 import org.eclipse.jgit.lib.Repository;
@@ -80,7 +82,7 @@ import com.gitblit.utils.StringUtils;
  */
 public class BranchTicketService extends ITicketService implements RefsChangedListener {
 
-	public static final String BRANCH = "refs/gitblit/tickets";
+	public static final String BRANCH = "refs/meta/gitblit/tickets";
 
 	private static final String JOURNAL = "journal.json";
 
@@ -193,10 +195,32 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	 * @return a refmodel for the gitblit tickets branch or null
 	 */
 	private RefModel getTicketsBranch(Repository db) {
-		List<RefModel> refs = JGitUtils.getRefs(db, Constants.R_GITBLIT);
+		List<RefModel> refs = JGitUtils.getRefs(db, "refs/");
+		Ref oldRef = null;
 		for (RefModel ref : refs) {
 			if (ref.reference.getName().equals(BRANCH)) {
 				return ref;
+			} else if (ref.reference.getName().equals("refs/gitblit/tickets")) {
+				oldRef = ref.reference;
+			}
+		}
+		if (oldRef != null) {
+			// rename old ref to refs/meta/gitblit/tickets
+			RefRename cmd;
+			try {
+				cmd = db.renameRef(oldRef.getName(), BRANCH);
+				cmd.setRefLogIdent(new PersonIdent("Gitblit", "gitblit@localhost"));
+				cmd.setRefLogMessage("renamed " + oldRef.getName() + " => " + BRANCH);
+				Result res = cmd.rename();
+				switch (res) {
+				case RENAMED:
+					log.info(db.getDirectory() + " " + cmd.getRefLogMessage());
+					return getTicketsBranch(db);
+				default:
+					log.error("failed to rename " + oldRef.getName() + " => " + BRANCH + " (" + res.name() + ")");
+				}
+			} catch (IOException e) {
+				log.error("failed to rename tickets branch", e);
 			}
 		}
 		return null;
