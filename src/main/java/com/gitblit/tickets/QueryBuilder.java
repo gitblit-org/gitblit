@@ -201,6 +201,12 @@ public class QueryBuilder {
 				q = q.substring(1, q.length() - 1);
 			}
 		}
+		if (q.startsWith("AND ")) {
+			q = q.substring(3).trim();
+		}
+		if (q.startsWith("OR ")) {
+			q = q.substring(2).trim();
+		}
 		return q;
 	}
 

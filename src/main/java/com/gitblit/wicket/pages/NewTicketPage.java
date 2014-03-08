@@ -29,7 +29,9 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TicketModel;
@@ -61,6 +63,8 @@ public class NewTicketPage extends RepositoryPage {
 
 	private IModel<String> topicModel;
 
+	private IModel<String> mergeToModel;
+
 	private IModel<TicketResponsible> responsibleModel;
 
 	private IModel<TicketMilestone> milestoneModel;
@@ -83,6 +87,7 @@ public class NewTicketPage extends RepositoryPage {
 		typeModel = Model.of(TicketModel.Type.defaultType);
 		titleModel = Model.of();
 		topicModel = Model.of();
+		mergeToModel = Model.of(Repository.shortenRefName(getRepositoryModel().HEAD));
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
 
@@ -123,6 +128,12 @@ public class NewTicketPage extends RepositoryPage {
 					change.setField(Field.milestone, milestone.name);
 				}
 
+				// integration branch
+				String mergeTo = mergeToModel.getObject();
+				if (!StringUtils.isEmpty(mergeTo)) {
+					change.setField(Field.mergeTo, mergeTo);
+				}
+
 				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), 0L, change);
 				if (ticket != null) {
 					TicketNotifier notifier = app().tickets().createNotifier();
@@ -149,7 +160,7 @@ public class NewTicketPage extends RepositoryPage {
 		descriptionEditor.setRepository(repositoryName);
 		form.add(descriptionEditor);
 
-		if (currentUser != null && currentUser.isAuthenticated && currentUser.canPush(getRepositoryModel())) {
+		if (currentUser.canAdmin(null, getRepositoryModel())) {
 			// responsible
 			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
 			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
@@ -170,10 +181,26 @@ public class NewTicketPage extends RepositoryPage {
 			Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
+
+			// integration branch
+			List<String> branches = new ArrayList<String>();
+			for (String branch : getRepositoryModel().getLocalBranches()) {
+				// exclude ticket branches
+				if (!branch.startsWith(Constants.R_TICKET)) {
+					branches.add(Repository.shortenRefName(branch));
+				}
+			}
+			branches.remove(Repository.shortenRefName(getRepositoryModel().HEAD));
+			branches.add(0, Repository.shortenRefName(getRepositoryModel().HEAD));
+
+			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", this);
+			mergeto.add(new DropDownChoice<String>("mergeto", mergeToModel, branches));
+			form.add(mergeto.setVisible(!branches.isEmpty()));
 		} else {
-			// user does not have permission to assign milestone or responsible
+			// user does not have permission to assign milestone, responsible, or mergeto
 			form.add(new Label("responsible").setVisible(false));
 			form.add(new Label("milestone").setVisible(false));
+			form.add(new Label("mergeto").setVisible(false));
 		}
 
 		form.add(new Button("create"));

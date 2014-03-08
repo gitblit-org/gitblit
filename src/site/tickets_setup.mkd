@@ -20,7 +20,7 @@ Your ticket journals are persisted to `tickets/{shard}/{id}/journal.json`.  Thes
 
     tickets.service = com.gitblit.tickets.BranchTicketService
 
-Your ticket journals are persisted to `id/{shard}/{id}/journal.json`.  These journals are stored on an orphan branch, `refs/gitblit/tickets`, within your repository.  This allows you to easily clone your entire ticket history to client working copies or to mirrors.
+Your ticket journals are persisted to `id/{shard}/{id}/journal.json`.  These journals are stored on an orphan branch, `refs/meta/gitblit/tickets`, within your repository.  This allows you to easily clone your entire ticket history to client working copies or to mirrors.
 
 #### Redis Ticket Service
 
