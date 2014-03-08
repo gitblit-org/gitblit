@@ -119,7 +119,7 @@ You can not use fast-forward merges on your client when using committer verifica
 
 #### Reflog
 
-Gitblit v1.2.1 introduced an incomplete reflog mechanism which was completed in 1.3.0.  All pushes to Gitblit are automatically logged on an orphan branch, refs/gitblit/reflog.  If this ref exists, the reflog page link will be displayed on the repository pages.
+Gitblit v1.2.1 introduced an incomplete reflog mechanism which was completed in 1.3.0.  All pushes to Gitblit are automatically logged on an orphan branch, `refs/meta/gitblit/reflog`.  If this ref exists, the reflog page link will be displayed on the repository pages.
 
 This reflog is similar to, but not the same as, the normal Git reflog. The Gitblit reflog links Gitblit accounts to ref changes and because it is stored on an orphan branch, the reflog is portable by the federation mechanism or by a normal <code>git clone --mirror</code> command.
 

@@ -189,7 +189,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	}
 
 	/**
-	 * Returns a RefModel for the refs/gitblit/tickets branch in the repository.
+	 * Returns a RefModel for the refs/meta/gitblit/tickets branch in the repository.
 	 * If the branch can not be found, null is returned.
 	 *
 	 * @return a refmodel for the gitblit tickets branch or null
@@ -227,7 +227,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	}
 
 	/**
-	 * Creates the refs/gitblit/tickets branch.
+	 * Creates the refs/meta/gitblit/tickets branch.
 	 * @param db
 	 */
 	private void createTicketsBranch(Repository db) {
@@ -240,7 +240,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	 * folder with the remaining characters as a subfolder within that folder.
 	 *
 	 * @param ticketId
-	 * @return the root path of the ticket content on the refs/gitblit/tickets branch
+	 * @return the root path of the ticket content on the refs/meta/gitblit/tickets branch
 	 */
 	private String toTicketPath(long ticketId) {
 		StringBuilder sb = new StringBuilder();
