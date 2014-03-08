@@ -520,7 +520,7 @@ public class TicketPage extends TicketBasePage {
 			WicketUtils.setCssClass(votersCount, "badge badge-info");
 		}
 		add(votersCount);
-		if (user.isAuthenticated) {
+		if (user.isAuthenticated && app().tickets().isAcceptingTicketUpdates(repository)) {
 			Model<String> model;
 			if (ticket.isVoter(user.username)) {
 				model = Model.of(getString("gb.removeVote"));
@@ -560,7 +560,7 @@ public class TicketPage extends TicketBasePage {
 			WicketUtils.setCssClass(watchersCount, "badge badge-info");
 		}
 		add(watchersCount);
-		if (user.isAuthenticated) {
+		if (user.isAuthenticated && app().tickets().isAcceptingTicketUpdates(repository)) {
 			Model<String> model;
 			if (ticket.isWatching(user.username)) {
 				model = Model.of(getString("gb.stopWatching"));
