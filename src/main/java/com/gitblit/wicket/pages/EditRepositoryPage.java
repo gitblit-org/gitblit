@@ -49,6 +49,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
+import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
@@ -443,8 +444,16 @@ public class EditRepositoryPage extends RootSubPage {
 
 		// allow relinking HEAD to a branch or tag other than master on edit repository
 		List<String> availableRefs = new ArrayList<String>();
+		List<String> availableBranches = new ArrayList<String>();
 		if (!ArrayUtils.isEmpty(repositoryModel.availableRefs)) {
-			availableRefs.addAll(repositoryModel.availableRefs);
+			for (String ref : repositoryModel.availableRefs) {
+				if (!ref.startsWith(Constants.R_TICKET)) {
+					availableRefs.add(ref);
+					if (ref.startsWith(Constants.R_HEADS)) {
+						availableBranches.add(Repository.shortenRefName(ref));
+					}
+				}
+			}
 		}
 		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
@@ -469,6 +478,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("acceptNewPatchsets"));
 		form.add(new CheckBox("acceptNewTickets"));
 		form.add(new CheckBox("requireApproval"));
+		form.add(new DropDownChoice<String>("mergeTo", availableBranches).setEnabled(availableBranches.size() > 0));
 		form.add(new CheckBox("useIncrementalPushTags"));
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("skipSizeCalculation"));

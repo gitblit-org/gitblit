@@ -108,7 +108,7 @@ public class EditTicketPage extends RepositoryPage {
 		topicModel = Model.of(ticket.topic == null ? "" : ticket.topic);
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
-		mergeToModel = Model.of(ticket.mergeTo == null ? "" : ticket.mergeTo);
+		mergeToModel = Model.of(ticket.mergeTo == null ? getRepositoryModel().mergeTo : ticket.mergeTo);
 		statusModel = Model.of(ticket.status);
 
 		setStatelessHint(false);
@@ -309,8 +309,8 @@ public class EditTicketPage extends RepositoryPage {
 					branches.add(Repository.shortenRefName(branch));
 				}
 			}
-			branches.remove(Repository.shortenRefName(getRepositoryModel().HEAD));
-			branches.add(0, Repository.shortenRefName(getRepositoryModel().HEAD));
+			branches.remove(Repository.shortenRefName(getRepositoryModel().mergeTo));
+			branches.add(0, Repository.shortenRefName(getRepositoryModel().mergeTo));
 
 			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", this);
 			mergeto.add(new DropDownChoice<String>("mergeto", mergeToModel, branches));

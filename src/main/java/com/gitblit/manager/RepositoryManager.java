@@ -804,6 +804,7 @@ public class RepositoryManager implements IRepositoryManager {
 			model.acceptNewPatchsets = getConfig(config, "acceptNewPatchsets", true);
 			model.acceptNewTickets = getConfig(config, "acceptNewTickets", true);
 			model.requireApproval = getConfig(config, "requireApproval", settings.getBoolean(Keys.tickets.requireApproval, false));
+			model.mergeTo = getConfig(config, "mergeTo", null);
 			model.useIncrementalPushTags = getConfig(config, "useIncrementalPushTags", false);
 			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -854,6 +855,9 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 		}
 		model.HEAD = JGitUtils.getHEADRef(r);
+		if (StringUtils.isEmpty(model.mergeTo)) {
+			model.mergeTo = model.HEAD;
+		}
 		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
 		model.sparkleshareId = JGitUtils.getSparkleshareId(r);
 		model.hasCommits = JGitUtils.hasCommits(r);
@@ -1417,6 +1421,9 @@ public class RepositoryManager implements IRepositoryManager {
 		} else {
 			// override default
 			config.setBoolean(Constants.CONFIG_GITBLIT, null, "requireApproval", repository.requireApproval);
+		}
+		if (!StringUtils.isEmpty(repository.mergeTo)) {
+			config.setString(Constants.CONFIG_GITBLIT, null, "mergeTo", repository.mergeTo);
 		}
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalPushTags", repository.useIncrementalPushTags);
 		if (StringUtils.isEmpty(repository.incrementalPushTagPrefix) ||

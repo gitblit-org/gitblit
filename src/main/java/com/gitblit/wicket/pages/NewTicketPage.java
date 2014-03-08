@@ -87,7 +87,7 @@ public class NewTicketPage extends RepositoryPage {
 		typeModel = Model.of(TicketModel.Type.defaultType);
 		titleModel = Model.of();
 		topicModel = Model.of();
-		mergeToModel = Model.of(Repository.shortenRefName(getRepositoryModel().HEAD));
+		mergeToModel = Model.of(Repository.shortenRefName(getRepositoryModel().mergeTo));
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
 
