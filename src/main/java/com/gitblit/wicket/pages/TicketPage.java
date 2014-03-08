@@ -988,7 +988,11 @@ public class TicketPage extends TicketBasePage {
 		md = md.replace("${ticketId}", "" + ticketId);
 		md = md.replace("${patchset}", "" + 1);
 		md = md.replace("${reviewBranch}", Repository.shortenRefName(PatchsetCommand.getTicketBranch(ticketId)));
-		md = md.replace("${integrationBranch}", Repository.shortenRefName(getRepositoryModel().HEAD));
+		String integrationBranch = Repository.shortenRefName(getRepositoryModel().HEAD);
+		if (!StringUtils.isEmpty(ticket.mergeTo)) {
+			integrationBranch = ticket.mergeTo;
+		}
+		md = md.replace("${integrationBranch}", integrationBranch);
 		return MarkdownUtils.transformMarkdown(md);
 	}
 
