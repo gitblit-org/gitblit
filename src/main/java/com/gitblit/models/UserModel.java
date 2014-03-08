@@ -449,9 +449,15 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 
 	public boolean canEdit(TicketModel ticket, RepositoryModel repository) {
 		 return isAuthenticated() &&
-				 (username.equals(ticket.createdBy)
-				 || username.equals(ticket.responsible)
-				 || canPush(repository));
+				 (canPush(repository)
+				 || (ticket != null && username.equals(ticket.responsible))
+				 || (ticket != null && username.equals(ticket.createdBy)));
+	}
+
+	public boolean canAdmin(TicketModel ticket, RepositoryModel repository) {
+		 return isAuthenticated() &&
+				 (canPush(repository)
+				 || ticket != null && username.equals(ticket.responsible));
 	}
 
 	public boolean canReviewPatchset(RepositoryModel model) {

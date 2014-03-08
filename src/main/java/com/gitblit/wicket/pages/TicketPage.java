@@ -327,7 +327,7 @@ public class TicketPage extends TicketBasePage {
 		 * UPDATE FORM (DISCUSSION TAB)
 		 */
 		if (user.canEdit(ticket, repository) && app().tickets().isAcceptingTicketUpdates(repository)) {
-			if (ticket.isOpen()) {
+			if (user.canAdmin(ticket, repository) && ticket.isOpen()) {
 				/*
 				 * OPEN TICKET
 				 */

@@ -250,71 +250,77 @@ public class EditTicketPage extends RepositoryPage {
 		status.add(new DropDownChoice<TicketModel.Status>("status", statusModel, statusChoices));
 		form.add(status);
 
-		// responsible
-		Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
+		if (currentUser.canAdmin(ticket, getRepositoryModel())) {
+			// responsible
+			Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
 
-		for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
-			if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-				userlist.add(rp.registrant);
-			}
-		}
-
-		List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
-		for (String username : userlist) {
-			UserModel user = app().users().getUserModel(username);
-			if (user != null) {
-				TicketResponsible responsible = new TicketResponsible(user);
-				responsibles.add(responsible);
-				if (user.username.equals(ticket.responsible)) {
-					responsibleModel.setObject(responsible);
+			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
+				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
+					userlist.add(rp.registrant);
 				}
 			}
-		}
-		Collections.sort(responsibles);
-		responsibles.add(new TicketResponsible(NIL, "", ""));
-		Fragment responsible = new Fragment("responsible", "responsibleFragment", this);
-		responsible.add(new DropDownChoice<TicketResponsible>("responsible", responsibleModel, responsibles));
-		form.add(responsible.setVisible(!responsibles.isEmpty()));
 
-		// milestone
-		List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel(), Status.Open);
-		for (TicketMilestone milestone : milestones) {
-			if (milestone.name.equals(ticket.milestone)) {
-				milestoneModel.setObject(milestone);
-				break;
+			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+			for (String username : userlist) {
+				UserModel user = app().users().getUserModel(username);
+				if (user != null) {
+					TicketResponsible responsible = new TicketResponsible(user);
+					responsibles.add(responsible);
+					if (user.username.equals(ticket.responsible)) {
+						responsibleModel.setObject(responsible);
+					}
+				}
 			}
-		}
-		if (milestoneModel.getObject() == null && !StringUtils.isEmpty(ticket.milestone)) {
-			// ensure that this unrecognized milestone is listed
-			// so that we get the <nil> selection.
-			TicketMilestone tms = new TicketMilestone(ticket.milestone);
-			milestones.add(tms);
-			milestoneModel.setObject(tms);
-		}
-		if (!milestones.isEmpty()) {
-			milestones.add(new TicketMilestone(NIL));
-		}
+			Collections.sort(responsibles);
+			responsibles.add(new TicketResponsible(NIL, "", ""));
+			Fragment responsible = new Fragment("responsible", "responsibleFragment", this);
+			responsible.add(new DropDownChoice<TicketResponsible>("responsible", responsibleModel, responsibles));
+			form.add(responsible.setVisible(!responsibles.isEmpty()));
 
-		Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
-
-		milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
-		form.add(milestone.setVisible(!milestones.isEmpty()));
-
-		// mergeTo (integration branch)
-		List<String> branches = new ArrayList<String>();
-		for (String branch : getRepositoryModel().getLocalBranches()) {
-			// exclude ticket branches
-			if (!branch.startsWith(Constants.R_TICKET)) {
-				branches.add(Repository.shortenRefName(branch));
+			// milestone
+			List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel(), Status.Open);
+			for (TicketMilestone milestone : milestones) {
+				if (milestone.name.equals(ticket.milestone)) {
+					milestoneModel.setObject(milestone);
+					break;
+				}
 			}
+			if (milestoneModel.getObject() == null && !StringUtils.isEmpty(ticket.milestone)) {
+				// ensure that this unrecognized milestone is listed
+				// so that we get the <nil> selection.
+				TicketMilestone tms = new TicketMilestone(ticket.milestone);
+				milestones.add(tms);
+				milestoneModel.setObject(tms);
+			}
+			if (!milestones.isEmpty()) {
+				milestones.add(new TicketMilestone(NIL));
+			}
+
+			Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
+
+			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
+			form.add(milestone.setVisible(!milestones.isEmpty()));
+
+			// mergeTo (integration branch)
+			List<String> branches = new ArrayList<String>();
+			for (String branch : getRepositoryModel().getLocalBranches()) {
+				// exclude ticket branches
+				if (!branch.startsWith(Constants.R_TICKET)) {
+					branches.add(Repository.shortenRefName(branch));
+				}
+			}
+			branches.remove(Repository.shortenRefName(getRepositoryModel().HEAD));
+			branches.add(0, Repository.shortenRefName(getRepositoryModel().HEAD));
+
+			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", this);
+			mergeto.add(new DropDownChoice<String>("mergeto", mergeToModel, branches));
+			form.add(mergeto.setVisible(!branches.isEmpty()));
+		} else {
+			// user can not admin this ticket
+			form.add(new Label("responsible").setVisible(false));
+			form.add(new Label("milestone").setVisible(false));
+			form.add(new Label("mergeto").setVisible(false));
 		}
-		branches.remove(Repository.shortenRefName(getRepositoryModel().HEAD));
-		branches.add(0, Repository.shortenRefName(getRepositoryModel().HEAD));
-
-		Fragment mergeto = new Fragment("mergeto", "mergeToFragment", this);
-		mergeto.add(new DropDownChoice<String>("mergeto", mergeToModel, branches));
-		form.add(mergeto.setVisible(!branches.isEmpty()));
-
 		form.add(new Button("update"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
