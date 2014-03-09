@@ -300,7 +300,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 				UserModel user = userManager.getUserModel(username);
 				if (user != null) {
 					// existing user
-					logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
+					logger.debug(MessageFormat.format("{0} authenticated by SSH key from {1}",
 							user.username, sshSession.getRemoteAddress()));
 					return validateAuthentication(user, AuthenticationType.SSH);
 				}
