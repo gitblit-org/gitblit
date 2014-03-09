@@ -21,6 +21,8 @@ import java.net.InetSocketAddress;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Singleton;
+
 import org.apache.sshd.SshServer;
 import org.apache.sshd.server.keyprovider.PEMGeneratorHostKeyProvider;
 import org.eclipse.jgit.internal.JGitText;
@@ -41,6 +43,10 @@ import com.gitblit.transport.ssh.commands.VersionCommand;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.WorkQueue;
+
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 
 /**
  * Manager for the ssh transport. Roughly analogous to the
@@ -65,9 +71,9 @@ public class SshDaemon {
 
 	private final AtomicBoolean run;
 
-	@SuppressWarnings("unused")
 	private final IGitblit gitblit;
 	private final SshServer sshd;
+	private final ObjectGraph injector;
 
 	/**
 	 * Construct the Gitblit SSH daemon.
@@ -76,12 +82,15 @@ public class SshDaemon {
 	 */
 	public SshDaemon(IGitblit gitblit, IdGenerator idGenerator) {
 		this.gitblit = gitblit;
-
+		this.injector = ObjectGraph.create(new SshModule());
+		
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.sshPort, 0);
 		String bindInterface = settings.getString(Keys.git.sshBindInterface,
 				"localhost");
 
+		IKeyManager keyManager = getKeyManager();
+		
 		InetSocketAddress addr;
 		if (StringUtils.isEmpty(bindInterface)) {
 			addr = new InetSocketAddress(port);
@@ -94,7 +103,7 @@ public class SshDaemon {
 		sshd.setHost(addr.getHostName());
 		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(new File(
 				gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
-		sshd.setPublickeyAuthenticator(new SshKeyAuthenticator(gitblit));
+		sshd.setPublickeyAuthenticator(new SshKeyAuthenticator(keyManager, gitblit));
 		sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshSessionFactory(idGenerator));
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
@@ -174,6 +183,53 @@ public class SshDaemon {
 			} catch (InterruptedException e) {
 				log.error("SSH Daemon stop interrupted", e);
 			}
+		}
+	}
+	
+	protected IKeyManager getKeyManager() {
+		IKeyManager keyManager = null;
+		IStoredSettings settings = gitblit.getSettings();
+		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
+		if (StringUtils.isEmpty(clazz)) {
+			clazz = FileKeyManager.class.getName();
+		}		
+		try {
+			Class<? extends IKeyManager> managerClass = (Class<? extends IKeyManager>) Class.forName(clazz);
+			keyManager = injector.get(managerClass).start();
+			if (keyManager.isReady()) {
+				log.info("{} is ready.", keyManager);
+			} else {
+				log.warn("{} is disabled.", keyManager);
+			}
+		} catch (Exception e) {
+			log.error("failed to create ssh key manager " + clazz, e);
+			keyManager = injector.get(NullKeyManager.class).start();
+		}
+		return keyManager;
+	}
+	
+	/**
+	 * A nested Dagger graph is used for constructor dependency injection of
+	 * complex classes.
+	 *
+	 * @author James Moger
+	 *
+	 */
+	@Module(
+			library = true,
+			injects = {
+					NullKeyManager.class,
+					FileKeyManager.class
+			}
+			)
+	class SshModule {
+
+		@Provides @Singleton NullKeyManager provideNullKeyManager() {
+			return new NullKeyManager();
+		}
+		
+		@Provides @Singleton FileKeyManager provideFileKeyManager() {
+			return new FileKeyManager(SshDaemon.this.gitblit);
 		}
 	}
 }
