@@ -69,13 +69,13 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 		if (req instanceof HttpServletRequest) {
 			// http/https request may or may not be authenticated
-			HttpServletRequest request = (HttpServletRequest) req;
-			repositoryName = request.getAttribute("gitblitRepositoryName").toString();
-			origin = request.getRemoteHost();
-			gitblitUrl = HttpUtils.getGitblitURL(request);
+			HttpServletRequest client = (HttpServletRequest) req;
+			repositoryName = client.getAttribute("gitblitRepositoryName").toString();
+			origin = client.getRemoteHost();
+			gitblitUrl = HttpUtils.getGitblitURL(client);
 
 			// determine pushing user
-			String username = request.getRemoteUser();
+			String username = client.getRemoteUser();
 			if (!StringUtils.isEmpty(username)) {
 				UserModel u = gitblit.getUserModel(username);
 				if (u != null) {
@@ -92,10 +92,10 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			timeout = client.getDaemon().getTimeout();
 		} else if (req instanceof SshSession) {
 			// SSH request is always authenticated
-			SshSession s = (SshSession) req;
-			repositoryName = s.getRepositoryName();
-			origin = s.getRemoteAddress().toString();
-			String username = s.getRemoteUser();
+			SshSession client = (SshSession) req;
+			repositoryName = client.getRepositoryName();
+			origin = client.getRemoteAddress().toString();
+			String username = client.getRemoteUser();
 			user = gitblit.getUserModel(username);
 		}
 
