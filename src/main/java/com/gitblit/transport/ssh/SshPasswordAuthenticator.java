@@ -20,7 +20,7 @@ import java.util.Locale;
 import org.apache.sshd.server.PasswordAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 
-import com.gitblit.manager.IGitblit;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -30,16 +30,16 @@ import com.gitblit.models.UserModel;
  */
 public class SshPasswordAuthenticator implements PasswordAuthenticator {
 
-	protected final IGitblit gitblit;
+	protected final IAuthenticationManager authManager;
 
-	public SshPasswordAuthenticator(IGitblit gitblit) {
-		this.gitblit = gitblit;
+	public SshPasswordAuthenticator(IAuthenticationManager authManager) {
+		this.authManager = authManager;
 	}
 
 	@Override
 	public boolean authenticate(String username, String password, ServerSession session) {
 		username = username.toLowerCase(Locale.US);
-		UserModel user = gitblit.authenticate(username, password.toCharArray());
+		UserModel user = authManager.authenticate(username, password.toCharArray());
 		if (user != null) {
 			SshSession sd = session.getAttribute(SshSession.KEY);
 			sd.authenticationSuccess(username);

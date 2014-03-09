@@ -15,29 +15,20 @@
  */
 package com.gitblit.transport.ssh;
 
-import java.io.File;
-import java.io.IOException;
 import java.security.PublicKey;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.sshd.common.util.Buffer;
 import org.apache.sshd.server.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
-import org.eclipse.jgit.lib.Constants;
 
-import com.gitblit.Keys;
-import com.gitblit.manager.IGitblit;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
-import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.io.Files;
 
 /**
  *
@@ -46,7 +37,9 @@ import com.google.common.io.Files;
  */
 public class SshKeyAuthenticator implements PublickeyAuthenticator {
 
-	protected final IGitblit gitblit;
+	protected final IKeyManager keyManager;
+	
+	protected final IAuthenticationManager authManager;
 
 	LoadingCache<String, List<PublicKey>> sshKeyCache = CacheBuilder
 			.newBuilder().
@@ -54,37 +47,13 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 			maximumSize(100)
 			.build(new CacheLoader<String, List<PublicKey>>() {
 				public List<PublicKey> load(String username) {
-					try {
-						File dir = gitblit.getFileOrFolder(Keys.git.sshKeysFolder, "${baseFolder}/ssh");
-						dir.mkdirs();
-						File keys = new File(dir, username + ".keys");
-						if (!keys.exists()) {
-							return null;
-						}
-						if (keys.exists()) {
-							String str = Files.toString(keys, Charsets.ISO_8859_1);
-							String [] entries = str.split("\n");
-							List<PublicKey> list = new ArrayList<PublicKey>();
-							for (String entry : entries) {
-								final String[] parts = entry.split(" ");
-								final byte[] bin = Base64.decodeBase64(Constants.encodeASCII(parts[1]));
-								list.add(new Buffer(bin).getRawPublicKey());
-							}
-							
-							if (list.isEmpty()) {
-								return null;
-							}
-							return list;
-						}
-					} catch (IOException e) {
-						throw new RuntimeException("Canot read public key", e);
-					}
-					return null;
+					return keyManager.getKeys(username);
 				}
 			});
 
-	public SshKeyAuthenticator(IGitblit gitblit) {
-		this.gitblit = gitblit;
+	public SshKeyAuthenticator(IKeyManager keyManager, IAuthenticationManager authManager) {
+		this.keyManager = keyManager;
+		this.authManager = authManager;
 	}
 
 	@Override
@@ -115,7 +84,7 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 		// now that the key has been validated, check with the authentication
 		// manager to ensure that this user exists and can authenticate
 		sd.authenticationSuccess(username);
-		UserModel user = gitblit.authenticate(sd);
+		UserModel user = authManager.authenticate(sd);
 		if (user != null) {
 			return true;
 		}
