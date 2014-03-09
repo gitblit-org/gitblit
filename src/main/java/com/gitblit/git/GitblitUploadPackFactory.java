@@ -25,6 +25,7 @@ import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.git.GitDaemonClient;
 
 /**
  * The upload pack factory creates an upload pack which controls what refs are
@@ -51,7 +52,8 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 
 		if (req instanceof HttpServletRequest) {
 			// http/https request may or may not be authenticated
-			user = authenticationManager.authenticate((HttpServletRequest) req);
+			HttpServletRequest client = (HttpServletRequest) req;
+			user = authenticationManager.authenticate(client);
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
 			}

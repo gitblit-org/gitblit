@@ -44,7 +44,7 @@ import com.gitblit.utils.WorkQueue;
 
 /**
  * Manager for the ssh transport. Roughly analogous to the
- * {@link com.gitblit.git.GitDaemon} class.
+ * {@link com.gitblit.transport.git.GitDaemon} class.
  *
  * @author Eric Myhre
  *
