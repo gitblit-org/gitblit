@@ -1069,7 +1069,7 @@ public class TicketPage extends TicketBasePage {
 		panel.add(reviewsView);
 
 
-		if (ticket.isOpen() && user.canReviewPatchset(repository)) {
+		if (ticket.isOpen() && user.canReviewPatchset(repository) && app().tickets().isAcceptingTicketUpdates(repository)) {
 			// can only review open tickets
 			Review myReview = null;
 			for (Change change : ticket.getReviews(currentPatchset)) {
