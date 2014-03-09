@@ -16,6 +16,7 @@
 package com.gitblit.manager;
 
 import java.io.IOException;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -199,8 +200,8 @@ public class ServicesManager implements IManager {
 				return null;
 			}
 			if (user.canClone(repository)) {
-				String servername = request.getServerName();
-				String url = gitDaemon.formatUrl(servername, repository.name);
+				String hostname = getHostname(request);
+				String url = gitDaemon.formatUrl(hostname, repository.name);
 				return url;
 			}
 		}
@@ -226,6 +227,64 @@ public class ServicesManager implements IManager {
 		return AccessPermission.NONE;
 	}
 
+	public String getSshDaemonUrl(HttpServletRequest request, UserModel user, RepositoryModel repository) {
+		if (sshDaemon != null) {
+			String bindInterface = settings.getString(Keys.git.sshBindInterface, "localhost");
+			if (bindInterface.equals("localhost")
+					&& (!request.getServerName().equals("localhost") && !request.getServerName().equals("127.0.0.1"))) {
+				// ssh daemon is bound to localhost and the request is from elsewhere
+				return null;
+			}
+			if (user.canClone(repository)) {
+				String hostname = getHostname(request);
+				String url = sshDaemon.formatUrl(user.username, hostname, repository.name);
+				return url;
+			}
+		}
+		return null;
+	}
+
+	public AccessPermission getSshDaemonAccessPermission(UserModel user, RepositoryModel repository) {
+		if (sshDaemon != null && user.canClone(repository)) {
+			AccessPermission sshDaemonPermission = user.getRepositoryPermission(repository).permission;
+			if (sshDaemonPermission.atLeast(AccessPermission.CLONE)) {
+				if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
+					// can not authenticate clone via anonymous ssh protocol
+					sshDaemonPermission = AccessPermission.NONE;
+				} else if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
+					// can not authenticate push via anonymous ssh protocol
+					sshDaemonPermission = AccessPermission.CLONE;
+				} else {
+					// normal user permission
+				}
+			}
+			return sshDaemonPermission;
+		}
+		return AccessPermission.NONE;
+	}
+	
+	/**
+	 * Extract the hostname from the canonical url or return the
+	 * hostname from the servlet request.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	protected String getHostname(HttpServletRequest request) {
+		String hostname = request.getServerName();
+		String canonicalUrl = gitblit.getSettings().getString(Keys.web.canonicalUrl, null);
+		if (!StringUtils.isEmpty(canonicalUrl)) {
+			try {
+				URI uri = new URI(canonicalUrl);
+				String host = uri.getHost();
+				if (!StringUtils.isEmpty(host) && !"localhost".equals(host)) {
+					hostname = host;
+				}
+			} catch (Exception e) {
+			}
+		}
+		return hostname;
+	}
 
 	private class FederationPuller extends FederationPullService {
 
