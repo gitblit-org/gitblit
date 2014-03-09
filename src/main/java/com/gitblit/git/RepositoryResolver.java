@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.git.GitDaemonClient;
 import com.gitblit.transport.ssh.SshSession;
 
 /**

@@ -31,6 +31,7 @@ import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.git.GitDaemonClient;
 import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;

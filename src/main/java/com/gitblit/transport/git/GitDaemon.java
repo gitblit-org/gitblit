@@ -41,7 +41,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.gitblit.git;
+package com.gitblit.transport.git;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,6 +69,9 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.git.GitblitReceivePackFactory;
+import com.gitblit.git.GitblitUploadPackFactory;
+import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.utils.StringUtils;
 
