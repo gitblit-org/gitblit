@@ -8,9 +8,15 @@ r20: {
     note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled by default."
     html: ~
     text: ''
-          This is a major release.
+          This is a MAJOR release.
           
-          The entire core has been refactored to be more modular.  Authentication providers have all been refactored to be simpler.  Both of these were precursor requirements for future planned improvements.  Markup rendering has been improved and expanded to several additional formats.  A repository mirroring service  has been added.  Commit pages now indicate diffstat information. And many bug fixes and smaller features have been introduced.''
+          The entire core has been refactored to be more modular.  Authentication providers have all been refactored to be simpler.  Both of these were precursor requirements for landing the Tickets feature -- issue tracker & branch-based pull requests.
+          
+          Markup rendering has been improved and expanded to several additional formats.  A repository mirroring service  has been added to allow you to automatically track public repositories.  Commit pages now indicate diffstat information and many bug fixes and smaller features have been introduced.
+          
+          The groundwork has also been laid for SSH support which will be in the focal point for the next major release (ticket-6).
+          
+          Due to the enormity of these changes, please make a backup copy of users.conf before updating.''
     security:
 	- issue-361: Cookies were not reset on administrative password change of a user account. This allowed accounts with changed passwords to continue authenticating. Cookies are now reset on password changes, they are validated on each page request, AND they will now expire 7 days after generation.
     fixes:
