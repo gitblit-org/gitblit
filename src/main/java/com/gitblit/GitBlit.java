@@ -121,11 +121,21 @@ public class GitBlit extends GitblitManager {
 		String username = StringUtils.encodeUsername(UserModel.ANONYMOUS.equals(user) ? "" : user.username);
 
 		List<RepositoryUrl> list = new ArrayList<RepositoryUrl>();
+
 		// http/https url
 		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
 				list.add(new RepositoryUrl(getRepositoryUrl(request, username, repository), permission));
+			}
+		}
+
+		// ssh daemon url
+		String sshDaemonUrl = servicesManager.getSshDaemonUrl(request, user, repository);
+		if (!StringUtils.isEmpty(sshDaemonUrl)) {
+			AccessPermission permission = servicesManager.getSshDaemonAccessPermission(user, repository);
+			if (permission.exceeds(AccessPermission.NONE)) {
+				list.add(new RepositoryUrl(sshDaemonUrl, permission));
 			}
 		}
 
