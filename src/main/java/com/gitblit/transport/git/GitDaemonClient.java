@@ -1,4 +1,4 @@
-package com.gitblit.git;
+package com.gitblit.transport.git;
 
 /*
  * Copyright (C) 2008-2009, Google Inc.
