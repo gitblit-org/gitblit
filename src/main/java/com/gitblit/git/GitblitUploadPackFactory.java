@@ -26,6 +26,7 @@ import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.git.GitDaemonClient;
+import com.gitblit.transport.ssh.SshSession;
 
 /**
  * The upload pack factory creates an upload pack which controls what refs are
@@ -62,6 +63,13 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 			GitDaemonClient client = (GitDaemonClient) req;
 			// set timeout from Git daemon
 			timeout = client.getDaemon().getTimeout();
+		} else if (req instanceof SshSession) {
+			// SSH request is always authenticated
+			SshSession client = (SshSession) req;
+			user = authenticationManager.authenticate(client);
+			if (user == null) {
+				throw new ServiceNotAuthorizedException();
+			}
 		}
 
 		UploadPack up = new UploadPack(db);
