@@ -2,10 +2,10 @@
 
 To review an updated patchset
 
-    git fetch && git checkout ${reviewBranch} && git pull --ff-only
+    git fetch && git checkout ${ticketBranch} && git pull --ff-only
 
 To review a rewritten patchset
 
-    git fetch && git checkout ${reviewBranch} && git reset --hard origin/${reviewBranch}
+    git fetch && git checkout ${ticketBranch} && git reset --hard origin/${ticketBranch}
 
 

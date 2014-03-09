@@ -489,6 +489,7 @@ public class TicketNotifier {
 		instructions = instructions.replace("${ticketRef}", ticketBranch);
 		instructions = instructions.replace("${patchsetRef}", patchsetBranch);
 		instructions = instructions.replace("${reviewBranch}", reviewBranch);
+		instructions = instructions.replace("${ticketBranch}", ticketBranch);
 
 		return instructions;
 	}
