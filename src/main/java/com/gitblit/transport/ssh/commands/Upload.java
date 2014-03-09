@@ -15,15 +15,10 @@
  */
 package com.gitblit.transport.ssh.commands;
 
-import javax.inject.Inject;
-
 import org.eclipse.jgit.transport.UploadPack;
-import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
-import com.gitblit.git.RepositoryResolver;
 import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
-import com.gitblit.transport.ssh.SshSession;
 
 @CommandMetaData(name = "git-upload-pack", description = "Upload pack")
 public class Upload extends AbstractGitCommand {
