@@ -520,9 +520,16 @@ public class TicketNotifier {
 
 		//
 		// Direct TO recipients
+		// reporter & responsible
 		//
+		Set<String> tos = new TreeSet<String>();
+		tos.add(ticket.createdBy);
+		if (!StringUtils.isEmpty(ticket.responsible)) {
+			tos.add(ticket.responsible);
+		}
+
 		Set<String> toAddresses = new TreeSet<String>();
-		for (String name : ticket.getParticipants()) {
+		for (String name : tos) {
 			UserModel user = userManager.getUserModel(name);
 			if (user != null && !user.disabled) {
 				if (!StringUtils.isEmpty(user.emailAddress)) {
@@ -542,6 +549,11 @@ public class TicketNotifier {
 		// CC recipients
 		//
 		Set<String> ccs = new TreeSet<String>();
+
+		// repository owners
+		if (!ArrayUtils.isEmpty(repository.owners)) {
+			tos.addAll(repository.owners);
+		}
 
 		// cc users mentioned in last comment
 		Change lastChange = ticket.changes.get(ticket.changes.size() - 1);
