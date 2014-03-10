@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -53,7 +54,7 @@ public class EnforceAuthenticationFilter extends DaggerFilter {
 	private IAuthenticationManager authenticationManager;
 
 	@Override
-	protected void inject(ObjectGraph dagger) {
+	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
 		this.settings = dagger.get(IStoredSettings.class);
 		this.authenticationManager = dagger.get(IAuthenticationManager.class);
 	}

@@ -185,3 +185,23 @@ public class MyTicketHook extends TicketHook {
 }
 ```
 
+### Request Filter
+
+*SINCE 1.6.0*
+
+You can provide your own custom request filter by subclassing the *HttpRequestFilter* class.
+
+```java
+import com.gitblit.extensions.HttpRequestFilter;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyRequestFilter extends HttpRequestFilter {
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response,
+            FilterChain chain) throws IOException, ServletException {
+    }
+}
+```
+
