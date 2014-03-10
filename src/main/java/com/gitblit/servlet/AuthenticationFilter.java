@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -64,7 +65,7 @@ public abstract class AuthenticationFilter extends DaggerFilter {
 	protected IAuthenticationManager authenticationManager;
 
 	@Override
-	protected void inject(ObjectGraph dagger) {
+	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
 		this.authenticationManager = dagger.get(IAuthenticationManager.class);
 	}
 

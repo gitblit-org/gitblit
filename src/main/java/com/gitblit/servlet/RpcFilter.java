@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -53,8 +54,8 @@ public class RpcFilter extends AuthenticationFilter {
 	private IRuntimeManager runtimeManager;
 
 	@Override
-	protected void inject(ObjectGraph dagger) {
-		super.inject(dagger);
+	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
+		super.inject(dagger, filterConfig);
 		this.settings = dagger.get(IStoredSettings.class);
 		this.runtimeManager = dagger.get(IRuntimeManager.class);
 	}

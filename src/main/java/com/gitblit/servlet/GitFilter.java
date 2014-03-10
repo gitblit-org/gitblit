@@ -17,6 +17,7 @@ package com.gitblit.servlet;
 
 import java.text.MessageFormat;
 
+import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -53,8 +54,8 @@ public class GitFilter extends AccessRestrictionFilter {
 	private IFederationManager federationManager;
 
 	@Override
-	protected void inject(ObjectGraph dagger) {
-		super.inject(dagger);
+	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
+		super.inject(dagger, filterConfig);
 		this.settings = dagger.get(IStoredSettings.class);
 		this.federationManager = dagger.get(IFederationManager.class);
 	}
