@@ -19,9 +19,11 @@ import javax.inject.Singleton;
 
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
+import com.gitblit.manager.PluginManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -62,6 +64,7 @@ import dagger.Provides;
 			IRepositoryManager.class,
 			IProjectManager.class,
 			IFederationManager.class,
+			IPluginManager.class,
 
 			// the monolithic manager
 			IGitblit.class,
@@ -86,6 +89,10 @@ public class DaggerModule {
 
 	@Provides @Singleton IUserManager provideUserManager(IRuntimeManager runtimeManager) {
 		return new UserManager(runtimeManager);
+	}
+
+	@Provides @Singleton IPluginManager providePluginManager(IRuntimeManager runtimeManager) {
+		return new PluginManager(runtimeManager);
 	}
 
 	@Provides @Singleton IAuthenticationManager provideAuthenticationManager(
@@ -161,7 +168,8 @@ public class DaggerModule {
 			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager) {
+			IFederationManager federationManager,
+			IPluginManager pluginManager) {
 
 		return new GitBlit(
 				runtimeManager,
@@ -171,7 +179,8 @@ public class DaggerModule {
 				publicKeyManager,
 				repositoryManager,
 				projectManager,
-				federationManager);
+				federationManager,
+				pluginManager);
 	}
 
 	@Provides @Singleton GitBlitWebApp provideWebApplication(
