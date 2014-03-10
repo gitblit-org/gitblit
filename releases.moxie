@@ -9,11 +9,18 @@ r21: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+    - Disable Ticket review functions in read-only repositories (mirror, frozen, etc)
+    - Fix incorrect git fetch instructions in Ticket email notifications
+    - Fix Ticket email notification recipients to include repository owners
+    - Fix Ticket propose instructions to branch from origin/{integrationBranch}
     changes: ~
     additions: ~
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+    - James Moger
+    - David Ostrovsky
+    - Liyu Wang
 }
 
 #
