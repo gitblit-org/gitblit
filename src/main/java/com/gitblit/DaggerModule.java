@@ -19,9 +19,11 @@ import javax.inject.Singleton;
 
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
+import com.gitblit.manager.GitblitPluginManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
+import com.gitblit.manager.IGitblitPluginManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -56,12 +58,13 @@ import dagger.Provides;
 			IRepositoryManager.class,
 			IProjectManager.class,
 			IFederationManager.class,
+			IGitblitPluginManager.class,
 
 			// the monolithic manager
 			IGitblit.class,
 
 			// the Gitblit Wicket app
-			GitBlitWebApp.class
+			GitBlitWebApp.class			
 	}
 )
 public class DaggerModule {
@@ -80,6 +83,10 @@ public class DaggerModule {
 
 	@Provides @Singleton IUserManager provideUserManager(IRuntimeManager runtimeManager) {
 		return new UserManager(runtimeManager);
+	}
+
+	@Provides @Singleton IGitblitPluginManager providePluginManager(IStoredSettings settings) {
+		return new GitblitPluginManager(settings);
 	}
 
 	@Provides @Singleton IAuthenticationManager provideAuthenticationManager(
