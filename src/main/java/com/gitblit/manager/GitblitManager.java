@@ -37,6 +37,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.fortsoft.pf4j.PluginWrapper;
+
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
@@ -108,6 +110,8 @@ public class GitblitManager implements IGitblit {
 
 	protected final IFederationManager federationManager;
 
+	protected final IPluginManager pluginManager;
+
 	public GitblitManager(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
@@ -115,7 +119,8 @@ public class GitblitManager implements IGitblit {
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager) {
+			IFederationManager federationManager,
+			IPluginManager pluginManager) {
 
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
@@ -125,6 +130,7 @@ public class GitblitManager implements IGitblit {
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
+		this.pluginManager = pluginManager;
 	}
 
 	@Override
@@ -1123,5 +1129,15 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public boolean isIdle(Repository repository) {
 		return repositoryManager.isIdle(repository);
+	}
+
+	@Override
+	public <T> List<T> getExtensions(Class<T> clazz) {
+		return pluginManager.getExtensions(clazz);
+	}
+
+	@Override
+	public PluginWrapper whichPlugin(Class<?> clazz) {
+		return pluginManager.whichPlugin(clazz);
 	}
 }

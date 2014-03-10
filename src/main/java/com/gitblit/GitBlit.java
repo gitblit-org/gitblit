@@ -28,6 +28,7 @@ import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -69,7 +70,8 @@ public class GitBlit extends GitblitManager {
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager) {
+			IFederationManager federationManager,
+			IPluginManager pluginManager) {
 
 		super(runtimeManager,
 				notificationManager,
@@ -77,7 +79,8 @@ public class GitBlit extends GitblitManager {
 				authenticationManager,
 				repositoryManager,
 				projectManager,
-				federationManager);
+				federationManager,
+				pluginManager);
 
 		this.injector = ObjectGraph.create(getModules());
 
