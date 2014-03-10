@@ -36,7 +36,8 @@ public interface IGitblit extends IManager,
 									IAuthenticationManager,
 									IRepositoryManager,
 									IProjectManager,
-									IFederationManager {
+									IFederationManager,
+									IPluginManager {
 
 	/**
 	 * Returns a list of repository URLs and the user access permission.

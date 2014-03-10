@@ -199,7 +199,6 @@
 		<url-pattern>/robots.txt</url-pattern>
 	</servlet-mapping>
 
-	
 	<!-- Git Access Restriction Filter
 		 <url-pattern> MUST match: 
 			* GitServlet
