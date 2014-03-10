@@ -1203,8 +1203,8 @@ public class TicketPage extends TicketBasePage {
 		};
 		panel.add(pathsView);
 
-		addPtReviewInstructions(user, repository, panel);
-		addGitReviewInstructions(user, repository, panel);
+		addPtCheckoutInstructions(user, repository, panel);
+		addGitCheckoutInstructions(user, repository, panel);
 		panel.add(createMergePanel(user, repository));
 
 		return panel;
@@ -1278,13 +1278,13 @@ public class TicketPage extends TicketBasePage {
 		return x;
 	}
 
-	protected void addGitReviewInstructions(UserModel user, RepositoryModel repository, MarkupContainer panel) {
+	protected void addGitCheckoutInstructions(UserModel user, RepositoryModel repository, MarkupContainer panel) {
 		panel.add(new Label("gitStep1", MessageFormat.format(getString("gb.stepN"), 1)));
 		panel.add(new Label("gitStep2", MessageFormat.format(getString("gb.stepN"), 2)));
 
 		String ticketBranch  = Repository.shortenRefName(PatchsetCommand.getTicketBranch(ticket.number));
 
-		String step1 = "git fetch";
+		String step1 = "git fetch origin";
 		String step2 = MessageFormat.format("git checkout {0} && git pull --ff-only\nOR\ngit checkout {0} && git reset --hard origin/{0}", ticketBranch);
 
 		panel.add(new Label("gitPreStep1", step1));
@@ -1294,7 +1294,7 @@ public class TicketPage extends TicketBasePage {
 		panel.add(createCopyFragment("gitCopyStep2", step2.replace("\n", " && ")));
 	}
 
-	protected void addPtReviewInstructions(UserModel user, RepositoryModel repository, MarkupContainer panel) {
+	protected void addPtCheckoutInstructions(UserModel user, RepositoryModel repository, MarkupContainer panel) {
 		String step1 = MessageFormat.format("pt checkout {0,number,0}", ticket.number);
 		panel.add(new Label("ptPreStep", step1));
 		panel.add(createCopyFragment("ptCopyStep", step1));
