@@ -33,7 +33,12 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.RefSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +70,6 @@ import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
-import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
@@ -159,7 +163,33 @@ public class GitblitManager implements IGitblit {
 
 		// clone the repository
 		try {
-			JGitUtils.cloneRepository(repositoryManager.getRepositoriesFolder(), cloneName, fromUrl, true, null);
+			Repository canonical = getRepository(repository.name);
+			File folder = new File(repositoryManager.getRepositoriesFolder(), cloneName);
+			CloneCommand clone = new CloneCommand();
+			clone.setBare(true);
+
+			// fetch branches with exclusions
+			Collection<Ref> branches = canonical.getRefDatabase().getRefs(Constants.R_HEADS).values();
+			List<String> branchesToClone = new ArrayList<String>();
+			for (Ref branch : branches) {
+				String name = branch.getName();
+				if (name.startsWith(Constants.R_TICKET)) {
+					// exclude ticket branches
+					continue;
+				}
+				branchesToClone.add(name);
+			}
+			clone.setBranchesToClone(branchesToClone);
+			clone.setURI(fromUrl);
+			clone.setDirectory(folder);
+			Git git = clone.call();
+
+			// fetch tags
+			FetchCommand fetch  = git.fetch();
+			fetch.setRefSpecs(new RefSpec("+refs/tags/*:refs/tags/*"));
+			fetch.call();
+
+			git.getRepository().close();
 		} catch (Exception e) {
 			throw new GitBlitException(e);
 		}
