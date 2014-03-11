@@ -24,6 +24,7 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +42,14 @@ import org.eclipse.mylyn.wikitext.mediawiki.core.MediaWikiLanguage;
 import org.eclipse.mylyn.wikitext.textile.core.TextileLanguage;
 import org.eclipse.mylyn.wikitext.tracwiki.core.TracWikiLanguage;
 import org.eclipse.mylyn.wikitext.twiki.core.TWikiLanguage;
+import org.pegdown.DefaultVerbatimSerializer;
 import org.pegdown.LinkRenderer;
+import org.pegdown.ToHtmlSerializer;
+import org.pegdown.VerbatimSerializer;
 import org.pegdown.ast.ExpImageNode;
 import org.pegdown.ast.RefImageNode;
 import org.pegdown.ast.WikiLinkNode;
+import org.pegdown.plugins.ToHtmlSerializerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +61,7 @@ import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.RawPage;
+import com.google.common.base.Joiner;
 
 /**
  * Processes markup content and generates html with repository-relative page and
@@ -390,7 +396,59 @@ public class MarkupProcessor {
 		}
 
 		String getRelativePath(String ref) {
-			return ref.charAt(0) == '/' ? ref.substring(1) : (getCurrentPath() + ref);
+			if (ref.charAt(0) == '/') {
+				// absolute path in repository
+				return ref.substring(1);
+			} else {
+				// resolve relative repository path
+				String cp = getCurrentPath();
+				if (StringUtils.isEmpty(cp)) {
+					return ref;
+				}
+				// this is a simple relative path resolver
+				List<String> currPathStrings = new ArrayList<String>(Arrays.asList(cp.split("/")));
+				String file = ref;
+				while (file.startsWith("../")) {
+					// strip ../ from the file reference
+					// drop the last path element
+					file = file.substring(3);
+					currPathStrings.remove(currPathStrings.size() - 1);
+				}
+				currPathStrings.add(file);
+				String path = Joiner.on("/").join(currPathStrings);
+				return path;
+			}
 		}
+	}
+
+	/**
+	 * This class implements a workaround for a bug reported in issue-379.
+	 * The bug was introduced by my own pegdown pull request #115.
+	 *
+	 * @author James Moger
+	 *
+	 */
+	public static class WorkaroundHtmlSerializer extends ToHtmlSerializer {
+
+		 public WorkaroundHtmlSerializer(final LinkRenderer linkRenderer) {
+			 super(linkRenderer,
+					 Collections.<String, VerbatimSerializer>singletonMap(VerbatimSerializer.DEFAULT, DefaultVerbatimSerializer.INSTANCE),
+					 Collections.<ToHtmlSerializerPlugin>emptyList());
+		    }
+	    private void printAttribute(String name, String value) {
+	        printer.print(' ').print(name).print('=').print('"').print(value).print('"');
+	    }
+
+	    /* Reimplement print image tag to eliminate a trailing double-quote */
+		@Override
+	    protected void printImageTag(LinkRenderer.Rendering rendering) {
+	        printer.print("<img");
+	        printAttribute("src", rendering.href);
+	        printAttribute("alt", rendering.text);
+	        for (LinkRenderer.Attribute attr : rendering.attributes) {
+	            printAttribute(attr.name, attr.value);
+	        }
+	        printer.print("/>");
+	    }
 	}
 }

@@ -25,10 +25,13 @@ import java.text.MessageFormat;
 
 import org.apache.commons.io.IOUtils;
 import org.pegdown.LinkRenderer;
+import org.pegdown.ParsingTimeoutException;
 import org.pegdown.PegDownProcessor;
+import org.pegdown.ast.RootNode;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.wicket.MarkupProcessor.WorkaroundHtmlSerializer;
 
 /**
  * Utility methods for transforming raw markdown text to html.
@@ -72,9 +75,13 @@ public class MarkdownUtils {
 	 * @throws java.text.ParseException
 	 */
 	public static String transformMarkdown(String markdown, LinkRenderer linkRenderer) {
-		PegDownProcessor pd = new PegDownProcessor(ALL & ~SMARTYPANTS);
-		String html = pd.markdownToHtml(markdown, linkRenderer == null ? new LinkRenderer() : linkRenderer);
-		return html;
+		try {
+			PegDownProcessor pd = new PegDownProcessor(ALL & ~SMARTYPANTS);
+			RootNode astRoot = pd.parseMarkdown(markdown.toCharArray());
+			return new WorkaroundHtmlSerializer(linkRenderer == null ? new LinkRenderer() : linkRenderer).toHtml(astRoot);
+		} catch (ParsingTimeoutException e) {
+			return null;
+		}
 	}
 
 	/**
