@@ -397,7 +397,8 @@ public class TicketsPage extends TicketBasePage {
 		add(new BookmarkablePageLink<Void>("allTickets", TicketsPage.class, queryParameters(queryParam, milestoneParam, null, assignedToParam, sortBy, desc, 1)));
 
 		// by status
-		List<Status> statii = Arrays.asList(Status.values());
+		List<Status> statii = new ArrayList<Status>(Arrays.asList(Status.values()));
+		statii.remove(Status.Closed);
 		ListDataProvider<Status> resolutionsDp = new ListDataProvider<Status>(statii);
 		DataView<Status> statiiLinks = new DataView<Status>("statii", resolutionsDp) {
 			private static final long serialVersionUID = 1L;
