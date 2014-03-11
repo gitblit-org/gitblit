@@ -32,6 +32,7 @@ import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.SshKeyAuthenticator;
 import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
@@ -196,6 +197,10 @@ public class DispatchCommand extends BaseCommand {
 		d.setRepositoryResolver(repositoryResolver);
 		d.setUploadPackFactory(gitblitUploadPackFactory);
 		d.setReceivePackFactory(gitblitReceivePackFactory);
+		d.setAuthenticator(authenticator);
+	  } else if (cmd instanceof SetAccountCommand) {
+		  SetAccountCommand setAccountCommand = (SetAccountCommand)cmd;
+		  setAccountCommand.setAuthenticator(authenticator);
 	  }
   }
 
@@ -212,5 +217,10 @@ public class DispatchCommand extends BaseCommand {
   private GitblitReceivePackFactory<SshSession> gitblitReceivePackFactory;
   public void setReceivePackFactory(GitblitReceivePackFactory<SshSession> gitblitReceivePackFactory) {
 	  this.gitblitReceivePackFactory = gitblitReceivePackFactory;
+  }
+
+  private SshKeyAuthenticator authenticator;
+  public void setAuthenticator(SshKeyAuthenticator authenticator) {
+	this.authenticator = authenticator;
   }
 }
