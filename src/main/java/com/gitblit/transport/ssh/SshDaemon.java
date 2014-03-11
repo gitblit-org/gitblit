@@ -38,6 +38,8 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.commands.CreateRepository;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.Receive;
+import com.gitblit.transport.ssh.commands.ReviewCommand;
+import com.gitblit.transport.ssh.commands.SetAccountCommand;
 import com.gitblit.transport.ssh.commands.Upload;
 import com.gitblit.transport.ssh.commands.VersionCommand;
 import com.gitblit.utils.IdGenerator;
@@ -98,12 +100,14 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
+		SshKeyAuthenticator publickeyAuthenticator = new SshKeyAuthenticator(
+				keyManager, gitblit);
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
 		sshd.setHost(addr.getHostName());
 		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(new File(
 				gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
-		sshd.setPublickeyAuthenticator(new SshKeyAuthenticator(keyManager, gitblit));
+		sshd.setPublickeyAuthenticator(publickeyAuthenticator);
 		sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshSessionFactory(idGenerator));
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
@@ -112,6 +116,7 @@ public class SshDaemon {
 		DispatchCommand gitblitCmd = new DispatchCommand();
 		gitblitCmd.registerCommand(CreateRepository.class);
 		gitblitCmd.registerCommand(VersionCommand.class);
+		gitblitCmd.registerCommand(SetAccountCommand.class);
 
 		DispatchCommand gitCmd = new DispatchCommand();
 		gitCmd.registerCommand(Upload.class);
@@ -124,6 +129,7 @@ public class SshDaemon {
 		root.setRepositoryResolver(new RepositoryResolver<SshSession>(gitblit));
 		root.setUploadPackFactory(new GitblitUploadPackFactory<SshSession>(gitblit));
 		root.setReceivePackFactory(new GitblitReceivePackFactory<SshSession>(gitblit));
+		root.setAuthenticator(publickeyAuthenticator);
 
 		SshCommandFactory commandFactory = new SshCommandFactory(
 				new WorkQueue(idGenerator),
