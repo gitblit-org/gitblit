@@ -1201,13 +1201,15 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Status {
-		New, Open, Resolved, Fixed, Merged, Wontfix, Declined, Duplicate, Invalid, On_Hold;
+		New, Open, Closed, Resolved, Fixed, Merged, Wontfix, Declined, Duplicate, Invalid, Abandoned, On_Hold;
 
-		public static Status [] requestWorkflow = { Open, Resolved, Declined, Duplicate, Invalid, On_Hold };
+		public static Status [] requestWorkflow = { Open, Resolved, Declined, Duplicate, Invalid, Abandoned, On_Hold };
 
-		public static Status [] bugWorkflow = { Open, Fixed, Wontfix, Duplicate, Invalid, On_Hold };
+		public static Status [] bugWorkflow = { Open, Fixed, Wontfix, Duplicate, Invalid, Abandoned, On_Hold };
 
-		public static Status [] proposalWorkflow = { Open, Resolved, Declined, On_Hold};
+		public static Status [] proposalWorkflow = { Open, Resolved, Declined, Abandoned, On_Hold };
+
+		public static Status [] milestoneWorkflow = { Open, Closed, Abandoned, On_Hold };
 
 		@Override
 		public String toString() {

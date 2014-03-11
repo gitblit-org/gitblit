@@ -73,6 +73,7 @@ public abstract class TicketBasePage extends RepositoryPage {
 		case Duplicate:
 		case Invalid:
 		case Wontfix:
+		case Abandoned:
 			css = "aui-lozenge-error";
 			break;
 		case Fixed:
@@ -101,6 +102,7 @@ public abstract class TicketBasePage extends RepositoryPage {
 		case Duplicate:
 		case Invalid:
 		case Wontfix:
+		case Abandoned:
 			css = "resolution-error";
 			break;
 		case Fixed:
