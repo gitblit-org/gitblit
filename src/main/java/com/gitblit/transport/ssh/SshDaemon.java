@@ -44,6 +44,7 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.commands.CreateRepository;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.Receive;
+import com.gitblit.transport.ssh.commands.ReviewCommand;
 import com.gitblit.transport.ssh.commands.SetAccountCommand;
 import com.gitblit.transport.ssh.commands.Upload;
 import com.gitblit.transport.ssh.commands.VersionCommand;
@@ -134,6 +135,7 @@ public class SshDaemon {
 		gitblitCmd.registerCommand(CreateRepository.class);
 		gitblitCmd.registerCommand(VersionCommand.class);
 		gitblitCmd.registerCommand(SetAccountCommand.class);
+		gitblitCmd.registerCommand(ReviewCommand.class);
 
 		DispatchCommand gitCmd = new DispatchCommand();
 		gitCmd.registerCommand(Upload.class);

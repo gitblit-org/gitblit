@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -1152,7 +1153,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Score {
-		approved(2), looks_good(1), not_reviewed(0), needs_improvement(-1), vetoed(-2);
+		approved(2), looks_good(1), not_reviewed(0), needs_improvement(-1), vetoed(
+				-2);
 
 		final int value;
 
@@ -1167,6 +1169,15 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		@Override
 		public String toString() {
 			return name().toLowerCase().replace('_', ' ');
+		}
+
+		public static Score fromScore(int score) {
+			for (Score s : values()) {
+				if (s.getValue() == score) {
+					return s;
+				}
+			}
+			throw new NoSuchElementException(String.valueOf(score));
 		}
 	}
 
