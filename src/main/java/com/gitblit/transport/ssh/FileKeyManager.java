@@ -28,6 +28,7 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Keys;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.utils.FileUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
@@ -144,7 +145,12 @@ public class FileKeyManager implements IKeyManager {
 		}
 		return false;
 	}
-	
+
+	@Override
+	public boolean removeAll(String username) {
+		return FileUtils.delete(getKeystore(username));
+	}
+
 	protected File getKeystore(String username) {
 		File dir = runtimeManager.getFileOrFolder(Keys.git.sshKeysFolder, "${baseFolder}/ssh");
 		dir.mkdirs();

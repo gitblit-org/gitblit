@@ -63,4 +63,9 @@ public class NullKeyManager implements IKeyManager {
 	public boolean removeKey(String username, String data) {
 		return false;
 	}
+
+	@Override
+	public boolean removeAll(String username) {
+		return false;
+	}
 }
