@@ -26,6 +26,7 @@ import org.apache.sshd.server.session.ServerSession;
 
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -90,5 +91,13 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 		}
 		sd.authenticationError(username, "user-not-found");
 		return false;
+	}
+
+	public IKeyManager getKeyManager() {
+		return keyManager;
+	}
+	
+	public Cache<String, List<PublicKey>> getKeyCache() {
+		return sshKeyCache;
 	}
 }
