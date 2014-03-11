@@ -124,6 +124,7 @@ public class SshDaemon {
 		root.setRepositoryResolver(new RepositoryResolver<SshSession>(gitblit));
 		root.setUploadPackFactory(new GitblitUploadPackFactory<SshSession>(gitblit));
 		root.setReceivePackFactory(new GitblitReceivePackFactory<SshSession>(gitblit));
+		root.setKeyManager(keyManager);
 
 		SshCommandFactory commandFactory = new SshCommandFactory(
 				new WorkQueue(idGenerator),
