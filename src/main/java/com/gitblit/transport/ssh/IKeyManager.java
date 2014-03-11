@@ -36,4 +36,6 @@ public interface IKeyManager {
 	boolean addKey(String username, String data);
 	
 	boolean removeKey(String username, String data);
+
+	boolean removeAllKey(String username);
 }
