@@ -116,6 +116,7 @@ public class SshDaemon {
 		gitblitCmd.registerCommand(CreateRepository.class);
 		gitblitCmd.registerCommand(VersionCommand.class);
 		gitblitCmd.registerCommand(SetAccountCommand.class);
+		gitblitCmd.registerCommand(ReviewCommand.class);
 
 		DispatchCommand gitCmd = new DispatchCommand();
 		gitCmd.registerCommand(Upload.class);
