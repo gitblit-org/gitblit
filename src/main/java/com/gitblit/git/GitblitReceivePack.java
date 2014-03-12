@@ -124,6 +124,32 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 	}
 
 	/**
+	 * Returns true if the user is permitted to apply the receive commands to
+	 * the repository.
+	 *
+	 * @param commands
+	 * @return true if the user may push these commands
+	 */
+	protected boolean canPush(Collection<ReceiveCommand> commands) {
+		// TODO Consider supporting branch permissions here (issue-36)
+		// Not sure if that should be Gerrit-style, refs/meta/config, or
+		// gitolite-style, permissions in users.conf
+		//
+		// How could commands be empty?
+		//
+		// Because a subclass, like PatchsetReceivePack, filters receive
+		// commands before this method is called.  This makes it possible for
+		// this method to test an empty list.  In this case, we assume that the
+		// subclass receive pack properly enforces push restrictions. for the
+		// ref.
+		//
+		// The empty test is not explicitly required, it's written here to
+		// clarify special-case behavior.
+
+		return commands.isEmpty() ? true : user.canPush(repository);
+	}
+
+	/**
 	 * Instrumentation point where the incoming push event has been parsed,
 	 * validated, objects created BUT refs have not been updated. You might
 	 * use this to enforce a branch-write permissions model.
@@ -155,7 +181,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			return;
 		}
 
-		if (!user.canPush(repository)) {
+		if (!canPush(commands)) {
 			// user does not have push permissions
 			for (ReceiveCommand cmd : commands) {
 				sendRejection(cmd, "User \"{0}\" does not have push permissions for \"{1}\"!", user.username, repository.name);
