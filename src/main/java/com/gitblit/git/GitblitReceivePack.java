@@ -276,6 +276,11 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			}
 		}
 
+		// run the Groovy pre-receive scripts
+		groovyPreReceive(commands);
+	}
+
+	protected void groovyPreReceive(Collection<ReceiveCommand> commands) {
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(gitblit.getPreReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
@@ -379,7 +384,11 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			}
 		}
 
-		// run Groovy hook scripts
+		// run the Groovy post-receive scripts
+		groovyPostReceive(commands);
+	}
+
+	protected void groovyPostReceive(Collection<ReceiveCommand> commands) {
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(gitblit.getPostReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
