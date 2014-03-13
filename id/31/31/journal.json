@@ -1,0 +1,1 @@
+[{"date":"2014-03-13T14:42:46Z","author":"james","fields":{"title":"Tag entries do not have tooltips for long messages","body":"Long tag messages which are truncated are not displaying a tooltip for the full-length short message.","type":"Bug","responsible":"james","milestone":"v1.4.1","mergeTo":"master","watchers":"+james","status":"New"}}]
