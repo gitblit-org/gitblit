@@ -3,9 +3,9 @@ package com.gitblit.transport.ssh;
 import java.io.IOException;
 
 import org.apache.sshd.common.Session;
-import org.apache.sshd.server.FileSystemFactory;
-import org.apache.sshd.server.FileSystemView;
-import org.apache.sshd.server.SshFile;
+import org.apache.sshd.common.file.FileSystemFactory;
+import org.apache.sshd.common.file.FileSystemView;
+import org.apache.sshd.common.file.SshFile;
 
 public class DisabledFilesystemFactory implements FileSystemFactory {
 
