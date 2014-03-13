@@ -484,6 +484,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * @return the patchset command
 	 */
 	private PatchsetCommand preparePatchset(ReceiveCommand cmd) {
+		LOGGER.info(MessageFormat.format("Preparing {0} patchset command for \"{1}\" received from {2}",
+				repository.name, cmd.getRefName(), user.username));
 		String branch = getIntegrationBranch(cmd.getRefName());
 		long number = getTicketId(cmd.getRefName());
 
