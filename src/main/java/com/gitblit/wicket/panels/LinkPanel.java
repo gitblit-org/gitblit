@@ -113,4 +113,9 @@ public class LinkPanel extends Panel {
 		c.add(new SimpleAttributeModifier("rel", "nofollow"));
 	}
 
+	public void setTooltip(String tooltip) {
+		Component c = get("link");
+		c.add(new SimpleAttributeModifier("title", tooltip));
+	}
+
 }
