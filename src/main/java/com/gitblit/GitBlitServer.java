@@ -55,13 +55,12 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
 import com.gitblit.authority.GitblitAuthority;
 import com.gitblit.authority.NewCertificateConfig;
 import com.gitblit.servlet.GitblitContext;
@@ -96,7 +95,7 @@ public class GitBlitServer {
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
 		String folder = "data";
-		for (int i = 0; i< args.length; i++) {
+		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
 			if (arg.equals("--baseFolder")) {
 				if (i + 1 == args.length) {
@@ -113,14 +112,14 @@ public class GitBlitServer {
 
 		Params.baseFolder = folder;
 		Params params = new Params();
-		JCommander jc = new JCommander(params);
+		CmdLineParser parser = new CmdLineParser(params);
 		try {
-			jc.parse(filtered.toArray(new String[filtered.size()]));
+			parser.parseArgument(filtered);
 			if (params.help) {
-				server.usage(jc, null);
+				server.usage(parser, null);
 			}
-		} catch (ParameterException t) {
-			server.usage(jc, t);
+		} catch (CmdLineException t) {
+			server.usage(parser, t);
 		}
 
 		if (params.stop) {
@@ -133,10 +132,10 @@ public class GitBlitServer {
 	/**
 	 * Display the command line usage of Gitblit GO.
 	 *
-	 * @param jc
+	 * @param parser
 	 * @param t
 	 */
-	protected final void usage(JCommander jc, ParameterException t) {
+	protected final void usage(CmdLineParser parser, CmdLineException t) {
 		System.out.println(Constants.BORDER);
 		System.out.println(Constants.getGitBlitVersion());
 		System.out.println(Constants.BORDER);
@@ -145,8 +144,8 @@ public class GitBlitServer {
 			System.out.println(t.getMessage());
 			System.out.println();
 		}
-		if (jc != null) {
-			jc.usage();
+		if (parser != null) {
+			parser.printUsage(System.out);
 			System.out
 					.println("\nExample:\n  java -server -Xmx1024M -jar gitblit.jar --repositoriesFolder c:\\git --httpPort 80 --httpsPort 443");
 		}
@@ -624,9 +623,8 @@ public class GitBlitServer {
 	}
 
 	/**
-	 * JCommander Parameters class for GitBlitServer.
+	 * Parameters class for GitBlitServer.
 	 */
-	@Parameters(separators = " ")
 	public static class Params {
 
 		public static String baseFolder;
@@ -636,69 +634,69 @@ public class GitBlitServer {
 		/*
 		 * Server parameters
 		 */
-		@Parameter(names = { "-h", "--help" }, description = "Show this help")
+		@Option(name = "--help", aliases = { "-h"}, usage = "Show this help")
 		public Boolean help = false;
 
-		@Parameter(names = { "--stop" }, description = "Stop Server")
+		@Option(name = "--stop", usage = "Stop Server")
 		public Boolean stop = false;
 
-		@Parameter(names = { "--tempFolder" }, description = "Folder for server to extract built-in webapp")
+		@Option(name = "--tempFolder", usage = "Folder for server to extract built-in webapp", metaVar="PATH")
 		public String temp = FILESETTINGS.getString(Keys.server.tempFolder, "temp");
 
-		@Parameter(names = { "--dailyLogFile" }, description = "Log to a rolling daily log file INSTEAD of stdout.")
+		@Option(name = "--dailyLogFile", usage = "Log to a rolling daily log file INSTEAD of stdout.")
 		public Boolean dailyLogFile = false;
 
 		/*
 		 * GIT Servlet Parameters
 		 */
-		@Parameter(names = { "--repositoriesFolder" }, description = "Git Repositories Folder")
+		@Option(name = "--repositoriesFolder", usage = "Git Repositories Folder", metaVar="PATH")
 		public String repositoriesFolder = FILESETTINGS.getString(Keys.git.repositoriesFolder,
 				"git");
 
 		/*
 		 * Authentication Parameters
 		 */
-		@Parameter(names = { "--userService" }, description = "Authentication and Authorization Service (filename or fully qualified classname)")
+		@Option(name = "--userService", usage = "Authentication and Authorization Service (filename or fully qualified classname)")
 		public String userService = FILESETTINGS.getString(Keys.realm.userService,
 				"users.conf");
 
 		/*
 		 * JETTY Parameters
 		 */
-		@Parameter(names = { "--useNio" }, description = "Use NIO Connector else use Socket Connector.")
+		@Option(name = "--useNio", usage = "Use NIO Connector else use Socket Connector.")
 		public Boolean useNIO = FILESETTINGS.getBoolean(Keys.server.useNio, true);
 
-		@Parameter(names = "--httpPort", description = "HTTP port for to serve. (port <= 0 will disable this connector)")
+		@Option(name = "--httpPort", usage = "HTTP port for to serve. (port <= 0 will disable this connector)", metaVar="PORT")
 		public Integer port = FILESETTINGS.getInteger(Keys.server.httpPort, 0);
 
-		@Parameter(names = "--httpsPort", description = "HTTPS port to serve.  (port <= 0 will disable this connector)")
+		@Option(name = "--httpsPort", usage = "HTTPS port to serve.  (port <= 0 will disable this connector)", metaVar="PORT")
 		public Integer securePort = FILESETTINGS.getInteger(Keys.server.httpsPort, 8443);
 
-		@Parameter(names = "--ajpPort", description = "AJP port to serve.  (port <= 0 will disable this connector)")
+		@Option(name = "--ajpPort", usage = "AJP port to serve.  (port <= 0 will disable this connector)", metaVar="PORT")
 		public Integer ajpPort = FILESETTINGS.getInteger(Keys.server.ajpPort, 0);
 
-		@Parameter(names = "--gitPort", description = "Git Daemon port to serve.  (port <= 0 will disable this connector)")
+		@Option(name = "--gitPort", usage = "Git Daemon port to serve.  (port <= 0 will disable this connector)", metaVar="PORT")
 		public Integer gitPort = FILESETTINGS.getInteger(Keys.git.daemonPort, 9418);
 
-		@Parameter(names = "--alias", description = "Alias of SSL certificate in keystore for serving https.")
+		@Option(name = "--alias", usage = "Alias of SSL certificate in keystore for serving https.", metaVar="ALIAS")
 		public String alias = FILESETTINGS.getString(Keys.server.certificateAlias, "");
 
-		@Parameter(names = "--storePassword", description = "Password for SSL (https) keystore.")
+		@Option(name = "--storePassword", usage = "Password for SSL (https) keystore.", metaVar="PASSWORD")
 		public String storePassword = FILESETTINGS.getString(Keys.server.storePassword, "");
 
-		@Parameter(names = "--shutdownPort", description = "Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)")
+		@Option(name = "--shutdownPort", usage = "Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)", metaVar="PORT")
 		public Integer shutdownPort = FILESETTINGS.getInteger(Keys.server.shutdownPort, 8081);
 
-		@Parameter(names = "--requireClientCertificates", description = "Require client X509 certificates for https connections.")
+		@Option(name = "--requireClientCertificates", usage = "Require client X509 certificates for https connections.")
 		public Boolean requireClientCertificates = FILESETTINGS.getBoolean(Keys.server.requireClientCertificates, false);
 
 		/*
 		 * Setting overrides
 		 */
-		@Parameter(names = { "--settings" }, description = "Path to alternative settings")
+		@Option(name = "--settings", usage = "Path to alternative settings", metaVar="FILE")
 		public String settingsfile;
 
-		@Parameter(names = { "--ldapLdifFile" }, description = "Path to LDIF file.  This will cause an in-memory LDAP server to be started according to gitblit settings")
+		@Option(name = "--ldapLdifFile", usage = "Path to LDIF file.  This will cause an in-memory LDAP server to be started according to gitblit settings", metaVar="FILE")
 		public String ldapLdifFile;
 
 	}

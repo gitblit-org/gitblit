@@ -128,7 +128,6 @@ dependencies:
 - compile 'com.squareup.dagger:dagger-compiler:1.1.0' :war optional apt
 # Standard dependencies
 - compile 'com.intellij:annotations:12.0' :war
-- compile 'com.beust:jcommander:1.17' :fedclient :authority
 - compile 'log4j:log4j:1.2.17' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-api:1.6.6' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-log4j12:1.6.6' :war :fedclient :authority
@@ -169,6 +168,7 @@ dependencies:
 - compile 'org.freemarker:freemarker:2.3.19' :war
 - compile 'com.github.dblock.waffle:waffle-jna:1.5' :war
 - compile 'org.kohsuke:libpam4j:1.7' :war
+- compile 'args4j:args4j:2.0.26' :war :fedclient :authority
 - compile 'commons-codec:commons-codec:1.7' :war
 - compile 'redis.clients:jedis:2.3.1' :war
 - test 'junit'
