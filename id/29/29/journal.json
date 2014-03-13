@@ -1,0 +1,1 @@
+[{"date":"2014-03-13T01:58:47Z","author":"james","fields":{"title":"Watch list is not properly verified on push","body":"Users who are cc\u0027d on a propose or a push are not properly verified due to a control flow bug in the verification code.","type":"Bug","responsible":"james","milestone":"v1.4.1","mergeTo":"master","watchers":"+james","status":"New"}}]
