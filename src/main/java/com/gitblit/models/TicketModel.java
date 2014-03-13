@@ -785,7 +785,21 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			for (String item : items) {
 				list.add(prefix + item);
 			}
-			setField(field, join(list, ","));
+			if (hasField(field)) {
+				String flat = getString(field);
+				if (isEmpty(flat)) {
+					// field is empty, use this list
+					setField(field, join(list, ","));
+				} else {
+					// merge this list into the existing field list
+					Set<String> set = new TreeSet<String>(Arrays.asList(flat.split(",")));
+					set.addAll(list);
+					setField(field, join(set, ","));
+				}
+			} else {
+				// does not have a list for this field
+				setField(field, join(list, ","));
+			}
 		}
 
 		public String getId() {
