@@ -350,6 +350,9 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					continue;
 				}
 
+				LOGGER.info(MessageFormat.format("Verifying {0} push ref \"{1}\" received from {2}",
+						repository.name, cmd.getRefName(), user.username));
+
 				// responsible verification
 				String responsible = PatchsetCommand.getSingleOption(cmd, PatchsetCommand.RESPONSIBLE);
 				if (!StringUtils.isEmpty(responsible)) {
@@ -380,13 +383,18 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// watcher verification
 				List<String> watchers = PatchsetCommand.getOptions(cmd, PatchsetCommand.WATCH);
 				if (!ArrayUtils.isEmpty(watchers)) {
+					boolean verified = true;
 					for (String watcher : watchers) {
 						UserModel user = gitblit.getUserModel(watcher);
 						if (user == null) {
 							// watcher does not exist
 							sendRejection(cmd, "Sorry, \"{0}\" is not a valid username for the watch list!", watcher);
-							continue;
+							verified = false;
+							break;
 						}
+					}
+					if (!verified) {
+						continue;
 					}
 				}
 
@@ -484,8 +492,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * @return the patchset command
 	 */
 	private PatchsetCommand preparePatchset(ReceiveCommand cmd) {
-		LOGGER.info(MessageFormat.format("Preparing {0} patchset command for \"{1}\" received from {2}",
-				repository.name, cmd.getRefName(), user.username));
 		String branch = getIntegrationBranch(cmd.getRefName());
 		long number = getTicketId(cmd.getRefName());
 
