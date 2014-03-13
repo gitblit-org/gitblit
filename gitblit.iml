@@ -69,17 +69,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jcommander-1.17.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jcommander-1.17.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jcommander-1.17.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="log4j-1.2.17.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/log4j-1.2.17.jar!/" />
@@ -754,6 +743,17 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/libpam4j-1.7.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="args4j-2.0.26.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/args4j-2.0.26.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/args4j-2.0.26.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+
 import com.gitblit.manager.FederationManager;
 import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IGitblit;
@@ -47,11 +47,11 @@ public class FederationClient {
 
 	public static void main(String[] args) {
 		Params params = new Params();
-		JCommander jc = new JCommander(params);
+		CmdLineParser parser = new CmdLineParser(params);
 		try {
-			jc.parse(args);
-		} catch (ParameterException t) {
-			usage(jc, t);
+			parser.parseArgument(args);
+		} catch (CmdLineException t) {
+			usage(parser, t);
 		}
 
 		System.out.println("Gitblit Federation Client v" + Constants.getVersion() + " (" + Constants.getBuildDate() + ")");
@@ -77,7 +77,6 @@ public class FederationClient {
 			model.token = params.token;
 			model.mirror = params.mirror;
 			model.bare = params.bare;
-			model.frequency = params.frequency;
 			model.folder = "";
 			registrations.add(model);
 		}
@@ -112,7 +111,7 @@ public class FederationClient {
 		System.exit(0);
 	}
 
-	private static void usage(JCommander jc, ParameterException t) {
+	private static void usage(CmdLineParser parser, CmdLineException t) {
 		System.out.println(Constants.getGitBlitVersion());
 		System.out.println();
 		if (t != null) {
@@ -120,40 +119,36 @@ public class FederationClient {
 			System.out.println();
 		}
 
-		if (jc != null) {
-			jc.usage();
+		if (parser != null) {
+			parser.printUsage(System.out);
 		}
 		System.exit(0);
 	}
 
 	/**
-	 * JCommander Parameters class for FederationClient.
+	 * Parameters class for FederationClient.
 	 */
-	@Parameters(separators = " ")
 	private static class Params {
 
-		@Parameter(names = { "--registrations" }, description = "Gitblit Federation Registrations File", required = false)
+		@Option(name = "--registrations", usage = "Gitblit Federation Registrations File", metaVar = "FILE")
 		public String registrationsFile = "${baseFolder}/federation.properties";
 
-		@Parameter(names = { "--url" }, description = "URL of Gitblit instance to mirror from", required = false)
+		@Option(name = "--url", usage = "URL of Gitblit instance to mirror from", metaVar = "URL")
 		public String url;
 
-		@Parameter(names = { "--mirror" }, description = "Mirror repositories", required = false)
+		@Option(name = "--mirror", usage = "Mirror repositories")
 		public boolean mirror;
 
-		@Parameter(names = { "--bare" }, description = "Create bare repositories", required = false)
+		@Option(name = "--bare", usage = "Create bare repositories")
 		public boolean bare;
 
-		@Parameter(names = { "--token" }, description = "Federation Token", required = false)
+		@Option(name = "--token", usage = "Federation Token", metaVar = "TOKEN")
 		public String token;
 
-		@Parameter(names = { "--frequency" }, description = "Period to wait between pull attempts (requires --daemon)", required = false)
-		public String frequency = "60 mins";
-
-		@Parameter(names = { "--baseFolder" }, description = "Base folder for received data", required = false)
+		@Option(name = "--baseFolder", usage = "Base folder for received data", metaVar = "PATH")
 		public String baseFolder;
 
-		@Parameter(names = { "--repositoriesFolder" }, description = "Destination folder for cloned repositories", required = false)
+		@Option(name = "--repositoriesFolder", usage = "Destination folder for cloned repositories", metaVar = "PATH")
 		public String repositoriesFolder;
 
 	}
