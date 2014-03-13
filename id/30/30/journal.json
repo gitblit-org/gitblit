@@ -1,0 +1,1 @@
+[{"date":"2014-03-13T02:25:48Z","author":"james","fields":{"title":"Watch list push parameters are not always honored","body":"If you specify multiple cc parameters on proposal, it is likely that none of them will be properly added to the watch list.","type":"Bug","responsible":"james","milestone":"v1.4.1","mergeTo":"master","watchers":"+james","status":"New"}}]
