@@ -1,28 +1,27 @@
 package com.gitblit.transport.ssh;
 
-import java.net.InetSocketAddress;
-
-import org.apache.sshd.server.ForwardingFilter;
-import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.common.ForwardingFilter;
+import org.apache.sshd.common.Session;
+import org.apache.sshd.common.SshdSocketAddress;
 
 public class NonForwardingFilter implements ForwardingFilter {
 	@Override
-	public boolean canForwardAgent(ServerSession session) {
+	public boolean canConnect(SshdSocketAddress address, Session session) {
 		return false;
 	}
 
 	@Override
-	public boolean canForwardX11(ServerSession session) {
+	public boolean canForwardAgent(Session session) {
 		return false;
 	}
 
 	@Override
-	public boolean canConnect(InetSocketAddress address, ServerSession session) {
+	public boolean canForwardX11(Session session) {
 		return false;
 	}
 
 	@Override
-	public boolean canListen(InetSocketAddress address, ServerSession session) {
+	public boolean canListen(SshdSocketAddress address, Session session) {
 		return false;
 	}
 }
