@@ -17,11 +17,12 @@ package com.gitblit.transport.ssh;
 
 import java.net.SocketAddress;
 
-import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.common.future.CloseFuture;
+import org.apache.sshd.common.future.SshFutureListener;
+import org.apache.sshd.common.io.IoSession;
+import org.apache.sshd.common.io.mina.MinaSession;
+import org.apache.sshd.common.session.AbstractSession;
 import org.apache.sshd.server.session.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,25 +46,37 @@ public class SshSessionFactory extends SessionFactory {
 	}
 
 	@Override
-	protected ServerSession createSession(final IoSession io) throws Exception {
+	protected AbstractSession createSession(final IoSession io)
+			throws Exception {
 		log.info("connection accepted on " + io);
 
-		if (io.getConfig() instanceof SocketSessionConfig) {
-			final SocketSessionConfig c = (SocketSessionConfig) io.getConfig();
-			c.setKeepAlive(true);
+		if (io instanceof MinaSession) {
+			if (((MinaSession) io).getSession().getConfig() instanceof SocketSessionConfig) {
+				((SocketSessionConfig) ((MinaSession) io).getSession()
+						.getConfig()).setKeepAlive(true);
+			}
 		}
 
-		final ServerSession s = (ServerSession) super.createSession(io);
+		final GitblitServerSession s = (GitblitServerSession) super
+				.createSession(io);
 		SocketAddress peer = io.getRemoteAddress();
 		SshSession session = new SshSession(idGenerator.next(), peer);
 		s.setAttribute(SshSession.KEY, session);
 
-		io.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
+		// TODO(davido): Log a session close without authentication as a
+		// failure.
+		s.addCloseSessionListener(new SshFutureListener<CloseFuture>() {
 			@Override
-			public void operationComplete(IoFuture future) {
+			public void operationComplete(CloseFuture future) {
 				log.info("connection closed on " + io);
 			}
 		});
 		return s;
+	}
+
+	@Override
+	protected AbstractSession doCreateSession(IoSession ioSession)
+			throws Exception {
+		return new GitblitServerSession(server, ioSession);
 	}
 }
