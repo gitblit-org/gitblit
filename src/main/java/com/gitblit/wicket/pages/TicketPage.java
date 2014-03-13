@@ -64,6 +64,7 @@ import com.gitblit.git.PatchsetReceivePack;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
@@ -79,6 +80,7 @@ import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketResponsible;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.MergeStatus;
 import com.gitblit.utils.MarkdownUtils;
@@ -732,10 +734,10 @@ public class TicketPage extends TicketBasePage {
 		 */
 		if (currentPatchset == null) {
 			// no patchset available
-			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository)) {
+			String repoUrl = getRepositoryUrl(user, repository);
+			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository) && !StringUtils.isEmpty(repoUrl)) {
 				// ticket & repo will accept a proposal patchset
 				// show the instructions for proposing a patchset
-				String repoUrl = getRepositoryUrl(user, repository);
 				Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
 				changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
 				changeIdFrag.add(new Label("ptWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")));
@@ -1476,7 +1478,11 @@ public class TicketPage extends TicketBasePage {
 	 */
 	protected String getRepositoryUrl(UserModel user, RepositoryModel repository) {
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
-		String primaryurl = app().gitblit().getRepositoryUrls(req, user, repository).get(0).url;
+		List<RepositoryUrl> urls = app().gitblit().getRepositoryUrls(req, user, repository);
+		if (ArrayUtils.isEmpty(urls)) {
+			return null;
+		}
+		String primaryurl = urls.get(0).url;
 		String url = primaryurl;
 		try {
 			url = new URIish(primaryurl).setUser(null).toString();
