@@ -109,7 +109,8 @@ properties: {
   bouncycastle.version : 1.49
   selenium.version : 2.28.0
   wikitext.version : 1.4
-  sshd.version: 0.6.0
+  sshd.version: 0.10.1
+  mina.version: 2.0.7
   }
 
 # Dependencies
@@ -159,6 +160,7 @@ dependencies:
 - compile 'org.bouncycastle:bcmail-jdk15on:${bouncycastle.version}' :war :authority
 - compile 'org.bouncycastle:bcpkix-jdk15on:${bouncycastle.version}' :war :authority
 - compile 'org.apache.sshd:sshd-core:${sshd.version}' :war !org.easymock
+- compile 'org.apache.mina:mina-core:${mina.version}' :war !org.easymock
 - compile 'rome:rome:0.9' :war :manager :api
 - compile 'com.google.code.gson:gson:1.7.2' :war :fedclient :manager :api
 - compile 'org.codehaus.groovy:groovy-all:${groovy.version}' :war
