@@ -24,6 +24,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Singleton;
 
 import org.apache.sshd.SshServer;
+import org.apache.sshd.common.io.IoServiceFactory;
+import org.apache.sshd.common.io.IoServiceFactoryFactory;
+import org.apache.sshd.common.io.mina.MinaServiceFactory;
+import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
+import org.apache.sshd.common.io.nio2.Nio2ServiceFactory;
+import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.server.keyprovider.PEMGeneratorHostKeyProvider;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
@@ -59,6 +65,10 @@ public class SshDaemon {
 
 	private final Logger log = LoggerFactory.getLogger(SshDaemon.class);
 
+	public static enum SshSessionBackend {
+		MINA, NIO2
+	}
+	
 	/**
 	 * 22: IANA assigned port number for ssh. Note that this is a distinct
 	 * concept from gitblit's default conf for ssh port -- this "default" is
@@ -90,6 +100,14 @@ public class SshDaemon {
 				"localhost");
 
 		IKeyManager keyManager = getKeyManager();
+
+		String sshBackendStr = settings.getString(Keys.git.sshBackend,
+				SshSessionBackend.NIO2.name());
+		SshSessionBackend backend = SshSessionBackend.valueOf(sshBackendStr);
+		System.setProperty(IoServiceFactoryFactory.class.getName(),
+		    backend == SshSessionBackend.MINA
+		    	? MinaServiceFactoryFactory.class.getName()
+		    	: Nio2ServiceFactoryFactory.class.getName());
 		
 		InetSocketAddress addr;
 		if (StringUtils.isEmpty(bindInterface)) {
