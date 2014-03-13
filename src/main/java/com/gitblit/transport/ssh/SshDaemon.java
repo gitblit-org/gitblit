@@ -107,7 +107,7 @@ public class SshDaemon {
 		sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshSessionFactory(idGenerator));
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
-		sshd.setForwardingFilter(new NonForwardingFilter());
+		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
 
 		DispatchCommand gitblitCmd = new DispatchCommand();
 		gitblitCmd.registerCommand(CreateRepository.class);
