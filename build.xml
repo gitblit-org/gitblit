@@ -561,9 +561,10 @@
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 					</menu>
 					<divider />
-					<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-						<page name="git client setup" src="setup_client.mkd" />
-						<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+					<menu name="Client Usage" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="using HTTP/HTTPS" src="setup_transport_http.mkd" />
+						<page name="using SSH" src="setup_transport_ssh.mkd" />
+						<page name="using the Eclipse plugin" src="eclipse_plugin.mkd" />
 					</menu>
 					<divider />
 					<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
@@ -877,9 +878,10 @@
 							<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 						</menu>
 						<divider />
-						<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-							<page name="git client setup" src="setup_client.mkd" />
-							<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+						<menu name="Client Usage" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="using HTTP/HTTPS" src="setup_transport_http.mkd" />
+							<page name="using SSH" src="setup_transport_ssh.mkd" />
+							<page name="using the Eclipse plugin" src="eclipse_plugin.mkd" />
 						</menu>
 						<divider />
 						<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
