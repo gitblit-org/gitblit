@@ -18,8 +18,6 @@ package com.gitblit.transport.ssh;
 import java.security.PublicKey;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.sshd.server.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
@@ -28,10 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 /**
  *
@@ -45,17 +39,6 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 	protected final IKeyManager keyManager;
 
 	protected final IAuthenticationManager authManager;
-
-	LoadingCache<String, List<PublicKey>> sshKeyCache = CacheBuilder
-			.newBuilder().
-			expireAfterAccess(15, TimeUnit.MINUTES).
-			maximumSize(100)
-			.build(new CacheLoader<String, List<PublicKey>>() {
-				@Override
-				public List<PublicKey> load(String username) {
-					return keyManager.getKeys(username);
-				}
-			});
 
 	public SshKeyAuthenticator(IKeyManager keyManager, IAuthenticationManager authManager) {
 		this.keyManager = keyManager;
@@ -74,23 +57,20 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 		}
 
 		username = username.toLowerCase(Locale.US);
-		try {
-			List<PublicKey> keys = sshKeyCache.get(username);
-			if (keys == null || keys.isEmpty()) {
-				log.info("{} has not added any public keys for ssh authentication", username);
-				return false;
-			}
+		List<PublicKey> keys = keyManager.getKeys(username);
+		if (keys == null || keys.isEmpty()) {
+			log.info("{} has not added any public keys for ssh authentication", username);
+			return false;
+		}
 
-			for (PublicKey key : keys) {
-				if (key.equals(suppliedKey)) {
-					UserModel user = authManager.authenticate(username, key);
-					if (user != null) {
-						client.setUser(user);
-						return true;
-					}
+		for (PublicKey key : keys) {
+			if (key.equals(suppliedKey)) {
+				UserModel user = authManager.authenticate(username, key);
+				if (user != null) {
+					client.setUser(user);
+					return true;
 				}
 			}
-		} catch (ExecutionException e) {
 		}
 
 		log.warn("could not authenticate {} for SSH using the supplied public key", username);
@@ -99,9 +79,5 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 
 	public IKeyManager getKeyManager() {
 		return keyManager;
-	}
-
-	public Cache<String, List<PublicKey>> getKeyCache() {
-		return sshKeyCache;
 	}
 }
