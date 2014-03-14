@@ -20,7 +20,7 @@ import org.eclipse.jgit.transport.UploadPack;
 import com.gitblit.transport.ssh.CommandMetaData;
 
 @CommandMetaData(name = "git-upload-pack", description = "Upload pack")
-public class Upload extends AbstractGitCommand {
+public class Upload extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
 		try {

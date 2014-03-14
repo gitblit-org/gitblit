@@ -20,7 +20,7 @@ import org.eclipse.jgit.transport.ReceivePack;
 import com.gitblit.transport.ssh.CommandMetaData;
 
 @CommandMetaData(name = "git-receive-pack", description = "Receive pack")
-public class Receive extends AbstractGitCommand {
+public class Receive extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
 		try {
