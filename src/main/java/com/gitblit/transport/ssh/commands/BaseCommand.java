@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.transport.ssh.AbstractSshCommand;
-import com.gitblit.transport.ssh.SshContext;
+import com.gitblit.transport.ssh.SshCommandContext;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.WorkQueue;
 import com.gitblit.utils.WorkQueue.CancelableRunnable;
@@ -52,7 +52,7 @@ public abstract class BaseCommand extends AbstractSshCommand {
   private String[] argv;
 
   /** Ssh context */
-  protected SshContext ctx;
+  protected SshCommandContext ctx;
 
   /** The task, as scheduled on a worker thread. */
   private final AtomicReference<Future<?>> task;
@@ -66,7 +66,7 @@ public abstract class BaseCommand extends AbstractSshCommand {
     this.executor = w.getDefaultQueue();
   }
 
-  public void setContext(SshContext ctx) {
+  public void setContext(SshCommandContext ctx) {
 	this.ctx = ctx;
   }
 
