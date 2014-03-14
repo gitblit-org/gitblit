@@ -33,7 +33,7 @@ import com.gitblit.git.RepositoryResolver;
 import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.transport.ssh.SshKeyAuthenticator;
-import com.gitblit.transport.ssh.SshSession;
+import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -204,18 +204,18 @@ public class DispatchCommand extends BaseCommand {
 	  }
   }
 
-  private RepositoryResolver<SshSession> repositoryResolver;
-  public void setRepositoryResolver(RepositoryResolver<SshSession> repositoryResolver) {
+  private RepositoryResolver<SshDaemonClient> repositoryResolver;
+  public void setRepositoryResolver(RepositoryResolver<SshDaemonClient> repositoryResolver) {
 	  this.repositoryResolver = repositoryResolver;
   }
 
-  private GitblitUploadPackFactory<SshSession> gitblitUploadPackFactory;
-  public void setUploadPackFactory(GitblitUploadPackFactory<SshSession> gitblitUploadPackFactory) {
+  private GitblitUploadPackFactory<SshDaemonClient> gitblitUploadPackFactory;
+  public void setUploadPackFactory(GitblitUploadPackFactory<SshDaemonClient> gitblitUploadPackFactory) {
 	  this.gitblitUploadPackFactory = gitblitUploadPackFactory;
   }
 
-  private GitblitReceivePackFactory<SshSession> gitblitReceivePackFactory;
-  public void setReceivePackFactory(GitblitReceivePackFactory<SshSession> gitblitReceivePackFactory) {
+  private GitblitReceivePackFactory<SshDaemonClient> gitblitReceivePackFactory;
+  public void setReceivePackFactory(GitblitReceivePackFactory<SshDaemonClient> gitblitReceivePackFactory) {
 	  this.gitblitReceivePackFactory = gitblitReceivePackFactory;
   }
 

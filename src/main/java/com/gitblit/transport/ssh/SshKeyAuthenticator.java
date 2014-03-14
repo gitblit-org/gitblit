@@ -43,7 +43,7 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	protected final IKeyManager keyManager;
-	
+
 	protected final IAuthenticationManager authManager;
 
 	LoadingCache<String, List<PublicKey>> sshKeyCache = CacheBuilder
@@ -65,9 +65,9 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 	@Override
 	public boolean authenticate(String username, final PublicKey suppliedKey,
 			final ServerSession session) {
-		final SshSession client = session.getAttribute(SshSession.KEY);
+		final SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 
-		if (client.getRemoteUser() != null) {
+		if (client.getUser() != null) {
 			// TODO why do we re-authenticate?
 			log.info("{} has already authenticated!", username);
 			return true;
@@ -85,7 +85,7 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 				if (key.equals(suppliedKey)) {
 					UserModel user = authManager.authenticate(username, key);
 					if (user != null) {
-						client.authenticationSuccess(username);
+						client.setUser(user);
 						return true;
 					}
 				}

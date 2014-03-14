@@ -52,21 +52,21 @@ public class SshSessionFactory extends SessionFactory {
 			}
 		}
 
-		final GitblitServerSession s = (GitblitServerSession) super
+		final GitblitServerSession session = (GitblitServerSession) super
 				.createSession(io);
 		SocketAddress peer = io.getRemoteAddress();
-		SshSession session = new SshSession(idGenerator.next(), peer);
-		s.setAttribute(SshSession.KEY, session);
+		SshDaemonClient client = new SshDaemonClient(peer);
+		session.setAttribute(SshDaemonClient.KEY, client);
 
 		// TODO(davido): Log a session close without authentication as a
 		// failure.
-		s.addCloseSessionListener(new SshFutureListener<CloseFuture>() {
+		session.addCloseSessionListener(new SshFutureListener<CloseFuture>() {
 			@Override
 			public void operationComplete(CloseFuture future) {
 				log.info("connection closed on " + io);
 			}
 		});
-		return s;
+		return session;
 	}
 
 	@Override
