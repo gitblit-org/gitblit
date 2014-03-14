@@ -36,9 +36,9 @@ public abstract class AbstractGitCommand extends BaseCommand {
 	@Argument(index = 0, metaVar = "PROJECT.git", required = true, usage = "project name")
 	protected String repository;
 
-	protected RepositoryResolver<SshSession> repositoryResolver;
-	protected ReceivePackFactory<SshSession> receivePackFactory;
-	protected UploadPackFactory<SshSession> uploadPackFactory;
+	protected RepositoryResolver<SshDaemonClient> repositoryResolver;
+	protected ReceivePackFactory<SshDaemonClient> receivePackFactory;
+	protected UploadPackFactory<SshDaemonClient> uploadPackFactory;
 
 	protected Repository repo;
 
@@ -84,7 +84,7 @@ public abstract class AbstractGitCommand extends BaseCommand {
 		}
 		repository = repository.substring(1);
 		try {
-			return repositoryResolver.open(ctx.getSession(), repository);
+			return repositoryResolver.open(ctx.getClient(), repository);
 		} catch (Exception e) {
 			throw new Failure(1, "fatal: '" + repository
 					+ "': not a git archive", e);
@@ -92,17 +92,17 @@ public abstract class AbstractGitCommand extends BaseCommand {
 	}
 
 	public void setRepositoryResolver(
-			RepositoryResolver<SshSession> repositoryResolver) {
+			RepositoryResolver<SshDaemonClient> repositoryResolver) {
 		this.repositoryResolver = repositoryResolver;
 	}
 
 	public void setReceivePackFactory(
-			GitblitReceivePackFactory<SshSession> receivePackFactory) {
+			GitblitReceivePackFactory<SshDaemonClient> receivePackFactory) {
 		this.receivePackFactory = receivePackFactory;
 	}
 
 	public void setUploadPackFactory(
-			GitblitUploadPackFactory<SshSession> uploadPackFactory) {
+			GitblitUploadPackFactory<SshDaemonClient> uploadPackFactory) {
 		this.uploadPackFactory = uploadPackFactory;
 	}
 }
