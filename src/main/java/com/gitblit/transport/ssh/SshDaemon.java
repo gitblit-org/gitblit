@@ -38,9 +38,11 @@ import com.gitblit.git.GitblitReceivePackFactory;
 import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
+import com.gitblit.transport.ssh.commands.AddKeyCommand;
 import com.gitblit.transport.ssh.commands.CreateRepository;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.Receive;
+import com.gitblit.transport.ssh.commands.RemoveKeyCommand;
 import com.gitblit.transport.ssh.commands.ReviewCommand;
 import com.gitblit.transport.ssh.commands.SetAccountCommand;
 import com.gitblit.transport.ssh.commands.Upload;
@@ -67,7 +69,7 @@ public class SshDaemon {
 	public static enum SshSessionBackend {
 		MINA, NIO2
 	}
-	
+
 	/**
 	 * 22: IANA assigned port number for ssh. Note that this is a distinct
 	 * concept from gitblit's default conf for ssh port -- this "default" is
@@ -92,7 +94,7 @@ public class SshDaemon {
 	public SshDaemon(IGitblit gitblit, IdGenerator idGenerator) {
 		this.gitblit = gitblit;
 		this.injector = ObjectGraph.create(new SshModule());
-		
+
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.sshPort, 0);
 		String bindInterface = settings.getString(Keys.git.sshBindInterface,
@@ -107,7 +109,7 @@ public class SshDaemon {
 		    backend == SshSessionBackend.MINA
 		    	? MinaServiceFactoryFactory.class.getName()
 		    	: Nio2ServiceFactoryFactory.class.getName());
-		
+
 		InetSocketAddress addr;
 		if (StringUtils.isEmpty(bindInterface)) {
 			addr = new InetSocketAddress(port);
@@ -131,6 +133,8 @@ public class SshDaemon {
 		DispatchCommand gitblitCmd = new DispatchCommand();
 		gitblitCmd.registerCommand(CreateRepository.class);
 		gitblitCmd.registerCommand(VersionCommand.class);
+		gitblitCmd.registerCommand(AddKeyCommand.class);
+		gitblitCmd.registerCommand(RemoveKeyCommand.class);
 		gitblitCmd.registerCommand(SetAccountCommand.class);
 		gitblitCmd.registerCommand(ReviewCommand.class);
 
@@ -210,14 +214,14 @@ public class SshDaemon {
 			}
 		}
 	}
-	
+
 	protected IKeyManager getKeyManager() {
 		IKeyManager keyManager = null;
 		IStoredSettings settings = gitblit.getSettings();
 		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
 		if (StringUtils.isEmpty(clazz)) {
 			clazz = FileKeyManager.class.getName();
-		}		
+		}
 		try {
 			Class<? extends IKeyManager> managerClass = (Class<? extends IKeyManager>) Class.forName(clazz);
 			keyManager = injector.get(managerClass).start();
@@ -232,7 +236,7 @@ public class SshDaemon {
 		}
 		return keyManager;
 	}
-	
+
 	/**
 	 * A nested Dagger graph is used for constructor dependency injection of
 	 * complex classes.
@@ -252,7 +256,7 @@ public class SshDaemon {
 		@Provides @Singleton NullKeyManager provideNullKeyManager() {
 			return new NullKeyManager();
 		}
-		
+
 		@Provides @Singleton FileKeyManager provideFileKeyManager() {
 			return new FileKeyManager(SshDaemon.this.gitblit);
 		}
