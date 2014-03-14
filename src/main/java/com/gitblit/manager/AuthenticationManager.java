@@ -17,6 +17,7 @@ package com.gitblit.manager;
 
 import java.nio.charset.Charset;
 import java.security.Principal;
+import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,6 @@ import com.gitblit.auth.SalesforceAuthProvider;
 import com.gitblit.auth.WindowsAuthProvider;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
@@ -291,28 +291,31 @@ public class AuthenticationManager implements IAuthenticationManager {
 	}
 
 	/**
-	 * Authenticate a user based on SSH session.
+	 * Authenticate a user based on a public key.
 	 *
-	 * @param SshSession
+	 * This implementation assumes that the authentication has already take place
+	 * (e.g. SSHDaemon) and that this is a validation/verification of the user.
+	 *
+	 * @param username
+	 * @param key
 	 * @return a user object or null
 	 */
 	@Override
-	public UserModel authenticate(SshSession sshSession) {
-		String username = sshSession.getRemoteUser();
+	public UserModel authenticate(String username, PublicKey key) {
 		if (username != null) {
 			if (!StringUtils.isEmpty(username)) {
 				UserModel user = userManager.getUserModel(username);
 				if (user != null) {
 					// existing user
-					logger.debug(MessageFormat.format("{0} authenticated by SSH key from {1}",
-							user.username, sshSession.getRemoteAddress()));
-					return validateAuthentication(user, AuthenticationType.SSH);
+					logger.debug(MessageFormat.format("{0} authenticated by {1} public key",
+							user.username, key.getAlgorithm()));
+					return validateAuthentication(user, AuthenticationType.PUBLIC_KEY);
 				}
-				logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted ssh authentication from {1}",
-							username, sshSession.getRemoteAddress()));
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0} during public key authentication",
+							username));
 			}
 		} else {
-			logger.warn("Empty user in SSH session");
+			logger.warn("Empty user passed to AuthenticationManager.authenticate!");
 		}
 		return null;
 	}
