@@ -42,8 +42,8 @@ public class SshPasswordAuthenticator implements PasswordAuthenticator {
 
 	@Override
 	public boolean authenticate(String username, String password, ServerSession session) {
-		SshSession client = session.getAttribute(SshSession.KEY);
-		if (client.getRemoteUser() != null) {
+		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
+		if (client.getUser() != null) {
 			log.info("{} has already authenticated!", username);
 			return true;
 		}
@@ -51,7 +51,7 @@ public class SshPasswordAuthenticator implements PasswordAuthenticator {
 		username = username.toLowerCase(Locale.US);
 		UserModel user = authManager.authenticate(username, password.toCharArray());
 		if (user != null) {
-			client.authenticationSuccess(username);
+			client.setUser(user);
 			return true;
 		}
 

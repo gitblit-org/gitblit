@@ -25,7 +25,7 @@ public class Receive extends AbstractGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
 		try {
-			ReceivePack rp = receivePackFactory.create(ctx.getSession(), repo);
+			ReceivePack rp = receivePackFactory.create(ctx.getClient(), repo);
 			rp.receive(in, out, null);
 		} catch (Exception e) {
 			throw new Failure(1, "fatal: Cannot receive pack: ", e);

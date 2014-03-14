@@ -133,7 +133,7 @@ public class SshCommandFactory implements CommandFactory {
 
 	    private void onStart() throws IOException {
 	      synchronized (this) {
-		    SshContext ctx = new SshContext(session.getAttribute(SshSession.KEY), cmdLine);
+		    SshContext ctx = new SshContext(session.getAttribute(SshDaemonClient.KEY), cmdLine);
 	        try {
 	          cmd = dispatcher;
 	          cmd.setArguments(argv);
