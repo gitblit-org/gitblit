@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.sshd.server.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
@@ -38,6 +40,8 @@ import com.google.common.cache.LoadingCache;
  */
 public class SshKeyAuthenticator implements PublickeyAuthenticator {
 
+	protected final Logger log = LoggerFactory.getLogger(getClass());
+
 	protected final IKeyManager keyManager;
 	
 	protected final IAuthenticationManager authManager;
@@ -47,6 +51,7 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 			expireAfterAccess(15, TimeUnit.MINUTES).
 			maximumSize(100)
 			.build(new CacheLoader<String, List<PublicKey>>() {
+				@Override
 				public List<PublicKey> load(String username) {
 					return keyManager.getKeys(username);
 				}
@@ -60,43 +65,42 @@ public class SshKeyAuthenticator implements PublickeyAuthenticator {
 	@Override
 	public boolean authenticate(String username, final PublicKey suppliedKey,
 			final ServerSession session) {
-		final SshSession sd = session.getAttribute(SshSession.KEY);
+		final SshSession client = session.getAttribute(SshSession.KEY);
+
+		if (client.getRemoteUser() != null) {
+			// TODO why do we re-authenticate?
+			log.info("{} has already authenticated!", username);
+			return true;
+		}
 
 		username = username.toLowerCase(Locale.US);
 		try {
 			List<PublicKey> keys = sshKeyCache.get(username);
 			if (keys == null || keys.isEmpty()) {
-				sd.authenticationError(username, "no-matching-key");
+				log.info("{} has not added any public keys for ssh authentication", username);
 				return false;
 			}
+
 			for (PublicKey key : keys) {
 				if (key.equals(suppliedKey)) {
-					return validate(username, sd);
+					UserModel user = authManager.authenticate(username, key);
+					if (user != null) {
+						client.authenticationSuccess(username);
+						return true;
+					}
 				}
 			}
-			return false;
 		} catch (ExecutionException e) {
-			sd.authenticationError(username, "user-not-found");
-			return false;
 		}
-	}
 
-	boolean validate(String username, SshSession sd) {
-		// now that the key has been validated, check with the authentication
-		// manager to ensure that this user exists and can authenticate
-		sd.authenticationSuccess(username);
-		UserModel user = authManager.authenticate(sd);
-		if (user != null) {
-			return true;
-		}
-		sd.authenticationError(username, "user-not-found");
+		log.warn("could not authenticate {} for SSH using the supplied public key", username);
 		return false;
 	}
 
 	public IKeyManager getKeyManager() {
 		return keyManager;
 	}
-	
+
 	public Cache<String, List<PublicKey>> getKeyCache() {
 		return sshKeyCache;
 	}
