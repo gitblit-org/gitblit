@@ -142,9 +142,9 @@ public class SshDaemon {
 		root.registerDispatcher("gitblit", gitblitCmd);
 		root.registerDispatcher("git", gitCmd);
 
-		root.setRepositoryResolver(new RepositoryResolver<SshSession>(gitblit));
-		root.setUploadPackFactory(new GitblitUploadPackFactory<SshSession>(gitblit));
-		root.setReceivePackFactory(new GitblitReceivePackFactory<SshSession>(gitblit));
+		root.setRepositoryResolver(new RepositoryResolver<SshDaemonClient>(gitblit));
+		root.setUploadPackFactory(new GitblitUploadPackFactory<SshDaemonClient>(gitblit));
+		root.setReceivePackFactory(new GitblitReceivePackFactory<SshDaemonClient>(gitblit));
 		root.setAuthenticator(publickeyAuthenticator);
 
 		SshCommandFactory commandFactory = new SshCommandFactory(

@@ -25,7 +25,7 @@ public class Upload extends AbstractGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
 		try {
-			UploadPack up = uploadPackFactory.create(ctx.getSession(), repo);
+			UploadPack up = uploadPackFactory.create(ctx.getClient(), repo);
 			up.upload(in, out, null);
 		} catch (Exception e) {
 			throw new Failure(1, "fatal: Cannot upload pack: ", e);
