@@ -34,22 +34,9 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.git.GitblitReceivePackFactory;
-import com.gitblit.git.GitblitUploadPackFactory;
-import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
-import com.gitblit.transport.ssh.commands.AddKeyCommand;
-import com.gitblit.transport.ssh.commands.CreateRepository;
-import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.Receive;
-import com.gitblit.transport.ssh.commands.RemoveKeyCommand;
-import com.gitblit.transport.ssh.commands.ReviewCommand;
-import com.gitblit.transport.ssh.commands.SetAccountCommand;
-import com.gitblit.transport.ssh.commands.Upload;
-import com.gitblit.transport.ssh.commands.VersionCommand;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.utils.WorkQueue;
 
 import dagger.Module;
 import dagger.ObjectGraph;
@@ -117,45 +104,19 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
-		PublicKeyAuthenticator publickeyAuthenticator = new PublicKeyAuthenticator(
-				keyManager, gitblit);
+		PublicKeyAuthenticator keyAuthenticator = new PublicKeyAuthenticator(keyManager, gitblit);
+
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
 		sshd.setHost(addr.getHostName());
 		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(new File(
 				gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
-		sshd.setPublickeyAuthenticator(publickeyAuthenticator);
+		sshd.setPublickeyAuthenticator(keyAuthenticator);
 		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
-
-		DispatchCommand gitblitCmd = new DispatchCommand();
-		gitblitCmd.registerCommand(CreateRepository.class);
-		gitblitCmd.registerCommand(VersionCommand.class);
-		gitblitCmd.registerCommand(AddKeyCommand.class);
-		gitblitCmd.registerCommand(RemoveKeyCommand.class);
-		gitblitCmd.registerCommand(SetAccountCommand.class);
-		gitblitCmd.registerCommand(ReviewCommand.class);
-
-		DispatchCommand gitCmd = new DispatchCommand();
-		gitCmd.registerCommand(Upload.class);
-		gitCmd.registerCommand(Receive.class);
-
-		DispatchCommand root = new DispatchCommand();
-		root.registerDispatcher("gitblit", gitblitCmd);
-		root.registerDispatcher("git", gitCmd);
-
-		root.setRepositoryResolver(new RepositoryResolver<SshDaemonClient>(gitblit));
-		root.setUploadPackFactory(new GitblitUploadPackFactory<SshDaemonClient>(gitblit));
-		root.setReceivePackFactory(new GitblitReceivePackFactory<SshDaemonClient>(gitblit));
-		root.setAuthenticator(publickeyAuthenticator);
-
-		SshCommandFactory commandFactory = new SshCommandFactory(
-				new WorkQueue(idGenerator),
-				root);
-
-		sshd.setCommandFactory(commandFactory);
+		sshd.setCommandFactory(new SshCommandFactory(gitblit, keyAuthenticator, idGenerator));
 
 		run = new AtomicBoolean(false);
 	}
