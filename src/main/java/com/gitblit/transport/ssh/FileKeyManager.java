@@ -147,7 +147,7 @@ public class FileKeyManager implements IKeyManager {
 	}
 
 	@Override
-	public boolean removeAllKey(String username) {
+	public boolean removeAllKeys(String username) {
 		return FileUtils.delete(getKeystore(username));
 	}
 
