@@ -126,7 +126,7 @@ public class SshDaemon {
 				gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
 		sshd.setPublickeyAuthenticator(publickeyAuthenticator);
 		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
-		sshd.setSessionFactory(new SshSessionFactory());
+		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
 
