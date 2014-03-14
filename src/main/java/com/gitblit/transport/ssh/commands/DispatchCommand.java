@@ -198,8 +198,8 @@ public class DispatchCommand extends BaseCommand {
   }
 
   private void provideGitState(Command cmd) {
-	  if (cmd instanceof AbstractGitCommand) {
-		AbstractGitCommand a = (AbstractGitCommand) cmd;
+	  if (cmd instanceof BaseGitCommand) {
+		BaseGitCommand a = (BaseGitCommand) cmd;
 		a.setRepositoryResolver(repositoryResolver);
 		a.setUploadPackFactory(gitblitUploadPackFactory);
 		a.setReceivePackFactory(gitblitReceivePackFactory);

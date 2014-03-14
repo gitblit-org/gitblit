@@ -32,7 +32,7 @@ import com.gitblit.transport.ssh.SshDaemonClient;
  * @author Eric Myhre
  *
  */
-public abstract class AbstractGitCommand extends BaseCommand {
+public abstract class BaseGitCommand extends BaseCommand {
 	@Argument(index = 0, metaVar = "REPOSITORY", required = true, usage = "repository name")
 	protected String repository;
 
@@ -48,7 +48,7 @@ public abstract class AbstractGitCommand extends BaseCommand {
 			@Override
 			public void run() throws Exception {
 				parseCommandLine();
-				AbstractGitCommand.this.service();
+				BaseGitCommand.this.service();
 			}
 
 			@Override
