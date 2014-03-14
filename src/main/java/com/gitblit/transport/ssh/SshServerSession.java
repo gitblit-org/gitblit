@@ -22,10 +22,9 @@ import org.apache.sshd.server.ServerFactoryManager;
 import org.apache.sshd.server.session.ServerSession;
 
 // Expose addition of close session listeners
-class GitblitServerSession extends ServerSession {
+class SshServerSession extends ServerSession {
 
-	GitblitServerSession(ServerFactoryManager server, IoSession ioSession)
-			throws Exception {
+	SshServerSession(ServerFactoryManager server, IoSession ioSession) throws Exception {
 		super(server, ioSession);
 	}
 
