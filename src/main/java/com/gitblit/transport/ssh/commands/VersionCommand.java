@@ -16,20 +16,14 @@
 
 package com.gitblit.transport.ssh.commands;
 
-import org.kohsuke.args4j.Option;
-
 import com.gitblit.Constants;
 import com.gitblit.transport.ssh.CommandMetaData;
 
-@CommandMetaData(name="version", description = "Print Gitblit version")
+@CommandMetaData(name="version", description = "Display the Gitblit version")
 public class VersionCommand extends SshCommand {
-
-  @Option(name = "--verbose", aliases = {"-v"},  metaVar = "VERBOSE", usage = "Print verbose versions")
-  private boolean verbose;
 
   @Override
   public void run() {
-	  stdout.println(String.format("Version: %s", Constants.getGitBlitVersion(),
-        verbose));
+	  stdout.println(Constants.getGitBlitVersion());
   }
 }
