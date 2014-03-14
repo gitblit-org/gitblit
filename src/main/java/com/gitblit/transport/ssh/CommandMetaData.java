@@ -28,4 +28,5 @@ import java.lang.annotation.Target;
 public @interface CommandMetaData {
 String name();
 String description() default "";
+boolean hidden() default false;
 }

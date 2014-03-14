@@ -160,9 +160,12 @@ public class DispatchCommand extends BaseCommand {
     String format = "%-" + maxLength + "s   %s";
     for (String name : Sets.newTreeSet(m.keySet())) {
       final Class<? extends Command> c = m.get(name);
-      usage.append("   ");
       CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
       if (meta != null) {
+        if (meta.hidden()) {
+        	continue;
+        }
+        usage.append("   ");
         usage.append(String.format(format, name,
             Strings.nullToEmpty(meta.description())));
       }
