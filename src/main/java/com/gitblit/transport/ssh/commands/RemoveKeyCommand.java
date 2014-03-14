@@ -57,6 +57,5 @@ public class RemoveKeyCommand extends BaseKeyCommand {
 				log.info("removed SSH public key from {}", username);
 			}
 		}
-		authenticator.getKeyCache().invalidate(username);
 	}
 }

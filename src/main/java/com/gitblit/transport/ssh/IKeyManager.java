@@ -16,26 +16,63 @@
 package com.gitblit.transport.ssh;
 
 import java.security.PublicKey;
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
- * 
+ *
  * @author James Moger
  *
  */
-public interface IKeyManager {
+public abstract class IKeyManager {
 
-	IKeyManager start();
-	
-	boolean isReady();
-	
-	IKeyManager stop();
-	
-	List<PublicKey> getKeys(String username);
-	
-	boolean addKey(String username, String data);
-	
-	boolean removeKey(String username, String data);
+	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	boolean removeAllKeys(String username);
+	protected final LoadingCache<String, List<PublicKey>> keyCache = CacheBuilder
+			.newBuilder().
+			expireAfterAccess(15, TimeUnit.MINUTES).
+			maximumSize(100)
+			.build(new CacheLoader<String, List<PublicKey>>() {
+				@Override
+				public List<PublicKey> load(String username) {
+					return getKeysImpl(username);
+				}
+			});
+
+	public abstract IKeyManager start();
+
+	public abstract boolean isReady();
+
+	public abstract IKeyManager stop();
+
+	public final List<PublicKey> getKeys(String username) {
+		try {
+			if (isStale(username)) {
+				keyCache.invalidate(username);
+			}
+			return keyCache.get(username);
+		} catch (ExecutionException e) {
+			log.error(MessageFormat.format("failed to retrieve keys for {0}", username), e);
+		}
+		return null;
+	}
+
+	protected abstract boolean isStale(String username);
+
+	protected abstract List<PublicKey> getKeysImpl(String username);
+
+	public abstract boolean addKey(String username, String data);
+
+	public abstract boolean removeKey(String username, String data);
+
+	public abstract boolean removeAllKeys(String username);
 }

@@ -21,6 +21,8 @@ import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.sshd.common.util.Buffer;
@@ -38,12 +40,15 @@ import com.google.common.io.Files;
  * @author James Moger
  *
  */
-public class FileKeyManager implements IKeyManager {
+public class FileKeyManager extends IKeyManager {
 
 	protected final IRuntimeManager runtimeManager;
 
+	protected final Map<File, Long> lastModifieds;
+
 	public FileKeyManager(IRuntimeManager runtimeManager) {
 		this.runtimeManager = runtimeManager;
+		this.lastModifieds = new ConcurrentHashMap<File, Long>();
 	}
 
 	@Override
@@ -68,15 +73,34 @@ public class FileKeyManager implements IKeyManager {
 	}
 
 	@Override
-	public List<PublicKey> getKeys(String username) {
+	protected boolean isStale(String username) {
+		File keystore = getKeystore(username);
+		if (!keystore.exists()) {
+			// keystore may have been deleted
+			return true;
+		}
+
+		if (lastModifieds.containsKey(keystore)) {
+			// compare modification times
+			long lastModified = lastModifieds.get(keystore);
+			return lastModified != keystore.lastModified();
+		}
+
+		// assume stale
+		return true;
+	}
+
+	@Override
+	protected List<PublicKey> getKeysImpl(String username) {
 		try {
-			File keys = getKeystore(username);
-			if (!keys.exists()) {
+			log.info("loading keystore for {}", username);
+			File keystore = getKeystore(username);
+			if (!keystore.exists()) {
 				return null;
 			}
-			if (keys.exists()) {
+			if (keystore.exists()) {
 				List<PublicKey> list = new ArrayList<PublicKey>();
-				for (String entry : Files.readLines(keys, Charsets.ISO_8859_1)) {
+				for (String entry : Files.readLines(keystore, Charsets.ISO_8859_1)) {
 					if (entry.trim().length() == 0) {
 						// skip blanks
 						continue;
@@ -93,6 +117,8 @@ public class FileKeyManager implements IKeyManager {
 				if (list.isEmpty()) {
 					return null;
 				}
+
+				lastModifieds.put(keystore, keystore.lastModified());
 				return list;
 			}
 		} catch (IOException e) {
@@ -140,6 +166,9 @@ public class FileKeyManager implements IKeyManager {
 			// write keystore
 			String content = Joiner.on("\n").join(lines).trim().concat("\n");
 			Files.write(content, keystore, Charsets.ISO_8859_1);
+
+			lastModifieds.remove(keystore);
+			keyCache.invalidate(username);
 			return true;
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot add ssh key", e);
@@ -183,6 +212,9 @@ public class FileKeyManager implements IKeyManager {
 					String content = Joiner.on("\n").join(lines).trim().concat("\n");
 					Files.write(content, keystore, Charsets.ISO_8859_1);
 				}
+
+				lastModifieds.remove(keystore);
+				keyCache.invalidate(username);
 				return true;
 			}
 		} catch (IOException e) {
@@ -193,7 +225,13 @@ public class FileKeyManager implements IKeyManager {
 
 	@Override
 	public boolean removeAllKeys(String username) {
-		return getKeystore(username).delete();
+		File keystore = getKeystore(username);
+		if (keystore.delete()) {
+			lastModifieds.remove(keystore);
+			keyCache.invalidate(username);
+			return true;
+		}
+		return false;
 	}
 
 	protected File getKeystore(String username) {

@@ -20,15 +20,15 @@ import java.util.List;
 
 /**
  * Rejects all SSH key management requests.
- * 
+ *
  * @author James Moger
  *
  */
-public class NullKeyManager implements IKeyManager {
+public class NullKeyManager extends IKeyManager {
 
 	public NullKeyManager() {
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();
@@ -38,19 +38,24 @@ public class NullKeyManager implements IKeyManager {
 	public NullKeyManager start() {
 		return this;
 	}
-	
+
 	@Override
 	public boolean isReady() {
 		return true;
 	}
-	
+
 	@Override
 	public NullKeyManager stop() {
 		return this;
 	}
 
 	@Override
-	public List<PublicKey> getKeys(String username) {
+	protected boolean isStale(String username) {
+		return false;
+	}
+
+	@Override
+	protected List<PublicKey> getKeysImpl(String username) {
 		return null;
 	}
 
@@ -58,7 +63,7 @@ public class NullKeyManager implements IKeyManager {
 	public boolean addKey(String username, String data) {
 		return false;
 	}
-	
+
 	@Override
 	public boolean removeKey(String username, String data) {
 		return false;
