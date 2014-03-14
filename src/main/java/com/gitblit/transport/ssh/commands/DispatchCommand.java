@@ -198,9 +198,9 @@ public class DispatchCommand extends BaseCommand {
 		d.setUploadPackFactory(gitblitUploadPackFactory);
 		d.setReceivePackFactory(gitblitReceivePackFactory);
 		d.setAuthenticator(authenticator);
-	  } else if (cmd instanceof SetAccountCommand) {
-		  SetAccountCommand setAccountCommand = (SetAccountCommand)cmd;
-		  setAccountCommand.setAuthenticator(authenticator);
+	  } else if (cmd instanceof BaseKeyCommand) {
+		  BaseKeyCommand k = (BaseKeyCommand)cmd;
+		  k.setAuthenticator(authenticator);
 	  }
   }
 

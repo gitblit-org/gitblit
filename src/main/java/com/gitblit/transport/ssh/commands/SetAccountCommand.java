@@ -14,10 +14,7 @@
 
 package com.gitblit.transport.ssh.commands;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,12 +24,10 @@ import org.kohsuke.args4j.Option;
 
 import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.transport.ssh.IKeyManager;
-import com.gitblit.transport.ssh.SshKeyAuthenticator;
-import com.google.common.base.Charsets;
 
 /** Set a user's account settings. **/
 @CommandMetaData(name = "set-account", description = "Change an account's settings")
-public class SetAccountCommand extends SshCommand {
+public class SetAccountCommand extends BaseKeyCommand {
 
 	private static final String ALL = "ALL";
 
@@ -61,12 +56,12 @@ public class SetAccountCommand extends SshCommand {
 	}
 
 	private void setAccount() throws IOException, UnloggedFailure {
-		addSshKeys = readSshKey(addSshKeys);
+		addSshKeys = readKeys(addSshKeys);
 		if (!addSshKeys.isEmpty()) {
 			addSshKeys(addSshKeys);
 		}
 
-		deleteSshKeys = readSshKey(deleteSshKeys);
+		deleteSshKeys = readKeys(deleteSshKeys);
 		if (!deleteSshKeys.isEmpty()) {
 			deleteSshKeys(deleteSshKeys);
 		}
@@ -90,29 +85,5 @@ public class SetAccountCommand extends SshCommand {
 				keyManager.removeKey(user, sshKey);
 			}
 		}
-	}
-
-	private List<String> readSshKey(List<String> sshKeys)
-			throws UnsupportedEncodingException, IOException {
-		if (!sshKeys.isEmpty()) {
-			String sshKey;
-			int idx = sshKeys.indexOf("-");
-			if (idx >= 0) {
-				sshKey = "";
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						in, Charsets.UTF_8));
-				String line;
-				while ((line = br.readLine()) != null) {
-					sshKey += line + "\n";
-				}
-				sshKeys.set(idx, sshKey);
-			}
-		}
-		return sshKeys;
-	}
-
-	private SshKeyAuthenticator authenticator;
-	public void setAuthenticator(SshKeyAuthenticator authenticator) {
-		this.authenticator = authenticator;
 	}
 }
