@@ -17,7 +17,6 @@ package com.gitblit.transport.ssh.commands;
 
 import org.eclipse.jgit.transport.UploadPack;
 
-import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
 
 @CommandMetaData(name = "git-upload-pack", description = "Upload pack")
