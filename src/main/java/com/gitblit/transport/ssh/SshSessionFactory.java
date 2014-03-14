@@ -27,8 +27,6 @@ import org.apache.sshd.server.session.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.utils.IdGenerator;
-
 
 /**
  *
@@ -39,10 +37,7 @@ public class SshSessionFactory extends SessionFactory {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IdGenerator idGenerator;
-
-	public SshSessionFactory(IdGenerator idGenerator) {
-		this.idGenerator = idGenerator;
+	public SshSessionFactory() {
 	}
 
 	@Override
