@@ -120,16 +120,6 @@ public abstract class BaseCommand implements Command, SessionAware {
 		this.exit = callback;
 	}
 
-	protected void provideBaseStateTo(final Command cmd) {
-		if (cmd instanceof BaseCommand) {
-			((BaseCommand) cmd).setContext(ctx);
-		}
-		cmd.setInputStream(in);
-		cmd.setOutputStream(out);
-		cmd.setErrorStream(err);
-		cmd.setExitCallback(exit);
-	}
-
 	protected String getName() {
 		return commandName;
 	}
