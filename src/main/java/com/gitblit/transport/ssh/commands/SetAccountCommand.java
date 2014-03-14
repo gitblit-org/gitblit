@@ -84,7 +84,7 @@ public class SetAccountCommand extends SshCommand {
 	private void deleteSshKeys(List<String> sshKeys) {
 		IKeyManager keyManager = authenticator.getKeyManager();
 		if (sshKeys.contains(ALL)) {
-			keyManager.removeAllKey(user);
+			keyManager.removeAllKeys(user);
 		} else {
 			for (String sshKey : sshKeys) {
 				keyManager.removeKey(user, sshKey);
