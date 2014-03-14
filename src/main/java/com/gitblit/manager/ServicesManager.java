@@ -244,29 +244,11 @@ public class ServicesManager implements IManager {
 		return null;
 	}
 
-	public AccessPermission getSshDaemonAccessPermission(UserModel user, RepositoryModel repository) {
-		if (sshDaemon != null && user.canClone(repository)) {
-			AccessPermission sshDaemonPermission = user.getRepositoryPermission(repository).permission;
-			if (sshDaemonPermission.atLeast(AccessPermission.CLONE)) {
-				if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
-					// can not authenticate clone via anonymous ssh protocol
-					sshDaemonPermission = AccessPermission.NONE;
-				} else if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
-					// can not authenticate push via anonymous ssh protocol
-					sshDaemonPermission = AccessPermission.CLONE;
-				} else {
-					// normal user permission
-				}
-			}
-			return sshDaemonPermission;
-		}
-		return AccessPermission.NONE;
-	}
-	
+
 	/**
 	 * Extract the hostname from the canonical url or return the
 	 * hostname from the servlet request.
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */

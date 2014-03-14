@@ -133,7 +133,7 @@ public class GitBlit extends GitblitManager {
 		// ssh daemon url
 		String sshDaemonUrl = servicesManager.getSshDaemonUrl(request, user, repository);
 		if (!StringUtils.isEmpty(sshDaemonUrl)) {
-			AccessPermission permission = servicesManager.getSshDaemonAccessPermission(user, repository);
+			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
 				list.add(new RepositoryUrl(sshDaemonUrl, permission));
 			}
