@@ -93,6 +93,12 @@ public class DispatchCommand extends BaseCommand {
       }
 
       Command cmd = getCommand();
+      if (cmd.getClass().isAnnotationPresent(CommandMetaData.class)) {
+    	  CommandMetaData meta = cmd.getClass().getAnnotation(CommandMetaData.class);
+    	  if (meta.admin() && !ctx.getClient().getUser().canAdmin()) {
+    		  throw new UnloggedFailure(1, MessageFormat.format("{0} requires admin permissions", commandName));
+    	  }
+      }
       if (cmd instanceof BaseCommand) {
         BaseCommand bc = (BaseCommand) cmd;
         if (getName().isEmpty()) {
@@ -162,6 +168,9 @@ public class DispatchCommand extends BaseCommand {
       final Class<? extends Command> c = m.get(name);
       CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
       if (meta != null) {
+        if (meta.admin() && !ctx.getClient().getUser().canAdmin()) {
+      	  continue;
+        }
         if (meta.hidden()) {
         	continue;
         }
