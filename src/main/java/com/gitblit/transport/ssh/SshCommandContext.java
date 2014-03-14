@@ -15,12 +15,12 @@
  */
 package com.gitblit.transport.ssh;
 
-public class SshContext {
+public class SshCommandContext {
 
 	private final SshDaemonClient client;
 	private final String commandLine;
 
-	public SshContext(SshDaemonClient client, String commandLine) {
+	public SshCommandContext(SshDaemonClient client, String commandLine) {
 		this.client = client;
 		this.commandLine = commandLine;
 	}
