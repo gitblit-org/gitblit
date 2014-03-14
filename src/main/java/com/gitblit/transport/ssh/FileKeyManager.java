@@ -28,40 +28,40 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Keys;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.utils.FileUtils;
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 /**
  * Manages SSH keys on the filesystem.
- * 
+ *
  * @author James Moger
  *
  */
 public class FileKeyManager implements IKeyManager {
 
 	protected final IRuntimeManager runtimeManager;
-	
+
 	public FileKeyManager(IRuntimeManager runtimeManager) {
 		this.runtimeManager = runtimeManager;
 	}
-	
+
 	@Override
 	public String toString() {
 		File dir = runtimeManager.getFileOrFolder(Keys.git.sshKeysFolder, "${baseFolder}/ssh");
 		return MessageFormat.format("{0} ({1})", getClass().getSimpleName(), dir);
 	}
-	
+
 	@Override
 	public FileKeyManager start() {
 		return this;
 	}
-	
+
 	@Override
 	public boolean isReady() {
 		return true;
 	}
-	
+
 	@Override
 	public FileKeyManager stop() {
 		return this;
@@ -75,10 +75,8 @@ public class FileKeyManager implements IKeyManager {
 				return null;
 			}
 			if (keys.exists()) {
-				String str = Files.toString(keys, Charsets.ISO_8859_1);
-				String [] entries = str.split("\n");
 				List<PublicKey> list = new ArrayList<PublicKey>();
-				for (String entry : entries) {
+				for (String entry : Files.readLines(keys, Charsets.ISO_8859_1)) {
 					if (entry.trim().length() == 0) {
 						// skip blanks
 						continue;
@@ -91,7 +89,7 @@ public class FileKeyManager implements IKeyManager {
 					final byte[] bin = Base64.decodeBase64(Constants.encodeASCII(parts[1]));
 					list.add(new Buffer(bin).getRawPublicKey());
 				}
-				
+
 				if (list.isEmpty()) {
 					return null;
 				}
@@ -103,40 +101,87 @@ public class FileKeyManager implements IKeyManager {
 		return null;
 	}
 
+	/**
+	 * Adds a unique key to the keystore.  This function determines uniqueness
+	 * by disregarding the comment/description field during key comparisons.
+	 */
 	@Override
 	public boolean addKey(String username, String data) {
 		try {
-			File keys = getKeystore(username);
-			Files.append(data + '\n', keys, Charsets.ISO_8859_1);
+			String newKey = stripCommentFromKey(data);
+
+			List<String> lines = new ArrayList<String>();
+			File keystore = getKeystore(username);
+			if (keystore.exists()) {
+				for (String entry : Files.readLines(keystore, Charsets.ISO_8859_1)) {
+					String line = entry.trim();
+					if (line.length() == 0) {
+						// keep blanks
+						lines.add(entry);
+						continue;
+					}
+					if (line.charAt(0) == '#') {
+						// keep comments
+						lines.add(entry);
+						continue;
+					}
+
+					// only add keys that do not match the new key
+					String oldKey = stripCommentFromKey(line);
+					if (!newKey.equals(oldKey)) {
+						lines.add(entry);
+					}
+				}
+			}
+
+			// add new key
+			lines.add(data);
+
+			// write keystore
+			String content = Joiner.on("\n").join(lines).trim().concat("\n");
+			Files.write(content, keystore, Charsets.ISO_8859_1);
 			return true;
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot add ssh key", e);
 		}
 	}
-	
+
+	/**
+	 * Removes a key from the keystore.
+	 */
 	@Override
 	public boolean removeKey(String username, String data) {
 		try {
+			String rmKey = stripCommentFromKey(data);
+
 			File keystore = getKeystore(username);
 			if (keystore.exists()) {
-				String str = Files.toString(keystore, Charsets.ISO_8859_1);
-				List<String> keep = new ArrayList<String>();
-				String [] entries = str.split("\n");
-				for (String entry : entries) {
-					if (entry.trim().length() == 0) {
+				List<String> lines = new ArrayList<String>();
+				for (String entry : Files.readLines(keystore, Charsets.ISO_8859_1)) {
+					String line = entry.trim();
+					if (line.length() == 0) {
 						// keep blanks
-						keep.add(entry);
+						lines.add(entry);
 						continue;
 					}
-					if (entry.charAt(0) == '#') {
+					if (line.charAt(0) == '#') {
 						// keep comments
-						keep.add(entry);
+						lines.add(entry);
 						continue;
 					}
-					final String[] parts = entry.split(" ");
-					if (!parts[1].equals(data)) {
-						keep.add(entry);
+
+					// only include keys that are NOT rmKey
+					String oldKey = stripCommentFromKey(line);
+					if (!rmKey.equals(oldKey)) {
+						lines.add(entry);
 					}
+				}
+				if (lines.isEmpty()) {
+					keystore.delete();
+				} else {
+					// write keystore
+					String content = Joiner.on("\n").join(lines).trim().concat("\n");
+					Files.write(content, keystore, Charsets.ISO_8859_1);
 				}
 				return true;
 			}
@@ -148,7 +193,7 @@ public class FileKeyManager implements IKeyManager {
 
 	@Override
 	public boolean removeAllKeys(String username) {
-		return FileUtils.delete(getKeystore(username));
+		return getKeystore(username).delete();
 	}
 
 	protected File getKeystore(String username) {
@@ -156,5 +201,12 @@ public class FileKeyManager implements IKeyManager {
 		dir.mkdirs();
 		File keys = new File(dir, username + ".keys");
 		return keys;
+	}
+
+	/* Strips the comment from the key data and eliminates whitespace diffs */
+	protected String stripCommentFromKey(String data) {
+		String [] cols = data.split(" ");
+		String key = Joiner.on(" ").join(cols[0], cols[1]);
+		return key;
 	}
 }
