@@ -30,7 +30,6 @@ import org.kohsuke.args4j.Argument;
 import com.gitblit.git.GitblitReceivePackFactory;
 import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
-import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.transport.ssh.PublicKeyAuthenticator;
 import com.gitblit.transport.ssh.SshDaemonClient;
