@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +64,6 @@ import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
-import com.gitblit.transport.ssh.SshSession;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
@@ -622,12 +622,12 @@ public class GitblitManager implements IGitblit {
 		}
 		return user;
 	}
-	
+
 	@Override
-	public UserModel authenticate(SshSession sshSession) {
-		return authenticationManager.authenticate(sshSession);
+	public UserModel authenticate(String username, PublicKey key) {
+		return authenticationManager.authenticate(username, key);
 	}
-	
+
 	@Override
 	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {
 		UserModel user = authenticationManager.authenticate(httpRequest, requiresCertificate);
