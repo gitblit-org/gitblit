@@ -117,7 +117,7 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
-		SshKeyAuthenticator publickeyAuthenticator = new SshKeyAuthenticator(
+		PublicKeyAuthenticator publickeyAuthenticator = new PublicKeyAuthenticator(
 				keyManager, gitblit);
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
@@ -125,7 +125,7 @@ public class SshDaemon {
 		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(new File(
 				gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
 		sshd.setPublickeyAuthenticator(publickeyAuthenticator);
-		sshd.setPasswordAuthenticator(new SshPasswordAuthenticator(gitblit));
+		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
