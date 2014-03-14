@@ -26,7 +26,7 @@ import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.transport.ssh.IKeyManager;
 
 /** Set a user's account settings. **/
-@CommandMetaData(name = "set-account", description = "Change an account's settings")
+@CommandMetaData(name = "set-account", description = "Change an account's settings", admin = true)
 public class SetAccountCommand extends BaseKeyCommand {
 
 	private static final String ALL = "ALL";
