@@ -20,7 +20,7 @@ import org.kohsuke.args4j.Option;
 
 import com.gitblit.transport.ssh.CommandMetaData;
 
-@CommandMetaData(name = "create-repository", description = "Create new GIT repository", hidden = true)
+@CommandMetaData(name = "create-repository", description = "Create new GIT repository", admin = true, hidden = true)
 public class CreateRepository extends SshCommand {
 
   @Option(name = "--name", aliases = {"-n"}, required = true, metaVar = "NAME", usage = "name of repository to be created")
