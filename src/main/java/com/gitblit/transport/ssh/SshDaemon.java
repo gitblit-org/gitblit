@@ -24,11 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Singleton;
 
 import org.apache.sshd.SshServer;
-import org.apache.sshd.common.io.IoServiceFactory;
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
-import org.apache.sshd.common.io.mina.MinaServiceFactory;
 import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
-import org.apache.sshd.common.io.nio2.Nio2ServiceFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.server.keyprovider.PEMGeneratorHostKeyProvider;
 import org.eclipse.jgit.internal.JGitText;
@@ -187,9 +184,12 @@ public class SshDaemon {
 		sshd.start();
 		run.set(true);
 
+		String sshBackendStr = gitblit.getSettings().getString(Keys.git.sshBackend,
+				SshSessionBackend.NIO2.name());
+
 		log.info(MessageFormat.format(
-				"SSH Daemon is listening on {0}:{1,number,0}",
-				sshd.getHost(), sshd.getPort()));
+				"SSH Daemon ({0}) is listening on {1}:{2,number,0}",
+				sshBackendStr, sshd.getHost(), sshd.getPort()));
 	}
 
 	/** @return true if this daemon is receiving connections. */
