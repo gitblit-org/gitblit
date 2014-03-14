@@ -27,33 +27,29 @@ import org.apache.sshd.server.session.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  *
  * @author James Moger
  *
  */
-public class SshSessionFactory extends SessionFactory {
+public class SshServerSessionFactory extends SessionFactory {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	public SshSessionFactory() {
+	public SshServerSessionFactory() {
 	}
 
 	@Override
-	protected AbstractSession createSession(final IoSession io)
-			throws Exception {
+	protected AbstractSession createSession(final IoSession io) throws Exception {
 		log.info("connection accepted on " + io);
 
 		if (io instanceof MinaSession) {
 			if (((MinaSession) io).getSession().getConfig() instanceof SocketSessionConfig) {
-				((SocketSessionConfig) ((MinaSession) io).getSession()
-						.getConfig()).setKeepAlive(true);
+				((SocketSessionConfig) ((MinaSession) io).getSession().getConfig()).setKeepAlive(true);
 			}
 		}
 
-		final GitblitServerSession session = (GitblitServerSession) super
-				.createSession(io);
+		final SshServerSession session = (SshServerSession) super.createSession(io);
 		SocketAddress peer = io.getRemoteAddress();
 		SshDaemonClient client = new SshDaemonClient(peer);
 		session.setAttribute(SshDaemonClient.KEY, client);
@@ -70,8 +66,7 @@ public class SshSessionFactory extends SessionFactory {
 	}
 
 	@Override
-	protected AbstractSession doCreateSession(IoSession ioSession)
-			throws Exception {
-		return new GitblitServerSession(server, ioSession);
+	protected AbstractSession doCreateSession(IoSession ioSession) throws Exception {
+		return new SshServerSession(server, ioSession);
 	}
 }
