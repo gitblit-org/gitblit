@@ -37,5 +37,5 @@ public interface IKeyManager {
 	
 	boolean removeKey(String username, String data);
 
-	boolean removeAllKey(String username);
+	boolean removeAllKeys(String username);
 }
