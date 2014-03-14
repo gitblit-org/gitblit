@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import com.gitblit.transport.ssh.SshKeyAuthenticator;
+import com.gitblit.transport.ssh.PublicKeyAuthenticator;
 import com.google.common.base.Charsets;
 
 /**
@@ -51,8 +51,8 @@ public abstract class BaseKeyCommand extends SshCommand {
 		return sshKeys;
 	}
 
-	protected SshKeyAuthenticator authenticator;
-	public void setAuthenticator(SshKeyAuthenticator authenticator) {
+	protected PublicKeyAuthenticator authenticator;
+	public void setAuthenticator(PublicKeyAuthenticator authenticator) {
 		this.authenticator = authenticator;
 	}
 }
