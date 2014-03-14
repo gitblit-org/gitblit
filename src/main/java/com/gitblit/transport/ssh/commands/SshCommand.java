@@ -20,26 +20,26 @@ import java.io.PrintWriter;
 import org.apache.sshd.server.Environment;
 
 public abstract class SshCommand extends BaseCommand {
-  protected PrintWriter stdout;
-  protected PrintWriter stderr;
+	protected PrintWriter stdout;
+	protected PrintWriter stderr;
 
-  @Override
-  public void start(Environment env) throws IOException {
-    startThread(new CommandRunnable() {
-      @Override
-      public void run() throws Exception {
-        parseCommandLine();
-        stdout = toPrintWriter(out);
-        stderr = toPrintWriter(err);
-        try {
-          SshCommand.this.run();
-        } finally {
-          stdout.flush();
-          stderr.flush();
-        }
-      }
-    });
-  }
+	@Override
+	public void start(Environment env) throws IOException {
+		startThread(new CommandRunnable() {
+			@Override
+			public void run() throws Exception {
+				parseCommandLine();
+				stdout = toPrintWriter(out);
+				stderr = toPrintWriter(err);
+				try {
+					SshCommand.this.run();
+				} finally {
+					stdout.flush();
+					stderr.flush();
+				}
+			}
+		});
+	}
 
-  protected abstract void run() throws UnloggedFailure, Failure, Exception;
+	protected abstract void run() throws UnloggedFailure, Failure, Exception;
 }
