@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh;
+package com.gitblit.transport.ssh.commands;
 
 import java.io.IOException;
 
@@ -26,14 +26,14 @@ import org.kohsuke.args4j.Argument;
 import com.gitblit.git.GitblitReceivePackFactory;
 import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
-import com.gitblit.transport.ssh.commands.BaseCommand;
+import com.gitblit.transport.ssh.SshDaemonClient;
 
 /**
  * @author Eric Myhre
- * 
+ *
  */
 public abstract class AbstractGitCommand extends BaseCommand {
-	@Argument(index = 0, metaVar = "PROJECT.git", required = true, usage = "project name")
+	@Argument(index = 0, metaVar = "REPOSITORY", required = true, usage = "repository name")
 	protected String repository;
 
 	protected RepositoryResolver<SshDaemonClient> repositoryResolver;
@@ -79,30 +79,25 @@ public abstract class AbstractGitCommand extends BaseCommand {
 		// ssh://git@thishost/path should always be name="/path" here
 		//
 		if (!repository.startsWith("/")) {
-			throw new Failure(1, "fatal: '" + repository
-					+ "': not starts with / character");
+			throw new Failure(1, "fatal: '" + repository + "': not starts with / character");
 		}
 		repository = repository.substring(1);
 		try {
 			return repositoryResolver.open(ctx.getClient(), repository);
 		} catch (Exception e) {
-			throw new Failure(1, "fatal: '" + repository
-					+ "': not a git archive", e);
+			throw new Failure(1, "fatal: '" + repository + "': not a git archive", e);
 		}
 	}
 
-	public void setRepositoryResolver(
-			RepositoryResolver<SshDaemonClient> repositoryResolver) {
+	public void setRepositoryResolver(RepositoryResolver<SshDaemonClient> repositoryResolver) {
 		this.repositoryResolver = repositoryResolver;
 	}
 
-	public void setReceivePackFactory(
-			GitblitReceivePackFactory<SshDaemonClient> receivePackFactory) {
+	public void setReceivePackFactory(GitblitReceivePackFactory<SshDaemonClient> receivePackFactory) {
 		this.receivePackFactory = receivePackFactory;
 	}
 
-	public void setUploadPackFactory(
-			GitblitUploadPackFactory<SshDaemonClient> uploadPackFactory) {
+	public void setUploadPackFactory(GitblitUploadPackFactory<SshDaemonClient> uploadPackFactory) {
 		this.uploadPackFactory = uploadPackFactory;
 	}
 }

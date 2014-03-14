@@ -17,7 +17,6 @@ package com.gitblit.transport.ssh.commands;
 
 import org.eclipse.jgit.transport.ReceivePack;
 
-import com.gitblit.transport.ssh.AbstractGitCommand;
 import com.gitblit.transport.ssh.CommandMetaData;
 
 @CommandMetaData(name = "git-receive-pack", description = "Receive pack")
