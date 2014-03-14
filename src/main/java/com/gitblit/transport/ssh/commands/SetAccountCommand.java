@@ -65,7 +65,6 @@ public class SetAccountCommand extends BaseKeyCommand {
 		if (!deleteSshKeys.isEmpty()) {
 			deleteSshKeys(deleteSshKeys);
 		}
-		authenticator.getKeyCache().invalidate(user);
 	}
 
 	private void addSshKeys(List<String> sshKeys) throws UnloggedFailure,

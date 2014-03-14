@@ -49,6 +49,5 @@ public class AddKeyCommand extends BaseKeyCommand {
 			keyManager.addKey(username, key);
 			log.info("added SSH public key for {}", username);
 		}
-		authenticator.getKeyCache().invalidate(username);
 	}
 }
