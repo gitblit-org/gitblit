@@ -17,16 +17,16 @@ package com.gitblit.transport.ssh;
 
 public class SshContext {
 
-	private final SshSession session;
+	private final SshDaemonClient client;
 	private final String commandLine;
 
-	public SshContext(SshSession session, String commandLine) {
-		this.session = session;
+	public SshContext(SshDaemonClient client, String commandLine) {
+		this.client = client;
 		this.commandLine = commandLine;
 	}
 
-	public SshSession getSession() {
-		return session;
+	public SshDaemonClient getClient() {
+		return client;
 	}
 
 	public String getCommandLine() {
