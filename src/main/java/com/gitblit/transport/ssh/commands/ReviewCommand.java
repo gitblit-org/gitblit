@@ -28,7 +28,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.wicket.GitBlitWebSession;
 
-@CommandMetaData(name = "review", description = "Verify, approve and/or submit one or more patch sets")
+@CommandMetaData(name = "review", description = "Verify, approve and/or submit one or more patch sets", hidden = true)
 public class ReviewCommand extends SshCommand {
 
 	private final static short REV_ID_LEN = 40;
@@ -58,13 +58,14 @@ public class ReviewCommand extends SshCommand {
 	@Override
 	public void run() throws UnloggedFailure {
 		UserModel user = GitBlitWebSession.get().getUser();
-		for (Patchset ps : patchSets) {			
+		// TODO ensure user has permission to score +2/-2
+		for (Patchset ps : patchSets) {
 			// review
-			Change change = new Change(user.username);			
+			Change change = new Change(user.username);
 			change.review(ps, Score.fromScore(vote), false);
 			// TODO(davido): add patchset comment
 			if (submitChange) {
-				// TODO(davido): merge (when desired and the change is mergeable)				
+				// TODO(davido): merge (when desired and the change is mergeable)
 			}
 		}
 	}
