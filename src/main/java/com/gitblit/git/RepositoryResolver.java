@@ -104,11 +104,9 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 				user = UserModel.ANONYMOUS;
 			}
 		} else if (req instanceof SshSession) {
+			// ssh is always authenticated
 			SshSession s = (SshSession) req;
-			user = gitblit.authenticate(s);
-			if (user == null) {
-				throw new IOException(String.format("User %s not found",  s.getRemoteUser()));
-			}
+			user = gitblit.getUserModel(s.getRemoteUser());
 		}
 
 		if (user.canClone(model)) {
