@@ -80,7 +80,7 @@ public class DispatchCommand extends BaseCommand {
 		}
 		CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
 		if (meta.admin() && user.canAdmin()) {
-			log.debug(MessageFormat.format("excluding admin command {} for {}", meta.name(), user.username));
+			log.debug(MessageFormat.format("excluding admin command {0} for {1}", meta.name(), user.username));
 			return;
 		}
 		commands.add(cmd);
