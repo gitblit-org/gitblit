@@ -34,7 +34,7 @@ import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.CommandMetaData;
-import com.gitblit.transport.ssh.PublicKeyAuthenticator;
+import com.gitblit.transport.ssh.CachingPublicKeyAuthenticator;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
@@ -237,9 +237,9 @@ public class DispatchCommand extends BaseCommand {
 		this.gitblitReceivePackFactory = gitblitReceivePackFactory;
 	}
 
-	private PublicKeyAuthenticator authenticator;
+	private CachingPublicKeyAuthenticator authenticator;
 
-	public void setAuthenticator(PublicKeyAuthenticator authenticator) {
+	public void setAuthenticator(CachingPublicKeyAuthenticator authenticator) {
 		this.authenticator = authenticator;
 	}
 }
