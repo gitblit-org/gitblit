@@ -32,6 +32,7 @@ import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IAuthenticationManager;
@@ -105,20 +106,24 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
+		File hostKeyStore = new File(gitblit.getBaseFolder(), HOST_KEY_STORE);
 		CachingPublicKeyAuthenticator keyAuthenticator =
 				getPublicKeyAuthenticator(keyManager, gitblit);
 
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
 		sshd.setHost(addr.getHostName());
-		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(new File(
-				gitblit.getBaseFolder(), HOST_KEY_STORE).getPath()));
+		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(hostKeyStore.getPath()));
 		sshd.setPublickeyAuthenticator(keyAuthenticator);
 		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, keyAuthenticator, idGenerator));
+		sshd.setShellFactory(new WelcomeShell(settings));
+
+		String version = Constants.getGitBlitVersion() + " (" + sshd.getVersion() + ")";
+		sshd.getProperties().put(SshServer.SERVER_IDENTIFICATION, version);
 
 		run = new AtomicBoolean(false);
 	}
