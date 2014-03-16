@@ -42,6 +42,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.AddKeyCommand;
 import com.gitblit.transport.ssh.commands.CreateRepository;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
+import com.gitblit.transport.ssh.commands.ListRepositoriesCommand;
 import com.gitblit.transport.ssh.commands.Receive;
 import com.gitblit.transport.ssh.commands.RemoveKeyCommand;
 import com.gitblit.transport.ssh.commands.ReviewCommand;
@@ -89,6 +90,7 @@ public class SshCommandFactory implements CommandFactory {
 		gitblitCmd.registerCommand(user, VersionCommand.class);
 		gitblitCmd.registerCommand(user, AddKeyCommand.class);
 		gitblitCmd.registerCommand(user, RemoveKeyCommand.class);
+		gitblitCmd.registerCommand(user, ListRepositoriesCommand.class);
 		gitblitCmd.registerCommand(user, ReviewCommand.class);
 
 		gitblitCmd.registerCommand(user, CreateRepository.class);
