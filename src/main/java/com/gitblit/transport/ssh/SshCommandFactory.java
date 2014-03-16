@@ -107,7 +107,7 @@ public class SshCommandFactory implements CommandFactory {
 		root.setReceivePackFactory(new GitblitReceivePackFactory<SshDaemonClient>(gitblit));
 		root.setAuthenticator(keyAuthenticator);
 
-		root.setContext(new SshCommandContext(client, cmdLine));
+		root.setContext(new SshCommandContext(gitblit, client, cmdLine));
 
 		return root;
 	}
