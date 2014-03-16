@@ -87,6 +87,7 @@ public abstract class BaseCommand implements Command, SessionAware {
 
 	@Override
 	public void destroy() {
+		ctx = null;
 	}
 
 	protected static PrintWriter toPrintWriter(final OutputStream o) {
