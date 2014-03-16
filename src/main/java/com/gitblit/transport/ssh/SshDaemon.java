@@ -104,7 +104,8 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
-		PublicKeyAuthenticator keyAuthenticator = new PublicKeyAuthenticator(keyManager, gitblit);
+		CachingPublicKeyAuthenticator keyAuthenticator = 
+				new CachingPublicKeyAuthenticator(keyManager, gitblit);
 
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
@@ -176,6 +177,7 @@ public class SshDaemon {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected IKeyManager getKeyManager() {
 		IKeyManager keyManager = null;
 		IStoredSettings settings = gitblit.getSettings();
