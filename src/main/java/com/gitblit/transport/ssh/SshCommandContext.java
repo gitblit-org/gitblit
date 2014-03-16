@@ -15,14 +15,22 @@
  */
 package com.gitblit.transport.ssh;
 
+import com.gitblit.manager.IGitblit;
+
 public class SshCommandContext {
 
+	private final IGitblit gitblit;
 	private final SshDaemonClient client;
 	private final String commandLine;
 
-	public SshCommandContext(SshDaemonClient client, String commandLine) {
+	public SshCommandContext(IGitblit gitblit, SshDaemonClient client, String commandLine) {
+		this.gitblit = gitblit;
 		this.client = client;
 		this.commandLine = commandLine;
+	}
+
+	public IGitblit getGitblit() {
+		return gitblit;
 	}
 
 	public SshDaemonClient getClient() {
