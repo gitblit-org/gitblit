@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
@@ -104,8 +105,8 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
-		CachingPublicKeyAuthenticator keyAuthenticator = 
-				new CachingPublicKeyAuthenticator(keyManager, gitblit);
+		CachingPublicKeyAuthenticator keyAuthenticator =
+				getPublicKeyAuthenticator(keyManager, gitblit);
 
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
@@ -120,6 +121,27 @@ public class SshDaemon {
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, keyAuthenticator, idGenerator));
 
 		run = new AtomicBoolean(false);
+	}
+
+	private CachingPublicKeyAuthenticator getPublicKeyAuthenticator(
+			IKeyManager keyManager, IGitblit gitblit) {
+		IStoredSettings settings = gitblit.getSettings();
+		String clazz = settings.getString(Keys.git.sshPublicKeyAuthenticator,
+				CachingPublicKeyAuthenticator.class.getName());
+		if (StringUtils.isEmpty(clazz)) {
+			clazz = CachingPublicKeyAuthenticator.class.getName();
+		}
+		try {
+			Class<CachingPublicKeyAuthenticator> authClass =
+					(Class<CachingPublicKeyAuthenticator>) Class.forName(clazz);
+			return authClass.getConstructor(
+					new Class[] { IKeyManager.class,
+							IAuthenticationManager.class }).newInstance(
+					keyManager, gitblit);
+		} catch (Exception e) {
+			log.error("failed to create ssh auth manager " + clazz, e);
+		}
+		return null;
 	}
 
 	public String formatUrl(String gituser, String servername, String repository) {
@@ -179,6 +201,29 @@ public class SshDaemon {
 
 	@SuppressWarnings("unchecked")
 	protected IKeyManager getKeyManager() {
+		IKeyManager keyManager = null;
+		IStoredSettings settings = gitblit.getSettings();
+		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
+		if (StringUtils.isEmpty(clazz)) {
+			clazz = FileKeyManager.class.getName();
+		}
+		try {
+			Class<? extends IKeyManager> managerClass = (Class<? extends IKeyManager>) Class.forName(clazz);
+			keyManager = injector.get(managerClass).start();
+			if (keyManager.isReady()) {
+				log.info("{} is ready.", keyManager);
+			} else {
+				log.warn("{} is disabled.", keyManager);
+			}
+		} catch (Exception e) {
+			log.error("failed to create ssh key manager " + clazz, e);
+			keyManager = injector.get(NullKeyManager.class).start();
+		}
+		return keyManager;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected IKeyManager getKeyAuthenticator() {
 		IKeyManager keyManager = null;
 		IStoredSettings settings = gitblit.getSettings();
 		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
