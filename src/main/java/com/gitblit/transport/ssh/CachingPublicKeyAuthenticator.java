@@ -16,9 +16,14 @@
 package com.gitblit.transport.ssh;
 
 import java.security.PublicKey;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.sshd.common.Session;
+import org.apache.sshd.common.SessionListener;
 import org.apache.sshd.server.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
@@ -26,13 +31,15 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
+import com.google.common.base.Preconditions;
 
 /**
- *
+ * 
  * @author Eric Myrhe
- *
+ * 
  */
-public class PublicKeyAuthenticator implements PublickeyAuthenticator {
+public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
+		SessionListener {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -40,26 +47,41 @@ public class PublicKeyAuthenticator implements PublickeyAuthenticator {
 
 	protected final IAuthenticationManager authManager;
 
-	public PublicKeyAuthenticator(IKeyManager keyManager, IAuthenticationManager authManager) {
+	private final Map<ServerSession, Map<PublicKey, Boolean>> cache =
+			new ConcurrentHashMap<ServerSession, Map<PublicKey, Boolean>>();
+
+	public CachingPublicKeyAuthenticator(IKeyManager keyManager,
+			IAuthenticationManager authManager) {
 		this.keyManager = keyManager;
 		this.authManager = authManager;
 	}
 
 	@Override
-	public boolean authenticate(String username, final PublicKey suppliedKey,
-			final ServerSession session) {
-		final SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
-
-		if (client.getUser() != null) {
-			// TODO why do we re-authenticate?
-			log.info("{} has already authenticated!", username);
-			return true;
+	public boolean authenticate(String username, PublicKey key,
+			ServerSession session) {
+		Map<PublicKey, Boolean> map = cache.get(session);
+		if (map == null) {
+			map = new HashMap<PublicKey, Boolean>();
+			cache.put(session, map);
+			session.addListener(this);
 		}
+		if (map.containsKey(key)) {
+			return map.get(key);
+		}
+		boolean result = doAuthenticate(username, key, session);
+		map.put(key, result);
+		return result;
+	}
 
+	private boolean doAuthenticate(String username, PublicKey suppliedKey,
+			ServerSession session) {
+		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
+		Preconditions.checkState(client.getUser() == null);
 		username = username.toLowerCase(Locale.US);
 		List<PublicKey> keys = keyManager.getKeys(username);
 		if (keys == null || keys.isEmpty()) {
-			log.info("{} has not added any public keys for ssh authentication", username);
+			log.info("{} has not added any public keys for ssh authentication",
+					username);
 			return false;
 		}
 
@@ -73,11 +95,23 @@ public class PublicKeyAuthenticator implements PublickeyAuthenticator {
 			}
 		}
 
-		log.warn("could not authenticate {} for SSH using the supplied public key", username);
+		log.warn(
+				"could not authenticate {} for SSH using the supplied public key",
+				username);
 		return false;
 	}
 
 	public IKeyManager getKeyManager() {
 		return keyManager;
+	}
+
+	public void sessionCreated(Session session) {
+	}
+
+	public void sessionEvent(Session sesssion, Event event) {
+	}
+
+	public void sessionClosed(Session session) {
+		cache.remove(session);
 	}
 }
