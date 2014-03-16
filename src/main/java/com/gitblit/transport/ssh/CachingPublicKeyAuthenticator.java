@@ -73,7 +73,7 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 		return result;
 	}
 
-	private boolean doAuthenticate(String username, PublicKey suppliedKey,
+	protected boolean doAuthenticate(String username, PublicKey suppliedKey,
 			ServerSession session) {
 		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 		Preconditions.checkState(client.getUser() == null);
