@@ -61,7 +61,7 @@ import com.gitblit.utils.JGitUtils;
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, X509UtilsTest.class,
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
-		GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
+		GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class, SshDaemonTest.class,
 		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdAuthenticationTest.class,
 		ModelUtilsTest.class, JnaUtilsTest.class, LdapSyncServiceTest.class, FileTicketServiceTest.class,
 		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class })
@@ -78,6 +78,16 @@ public class GitBlitSuite {
 	static int port = 8280;
 	static int gitPort = 8300;
 	static int shutdownPort = 8281;
+	static int sshPort = 29418;
+
+// Overriding of keys doesn't seem to work
+//	static {
+//		try {
+//			sshPort = SshUtils.getFreePort();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	public static String url = "http://localhost:" + port;
 	public static String gitServletUrl = "http://localhost:" + port + "/git";
@@ -140,6 +150,8 @@ public class GitBlitSuite {
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
 						GitBlitSuite.USERSCONF.getAbsolutePath(), "--settings", GitBlitSuite.SETTINGS.getAbsolutePath(),
 						"--baseFolder", "data");
+				// doesn't work
+				//, "--sshPort", "" + sshPort);
 			}
 		});
 
