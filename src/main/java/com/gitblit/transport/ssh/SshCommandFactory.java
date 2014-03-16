@@ -61,10 +61,12 @@ public class SshCommandFactory implements CommandFactory {
 	private static final Logger logger = LoggerFactory.getLogger(SshCommandFactory.class);
 
 	private final IGitblit gitblit;
-	private final PublicKeyAuthenticator keyAuthenticator;
+	private final CachingPublicKeyAuthenticator keyAuthenticator;
 	private final ScheduledExecutorService startExecutor;
 
-	public SshCommandFactory(IGitblit gitblit, PublicKeyAuthenticator keyAuthenticator, IdGenerator idGenerator) {
+	public SshCommandFactory(IGitblit gitblit,
+			CachingPublicKeyAuthenticator keyAuthenticator,
+			IdGenerator idGenerator) {
 		this.gitblit = gitblit;
 		this.keyAuthenticator = keyAuthenticator;
 
@@ -252,6 +254,7 @@ public class SshCommandFactory implements CommandFactory {
 			}
 		}
 
+		@SuppressWarnings("unused")
 		private void onDestroy() {
 			synchronized (this) {
 				if (cmd != null) {
