@@ -1161,7 +1161,7 @@ public class TicketPage extends TicketBasePage {
 					String displayPath = entry.path;
 					String path = entry.path;
 					if (entry.isSymlink()) {
-						RevCommit commit = JGitUtils.getCommit(getRepository(), Constants.R_TICKETS_PATCHSETS + ticket.number);
+						RevCommit commit = JGitUtils.getCommit(getRepository(), PatchsetCommand.getTicketBranch(ticket.number));
 						path = JGitUtils.getStringContent(getRepository(), commit.getTree(), path);
 						displayPath = entry.path + " -> " + path;
 					}
