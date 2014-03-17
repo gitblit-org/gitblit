@@ -359,5 +359,6 @@ public abstract class IStoredSettings {
 	 */
 	public void merge(IStoredSettings settings) {
 		getSettings().putAll(settings.getSettings());
+		overrides.putAll(settings.overrides);
 	}
 }
