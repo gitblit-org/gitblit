@@ -32,6 +32,11 @@ import com.gitblit.manager.ProjectManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
+import com.gitblit.transport.ssh.FileKeyManager;
+import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.transport.ssh.MemoryKeyManager;
+import com.gitblit.transport.ssh.NullKeyManager;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 
 import dagger.Module;
@@ -53,6 +58,7 @@ import dagger.Provides;
 			INotificationManager.class,
 			IUserManager.class,
 			IAuthenticationManager.class,
+			IPublicKeyManager.class,
 			IRepositoryManager.class,
 			IProjectManager.class,
 			IFederationManager.class,
@@ -62,7 +68,7 @@ import dagger.Provides;
 
 			// the Gitblit Wicket app
 			GitBlitWebApp.class
-	}
+		}
 )
 public class DaggerModule {
 
@@ -89,6 +95,31 @@ public class DaggerModule {
 		return new AuthenticationManager(
 				runtimeManager,
 				userManager);
+	}
+
+	@Provides @Singleton IPublicKeyManager providePublicKeyManager(
+			IStoredSettings settings,
+			IRuntimeManager runtimeManager) {
+
+		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
+		if (StringUtils.isEmpty(clazz)) {
+			clazz = FileKeyManager.class.getName();
+		}
+		if (FileKeyManager.class.getName().equals(clazz)) {
+			return new FileKeyManager(runtimeManager);
+		} else if (NullKeyManager.class.getName().equals(clazz)) {
+			return new NullKeyManager();
+		} else if (MemoryKeyManager.class.getName().equals(clazz)) {
+			return new MemoryKeyManager();
+		} else {
+			try {
+				Class<?> mgrClass = Class.forName(clazz);
+				return (IPublicKeyManager) mgrClass.newInstance();
+			} catch (Exception e) {
+
+			}
+			return null;
+		}
 	}
 
 	@Provides @Singleton IRepositoryManager provideRepositoryManager(
@@ -127,6 +158,7 @@ public class DaggerModule {
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager) {
@@ -136,6 +168,7 @@ public class DaggerModule {
 				notificationManager,
 				userManager,
 				authenticationManager,
+				publicKeyManager,
 				repositoryManager,
 				projectManager,
 				federationManager);
@@ -146,6 +179,7 @@ public class DaggerModule {
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager,
@@ -156,6 +190,7 @@ public class DaggerModule {
 				notificationManager,
 				userManager,
 				authenticationManager,
+				publicKeyManager,
 				repositoryManager,
 				projectManager,
 				federationManager,

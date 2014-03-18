@@ -16,17 +16,23 @@
 package com.gitblit.transport.ssh;
 
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Rejects all public key management requests.
+ * Memory public key manager.
  *
  * @author James Moger
  *
  */
-public class NullKeyManager extends IPublicKeyManager {
+public class MemoryKeyManager extends IPublicKeyManager {
 
-	public NullKeyManager() {
+	Map<String, List<PublicKey>> keys;
+
+	public MemoryKeyManager() {
+		keys = new HashMap<String, List<PublicKey>>();
 	}
 
 	@Override
@@ -35,7 +41,7 @@ public class NullKeyManager extends IPublicKeyManager {
 	}
 
 	@Override
-	public NullKeyManager start() {
+	public MemoryKeyManager start() {
 		log.info(toString());
 		return this;
 	}
@@ -46,7 +52,7 @@ public class NullKeyManager extends IPublicKeyManager {
 	}
 
 	@Override
-	public NullKeyManager stop() {
+	public MemoryKeyManager stop() {
 		return this;
 	}
 
@@ -57,6 +63,10 @@ public class NullKeyManager extends IPublicKeyManager {
 
 	@Override
 	protected List<PublicKey> getKeysImpl(String username) {
+		String id = username.toLowerCase();
+		if (keys.containsKey(id)) {
+			return keys.get(id);
+		}
 		return null;
 	}
 
@@ -72,6 +82,17 @@ public class NullKeyManager extends IPublicKeyManager {
 
 	@Override
 	public boolean removeAllKeys(String username) {
-		return false;
+		String id = username.toLowerCase();
+		keys.remove(id.toLowerCase());
+		return true;
+	}
+
+	/* Test method for populating the memory key manager */
+	public void addKey(String username, PublicKey key) {
+		String id = username.toLowerCase();
+		if (!keys.containsKey(id)) {
+			keys.put(id, new ArrayList<PublicKey>());
+		}
+		keys.get(id).add(key);
 	}
 }

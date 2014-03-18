@@ -35,12 +35,12 @@ import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 
 /**
- * Manages SSH keys on the filesystem.
+ * Manages public keys on the filesystem.
  *
  * @author James Moger
  *
  */
-public class FileKeyManager extends IKeyManager {
+public class FileKeyManager extends IPublicKeyManager {
 
 	protected final IRuntimeManager runtimeManager;
 
@@ -59,6 +59,7 @@ public class FileKeyManager extends IKeyManager {
 
 	@Override
 	public FileKeyManager start() {
+		log.info(toString());
 		return this;
 	}
 

@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.CommandMetaData;
-import com.gitblit.transport.ssh.CachingPublicKeyAuthenticator;
-import com.gitblit.transport.ssh.gitblit.BaseKeyCommand;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
@@ -252,16 +250,5 @@ public abstract class DispatchCommand extends BaseCommand {
 		cmd.setOutputStream(out);
 		cmd.setErrorStream(err);
 		cmd.setExitCallback(exit);
-
-		if (cmd instanceof BaseKeyCommand) {
-			BaseKeyCommand k = (BaseKeyCommand) cmd;
-			k.setAuthenticator(authenticator);
-		}
-	}
-
-	private CachingPublicKeyAuthenticator authenticator;
-
-	public void setAuthenticator(CachingPublicKeyAuthenticator authenticator) {
-		this.authenticator = authenticator;
 	}
 }
