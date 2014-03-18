@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.gitblit;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.transport.ssh.CommandMetaData;
-import com.gitblit.transport.ssh.IKeyManager;
 
 /**
  * Add a key to the current user's authorized keys list.
@@ -44,9 +43,8 @@ public class AddKeyCommand extends BaseKeyCommand {
 	public void run() throws IOException, UnloggedFailure {
 		String username = ctx.getClient().getUsername();
 		List<String> keys = readKeys(addKeys);
-		IKeyManager keyManager = authenticator.getKeyManager();
 		for (String key : keys) {
-			keyManager.addKey(username, key);
+			getKeyManager().addKey(username, key);
 			log.info("added SSH public key for {}", username);
 		}
 	}

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.git;
 
 import java.io.IOException;
 
@@ -27,12 +27,13 @@ import com.gitblit.git.GitblitReceivePackFactory;
 import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.transport.ssh.SshDaemonClient;
+import com.gitblit.transport.ssh.commands.BaseCommand;
 
 /**
  * @author Eric Myhre
  *
  */
-public abstract class BaseGitCommand extends BaseCommand {
+abstract class BaseGitCommand extends BaseCommand {
 	@Argument(index = 0, metaVar = "REPOSITORY", required = true, usage = "repository name")
 	protected String repository;
 

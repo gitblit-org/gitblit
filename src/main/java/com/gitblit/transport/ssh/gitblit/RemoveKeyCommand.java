@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.gitblit;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.transport.ssh.CommandMetaData;
-import com.gitblit.transport.ssh.IKeyManager;
 
 
 /**
@@ -47,13 +46,12 @@ public class RemoveKeyCommand extends BaseKeyCommand {
 	public void run() throws IOException, UnloggedFailure {
 		String username = ctx.getClient().getUsername();
 		List<String> keys = readKeys(removeKeys);
-		IKeyManager keyManager = authenticator.getKeyManager();
 		if (keys.contains(ALL)) {
-			keyManager.removeAllKeys(username);
+			getKeyManager().removeAllKeys(username);
 			log.info("removed all SSH public keys from {}", username);
 		} else {
 			for (String key : keys) {
-				keyManager.removeKey(username, key);
+				getKeyManager().removeKey(username, key);
 				log.info("removed SSH public key from {}", username);
 			}
 		}
