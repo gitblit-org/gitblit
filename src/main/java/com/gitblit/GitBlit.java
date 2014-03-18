@@ -41,6 +41,7 @@ import com.gitblit.tickets.FileTicketService;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.NullTicketService;
 import com.gitblit.tickets.RedisTicketService;
+import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.StringUtils;
 
 import dagger.Module;
@@ -67,6 +68,7 @@ public class GitBlit extends GitblitManager {
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager) {
@@ -75,6 +77,7 @@ public class GitBlit extends GitblitManager {
 				notificationManager,
 				userManager,
 				authenticationManager,
+				publicKeyManager,
 				repositoryManager,
 				projectManager,
 				federationManager);
@@ -262,7 +265,7 @@ public class GitBlit extends GitblitManager {
 					FileTicketService.class,
 					BranchTicketService.class,
 					RedisTicketService.class
-			}
+				}
 			)
 	class GitBlitModule {
 

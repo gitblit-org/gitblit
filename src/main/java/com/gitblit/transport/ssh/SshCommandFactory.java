@@ -52,14 +52,10 @@ public class SshCommandFactory implements CommandFactory {
 	private static final Logger logger = LoggerFactory.getLogger(SshCommandFactory.class);
 
 	private final IGitblit gitblit;
-	private final CachingPublicKeyAuthenticator keyAuthenticator;
 	private final ScheduledExecutorService startExecutor;
 
-	public SshCommandFactory(IGitblit gitblit,
-			CachingPublicKeyAuthenticator keyAuthenticator,
-			IdGenerator idGenerator) {
+	public SshCommandFactory(IGitblit gitblit, IdGenerator idGenerator) {
 		this.gitblit = gitblit;
-		this.keyAuthenticator = keyAuthenticator;
 
 		int threads = 2;// cfg.getInt("sshd","commandStartThreads", 2);
 		WorkQueue workQueue = new WorkQueue(idGenerator);
@@ -83,8 +79,6 @@ public class SshCommandFactory implements CommandFactory {
 		// TODO convert these dispatchers to plugin extension points
 		root.registerDispatcher(user, GitblitDispatchCommand.class);
 		root.registerDispatcher(user, GitDispatchCommand.class);
-
-		root.setAuthenticator(keyAuthenticator);
 
 		return root;
 	}
