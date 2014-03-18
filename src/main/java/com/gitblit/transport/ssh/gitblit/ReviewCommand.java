@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.gitblit;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +26,7 @@ import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Score;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.SshCommand;
 import com.gitblit.wicket.GitBlitWebSession;
 
 @CommandMetaData(name = "review", description = "Verify, approve and/or submit one or more patch sets", hidden = true)

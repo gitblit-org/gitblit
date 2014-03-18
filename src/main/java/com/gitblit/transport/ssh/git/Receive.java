@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.git;
 
 import org.eclipse.jgit.transport.ReceivePack;
 
 import com.gitblit.transport.ssh.CommandMetaData;
 
-@CommandMetaData(name = "git-receive-pack", description = "Receive pack")
+@CommandMetaData(name = "git-receive-pack", description = "Receives pushes from a client")
 public class Receive extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
