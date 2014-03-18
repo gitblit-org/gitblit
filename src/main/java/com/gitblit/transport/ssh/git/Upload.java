@@ -24,7 +24,7 @@ public class Upload extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
 		try {
-			UploadPack up = uploadPackFactory.create(ctx.getClient(), repo);
+			UploadPack up = uploadPackFactory.create(getContext().getClient(), repo);
 			up.upload(in, out, null);
 		} catch (Exception e) {
 			throw new Failure(1, "fatal: Cannot upload pack: ", e);

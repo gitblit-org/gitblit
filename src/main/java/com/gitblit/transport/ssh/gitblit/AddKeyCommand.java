@@ -41,7 +41,7 @@ public class AddKeyCommand extends BaseKeyCommand {
 
 	@Override
 	public void run() throws IOException, UnloggedFailure {
-		String username = ctx.getClient().getUsername();
+		String username = getContext().getClient().getUsername();
 		List<String> keys = readKeys(addKeys);
 		for (String key : keys) {
 			getKeyManager().addKey(username, key);

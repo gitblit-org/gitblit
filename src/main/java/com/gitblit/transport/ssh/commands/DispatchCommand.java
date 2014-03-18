@@ -239,14 +239,4 @@ public abstract class DispatchCommand extends BaseCommand {
 		usage.append("\n");
 		return usage.toString();
 	}
-
-	protected void provideStateTo(final BaseCommand cmd) {
-		if (cmd instanceof BaseCommand) {
-			cmd.setContext(ctx);
-		}
-		cmd.setInputStream(in);
-		cmd.setOutputStream(out);
-		cmd.setErrorStream(err);
-		cmd.setExitCallback(exit);
-	}
 }
