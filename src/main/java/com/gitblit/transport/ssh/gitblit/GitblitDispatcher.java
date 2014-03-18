@@ -16,11 +16,11 @@
 package com.gitblit.transport.ssh.gitblit;
 
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 
 @CommandMetaData(name = "gitblit", description = "Gitblit server commands")
-public class GitblitDispatchCommand extends DispatchCommand {
+public class GitblitDispatcher extends DispatchCommand {
 
 	@Override
 	protected void registerCommands(UserModel user) {

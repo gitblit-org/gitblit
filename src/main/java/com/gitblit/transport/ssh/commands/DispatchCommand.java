@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
@@ -48,15 +47,15 @@ public abstract class DispatchCommand extends BaseCommand {
 	@Argument(index = 1, multiValued = true, metaVar = "ARG")
 	private List<String> args = new ArrayList<String>();
 
-	private Set<Class<? extends BaseCommand>> commands;
+	private final Set<Class<? extends BaseCommand>> commands;
 	private Map<String, Class<? extends BaseCommand>> map;
 	private Map<String, BaseCommand> dispatchers;
 
-	public DispatchCommand() {
+	protected DispatchCommand() {
 		commands = new HashSet<Class<? extends BaseCommand>>();
 	}
 
-	public void registerDispatcher(UserModel user, Class<? extends DispatchCommand> cmd) {
+	protected void registerDispatcher(UserModel user, Class<? extends DispatchCommand> cmd) {
 		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));
@@ -80,8 +79,7 @@ public abstract class DispatchCommand extends BaseCommand {
 		}
 	}
 
-	protected void registerCommands(UserModel user) {
-	}
+	protected abstract void registerCommands(UserModel user);
 
 
 	/**
@@ -90,7 +88,7 @@ public abstract class DispatchCommand extends BaseCommand {
 	 * @param user
 	 * @param cmd
 	 */
-	public void registerCommand(UserModel user, Class<? extends BaseCommand> cmd) {
+	protected void registerCommand(UserModel user, Class<? extends BaseCommand> cmd) {
 		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));

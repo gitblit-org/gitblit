@@ -17,7 +17,7 @@ package com.gitblit.transport.ssh.git;
 
 import org.eclipse.jgit.transport.ReceivePack;
 
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 
 @CommandMetaData(name = "git-receive-pack", description = "Receives pushes from a client")
 public class Receive extends BaseGitCommand {

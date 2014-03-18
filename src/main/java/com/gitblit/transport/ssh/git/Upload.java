@@ -17,7 +17,7 @@ package com.gitblit.transport.ssh.git;
 
 import org.eclipse.jgit.transport.UploadPack;
 
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 
 @CommandMetaData(name = "git-upload-pack", description = "Sends packs to a client for clone and fetch")
 public class Upload extends BaseGitCommand {
