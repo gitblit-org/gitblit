@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh;
+package com.gitblit.transport.ssh.commands;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.manager.IGitblit;
-import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.git.GitDispatchCommand;
-import com.gitblit.transport.ssh.gitblit.GitblitDispatchCommand;
+import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.WorkQueue;
 import com.google.common.util.concurrent.Atomics;
@@ -62,25 +59,8 @@ public class SshCommandFactory implements CommandFactory {
 		startExecutor = workQueue.createQueue(threads, "SshCommandStart");
 	}
 
-	/**
-	 * Creates the root dispatcher command which builds up the available commands.
-	 *
-	 * @param the client
-	 * @param the command line
-	 * @return the root dispatcher command
-	 */
-	protected DispatchCommand createRootDispatcher(SshDaemonClient client, String cmdLine) {
-		final UserModel user = client.getUser();
-
-		DispatchCommand root = new DispatchCommand() {
-		};
-		root.setContext(new SshCommandContext(gitblit, client, cmdLine));
-
-		// TODO convert these dispatchers to plugin extension points
-		root.registerDispatcher(user, GitblitDispatchCommand.class);
-		root.registerDispatcher(user, GitDispatchCommand.class);
-
-		return root;
+	public RootDispatcher createRootDispatcher(SshDaemonClient client, String commandLine) {
+		return new RootDispatcher(gitblit, client, commandLine);
 	}
 
 	@Override

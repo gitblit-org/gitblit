@@ -22,7 +22,7 @@ import java.util.List;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 
 /** Set a user's account settings. **/
 @CommandMetaData(name = "set-account", description = "Change an account's settings", admin = true)

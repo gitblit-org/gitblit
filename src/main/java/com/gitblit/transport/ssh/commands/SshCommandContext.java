@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh;
+package com.gitblit.transport.ssh.commands;
 
 import com.gitblit.manager.IGitblit;
+import com.gitblit.transport.ssh.SshDaemonClient;
 
 public class SshCommandContext {
 

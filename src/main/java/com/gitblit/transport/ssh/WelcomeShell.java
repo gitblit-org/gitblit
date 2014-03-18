@@ -35,6 +35,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
+import com.gitblit.transport.ssh.commands.SshCommandFactory;
 import com.gitblit.utils.StringUtils;
 
 /**

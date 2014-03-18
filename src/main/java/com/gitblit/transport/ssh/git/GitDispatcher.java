@@ -20,14 +20,14 @@ import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.CommandMetaData;
-import com.gitblit.transport.ssh.SshCommandContext;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.commands.BaseCommand;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
+import com.gitblit.transport.ssh.commands.SshCommandContext;
 
 @CommandMetaData(name = "git", description="Dispatcher for git receive and upload commands", hidden = true)
-public class GitDispatchCommand extends DispatchCommand {
+public class GitDispatcher extends DispatchCommand {
 
 	protected RepositoryResolver<SshDaemonClient> repositoryResolver;
 	protected GitblitUploadPackFactory<SshDaemonClient> uploadPackFactory;

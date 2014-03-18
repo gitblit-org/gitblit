@@ -27,7 +27,7 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.SshCommand;
 
 @CommandMetaData(name = "ls", description = "List repositories or projects")
