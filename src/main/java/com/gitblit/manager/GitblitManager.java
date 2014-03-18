@@ -104,6 +104,8 @@ public class GitblitManager implements IGitblit {
 
 	protected final IRuntimeManager runtimeManager;
 
+	protected final IPluginManager pluginManager;
+
 	protected final INotificationManager notificationManager;
 
 	protected final IUserManager userManager;
@@ -118,21 +120,20 @@ public class GitblitManager implements IGitblit {
 
 	protected final IFederationManager federationManager;
 
-	protected final IPluginManager pluginManager;
-
 	public GitblitManager(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
 			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager,
-			IPluginManager pluginManager) {
+			IFederationManager federationManager) {
 
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
+		this.pluginManager = pluginManager;
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.authenticationManager = authenticationManager;
@@ -140,7 +141,6 @@ public class GitblitManager implements IGitblit {
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
-		this.pluginManager = pluginManager;
 	}
 
 	@Override
