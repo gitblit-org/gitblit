@@ -30,6 +30,8 @@ import org.kohsuke.args4j.Argument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.fortsoft.pf4j.ExtensionPoint;
+
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.cli.SubcommandHandler;
@@ -37,7 +39,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
-public abstract class DispatchCommand extends BaseCommand {
+public abstract class DispatchCommand extends BaseCommand implements ExtensionPoint {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -73,19 +75,29 @@ public abstract class DispatchCommand extends BaseCommand {
 	}
 
 	protected void registerDispatcher(UserModel user, Class<? extends DispatchCommand> cmd) {
-		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
-			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
+		try {
+			DispatchCommand dispatcher = cmd.newInstance();
+			registerDispatcher(user, dispatcher);
+		} catch (Exception e) {
+			log.error("failed to instantiate {}", cmd.getName());
+		}
+	}
+
+	protected void registerDispatcher(UserModel user, DispatchCommand dispatcher) {
+		Class<? extends DispatchCommand> dispatcherClass = dispatcher.getClass();
+		if (!dispatcherClass.isAnnotationPresent(CommandMetaData.class)) {
+			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", dispatcher.getName(),
 					CommandMetaData.class.getName()));
 		}
 
-		CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
+		CommandMetaData meta = dispatcherClass.getAnnotation(CommandMetaData.class);
 		if (meta.admin() && !user.canAdmin()) {
-			log.debug(MessageFormat.format("excluding admin dispatch command {0} for {1}", meta.name(), user.username));
+			log.debug(MessageFormat.format("excluding admin dispatcher {0} for {1}", meta.name(), user.username));
 			return;
 		}
 
+		log.debug("registering {} dispatcher", meta.name());
 		try {
-			DispatchCommand dispatcher = cmd.newInstance();
 			dispatcher.registerCommands(user);
 			dispatchers.put(meta.name(), dispatcher);
 		} catch (Exception e) {
@@ -93,8 +105,8 @@ public abstract class DispatchCommand extends BaseCommand {
 		}
 	}
 
-	protected abstract void registerCommands(UserModel user);
 
+	protected abstract void registerCommands(UserModel user);
 
 	/**
 	 * Registers a command as long as the user is permitted to execute it.
@@ -192,10 +204,8 @@ public abstract class DispatchCommand extends BaseCommand {
 		for (String name : m.keySet()) {
 			Class<? extends BaseCommand> c = m.get(name);
 			CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
-			if (meta != null) {
-				if (meta.hidden()) {
-					continue;
-				}
+			if (meta.hidden()) {
+				continue;
 			}
 
 			maxLength = Math.max(maxLength, name.length());
