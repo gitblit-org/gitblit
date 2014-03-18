@@ -34,6 +34,7 @@ import org.eclipse.jgit.util.SystemReader;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -56,7 +57,7 @@ public class WelcomeShell implements Factory<Command> {
 	private static class SendMessage implements Command, SessionAware {
 
 		private final IStoredSettings settings;
-		private SshDaemonClient client;
+		private ServerSession session;
 
 		private InputStream in;
 		private OutputStream out;
@@ -89,7 +90,7 @@ public class WelcomeShell implements Factory<Command> {
 
 		@Override
 		public void setSession(final ServerSession session) {
-			this.client = session.getAttribute(SshDaemonClient.KEY);
+			this.session = session;
 		}
 
 		@Override
@@ -105,26 +106,37 @@ public class WelcomeShell implements Factory<Command> {
 
 		@Override
 		public void destroy() {
+			this.session = null;
 		}
 
 		String getMessage() {
+			SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 			UserModel user = client.getUser();
 
 			StringBuilder msg = new StringBuilder();
 			msg.append("\r\n");
-			msg.append("  Hi ");
+			msg.append("Hi ");
 			msg.append(user.getDisplayName());
-			msg.append(", you have successfully connected to Gitblit over SSH.");
+			msg.append(", you have successfully connected to Gitblit over SSH");
+			msg.append("\r\n");
+			msg.append("with client: ");
+			msg.append(session.getClientVersion());
 			msg.append("\r\n");
 			msg.append("\r\n");
 
-			msg.append("  You may clone a repository with the following Git syntax:\r\n");
+			msg.append("You may clone a repository with the following Git syntax:\r\n");
 			msg.append("\r\n");
 
-			msg.append("  git clone ");
+			msg.append("   git clone ");
 			msg.append(formatUrl(user.username));
 			msg.append("\r\n");
 			msg.append("\r\n");
+
+			// display the core commands
+			SshCommandFactory cmdFactory = (SshCommandFactory) session.getFactoryManager().getCommandFactory();
+			DispatchCommand root = cmdFactory.createRootDispatcher(client, "");
+			String usage = root.usage().replace("\n", "\r\n");
+			msg.append(usage);
 
 			return msg.toString();
 		}
