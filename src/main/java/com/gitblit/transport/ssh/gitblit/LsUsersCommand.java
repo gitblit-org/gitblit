@@ -24,7 +24,7 @@ import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.SshCommand;
 
 @CommandMetaData(name = "ls-users", description = "List users", admin = true)
