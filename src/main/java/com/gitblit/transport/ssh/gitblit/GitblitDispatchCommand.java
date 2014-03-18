@@ -32,6 +32,7 @@ public class GitblitDispatchCommand extends DispatchCommand {
 		registerCommand(user, ReviewCommand.class);
 
 		// administrative commands
+		registerCommand(user, LsUsersCommand.class);
 		registerCommand(user, CreateRepository.class);
 		registerCommand(user, SetAccountCommand.class);
 	}
