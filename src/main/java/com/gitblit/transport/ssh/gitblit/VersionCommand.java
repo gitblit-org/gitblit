@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.gitblit;
 
-import org.kohsuke.args4j.Option;
-
+import com.gitblit.Constants;
 import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.SshCommand;
 
-@CommandMetaData(name = "create-repository", description = "Create new GIT repository", admin = true, hidden = true)
-public class CreateRepository extends SshCommand {
-
-  @Option(name = "--name", aliases = {"-n"}, required = true, metaVar = "NAME", usage = "name of repository to be created")
-  private String name;
-
-  @Option(name = "--description", aliases = {"-d"}, metaVar = "DESCRIPTION", usage = "description of repository")
-  private String repositoryDescription;
+@CommandMetaData(name="version", description = "Display the Gitblit version")
+public class VersionCommand extends SshCommand {
 
   @Override
   public void run() {
-    stdout.println(String.format("Repository <%s> was created", name));
+	  stdout.println(Constants.getGitBlitVersion());
   }
 }

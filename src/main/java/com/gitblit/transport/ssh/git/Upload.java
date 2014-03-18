@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.git;
 
 import org.eclipse.jgit.transport.UploadPack;
 
 import com.gitblit.transport.ssh.CommandMetaData;
 
-@CommandMetaData(name = "git-upload-pack", description = "Upload pack")
+@CommandMetaData(name = "git-upload-pack", description = "Sends packs to a client for clone and fetch")
 public class Upload extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
