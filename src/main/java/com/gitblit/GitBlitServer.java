@@ -58,9 +58,6 @@ import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ro.fortsoft.pf4j.DefaultPluginManager;
-import ro.fortsoft.pf4j.PluginManager;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -99,7 +96,7 @@ public class GitBlitServer {
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
 		String folder = "data";
-		for (int i = 0; i< args.length; i++) {
+		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
 			if (arg.equals("--baseFolder")) {
 				if (i + 1 == args.length) {

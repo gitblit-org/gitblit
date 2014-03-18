@@ -66,24 +66,24 @@ public class GitBlit extends GitblitManager {
 
 	public GitBlit(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
 			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager,
-			IPluginManager pluginManager) {
+			IFederationManager federationManager) {
 
 		super(runtimeManager,
+				pluginManager,
 				notificationManager,
 				userManager,
 				authenticationManager,
 				publicKeyManager,
 				repositoryManager,
 				projectManager,
-				federationManager,
-				pluginManager);
+				federationManager);
 
 		this.injector = ObjectGraph.create(getModules());
 
