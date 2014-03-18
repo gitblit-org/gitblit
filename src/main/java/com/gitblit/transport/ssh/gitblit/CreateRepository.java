@@ -18,7 +18,7 @@ package com.gitblit.transport.ssh.gitblit;
 
 import org.kohsuke.args4j.Option;
 
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.SshCommand;
 
 @CommandMetaData(name = "create-repository", description = "Create new GIT repository", admin = true, hidden = true)

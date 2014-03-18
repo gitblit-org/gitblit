@@ -34,6 +34,7 @@ import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
+import com.gitblit.transport.ssh.commands.SshCommandFactory;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
 

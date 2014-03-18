@@ -25,7 +25,7 @@ import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Score;
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.CommandMetaData;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.SshCommand;
 import com.gitblit.wicket.GitBlitWebSession;
 
