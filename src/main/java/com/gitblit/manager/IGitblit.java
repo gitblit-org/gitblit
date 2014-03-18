@@ -31,13 +31,13 @@ import com.gitblit.transport.ssh.IPublicKeyManager;
 
 public interface IGitblit extends IManager,
 									IRuntimeManager,
+									IPluginManager,
 									INotificationManager,
 									IUserManager,
 									IAuthenticationManager,
 									IRepositoryManager,
 									IProjectManager,
-									IFederationManager,
-									IPluginManager {
+									IFederationManager {
 
 	/**
 	 * Returns a list of repository URLs and the user access permission.

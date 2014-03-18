@@ -19,17 +19,17 @@ import javax.inject.Singleton;
 
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
-import com.gitblit.manager.PluginManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
-import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
+import com.gitblit.manager.PluginManager;
 import com.gitblit.manager.ProjectManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
@@ -57,6 +57,7 @@ import dagger.Provides;
 
 			// core managers
 			IRuntimeManager.class,
+			IPluginManager.class,
 			INotificationManager.class,
 			IUserManager.class,
 			IAuthenticationManager.class,
@@ -64,7 +65,6 @@ import dagger.Provides;
 			IRepositoryManager.class,
 			IProjectManager.class,
 			IFederationManager.class,
-			IPluginManager.class,
 
 			// the monolithic manager
 			IGitblit.class,
@@ -83,16 +83,16 @@ public class DaggerModule {
 		return new RuntimeManager(settings);
 	}
 
+	@Provides @Singleton IPluginManager providePluginManager(IRuntimeManager runtimeManager) {
+		return new PluginManager(runtimeManager);
+	}
+
 	@Provides @Singleton INotificationManager provideNotificationManager(IStoredSettings settings) {
 		return new NotificationManager(settings);
 	}
 
 	@Provides @Singleton IUserManager provideUserManager(IRuntimeManager runtimeManager) {
 		return new UserManager(runtimeManager);
-	}
-
-	@Provides @Singleton IPluginManager providePluginManager(IRuntimeManager runtimeManager) {
-		return new PluginManager(runtimeManager);
 	}
 
 	@Provides @Singleton IAuthenticationManager provideAuthenticationManager(
@@ -162,25 +162,25 @@ public class DaggerModule {
 
 	@Provides @Singleton IGitblit provideGitblit(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
 			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager,
-			IPluginManager pluginManager) {
+			IFederationManager federationManager) {
 
 		return new GitBlit(
 				runtimeManager,
+				pluginManager,
 				notificationManager,
 				userManager,
 				authenticationManager,
 				publicKeyManager,
 				repositoryManager,
 				projectManager,
-				federationManager,
-				pluginManager);
+				federationManager);
 	}
 
 	@Provides @Singleton GitBlitWebApp provideWebApplication(
