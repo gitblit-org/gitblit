@@ -48,9 +48,6 @@ public abstract class BaseCommand implements Command, SessionAware {
 
 	private static final Logger log = LoggerFactory.getLogger(BaseCommand.class);
 
-	/** Ssh context */
-	protected SshCommandContext ctx;
-
 	protected InputStream in;
 
 	protected OutputStream out;
@@ -60,6 +57,9 @@ public abstract class BaseCommand implements Command, SessionAware {
 	protected ExitCallback exit;
 
 	protected ServerSession session;
+
+	/** Ssh command context */
+	private SshCommandContext ctx;
 
 	/** Text of the command line which lead up to invoking this instance. */
 	private String commandName = "";
@@ -96,8 +96,20 @@ public abstract class BaseCommand implements Command, SessionAware {
 	@Override
 	public abstract void start(Environment env) throws IOException;
 
+	protected void provideStateTo(final BaseCommand cmd) {
+		cmd.setContext(ctx);
+		cmd.setInputStream(in);
+		cmd.setOutputStream(out);
+		cmd.setErrorStream(err);
+		cmd.setExitCallback(exit);
+	}
+
 	public void setContext(SshCommandContext ctx) {
 		this.ctx = ctx;
+	}
+
+	public SshCommandContext getContext() {
+		return ctx;
 	}
 
 	@Override

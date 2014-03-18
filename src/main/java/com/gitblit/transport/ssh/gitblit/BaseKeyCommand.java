@@ -53,6 +53,6 @@ abstract class BaseKeyCommand extends SshCommand {
 	}
 
 	protected IPublicKeyManager getKeyManager() {
-		return ctx.getGitblit().getPublicKeyManager();
+		return getContext().getGitblit().getPublicKeyManager();
 	}
 }

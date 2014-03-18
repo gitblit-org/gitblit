@@ -49,8 +49,8 @@ public class LsCommand extends SshCommand {
 	}
 
 	protected void listProjects() {
-		IGitblit gitblit = ctx.getGitblit();
-		UserModel user = ctx.getClient().getUser();
+		IGitblit gitblit = getContext().getGitblit();
+		UserModel user = getContext().getClient().getUser();
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
 		List<ProjectModel> projects = gitblit.getProjectModels(user, false);
@@ -85,8 +85,8 @@ public class LsCommand extends SshCommand {
 	}
 
 	protected void listRepositories() {
-		IGitblit gitblit = ctx.getGitblit();
-		UserModel user = ctx.getClient().getUser();
+		IGitblit gitblit = getContext().getGitblit();
+		UserModel user = getContext().getClient().getUser();
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
 		List<RepositoryModel> repositories = gitblit.getRepositoryModels(user);
