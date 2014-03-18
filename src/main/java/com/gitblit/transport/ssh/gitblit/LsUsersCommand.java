@@ -35,7 +35,7 @@ public class LsUsersCommand extends SshCommand {
 
 	@Override
 	public void run() {
-		IGitblit gitblit = ctx.getGitblit();
+		IGitblit gitblit = getContext().getGitblit();
 		List<UserModel> users = gitblit.getAllUsers();
 		int displaynameLen = 0;
 		int usernameLen = 0;

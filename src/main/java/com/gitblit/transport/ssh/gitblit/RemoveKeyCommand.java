@@ -44,7 +44,7 @@ public class RemoveKeyCommand extends BaseKeyCommand {
 
 	@Override
 	public void run() throws IOException, UnloggedFailure {
-		String username = ctx.getClient().getUsername();
+		String username = getContext().getClient().getUsername();
 		List<String> keys = readKeys(removeKeys);
 		if (keys.contains(ALL)) {
 			getKeyManager().removeAllKeys(username);
