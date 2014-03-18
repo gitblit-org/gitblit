@@ -191,7 +191,7 @@ public abstract class BaseCommand implements Command, SessionAware {
 		return new CmdLineParser(options);
 	}
 
-	protected String usage() {
+	public String usage() {
 		return "";
 	}
 

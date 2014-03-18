@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.Environment;
@@ -36,6 +37,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.transport.ssh.CachingPublicKeyAuthenticator;
 import com.gitblit.transport.ssh.SshDaemonClient;
+mport com.gitblit.utils.StringUtils;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -52,20 +54,21 @@ public class DispatchCommand extends BaseCommand {
 	@Argument(index = 1, multiValued = true, metaVar = "ARG")
 	private List<String> args = new ArrayList<String>();
 
-	private Set<Class<? extends Command>> commands;
-	private Map<String, Class<? extends Command>> map;
-	private Map<String, Command> root;
+	private Set<Class<? extends BaseCommand>> commands;
+	private Map<String, Class<? extends BaseCommand>> map;
+	private Map<String, BaseCommand> dispatchers;
 
 	public DispatchCommand() {
-		commands = new HashSet<Class<? extends Command>>();
+		commands = new HashSet<Class<? extends BaseCommand>>();
 	}
 
 	public void registerDispatcher(String name, Command cmd) {
-		if (root == null) {
-			root = Maps.newHashMap();
+		if (dispatchers == null) {
+			dispatchers = Maps.newHashMap();
 		}
-		root.put(name, cmd);
+		dispatchers.put(name, cmd);
 	}
+
 
 	/**
 	 * Registers a command as long as the user is permitted to execute it.
@@ -73,25 +76,30 @@ public class DispatchCommand extends BaseCommand {
 	 * @param user
 	 * @param cmd
 	 */
-	public void registerCommand(UserModel user, Class<? extends Command> cmd) {
+	public void registerCommand(UserModel user, Class<? extends BaseCommand> cmd) {
 		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));
 		}
 		CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
-		if (meta.admin() && user != null && user.canAdmin()) {
+		if (meta.admin() && !user.canAdmin()) {
 			log.debug(MessageFormat.format("excluding admin command {0} for {1}", meta.name(), user.username));
 			return;
 		}
 		commands.add(cmd);
 	}
 
-	private Map<String, Class<? extends Command>> getMap() {
+	private Map<String, Class<? extends BaseCommand>> getMap() {
 		if (map == null) {
 			map = Maps.newHashMapWithExpectedSize(commands.size());
-			for (Class<? extends Command> cmd : commands) {
+			for (Class<? extends BaseCommand> cmd : commands) {
 				CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
 				map.put(meta.name(), cmd);
+			}
+			if (dispatchers != null) {
+				for (Map.Entry<String, BaseCommand> entry : dispatchers.entrySet()) {
+					map.put(entry.getKey(), entry.getValue().getClass());
+				}
 			}
 		}
 		return map;
@@ -107,16 +115,13 @@ public class DispatchCommand extends BaseCommand {
 				throw new UnloggedFailure(1, msg.toString());
 			}
 
-			Command cmd = getCommand();
-			if (cmd instanceof BaseCommand) {
-				BaseCommand bc = (BaseCommand) cmd;
-				if (getName().isEmpty()) {
-					bc.setName(commandName);
-				} else {
-					bc.setName(getName() + " " + commandName);
-				}
-				bc.setArguments(args.toArray(new String[args.size()]));
+			BaseCommand cmd = getCommand();
+			if (getName().isEmpty()) {
+				cmd.setName(commandName);
+			} else {
+				cmd.setName(getName() + " " + commandName);
 			}
+			cmd.setArguments(args.toArray(new String[args.size()]));
 
 			provideStateTo(cmd);
 			// atomicCmd.set(cmd);
@@ -133,17 +138,17 @@ public class DispatchCommand extends BaseCommand {
 		}
 	}
 
-	private Command getCommand() throws UnloggedFailure {
-		if (root != null && root.containsKey(commandName)) {
-			return root.get(commandName);
+	private BaseCommand getCommand() throws UnloggedFailure {
+		if (dispatchers != null && dispatchers.containsKey(commandName)) {
+			return dispatchers.get(commandName);
 		}
-		final Class<? extends Command> c = getMap().get(commandName);
+		final Class<? extends BaseCommand> c = getMap().get(commandName);
 		if (c == null) {
 			String msg = (getName().isEmpty() ? "Gitblit" : getName()) + ": " + commandName + ": not found";
 			throw new UnloggedFailure(1, msg);
 		}
 
-		Command cmd = null;
+		BaseCommand cmd = null;
 		try {
 			cmd = c.newInstance();
 		} catch (Exception e) {
@@ -153,38 +158,68 @@ public class DispatchCommand extends BaseCommand {
 	}
 
 	@Override
-	protected String usage() {
-		final StringBuilder usage = new StringBuilder();
-		usage.append("Available commands");
-		if (!getName().isEmpty()) {
-			usage.append(" of ");
-			usage.append(getName());
-		}
-		usage.append(" are:\n");
-		usage.append("\n");
-
+	public String usage() {
+		Set<String> commands = new TreeSet<String>();
+		Set<String> dispatchers = new TreeSet<String>();
 		int maxLength = -1;
-		Map<String, Class<? extends Command>> m = getMap();
+		Map<String, Class<? extends BaseCommand>> m = getMap();
 		for (String name : m.keySet()) {
-			maxLength = Math.max(maxLength, name.length());
-		}
-		String format = "%-" + maxLength + "s   %s";
-		for (String name : Sets.newTreeSet(m.keySet())) {
-			final Class<? extends Command> c = m.get(name);
+			Class<? extends BaseCommand> c = m.get(name);
 			CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
 			if (meta != null) {
 				if (meta.hidden()) {
 					continue;
 				}
+			}
+
+			maxLength = Math.max(maxLength, name.length());
+			if (DispatchCommand.class.isAssignableFrom(c)) {
+				dispatchers.add(name);
+			} else {
+				commands.add(name);
+			}
+		}
+		String format = "%-" + maxLength + "s   %s";
+
+		final StringBuilder usage = new StringBuilder();
+		if (!commands.isEmpty()) {
+			usage.append("Available commands");
+			if (!getName().isEmpty()) {
+				usage.append(" of ");
+				usage.append(getName());
+			}
+			usage.append(" are:\n");
+			usage.append("\n");
+			for (String name : commands) {
+				final Class<? extends Command> c = m.get(name);
+				CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
 				usage.append("   ");
 				usage.append(String.format(format, name, Strings.nullToEmpty(meta.description())));
+				usage.append("\n");
 			}
 			usage.append("\n");
 		}
-		usage.append("\n");
+
+		if (!dispatchers.isEmpty()) {
+			usage.append("Available command dispatchers");
+			if (!getName().isEmpty()) {
+				usage.append(" of ");
+				usage.append(getName());
+			}
+			usage.append(" are:\n");
+			usage.append("\n");
+			for (String name : dispatchers) {
+				final Class<? extends BaseCommand> c = m.get(name);
+				CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
+				usage.append("   ");
+				usage.append(String.format(format, name, Strings.nullToEmpty(meta.description())));
+				usage.append("\n");
+			}
+			usage.append("\n");
+		}
 
 		usage.append("See '");
-		if (getName().indexOf(' ') < 0) {
+		if (!StringUtils.isEmpty(getName())) {
 			usage.append(getName());
 			usage.append(' ');
 		}
@@ -193,9 +228,9 @@ public class DispatchCommand extends BaseCommand {
 		return usage.toString();
 	}
 
-	protected void provideStateTo(final Command cmd) {
+	protected void provideStateTo(final BaseCommand cmd) {
 		if (cmd instanceof BaseCommand) {
-			((BaseCommand) cmd).setContext(ctx);
+			cmd.setContext(ctx);
 		}
 		cmd.setInputStream(in);
 		cmd.setOutputStream(out);
