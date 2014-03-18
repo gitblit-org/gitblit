@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.gitblit;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +21,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import com.gitblit.transport.ssh.IKeyManager;
 import com.gitblit.transport.ssh.CachingPublicKeyAuthenticator;
+import com.gitblit.transport.ssh.commands.SshCommand;
 import com.google.common.base.Charsets;
 
 /**
@@ -29,7 +31,7 @@ import com.google.common.base.Charsets;
  * Base class for commands that read SSH keys from stdin or a parameter list.
  *
  */
-public abstract class BaseKeyCommand extends SshCommand {
+abstract class BaseKeyCommand extends SshCommand {
 
 	protected List<String> readKeys(List<String> sshKeys)
 			throws UnsupportedEncodingException, IOException {
@@ -54,5 +56,9 @@ public abstract class BaseKeyCommand extends SshCommand {
 	protected CachingPublicKeyAuthenticator authenticator;
 	public void setAuthenticator(CachingPublicKeyAuthenticator authenticator) {
 		this.authenticator = authenticator;
+	}
+	
+	protected IKeyManager getKeyManager() {
+		return authenticator.getKeyManager();
 	}
 }

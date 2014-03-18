@@ -34,21 +34,11 @@ import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.git.GitblitReceivePackFactory;
-import com.gitblit.git.GitblitUploadPackFactory;
-import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.UserModel;
-import com.gitblit.transport.ssh.commands.AddKeyCommand;
-import com.gitblit.transport.ssh.commands.CreateRepository;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.ListRepositoriesCommand;
-import com.gitblit.transport.ssh.commands.Receive;
-import com.gitblit.transport.ssh.commands.RemoveKeyCommand;
-import com.gitblit.transport.ssh.commands.ReviewCommand;
-import com.gitblit.transport.ssh.commands.SetAccountCommand;
-import com.gitblit.transport.ssh.commands.Upload;
-import com.gitblit.transport.ssh.commands.VersionCommand;
+import com.gitblit.transport.ssh.git.GitDispatchCommand;
+import com.gitblit.transport.ssh.gitblit.GitblitDispatchCommand;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.WorkQueue;
 import com.google.common.util.concurrent.Atomics;
@@ -86,30 +76,15 @@ public class SshCommandFactory implements CommandFactory {
 	protected DispatchCommand createRootDispatcher(SshDaemonClient client, String cmdLine) {
 		final UserModel user = client.getUser();
 
-		DispatchCommand gitblitCmd = new DispatchCommand();
-		gitblitCmd.registerCommand(user, VersionCommand.class);
-		gitblitCmd.registerCommand(user, AddKeyCommand.class);
-		gitblitCmd.registerCommand(user, RemoveKeyCommand.class);
-		gitblitCmd.registerCommand(user, ListRepositoriesCommand.class);
-		gitblitCmd.registerCommand(user, ReviewCommand.class);
-
-		gitblitCmd.registerCommand(user, CreateRepository.class);
-		gitblitCmd.registerCommand(user, SetAccountCommand.class);
-
-		DispatchCommand gitCmd = new DispatchCommand();
-		gitCmd.registerCommand(user, Upload.class);
-		gitCmd.registerCommand(user, Receive.class);
-
-		DispatchCommand root = new DispatchCommand();
-		root.registerDispatcher("gitblit", gitblitCmd);
-		root.registerDispatcher("git", gitCmd);
-
-		root.setRepositoryResolver(new RepositoryResolver<SshDaemonClient>(gitblit));
-		root.setUploadPackFactory(new GitblitUploadPackFactory<SshDaemonClient>(gitblit));
-		root.setReceivePackFactory(new GitblitReceivePackFactory<SshDaemonClient>(gitblit));
-		root.setAuthenticator(keyAuthenticator);
-
+		DispatchCommand root = new DispatchCommand() {
+		};
 		root.setContext(new SshCommandContext(gitblit, client, cmdLine));
+
+		// TODO convert these dispatchers to plugin extension points
+		root.registerDispatcher(user, GitblitDispatchCommand.class);
+		root.registerDispatcher(user, GitDispatchCommand.class);
+
+		root.setAuthenticator(keyAuthenticator);
 
 		return root;
 	}

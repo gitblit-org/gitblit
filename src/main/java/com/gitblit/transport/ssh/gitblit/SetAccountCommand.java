@@ -12,7 +12,7 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-package com.gitblit.transport.ssh.commands;
+package com.gitblit.transport.ssh.gitblit;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +23,6 @@ import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
 import com.gitblit.transport.ssh.CommandMetaData;
-import com.gitblit.transport.ssh.IKeyManager;
 
 /** Set a user's account settings. **/
 @CommandMetaData(name = "set-account", description = "Change an account's settings", admin = true)
@@ -69,19 +68,17 @@ public class SetAccountCommand extends BaseKeyCommand {
 
 	private void addSshKeys(List<String> sshKeys) throws UnloggedFailure,
 			IOException {
-		IKeyManager keyManager = authenticator.getKeyManager();
 		for (String sshKey : sshKeys) {
-			keyManager.addKey(user, sshKey);
+			getKeyManager().addKey(user, sshKey);
 		}
 	}
 
 	private void deleteSshKeys(List<String> sshKeys) {
-		IKeyManager keyManager = authenticator.getKeyManager();
 		if (sshKeys.contains(ALL)) {
-			keyManager.removeAllKeys(user);
+			getKeyManager().removeAllKeys(user);
 		} else {
 			for (String sshKey : sshKeys) {
-				keyManager.removeKey(user, sshKey);
+				getKeyManager().removeKey(user, sshKey);
 			}
 		}
 	}

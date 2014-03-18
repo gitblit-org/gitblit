@@ -30,21 +30,17 @@ import org.kohsuke.args4j.Argument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.git.GitblitReceivePackFactory;
-import com.gitblit.git.GitblitUploadPackFactory;
-import com.gitblit.git.RepositoryResolver;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.CommandMetaData;
 import com.gitblit.transport.ssh.CachingPublicKeyAuthenticator;
-import com.gitblit.transport.ssh.SshDaemonClient;
-mport com.gitblit.utils.StringUtils;
+import com.gitblit.transport.ssh.gitblit.BaseKeyCommand;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
-public class DispatchCommand extends BaseCommand {
+public abstract class DispatchCommand extends BaseCommand {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -62,11 +58,31 @@ public class DispatchCommand extends BaseCommand {
 		commands = new HashSet<Class<? extends BaseCommand>>();
 	}
 
-	public void registerDispatcher(String name, Command cmd) {
+	public void registerDispatcher(UserModel user, Class<? extends DispatchCommand> cmd) {
+		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
+			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
+					CommandMetaData.class.getName()));
+		}
 		if (dispatchers == null) {
 			dispatchers = Maps.newHashMap();
 		}
-		dispatchers.put(name, cmd);
+
+		CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
+		if (meta.admin() && !user.canAdmin()) {
+			log.debug(MessageFormat.format("excluding admin dispatch command {0} for {1}", meta.name(), user.username));
+			return;
+		}
+
+		try {
+			DispatchCommand dispatcher = cmd.newInstance();
+			dispatcher.registerCommands(user);
+			dispatchers.put(meta.name(), dispatcher);
+		} catch (Exception e) {
+			log.error("failed to register {} dispatcher", meta.name());
+		}
+	}
+
+	protected void registerCommands(UserModel user) {
 	}
 
 
@@ -237,39 +253,10 @@ public class DispatchCommand extends BaseCommand {
 		cmd.setErrorStream(err);
 		cmd.setExitCallback(exit);
 
-		if (cmd instanceof BaseGitCommand) {
-			BaseGitCommand a = (BaseGitCommand) cmd;
-			a.setRepositoryResolver(repositoryResolver);
-			a.setUploadPackFactory(gitblitUploadPackFactory);
-			a.setReceivePackFactory(gitblitReceivePackFactory);
-		} else if (cmd instanceof DispatchCommand) {
-			DispatchCommand d = (DispatchCommand) cmd;
-			d.setRepositoryResolver(repositoryResolver);
-			d.setUploadPackFactory(gitblitUploadPackFactory);
-			d.setReceivePackFactory(gitblitReceivePackFactory);
-			d.setAuthenticator(authenticator);
-		} else if (cmd instanceof BaseKeyCommand) {
+		if (cmd instanceof BaseKeyCommand) {
 			BaseKeyCommand k = (BaseKeyCommand) cmd;
 			k.setAuthenticator(authenticator);
 		}
-	}
-
-	private RepositoryResolver<SshDaemonClient> repositoryResolver;
-
-	public void setRepositoryResolver(RepositoryResolver<SshDaemonClient> repositoryResolver) {
-		this.repositoryResolver = repositoryResolver;
-	}
-
-	private GitblitUploadPackFactory<SshDaemonClient> gitblitUploadPackFactory;
-
-	public void setUploadPackFactory(GitblitUploadPackFactory<SshDaemonClient> gitblitUploadPackFactory) {
-		this.gitblitUploadPackFactory = gitblitUploadPackFactory;
-	}
-
-	private GitblitReceivePackFactory<SshDaemonClient> gitblitReceivePackFactory;
-
-	public void setReceivePackFactory(GitblitReceivePackFactory<SshDaemonClient> gitblitReceivePackFactory) {
-		this.gitblitReceivePackFactory = gitblitReceivePackFactory;
 	}
 
 	private CachingPublicKeyAuthenticator authenticator;
