@@ -34,23 +34,23 @@ import com.gitblit.models.UserModel;
 import com.google.common.base.Preconditions;
 
 /**
- * 
+ *
  * @author Eric Myrhe
- * 
+ *
  */
 public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 		SessionListener {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	protected final IKeyManager keyManager;
+	protected final IPublicKeyManager keyManager;
 
 	protected final IAuthenticationManager authManager;
 
 	private final Map<ServerSession, Map<PublicKey, Boolean>> cache =
 			new ConcurrentHashMap<ServerSession, Map<PublicKey, Boolean>>();
 
-	public CachingPublicKeyAuthenticator(IKeyManager keyManager,
+	public CachingPublicKeyAuthenticator(IPublicKeyManager keyManager,
 			IAuthenticationManager authManager) {
 		this.keyManager = keyManager;
 		this.authManager = authManager;
@@ -101,16 +101,15 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 		return false;
 	}
 
-	public IKeyManager getKeyManager() {
-		return keyManager;
-	}
-
+	@Override
 	public void sessionCreated(Session session) {
 	}
 
+	@Override
 	public void sessionEvent(Session sesssion, Event event) {
 	}
 
+	@Override
 	public void sessionClosed(Session session) {
 		cache.remove(session);
 	}

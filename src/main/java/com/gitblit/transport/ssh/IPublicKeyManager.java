@@ -24,16 +24,18 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.manager.IManager;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 /**
+ * Parent class for public key managers.
  *
  * @author James Moger
  *
  */
-public abstract class IKeyManager {
+public abstract class IPublicKeyManager implements IManager {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -48,11 +50,13 @@ public abstract class IKeyManager {
 				}
 			});
 
-	public abstract IKeyManager start();
+	@Override
+	public abstract IPublicKeyManager start();
 
 	public abstract boolean isReady();
 
-	public abstract IKeyManager stop();
+	@Override
+	public abstract IPublicKeyManager stop();
 
 	public final List<PublicKey> getKeys(String username) {
 		try {

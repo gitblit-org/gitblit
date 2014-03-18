@@ -69,6 +69,7 @@ import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
+import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JsonUtils;
@@ -107,6 +108,8 @@ public class GitblitManager implements IGitblit {
 
 	protected final IAuthenticationManager authenticationManager;
 
+	protected final IPublicKeyManager publicKeyManager;
+
 	protected final IRepositoryManager repositoryManager;
 
 	protected final IProjectManager projectManager;
@@ -118,6 +121,7 @@ public class GitblitManager implements IGitblit {
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager) {
@@ -127,6 +131,7 @@ public class GitblitManager implements IGitblit {
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.authenticationManager = authenticationManager;
+		this.publicKeyManager = publicKeyManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
@@ -522,6 +527,11 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public ITicketService getTicketService() {
 		throw new RuntimeException("This class does not have a ticket service!");
+	}
+
+	@Override
+	public IPublicKeyManager getPublicKeyManager() {
+		return publicKeyManager;
 	}
 
 	/*
