@@ -19,7 +19,9 @@ import java.io.PrintWriter;
 
 import org.apache.sshd.server.Environment;
 
-public abstract class SshCommand extends BaseCommand {
+import ro.fortsoft.pf4j.ExtensionPoint;
+
+public abstract class SshCommand extends BaseCommand implements ExtensionPoint {
 	protected PrintWriter stdout;
 	protected PrintWriter stderr;
 
