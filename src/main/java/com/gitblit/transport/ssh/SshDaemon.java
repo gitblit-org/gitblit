@@ -166,6 +166,7 @@ public class SshDaemon {
 			run.set(false);
 
 			try {
+				((SshCommandFactory) sshd.getCommandFactory()).stop();
 				sshd.stop();
 			} catch (InterruptedException e) {
 				log.error("SSH Daemon stop interrupted", e);

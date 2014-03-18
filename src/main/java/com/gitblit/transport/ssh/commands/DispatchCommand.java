@@ -48,20 +48,34 @@ public abstract class DispatchCommand extends BaseCommand {
 	private List<String> args = new ArrayList<String>();
 
 	private final Set<Class<? extends BaseCommand>> commands;
+	private final Map<String, DispatchCommand> dispatchers;
+	private final List<BaseCommand> instantiated;
 	private Map<String, Class<? extends BaseCommand>> map;
-	private Map<String, BaseCommand> dispatchers;
 
 	protected DispatchCommand() {
 		commands = new HashSet<Class<? extends BaseCommand>>();
+		dispatchers = Maps.newHashMap();
+		instantiated = new ArrayList<BaseCommand>();
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		commands.clear();
+		map = null;
+
+		for (BaseCommand command : instantiated) {
+			command.destroy();
+		}
+		for (DispatchCommand dispatcher : dispatchers.values()) {
+			dispatcher.destroy();
+		}
 	}
 
 	protected void registerDispatcher(UserModel user, Class<? extends DispatchCommand> cmd) {
 		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));
-		}
-		if (dispatchers == null) {
-			dispatchers = Maps.newHashMap();
 		}
 
 		CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
@@ -108,10 +122,9 @@ public abstract class DispatchCommand extends BaseCommand {
 				CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
 				map.put(meta.name(), cmd);
 			}
-			if (dispatchers != null) {
-				for (Map.Entry<String, BaseCommand> entry : dispatchers.entrySet()) {
-					map.put(entry.getKey(), entry.getValue().getClass());
-				}
+
+			for (Map.Entry<String, DispatchCommand> entry : dispatchers.entrySet()) {
+				map.put(entry.getKey(), entry.getValue().getClass());
 			}
 		}
 		return map;
@@ -163,6 +176,7 @@ public abstract class DispatchCommand extends BaseCommand {
 		BaseCommand cmd = null;
 		try {
 			cmd = c.newInstance();
+			instantiated.add(cmd);
 		} catch (Exception e) {
 			throw new UnloggedFailure(1, MessageFormat.format("Failed to instantiate {0} command", commandName));
 		}

@@ -48,6 +48,14 @@ public abstract class BaseCommand implements Command, SessionAware {
 
 	private static final Logger log = LoggerFactory.getLogger(BaseCommand.class);
 
+	private static final int PRIVATE_STATUS = 1 << 30;
+
+	public final static int STATUS_CANCEL = PRIVATE_STATUS | 1;
+
+	public final static int STATUS_NOT_FOUND = PRIVATE_STATUS | 2;
+
+	public final static int STATUS_NOT_ADMIN = PRIVATE_STATUS | 3;
+
 	protected InputStream in;
 
 	protected OutputStream out;
@@ -86,6 +94,8 @@ public abstract class BaseCommand implements Command, SessionAware {
 
 	@Override
 	public void destroy() {
+		log.debug("destroying " + getClass().getName());
+		session = null;
 		ctx = null;
 	}
 
