@@ -44,6 +44,15 @@ public class GitDispatcher extends DispatchCommand {
 	}
 
 	@Override
+	public void destroy() {
+		super.destroy();
+
+		repositoryResolver = null;
+		receivePackFactory = null;
+		uploadPackFactory = null;
+	}
+
+	@Override
 	protected void registerCommands(UserModel user) {
 		registerCommand(user, Upload.class);
 		registerCommand(user, Receive.class);

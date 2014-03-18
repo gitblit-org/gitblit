@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,6 +41,7 @@ import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.WorkQueue;
 import com.google.common.util.concurrent.Atomics;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  *
@@ -50,6 +53,7 @@ public class SshCommandFactory implements CommandFactory {
 
 	private final IGitblit gitblit;
 	private final ScheduledExecutorService startExecutor;
+	private final ExecutorService destroyExecutor;
 
 	public SshCommandFactory(IGitblit gitblit, IdGenerator idGenerator) {
 		this.gitblit = gitblit;
@@ -57,6 +61,15 @@ public class SshCommandFactory implements CommandFactory {
 		int threads = 2;// cfg.getInt("sshd","commandStartThreads", 2);
 		WorkQueue workQueue = new WorkQueue(idGenerator);
 		startExecutor = workQueue.createQueue(threads, "SshCommandStart");
+		destroyExecutor = Executors.newSingleThreadExecutor(
+				new ThreadFactoryBuilder()
+					.setNameFormat("SshCommandDestroy-%s")
+					.setDaemon(true)
+					.build());
+	}
+
+	public void stop() {
+		destroyExecutor.shutdownNow();
 	}
 
 	public RootDispatcher createRootDispatcher(SshDaemonClient client, String commandLine) {
@@ -166,27 +179,23 @@ public class SshCommandFactory implements CommandFactory {
 		}
 
 		private int translateExit(final int rc) {
-			return rc;
-			//
-			// switch (rc) {
-			// case BaseCommand.STATUS_NOT_ADMIN:
-			// return 1;
-			//
-			// case BaseCommand.STATUS_CANCEL:
-			// return 15 /* SIGKILL */;
-			//
-			// case BaseCommand.STATUS_NOT_FOUND:
-			// return 127 /* POSIX not found */;
-			//
-			// default:
-			// return rc;
-			// }
+			switch (rc) {
+			case BaseCommand.STATUS_NOT_ADMIN:
+				return 1;
 
+			case BaseCommand.STATUS_CANCEL:
+				return 15 /* SIGKILL */;
+
+			case BaseCommand.STATUS_NOT_FOUND:
+				return 127 /* POSIX not found */;
+
+			default:
+				return rc;
+			}
 		}
 
 		private void log(final int rc) {
 			if (logged.compareAndSet(false, true)) {
-				// log.onExecute(cmd, rc);
 				logger.info("onExecute: {} exits with: {}", cmd.getClass().getSimpleName(), rc);
 			}
 		}
@@ -196,27 +205,22 @@ public class SshCommandFactory implements CommandFactory {
 			Future<?> future = task.getAndSet(null);
 			if (future != null) {
 				future.cancel(true);
-				// destroyExecutor.execute(new Runnable() {
-				// @Override
-				// public void run() {
-				// onDestroy();
-				// }
-				// });
+				destroyExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						onDestroy();
+					}
+				});
 			}
 		}
 
-		@SuppressWarnings("unused")
 		private void onDestroy() {
 			synchronized (this) {
 				if (cmd != null) {
-					// final Context old = sshScope.set(ctx);
 					try {
 						cmd.destroy();
-						// log(BaseCommand.STATUS_CANCEL);
 					} finally {
-						// ctx = null;
 						cmd = null;
-						// sshScope.set(old);
 					}
 				}
 			}
