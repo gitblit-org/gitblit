@@ -44,6 +44,16 @@ abstract class BaseGitCommand extends BaseCommand {
 	protected Repository repo;
 
 	@Override
+	public void destroy() {
+		super.destroy();
+
+		repositoryResolver = null;
+		receivePackFactory = null;
+		uploadPackFactory = null;
+		repo = null;
+	}
+
+	@Override
 	public void start(final Environment env) {
 		startThread(new RepositoryCommandRunnable() {
 			@Override
