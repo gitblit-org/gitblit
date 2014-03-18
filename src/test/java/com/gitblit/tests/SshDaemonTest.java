@@ -26,11 +26,15 @@ import org.apache.sshd.ClientChannel;
 import org.apache.sshd.ClientSession;
 import org.apache.sshd.SshClient;
 import org.apache.sshd.common.KeyPairProvider;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.gitblit.Constants;
+import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.transport.ssh.MemoryKeyManager;
 
 public class SshDaemonTest extends GitblitUnitTest {
 
@@ -48,6 +52,27 @@ public class SshDaemonTest extends GitblitUnitTest {
 		if (started.get()) {
 			GitBlitSuite.stopGitblit();
 		}
+	}
+
+	protected MemoryKeyManager getKeyManager() {
+		IPublicKeyManager mgr = gitblit().getPublicKeyManager();
+		if (mgr instanceof MemoryKeyManager) {
+			return (MemoryKeyManager) gitblit().getPublicKeyManager();
+		} else {
+			throw new RuntimeException("unexpected key manager type " + mgr.getClass().getName());
+		}
+	}
+
+	@Before
+	public void prepare() {
+		MemoryKeyManager keyMgr = getKeyManager();
+		keyMgr.addKey("admin", pair.getPublic());
+	}
+
+	@After
+	public void tearDown() {
+		MemoryKeyManager keyMgr = getKeyManager();
+		keyMgr.removeAllKeys("admin");
 	}
 
 	@Test

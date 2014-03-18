@@ -21,8 +21,6 @@ import java.net.InetSocketAddress;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Singleton;
-
 import org.apache.sshd.SshServer;
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
 import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
@@ -35,14 +33,9 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
-
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
 
 /**
  * Manager for the ssh transport. Roughly analogous to the
@@ -73,7 +66,6 @@ public class SshDaemon {
 
 	private final IGitblit gitblit;
 	private final SshServer sshd;
-	private final ObjectGraph injector;
 
 	/**
 	 * Construct the Gitblit SSH daemon.
@@ -82,14 +74,11 @@ public class SshDaemon {
 	 */
 	public SshDaemon(IGitblit gitblit, IdGenerator idGenerator) {
 		this.gitblit = gitblit;
-		this.injector = ObjectGraph.create(new SshModule());
 
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.sshPort, 0);
 		String bindInterface = settings.getString(Keys.git.sshBindInterface,
 				"localhost");
-
-		IKeyManager keyManager = getKeyManager();
 
 		String sshBackendStr = settings.getString(Keys.git.sshBackend,
 				SshSessionBackend.NIO2.name());
@@ -108,7 +97,7 @@ public class SshDaemon {
 
 		File hostKeyStore = new File(gitblit.getBaseFolder(), HOST_KEY_STORE);
 		CachingPublicKeyAuthenticator keyAuthenticator =
-				getPublicKeyAuthenticator(keyManager, gitblit);
+				new CachingPublicKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
 
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
@@ -119,34 +108,13 @@ public class SshDaemon {
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
-		sshd.setCommandFactory(new SshCommandFactory(gitblit, keyAuthenticator, idGenerator));
+		sshd.setCommandFactory(new SshCommandFactory(gitblit, idGenerator));
 		sshd.setShellFactory(new WelcomeShell(settings));
 
 		String version = Constants.getGitBlitVersion() + " (" + sshd.getVersion() + ")";
 		sshd.getProperties().put(SshServer.SERVER_IDENTIFICATION, version);
 
 		run = new AtomicBoolean(false);
-	}
-
-	private CachingPublicKeyAuthenticator getPublicKeyAuthenticator(
-			IKeyManager keyManager, IGitblit gitblit) {
-		IStoredSettings settings = gitblit.getSettings();
-		String clazz = settings.getString(Keys.git.sshPublicKeyAuthenticator,
-				CachingPublicKeyAuthenticator.class.getName());
-		if (StringUtils.isEmpty(clazz)) {
-			clazz = CachingPublicKeyAuthenticator.class.getName();
-		}
-		try {
-			Class<CachingPublicKeyAuthenticator> authClass =
-					(Class<CachingPublicKeyAuthenticator>) Class.forName(clazz);
-			return authClass.getConstructor(
-					new Class[] { IKeyManager.class,
-							IAuthenticationManager.class }).newInstance(
-					keyManager, gitblit);
-		} catch (Exception e) {
-			log.error("failed to create ssh auth manager " + clazz, e);
-		}
-		return null;
 	}
 
 	public String formatUrl(String gituser, String servername, String repository) {
@@ -201,77 +169,6 @@ public class SshDaemon {
 			} catch (InterruptedException e) {
 				log.error("SSH Daemon stop interrupted", e);
 			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	protected IKeyManager getKeyManager() {
-		IKeyManager keyManager = null;
-		IStoredSettings settings = gitblit.getSettings();
-		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
-		if (StringUtils.isEmpty(clazz)) {
-			clazz = FileKeyManager.class.getName();
-		}
-		try {
-			Class<? extends IKeyManager> managerClass = (Class<? extends IKeyManager>) Class.forName(clazz);
-			keyManager = injector.get(managerClass).start();
-			if (keyManager.isReady()) {
-				log.info("{} is ready.", keyManager);
-			} else {
-				log.warn("{} is disabled.", keyManager);
-			}
-		} catch (Exception e) {
-			log.error("failed to create ssh key manager " + clazz, e);
-			keyManager = injector.get(NullKeyManager.class).start();
-		}
-		return keyManager;
-	}
-
-	@SuppressWarnings("unchecked")
-	protected IKeyManager getKeyAuthenticator() {
-		IKeyManager keyManager = null;
-		IStoredSettings settings = gitblit.getSettings();
-		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
-		if (StringUtils.isEmpty(clazz)) {
-			clazz = FileKeyManager.class.getName();
-		}
-		try {
-			Class<? extends IKeyManager> managerClass = (Class<? extends IKeyManager>) Class.forName(clazz);
-			keyManager = injector.get(managerClass).start();
-			if (keyManager.isReady()) {
-				log.info("{} is ready.", keyManager);
-			} else {
-				log.warn("{} is disabled.", keyManager);
-			}
-		} catch (Exception e) {
-			log.error("failed to create ssh key manager " + clazz, e);
-			keyManager = injector.get(NullKeyManager.class).start();
-		}
-		return keyManager;
-	}
-
-	/**
-	 * A nested Dagger graph is used for constructor dependency injection of
-	 * complex classes.
-	 *
-	 * @author James Moger
-	 *
-	 */
-	@Module(
-			library = true,
-			injects = {
-					NullKeyManager.class,
-					FileKeyManager.class
-			}
-			)
-	class SshModule {
-
-		@Provides @Singleton NullKeyManager provideNullKeyManager() {
-			return new NullKeyManager();
-		}
-
-		@Provides @Singleton FileKeyManager provideFileKeyManager() {
-			return new FileKeyManager(SshDaemon.this.gitblit);
 		}
 	}
 }

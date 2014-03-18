@@ -39,6 +39,7 @@ import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.tickets.ITicketService;
+import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
 import com.gitblit.wicket.pages.BlamePage;
@@ -95,6 +96,8 @@ public class GitBlitWebApp extends WebApplication {
 
 	private final IAuthenticationManager authenticationManager;
 
+	private final IPublicKeyManager publicKeyManager;
+
 	private final IRepositoryManager repositoryManager;
 
 	private final IProjectManager projectManager;
@@ -108,6 +111,7 @@ public class GitBlitWebApp extends WebApplication {
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager,
@@ -119,6 +123,7 @@ public class GitBlitWebApp extends WebApplication {
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.authenticationManager = authenticationManager;
+		this.publicKeyManager = publicKeyManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
@@ -278,6 +283,10 @@ public class GitBlitWebApp extends WebApplication {
 
 	public IAuthenticationManager authentication() {
 		return authenticationManager;
+	}
+
+	public IPublicKeyManager keys() {
+		return publicKeyManager;
 	}
 
 	public IRepositoryManager repositories() {
