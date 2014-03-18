@@ -15,6 +15,10 @@
  */
 package com.gitblit.transport.ssh.commands;
 
+import java.util.List;
+
+import ro.fortsoft.pf4j.PluginWrapper;
+
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshDaemonClient;
@@ -36,7 +40,10 @@ public class RootDispatcher extends DispatchCommand {
 		registerDispatcher(user, GitblitDispatcher.class);
 		registerDispatcher(user, GitDispatcher.class);
 
-		// TODO register plugin dispatchers here
+		List<DispatchCommand> p = gitblit.getExtensions(DispatchCommand.class);
+		for (DispatchCommand d : p) {
+			registerDispatcher(user, d.getClass());
+		}
 	}
 
 	@Override

@@ -30,6 +30,8 @@ import org.kohsuke.args4j.Argument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.fortsoft.pf4j.ExtensionPoint;
+
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.cli.SubcommandHandler;
@@ -37,7 +39,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
-public abstract class DispatchCommand extends BaseCommand {
+public abstract class DispatchCommand extends BaseCommand implements ExtensionPoint {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
