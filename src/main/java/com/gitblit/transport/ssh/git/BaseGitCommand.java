@@ -84,7 +84,7 @@ abstract class BaseGitCommand extends BaseCommand {
 		}
 		repository = repository.substring(1);
 		try {
-			return repositoryResolver.open(ctx.getClient(), repository);
+			return repositoryResolver.open(getContext().getClient(), repository);
 		} catch (Exception e) {
 			throw new Failure(1, "fatal: '" + repository + "': not a git archive", e);
 		}
