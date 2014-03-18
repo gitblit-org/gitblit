@@ -41,9 +41,9 @@ import com.gitblit.dagger.DaggerContext;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
-import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IManager;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -177,6 +177,7 @@ public class GitblitContext extends DaggerContext {
 		managers.add(runtime);
 
 		// start all other managers
+		startManager(injector, IPluginManager.class);
 		startManager(injector, INotificationManager.class);
 		startManager(injector, IUserManager.class);
 		startManager(injector, IAuthenticationManager.class);
@@ -185,7 +186,6 @@ public class GitblitContext extends DaggerContext {
 		startManager(injector, IProjectManager.class);
 		startManager(injector, IFederationManager.class);
 		startManager(injector, IGitblit.class);
-		startManager(injector, IPluginManager.class);
 
 		logger.info("");
 		logger.info("All managers started.");

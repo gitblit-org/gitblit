@@ -39,7 +39,7 @@ public abstract class DaggerFilter implements Filter {
 		inject(objectGraph);
 	}
 
-	protected abstract void inject(ObjectGraph dagger) throws ServletException;
+	protected abstract void inject(ObjectGraph dagger);
 
 	@Override
 	public void destroy() {
