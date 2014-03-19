@@ -102,6 +102,12 @@ public class ServicesManager implements IManager {
 		return this;
 	}
 
+	public boolean isServingRepositories() {
+		return settings.getBoolean(Keys.git.enableGitServlet, true)
+				|| (gitDaemon != null && gitDaemon.isRunning())
+				|| (sshDaemon != null && sshDaemon.isRunning());
+	}
+
 	protected void configureFederation() {
 		boolean validPassphrase = true;
 		String passphrase = settings.getString(Keys.federation.passphrase, "");

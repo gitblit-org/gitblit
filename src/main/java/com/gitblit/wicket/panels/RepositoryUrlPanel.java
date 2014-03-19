@@ -165,7 +165,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		if (repository.isMirror) {
 			urlPanel.add(WicketUtils.newImage("accessRestrictionIcon", "mirror_16x16.png",
 					getString("gb.isMirror")));
-		} else if (app().runtime().isServingRepositories()) {
+		} else if (app().gitblit().isServingRepositories()) {
 			switch (repository.accessRestriction) {
 			case NONE:
 				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
