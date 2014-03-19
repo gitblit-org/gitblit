@@ -25,6 +25,9 @@ public class VersionCommand extends SshCommand {
 
   @Override
   public void run() {
+	  Object o = new Object();
+	  o = null;
+	  o.toString();
 	  stdout.println(Constants.getGitBlitVersion());
   }
 }
