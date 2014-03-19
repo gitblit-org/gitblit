@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 public @interface CommandMetaData {
 String name();
+String [] aliases() default {};
 String description() default "";
 boolean admin() default false;
 boolean hidden() default false;
