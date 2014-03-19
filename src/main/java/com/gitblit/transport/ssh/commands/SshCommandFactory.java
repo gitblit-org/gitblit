@@ -36,6 +36,7 @@ import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.utils.IdGenerator;
@@ -58,7 +59,7 @@ public class SshCommandFactory implements CommandFactory {
 	public SshCommandFactory(IGitblit gitblit, IdGenerator idGenerator) {
 		this.gitblit = gitblit;
 
-		int threads = 2;// cfg.getInt("sshd","commandStartThreads", 2);
+		int threads = gitblit.getSettings().getInteger(Keys.git.sshCommandStartThreads, 2);
 		WorkQueue workQueue = new WorkQueue(idGenerator);
 		startExecutor = workQueue.createQueue(threads, "SshCommandStart");
 		destroyExecutor = Executors.newSingleThreadExecutor(
