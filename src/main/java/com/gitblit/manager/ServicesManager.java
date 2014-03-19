@@ -228,6 +228,10 @@ public class ServicesManager implements IManager {
 	}
 
 	public String getSshDaemonUrl(HttpServletRequest request, UserModel user, RepositoryModel repository) {
+		if (user == null || UserModel.ANONYMOUS.equals(user)) {
+			// SSH always requires authentication - anonymous access prohibited
+			return null;
+		}
 		if (sshDaemon != null) {
 			String bindInterface = settings.getString(Keys.git.sshBindInterface, "localhost");
 			if (bindInterface.equals("localhost")
