@@ -69,9 +69,12 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		for (BaseCommand command : instantiated) {
 			command.destroy();
 		}
+		instantiated.clear();
+
 		for (DispatchCommand dispatcher : dispatchers.values()) {
 			dispatcher.destroy();
 		}
+		dispatchers.clear();
 	}
 
 	protected void registerDispatcher(UserModel user, Class<? extends DispatchCommand> cmd) {
