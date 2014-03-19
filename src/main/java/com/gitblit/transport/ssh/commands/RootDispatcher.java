@@ -17,6 +17,9 @@ package com.gitblit.transport.ssh.commands;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshDaemonClient;
@@ -30,6 +33,8 @@ import com.gitblit.transport.ssh.gitblit.GitblitDispatcher;
  */
 public class RootDispatcher extends DispatchCommand {
 
+	private Logger log = LoggerFactory.getLogger(getClass());
+
 	public RootDispatcher(IGitblit gitblit, SshDaemonClient client, String cmdLine) {
 		super();
 		setContext(new SshCommandContext(gitblit, client, cmdLine));
@@ -40,6 +45,10 @@ public class RootDispatcher extends DispatchCommand {
 
 		List<DispatchCommand> exts = gitblit.getExtensions(DispatchCommand.class);
 		for (DispatchCommand ext : exts) {
+			Class<? extends DispatchCommand> extClass = ext.getClass();
+			String plugin = gitblit.whichPlugin(extClass).getDescriptor().getPluginId();
+			CommandMetaData meta = extClass.getAnnotation(CommandMetaData.class);
+			log.info("Dispatcher {} is loaded from plugin {}", meta.name(), plugin);
 			registerDispatcher(user, ext);
 		}
 	}
