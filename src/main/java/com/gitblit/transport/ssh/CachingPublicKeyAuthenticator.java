@@ -73,7 +73,7 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 		return result;
 	}
 
-	protected boolean doAuthenticate(String username, PublicKey suppliedKey,
+	private boolean doAuthenticate(String username, PublicKey suppliedKey,
 			ServerSession session) {
 		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 		Preconditions.checkState(client.getUser() == null);
@@ -95,8 +95,7 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 			}
 		}
 
-		log.warn(
-				"could not authenticate {} for SSH using the supplied public key",
+		log.warn("could not authenticate {} for SSH using the supplied public key",
 				username);
 		return false;
 	}
