@@ -99,8 +99,12 @@ public class KeysDispatcher extends DispatchCommand {
 		@Override
 		public void run() {
 			IPublicKeyManager keyManager = getContext().getGitblit().getPublicKeyManager();
-			List<PublicKey> keys = keyManager.getKeys(getContext().getClient().getUsername());
-
+			String username = getContext().getClient().getUsername();
+			List<PublicKey> keys = keyManager.getKeys(username);
+			if (keys == null) {
+				stdout.println(String.format("%s has not added any public keys for ssh authentication", username));
+				return;
+			}
 			for (PublicKey key : keys) {
 				// two-steps - perhaps this could be improved
 				Buffer buf = new Buffer();
