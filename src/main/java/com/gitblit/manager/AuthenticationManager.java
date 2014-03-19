@@ -159,6 +159,10 @@ public class AuthenticationManager implements IAuthenticationManager {
 		}
 		return this;
 	}
+	
+	public void addAuthenticationProvider(AuthenticationProvider prov) {
+		authenticationProviders.add(prov);
+	}
 
 	/**
 	 * Authenticate a user based on HTTP request parameters.
@@ -341,41 +345,52 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 		// try local authentication
 		if (user != null && user.isLocalAccount()) {
-			UserModel returnedUser = null;
-			if (user.password.startsWith(StringUtils.MD5_TYPE)) {
-				// password digest
-				String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
-				if (user.password.equalsIgnoreCase(md5)) {
-					returnedUser = user;
-				}
-			} else if (user.password.startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-				// username+password digest
-				String md5 = StringUtils.COMBINED_MD5_TYPE
-						+ StringUtils.getMD5(username.toLowerCase() + new String(password));
-				if (user.password.equalsIgnoreCase(md5)) {
-					returnedUser = user;
-				}
-			} else if (user.password.equals(new String(password))) {
-				// plain-text password
-				returnedUser = user;
-			}
-			return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+			return authenticateLocal(user, password);
 		}
 
 		// try registered external authentication providers
-		if (user == null) {
-			for (AuthenticationProvider provider : authenticationProviders) {
-				if (provider instanceof UsernamePasswordAuthenticationProvider) {
-					user = provider.authenticate(usernameDecoded, password);
-					if (user != null) {
-						// user authenticated
-						user.accountType = provider.getAccountType();
-						return validateAuthentication(user, AuthenticationType.CREDENTIALS);
-					}
+		for (AuthenticationProvider provider : authenticationProviders) {
+			if (provider instanceof UsernamePasswordAuthenticationProvider) {
+				UserModel returnedUser = provider.authenticate(usernameDecoded, password);
+				if (returnedUser != null) {
+					// user authenticated
+					returnedUser.accountType = provider.getAccountType();
+					return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
 				}
 			}
 		}
-		return validateAuthentication(user, AuthenticationType.CREDENTIALS);
+		
+		// could not authenticate locally or with a provider
+		return null;
+	}
+	
+	/**
+	 * Returns a UserModel if local authentication succeeds.
+	 * 
+	 * @param user
+	 * @param password
+	 * @return a UserModel if local authentication succeeds, null otherwise
+	 */
+	protected UserModel authenticateLocal(UserModel user, char [] password) {
+		UserModel returnedUser = null;
+		if (user.password.startsWith(StringUtils.MD5_TYPE)) {
+			// password digest
+			String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
+			if (user.password.equalsIgnoreCase(md5)) {
+				returnedUser = user;
+			}
+		} else if (user.password.startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+			// username+password digest
+			String md5 = StringUtils.COMBINED_MD5_TYPE
+					+ StringUtils.getMD5(user.username.toLowerCase() + new String(password));
+			if (user.password.equalsIgnoreCase(md5)) {
+				returnedUser = user;
+			}
+		} else if (user.password.equals(new String(password))) {
+			// plain-text password
+			returnedUser = user;
+		}
+		return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
 	}
 
 	/**
