@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.4.1 release
 #
 r21: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.4.1 released
+    id: 1.4.1
+    date: 2014-03-18
     note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled by default."
     html: ~
     text: ''
@@ -1190,6 +1190,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r21
-release: &r20
-releases: &r[1..20]
+snapshot: ~
+release: &r21
+releases: &r[1..21]
