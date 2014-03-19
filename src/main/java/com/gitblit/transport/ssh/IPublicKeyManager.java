@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.manager.IManager;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheLoader.InvalidCacheLoadException;
 import com.google.common.cache.LoadingCache;
 
 /**
@@ -64,6 +65,10 @@ public abstract class IPublicKeyManager implements IManager {
 				keyCache.invalidate(username);
 			}
 			return keyCache.get(username);
+		} catch (InvalidCacheLoadException e) {
+			if (e.getMessage() == null || !e.getMessage().contains("returned null")) {
+				log.error(MessageFormat.format("failed to retrieve keys for {0}", username), e);
+			}
 		} catch (ExecutionException e) {
 			log.error(MessageFormat.format("failed to retrieve keys for {0}", username), e);
 		}
