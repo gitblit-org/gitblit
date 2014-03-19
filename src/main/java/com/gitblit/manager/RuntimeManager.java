@@ -116,7 +116,9 @@ public class RuntimeManager implements IRuntimeManager {
 	 */
 	@Override
 	public boolean isServingRepositories() {
-		return settings.getBoolean(Keys.git.enableGitServlet, true) || (settings.getInteger(Keys.git.daemonPort, 0) > 0);
+		return settings.getBoolean(Keys.git.enableGitServlet, true)
+				|| (settings.getInteger(Keys.git.daemonPort, 0) > 0)
+				|| (settings.getInteger(Keys.git.sshPort, 0) > 0);
 	}
 
 	/**
