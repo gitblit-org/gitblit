@@ -36,6 +36,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.cli.SubcommandHandler;
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
@@ -51,12 +52,16 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 
 	private final Set<Class<? extends BaseCommand>> commands;
 	private final Map<String, DispatchCommand> dispatchers;
+	private final Map<String, String> aliasToCommand;
+	private final Map<String, List<String>> commandToAliases;
 	private final List<BaseCommand> instantiated;
 	private Map<String, Class<? extends BaseCommand>> map;
 
 	protected DispatchCommand() {
 		commands = new HashSet<Class<? extends BaseCommand>>();
 		dispatchers = Maps.newHashMap();
+		aliasToCommand = Maps.newHashMap();
+		commandToAliases = Maps.newHashMap();
 		instantiated = new ArrayList<BaseCommand>();
 	}
 
@@ -64,6 +69,8 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	public void destroy() {
 		super.destroy();
 		commands.clear();
+		aliasToCommand.clear();
+		commandToAliases.clear();
 		map = null;
 
 		for (BaseCommand command : instantiated) {
@@ -103,6 +110,13 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		try {
 			dispatcher.registerCommands(user);
 			dispatchers.put(meta.name(), dispatcher);
+			for (String alias : meta.aliases()) {
+				aliasToCommand.put(alias, meta.name());
+				if (!commandToAliases.containsKey(meta.name())) {
+					commandToAliases.put(meta.name(), new ArrayList<String>());
+				}
+				commandToAliases.get(meta.name()).add(alias);
+			}
 		} catch (Exception e) {
 			log.error("failed to register {} dispatcher", meta.name());
 		}
@@ -135,7 +149,22 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			map = Maps.newHashMapWithExpectedSize(commands.size());
 			for (Class<? extends BaseCommand> cmd : commands) {
 				CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
-				map.put(meta.name(), cmd);
+				if (map.containsKey(meta.name()) || aliasToCommand.containsKey(meta.name())) {
+					log.warn("{} already contains the \"{}\" command!", getName(), meta.name());
+				} else {
+					map.put(meta.name(), cmd);
+				}
+				for (String alias : meta.aliases()) {
+					if (map.containsKey(alias) || aliasToCommand.containsKey(alias)) {
+						log.warn("{} already contains the \"{}\" command!", getName(), alias);
+					} else {
+						aliasToCommand.put(alias, meta.name());
+						if (!commandToAliases.containsKey(meta.name())) {
+							commandToAliases.put(meta.name(), new ArrayList<String>());
+						}
+						commandToAliases.get(meta.name()).add(alias);
+					}
+				}
 			}
 
 			for (Map.Entry<String, DispatchCommand> entry : dispatchers.entrySet()) {
@@ -179,10 +208,15 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	}
 
 	private BaseCommand getCommand() throws UnloggedFailure {
-		if (dispatchers != null && dispatchers.containsKey(commandName)) {
-			return dispatchers.get(commandName);
+		Map<String, Class<? extends BaseCommand>> map = getMap();
+		String name = commandName;
+		if (aliasToCommand.containsKey(commandName)) {
+			name = aliasToCommand.get(name);
 		}
-		final Class<? extends BaseCommand> c = getMap().get(commandName);
+		if (dispatchers.containsKey(name)) {
+			return dispatchers.get(name);
+		}
+		final Class<? extends BaseCommand> c = map.get(name);
 		if (c == null) {
 			String msg = (getName().isEmpty() ? "Gitblit" : getName()) + ": " + commandName + ": not found";
 			throw new UnloggedFailure(1, msg);
@@ -202,6 +236,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	public String usage() {
 		Set<String> commands = new TreeSet<String>();
 		Set<String> dispatchers = new TreeSet<String>();
+		Map<String, String> displayNames = Maps.newHashMap();
 		int maxLength = -1;
 		Map<String, Class<? extends BaseCommand>> m = getMap();
 		for (String name : m.keySet()) {
@@ -211,7 +246,13 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 				continue;
 			}
 
-			maxLength = Math.max(maxLength, name.length());
+			String displayName = name;
+			if (commandToAliases.containsKey(meta.name())) {
+				displayName = name + " (" + Joiner.on(',').join(commandToAliases.get(meta.name())) + ")";
+			}
+			displayNames.put(name, displayName);
+
+			maxLength = Math.max(maxLength, displayName.length());
 			if (DispatchCommand.class.isAssignableFrom(c)) {
 				dispatchers.add(name);
 			} else {
@@ -231,9 +272,10 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			usage.append("\n");
 			for (String name : commands) {
 				final Class<? extends Command> c = m.get(name);
+				String displayName = displayNames.get(name);
 				CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
 				usage.append("   ");
-				usage.append(String.format(format, name, Strings.nullToEmpty(meta.description())));
+				usage.append(String.format(format, displayName, Strings.nullToEmpty(meta.description())));
 				usage.append("\n");
 			}
 			usage.append("\n");
@@ -249,9 +291,10 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			usage.append("\n");
 			for (String name : dispatchers) {
 				final Class<? extends BaseCommand> c = m.get(name);
+				String displayName = displayNames.get(name);
 				CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
 				usage.append("   ");
-				usage.append(String.format(format, name, Strings.nullToEmpty(meta.description())));
+				usage.append(String.format(format, displayName, Strings.nullToEmpty(meta.description())));
 				usage.append("\n");
 			}
 			usage.append("\n");
