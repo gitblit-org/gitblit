@@ -232,7 +232,7 @@ public abstract class BaseCommand implements Command, SessionAware {
 		public void cancel() {
 			synchronized (this) {
 				try {
-					// onExit(/*STATUS_CANCEL*/);
+					onExit(STATUS_CANCEL);
 				} finally {
 					ctx = null;
 				}
@@ -317,18 +317,12 @@ public abstract class BaseCommand implements Command, SessionAware {
 	/**
 	 * Terminate this command and return a result code to the remote client.
 	 * <p>
-	 * Commands should invoke this at most once. Once invoked, the command may
-	 * lose access to request based resources as any callbacks previously
-	 * registered with {@link RequestCleanup} will fire.
+	 * Commands should invoke this at most once.
 	 *
-	 * @param rc
-	 *            exit code for the remote client.
+	 * @param rc exit code for the remote client.
 	 */
 	protected void onExit(final int rc) {
 		exit.onExit(rc);
-		// if (cleanup != null) {
-		// cleanup.run();
-		// }
 	}
 
 	private int handleError(final Throwable e) {
@@ -346,16 +340,14 @@ public abstract class BaseCommand implements Command, SessionAware {
 		} else {
 			final StringBuilder m = new StringBuilder();
 			m.append("Internal server error");
-			// if (userProvider.get().isIdentifiedUser()) {
-			// final IdentifiedUser u = (IdentifiedUser) userProvider.get();
-			// m.append(" (user ");
-			// m.append(u.getAccount().getUserName());
-			// m.append(" account ");
-			// m.append(u.getAccountId());
-			// m.append(")");
-			// }
-			// m.append(" during ");
-			// m.append(contextProvider.get().getCommandLine());
+			String user = ctx.getClient().getUsername();
+			if (user != null) {
+				m.append(" (user ");
+				m.append(user);
+				m.append(")");
+			}
+			m.append(" during ");
+			m.append(ctx.getCommandLine());
 			log.error(m.toString(), e);
 		}
 
