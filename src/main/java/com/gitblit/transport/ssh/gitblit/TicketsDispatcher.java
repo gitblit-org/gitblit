@@ -19,19 +19,11 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 
-@CommandMetaData(name = "gitblit", description = "Gitblit server commands")
-public class GitblitDispatcher extends DispatchCommand {
+@CommandMetaData(name = "tickets", description = "Ticket commands", hidden = true)
+public class TicketsDispatcher extends DispatchCommand {
 
 	@Override
 	protected void registerCommands(UserModel user) {
-		// commands in this dispatcher
-		registerCommand(user, VersionCommand.class);
-		registerCommand(user, CreateRepository.class);
-		registerCommand(user, SetAccountCommand.class);
-
-		// nested dispatchers
-		registerDispatcher(user, ListDispatcher.class);
-		registerDispatcher(user, KeysDispatcher.class);
-		registerDispatcher(user, TicketsDispatcher.class);
+		registerCommand(user, ReviewCommand.class);
 	}
 }
