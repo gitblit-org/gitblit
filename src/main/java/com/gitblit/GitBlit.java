@@ -107,6 +107,11 @@ public class GitBlit extends GitblitManager {
 		return this;
 	}
 
+	@Override
+	public boolean isServingRepositories() {
+		return servicesManager.isServingRepositories();
+	}
+
 	protected Object [] getModules() {
 		return new Object [] { new GitBlitModule()};
 	}
