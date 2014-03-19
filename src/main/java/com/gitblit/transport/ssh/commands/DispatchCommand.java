@@ -144,6 +144,26 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		commands.add(cmd);
 	}
 
+	/**
+	 * Registers a command as long as the user is permitted to execute it.
+	 *
+	 * @param user
+	 * @param cmd
+	 */
+	protected void registerCommand(UserModel user, BaseCommand cmd) {
+		if (!cmd.getClass().isAnnotationPresent(CommandMetaData.class)) {
+			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
+					CommandMetaData.class.getName()));
+		}
+		CommandMetaData meta = cmd.getClass().getAnnotation(CommandMetaData.class);
+		if (meta.admin() && !user.canAdmin()) {
+			log.debug(MessageFormat.format("excluding admin command {0} for {1}", meta.name(), user.username));
+			return;
+		}
+		commands.add(cmd.getClass());
+		instantiated.add(cmd);
+	}
+
 	private Map<String, Class<? extends BaseCommand>> getMap() {
 		if (map == null) {
 			map = Maps.newHashMapWithExpectedSize(commands.size());
@@ -220,6 +240,13 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		if (c == null) {
 			String msg = (getName().isEmpty() ? "Gitblit" : getName()) + ": " + commandName + ": not found";
 			throw new UnloggedFailure(1, msg);
+		}
+
+		for (BaseCommand cmd : instantiated) {
+			// use an already instantiated command
+			if (cmd.getClass().equals(c)) {
+				return cmd;
+			}
 		}
 
 		BaseCommand cmd = null;
