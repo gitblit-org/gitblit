@@ -56,6 +56,7 @@ public class GitDispatcher extends DispatchCommand {
 	protected void registerCommands(UserModel user) {
 		registerCommand(user, Upload.class);
 		registerCommand(user, Receive.class);
+		registerCommand(user, GarbageCollectionCommand.class);
 	}
 
 	@Override
