@@ -1,7 +1,7 @@
 #
 # ${project.version} release
 #
-r21: {
+r22: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
@@ -9,12 +9,52 @@ r21: {
     html: ~
     text: ~
     security: ~
+    fixes: ~
+    changes: ~
+    additions: ~
+    dependencyChanges: ~
+    contributors: ~
+}
+
+#
+# 1.4.1 release
+#
+r21: {
+    title: Gitblit 1.4.1 released
+    id: 1.4.1
+    date: 2014-03-18
+    note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled by default."
+    html: ~
+    text: ''
+          !! IMPORTANT BUG FIX FOR EXTERNAL AUTHENTICATION (1.4.1) !!
+          
+          This is a MAJOR release (1.4.0).
+          
+          The entire core has been refactored to be more modular.  Authentication providers have all been refactored to be simpler.  Both of these were precursor requirements for landing the Tickets feature -- issue tracker & branch-based pull requests.
+          
+          Markup rendering has been improved and expanded to several additional formats.  A repository mirroring service  has been added to allow you to automatically track public repositories.  Commit pages now indicate diffstat information and many bug fixes and smaller features have been introduced.
+          
+          The groundwork has also been laid for SSH support which will be in the focal point for the next major release (ticket-6).
+          
+          Due to the enormity of these changes, please make a backup copy of users.conf before updating.''
+    security:
+    - Fix major authentication security hole when using external authentication providers (issue-387, ticket-35)
     fixes:
+    - Fixed incorrect branch ref in Ticket page for symlinks (issue-383, ticket-32)
+    - Fix NPE in FileTicketService (issue-386, ticket-34)
+    - Watch list push parameters were now always honored (ticket-30)
+    - Watch list push parameters were not always validated (ticket-29)
+    - Truncated tag messages in the tag panel did not have proper tooltips (ticket-31)
+    - Fix merging GO runtime settings with command-line override settings (ticket-33)
+    - Fix ticket page IOBE on Ticket page when Gitblit is not serving repositories (ticket-27)
+    - Exclude ticket branches when forking a repository (ticket-26)
+    - Workaround pegdown bug and improve relative image path processing (ticket-24)
     - Disable Ticket review functions in read-only repositories (mirror, frozen, etc)
     - Fix incorrect git fetch instructions in Ticket email notifications
     - Fix Ticket email notification recipients to include repository owners
     - Fix Ticket propose instructions to branch from origin/{integrationBranch}
-    changes: ~
+    changes:
+    - Add closed status for milestones and abandoned status for tickets (ticket-25)
     additions: ~
     dependencyChanges: ~
     contributors:
@@ -1168,6 +1208,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r21
-release: &r20
-releases: &r[1..20]
+snapshot: &r22
+release: &r21
+releases: &r[1..21]

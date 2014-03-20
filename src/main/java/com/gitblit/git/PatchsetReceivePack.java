@@ -163,11 +163,11 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 	/** Extracts the ticket id from the ref name */
 	private long getTicketId(String refName) {
+		if (refName.indexOf('%') > -1) {
+			refName = refName.substring(0, refName.indexOf('%'));
+		}
 		if (refName.startsWith(Constants.R_FOR)) {
 			String ref = refName.substring(Constants.R_FOR.length());
-			if (ref.indexOf('%') > -1) {
-				ref = ref.substring(0, ref.indexOf('%'));
-			}
 			try {
 				return Long.parseLong(ref);
 			} catch (Exception e) {
@@ -350,6 +350,9 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					continue;
 				}
 
+				LOGGER.info(MessageFormat.format("Verifying {0} push ref \"{1}\" received from {2}",
+						repository.name, cmd.getRefName(), user.username));
+
 				// responsible verification
 				String responsible = PatchsetCommand.getSingleOption(cmd, PatchsetCommand.RESPONSIBLE);
 				if (!StringUtils.isEmpty(responsible)) {
@@ -380,13 +383,18 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// watcher verification
 				List<String> watchers = PatchsetCommand.getOptions(cmd, PatchsetCommand.WATCH);
 				if (!ArrayUtils.isEmpty(watchers)) {
+					boolean verified = true;
 					for (String watcher : watchers) {
 						UserModel user = gitblit.getUserModel(watcher);
 						if (user == null) {
 							// watcher does not exist
 							sendRejection(cmd, "Sorry, \"{0}\" is not a valid username for the watch list!", watcher);
-							continue;
+							verified = false;
+							break;
 						}
+					}
+					if (!verified) {
+						continue;
 					}
 				}
 

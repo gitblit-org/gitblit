@@ -264,11 +264,15 @@ public class FileTicketService extends ITicketService {
 
 	private List<File> findAll(File dir, String filename) {
 		List<File> list = new ArrayList<File>();
-		for (File file : dir.listFiles()) {
+		File [] files = dir.listFiles();
+		if (files == null) {
+			return list;
+		}
+		for (File file : files) {
 			if (file.isDirectory()) {
 				list.addAll(findAll(file, filename));
 			} else if (file.isFile()) {
-				if (file.getName().equals(filename)) {
+				if (file.getName().equalsIgnoreCase(filename)) {
 					list.add(file);
 				}
 			}

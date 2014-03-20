@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.auth.HtpasswdAuthProvider;
+import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.models.UserModel;
@@ -47,6 +48,7 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
 
     private HtpasswdAuthProvider htpasswd;
 
+	private AuthenticationManager auth;
 
     private MemorySettings getSettings(String userfile, String groupfile, Boolean overrideLA)
     {
@@ -68,6 +70,7 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
     private void setupUS()
     {
         htpasswd = newHtpasswdAuthentication(getSettings());
+        auth = newAuthenticationManager(getSettings());
     }
 
     private HtpasswdAuthProvider newHtpasswdAuthentication(IStoredSettings settings) {
@@ -76,6 +79,16 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
     	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
     	htpasswd.setup(runtime, users);
     	return htpasswd;
+    }
+    
+    private AuthenticationManager newAuthenticationManager(IStoredSettings settings) {
+    	RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+    	UserManager users = new UserManager(runtime).start();
+    	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
+    	htpasswd.setup(runtime, users);
+    	AuthenticationManager auth = new AuthenticationManager(runtime, users);
+    	auth.addAuthenticationProvider(htpasswd);
+    	return auth;
     }
 
 
@@ -178,6 +191,52 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
         assertEquals("leading", user.username);
     }
 
+    
+    @Test
+    public void testAuthenticationManager()
+    {
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
+        UserModel user = auth.authenticate("user1", "pass1".toCharArray());
+        assertNotNull(user);
+        assertEquals("user1", user.username);
+
+        user = auth.authenticate("user2", "pass2".toCharArray());
+        assertNotNull(user);
+        assertEquals("user2", user.username);
+
+        // Test different encryptions
+        user = auth.authenticate("plain", "passWord".toCharArray());
+        assertNotNull(user);
+        assertEquals("plain", user.username);
+
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
+        user = auth.authenticate("crypt", "password".toCharArray());
+        assertNotNull(user);
+        assertEquals("crypt", user.username);
+
+        user = auth.authenticate("md5", "password".toCharArray());
+        assertNotNull(user);
+        assertEquals("md5", user.username);
+
+        user = auth.authenticate("sha", "password".toCharArray());
+        assertNotNull(user);
+        assertEquals("sha", user.username);
+
+
+        // Test leading and trailing whitespace
+        user = auth.authenticate("trailing", "whitespace".toCharArray());
+        assertNotNull(user);
+        assertEquals("trailing", user.username);
+
+        user = auth.authenticate("tabbed", "frontAndBack".toCharArray());
+        assertNotNull(user);
+        assertEquals("tabbed", user.username);
+
+        user = auth.authenticate("leading", "whitespace".toCharArray());
+        assertNotNull(user);
+        assertEquals("leading", user.username);
+    }
+
 
     @Test
     public void testAttributes()
@@ -254,6 +313,63 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
         assertNull("User 'leading' falsely authenticated.", user);
     }
 
+
+    @Test
+    public void testAuthenticationMangerDenied()
+    {
+        UserModel user = null;
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
+        user = auth.authenticate("user1", "".toCharArray());
+        assertNull("User 'user1' falsely authenticated.", user);
+
+        user = auth.authenticate("user1", "pass2".toCharArray());
+        assertNull("User 'user1' falsely authenticated.", user);
+
+        user = auth.authenticate("user2", "lalala".toCharArray());
+        assertNull("User 'user2' falsely authenticated.", user);
+
+
+        user = auth.authenticate("user3", "disabled".toCharArray());
+        assertNull("User 'user3' falsely authenticated.", user);
+
+        user = auth.authenticate("user4", "disabled".toCharArray());
+        assertNull("User 'user4' falsely authenticated.", user);
+
+
+        user = auth.authenticate("plain", "text".toCharArray());
+        assertNull("User 'plain' falsely authenticated.", user);
+
+        user = auth.authenticate("plain", "password".toCharArray());
+        assertNull("User 'plain' falsely authenticated.", user);
+
+
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
+
+        user = auth.authenticate("crypt", "".toCharArray());
+        assertNull("User 'cyrpt' falsely authenticated.", user);
+
+        user = auth.authenticate("crypt", "passwd".toCharArray());
+        assertNull("User 'crypt' falsely authenticated.", user);
+
+        user = auth.authenticate("md5", "".toCharArray());
+        assertNull("User 'md5' falsely authenticated.", user);
+
+        user = auth.authenticate("md5", "pwd".toCharArray());
+        assertNull("User 'md5' falsely authenticated.", user);
+
+        user = auth.authenticate("sha", "".toCharArray());
+        assertNull("User 'sha' falsely authenticated.", user);
+
+        user = auth.authenticate("sha", "letmein".toCharArray());
+        assertNull("User 'sha' falsely authenticated.", user);
+
+
+        user = auth.authenticate("  tabbed", "frontAndBack".toCharArray());
+        assertNull("User 'tabbed' falsely authenticated.", user);
+
+        user = auth.authenticate("    leading", "whitespace".toCharArray());
+        assertNull("User 'leading' falsely authenticated.", user);
+    }
 
     @Test
     public void testCleartextIntrusion()

@@ -133,7 +133,7 @@ public class BranchesPanel extends BasePanel {
 						CommitPage.class, WicketUtils.newObjectParameter(model.name,
 								entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
-					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
+					shortlog.setTooltip(shortMessage);
 				}
 				item.add(shortlog);
 
