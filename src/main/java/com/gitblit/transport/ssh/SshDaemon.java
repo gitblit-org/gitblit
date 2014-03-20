@@ -16,8 +16,12 @@
 package com.gitblit.transport.ssh;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,7 +29,9 @@ import org.apache.sshd.SshServer;
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
 import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
-import org.apache.sshd.server.keyprovider.PEMGeneratorHostKeyProvider;
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.apache.sshd.common.util.SecurityUtils;
+import org.bouncycastle.openssl.PEMWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +42,9 @@ import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.commands.SshCommandFactory;
 import com.gitblit.utils.IdGenerator;
+import com.gitblit.utils.JnaUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.common.io.Files;
 
 /**
  * Manager for the ssh transport. Roughly analogous to the
@@ -61,8 +69,6 @@ public class SshDaemon {
 	 */
 	public static final int DEFAULT_PORT = 22;
 
-	private static final String HOST_KEY_STORE = "sshKeyStore.pem";
-
 	private final AtomicBoolean run;
 
 	private final IGitblit gitblit;
@@ -77,10 +83,23 @@ public class SshDaemon {
 		this.gitblit = gitblit;
 
 		IStoredSettings settings = gitblit.getSettings();
-		int port = settings.getInteger(Keys.git.sshPort, 0);
-		String bindInterface = settings.getString(Keys.git.sshBindInterface,
-				"localhost");
 
+		// Ensure that Bouncy Castle is our JCE provider
+		SecurityUtils.setRegisterBouncyCastle(true);
+
+		// Generate host RSA and DSA keypairs and create the host keypair provider
+		File rsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-rsa-hostkey.pem");
+		File dsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-dsa-hostkey.pem");
+		generateKeyPair(rsaKeyStore, "RSA", 2048);
+		generateKeyPair(dsaKeyStore, "DSA", 0);
+		FileKeyPairProvider hostKeyPairProvider = new FileKeyPairProvider();
+		hostKeyPairProvider.setFiles(new String [] { rsaKeyStore.getPath(), dsaKeyStore.getPath(), dsaKeyStore.getPath() });
+
+		// Client public key authenticator
+		CachingPublicKeyAuthenticator keyAuthenticator =
+				new CachingPublicKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
+
+		// Configure the preferred SSHD backend
 		String sshBackendStr = settings.getString(Keys.git.sshBackend,
 				SshSessionBackend.NIO2.name());
 		SshSessionBackend backend = SshSessionBackend.valueOf(sshBackendStr);
@@ -89,6 +108,9 @@ public class SshDaemon {
 		    	? MinaServiceFactoryFactory.class.getName()
 		    	: Nio2ServiceFactoryFactory.class.getName());
 
+		// Create the socket address for binding the SSH server
+		int port = settings.getInteger(Keys.git.sshPort, 0);
+		String bindInterface = settings.getString(Keys.git.sshBindInterface, "");
 		InetSocketAddress addr;
 		if (StringUtils.isEmpty(bindInterface)) {
 			addr = new InetSocketAddress(port);
@@ -96,14 +118,11 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
-		File hostKeyStore = new File(gitblit.getBaseFolder(), HOST_KEY_STORE);
-		CachingPublicKeyAuthenticator keyAuthenticator =
-				new CachingPublicKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
-
+		// Create the SSH server
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
 		sshd.setHost(addr.getHostName());
-		sshd.setKeyPairProvider(new PEMGeneratorHostKeyProvider(hostKeyStore.getPath()));
+		sshd.setKeyPairProvider(hostKeyPairProvider);
 		sshd.setPublickeyAuthenticator(keyAuthenticator);
 		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshServerSessionFactory());
@@ -112,7 +131,10 @@ public class SshDaemon {
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, idGenerator));
 		sshd.setShellFactory(new WelcomeShell(settings));
 
-		String version = Constants.getGitBlitVersion() + " (" + sshd.getVersion() + ")";
+		// Set the server id.  This can be queried with:
+		//   ssh-keyscan -t rsa,dsa -p 29418 localhost
+		String version = String.format("%s (%s-%s)", Constants.getGitBlitVersion().replace(' ', '_'),
+				sshd.getVersion(), sshBackendStr);
 		sshd.getProperties().put(SshServer.SERVER_IDENTIFICATION, version);
 
 		run = new AtomicBoolean(false);
@@ -173,4 +195,37 @@ public class SshDaemon {
 			}
 		}
 	}
+
+    private void generateKeyPair(File file, String algorithm, int keySize) {
+    	if (file.exists()) {
+    		return;
+    	}
+        try {
+            KeyPairGenerator generator = SecurityUtils.getKeyPairGenerator(algorithm);
+            if (keySize != 0) {
+            	generator.initialize(keySize);
+                log.info("Generating {}-{} SSH host keypair...", algorithm, keySize);
+            } else {
+                log.info("Generating {} SSH host keypair...", algorithm);
+            }
+            KeyPair kp = generator.generateKeyPair();
+
+            // create an empty file and set the permissions
+            Files.touch(file);
+            try {
+            	JnaUtils.setFilemode(file, JnaUtils.S_IRUSR | JnaUtils.S_IWUSR);
+            } catch (UnsupportedOperationException e) {
+            	// Windows
+            }
+
+            FileOutputStream os = new FileOutputStream(file);
+            PEMWriter w = new PEMWriter(new OutputStreamWriter(os));
+            w.writeObject(kp);
+            w.flush();
+            w.close();
+        } catch (Exception e) {
+            log.warn(MessageFormat.format("Unable to generate {0} keypair", algorithm), e);
+            return;
+        }
+    }
 }
