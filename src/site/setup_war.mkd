@@ -12,9 +12,19 @@ Open `WEB-INF/data/gitblit.properties` in your favorite text editor and make sur
     **NOTE:** Make sure to change the administrator username and/or password!! 
 
 ### WAR Data Location
-By default, Gitblit WAR stores all data (users, settings, repositories, etc) in `${contextFolder}/WEB-INF/data`.  This is fine for a quick setup, but there are many reasons why you don't want to keep your data within the webapps folder of your servlet container.  You may specify an external location for your data by editing `WEB-INF/web.xml` and manipulating the *baseFolder* context parameter.  Choose a location that is writeable by your servlet container.  Your servlet container may be smart enough to recognize the change and to restart Gitblit.
+By default, Gitblit WAR stores all data (users, settings, repositories, etc) in `${contextFolder}/WEB-INF/data`.  This is fine for a quick setup, but there are many reasons why you don't want to keep your data within the webapps folder of your servlet container.  Specifying an alternate *baseFolder* also allows for simple upgrades in the future.
 
-On the next restart of Gitblit, Gitblit will copy the contents of the `WEB-INF/data` folder to your specified *baseFolder* **IF** the file `${baseFolder}/gitblit.properties` does not already exist.  This allows you to get going with minimal fuss.
+Choose a location that is writeable by your servlet container!
 
-Specifying an alternate *baseFolder* also allows for simpler upgrades in the future.
+After you configure baseFolder and restart your container, Gitblit will copy the contents of the `WEB-INF/data` folder to your specified *baseFolder* **IF** the file `${baseFolder}/gitblit.properties` does not already exist.  This allows you to get going with minimal fuss.
 
+#### Specifying baseFolder through web.xml
+
+You may specify an external location for your data by directly editing `WEB-INF/web.xml` and manipulating the *baseFolder* env-entry.  Your servlet container may be smart enough to recognize the change and to restart Gitblit.
+
+#### Specifying baseFolder through JNDI
+
+This is a better way to configure your *baseFolder* because it survives WAR redeploys or deployments of new versions.  These directions assume you are running Tomcat as your container, other containers may have different ways to specify global JNDI environment entries.
+
+1. Open TOMCAT_HOME/conf/context.xml
+2. Insert an *Environment* node within the *Context* node.<pre>&lt;Environment name="baseFolder" type="java.lang.String" value="c:/projects/git/gitblit/data" override="false" /&gt;</pre>
