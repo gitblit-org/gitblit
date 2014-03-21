@@ -28,6 +28,7 @@ public class GitblitDispatcher extends DispatchCommand {
 		registerCommand(user, VersionCommand.class);
 		registerCommand(user, CreateRepository.class);
 		registerCommand(user, SetAccountCommand.class);
+		registerCommand(user, ConfigCommand.class);
 
 		// nested dispatchers
 		registerDispatcher(user, ListDispatcher.class);
