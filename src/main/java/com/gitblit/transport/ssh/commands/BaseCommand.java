@@ -216,6 +216,11 @@ public abstract class BaseCommand implements Command, SessionAware {
 		return "";
 	}
 
+	protected void showHelp() throws UnloggedFailure {
+		argv = new String [] { "--help" };
+		parseCommandLine();
+	}
+
 	private final class TaskThunk implements CancelableRunnable {
 		private final CommandRunnable thunk;
 		private final String taskName;
