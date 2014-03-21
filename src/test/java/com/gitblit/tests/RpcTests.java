@@ -191,6 +191,12 @@ public class RpcTests extends GitblitUnitTest {
 		assertEquals(AccessRestrictionType.VIEW, retrievedRepository.accessRestriction);
 		assertEquals(AuthorizationControl.AUTHENTICATED, retrievedRepository.authorizationControl);
 
+        //fork repo
+        UserModel userModel = new UserModel("garbageUser");
+        assertTrue("Failed to create Fork Repository!",
+                RpcUtils.forkRpository(model, userModel, url, account, password.toCharArray()));
+
+
 		// rename and change access restriciton
 		String originalName = model.name;
 		model.name = "garbagerepo2.git";
