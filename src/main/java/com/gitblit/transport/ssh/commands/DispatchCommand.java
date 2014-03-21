@@ -102,19 +102,20 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 
 		CommandMetaData meta = dispatcherClass.getAnnotation(CommandMetaData.class);
 		if (meta.admin() && !user.canAdmin()) {
-			log.debug(MessageFormat.format("excluding admin dispatcher {0} for {1}", meta.name(), user.username));
+			log.debug(MessageFormat.format("excluding admin dispatcher {0} for {1}",
+					meta.name(), user.username));
 			return;
 		}
 
-		log.debug("registering {} dispatcher", meta.name());
 		try {
 			dispatcher.registerCommands(user);
 			if (dispatcher.commands.isEmpty() && dispatcher.dispatchers.isEmpty()) {
-				// exclude because there are no commands available to the user
-				log.debug(MessageFormat.format("excluding dispatcher {0} for {1}", meta.name(), user.username));
+				log.debug(MessageFormat.format("excluding empty dispatcher {0} for {1}",
+						meta.name(), user.username));
 				return;
 			}
 
+			log.debug("registering {} dispatcher", meta.name());
 			dispatchers.put(meta.name(), dispatcher);
 			for (String alias : meta.aliases()) {
 				aliasToCommand.put(alias, meta.name());
@@ -128,7 +129,6 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		}
 	}
 
-
 	protected abstract void registerCommands(UserModel user);
 
 	/**
@@ -138,6 +138,11 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	 * @param cmd
 	 */
 	protected void registerCommand(UserModel user, Class<? extends BaseCommand> cmd) {
+		if (DispatchCommand.class.isAssignableFrom(cmd)) {
+			log.warn("{} tried to register {} with registerCommand", getName(), cmd.getName());
+			registerDispatcher(user, (Class<? extends DispatchCommand>) cmd);
+			return;
+		}
 		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));
@@ -157,6 +162,11 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	 * @param cmd
 	 */
 	protected void registerCommand(UserModel user, BaseCommand cmd) {
+		if (DispatchCommand.class.isAssignableFrom(cmd.getClass())) {
+			log.warn("{} tried to register {} dispatcher with registerCommand", getName(), cmd.getName());
+			registerDispatcher(user, (DispatchCommand) cmd);
+			return;
+		}
 		if (!cmd.getClass().isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));
@@ -194,7 +204,6 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			}
 
 			for (Map.Entry<String, DispatchCommand> entry : dispatchers.entrySet()) {
-				DispatchCommand dispatcher = entry.getValue();
 				map.put(entry.getKey(), entry.getValue().getClass());
 			}
 		}
