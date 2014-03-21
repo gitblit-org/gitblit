@@ -109,6 +109,12 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		log.debug("registering {} dispatcher", meta.name());
 		try {
 			dispatcher.registerCommands(user);
+			if (dispatcher.commands.isEmpty() && dispatcher.dispatchers.isEmpty()) {
+				// exclude because there are no commands available to the user
+				log.debug(MessageFormat.format("excluding dispatcher {0} for {1}", meta.name(), user.username));
+				return;
+			}
+
 			dispatchers.put(meta.name(), dispatcher);
 			for (String alias : meta.aliases()) {
 				aliasToCommand.put(alias, meta.name());
@@ -188,6 +194,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			}
 
 			for (Map.Entry<String, DispatchCommand> entry : dispatchers.entrySet()) {
+				DispatchCommand dispatcher = entry.getValue();
 				map.put(entry.getKey(), entry.getValue().getClass());
 			}
 		}
@@ -259,10 +266,27 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		return cmd;
 	}
 
+	private boolean hasVisibleCommands() {
+		boolean visible = false;
+		for (Class<? extends BaseCommand> cmd : commands) {
+			visible  |= !cmd.getAnnotation(CommandMetaData.class).hidden();
+			if (visible) {
+				return true;
+			}
+		}
+		for (DispatchCommand cmd : dispatchers.values()) {
+			visible |= cmd.hasVisibleCommands();
+			if (visible) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public String usage() {
-		Set<String> commands = new TreeSet<String>();
-		Set<String> dispatchers = new TreeSet<String>();
+		Set<String> cmds = new TreeSet<String>();
+		Set<String> dcs = new TreeSet<String>();
 		Map<String, String> displayNames = Maps.newHashMap();
 		int maxLength = -1;
 		Map<String, Class<? extends BaseCommand>> m = getMap();
@@ -281,15 +305,18 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 
 			maxLength = Math.max(maxLength, displayName.length());
 			if (DispatchCommand.class.isAssignableFrom(c)) {
-				dispatchers.add(name);
+				DispatchCommand d = dispatchers.get(name);
+				if (d.hasVisibleCommands()) {
+					dcs.add(name);
+				}
 			} else {
-				commands.add(name);
+				cmds.add(name);
 			}
 		}
 		String format = "%-" + maxLength + "s   %s";
 
 		final StringBuilder usage = new StringBuilder();
-		if (!commands.isEmpty()) {
+		if (!cmds.isEmpty()) {
 			usage.append("Available commands");
 			if (!getName().isEmpty()) {
 				usage.append(" of ");
@@ -297,7 +324,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			}
 			usage.append(" are:\n");
 			usage.append("\n");
-			for (String name : commands) {
+			for (String name : cmds) {
 				final Class<? extends Command> c = m.get(name);
 				String displayName = displayNames.get(name);
 				CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
@@ -308,7 +335,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			usage.append("\n");
 		}
 
-		if (!dispatchers.isEmpty()) {
+		if (!dcs.isEmpty()) {
 			usage.append("Available command dispatchers");
 			if (!getName().isEmpty()) {
 				usage.append(" of ");
@@ -316,7 +343,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 			}
 			usage.append(" are:\n");
 			usage.append("\n");
-			for (String name : dispatchers) {
+			for (String name : dcs) {
 				final Class<? extends BaseCommand> c = m.get(name);
 				String displayName = displayNames.get(name);
 				CommandMetaData meta = c.getAnnotation(CommandMetaData.class);
