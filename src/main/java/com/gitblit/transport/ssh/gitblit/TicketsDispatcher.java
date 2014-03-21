@@ -23,7 +23,7 @@ import com.gitblit.transport.ssh.commands.DispatchCommand;
 public class TicketsDispatcher extends DispatchCommand {
 
 	@Override
-	protected void registerCommands(UserModel user) {
-		registerCommand(user, ReviewCommand.class);
+	protected void setup(UserModel user) {
+		register(user, ReviewCommand.class);
 	}
 }

@@ -26,7 +26,7 @@ import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommandContext;
 
-@CommandMetaData(name = "git", description="Git commands")
+@CommandMetaData(name = "git", description="Git repository commands")
 public class GitDispatcher extends DispatchCommand {
 
 	protected RepositoryResolver<SshDaemonClient> repositoryResolver;
@@ -53,10 +53,10 @@ public class GitDispatcher extends DispatchCommand {
 	}
 
 	@Override
-	protected void registerCommands(UserModel user) {
-		registerCommand(user, Upload.class);
-		registerCommand(user, Receive.class);
-		registerCommand(user, GarbageCollectionCommand.class);
+	protected void setup(UserModel user) {
+		register(user, Upload.class);
+		register(user, Receive.class);
+		register(user, GarbageCollectionCommand.class);
 	}
 
 	@Override
