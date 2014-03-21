@@ -80,6 +80,36 @@ public class WebXmlSettings extends IStoredSettings {
 	}
 
 	@Override
+	public synchronized boolean saveSettings() {
+		try {
+			Properties props = new Properties();
+			// load pre-existing web-configuration
+			if (overrideFile.exists()) {
+				InputStream is = new FileInputStream(overrideFile);
+				props.load(is);
+				is.close();
+			}
+
+			// put all new settings and persist
+			for (String key : removals) {
+				props.remove(key);
+			}
+			removals.clear();
+			OutputStream os = new FileOutputStream(overrideFile);
+			props.store(os, null);
+			os.close();
+
+			// override current runtime settings
+			properties.clear();
+			properties.putAll(props);
+			return true;
+		} catch (Throwable t) {
+			logger.error("Failed to save settings!", t);
+		}
+		return false;
+	}
+
+	@Override
 	public synchronized boolean saveSettings(Map<String, String> settings) {
 		try {
 			Properties props = new Properties();
