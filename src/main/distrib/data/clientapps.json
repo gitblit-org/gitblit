@@ -82,7 +82,7 @@
 		"title": "SparkleShare\u2122",
 		"description": "an open source collaboration and sharing tool",
 		"legal": "released under the GPLv3 open source license",
-		"cloneUrl": "sparkleshare://addProject/${baseUrl}/sparkleshare/${repoUrl}.xml",
+		"cloneUrl": "sparkleshare://addProject/${baseUrl}/sparkleshare/${username}@${repository}.xml",
 		"productUrl": "http://sparkleshare.org",
 		"transports": [ "ssh" ],
 		"platforms": [ "windows", "macintosh", "linux" ],
