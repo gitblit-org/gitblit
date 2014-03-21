@@ -31,7 +31,8 @@ import com.gitblit.transport.ssh.gitblit.GitblitDispatcher;
  * other commands.
  *
  */
-public class RootDispatcher extends DispatchCommand {
+@CommandMetaData(name = "")
+class RootDispatcher extends DispatchCommand {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -39,9 +40,9 @@ public class RootDispatcher extends DispatchCommand {
 		super();
 		setContext(new SshCommandContext(gitblit, client, cmdLine));
 
-		final UserModel user = client.getUser();
-		registerDispatcher(user, GitblitDispatcher.class);
-		registerDispatcher(user, GitDispatcher.class);
+		UserModel user = client.getUser();
+		register(user, GitblitDispatcher.class);
+		register(user, GitDispatcher.class);
 
 		List<DispatchCommand> exts = gitblit.getExtensions(DispatchCommand.class);
 		for (DispatchCommand ext : exts) {
@@ -49,16 +50,11 @@ public class RootDispatcher extends DispatchCommand {
 			String plugin = gitblit.whichPlugin(extClass).getDescriptor().getPluginId();
 			CommandMetaData meta = extClass.getAnnotation(CommandMetaData.class);
 			log.info("Dispatcher {} is loaded from plugin {}", meta.name(), plugin);
-			registerDispatcher(user, ext);
+			register(user, ext);
 		}
 	}
 
 	@Override
-	protected final void registerCommands(UserModel user) {
-	}
-
-	@Override
-	protected final void registerCommand(UserModel user, Class<? extends BaseCommand> cmd) {
-		throw new RuntimeException("The root dispatcher does not accept commands, only dispatchers!");
+	protected final void setup(UserModel user) {
 	}
 }
