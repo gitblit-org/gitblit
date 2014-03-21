@@ -84,16 +84,54 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		dispatchers.clear();
 	}
 
-	protected void registerDispatcher(UserModel user, Class<? extends DispatchCommand> cmd) {
+	/**
+	 * Setup this dispatcher. Commands and nested dispatchers are normally
+	 * registered within this method.
+	 *
+	 * @param user
+	 */
+	protected abstract void setup(UserModel user);
+
+	/**
+	 * Register a command or a dispatcher by it's class.
+	 *
+	 * @param user
+	 * @param clazz
+	 */
+	@SuppressWarnings("unchecked")
+	protected final void register(UserModel user, Class<? extends BaseCommand> clazz) {
+		if (DispatchCommand.class.isAssignableFrom(clazz)) {
+			registerDispatcher(user, (Class<? extends DispatchCommand>) clazz);
+			return;
+		}
+
+		registerCommand(user, clazz);
+	}
+
+	/**
+	 * Register a command or a dispatcher instance.
+	 *
+	 * @param user
+	 * @param cmd
+	 */
+	protected final void register(UserModel user, BaseCommand cmd) {
+		if (cmd instanceof DispatchCommand) {
+			registerDispatcher(user, (DispatchCommand) cmd);
+			return;
+		}
+		registerCommand(user, cmd);
+	}
+
+	private void registerDispatcher(UserModel user, Class<? extends DispatchCommand> clazz) {
 		try {
-			DispatchCommand dispatcher = cmd.newInstance();
+			DispatchCommand dispatcher = clazz.newInstance();
 			registerDispatcher(user, dispatcher);
 		} catch (Exception e) {
-			log.error("failed to instantiate {}", cmd.getName());
+			log.error("failed to instantiate {}", clazz.getName());
 		}
 	}
 
-	protected void registerDispatcher(UserModel user, DispatchCommand dispatcher) {
+	private void registerDispatcher(UserModel user, DispatchCommand dispatcher) {
 		Class<? extends DispatchCommand> dispatcherClass = dispatcher.getClass();
 		if (!dispatcherClass.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", dispatcher.getName(),
@@ -108,7 +146,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		}
 
 		try {
-			dispatcher.registerCommands(user);
+			dispatcher.setup(user);
 			if (dispatcher.commands.isEmpty() && dispatcher.dispatchers.isEmpty()) {
 				log.debug(MessageFormat.format("excluding empty dispatcher {0} for {1}",
 						meta.name(), user.username));
@@ -129,30 +167,23 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		}
 	}
 
-	protected abstract void registerCommands(UserModel user);
-
 	/**
 	 * Registers a command as long as the user is permitted to execute it.
 	 *
 	 * @param user
-	 * @param cmd
+	 * @param clazz
 	 */
-	protected void registerCommand(UserModel user, Class<? extends BaseCommand> cmd) {
-		if (DispatchCommand.class.isAssignableFrom(cmd)) {
-			log.warn("{} tried to register {} with registerCommand", getName(), cmd.getName());
-			registerDispatcher(user, (Class<? extends DispatchCommand>) cmd);
-			return;
-		}
-		if (!cmd.isAnnotationPresent(CommandMetaData.class)) {
-			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
+	private void registerCommand(UserModel user, Class<? extends BaseCommand> clazz) {
+		if (!clazz.isAnnotationPresent(CommandMetaData.class)) {
+			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", clazz.getName(),
 					CommandMetaData.class.getName()));
 		}
-		CommandMetaData meta = cmd.getAnnotation(CommandMetaData.class);
+		CommandMetaData meta = clazz.getAnnotation(CommandMetaData.class);
 		if (meta.admin() && !user.canAdmin()) {
 			log.debug(MessageFormat.format("excluding admin command {0} for {1}", meta.name(), user.username));
 			return;
 		}
-		commands.add(cmd);
+		commands.add(clazz);
 	}
 
 	/**
@@ -161,12 +192,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	 * @param user
 	 * @param cmd
 	 */
-	protected void registerCommand(UserModel user, BaseCommand cmd) {
-		if (DispatchCommand.class.isAssignableFrom(cmd.getClass())) {
-			log.warn("{} tried to register {} dispatcher with registerCommand", getName(), cmd.getName());
-			registerDispatcher(user, (DispatchCommand) cmd);
-			return;
-		}
+	private void registerCommand(UserModel user, BaseCommand cmd) {
 		if (!cmd.getClass().isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));

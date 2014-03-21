@@ -42,10 +42,10 @@ import com.gitblit.transport.ssh.commands.SshCommand;
 public class KeysDispatcher extends DispatchCommand {
 
 	@Override
-	protected void registerCommands(UserModel user) {
-		registerCommand(user, AddKey.class);
-		registerCommand(user, RemoveKey.class);
-		registerCommand(user, ListKeys.class);
+	protected void setup(UserModel user) {
+		register(user, AddKey.class);
+		register(user, RemoveKey.class);
+		register(user, ListKeys.class);
 	}
 
 	@CommandMetaData(name = "add", description = "Add an SSH public key to your account")

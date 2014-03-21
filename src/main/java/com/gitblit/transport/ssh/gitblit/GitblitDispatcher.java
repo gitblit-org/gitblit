@@ -23,16 +23,19 @@ import com.gitblit.transport.ssh.commands.DispatchCommand;
 public class GitblitDispatcher extends DispatchCommand {
 
 	@Override
-	protected void registerCommands(UserModel user) {
+	protected void setup(UserModel user) {
 		// commands in this dispatcher
-		registerCommand(user, VersionCommand.class);
-		registerCommand(user, CreateRepository.class);
-		registerCommand(user, SetAccountCommand.class);
-		registerCommand(user, ConfigCommand.class);
+		register(user, VersionCommand.class);
+		register(user, CreateRepository.class);
+		register(user, SetAccountCommand.class);
+		register(user, ConfigCommand.class);
 
 		// nested dispatchers
-		registerDispatcher(user, ListDispatcher.class);
-		registerDispatcher(user, KeysDispatcher.class);
-		registerDispatcher(user, TicketsDispatcher.class);
+		register(user, ListDispatcher.class);
+		register(user, KeysDispatcher.class);
+		register(user, TicketsDispatcher.class);
+		register(user, UsersDispatcher.class);
+		register(user, ProjectsDispatcher.class);
+		register(user, RepositoriesDispatcher.class);
 	}
 }
