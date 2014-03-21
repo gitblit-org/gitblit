@@ -19,7 +19,7 @@ import org.eclipse.jgit.transport.UploadPack;
 
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 
-@CommandMetaData(name = "git-upload-pack", description = "Sends packs to a client for clone and fetch")
+@CommandMetaData(name = "git-upload-pack", description = "Sends packs to a client for clone and fetch", hidden = true)
 public class Upload extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {

@@ -26,7 +26,7 @@ import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommandContext;
 
-@CommandMetaData(name = "git", description="Dispatcher for git receive and upload commands", hidden = true)
+@CommandMetaData(name = "git", description="Git commands")
 public class GitDispatcher extends DispatchCommand {
 
 	protected RepositoryResolver<SshDaemonClient> repositoryResolver;
