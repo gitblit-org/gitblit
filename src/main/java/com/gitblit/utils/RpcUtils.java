@@ -205,12 +205,10 @@ public class RpcUtils {
      */
     public static boolean forkRpository(RepositoryModel repository, UserModel user, String serverUrl,
                                         String account, char[] password) throws IOException {
-
         UserRepositoryCompositeModel userRepositoryCompositeModel = new UserRepositoryCompositeModel();
         userRepositoryCompositeModel.setRepositoryModel(repository);
         userRepositoryCompositeModel.setUserModel(user);
         return doAction(RpcRequest.FORK_REPOSITORY, null, userRepositoryCompositeModel, serverUrl, account, password);
-
     }
 
 
