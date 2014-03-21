@@ -112,6 +112,7 @@ public class NotificationManager implements INotificationManager {
 	@Override
 	public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
 		Mailing mail = Mailing.newHtml();
+		mail.subject = subject;
 		mail.content = message;
 		mail.setRecipients(toAddresses);
 		send(mail);
