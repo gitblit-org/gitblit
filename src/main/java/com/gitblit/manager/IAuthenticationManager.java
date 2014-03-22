@@ -15,13 +15,12 @@
  */
 package com.gitblit.manager;
 
-import java.security.PublicKey;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshKey;
 
 public interface IAuthenticationManager extends IManager {
 
@@ -36,13 +35,13 @@ public interface IAuthenticationManager extends IManager {
 	UserModel authenticate(HttpServletRequest httpRequest);
 
 	/**
-	 * Authenticate a user based on a public key.
+	 * Authenticate a user based on a ssh public key.
 	 *
 	 * @param username
 	 * @param key
 	 * @return a user object or null
 	 */
-	UserModel authenticate(String username, PublicKey key);
+	UserModel authenticate(String username, SshKey key);
 
 	/**
 	 * Authenticate a user based on HTTP request parameters.

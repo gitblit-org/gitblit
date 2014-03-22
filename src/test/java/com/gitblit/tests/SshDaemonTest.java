@@ -35,6 +35,7 @@ import org.junit.Test;
 import com.gitblit.Constants;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.MemoryKeyManager;
+import com.gitblit.transport.ssh.SshKey;
 
 public class SshDaemonTest extends GitblitUnitTest {
 
@@ -66,7 +67,7 @@ public class SshDaemonTest extends GitblitUnitTest {
 	@Before
 	public void prepare() {
 		MemoryKeyManager keyMgr = getKeyManager();
-		keyMgr.addKey("admin", pair.getPublic());
+		keyMgr.addKey("admin", new SshKey(pair.getPublic()));
 	}
 
 	@After

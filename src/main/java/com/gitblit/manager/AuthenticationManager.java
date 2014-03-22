@@ -17,7 +17,6 @@ package com.gitblit.manager;
 
 import java.nio.charset.Charset;
 import java.security.Principal;
-import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,6 +47,7 @@ import com.gitblit.auth.SalesforceAuthProvider;
 import com.gitblit.auth.WindowsAuthProvider;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
@@ -160,7 +160,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		}
 		return this;
 	}
-	
+
 	public void addAuthenticationProvider(AuthenticationProvider prov) {
 		authenticationProviders.add(prov);
 	}
@@ -301,7 +301,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 * @return a user object or null
 	 */
 	@Override
-	public UserModel authenticate(String username, PublicKey key) {
+	public UserModel authenticate(String username, SshKey key) {
 		if (username != null) {
 			if (!StringUtils.isEmpty(username)) {
 				UserModel user = userManager.getUserModel(username);
@@ -391,14 +391,14 @@ public class AuthenticationManager implements IAuthenticationManager {
 				}
 			}
 		}
-		
+
 		// could not authenticate locally or with a provider
 		return null;
 	}
-	
+
 	/**
 	 * Returns a UserModel if local authentication succeeds.
-	 * 
+	 *
 	 * @param user
 	 * @param password
 	 * @return a UserModel if local authentication succeeds, null otherwise

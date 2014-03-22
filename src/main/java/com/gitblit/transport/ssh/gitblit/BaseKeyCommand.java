@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.SshCommand;
 import com.google.common.base.Charsets;
 
@@ -54,5 +55,13 @@ abstract class BaseKeyCommand extends SshCommand {
 
 	protected IPublicKeyManager getKeyManager() {
 		return getContext().getGitblit().getPublicKeyManager();
+	}
+
+	protected SshKey parseKey(String rawData) throws UnloggedFailure {
+		if (rawData.contains("PRIVATE")) {
+			throw new UnloggedFailure(1,  "Please provide a PUBLIC key, not a PRIVATE key!");
+		}
+		SshKey key = new SshKey(rawData);
+		return key;
 	}
 }
