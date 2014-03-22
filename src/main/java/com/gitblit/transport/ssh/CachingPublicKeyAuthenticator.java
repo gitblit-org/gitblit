@@ -78,14 +78,14 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 		Preconditions.checkState(client.getUser() == null);
 		username = username.toLowerCase(Locale.US);
-		List<PublicKey> keys = keyManager.getKeys(username);
+		List<SshKey> keys = keyManager.getKeys(username);
 		if (keys == null || keys.isEmpty()) {
 			log.info("{} has not added any public keys for ssh authentication",
 					username);
 			return false;
 		}
 
-		for (PublicKey key : keys) {
+		for (SshKey key : keys) {
 			if (key.equals(suppliedKey)) {
 				UserModel user = authManager.authenticate(username, key);
 				if (user != null) {
