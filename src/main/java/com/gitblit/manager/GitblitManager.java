@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,6 +71,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JsonUtils;
@@ -670,7 +670,7 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public UserModel authenticate(String username, PublicKey key) {
+	public UserModel authenticate(String username, SshKey key) {
 		return authenticationManager.authenticate(username, key);
 	}
 

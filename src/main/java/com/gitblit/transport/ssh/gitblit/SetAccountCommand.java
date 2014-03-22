@@ -22,6 +22,7 @@ import java.util.List;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 
 /** Set a user's account settings. **/
@@ -66,18 +67,20 @@ public class SetAccountCommand extends BaseKeyCommand {
 		}
 	}
 
-	private void addSshKeys(List<String> sshKeys) throws UnloggedFailure,
+	private void addSshKeys(List<String> keys) throws UnloggedFailure,
 			IOException {
-		for (String sshKey : sshKeys) {
+		for (String key : keys) {
+			SshKey sshKey = new SshKey(key);
 			getKeyManager().addKey(user, sshKey);
 		}
 	}
 
-	private void deleteSshKeys(List<String> sshKeys) {
-		if (sshKeys.contains(ALL)) {
+	private void deleteSshKeys(List<String> keys) {
+		if (keys.contains(ALL)) {
 			getKeyManager().removeAllKeys(user);
 		} else {
-			for (String sshKey : sshKeys) {
+			for (String key : keys) {
+				SshKey sshKey = new SshKey(key);
 				getKeyManager().removeKey(user, sshKey);
 			}
 		}

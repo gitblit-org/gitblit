@@ -15,7 +15,6 @@
  */
 package com.gitblit.transport.ssh;
 
-import java.security.PublicKey;
 import java.util.List;
 
 /**
@@ -56,17 +55,17 @@ public class NullKeyManager extends IPublicKeyManager {
 	}
 
 	@Override
-	protected List<PublicKey> getKeysImpl(String username) {
+	protected List<SshKey> getKeysImpl(String username) {
 		return null;
 	}
 
 	@Override
-	public boolean addKey(String username, String data) {
+	public boolean addKey(String username, SshKey key) {
 		return false;
 	}
 
 	@Override
-	public boolean removeKey(String username, String data) {
+	public boolean removeKey(String username, SshKey key) {
 		return false;
 	}
 

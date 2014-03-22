@@ -15,7 +15,6 @@
  */
 package com.gitblit.transport.ssh;
 
-import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +30,7 @@ import com.google.common.cache.CacheLoader.InvalidCacheLoadException;
 import com.google.common.cache.LoadingCache;
 
 /**
- * Parent class for public key managers.
+ * Parent class for ssh public key managers.
  *
  * @author James Moger
  *
@@ -40,13 +39,13 @@ public abstract class IPublicKeyManager implements IManager {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	protected final LoadingCache<String, List<PublicKey>> keyCache = CacheBuilder
+	protected final LoadingCache<String, List<SshKey>> keyCache = CacheBuilder
 			.newBuilder().
 			expireAfterAccess(15, TimeUnit.MINUTES).
 			maximumSize(100)
-			.build(new CacheLoader<String, List<PublicKey>>() {
+			.build(new CacheLoader<String, List<SshKey>>() {
 				@Override
-				public List<PublicKey> load(String username) {
+				public List<SshKey> load(String username) {
 					return getKeysImpl(username);
 				}
 			});
@@ -59,7 +58,7 @@ public abstract class IPublicKeyManager implements IManager {
 	@Override
 	public abstract IPublicKeyManager stop();
 
-	public final List<PublicKey> getKeys(String username) {
+	public final List<SshKey> getKeys(String username) {
 		try {
 			if (isStale(username)) {
 				keyCache.invalidate(username);
@@ -77,11 +76,11 @@ public abstract class IPublicKeyManager implements IManager {
 
 	protected abstract boolean isStale(String username);
 
-	protected abstract List<PublicKey> getKeysImpl(String username);
+	protected abstract List<SshKey> getKeysImpl(String username);
 
-	public abstract boolean addKey(String username, String data);
+	public abstract boolean addKey(String username, SshKey key);
 
-	public abstract boolean removeKey(String username, String data);
+	public abstract boolean removeKey(String username, SshKey key);
 
 	public abstract boolean removeAllKeys(String username);
 }

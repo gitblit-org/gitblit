@@ -17,16 +17,11 @@ package com.gitblit.transport.ssh;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.PublicKey;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.sshd.common.util.Buffer;
-import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Keys;
 import com.gitblit.manager.IRuntimeManager;
@@ -92,7 +87,7 @@ public class FileKeyManager extends IPublicKeyManager {
 	}
 
 	@Override
-	protected List<PublicKey> getKeysImpl(String username) {
+	protected List<SshKey> getKeysImpl(String username) {
 		try {
 			log.info("loading keystore for {}", username);
 			File keystore = getKeystore(username);
@@ -100,7 +95,7 @@ public class FileKeyManager extends IPublicKeyManager {
 				return null;
 			}
 			if (keystore.exists()) {
-				List<PublicKey> list = new ArrayList<PublicKey>();
+				List<SshKey> list = new ArrayList<SshKey>();
 				for (String entry : Files.readLines(keystore, Charsets.ISO_8859_1)) {
 					if (entry.trim().length() == 0) {
 						// skip blanks
@@ -110,9 +105,8 @@ public class FileKeyManager extends IPublicKeyManager {
 						// skip comments
 						continue;
 					}
-					final String[] parts = entry.split(" ");
-					final byte[] bin = Base64.decodeBase64(Constants.encodeASCII(parts[1]));
-					list.add(new Buffer(bin).getRawPublicKey());
+					SshKey key = new SshKey(entry);
+					list.add(key);
 				}
 
 				if (list.isEmpty()) {
@@ -133,9 +127,9 @@ public class FileKeyManager extends IPublicKeyManager {
 	 * by disregarding the comment/description field during key comparisons.
 	 */
 	@Override
-	public boolean addKey(String username, String data) {
+	public boolean addKey(String username, SshKey key) {
 		try {
-			String newKey = stripCommentFromKey(data);
+			String newKey = stripCommentFromKey(key.getRawData());
 
 			List<String> lines = new ArrayList<String>();
 			File keystore = getKeystore(username);
@@ -162,7 +156,7 @@ public class FileKeyManager extends IPublicKeyManager {
 			}
 
 			// add new key
-			lines.add(data);
+			lines.add(key.getRawData());
 
 			// write keystore
 			String content = Joiner.on("\n").join(lines).trim().concat("\n");
@@ -177,12 +171,12 @@ public class FileKeyManager extends IPublicKeyManager {
 	}
 
 	/**
-	 * Removes a key from the keystore.
+	 * Removes the specified key from the keystore.
 	 */
 	@Override
-	public boolean removeKey(String username, String data) {
+	public boolean removeKey(String username, SshKey key) {
 		try {
-			String rmKey = stripCommentFromKey(data);
+			String rmKey = stripCommentFromKey(key.getRawData());
 
 			File keystore = getKeystore(username);
 			if (keystore.exists()) {
@@ -244,7 +238,7 @@ public class FileKeyManager extends IPublicKeyManager {
 
 	/* Strips the comment from the key data and eliminates whitespace diffs */
 	protected String stripCommentFromKey(String data) {
-		String [] cols = data.split(" ");
+		String [] cols = data.split(" ", 3);
 		String key = Joiner.on(" ").join(cols[0], cols[1]);
 		return key;
 	}
