@@ -15,12 +15,10 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.kohsuke.args4j.Option;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
@@ -28,6 +26,10 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.FlipTable;
+import com.gitblit.utils.FlipTable.Borders;
+import com.google.common.base.Joiner;
 
 @CommandMetaData(name = "repositories", aliases = { "repos" }, description = "Repository management commands")
 public class RepositoriesDispatcher extends DispatchCommand {
@@ -44,40 +46,77 @@ public class RepositoriesDispatcher extends DispatchCommand {
 		@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
 		private boolean verbose;
 
+		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
+		private boolean tabbed;
+
 		@Override
 		public void run() {
 			IGitblit gitblit = getContext().getGitblit();
 			UserModel user = getContext().getClient().getUser();
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
 			List<RepositoryModel> repositories = gitblit.getRepositoryModels(user);
-			int nameLen = 0;
-			int descLen = 0;
-			for (RepositoryModel repo : repositories) {
-				int len = repo.name.length();
-				if (len > nameLen) {
-					nameLen = len;
-				}
-				if (!StringUtils.isEmpty(repo.description)) {
-					len = repo.description.length();
-					if (len > descLen) {
-						descLen = len;
-					}
-				}
+			if (tabbed) {
+				asTabbed(repositories);
+			} else {
+				asTable(repositories);
+			}
+		}
+
+		protected void asTable(List<RepositoryModel> list) {
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			String[] headers;
+			if (verbose) {
+				String[] h = { "Name", "Description", "Owners", "Last Modified", "Size" };
+				headers = h;
+			} else {
+				String[] h = { "Name", "Description" };
+				headers = h;
 			}
 
+			String[][] data = new String[list.size()][];
+			for (int i = 0; i < list.size(); i++) {
+				RepositoryModel r = list.get(i);
+
+				if (verbose) {
+					String lm = df.format(r.lastChange);
+					String owners = "";
+					if (!ArrayUtils.isEmpty(r.owners)) {
+						owners = Joiner.on(",").join(r.owners);
+					}
+					String size = r.size;
+					if (!r.hasCommits) {
+						size = "(empty)";
+					}
+					data[i] = new String[] { r.name, r.description, owners, lm, size };
+				} else {
+					data[i] = new String[] { r.name, r.description };
+				}
+			}
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_COLS));
+		}
+
+		protected void asTabbed(List<RepositoryModel> list) {
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String pattern;
 			if (verbose) {
-				pattern = MessageFormat.format("%-{0,number,0}s\t%-{1,number,0}s\t%s", nameLen, descLen);
+				pattern = "%s\t%s\t%s\t%s\t%s";
 			} else {
 				pattern = "%s";
 			}
 
-			for (RepositoryModel repo : repositories) {
-				stdout.println(String.format(pattern,
-						repo.name,
-						repo.description == null ? "" : repo.description,
-						df.format(repo.lastChange)));
+			for (RepositoryModel r : list) {
+				String lm = df.format(r.lastChange);
+				String owners = "";
+				if (!ArrayUtils.isEmpty(r.owners)) {
+					owners = Joiner.on(",").join(r.owners);
+				}
+				String size = r.size;
+				if (!r.hasCommits) {
+					size = "(empty)";
+				}
+
+				stdout.println(String.format(pattern, r.name, r.description == null ? "" : r.description,
+						owners, lm, size));
 			}
 		}
 	}

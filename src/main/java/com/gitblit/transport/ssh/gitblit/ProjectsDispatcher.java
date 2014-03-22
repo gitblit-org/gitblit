@@ -15,12 +15,10 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.kohsuke.args4j.Option;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.ProjectModel;
@@ -28,6 +26,8 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.utils.FlipTable;
+import com.gitblit.utils.FlipTable.Borders;
 
 @CommandMetaData(name = "projects", description = "Project management commands")
 public class ProjectsDispatcher extends DispatchCommand {
@@ -44,36 +44,57 @@ public class ProjectsDispatcher extends DispatchCommand {
 		@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
 		private boolean verbose;
 
+		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
+		private boolean tabbed;
+
 		@Override
 		public void run() {
 			IGitblit gitblit = getContext().getGitblit();
 			UserModel user = getContext().getClient().getUser();
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
 			List<ProjectModel> projects = gitblit.getProjectModels(user, false);
-			int nameLen = 0;
-			int descLen = 0;
-			for (ProjectModel project : projects) {
-				int len = project.name.length();
-				if (len > nameLen) {
-					nameLen = len;
-				}
-				if (!StringUtils.isEmpty(project.description)) {
-					len = project.description.length();
-					if (len > descLen) {
-						descLen = len;
-					}
-				}
+
+			if (tabbed) {
+				asTabbed(projects);
+			} else {
+				asTable(projects);
+			}
+		}
+
+		protected void asTable(List<ProjectModel> list) {
+			String[] headers;
+			if (verbose) {
+				String[] h = { "Name", "Description", "Last Modified", "# Repos" };
+				headers = h;
+			} else {
+				String[] h = { "Name", "Description" };
+				headers = h;
 			}
 
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			String[][] data = new String[list.size()][];
+			for (int i = 0; i < list.size(); i++) {
+				ProjectModel p = list.get(i);
+
+				if (verbose) {
+					data[i] = new String[] { p.name, p.description, df.format(p.lastChange), "" + p.repositories.size() };
+				} else {
+					data[i] = new String[] { p.name, p.description };
+				}
+			}
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_COLS));
+		}
+
+		protected void asTabbed(List<ProjectModel> list) {
 			String pattern;
 			if (verbose) {
-				pattern = MessageFormat.format("%-{0,number,0}s\t%-{1,number,0}s\t%s", nameLen, descLen);
+				pattern = "%s\t%s\t%s";
 			} else {
 				pattern = "%s";
 			}
 
-			for (ProjectModel project : projects) {
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			for (ProjectModel project : list) {
 				stdout.println(String.format(pattern,
 						project.name,
 						project.description == null ? "" : project.description,

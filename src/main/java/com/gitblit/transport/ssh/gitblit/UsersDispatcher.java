@@ -15,12 +15,10 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -28,6 +26,8 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.utils.FlipTable;
+import com.gitblit.utils.FlipTable.Borders;
 
 @CommandMetaData(name = "users", description = "User management commands", admin = true)
 public class UsersDispatcher extends DispatchCommand {
@@ -65,41 +65,66 @@ public class UsersDispatcher extends DispatchCommand {
 		@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
 		private boolean verbose;
 
+		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
+		private boolean tabbed;
+
 		@Override
 		public void run() {
 			IGitblit gitblit = getContext().getGitblit();
 			List<UserModel> users = gitblit.getAllUsers();
-			int displaynameLen = 0;
-			int usernameLen = 0;
-			for (UserModel user : users) {
-				int len = user.getDisplayName().length();
-				if (len > displaynameLen) {
-					displaynameLen = len;
-				}
-				if (!StringUtils.isEmpty(user.username)) {
-					len = user.username.length();
-					if (len > usernameLen) {
-						usernameLen = len;
-					}
-				}
+
+			if (tabbed) {
+				asTabbed(users);
+			} else {
+				asTable(users);
+			}
+		}
+
+		protected void asTable(List<UserModel> list) {
+			String[] headers;
+			if (verbose) {
+				String[] h = { "Name", "Display name", "Type", "E-mail", "Create?", "Fork?"};
+				headers = h;
+			} else {
+				String[] h = { "Name", "Display name", "Type", "E-mail"};
+				headers = h;
 			}
 
+			String[][] data = new String[list.size()][];
+			for (int i = 0; i < list.size(); i++) {
+				UserModel u = list.get(i);
+
+				String name = u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username;
+				if (verbose) {
+					data[i] = new String[] { name, u.displayName == null ? "" : u.displayName,
+							u.accountType.name(), u.emailAddress == null ? "" : u.emailAddress ,
+									u.canCreate() ? "Y":"", u.canFork() ? "Y" : ""};
+				} else {
+					data[i] = new String[] { name, u.displayName == null ? "" : u.displayName,
+							u.accountType.name(), u.emailAddress == null ? "" : u.emailAddress };
+				}
+			}
+			stdout.print(FlipTable.of(headers, data, Borders.BODY_COLS));
+			stdout.println("* = admin account, - = disabled account");
+			stdout.println();
+		}
+
+		protected void asTabbed(List<UserModel> users) {
 			String pattern;
 			if (verbose) {
-				pattern = MessageFormat.format("%-{0,number,0}s\t%-{1,number,0}s\t%-10s\t%s", displaynameLen, usernameLen);
+				pattern = "%s\ts\t%s\t%s\t%s\t%s";
 			} else {
-				pattern = MessageFormat.format("%-{0,number,0}s\t%-{1,number,0}s", displaynameLen, usernameLen);
+				pattern = "%s";
 			}
 
-			for (UserModel user : users) {
-				if (user.disabled) {
-					continue;
-				}
+			for (UserModel u : users) {
 				stdout.println(String.format(pattern,
-						user.getDisplayName(),
-						(user.canAdmin() ? "*":" ") + user.username,
-						user.accountType,
-						user.emailAddress == null ? "" : user.emailAddress));
+						u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username,
+						u.getDisplayName(),
+						u.accountType,
+						u.emailAddress == null ? "" : u.emailAddress,
+						u.canCreate() ? "Y":"",
+						u.canFork() ? "Y" : ""));
 			}
 		}
 	}

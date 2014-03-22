@@ -30,6 +30,8 @@ import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.utils.FlipTable;
+import com.gitblit.utils.FlipTable.Borders;
 
 /**
  * The dispatcher and it's commands for SSH public key management.
@@ -144,16 +146,32 @@ public class KeysDispatcher extends DispatchCommand {
 				stdout.println("You have not registered any public keys for ssh authentication.");
 				return;
 			}
-			for (int i = 0; i < keys.size(); i++) {
-				if (showRaw) {
-					// output in the same format as authorized_keys
-					stdout.println(keys.get(i).getRawData());
-				} else {
-					// show 1-based index numbers with the fingerprint
-					// this is useful for comparing with "ssh-add -l"
-					stdout.println("#" + (i + 1) + ": " + keys.get(i).getFingerprint());
-				}
+
+			if (showRaw) {
+				asRaw(keys);
+			} else {
+				asTable(keys);
 			}
+		}
+
+		/* output in the same format as authorized_keys */
+		protected void asRaw(List<SshKey> keys) {
+			for (SshKey key : keys) {
+				stdout.println(key.getRawData());
+			}
+		}
+
+		protected void asTable(List<SshKey> keys) {
+			String[] headers = { "#", "Fingerprint", "Comment", "Type" };
+			String[][] data = new String[keys.size()][];
+			for (int i = 0; i < keys.size(); i++) {
+				// show 1-based index numbers with the fingerprint
+				// this is useful for comparing with "ssh-add -l"
+				SshKey k = keys.get(i);
+				data[i] = new String[] { "" + (i + 1), k.getFingerprint(), k.getComment(), k.getAlgorithm() };
+			}
+
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_COLS));
 		}
 	}
 }

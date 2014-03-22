@@ -28,6 +28,8 @@ public class SshKey implements Serializable {
 
 	private String fingerprint;
 
+	private String toString;
+
 	public SshKey(String data) {
 		this.rawData = data;
 	}
@@ -96,12 +98,6 @@ public class SshKey implements Serializable {
 	public String getFingerprint() {
 		if (fingerprint == null) {
 			StringBuilder sb = new StringBuilder();
-			// TODO append the keysize
-			int keySize = 0;
-			if (keySize > 0) {
-				sb.append(keySize).append(' ');
-			}
-
 			// append the key hash as colon-separated pairs
 			String hash;
 			if (rawData != null) {
@@ -116,19 +112,6 @@ public class SshKey implements Serializable {
 				sb.append(hash.charAt(i)).append(hash.charAt(i + 1)).append(':');
 			}
 			sb.setLength(sb.length() - 1);
-
-			// append the comment
-			String c = getComment();
-			if (!StringUtils.isEmpty(c)) {
-				sb.append(' ');
-				sb.append(c);
-			}
-
-			// append the algorithm
-			String alg = getAlgorithm();
-			if (!StringUtils.isEmpty(alg)) {
-				sb.append(" (").append(alg).append(")");
-			}
 			fingerprint = sb.toString();
 		}
 		return fingerprint;
@@ -151,6 +134,29 @@ public class SshKey implements Serializable {
 
 	@Override
 	public String toString() {
-		return getFingerprint();
+		if (toString == null) {
+			StringBuilder sb = new StringBuilder();
+			// TODO append the keysize
+			int keySize = 0;
+			if (keySize > 0) {
+				sb.append(keySize).append(' ');
+			}
+			// append fingerprint
+			sb.append(' ');
+			sb.append(getFingerprint());
+			// append the comment
+			String c = getComment();
+			if (!StringUtils.isEmpty(c)) {
+				sb.append(' ');
+				sb.append(c);
+			}
+			// append algorithm
+			String alg = getAlgorithm();
+			if (!StringUtils.isEmpty(alg)) {
+				sb.append(" (").append(alg).append(")");
+			}
+			toString = sb.toString();
+		}
+		return toString;
 	}
 }
