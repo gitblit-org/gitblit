@@ -22,7 +22,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.ListCommand;
+import com.gitblit.transport.ssh.commands.ListRegexCommand;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
@@ -38,7 +38,7 @@ public class RepositoriesDispatcher extends DispatchCommand {
 
 	/* List repositories */
 	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List repositories")
-	public static class ListRepositories extends ListCommand<RepositoryModel> {
+	public static class ListRepositories extends ListRegexCommand<RepositoryModel> {
 
 		@Override
 		protected List<RepositoryModel> getItems() {
