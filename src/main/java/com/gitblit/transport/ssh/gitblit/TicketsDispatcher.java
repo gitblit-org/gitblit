@@ -15,11 +15,9 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.Option;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
@@ -31,7 +29,7 @@ import com.gitblit.tickets.QueryResult;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.transport.ssh.commands.ListCommand;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
 import com.gitblit.utils.StringUtils;
@@ -47,19 +45,13 @@ public class TicketsDispatcher extends DispatchCommand {
 	
 	/* List tickets */
 	@CommandMetaData(name = "list", aliases= { "ls" }, description = "List tickets")
-	public static class ListTickets extends SshCommand {
-
-		@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
-		private boolean verbose;
-
-		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
-		private boolean tabbed;
+	public static class ListTickets extends ListCommand<QueryResult> {
 
 		@Argument(index = 0, metaVar = "REPOSITORY", usage = "repository")
 		protected String repository;
-
+		
 		@Override
-		public void run() throws UnloggedFailure {
+		protected List<QueryResult> getItems() throws UnloggedFailure {
 			IGitblit gitblit = getContext().getGitblit();
 			ITicketService tickets = gitblit.getTicketService();
 
@@ -81,14 +73,10 @@ public class TicketsDispatcher extends DispatchCommand {
 			
 			String query = qb.build();
 			List<QueryResult> list = tickets.queryFor(query, 0, 0, null, true);
-
-			if (tabbed) {
-				asTabbed(list);
-			} else {
-				asTable(list);
-			}
+			return list;
 		}
 
+		@Override
 		protected void asTable(List<QueryResult> list) {
 			boolean forRepo = !StringUtils.isEmpty(repository);
 			String[] headers;
@@ -110,41 +98,38 @@ public class TicketsDispatcher extends DispatchCommand {
 				}
 			}
 
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String[][] data = new String[list.size()][];
 			for (int i = 0; i < list.size(); i++) {
 				QueryResult q = list.get(i);
 
 				if (verbose) {
 					if (forRepo) {
-						data[i] = new String[] { "" + q.number, q.title, q.status.toString(), df.format(q.getDate()) };
+						data[i] = new String[] { "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
 					} else {
-						data[i] = new String[] { q.repository, "" + q.number, q.title, q.status.toString(), df.format(q.getDate()) };
+						data[i] = new String[] { q.repository, "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
 					}
 				} else {
 					if (forRepo) {
-						data[i] = new String[] { "" + q.number, q.title, q.status.toString(), df.format(q.getDate()) };
+						data[i] = new String[] { "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
 					} else {
-						data[i] = new String[] { q.repository, "" + q.number, q.title, q.status.toString(), df.format(q.getDate()) };
+						data[i] = new String[] { q.repository, "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
 					}
 				}
 			}
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
 
+		@Override
 		protected void asTabbed(List<QueryResult> list) {
-			String pattern;
 			if (verbose) {
-				pattern = "%s\t%s\t%s";
+				for (QueryResult q : list) {
+					outTabbed(q.repository, q.number, q.title, q.status.toString(),
+							formatDate(q.getDate()));
+				}
 			} else {
-				pattern = "%s";
-			}
-
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			for (QueryResult q : list) {
-				stdout.println(String.format(pattern,
-						q.repository, q.number, q.title, q.status.toString(),
-						df.format(q.getDate())));
+				for (QueryResult q : list) {
+					outTabbed(q.repository, q.number, q.title);
+				}
 			}
 		}
 	}

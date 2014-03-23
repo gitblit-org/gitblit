@@ -25,7 +25,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.ListCommand;
+import com.gitblit.transport.ssh.commands.ListRegexCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
@@ -96,7 +96,7 @@ public class UsersDispatcher extends DispatchCommand {
 	}
 
 	@CommandMetaData(name = "list", aliases= { "ls" }, description = "List users")
-	public static class ListUsers extends ListCommand<UserModel> {
+	public static class ListUsers extends ListRegexCommand<UserModel> {
 
 		@Override
 		protected List<UserModel> getItems() {
