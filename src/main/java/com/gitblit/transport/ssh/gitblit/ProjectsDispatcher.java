@@ -46,7 +46,7 @@ public class ProjectsDispatcher extends DispatchCommand {
 			List<ProjectModel> projects = gitblit.getProjectModels(user, false);
 			return projects;
 		}
-		
+
 		@Override
 		protected boolean matches(ProjectModel p) {
 			return p.name.matches(regexFilter);
@@ -63,14 +63,14 @@ public class ProjectsDispatcher extends DispatchCommand {
 				headers = h;
 			}
 
-			String[][] data = new String[list.size()][];
+			Object[][] data = new Object[list.size()][];
 			for (int i = 0; i < list.size(); i++) {
 				ProjectModel p = list.get(i);
 
 				if (verbose) {
-					data[i] = new String[] { p.name, p.description, formatDate(p.lastChange), "" + p.repositories.size() };
+					data[i] = new Object[] { p.name, p.description, formatDate(p.lastChange), p.repositories.size() };
 				} else {
-					data[i] = new String[] { p.name, formatDate(p.lastChange), "" + p.repositories.size() };
+					data[i] = new Object[] { p.name, formatDate(p.lastChange), p.repositories.size() };
 				}
 			}
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));

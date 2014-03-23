@@ -46,7 +46,7 @@ public final class FlipTable {
 		private Borders(int bitmask) {
 			this.bitmask = bitmask;
 		}
-		
+
 		boolean header() {
 			return isset(0x8);
 		}
@@ -69,12 +69,12 @@ public final class FlipTable {
 	}
 
 	/** Create a new table with the specified headers and row data. */
-	public static String of(String[] headers, String[][] data) {
+	public static String of(String[] headers, Object[][] data) {
 		return of(headers, data, Borders.FULL);
 	}
 
 	/** Create a new table with the specified headers and row data. */
-	public static String of(String[] headers, String[][] data, Borders borders) {
+	public static String of(String[] headers, Object[][] data, Borders borders) {
 		if (headers == null)
 			throw new NullPointerException("headers == null");
 		if (headers.length == 0)
@@ -85,13 +85,13 @@ public final class FlipTable {
 	}
 
 	private final String[] headers;
-	private final String[][] data;
+	private final Object[][] data;
 	private final Borders borders;
 	private final int columns;
 	private final int[] columnWidths;
 	private final int emptyWidth;
 
-	private FlipTable(String[] headers, String[][] data, Borders borders) {
+	private FlipTable(String[] headers, Object[][] data, Borders borders) {
 		this.headers = headers;
 		this.data = data;
 		this.borders = borders;
@@ -99,17 +99,17 @@ public final class FlipTable {
 		columns = headers.length;
 		columnWidths = new int[columns];
 		for (int row = -1; row < data.length; row++) {
-			String[] rowData = (row == -1) ? headers : data[row];
+			Object[] rowData = (row == -1) ? headers : data[row];
 			if (rowData.length != columns) {
 				throw new IllegalArgumentException(String.format("Row %s's %s columns != %s columns", row + 1,
 						rowData.length, columns));
 			}
 			for (int column = 0; column < columns; column++) {
-				String cell = rowData[column];
+				Object cell = rowData[column];
 				if (cell == null) {
 					continue;
 				}
-				for (String rowDataLine : cell.split("\\n")) {
+				for (String rowDataLine : cell.toString().split("\\n")) {
 					columnWidths[column] = Math.max(columnWidths[column], rowDataLine.length());
 				}
 			}
@@ -194,7 +194,7 @@ public final class FlipTable {
 		out.append(format.charAt(4)).append('\n');
 	}
 
-	private void printData(StringBuilder out, String[] data, boolean isHeader) {
+	private void printData(StringBuilder out, Object[] data, boolean isHeader) {
 		for (int line = 0, lines = 1; line < lines; line++) {
 			for (int column = 0; column < columns; column++) {
 				if (column == 0) {
@@ -208,11 +208,11 @@ public final class FlipTable {
 				} else {
 					out.append(' ');
 				}
-				String cell = data[column];
+				Object cell = data[column];
 				if (cell == null) {
 					cell = "";
 				}
-				String[] cellLines = cell.split("\\n");
+				String[] cellLines = cell.toString().split("\\n");
 				lines = Math.max(lines, cellLines.length);
 				String cellLine = line < cellLines.length ? cellLines[line] : "";
 				out.append(pad(columnWidths[column], cellLine));

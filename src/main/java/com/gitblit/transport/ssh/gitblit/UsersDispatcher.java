@@ -54,34 +54,34 @@ public class UsersDispatcher extends DispatchCommand {
 
 			// fields
 			String [] fheaders = new String [] { "Field", "Value" };
-			String [][] fdata = new String[5][];
-			fdata[0] = new String [] { "Email", u.emailAddress };
-			fdata[1] = new String [] { "Type", u.accountType.toString() };
-			fdata[2] = new String [] { "Can Admin", u.canAdmin() ? "Y":"N" };
-			fdata[3] = new String [] { "Can Fork", u.canFork() ? "Y":"N" };
-			fdata[4] = new String [] { "Can Create", u.canCreate() ? "Y":"N" };
+			Object [][] fdata = new Object[5][];
+			fdata[0] = new Object [] { "Email", u.emailAddress };
+			fdata[1] = new Object [] { "Type", u.accountType };
+			fdata[2] = new Object [] { "Can Admin", u.canAdmin() ? "Y":"N" };
+			fdata[3] = new Object [] { "Can Fork", u.canFork() ? "Y":"N" };
+			fdata[4] = new Object [] { "Can Create", u.canCreate() ? "Y":"N" };
 			String fields = FlipTable.of(fheaders, fdata, Borders.COLS);
-			
+
 			// teams
 			String [] theaders = new String [] { "Team", "Type" };
-			String [][] tdata = new String[u.teams.size()][];
+			Object [][] tdata = new Object[u.teams.size()][];
 			int i = 0;
 			for (TeamModel t : u.teams) {
-				tdata[i] = new String [] { t.name, t.accountType.toString() };
+				tdata[i] = new Object [] { t.name, t.accountType };
 				i++;
 			}
 			String teams = FlipTable.of(theaders, tdata, Borders.COLS);
-			
+
 			// permissions
 			List<RegistrantAccessPermission> perms = u.getRepositoryPermissions();
 			String[] pheaders = { "Repository", "Permission", "Type", "Source", "Mutable" };
-			String [][] pdata = new String[perms.size()][];
+			Object [][] pdata = new Object[perms.size()][];
 			for (i = 0; i < perms.size(); i++) {
 				RegistrantAccessPermission ap = perms.get(i);
-				pdata[i] = new String[] { ap.registrant, ap.permission.toString(), ap.permissionType.toString(), ap.source, ap.mutable ? "Y":"N" };
+				pdata[i] = new Object[] { ap.registrant, ap.permission, ap.permissionType, ap.source, ap.mutable ? "Y":"N" };
 			}
 			String permissions = FlipTable.of(pheaders, pdata, Borders.COLS);
-			
+
 			// assemble user table
 			String [] headers = new String[] { u.getDisplayName() + (u.username.equals(u.getDisplayName()) ? "" : (" (" + u.username + ")")) };
 			String[][] data = new String[6][];
@@ -104,7 +104,7 @@ public class UsersDispatcher extends DispatchCommand {
 			List<UserModel> users = gitblit.getAllUsers();
 			return users;
 		}
-		
+
 		@Override
 		protected boolean matches(UserModel u) {
 			return u.username.matches(regexFilter);
@@ -121,16 +121,16 @@ public class UsersDispatcher extends DispatchCommand {
 				headers = h;
 			}
 
-			String[][] data = new String[list.size()][];
+			Object[][] data = new Object[list.size()][];
 			for (int i = 0; i < list.size(); i++) {
 				UserModel u = list.get(i);
 
 				String name = u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username;
 				if (verbose) {
-					data[i] = new String[] { name, u.displayName, u.accountType.name(),
+					data[i] = new Object[] { name, u.displayName, u.accountType,
 							u.emailAddress,	u.canCreate() ? "Y":"", u.canFork() ? "Y" : ""};
 				} else {
-					data[i] = new String[] { name, u.displayName, u.accountType.name(),
+					data[i] = new Object[] { name, u.displayName, u.accountType,
 							u.emailAddress };
 				}
 			}
