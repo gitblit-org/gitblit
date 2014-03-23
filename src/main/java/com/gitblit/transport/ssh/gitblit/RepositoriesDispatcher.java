@@ -16,9 +16,12 @@
 package com.gitblit.transport.ssh.gitblit;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
+import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
@@ -49,16 +52,33 @@ public class RepositoriesDispatcher extends DispatchCommand {
 		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
 		private boolean tabbed;
 
+		@Argument(index = 0, metaVar = "REGEX", usage = "regex filter expression")
+		protected String regexFilter;
+
 		@Override
 		public void run() {
 			IGitblit gitblit = getContext().getGitblit();
 			UserModel user = getContext().getClient().getUser();
 
 			List<RepositoryModel> repositories = gitblit.getRepositoryModels(user);
-			if (tabbed) {
-				asTabbed(repositories);
+			List<RepositoryModel> filtered;
+			if (StringUtils.isEmpty(regexFilter)) {
+				// no regex filter 
+				filtered = repositories;
 			} else {
-				asTable(repositories);
+				// regex filter the list
+				filtered = new ArrayList<RepositoryModel>();
+				for (RepositoryModel r : repositories) {
+					if (r.name.matches(regexFilter)) {
+						filtered.add(r);
+					}
+				}
+			}
+			
+			if (tabbed) {
+				asTabbed(filtered);
+			} else {
+				asTable(filtered);
 			}
 		}
 

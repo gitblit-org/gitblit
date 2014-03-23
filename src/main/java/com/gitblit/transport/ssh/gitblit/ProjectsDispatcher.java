@@ -16,12 +16,16 @@
 package com.gitblit.transport.ssh.gitblit;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
+import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.ProjectModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
@@ -47,17 +51,33 @@ public class ProjectsDispatcher extends DispatchCommand {
 		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
 		private boolean tabbed;
 
+		@Argument(index = 0, metaVar = "REGEX", usage = "regex filter expression")
+		protected String regexFilter;
+
 		@Override
 		public void run() {
 			IGitblit gitblit = getContext().getGitblit();
 			UserModel user = getContext().getClient().getUser();
 
 			List<ProjectModel> projects = gitblit.getProjectModels(user, false);
+			List<ProjectModel> filtered;
+			if (StringUtils.isEmpty(regexFilter)) {
+				// no regex filter 
+				filtered = projects;
+			} else {
+				// regex filter the list
+				filtered = new ArrayList<ProjectModel>();
+				for (ProjectModel p : projects) {
+					if (p.name.matches(regexFilter)) {
+						filtered.add(p);
+					}
+				}
+			}
 
 			if (tabbed) {
-				asTabbed(projects);
+				asTabbed(filtered);
 			} else {
-				asTable(projects);
+				asTable(filtered);
 			}
 		}
 
