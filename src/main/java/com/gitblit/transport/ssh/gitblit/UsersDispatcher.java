@@ -15,13 +15,16 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
+import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
@@ -108,15 +111,32 @@ public class UsersDispatcher extends DispatchCommand {
 		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
 		private boolean tabbed;
 
+		@Argument(index = 0, metaVar = "REGEX", usage = "regex filter expression")
+		protected String regexFilter;
+
 		@Override
 		public void run() {
 			IGitblit gitblit = getContext().getGitblit();
 			List<UserModel> users = gitblit.getAllUsers();
 
-			if (tabbed) {
-				asTabbed(users);
+			List<UserModel> filtered;
+			if (StringUtils.isEmpty(regexFilter)) {
+				// no regex filter 
+				filtered = users;
 			} else {
-				asTable(users);
+				// regex filter the list
+				filtered = new ArrayList<UserModel>();
+				for (UserModel u : users) {
+					if (u.username.matches(regexFilter)) {
+						filtered.add(u);
+					}
+				}
+			}
+
+			if (tabbed) {
+				asTabbed(filtered);
+			} else {
+				asTable(filtered);
 			}
 		}
 
