@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
@@ -35,6 +34,7 @@ import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
+import com.gitblit.utils.StringUtils;
 
 @CommandMetaData(name = "tickets", description = "Ticket commands", hidden = true)
 public class TicketsDispatcher extends DispatchCommand {

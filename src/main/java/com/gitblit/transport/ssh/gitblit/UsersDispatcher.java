@@ -15,12 +15,9 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.Option;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -28,16 +25,13 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
+import com.gitblit.transport.ssh.commands.ListCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
 
 @CommandMetaData(name = "users", description = "User management commands", admin = true)
 public class UsersDispatcher extends DispatchCommand {
-
-	private static final String banner1 = "===========================================================";
-
-	private static final String banner2 = "-----------------------------------------------------------";
 
 	@Override
 	protected void setup(UserModel user) {
@@ -102,43 +96,21 @@ public class UsersDispatcher extends DispatchCommand {
 	}
 
 	@CommandMetaData(name = "list", aliases= { "ls" }, description = "List users")
-	public static class ListUsers extends SshCommand {
-
-		@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
-		private boolean verbose;
-
-		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
-		private boolean tabbed;
-
-		@Argument(index = 0, metaVar = "REGEX", usage = "regex filter expression")
-		protected String regexFilter;
+	public static class ListUsers extends ListCommand<UserModel> {
 
 		@Override
-		public void run() {
+		protected List<UserModel> getItems() {
 			IGitblit gitblit = getContext().getGitblit();
 			List<UserModel> users = gitblit.getAllUsers();
-
-			List<UserModel> filtered;
-			if (StringUtils.isEmpty(regexFilter)) {
-				// no regex filter 
-				filtered = users;
-			} else {
-				// regex filter the list
-				filtered = new ArrayList<UserModel>();
-				for (UserModel u : users) {
-					if (u.username.matches(regexFilter)) {
-						filtered.add(u);
-					}
-				}
-			}
-
-			if (tabbed) {
-				asTabbed(filtered);
-			} else {
-				asTable(filtered);
-			}
+			return users;
+		}
+		
+		@Override
+		protected boolean matches(UserModel u) {
+			return u.username.matches(regexFilter);
 		}
 
+		@Override
 		protected void asTable(List<UserModel> list) {
 			String[] headers;
 			if (verbose) {
@@ -167,22 +139,21 @@ public class UsersDispatcher extends DispatchCommand {
 			stdout.println();
 		}
 
+		@Override
 		protected void asTabbed(List<UserModel> users) {
-			String pattern;
 			if (verbose) {
-				pattern = "%s\ts\t%s\t%s\t%s\t%s";
+				for (UserModel u : users) {
+					outTabbed(u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username,
+							u.getDisplayName(),
+							u.accountType,
+							u.emailAddress == null ? "" : u.emailAddress,
+							u.canCreate() ? "Y":"",
+							u.canFork() ? "Y" : "");
+				}
 			} else {
-				pattern = "%s";
-			}
-
-			for (UserModel u : users) {
-				stdout.println(String.format(pattern,
-						u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username,
-						u.getDisplayName(),
-						u.accountType,
-						u.emailAddress == null ? "" : u.emailAddress,
-						u.canCreate() ? "Y":"",
-						u.canFork() ? "Y" : ""));
+				for (UserModel u : users) {
+					outTabbed(u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username);
+				}
 			}
 		}
 	}

@@ -15,20 +15,14 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.Option;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.transport.ssh.commands.ListCommand;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
 
@@ -42,44 +36,23 @@ public class ProjectsDispatcher extends DispatchCommand {
 
 	/* List projects */
 	@CommandMetaData(name = "list", aliases= { "ls" }, description = "List projects")
-	public static class ListProjects extends SshCommand {
-
-		@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
-		private boolean verbose;
-
-		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
-		private boolean tabbed;
-
-		@Argument(index = 0, metaVar = "REGEX", usage = "regex filter expression")
-		protected String regexFilter;
+	public static class ListProjects extends ListCommand<ProjectModel> {
 
 		@Override
-		public void run() {
+		protected List<ProjectModel> getItems() {
 			IGitblit gitblit = getContext().getGitblit();
 			UserModel user = getContext().getClient().getUser();
 
 			List<ProjectModel> projects = gitblit.getProjectModels(user, false);
-			List<ProjectModel> filtered;
-			if (StringUtils.isEmpty(regexFilter)) {
-				// no regex filter 
-				filtered = projects;
-			} else {
-				// regex filter the list
-				filtered = new ArrayList<ProjectModel>();
-				for (ProjectModel p : projects) {
-					if (p.name.matches(regexFilter)) {
-						filtered.add(p);
-					}
-				}
-			}
-
-			if (tabbed) {
-				asTabbed(filtered);
-			} else {
-				asTable(filtered);
-			}
+			return projects;
+		}
+		
+		@Override
+		protected boolean matches(ProjectModel p) {
+			return p.name.matches(regexFilter);
 		}
 
+		@Override
 		protected void asTable(List<ProjectModel> list) {
 			String[] headers;
 			if (verbose) {
@@ -90,34 +63,31 @@ public class ProjectsDispatcher extends DispatchCommand {
 				headers = h;
 			}
 
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String[][] data = new String[list.size()][];
 			for (int i = 0; i < list.size(); i++) {
 				ProjectModel p = list.get(i);
 
 				if (verbose) {
-					data[i] = new String[] { p.name, p.description, df.format(p.lastChange), "" + p.repositories.size() };
+					data[i] = new String[] { p.name, p.description, formatDate(p.lastChange), "" + p.repositories.size() };
 				} else {
-					data[i] = new String[] { p.name, df.format(p.lastChange), "" + p.repositories.size() };
+					data[i] = new String[] { p.name, formatDate(p.lastChange), "" + p.repositories.size() };
 				}
 			}
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
 
+		@Override
 		protected void asTabbed(List<ProjectModel> list) {
-			String pattern;
 			if (verbose) {
-				pattern = "%s\t%s\t%s";
+				for (ProjectModel project : list) {
+					outTabbed(project.name,
+							project.description == null ? "" : project.description,
+									formatDate(project.lastChange));
+				}
 			} else {
-				pattern = "%s";
-			}
-
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			for (ProjectModel project : list) {
-				stdout.println(String.format(pattern,
-						project.name,
-						project.description == null ? "" : project.description,
-						df.format(project.lastChange)));
+				for (ProjectModel project : list) {
+					outTabbed(project.name);
+				}
 			}
 		}
 	}

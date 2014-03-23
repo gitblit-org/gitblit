@@ -15,20 +15,14 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.Option;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.transport.ssh.commands.ListCommand;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
@@ -44,46 +38,23 @@ public class RepositoriesDispatcher extends DispatchCommand {
 
 	/* List repositories */
 	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List repositories")
-	public static class ListRepositories extends SshCommand {
-
-		@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
-		private boolean verbose;
-
-		@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
-		private boolean tabbed;
-
-		@Argument(index = 0, metaVar = "REGEX", usage = "regex filter expression")
-		protected String regexFilter;
+	public static class ListRepositories extends ListCommand<RepositoryModel> {
 
 		@Override
-		public void run() {
+		protected List<RepositoryModel> getItems() {
 			IGitblit gitblit = getContext().getGitblit();
 			UserModel user = getContext().getClient().getUser();
-
 			List<RepositoryModel> repositories = gitblit.getRepositoryModels(user);
-			List<RepositoryModel> filtered;
-			if (StringUtils.isEmpty(regexFilter)) {
-				// no regex filter 
-				filtered = repositories;
-			} else {
-				// regex filter the list
-				filtered = new ArrayList<RepositoryModel>();
-				for (RepositoryModel r : repositories) {
-					if (r.name.matches(regexFilter)) {
-						filtered.add(r);
-					}
-				}
-			}
-			
-			if (tabbed) {
-				asTabbed(filtered);
-			} else {
-				asTable(filtered);
-			}
+			return repositories;
 		}
-
+		
+		@Override
+		protected boolean matches(RepositoryModel r) {
+			return r.name.matches(regexFilter);
+		}
+		
+		@Override
 		protected void asTable(List<RepositoryModel> list) {
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String[] headers;
 			if (verbose) {
 				String[] h = { "Name", "Description", "Owners", "Last Modified", "Size" };
@@ -97,7 +68,7 @@ public class RepositoriesDispatcher extends DispatchCommand {
 			for (int i = 0; i < list.size(); i++) {
 				RepositoryModel r = list.get(i);
 
-				String lm = df.format(r.lastChange);
+				String lm = formatDate(r.lastChange);
 				String size = r.size;
 				if (!r.hasCommits) {
 					lm = "";
@@ -116,29 +87,28 @@ public class RepositoriesDispatcher extends DispatchCommand {
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
 
+		@Override
 		protected void asTabbed(List<RepositoryModel> list) {
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			String pattern;
 			if (verbose) {
-				pattern = "%s\t%s\t%s\t%s\t%s";
+				for (RepositoryModel r : list) {
+					String lm = formatDate(r.lastChange);
+					String owners = "";
+					if (!ArrayUtils.isEmpty(r.owners)) {
+						owners = Joiner.on(",").join(r.owners);
+					}
+					String size = r.size;
+					if (!r.hasCommits) {
+						lm = "";
+						size = "(empty)";
+					}
+
+					outTabbed(r.name, r.description == null ? "" : r.description,
+							owners, lm, size);
+				}
 			} else {
-				pattern = "%s";
-			}
-
-			for (RepositoryModel r : list) {
-				String lm = df.format(r.lastChange);
-				String owners = "";
-				if (!ArrayUtils.isEmpty(r.owners)) {
-					owners = Joiner.on(",").join(r.owners);
+				for (RepositoryModel r : list) {
+					outTabbed(r.name);
 				}
-				String size = r.size;
-				if (!r.hasCommits) {
-					lm = "";
-					size = "(empty)";
-				}
-
-				stdout.println(String.format(pattern, r.name, r.description == null ? "" : r.description,
-						owners, lm, size));
 			}
 		}
 	}
