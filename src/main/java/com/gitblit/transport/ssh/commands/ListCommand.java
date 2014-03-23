@@ -22,9 +22,11 @@ import java.util.List;
 
 import org.kohsuke.args4j.Option;
 
+import com.gitblit.utils.JsonUtils;
+
 /**
  * Parent class of a list command.
- * 
+ *
  * @author James Moger
  *
  * @param <T>
@@ -34,27 +36,40 @@ public abstract class ListCommand<T> extends SshCommand {
 	@Option(name = "--verbose", aliases = { "-v" }, usage = "verbose")
 	protected boolean verbose;
 
-	@Option(name = "--tabbed", aliases = { "-t" }, usage = "as tabbed output")
+	@Option(name = "--tabbed", usage = "generate tabbed-text output")
 	protected boolean tabbed;
+
+	@Option(name = "--json", usage = "generate JSON output")
+	protected boolean json;
 
 	private DateFormat df;
 
 	protected abstract List<T> getItems() throws UnloggedFailure;
-	
+
+	protected void validateOutputFormat() throws UnloggedFailure {
+		if (tabbed && json) {
+			throw new UnloggedFailure(1, "Please specify --tabbed OR --json, not both!");
+		}
+	}
+
 	@Override
 	public void run() throws UnloggedFailure {
+		validateOutputFormat();
+
 		List<T> list = getItems();
 		if (tabbed) {
 			asTabbed(list);
+		} else if (json) {
+			asJSON(list);
 		} else {
 			asTable(list);
 		}
 	}
 
 	protected abstract void asTable(List<T> list);
-	
+
 	protected abstract void asTabbed(List<T> list);
-	
+
 	protected void outTabbed(Object... values) {
 		StringBuilder pattern = new StringBuilder();
 		for (int i = 0; i < values.length; i++) {
@@ -63,7 +78,11 @@ public abstract class ListCommand<T> extends SshCommand {
 		pattern.setLength(pattern.length() - 1);
 		stdout.println(String.format(pattern.toString(), values));
 	}
-	
+
+	protected void asJSON(List<T> list) {
+		stdout.println(JsonUtils.toJsonString(list));
+	}
+
 	protected String formatDate(Date date) {
 		if (df == null) {
 			df = new SimpleDateFormat("yyyy-MM-dd");

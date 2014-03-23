@@ -23,31 +23,33 @@ import org.kohsuke.args4j.Argument;
 import com.gitblit.utils.StringUtils;
 
 /**
- * List command that accepts a regex filter parameter.
- * 
+ * List command that accepts a filter parameter.
+ *
  * @author James Moger
  *
  * @param <T>
  */
-public abstract class ListRegexCommand<T> extends ListCommand<T> {
+public abstract class ListFilterCommand<T> extends ListCommand<T> {
 
-	@Argument(index = 0, metaVar = "REGEX", usage = "regex filter expression")
-	protected String regexFilter;
-	
-	protected abstract boolean matches(T t);
-	
+	@Argument(index = 0, metaVar = "FILTER", usage = "filter expression")
+	private String filter;
+
+	protected abstract boolean matches(String filter, T t);
+
 	@Override
 	public void run() throws UnloggedFailure {
+		validateOutputFormat();
+
 		List<T> list = getItems();
 		List<T> filtered;
-		if (StringUtils.isEmpty(regexFilter)) {
-			// no regex filter 
+		if (StringUtils.isEmpty(filter)) {
+			// no filter
 			filtered = list;
 		} else {
-			// regex filter the list
+			// filter the list
 			filtered = new ArrayList<T>();
 			for (T t : list) {
-				if (matches(t)) {
+				if (matches(filter, t)) {
 					filtered.add(t);
 				}
 			}
@@ -55,6 +57,8 @@ public abstract class ListRegexCommand<T> extends ListCommand<T> {
 
 		if (tabbed) {
 			asTabbed(filtered);
+		} else if (json) {
+			asJSON(filtered);
 		} else {
 			asTable(filtered);
 		}

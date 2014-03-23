@@ -22,7 +22,7 @@ import com.gitblit.models.ProjectModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
-import com.gitblit.transport.ssh.commands.ListRegexCommand;
+import com.gitblit.transport.ssh.commands.ListFilterCommand;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
 
@@ -36,7 +36,7 @@ public class ProjectsDispatcher extends DispatchCommand {
 
 	/* List projects */
 	@CommandMetaData(name = "list", aliases= { "ls" }, description = "List projects")
-	public static class ListProjects extends ListRegexCommand<ProjectModel> {
+	public static class ListProjects extends ListFilterCommand<ProjectModel> {
 
 		@Override
 		protected List<ProjectModel> getItems() {
@@ -48,8 +48,8 @@ public class ProjectsDispatcher extends DispatchCommand {
 		}
 
 		@Override
-		protected boolean matches(ProjectModel p) {
-			return p.name.matches(regexFilter);
+		protected boolean matches(String filter, ProjectModel p) {
+			return p.name.matches(filter);
 		}
 
 		@Override
