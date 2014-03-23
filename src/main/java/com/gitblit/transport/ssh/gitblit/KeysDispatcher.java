@@ -163,12 +163,12 @@ public class KeysDispatcher extends DispatchCommand {
 		protected void asTable(List<SshKey> keys) {
 			String[] headers = { "#", "Fingerprint", "Comment", "Type" };
 			int len = keys == null ? 0 : keys.size();
-			String[][] data = new String[len][];
+			Object[][] data = new Object[len][];
 			for (int i = 0; i < len; i++) {
 				// show 1-based index numbers with the fingerprint
 				// this is useful for comparing with "ssh-add -l"
 				SshKey k = keys.get(i);
-				data[i] = new String[] { "" + (i + 1), k.getFingerprint(), k.getComment(), k.getAlgorithm() };
+				data[i] = new Object[] { (i + 1), k.getFingerprint(), k.getComment(), k.getAlgorithm() };
 			}
 
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));

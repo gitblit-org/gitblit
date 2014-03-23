@@ -30,6 +30,7 @@ import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.ListCommand;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
 import com.gitblit.utils.StringUtils;
@@ -42,35 +43,53 @@ public class TicketsDispatcher extends DispatchCommand {
 		register(user, ReviewCommand.class);
 		register(user, ListTickets.class);
 	}
-	
+
 	/* List tickets */
-	@CommandMetaData(name = "list", aliases= { "ls" }, description = "List tickets")
+	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List tickets")
 	public static class ListTickets extends ListCommand<QueryResult> {
 
-		@Argument(index = 0, metaVar = "REPOSITORY", usage = "repository")
+		private final String ALL = "ALL";
+
+		@Argument(index = 0, metaVar = "ALL|REPOSITORY", usage = "the repository or ALL")
 		protected String repository;
-		
+
+		@Argument(index = 1, multiValued = true, metaVar="CONDITION", usage = "query condition")
+		protected List<String> query;
+
+		protected String userQuery;
+
 		@Override
 		protected List<QueryResult> getItems() throws UnloggedFailure {
 			IGitblit gitblit = getContext().getGitblit();
 			ITicketService tickets = gitblit.getTicketService();
 
 			QueryBuilder sb = new QueryBuilder();
-			sb.and(Lucene.status.matches(Status.New.toString())).or(Lucene.status.matches(Status.Open.toString()));
+			if (ArrayUtils.isEmpty(query)) {
+				sb.and(Lucene.status.matches(Status.New.toString())).or(Lucene.status.matches(Status.Open.toString()));
+			} else {
+				StringBuilder b = new StringBuilder();
+				for (String q : query) {
+					b.append(q).append(' ');
+				}
+				b.setLength(b.length() - 1);
+				sb.and(b.toString());
+			}
 
 			QueryBuilder qb;
-			if (StringUtils.isEmpty(repository)) {
+			if (StringUtils.isEmpty(repository) || ALL.equalsIgnoreCase(repository)) {
 				qb = sb;
+				userQuery = sb.build();
 			} else {
 				qb = new QueryBuilder();
 				RepositoryModel r = gitblit.getRepositoryModel(repository);
 				if (r == null) {
-					throw new UnloggedFailure(1,  String.format("%s not found!", repository));
+					throw new UnloggedFailure(1,  String.format("%s is not a repository!", repository));
 				}
 				qb.and(Lucene.rid.matches(r.getRID()));
 				qb.and(sb.toSubquery().toString());
+				userQuery = sb.build();
 			}
-			
+
 			String query = qb.build();
 			List<QueryResult> list = tickets.queryFor(query, 0, 0, null, true);
 			return list;
@@ -78,14 +97,14 @@ public class TicketsDispatcher extends DispatchCommand {
 
 		@Override
 		protected void asTable(List<QueryResult> list) {
-			boolean forRepo = !StringUtils.isEmpty(repository);
+			boolean forRepo = !StringUtils.isEmpty(repository) && !ALL.equalsIgnoreCase(repository);
 			String[] headers;
 			if (verbose) {
 				if (forRepo) {
-					String[] h = { "ID", "Title", "Status", "Last Modified" };
+					String[] h = { "ID", "Title", "Status", "Last Modified", "Votes", "Commits" };
 					headers = h;
 				} else {
-					String[] h = { "Repository", "ID", "Title", "Status", "Last Modified" };
+					String[] h = { "Repository", "ID", "Title", "Status", "Last Modified", "Votes", "Commits" };
 					headers = h;
 				}
 			} else {
@@ -98,25 +117,27 @@ public class TicketsDispatcher extends DispatchCommand {
 				}
 			}
 
-			String[][] data = new String[list.size()][];
+			Object[][] data = new Object[list.size()][];
 			for (int i = 0; i < list.size(); i++) {
 				QueryResult q = list.get(i);
 
 				if (verbose) {
 					if (forRepo) {
-						data[i] = new String[] { "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
+						data[i] = new Object[] { q.number, q.title, q.status, formatDate(q.getDate()), q.votesCount, q.patchset == null ? "": q.patchset.commits };
 					} else {
-						data[i] = new String[] { q.repository, "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
+						data[i] = new Object[] { q.repository, q.number, q.title, q.status, formatDate(q.getDate()), q.votesCount, q.patchset == null ? "": q.patchset.commits };
 					}
 				} else {
 					if (forRepo) {
-						data[i] = new String[] { "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
+						data[i] = new Object[] { q.number, q.title, q.status, formatDate(q.getDate()) };
 					} else {
-						data[i] = new String[] { q.repository, "" + q.number, q.title, q.status.toString(), formatDate(q.getDate()) };
+						data[i] = new Object[] { q.repository, q.number, q.title, q.status, formatDate(q.getDate()) };
 					}
 				}
 			}
-			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
+			stdout.print(FlipTable.of(headers, data, Borders.BODY_HCOLS));
+			stdout.println("  " + repository + ": " + userQuery);
+			stdout.println();
 		}
 
 		@Override

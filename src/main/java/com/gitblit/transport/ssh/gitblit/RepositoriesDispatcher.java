@@ -47,12 +47,12 @@ public class RepositoriesDispatcher extends DispatchCommand {
 			List<RepositoryModel> repositories = gitblit.getRepositoryModels(user);
 			return repositories;
 		}
-		
+
 		@Override
 		protected boolean matches(RepositoryModel r) {
 			return r.name.matches(regexFilter);
 		}
-		
+
 		@Override
 		protected void asTable(List<RepositoryModel> list) {
 			String[] headers;
@@ -64,7 +64,7 @@ public class RepositoriesDispatcher extends DispatchCommand {
 				headers = h;
 			}
 
-			String[][] data = new String[list.size()][];
+			Object[][] data = new Object[list.size()][];
 			for (int i = 0; i < list.size(); i++) {
 				RepositoryModel r = list.get(i);
 
@@ -79,9 +79,9 @@ public class RepositoriesDispatcher extends DispatchCommand {
 					if (!ArrayUtils.isEmpty(r.owners)) {
 						owners = Joiner.on(",").join(r.owners);
 					}
-					data[i] = new String[] { r.name, r.description, owners, lm, size };
+					data[i] = new Object[] { r.name, r.description, owners, lm, size };
 				} else {
-					data[i] = new String[] { r.name, lm, size };
+					data[i] = new Object[] { r.name, lm, size };
 				}
 			}
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
