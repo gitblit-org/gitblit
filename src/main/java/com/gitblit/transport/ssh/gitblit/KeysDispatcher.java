@@ -142,10 +142,6 @@ public class KeysDispatcher extends DispatchCommand {
 			IPublicKeyManager keyManager = getContext().getGitblit().getPublicKeyManager();
 			String username = getContext().getClient().getUsername();
 			List<SshKey> keys = keyManager.getKeys(username);
-			if (keys == null || keys.isEmpty()) {
-				stdout.println("You have not registered any public keys for ssh authentication.");
-				return;
-			}
 
 			if (showRaw) {
 				asRaw(keys);
@@ -156,6 +152,9 @@ public class KeysDispatcher extends DispatchCommand {
 
 		/* output in the same format as authorized_keys */
 		protected void asRaw(List<SshKey> keys) {
+			if (keys == null) {
+				return;
+			}
 			for (SshKey key : keys) {
 				stdout.println(key.getRawData());
 			}
@@ -163,15 +162,16 @@ public class KeysDispatcher extends DispatchCommand {
 
 		protected void asTable(List<SshKey> keys) {
 			String[] headers = { "#", "Fingerprint", "Comment", "Type" };
-			String[][] data = new String[keys.size()][];
-			for (int i = 0; i < keys.size(); i++) {
+			int len = keys == null ? 0 : keys.size();
+			String[][] data = new String[len][];
+			for (int i = 0; i < len; i++) {
 				// show 1-based index numbers with the fingerprint
 				// this is useful for comparing with "ssh-add -l"
 				SshKey k = keys.get(i);
 				data[i] = new String[] { "" + (i + 1), k.getFingerprint(), k.getComment(), k.getAlgorithm() };
 			}
 
-			stdout.println(FlipTable.of(headers, data, Borders.BODY_COLS));
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
 	}
 }
