@@ -69,7 +69,7 @@ public class RepositoriesDispatcher extends DispatchCommand {
 				String[] h = { "Name", "Description", "Owners", "Last Modified", "Size" };
 				headers = h;
 			} else {
-				String[] h = { "Name", "Description" };
+				String[] h = { "Name", "Last Modified", "Size" };
 				headers = h;
 			}
 
@@ -77,22 +77,23 @@ public class RepositoriesDispatcher extends DispatchCommand {
 			for (int i = 0; i < list.size(); i++) {
 				RepositoryModel r = list.get(i);
 
+				String lm = df.format(r.lastChange);
+				String size = r.size;
+				if (!r.hasCommits) {
+					lm = "";
+					size = "(empty)";
+				}
 				if (verbose) {
-					String lm = df.format(r.lastChange);
 					String owners = "";
 					if (!ArrayUtils.isEmpty(r.owners)) {
 						owners = Joiner.on(",").join(r.owners);
 					}
-					String size = r.size;
-					if (!r.hasCommits) {
-						size = "(empty)";
-					}
 					data[i] = new String[] { r.name, r.description, owners, lm, size };
 				} else {
-					data[i] = new String[] { r.name, r.description };
+					data[i] = new String[] { r.name, lm, size };
 				}
 			}
-			stdout.println(FlipTable.of(headers, data, Borders.BODY_COLS));
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
 
 		protected void asTabbed(List<RepositoryModel> list) {
@@ -112,6 +113,7 @@ public class RepositoriesDispatcher extends DispatchCommand {
 				}
 				String size = r.size;
 				if (!r.hasCommits) {
+					lm = "";
 					size = "(empty)";
 				}
 

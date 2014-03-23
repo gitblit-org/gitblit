@@ -19,7 +19,7 @@ package com.gitblit.utils;
 
 /**
  * This is a forked version of FlipTables which supports controlling the
- * displayed borders.
+ * displayed borders and gracefully handles null cell values.
  *
  * FULL = all borders
  * BODY_COLS = header + perimeter + column separators
@@ -39,12 +39,16 @@ public final class FlipTable {
 	private static final String EMPTY = "(empty)";
 
 	public static enum Borders {
-		FULL(7), BODY_COLS(5), COLS(4), BODY(1), HEADER(0);
+		FULL(15), BODY_HCOLS(13), HCOLS(12), BODY(9), HEADER(8), COLS(4);
 
 		final int bitmask;
 
 		private Borders(int bitmask) {
 			this.bitmask = bitmask;
+		}
+		
+		boolean header() {
+			return isset(0x8);
 		}
 
 		boolean body() {
@@ -101,7 +105,11 @@ public final class FlipTable {
 						rowData.length, columns));
 			}
 			for (int column = 0; column < columns; column++) {
-				for (String rowDataLine : rowData[column].split("\\n")) {
+				String cell = rowData[column];
+				if (cell == null) {
+					continue;
+				}
+				for (String rowDataLine : cell.split("\\n")) {
 					columnWidths[column] = Math.max(columnWidths[column], rowDataLine.length());
 				}
 			}
@@ -123,20 +131,22 @@ public final class FlipTable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		printDivider(builder, "╔═╤═╗");
+		if (borders.header()) {
+			printDivider(builder, "╔═╤═╗");
+		}
 		printData(builder, headers, true);
 		if (data.length == 0) {
 			if (borders.body()) {
 				printDivider(builder, "╠═╧═╣");
 				builder.append('║').append(pad(emptyWidth, EMPTY)).append("║\n");
 				printDivider(builder, "╚═══╝");
-			} else {
+			} else if (borders.header()) {
 				printDivider(builder, "╚═╧═╝");
 				builder.append(' ').append(pad(emptyWidth, EMPTY)).append(" \n");
 			}
 		} else {
 			for (int row = 0; row < data.length; row++) {
-				if (row == 0) {
+				if (row == 0 && borders.header()) {
 					if (borders.body()) {
 						if (borders.columns()) {
 							printDivider(builder, "╠═╪═╣");
@@ -149,6 +159,12 @@ public final class FlipTable {
 						} else {
 							printDivider(builder, "╚═╧═╝");
 						}
+					}
+				} else if (row == 0 && !borders.header()) {
+					if (borders.columns()) {
+						printDivider(builder, " ─┼─ ");
+					} else {
+						printDivider(builder, " ─┼─ ");
 					}
 				} else if (borders.rows()) {
 					if (borders.columns()) {
@@ -182,7 +198,7 @@ public final class FlipTable {
 		for (int line = 0, lines = 1; line < lines; line++) {
 			for (int column = 0; column < columns; column++) {
 				if (column == 0) {
-					if (isHeader || borders.body()) {
+					if ((isHeader && borders.header()) || borders.body()) {
 						out.append('║');
 					} else {
 						out.append(' ');
@@ -192,12 +208,16 @@ public final class FlipTable {
 				} else {
 					out.append(' ');
 				}
-				String[] cellLines = data[column].split("\\n");
+				String cell = data[column];
+				if (cell == null) {
+					cell = "";
+				}
+				String[] cellLines = cell.split("\\n");
 				lines = Math.max(lines, cellLines.length);
 				String cellLine = line < cellLines.length ? cellLines[line] : "";
 				out.append(pad(columnWidths[column], cellLine));
 			}
-			if (isHeader || borders.body()) {
+			if ((isHeader && borders.header()) || borders.body()) {
 				out.append("║\n");
 			} else {
 				out.append('\n');

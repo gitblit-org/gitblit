@@ -22,6 +22,7 @@ import org.kohsuke.args4j.Option;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
@@ -31,6 +32,10 @@ import com.gitblit.utils.FlipTable.Borders;
 
 @CommandMetaData(name = "users", description = "User management commands", admin = true)
 public class UsersDispatcher extends DispatchCommand {
+
+	private static final String banner1 = "===========================================================";
+
+	private static final String banner2 = "-----------------------------------------------------------";
 
 	@Override
 	protected void setup(UserModel user) {
@@ -46,16 +51,51 @@ public class UsersDispatcher extends DispatchCommand {
 		@Override
 		public void run() throws UnloggedFailure {
 			IGitblit gitblit = getContext().getGitblit();
-			UserModel user = gitblit.getUserModel(username);
-			if (user == null) {
+			UserModel u = gitblit.getUserModel(username);
+			if (u == null) {
 				throw new UnloggedFailure(1, String.format("Unknown user \"%s\"", username));
 			}
-			stdout.println();
-			stdout.println(user.username);
-			stdout.println();
-			for (RegistrantAccessPermission ap : user.getRepositoryPermissions()) {
-				stdout.println(String.format("%s %s", ap.registrant, ap.permission));
+
+			// fields
+			String [] fheaders = new String [] { "Field", "Value" };
+			String [][] fdata = new String[5][];
+			fdata[0] = new String [] { "Email", u.emailAddress };
+			fdata[1] = new String [] { "Type", u.accountType.toString() };
+			fdata[2] = new String [] { "Can Admin", u.canAdmin() ? "Y":"N" };
+			fdata[3] = new String [] { "Can Fork", u.canFork() ? "Y":"N" };
+			fdata[4] = new String [] { "Can Create", u.canCreate() ? "Y":"N" };
+			String fields = FlipTable.of(fheaders, fdata, Borders.COLS);
+			
+			// teams
+			String [] theaders = new String [] { "Team", "Type" };
+			String [][] tdata = new String[u.teams.size()][];
+			int i = 0;
+			for (TeamModel t : u.teams) {
+				tdata[i] = new String [] { t.name, t.accountType.toString() };
+				i++;
 			}
+			String teams = FlipTable.of(theaders, tdata, Borders.COLS);
+			
+			// permissions
+			List<RegistrantAccessPermission> perms = u.getRepositoryPermissions();
+			String[] pheaders = { "Repository", "Permission", "Type", "Source", "Mutable" };
+			String [][] pdata = new String[perms.size()][];
+			for (i = 0; i < perms.size(); i++) {
+				RegistrantAccessPermission ap = perms.get(i);
+				pdata[i] = new String[] { ap.registrant, ap.permission.toString(), ap.permissionType.toString(), ap.source, ap.mutable ? "Y":"N" };
+			}
+			String permissions = FlipTable.of(pheaders, pdata, Borders.COLS);
+			
+			// assemble user table
+			String [] headers = new String[] { u.getDisplayName() + (u.username.equals(u.getDisplayName()) ? "" : (" (" + u.username + ")")) };
+			String[][] data = new String[6][];
+			data[0] = new String [] { "FIELDS" };
+			data[1] = new String [] { fields };
+			data[2] = new String [] { "TEAMS" };
+			data[3] = new String [] { teams };
+			data[4] = new String [] { "PERMISSIONS" };
+			data[5] = new String [] { permissions };
+			stdout.println(FlipTable.of(headers, data));
 		}
 	}
 
@@ -83,10 +123,10 @@ public class UsersDispatcher extends DispatchCommand {
 		protected void asTable(List<UserModel> list) {
 			String[] headers;
 			if (verbose) {
-				String[] h = { "Name", "Display name", "Type", "E-mail", "Create?", "Fork?"};
+				String[] h = { "Name", "Display name", "Type", "Email", "Create?", "Fork?"};
 				headers = h;
 			} else {
-				String[] h = { "Name", "Display name", "Type", "E-mail"};
+				String[] h = { "Name", "Display name", "Type", "Email"};
 				headers = h;
 			}
 
@@ -96,16 +136,15 @@ public class UsersDispatcher extends DispatchCommand {
 
 				String name = u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username;
 				if (verbose) {
-					data[i] = new String[] { name, u.displayName == null ? "" : u.displayName,
-							u.accountType.name(), u.emailAddress == null ? "" : u.emailAddress ,
-									u.canCreate() ? "Y":"", u.canFork() ? "Y" : ""};
+					data[i] = new String[] { name, u.displayName, u.accountType.name(),
+							u.emailAddress,	u.canCreate() ? "Y":"", u.canFork() ? "Y" : ""};
 				} else {
-					data[i] = new String[] { name, u.displayName == null ? "" : u.displayName,
-							u.accountType.name(), u.emailAddress == null ? "" : u.emailAddress };
+					data[i] = new String[] { name, u.displayName, u.accountType.name(),
+							u.emailAddress };
 				}
 			}
-			stdout.print(FlipTable.of(headers, data, Borders.BODY_COLS));
-			stdout.println("* = admin account, - = disabled account");
+			stdout.print(FlipTable.of(headers, data, Borders.BODY_HCOLS));
+			stdout.println("  * = admin account,  - = disabled account");
 			stdout.println();
 		}
 

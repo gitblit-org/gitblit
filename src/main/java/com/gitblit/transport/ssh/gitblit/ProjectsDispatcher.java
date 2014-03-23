@@ -67,7 +67,7 @@ public class ProjectsDispatcher extends DispatchCommand {
 				String[] h = { "Name", "Description", "Last Modified", "# Repos" };
 				headers = h;
 			} else {
-				String[] h = { "Name", "Description" };
+				String[] h = { "Name", "Last Modified", "# Repos" };
 				headers = h;
 			}
 
@@ -79,10 +79,10 @@ public class ProjectsDispatcher extends DispatchCommand {
 				if (verbose) {
 					data[i] = new String[] { p.name, p.description, df.format(p.lastChange), "" + p.repositories.size() };
 				} else {
-					data[i] = new String[] { p.name, p.description };
+					data[i] = new String[] { p.name, df.format(p.lastChange), "" + p.repositories.size() };
 				}
 			}
-			stdout.println(FlipTable.of(headers, data, Borders.BODY_COLS));
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
 
 		protected void asTabbed(List<ProjectModel> list) {
