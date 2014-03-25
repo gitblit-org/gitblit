@@ -1,0 +1,3 @@
+## Bienvenue sur Gitblit
+
+Une solution rapide et facile d'héberger ou visualiser vos propre dépôts [Git](http://www.git-scm.com).
