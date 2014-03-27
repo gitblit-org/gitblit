@@ -200,11 +200,8 @@ public class GitBlit extends GitblitManager {
 	 */
 	@Override
 	public boolean deleteUser(String username) {
-		boolean success = userManager.deleteUser(username);
-		if (success) {
-			getPublicKeyManager().removeAllKeys(username);
-		}
-		return success;
+		UserModel user = userManager.getUserModel(username);
+		return deleteUserModel(user);
 	}
 
 	@Override
