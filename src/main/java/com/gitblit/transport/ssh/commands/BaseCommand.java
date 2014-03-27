@@ -37,7 +37,9 @@ import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Keys;
 import com.gitblit.utils.IdGenerator;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.WorkQueue;
 import com.gitblit.utils.WorkQueue.CancelableRunnable;
 import com.gitblit.utils.cli.CmdLineParser;
@@ -200,9 +202,39 @@ public abstract class BaseCommand implements Command, SessionAware {
 		}
 
 		if (clp.wasHelpRequestedByOption()) {
+			CommandMetaData meta = getClass().getAnnotation(CommandMetaData.class);
+			String title = meta.name().toUpperCase() + ": " + meta.description();
+			String b = com.gitblit.utils.StringUtils.leftPad("", title.length() + 2, '═');
 			StringWriter msg = new StringWriter();
-			clp.printDetailedUsage(commandName, msg);
-			msg.write(usage());
+			msg.write('\n');
+			msg.write(b);
+			msg.write('\n');
+			msg.write(' ');
+			msg.write(title);
+			msg.write('\n');
+			msg.write(b);
+			msg.write("\n\n");
+			msg.write("USAGE\n");
+			msg.write("─────\n");
+			msg.write(' ');
+			msg.write(commandName);
+			msg.write('\n');
+			msg.write(' ');
+			clp.printSingleLineUsage(msg, null);
+			msg.write("\n\n");
+			msg.write("ARGUMENTS & OPTIONS\n");
+			msg.write("───────────────────\n");
+			clp.printUsage(msg, null);
+			msg.write('\n');
+			String examples = usage().trim();
+			if (!StringUtils.isEmpty(examples)) {
+				msg.write('\n');
+				msg.write("EXAMPLES\n");
+				msg.write("────────\n");
+				msg.write(examples);
+				msg.write('\n');
+			}
+
 			throw new UnloggedFailure(1, msg.toString());
 		}
 	}
@@ -213,7 +245,31 @@ public abstract class BaseCommand implements Command, SessionAware {
 	}
 
 	public String usage() {
+		Class<? extends BaseCommand> clazz = getClass();
+		if (clazz.isAnnotationPresent(UsageExamples.class)) {
+			return examples(clazz.getAnnotation(UsageExamples.class).examples());
+		} else if (clazz.isAnnotationPresent(UsageExample.class)) {
+			return examples(clazz.getAnnotation(UsageExample.class));
+		}
 		return "";
+	}
+
+	protected String examples(UsageExample... examples) {
+		int sshPort = getContext().getGitblit().getSettings().getInteger(Keys.git.sshPort, 29418);
+		String username = getContext().getClient().getUsername();
+		String hostname = "localhost";
+		String ssh = String.format("ssh -l %s -p %d %s", username, sshPort, hostname);
+
+		StringBuilder sb = new StringBuilder();
+		for (UsageExample example : examples) {
+			sb.append(example.description()).append("\n\n");
+			String syntax = example.syntax();
+			syntax = syntax.replace("${ssh}", ssh);
+			syntax = syntax.replace("${username}", username);
+			syntax = syntax.replace("${cmd}", commandName);
+			sb.append("   ").append(syntax).append("\n\n");
+		}
+		return sb.toString();
 	}
 
 	protected void showHelp() throws UnloggedFailure {

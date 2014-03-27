@@ -30,6 +30,7 @@ import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.transport.ssh.commands.UsageExample;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
 
@@ -50,11 +51,12 @@ public class KeysDispatcher extends DispatchCommand {
 	}
 
 	@CommandMetaData(name = "add", description = "Add an SSH public key to your account")
+	@UsageExample(syntax = "cat ~/.ssh/id_rsa.pub | ${ssh} ${cmd} -", description = "Upload your SSH public key and add it to your account")
 	public static class AddKey extends BaseKeyCommand {
 
 		protected final Logger log = LoggerFactory.getLogger(getClass());
 
-		@Argument(metaVar = "<stdin>|KEY", usage = "the key to add")
+		@Argument(metaVar = "-|<KEY>", usage = "the key(s) to add", required = true)
 		private List<String> addKeys = new ArrayList<String>();
 
 		@Override
@@ -70,6 +72,7 @@ public class KeysDispatcher extends DispatchCommand {
 	}
 
 	@CommandMetaData(name = "remove", aliases = { "rm" }, description = "Remove an SSH public key from your account")
+	@UsageExample(syntax = "${cmd} 2", description = "Remove the SSH key identified as #2 in `keys list`")
 	public static class RemoveKey extends BaseKeyCommand {
 
 		protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -131,7 +134,7 @@ public class KeysDispatcher extends DispatchCommand {
 		}
 	}
 
-	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List your registered public keys")
+	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List your registered SSH public keys")
 	public static class ListKeys extends SshCommand {
 
 		@Option(name = "-L", usage = "list complete public key parameters")

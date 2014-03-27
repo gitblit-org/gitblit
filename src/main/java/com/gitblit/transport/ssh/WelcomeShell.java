@@ -113,36 +113,71 @@ public class WelcomeShell implements Factory<Command> {
 		String getMessage() {
 			SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 			UserModel user = client.getUser();
+			String hostname = getHostname();
+			int port = settings.getInteger(Keys.git.sshPort, 0);
+
+			final String b1 = StringUtils.rightPad("", 72, '═');
+			final String b2 = StringUtils.rightPad("", 72, '─');
+			final String nl = "\r\n";
 
 			StringBuilder msg = new StringBuilder();
-			msg.append("\r\n");
-			msg.append("Hi ");
+			msg.append(nl);
+			msg.append(b1);
+			msg.append(nl);
+			msg.append(" ");
+			msg.append(com.gitblit.Constants.getGitBlitVersion());
+			msg.append(nl);
+			msg.append(b1);
+			msg.append(nl);
+			msg.append(nl);
+			msg.append(" Hi ");
 			msg.append(user.getDisplayName());
-			msg.append(", you have successfully connected to Gitblit over SSH");
-			msg.append("\r\n");
-			msg.append("with client: ");
+			msg.append(", you have successfully connected over SSH.");
+			msg.append(nl);
+			msg.append(nl);
+			msg.append("   client: ");
 			msg.append(session.getClientVersion());
-			msg.append("\r\n");
-			msg.append("\r\n");
+			msg.append(nl);
+			msg.append(nl);
 
-			msg.append("You may clone a repository with the following Git syntax:\r\n");
-			msg.append("\r\n");
+			msg.append(b2);
+			msg.append(nl);
+			msg.append(nl);
+			msg.append(" You may clone a repository with the following Git syntax:");
+			msg.append(nl);
+			msg.append(nl);
 
 			msg.append("   git clone ");
-			msg.append(formatUrl(user.username));
-			msg.append("\r\n");
-			msg.append("\r\n");
+			msg.append(formatUrl(hostname, port, user.username));
+			msg.append(nl);
+			msg.append(nl);
+
+			msg.append(b2);
+			msg.append(nl);
+			msg.append(nl);
+
+			msg.append(" You may upload an SSH public key with the following syntax:");
+			msg.append(nl);
+			msg.append(nl);
+
+			msg.append(String.format("   cat ~/.ssh/id_rsa.pub | ssh -l %s -p %d %s gitblit keys add -", user.username, port, hostname));
+			msg.append(nl);
+			msg.append(nl);
+
+			msg.append(b2);
+			msg.append(nl);
+			msg.append(nl);
 
 			// display the core commands
 			SshCommandFactory cmdFactory = (SshCommandFactory) session.getFactoryManager().getCommandFactory();
 			DispatchCommand root = cmdFactory.createRootDispatcher(client, "");
-			String usage = root.usage().replace("\n", "\r\n");
+			String usage = root.usage().replace("\n", nl);
 			msg.append(usage);
 
 			return msg.toString();
 		}
 
-		private String formatUrl(String username) {
+		private String getHostname() {
 			String host = null;
 			String url = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
 			if (url != null) {
@@ -154,15 +189,17 @@ public class WelcomeShell implements Factory<Command> {
 			if (StringUtils.isEmpty(host)) {
 				host = SystemReader.getInstance().getHostname();
 			}
+			return host;
+		}
 
-			int port = settings.getInteger(Keys.git.sshPort, 0);
+		private String formatUrl(String hostname, int port, String username) {
 			if (port == 22) {
 				// standard port
-				return MessageFormat.format("{0}@{1}/REPOSITORY.git", username, host);
+				return MessageFormat.format("{0}@{1}/REPOSITORY.git", username, hostname);
 			} else {
 				// non-standard port
 				return MessageFormat.format("ssh://{0}@{1}:{2,number,0}/REPOSITORY.git",
-						username, host, port);
+						username, hostname, port);
 			}
 		}
 	}
