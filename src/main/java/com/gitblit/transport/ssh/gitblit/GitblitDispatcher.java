@@ -33,6 +33,7 @@ public class GitblitDispatcher extends DispatchCommand {
 		register(user, KeysDispatcher.class);
 		register(user, TicketsDispatcher.class);
 		register(user, UsersDispatcher.class);
+		register(user, TeamsDispatcher.class);
 		register(user, ProjectsDispatcher.class);
 		register(user, RepositoriesDispatcher.class);
 	}
