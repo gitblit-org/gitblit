@@ -219,7 +219,7 @@ public abstract class BaseCommand implements Command, SessionAware {
 			msg.write(' ');
 			msg.write(commandName);
 			msg.write('\n');
-			msg.write(' ');
+			msg.write("  ");
 			clp.printSingleLineUsage(msg, null);
 			msg.write("\n\n");
 			msg.write("ARGUMENTS & OPTIONS\n");

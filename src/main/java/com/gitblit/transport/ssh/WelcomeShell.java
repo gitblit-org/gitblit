@@ -134,8 +134,10 @@ public class WelcomeShell implements Factory<Command> {
 			msg.append(user.getDisplayName());
 			msg.append(", you have successfully connected over SSH.");
 			msg.append(nl);
+			msg.append(" Interactive shells are disabled.");
 			msg.append(nl);
-			msg.append("   client: ");
+			msg.append(nl);
+			msg.append("   client:   ");
 			msg.append(session.getClientVersion());
 			msg.append(nl);
 			msg.append(nl);
@@ -156,17 +158,21 @@ public class WelcomeShell implements Factory<Command> {
 			msg.append(nl);
 			msg.append(nl);
 
-			msg.append(" You may upload an SSH public key with the following syntax:");
-			msg.append(nl);
-			msg.append(nl);
+			if (client.getKey() == null) {
+				// user has authenticated with a password
+				// display add public key instructions
+				msg.append(" You may upload an SSH public key with the following syntax:");
+				msg.append(nl);
+				msg.append(nl);
 
-			msg.append(String.format("   cat ~/.ssh/id_rsa.pub | ssh -l %s -p %d %s gitblit keys add -", user.username, port, hostname));
-			msg.append(nl);
-			msg.append(nl);
+				msg.append(String.format("   cat ~/.ssh/id_rsa.pub | ssh -l %s -p %d %s gitblit keys add -", user.username, port, hostname));
+				msg.append(nl);
+				msg.append(nl);
 
-			msg.append(b2);
-			msg.append(nl);
-			msg.append(nl);
+				msg.append(b2);
+				msg.append(nl);
+				msg.append(nl);
+			}
 
 			// display the core commands
 			SshCommandFactory cmdFactory = (SshCommandFactory) session.getFactoryManager().getCommandFactory();
