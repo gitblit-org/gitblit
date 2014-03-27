@@ -73,6 +73,9 @@ public class SshKey implements Serializable {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+		if (rawData != null) {
+			rawData = null;
+		}
 	}
 
 	public String getRawData() {
