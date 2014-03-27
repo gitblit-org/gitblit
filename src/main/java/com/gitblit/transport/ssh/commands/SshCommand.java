@@ -18,8 +18,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.sshd.server.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class SshCommand extends BaseCommand {
+
+	protected Logger log = LoggerFactory.getLogger(getClass());
 	protected PrintWriter stdout;
 	protected PrintWriter stderr;
 

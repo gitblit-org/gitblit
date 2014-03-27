@@ -23,6 +23,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.ListFilterCommand;
+import com.gitblit.transport.ssh.commands.UsageExample;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
@@ -38,6 +39,7 @@ public class RepositoriesDispatcher extends DispatchCommand {
 
 	/* List repositories */
 	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List repositories")
+	@UsageExample(syntax = "${cmd} mirror/.* -v", description = "Verbose list of all repositories in the 'mirror' directory")
 	public static class ListRepositories extends ListFilterCommand<RepositoryModel> {
 
 		@Override
@@ -72,7 +74,7 @@ public class RepositoriesDispatcher extends DispatchCommand {
 				String size = r.size;
 				if (!r.hasCommits) {
 					lm = "";
-					size = "(empty)";
+					size = FlipTable.EMPTY;
 				}
 				if (verbose) {
 					String owners = "";

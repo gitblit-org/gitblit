@@ -14,9 +14,17 @@ import com.gitblit.models.ServerSettings;
 import com.gitblit.models.SettingModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.SshCommand;
+import com.gitblit.transport.ssh.commands.UsageExample;
+import com.gitblit.transport.ssh.commands.UsageExamples;
 import com.google.common.collect.Maps;
 
 @CommandMetaData(name = "config", description = "Administer Gitblit settings", admin = true)
+@UsageExamples(examples = {
+		@UsageExample(syntax = "${cmd} --list", description = "List all settings"),
+		@UsageExample(syntax = "${cmd} git.sshPort", description = "Describe the git.sshPort setting"),
+		@UsageExample(syntax = "${cmd} git.sshPort 29418", description = "Set git.sshPort to 29418"),
+		@UsageExample(syntax = "${cmd} git.sshPort --reset", description = "Reset git.sshPort to it's default value"),
+})
 public class ConfigCommand extends SshCommand {
 
 	@Argument(index = 0, metaVar = "KEY", usage = "The setting to describe or update")
