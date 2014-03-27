@@ -343,6 +343,16 @@ public abstract class IStoredSettings {
 	}
 
 	/**
+	 * Tests for the existence of a setting.
+	 *
+	 * @param key
+	 * @return true if the setting exists
+	 */
+	public boolean hasSettings(String key) {
+		return getString(key, null) != null;
+	}
+
+	/**
 	 * Updates the values for the specified keys and persists the entire
 	 * configuration file.
 	 *
