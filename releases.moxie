@@ -9,7 +9,8 @@ r22: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+    - Ensure the Lucene ticket index is updated on repository deletion.
     changes: ~
     additions: ~
     dependencyChanges: ~
