@@ -25,7 +25,6 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
@@ -273,28 +272,20 @@ public class UsersDispatcher extends DispatchCommand {
 			UserModel u = getUser(true);
 
 			// fields
-			String [] fheaders = new String [] { "Field", "Value" };
-			Object [][] fdata = new Object[5][];
-			fdata[0] = new Object [] { "Email", u.emailAddress };
-			fdata[1] = new Object [] { "Type", u.accountType };
-			fdata[2] = new Object [] { "Can Admin", u.canAdmin() ? "Y":"" };
-			fdata[3] = new Object [] { "Can Fork", u.canFork() ? "Y":"" };
-			fdata[4] = new Object [] { "Can Create", u.canCreate() ? "Y":"" };
-			String fields = FlipTable.of(fheaders, fdata, Borders.COLS);
+			StringBuilder fb = new StringBuilder();
+			fb.append("Email      : ").append(u.emailAddress == null ? "": u.emailAddress).append('\n');
+			fb.append("Type       : ").append(u.accountType).append('\n');
+			fb.append("Can Admin  : ").append(u.canAdmin() ? "Y":"").append('\n');
+			fb.append("Can Fork   : ").append(u.canFork() ? "Y":"").append('\n');
+			fb.append("Can Create : ").append(u.canCreate() ? "Y":"").append('\n');
+			String fields = fb.toString();
 
 			// teams
 			String teams;
 			if (u.teams.size() == 0) {
 				teams = FlipTable.EMPTY;
 			} else {
-				String [] theaders = new String [] { "Team", "Type" };
-				Object [][] tdata = new Object[u.teams.size()][];
-				int i = 0;
-				for (TeamModel t : u.teams) {
-					tdata[i] = new Object [] { t.name, t.accountType };
-					i++;
-				}
-				teams = FlipTable.of(theaders, tdata, Borders.COLS);
+				teams = Joiner.on(", ").join(u.teams);
 			}
 
 			// owned repositories
