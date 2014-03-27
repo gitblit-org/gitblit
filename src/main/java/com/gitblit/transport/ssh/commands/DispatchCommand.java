@@ -332,9 +332,9 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 				continue;
 			}
 
-			String displayName = name;
+			String displayName = name  + (meta.admin() ? "*" : "");
 			if (commandToAliases.containsKey(meta.name())) {
-				displayName = name + " (" + Joiner.on(',').join(commandToAliases.get(meta.name())) + ")";
+				displayName = name  + (meta.admin() ? "*" : "")+ " (" + Joiner.on(',').join(commandToAliases.get(meta.name())) + ")";
 			}
 			displayNames.put(name, displayName);
 

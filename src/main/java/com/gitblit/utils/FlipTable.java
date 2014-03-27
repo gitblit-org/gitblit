@@ -36,7 +36,7 @@ package com.gitblit.utils;
  * </pre>
  */
 public final class FlipTable {
-	private static final String EMPTY = "(empty)";
+	public static final String EMPTY = "(empty)";
 
 	public static enum Borders {
 		FULL(15), BODY_HCOLS(13), HCOLS(12), BODY(9), HEADER(8), COLS(4);

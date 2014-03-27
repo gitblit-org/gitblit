@@ -23,14 +23,14 @@ First you'll need to create an SSH key pair, if you don't already have one or if
 
 Then you can upload your *public* key right from the command-line.
 
-    cat ~/.ssh/id_rsa.pub | ssh -l <username> -p 29418 <hostname> gitblit keys add
-    cat c:\<userfolder>\.ssh\id_rsa.pub | ssh -l <username> -p 29418 <hostname> gitblit keys add
+    cat ~/.ssh/id_rsa.pub | ssh -l <username> -p 29418 <hostname> gitblit keys add -
+    cat c:\<userfolder>\.ssh\id_rsa.pub | ssh -l <username> -p 29418 <hostname> gitblit keys add -
 
 **NOTE:** It is important to note that *ssh-keygen* generates a public/private keypair (e.g. id_rsa and id_rsa.pub).  You want to upload the *public* key, which is denoted by the *.pub* file extension.
 
 Once you've done both of those steps you should be able to execute the following command without a password prompt.
 
-    ssh -l <username> -p 29418 <hostname> gitblit version
+    ssh -l <username> -p 29418 <hostname>
 
 ### Setting up an SSH alias
 
@@ -40,7 +40,7 @@ Typing the following command syntax all the time gets to be rather tedious.
 
 You can define an alias for your server which will reduce your command syntax to something like this.
 
-    ssh <alias> gitblit version
+    ssh <alias>
 
 Create or modify your `~/.ssh/config` file and add a host entry.  If you are on Windows, you'll want to create or modify `<userfolder>\.ssh\config`, where *userfolder* is dependent on your version of Windows.  Most recently this is `c:\users\<userfolder>`.
 
@@ -62,22 +62,21 @@ The *gitblit* command has many subcommands for interacting with Gitblit.
 
 Add an SSH public key to your account.  This command accepts a public key piped to stdin.
 
-    cat ~/.ssh/id_rsa.pub | ssh -l <username> -p 29418 <hostname> gitblit keys add
+    cat ~/.ssh/id_rsa.pub | ssh -l <username> -p 29418 <hostname> gitblit keys add -
+
+##### keys list
+
+Show the SSH public keys you have added to your account.
+
+    ssh -l <username> -p 29418 <hostname> gitblit keys list
 
 ##### keys remove
 
-Remove an SSH public key from your account.  This command accepts a public key piped to stdin.
+Remove an SSH public key from your account.  This command accepts several input values, the most useful one is an index number which matches the index number displayed in the `list` command.
 
-    cat ~/.ssh/id_rsa.pub | ssh -l <username> -p 29418 <hostname> gitblit keys remove
+    ssh -l <username> -p 29418 <hostname> gitblit keys remove 2
 
 You can also remove all your public keys from your account.
 
     ssh -l <username> -p 29418 <hostname> gitblit keys remove ALL
-
-##### keys list
-
-Show the SSH keys you have added to your account.
-
-    ssh -l <username> -p 29418 <hostname> gitblit keys list
-
 

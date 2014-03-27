@@ -25,8 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.transport.ssh.commands.CommandMetaData;
+import com.gitblit.transport.ssh.commands.UsageExample;
 
 @CommandMetaData(name = "gc", description = "Cleanup unnecessary files and optimize the local repository", admin = true)
+@UsageExample(syntax = "${cmd} test/myrepository.git", description = "Garbage collect \"test/myrepository.git\"")
 public class GarbageCollectionCommand extends BaseGitCommand {
 
 	private static final Logger log = LoggerFactory.getLogger(GarbageCollectionCommand.class);
