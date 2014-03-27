@@ -318,6 +318,10 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		return false;
 	}
 
+	public String getDescription() {
+		return getClass().getAnnotation(CommandMetaData.class).description();
+	}
+
 	@Override
 	public String usage() {
 		Set<String> cmds = new TreeSet<String>();
@@ -351,6 +355,16 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		String format = "%-" + maxLength + "s   %s";
 
 		final StringBuilder usage = new StringBuilder();
+		if (!StringUtils.isEmpty(getName())) {
+			String title = getName().toUpperCase() + ": " + getDescription();
+			String b = com.gitblit.utils.StringUtils.leftPad("", title.length() + 2, '═');
+			usage.append('\n');
+			usage.append(b).append('\n');
+			usage.append(' ').append(title).append('\n');
+			usage.append(b).append('\n');
+			usage.append('\n');
+		}
+
 		if (!cmds.isEmpty()) {
 			usage.append("Available commands");
 			if (!getName().isEmpty()) {
