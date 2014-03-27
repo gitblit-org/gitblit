@@ -16,6 +16,8 @@ r22: {
     - Option to allow LDAP users to directly authenticate without performing LDAP searches (pr-162))
     - Replace JCommander with args4j to be consistent with other tools (ticket-28)
     additions:
+    - Added an SSH daemon with public key authentication (issue-369, ticket-6)
+    - Added beginnings of a plugin framework for extending Gitblit (issue-381, ticket-23)
     - Added a French translation (pr-163)
     dependencyChanges:
     - args4j 2.0.26
@@ -27,6 +29,13 @@ r22: {
     - Jeremie Brebec
     settings:
     - { name: 'realm.ldap.bindpattern', defaultValue: ' ' }
+    - { name: 'git.sshPort', defaultValue: '29418' }
+    - { name: 'git.sshBindInterface', defaultValue: ' ' }
+    - { name: 'git.sshKeysManager', defaultValue: 'com.gitblit.transport.ssh.FileKeyManager' }
+    - { name: 'git.sshKeysFolder', defaultValue: '${baseFolder}/ssh' }
+    - { name: 'git.sshBackend', defaultValue: 'NIO2' }
+    - { name: 'git.sshCommandStartThreads', defaultValue: '2' }
+    - { name: 'plugins.folder', defaultValue: '${baseFolder}/plugins' }
 }
 
 #

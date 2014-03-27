@@ -558,6 +558,8 @@
 						<page name="mirrors" src="setup_mirrors.mkd" />
 						<page name="scaling" src="setup_scaling.mkd" />
 						<divider />
+						<page name="plugins" src="setup_plugins.mkd" />
+						<divider />
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 					</menu>
 					<divider />
@@ -872,6 +874,8 @@
 							<page name="bugtraq" src="setup_bugtraq.mkd" />
 							<page name="mirrors" src="setup_mirrors.mkd" />
 							<page name="scaling" src="setup_scaling.mkd" />
+							<divider />
+							<page name="plugins" src="setup_plugins.mkd" />
 							<divider />
 							<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 						</menu>
