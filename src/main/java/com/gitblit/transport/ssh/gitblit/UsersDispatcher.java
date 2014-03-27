@@ -386,10 +386,10 @@ public class UsersDispatcher extends DispatchCommand {
 		protected void asTable(List<UserModel> list) {
 			String[] headers;
 			if (verbose) {
-				String[] h = { "Name", "Display name", "Type", "Email", "Create?", "Fork?"};
+				String[] h = { "Name", "Display name", "Email", "Type", "Teams", "Create?", "Fork?"};
 				headers = h;
 			} else {
-				String[] h = { "Name", "Display name", "Type", "Email"};
+				String[] h = { "Name", "Display name", "Email", "Type"};
 				headers = h;
 			}
 
@@ -399,13 +399,20 @@ public class UsersDispatcher extends DispatchCommand {
 
 				String name = (u.disabled ? "-" : ((u.canAdmin() ? "*" : " "))) + u.username;
 				if (verbose) {
-					data[i] = new Object[] { name, u.displayName, u.accountType,
+					data[i] = new Object[] {
+							name,
+							u.displayName,
 							u.emailAddress,
+							u.accountType + (u.canAdmin() ? ",admin":""),
+							u.teams.isEmpty() ? "" : u.teams.size(),
 							(u.canAdmin() || u.canCreate()) ? "Y":"",
 							(u.canAdmin() || u.canFork()) ? "Y" : ""};
 				} else {
-					data[i] = new Object[] { name, u.displayName, u.accountType,
-							u.emailAddress };
+					data[i] = new Object[] {
+							name,
+							u.displayName,
+							u.emailAddress,
+							u.accountType + (u.canAdmin() ? ",admin":"")};
 				}
 			}
 			stdout.print(FlipTable.of(headers, data, Borders.BODY_HCOLS));
@@ -417,10 +424,12 @@ public class UsersDispatcher extends DispatchCommand {
 		protected void asTabbed(List<UserModel> users) {
 			if (verbose) {
 				for (UserModel u : users) {
-					outTabbed(u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username,
+					outTabbed(
+							u.disabled ? "-" : ((u.canAdmin() ? "*" : " ")) + u.username,
 							u.getDisplayName(),
-							u.accountType,
 							u.emailAddress == null ? "" : u.emailAddress,
+							u.accountType + (u.canAdmin() ? ",admin":""),
+							u.teams.isEmpty() ? "" : u.teams.size(),
 							(u.canAdmin() || u.canCreate()) ? "Y":"",
 							(u.canAdmin() || u.canFork()) ? "Y" : "");
 				}
