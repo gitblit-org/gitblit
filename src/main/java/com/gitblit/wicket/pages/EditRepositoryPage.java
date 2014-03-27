@@ -339,7 +339,9 @@ public class EditRepositoryPage extends RootSubPage {
 
 					// set author metric exclusions
 					String ax = metricAuthorExclusions.getObject();
-					if (!StringUtils.isEmpty(ax)) {
+					if (StringUtils.isEmpty(ax)) {
+						repositoryModel.metricAuthorExclusions = new ArrayList<String>();
+					} else {
 						Set<String> list = new HashSet<String>();
 						for (String exclusion : StringUtils.getStringsFromValue(ax,  " ")) {
 							if (StringUtils.isEmpty(exclusion)) {
@@ -356,7 +358,9 @@ public class EditRepositoryPage extends RootSubPage {
 
 					// set mailing lists
 					String ml = mailingLists.getObject();
-					if (!StringUtils.isEmpty(ml)) {
+					if (StringUtils.isEmpty(ml)) {
+						repositoryModel.mailingLists = new ArrayList<String>();
+					} else {
 						Set<String> list = new HashSet<String>();
 						for (String address : ml.split("(,|\\s)")) {
 							if (StringUtils.isEmpty(address)) {
