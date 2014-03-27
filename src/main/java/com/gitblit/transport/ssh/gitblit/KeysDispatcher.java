@@ -48,6 +48,7 @@ public class KeysDispatcher extends DispatchCommand {
 		register(user, AddKey.class);
 		register(user, RemoveKey.class);
 		register(user, ListKeys.class);
+		register(user, WhichKey.class);
 	}
 
 	@CommandMetaData(name = "add", description = "Add an SSH public key to your account")
@@ -173,6 +174,35 @@ public class KeysDispatcher extends DispatchCommand {
 				SshKey k = keys.get(i);
 				data[i] = new Object[] { (i + 1), k.getFingerprint(), k.getComment(), k.getAlgorithm() };
 			}
+
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
+		}
+	}
+
+	@CommandMetaData(name = "which", description = "Display the SSH public key used for this session")
+	public static class WhichKey extends SshCommand {
+
+		@Option(name = "-L", usage = "list complete public key parameters")
+		private boolean showRaw;
+
+		@Override
+		public void run() throws UnloggedFailure {
+			SshKey key = getContext().getClient().getKey();
+			if (key == null) {
+				throw new UnloggedFailure(1,  "You have not authenticated with an SSH public key.");
+			}
+
+			if (showRaw) {
+				stdout.println(key.getRawData());
+			} else {
+				asTable(key);
+			}
+		}
+
+		protected void asTable(SshKey key) {
+			String[] headers = { "Fingerprint", "Comment", "Type" };
+			Object[][] data = new Object[1][];
+			data[0] = new Object[] { key.getFingerprint(), key.getComment(), key.getAlgorithm() };
 
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
