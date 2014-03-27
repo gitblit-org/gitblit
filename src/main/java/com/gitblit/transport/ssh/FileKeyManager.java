@@ -130,7 +130,7 @@ public class FileKeyManager extends IPublicKeyManager {
 	public boolean addKey(String username, SshKey key) {
 		try {
 			String newKey = stripCommentFromKey(key.getRawData());
-
+			boolean replaced = false;
 			List<String> lines = new ArrayList<String>();
 			File keystore = getKeystore(username);
 			if (keystore.exists()) {
@@ -147,16 +147,22 @@ public class FileKeyManager extends IPublicKeyManager {
 						continue;
 					}
 
-					// only add keys that do not match the new key
 					String oldKey = stripCommentFromKey(line);
-					if (!newKey.equals(oldKey)) {
+					if (newKey.equals(oldKey)) {
+						// replace key
+						lines.add(key.getRawData());
+						replaced = true;
+					} else {
+						// retain key
 						lines.add(entry);
 					}
 				}
 			}
 
-			// add new key
-			lines.add(key.getRawData());
+			if (!replaced) {
+				// new key, append
+				lines.add(key.getRawData());
+			}
 
 			// write keystore
 			String content = Joiner.on("\n").join(lines).trim().concat("\n");
