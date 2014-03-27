@@ -19,6 +19,7 @@ r22: {
     - Added a French translation (pr-163)
     dependencyChanges:
     - args4j 2.0.26
+    - JGit 3.3.1
     contributors:
     - James Moger
     - David Ostrovsky
