@@ -1,0 +1,6 @@
+
+## Gitblit Plugins
+
+*SINCE 1.5.0*
+
+Document (limited) plugin infrastructure.
