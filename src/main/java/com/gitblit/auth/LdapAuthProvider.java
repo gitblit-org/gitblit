@@ -294,6 +294,20 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		LDAPConnection ldapConnection = getLdapConnection();
 		if (ldapConnection != null) {
 			try {
+				boolean alreadyAuthenticated = false;
+				
+				String bindPattern = settings.getString(Keys.realm.ldap.bindpattern, "");
+				if (!StringUtils.isEmpty(bindPattern)) {
+					try {
+						String bindUser = StringUtils.replace(bindPattern, "${username}", simpleUsername);
+						ldapConnection.bind(bindUser, new String(password));
+						
+						alreadyAuthenticated = true;
+					} catch (LDAPException e) {
+						return null;
+					}
+				}
+
 				// Find the logging in user's DN
 				String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
 				String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
@@ -304,7 +318,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 					SearchResultEntry loggingInUser = result.getSearchEntries().get(0);
 					String loggingInUserDN = loggingInUser.getDN();
 
-					if (isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
+					if (alreadyAuthenticated || isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
 						logger.debug("LDAP authenticated: " + username);
 
 						UserModel user = null;
