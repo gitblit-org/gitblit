@@ -196,6 +196,27 @@ public class GitBlit extends GitblitManager {
 	}
 
 	/**
+	 * Delete the user and all associated public ssh keys.
+	 */
+	@Override
+	public boolean deleteUser(String username) {
+		boolean success = userManager.deleteUser(username);
+		if (success) {
+			getPublicKeyManager().removeAllKeys(username);
+		}
+		return success;
+	}
+
+	@Override
+	public boolean deleteUserModel(UserModel model) {
+		boolean success = userManager.deleteUserModel(model);
+		if (success) {
+			getPublicKeyManager().removeAllKeys(model.username);
+		}
+		return success;
+	}
+
+	/**
 	 * Delete the repository and all associated tickets.
 	 */
 	@Override
