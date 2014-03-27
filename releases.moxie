@@ -10,6 +10,7 @@ r22: {
     text: ~
     security: ~
     fixes:
+    - Repository mailing lists could not be reset from the Edit Repository page (issue-399)
     - Ensure the Lucene ticket index is updated on repository deletion.
     changes:
     - Option to allow LDAP users to directly authenticate without performing LDAP searches
