@@ -32,6 +32,7 @@ public class SshDaemonClient {
 	private final SocketAddress remoteAddress;
 
 	private volatile UserModel user;
+	private volatile SshKey key;
 	private volatile String repositoryName;
 
 	SshDaemonClient(SocketAddress peer) {
@@ -61,4 +62,13 @@ public class SshDaemonClient {
 	public String getRepositoryName() {
 		return repositoryName;
 	}
+
+	public SshKey getKey() {
+		return key;
+	}
+
+	public void setKey(SshKey key) {
+		this.key = key;
+	}
+
 }

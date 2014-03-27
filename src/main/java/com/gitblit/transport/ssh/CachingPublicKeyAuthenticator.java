@@ -90,6 +90,7 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 				UserModel user = authManager.authenticate(username, key);
 				if (user != null) {
 					client.setUser(user);
+					client.setKey(key);
 					return true;
 				}
 			}
