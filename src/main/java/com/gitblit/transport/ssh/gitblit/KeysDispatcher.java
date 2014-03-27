@@ -33,6 +33,7 @@ import com.gitblit.transport.ssh.commands.SshCommand;
 import com.gitblit.transport.ssh.commands.UsageExample;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
+import com.google.common.base.Joiner;
 
 /**
  * The dispatcher and it's commands for SSH public key management.
@@ -49,6 +50,7 @@ public class KeysDispatcher extends DispatchCommand {
 		register(user, RemoveKey.class);
 		register(user, ListKeys.class);
 		register(user, WhichKey.class);
+		register(user, CommentKey.class);
 	}
 
 	@CommandMetaData(name = "add", description = "Add an SSH public key to your account")
@@ -195,16 +197,56 @@ public class KeysDispatcher extends DispatchCommand {
 			if (showRaw) {
 				stdout.println(key.getRawData());
 			} else {
-				asTable(key);
+				final String username = getContext().getClient().getUsername();
+				List<SshKey> keys = getContext().getGitblit().getPublicKeyManager().getKeys(username);
+				int index = 0;
+				for (int i = 0; i < keys.size(); i++) {
+					if (key.equals(keys.get(i))) {
+						index = i + 1;
+						break;
+					}
+				}
+				asTable(index, key);
 			}
 		}
 
-		protected void asTable(SshKey key) {
-			String[] headers = { "Fingerprint", "Comment", "Type" };
+		protected void asTable(int index, SshKey key) {
+			String[] headers = { "#", "Fingerprint", "Comment", "Type" };
 			Object[][] data = new Object[1][];
-			data[0] = new Object[] { key.getFingerprint(), key.getComment(), key.getAlgorithm() };
+			data[0] = new Object[] { index, key.getFingerprint(), key.getComment(), key.getAlgorithm() };
 
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
+	}
+
+	@CommandMetaData(name = "comment", description = "Set the comment for an SSH public key")
+	@UsageExample(syntax = "${cmd} 3 Home workstation", description = "Set the comment for key #3")
+	public static class CommentKey extends SshCommand {
+
+		@Argument(index = 0, metaVar = "INDEX", usage = "the key index", required = true)
+		private int index;
+
+		@Argument(index = 1, metaVar = "COMMENT", usage = "the new comment", required = true)
+		private List<String> values = new ArrayList<String>();
+
+		@Override
+		public void run() throws UnloggedFailure {
+			final String username = getContext().getClient().getUsername();
+			IPublicKeyManager keyManager = getContext().getGitblit().getPublicKeyManager();
+			List<SshKey> keys = keyManager.getKeys(username);
+			if (index > keys.size()) {
+				throw new UnloggedFailure(1,  "Invalid key index!");
+			}
+
+			String comment = Joiner.on(" ").join(values);
+			SshKey key = keys.get(index - 1);
+			key.setComment(comment);
+			if (keyManager.addKey(username, key)) {
+				stdout.println(String.format("Updated the comment for key #%d.", index));
+			} else {
+				throw new UnloggedFailure(1, String.format("Failed to update the comment for key #%d!", index));
+			}
+		}
+
 	}
 }
