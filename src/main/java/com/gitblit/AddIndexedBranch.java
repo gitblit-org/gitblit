@@ -28,11 +28,10 @@ import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.FS;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
@@ -48,12 +47,12 @@ public class AddIndexedBranch {
 
 	public static void main(String... args) {
 		Params params = new Params();
-		JCommander jc = new JCommander(params);
+		CmdLineParser parser = new CmdLineParser(params);
 		try {
-			jc.parse(args);
-		} catch (ParameterException t) {
+			parser.parseArgument(args);
+		} catch (CmdLineException t) {
 			System.err.println(t.getMessage());
-			jc.usage();
+			parser.printUsage(System.out);
 			return;
 		}
 
@@ -95,7 +94,7 @@ public class AddIndexedBranch {
 				Set<String> indexedBranches = new LinkedHashSet<String>();
 
 				// add all local branches to index
-				if(params.addAllLocalBranches) {
+				if (params.addAllLocalBranches) {
 					List<RefModel> list = JGitUtils.getLocalBranches(repository, true, -1);
 					for (RefModel refModel : list) {
 						System.out.println(MessageFormat.format("adding [gitblit] indexBranch={0} for {1}", refModel.getName(), repo));
@@ -129,21 +128,20 @@ public class AddIndexedBranch {
 
 
 	/**
-	 * JCommander Parameters class for AddIndexedBranch.
+	 * Parameters class for AddIndexedBranch.
 	 */
-	@Parameters(separators = " ")
 	private static class Params {
 
-		@Parameter(names = { "--repositoriesFolder" }, description = "The root repositories folder ", required = true)
+		@Option(name =  "--repositoriesFolder", usage = "The root repositories folder ", required = true, metaVar = "PATH")
 		public String folder;
 
-		@Parameter(names = { "--branch" }, description = "The branch to index", required = false)
+		@Option(name = "--branch", usage = "The branch to index", metaVar = "BRANCH")
 		public String branch = "default";
 
-		@Parameter(names = { "--skip" }, description = "Skip the named repository (simple fizzy matching is supported)", required = false)
+		@Option(name = "--skip", usage = "Skip the named repository (simple fizzy matching is supported)")
 		public List<String> exclusions = new ArrayList<String>();
 
-		@Parameter(names = { "--all-local-branches" }, description = "Add all local branches to index. If specified, the --branch parameter is not considered.", required = false)
-		public boolean addAllLocalBranches = false;
+		@Option(name = "--all-local-branches", usage = "Add all local branches to index. If specified, the --branch parameter is not considered.")
+		public boolean addAllLocalBranches;
 	}
 }

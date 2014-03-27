@@ -10,7 +10,6 @@
 	<classpathentry kind="lib" path="ext/dagger-compiler-1.1.0.jar" sourcepath="ext/src/dagger-compiler-1.1.0.jar" />
 	<classpathentry kind="lib" path="ext/javawriter-2.1.1.jar" sourcepath="ext/src/javawriter-2.1.1.jar" />
 	<classpathentry kind="lib" path="ext/annotations-12.0.jar" sourcepath="ext/src/annotations-12.0.jar" />
-	<classpathentry kind="lib" path="ext/jcommander-1.17.jar" sourcepath="ext/src/jcommander-1.17.jar" />
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17.jar" />
 	<classpathentry kind="lib" path="ext/slf4j-api-1.6.6.jar" sourcepath="ext/src/slf4j-api-1.6.6.jar" />
 	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.6.6.jar" sourcepath="ext/src/slf4j-log4j12-1.6.6.jar" />
@@ -73,6 +72,7 @@
 	<classpathentry kind="lib" path="ext/jna-3.5.0.jar" sourcepath="ext/src/jna-3.5.0.jar" />
 	<classpathentry kind="lib" path="ext/guava-13.0.1.jar" sourcepath="ext/src/guava-13.0.1.jar" />
 	<classpathentry kind="lib" path="ext/libpam4j-1.7.jar" sourcepath="ext/src/libpam4j-1.7.jar" />
+	<classpathentry kind="lib" path="ext/args4j-2.0.26.jar" sourcepath="ext/src/args4j-2.0.26.jar" />
 	<classpathentry kind="lib" path="ext/jedis-2.3.1.jar" sourcepath="ext/src/jedis-2.3.1.jar" />
 	<classpathentry kind="lib" path="ext/commons-pool2-2.0.jar" sourcepath="ext/src/commons-pool2-2.0.jar" />
 	<classpathentry kind="lib" path="ext/junit-4.11.jar" sourcepath="ext/src/junit-4.11.jar" />
