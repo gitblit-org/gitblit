@@ -12,9 +12,11 @@ r22: {
     fixes:
     - Ensure the Lucene ticket index is updated on repository deletion.
     changes: ~
-    additions: ~
+    additions:
+    - Added a French translation
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+    - Johann Ollivier-Lapeyre
 }
 
 #
