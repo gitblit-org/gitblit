@@ -27,6 +27,7 @@ import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.ListFilterCommand;
@@ -296,6 +297,27 @@ public class UsersDispatcher extends DispatchCommand {
 				teams = FlipTable.of(theaders, tdata, Borders.COLS);
 			}
 
+			// owned repositories
+			String ownedTable;
+			List<RepositoryModel> owned = new ArrayList<RepositoryModel>();
+			for (RepositoryModel repository : getContext().getGitblit().getRepositoryModels(u)) {
+				if (repository.isOwner(u.username)) {
+					owned.add(repository);
+				}
+			}
+			if (owned.isEmpty()) {
+				ownedTable = FlipTable.EMPTY;
+			} else {
+				String [] theaders = new String [] { "Repository", "Description" };
+				Object [][] tdata = new Object[owned.size()][];
+				int i = 0;
+				for (RepositoryModel r : owned) {
+					tdata[i] = new Object [] { r.name, r.description };
+					i++;
+				}
+				ownedTable = FlipTable.of(theaders, tdata, Borders.COLS);
+			}
+
 			// permissions
 			List<RegistrantAccessPermission> perms = u.getRepositoryPermissions();
 			String permissions;
@@ -311,25 +333,47 @@ public class UsersDispatcher extends DispatchCommand {
 				permissions = FlipTable.of(pheaders, pdata, Borders.COLS);
 			}
 
+			// keys
+			String keyTable;
+			List<SshKey> keys = getContext().getGitblit().getPublicKeyManager().getKeys(u.username);
+			if (ArrayUtils.isEmpty(keys)) {
+				keyTable = FlipTable.EMPTY;
+			} else {
+				String[] headers = { "#", "Fingerprint", "Comment", "Type" };
+				int len = keys == null ? 0 : keys.size();
+				Object[][] data = new Object[len][];
+				for (int i = 0; i < len; i++) {
+					// show 1-based index numbers with the fingerprint
+					// this is useful for comparing with "ssh-add -l"
+					SshKey k = keys.get(i);
+					data[i] = new Object[] { (i + 1), k.getFingerprint(), k.getComment(), k.getAlgorithm() };
+				}
+				keyTable = FlipTable.of(headers, data, Borders.COLS);
+			}
+
 			// assemble user table
 			String userTitle = u.getDisplayName() + (u.username.equals(u.getDisplayName()) ? "" : (" (" + u.username + ")"));
 			if (u.disabled) {
 				userTitle += "  [DISABLED]";
 			}
 			String [] headers = new String[] { userTitle };
-			String[][] data = new String[6][];
+			String[][] data = new String[8][];
 			data[0] = new String [] { "FIELDS" };
 			data[1] = new String [] { fields };
 			data[2] = new String [] { "TEAMS" };
 			data[3] = new String [] { teams };
+			data[4] = new String [] { "OWNED REPOSITORIES" };
+			data[5] = new String [] { ownedTable };
 			data[4] = new String [] { "PERMISSIONS" };
 			data[5] = new String [] { permissions };
+			data[6] = new String [] { "SSH PUBLIC KEYS" };
+			data[7] = new String [] { keyTable };
 			stdout.println(FlipTable.of(headers, data));
 		}
 	}
 
 	@CommandMetaData(name = "list", aliases= { "ls" }, description = "List accounts")
-	@UsageExamples( examples = {
+	@UsageExamples(examples = {
 		@UsageExample(syntax = "${cmd}", description = "List accounts as a table"),
 		@UsageExample(syntax = "${cmd} j.*", description = "List all accounts that start with 'j'"),
 	})
