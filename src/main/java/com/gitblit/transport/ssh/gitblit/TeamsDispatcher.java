@@ -72,7 +72,7 @@ public class TeamsDispatcher extends DispatchCommand {
 		}
 	}
 
-	@CommandMetaData(name = "new", description = "Create a new team")
+	@CommandMetaData(name = "new", aliases = { "add" }, description = "Create a new team")
 	@UsageExample(syntax = "${cmd} contributors --canFork --canCreate")
 	public static class NewTeam extends TeamCommand {
 
@@ -148,7 +148,7 @@ public class TeamsDispatcher extends DispatchCommand {
 		protected List<String> fieldValues = new ArrayList<String>();
 
 		protected enum Field {
-			mailingList, canAdmin, canFork, canCreate;
+			mailingList, preReceive, postReceive, canAdmin, canFork, canCreate;
 
 			static Field fromString(String name) {
 				for (Field field : values()) {
@@ -184,6 +184,14 @@ public class TeamsDispatcher extends DispatchCommand {
 			case mailingList:
 				team.mailingLists.clear();
 				team.mailingLists.addAll(fieldValues);
+				break;
+			case preReceive:
+				team.preReceiveScripts.clear();
+				team.preReceiveScripts.addAll(fieldValues);
+				break;
+			case postReceive:
+				team.postReceiveScripts.clear();
+				team.postReceiveScripts.addAll(fieldValues);
 				break;
 			case canAdmin:
 				team.canAdmin = toBool(value);
