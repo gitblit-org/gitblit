@@ -111,7 +111,7 @@ Yes.  You can manually manipulate all of them and (most) changes will be immedia
 Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](/setup.html) page for details.
 
 ### Can I restrict access to branches or paths within a repository?
-No, not out-of-the-box.  Access restrictions apply to the repository as a whole.
+No, not yet.  Access restrictions apply to the repository as a whole.
 
 Gitblit's simple authentication and authorization mechanism can be used to facilitate one or more of the [workflows outlined here](http://progit.org/book/ch5-1.html).
 
@@ -121,10 +121,6 @@ Alternatively, you could use [gitolite](https://github.com/sitaramc/gitolite) an
 
 ### Can I authenticate users against XYZ?
 Yes.  The user service is pluggable.  You may write your own complete user service by implementing the *com.gitblit.IUserService* interface.  Or you may subclass *com.gitblit.GitblitUserService* and override just the authentication. Set the fully qualified classname as the *realm.userService* property.
-
-### Why doesn't Gitblit support SSH?
-
-It will.  This feature is in development and should land in the 1.5.0 release.
 
 ### What types of Search does Gitblit support?
 

@@ -1,6 +1,7 @@
 ## Standard Features (GO/WAR)
-- JGit http/https SmartHTTP servlet
-- JGit git protocol daemon
+- Integrated JGit http/https SmartHTTP servlet
+- Integrated JGit git protocol daemon
+- Integrated Mina SSHD daemon
 - Optional feature to allow users to create personal repositories
 - Optional feature to fork a repository to a personal repository
 - Optional feature to create a repository on push
@@ -77,7 +78,6 @@
 - Built-in AJP connector for Apache httpd
 
 ## Limitations
-- HTTP/HTTPS/GIT are the only supported Git protocols (SSH is in progress, ticket-6)
 - Built-in access controls are not branch-based, they are repository-based.
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
