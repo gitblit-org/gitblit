@@ -15,12 +15,14 @@
  */
 package com.gitblit.transport.ssh.gitblit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.GitBlitException;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
@@ -45,11 +47,13 @@ public class TeamsDispatcher extends DispatchCommand {
 	protected void setup(UserModel user) {
 		// primary team commands
 		register(user, NewTeam.class);
+		register(user, RenameTeam.class);
 		register(user, RemoveTeam.class);
 		register(user, ShowTeam.class);
 		register(user, ListTeams.class);
 
 		// team-specific commands
+		register(user, SetField.class);
 		register(user, Permissions.class);
 		register(user, Members.class);
 	}
@@ -94,11 +98,134 @@ public class TeamsDispatcher extends DispatchCommand {
 			team.canCreate = canCreate;
 
 			IGitblit gitblit = getContext().getGitblit();
-			if (gitblit.updateTeamModel(teamname, team)) {
+			try {
+				gitblit.addTeam(team);
 				stdout.println(String.format("%s created.", teamname));
-			} else {
-				throw new UnloggedFailure(1, String.format("Failed to create %s!", teamname));
+			} catch (GitBlitException e) {
+				String msg = String.format("Failed to create %s!", teamname);
+				log.error(msg, e);
+				throw new UnloggedFailure(1, msg);
 			}
+		}
+	}
+
+	@CommandMetaData(name = "rename", aliases = { "mv" }, description = "Rename a team")
+	@UsageExample(syntax = "${cmd} contributors friends", description = "Rename the contributors team to the friends team")
+	public static class RenameTeam extends TeamCommand {
+		@Argument(index = 1, required = true, metaVar = "NEWNAME", usage = "the new team name")
+		protected String newTeamName;
+
+				@Override
+		public void run() throws UnloggedFailure {
+			TeamModel team = getTeam(true);
+			IGitblit gitblit = getContext().getGitblit();
+			if (null != gitblit.getTeamModel(newTeamName)) {
+				throw new UnloggedFailure(1, String.format("Team %s already exists!", newTeamName));
+			}
+
+			// set the new team name
+			team.name = newTeamName;
+
+			try {
+				gitblit.reviseTeam(teamname, team);
+				stdout.println(String.format("Renamed team %s to %s.", teamname, newTeamName));
+			} catch (GitBlitException e) {
+				String msg = String.format("Failed to rename team from %s to %s", teamname, newTeamName);
+				log.error(msg, e);
+				throw new UnloggedFailure(1, msg);
+			}
+		}
+	}
+
+	@CommandMetaData(name = "set", description = "Set the specified field of a team")
+	@UsageExample(syntax = "${cmd} contributors canFork true", description = "Allow the contributors team to fork repositories")
+	public static class SetField extends TeamCommand {
+
+		@Argument(index = 1, required = true, metaVar = "FIELD", usage = "the field to update")
+		protected String fieldName;
+
+		@Argument(index = 2, required = true, metaVar = "VALUE", usage = "the new value")
+		protected List<String> fieldValues = new ArrayList<String>();
+
+		protected enum Field {
+			mailingList, canAdmin, canFork, canCreate;
+
+			static Field fromString(String name) {
+				for (Field field : values()) {
+					if (field.name().equalsIgnoreCase(name)) {
+						return field;
+					}
+				}
+				return null;
+			}
+		}
+
+		@Override
+		protected String getUsageText() {
+			String fields = Joiner.on(", ").join(Field.values());
+			StringBuilder sb = new StringBuilder();
+			sb.append("Valid fields are:\n    ").append(fields);
+			return sb.toString();
+		}
+
+		@Override
+		public void run() throws UnloggedFailure {
+			TeamModel team = getTeam(true);
+
+			Field field = Field.fromString(fieldName);
+			if (field == null) {
+				throw new UnloggedFailure(1, String.format("Unknown field %s", fieldName));
+			}
+
+			String value = Joiner.on(" ").join(fieldValues);
+			IGitblit gitblit = getContext().getGitblit();
+
+			switch(field) {
+			case mailingList:
+				team.mailingLists.clear();
+				team.mailingLists.addAll(fieldValues);
+				break;
+			case canAdmin:
+				team.canAdmin = toBool(value);
+				break;
+			case canFork:
+				team.canFork = toBool(value);
+				break;
+			case canCreate:
+				team.canCreate = toBool(value);
+				break;
+			default:
+				throw new UnloggedFailure(1,  String.format("Field %s was not properly handled by the set command.", fieldName));
+			}
+
+			try {
+				gitblit.reviseTeam(teamname, team);
+				stdout.println(String.format("Set %s.%s = %s", teamname, fieldName, value));
+			} catch (GitBlitException e) {
+				String msg = String.format("Failed to set %s.%s = %s", teamname, fieldName, value);
+				log.error(msg, e);
+				throw new UnloggedFailure(1, msg);
+			}
+		}
+
+		protected boolean toBool(String value) throws UnloggedFailure {
+			String v = value.toLowerCase();
+			if (v.equals("t")
+					|| v.equals("true")
+					|| v.equals("yes")
+					|| v.equals("on")
+					|| v.equals("y")
+					|| v.equals("1")) {
+				return true;
+			} else if (v.equals("f")
+					|| v.equals("false")
+					|| v.equals("no")
+					|| v.equals("off")
+					|| v.equals("n")
+					|| v.equals("0")) {
+				return false;
+			}
+			throw new UnloggedFailure(1,  String.format("Invalid boolean value %s", value));
 		}
 	}
 
@@ -182,6 +309,12 @@ public class TeamsDispatcher extends DispatchCommand {
 			IGitblit gitblit = getContext().getGitblit();
 			TeamModel team = getTeam(true);
 
+			boolean canEditMemberships = gitblit.supportsTeamMembershipChanges(team);
+			if (!canEditMemberships) {
+				String msg = String.format("Team %s (%s) does not permit membership changes!", team.name, team.accountType);
+				throw new UnloggedFailure(1, msg);
+			}
+
 			boolean modified = false;
 			if (!ArrayUtils.isEmpty(removals)) {
 				if (removals.contains("ALL")) {
@@ -200,6 +333,11 @@ public class TeamsDispatcher extends DispatchCommand {
 					UserModel u = gitblit.getUserModel(username);
 					if (u == null) {
 						throw new UnloggedFailure(1,  String.format("Unknown user %s", username));
+					}
+					boolean canEditTeams = gitblit.supportsTeamMembershipChanges(u);
+					if (!canEditTeams) {
+						String msg = String.format("User %s (%s) does not allow team membership changes ", u.username, u.accountType);
+						throw new UnloggedFailure(1, msg);
 					}
 					team.addUser(username);
 				}

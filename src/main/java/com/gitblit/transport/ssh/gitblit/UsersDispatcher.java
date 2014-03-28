@@ -22,6 +22,8 @@ import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.GitBlitException;
+import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
@@ -46,12 +48,13 @@ public class UsersDispatcher extends DispatchCommand {
 	protected void setup(UserModel user) {
 		// primary user commands
 		register(user, NewUser.class);
+		register(user, RenameUser.class);
 		register(user, RemoveUser.class);
 		register(user, ShowUser.class);
 		register(user, ListUsers.class);
 
 		// user-specific commands
-		register(user, SetName.class);
+		register(user, SetField.class);
 		register(user, Permissions.class);
 		register(user, DisableUser.class);
 		register(user, EnableUser.class);
@@ -113,32 +116,175 @@ public class UsersDispatcher extends DispatchCommand {
 			user.disabled = disabled;
 
 			IGitblit gitblit = getContext().getGitblit();
-			if (gitblit.updateUserModel(username, user)) {
+			try {
+				gitblit.addUser(user);
 				stdout.println(String.format("%s created.", username));
-			} else {
-				throw new UnloggedFailure(1, String.format("Failed to create %s!", username));
+			} catch (GitBlitException e) {
+				log.error("Failed to add " + username, e);
+				throw new UnloggedFailure(1, e.getMessage());
 			}
 		}
 	}
 
-	@CommandMetaData(name = "set-name", description = "Set the display name of an account")
-	@UsageExample(syntax = "${cmd} john John Smith", description = "The display name to \"John Smith\" for john's account")
-	public static class SetName extends UserCommand {
+	@CommandMetaData(name = "rename", aliases = { "mv" }, description = "Rename an account")
+	@UsageExample(syntax = "${cmd} john frank", description = "Rename the account from john to frank")
+	public static class RenameUser extends UserCommand {
+		@Argument(index = 1, required = true, metaVar = "NEWNAME", usage = "the new account name")
+		protected String newUserName;
 
-		@Argument(index = 1, multiValued = true, required = true, metaVar = "NAME", usage = "display name")
-		protected List<String> displayName = new ArrayList<String>();
+				@Override
+		public void run() throws UnloggedFailure {
+			UserModel user = getUser(true);
+			IGitblit gitblit = getContext().getGitblit();
+			if (null != gitblit.getTeamModel(newUserName)) {
+				throw new UnloggedFailure(1, String.format("Team %s already exists!", newUserName));
+			}
+
+			// set the new name
+			user.username = newUserName;
+
+			try {
+				gitblit.reviseUser(username, user);
+				stdout.println(String.format("Renamed user %s to %s.", username, newUserName));
+			} catch (GitBlitException e) {
+				String msg = String.format("Failed to rename user from %s to %s", username, newUserName);
+				log.error(msg, e);
+				throw new UnloggedFailure(1, msg);
+			}
+		}
+	}
+
+	@CommandMetaData(name = "set", description = "Set the specified field of an account")
+	@UsageExample(syntax = "${cmd} john name John Smith", description = "Set the display name to \"John Smith\" for john's account")
+	public static class SetField extends UserCommand {
+
+		@Argument(index = 1, required = true, metaVar = "FIELD", usage = "the field to update")
+		protected String fieldName;
+
+		@Argument(index = 2, required = true, metaVar = "VALUE", usage = "the new value")
+		protected List<String> fieldValues = new ArrayList<String>();
+
+		protected enum Field {
+			name, displayName, email, password, canAdmin, canFork, canCreate;
+
+			static Field fromString(String name) {
+				for (Field field : values()) {
+					if (field.name().equalsIgnoreCase(name)) {
+						return field;
+					}
+				}
+				return null;
+			}
+		}
+
+		@Override
+		protected String getUsageText() {
+			String fields = Joiner.on(", ").join(Field.values());
+			StringBuilder sb = new StringBuilder();
+			sb.append("Valid fields are:\n   ").append(fields);
+			return sb.toString();
+		}
 
 		@Override
 		public void run() throws UnloggedFailure {
 			UserModel user = getUser(true);
 
-			IGitblit gitblit = getContext().getGitblit();
-			user.displayName = Joiner.on(" ").join(displayName);
-			if (gitblit.updateUserModel(username, user)) {
-				stdout.println(String.format("Set the display name of %s to \"%s\".", username, user.displayName));
-			} else {
-				throw new UnloggedFailure(1, String.format("Failed to set the display name of %s!", username));
+			Field field = Field.fromString(fieldName);
+			if (field == null) {
+				throw new UnloggedFailure(1, String.format("Unknown field %s", fieldName));
 			}
+
+			String value = Joiner.on(" ").join(fieldValues).trim();
+			IGitblit gitblit = getContext().getGitblit();
+
+			boolean editCredentials = gitblit.supportsCredentialChanges(user);
+			boolean editDisplayName = gitblit.supportsDisplayNameChanges(user);
+			boolean editEmailAddress = gitblit.supportsEmailAddressChanges(user);
+
+			String m = String.format("Can not edit %s for %s (%s)", field, user.username, user.accountType);
+
+			switch(field) {
+			case name:
+			case displayName:
+				if (!editDisplayName) {
+					throw new UnloggedFailure(1, m);
+				}
+				user.displayName = value;
+				break;
+			case email:
+				if (!editEmailAddress) {
+					throw new UnloggedFailure(1, m);
+				}
+				user.emailAddress = value;
+				break;
+			case password:
+				if (!editCredentials) {
+					throw new UnloggedFailure(1, m);
+				}
+				int minLength = gitblit.getSettings().getInteger(Keys.realm.minPasswordLength, 5);
+				if (minLength < 4) {
+					minLength = 4;
+				}
+				if (value.trim().length() < minLength) {
+					throw new UnloggedFailure(1,  "Password is too short.");
+				}
+
+				// Optionally store the password MD5 digest.
+				String type = gitblit.getSettings().getString(Keys.realm.passwordStorage, "md5");
+				if (type.equalsIgnoreCase("md5")) {
+					// store MD5 digest of password
+					user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(value);
+				} else if (type.equalsIgnoreCase("combined-md5")) {
+					// store MD5 digest of username+password
+					user.password = StringUtils.COMBINED_MD5_TYPE + StringUtils.getMD5(username + value);
+				} else {
+					user.password = value;
+				}
+
+				// reset the cookie
+				user.cookie = StringUtils.getSHA1(user.username + value);
+				break;
+			case canAdmin:
+				user.canAdmin = toBool(value);
+				break;
+			case canFork:
+				user.canFork = toBool(value);
+				break;
+			case canCreate:
+				user.canCreate = toBool(value);
+				break;
+			default:
+				throw new UnloggedFailure(1,  String.format("Field %s was not properly handled by the set command.", fieldName));
+			}
+
+			try {
+				gitblit.reviseUser(username, user);
+				stdout.println(String.format("Set %s.%s = %s", username, fieldName, value));
+			} catch (GitBlitException e) {
+				String msg = String.format("Failed to set %s.%s = %s", username, fieldName, value);
+				log.error(msg, e);
+				throw new UnloggedFailure(1, msg);
+			}
+		}
+
+		protected boolean toBool(String value) throws UnloggedFailure {
+			String v = value.toLowerCase();
+			if (v.equals("t")
+					|| v.equals("true")
+					|| v.equals("yes")
+					|| v.equals("on")
+					|| v.equals("y")
+					|| v.equals("1")) {
+				return true;
+			} else if (v.equals("f")
+					|| v.equals("false")
+					|| v.equals("no")
+					|| v.equals("off")
+					|| v.equals("n")
+					|| v.equals("0")) {
+				return false;
+			}
+			throw new UnloggedFailure(1,  String.format("Invalid boolean value %s", value));
 		}
 	}
 

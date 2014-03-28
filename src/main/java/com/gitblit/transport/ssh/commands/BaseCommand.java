@@ -222,6 +222,11 @@ public abstract class BaseCommand implements Command, SessionAware {
 			msg.write("  ");
 			clp.printSingleLineUsage(msg, null);
 			msg.write("\n\n");
+			String txt = getUsageText();
+			if (!StringUtils.isEmpty(txt)) {
+				msg.write(txt);
+				msg.write("\n\n");
+			}
 			msg.write("ARGUMENTS & OPTIONS\n");
 			msg.write("───────────────────\n");
 			clp.printUsage(msg, null);
@@ -251,6 +256,10 @@ public abstract class BaseCommand implements Command, SessionAware {
 		} else if (clazz.isAnnotationPresent(UsageExample.class)) {
 			return examples(clazz.getAnnotation(UsageExample.class));
 		}
+		return "";
+	}
+
+	protected String getUsageText() {
 		return "";
 	}
 
