@@ -543,7 +543,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			// admins can create any repository
 			return true;
 		}
-		if (canCreate) {
+		if (canCreate()) {
 			String projectPath = StringUtils.getFirstPathElement(repository);
 			if (!StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath())) {
 				// personal repository
@@ -551,6 +551,16 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns true if the user is allowed to administer the specified repository
+	 * 
+	 * @param repo
+	 * @return true if the user can administer the repository
+	 */
+	public boolean canAdmin(RepositoryModel repo) {
+		return canAdmin() || isMyPersonalRepository(repo.name);
 	}
 
 	public boolean isAuthenticated() {

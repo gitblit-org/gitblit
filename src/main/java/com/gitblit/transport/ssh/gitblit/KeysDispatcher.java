@@ -59,7 +59,7 @@ public class KeysDispatcher extends DispatchCommand {
 
 		protected final Logger log = LoggerFactory.getLogger(getClass());
 
-		@Argument(metaVar = "-|<KEY>", usage = "the key(s) to add", required = true)
+		@Argument(metaVar = "<KEY>", usage = "the key(s) to add")
 		private List<String> addKeys = new ArrayList<String>();
 
 		@Override
@@ -82,7 +82,7 @@ public class KeysDispatcher extends DispatchCommand {
 
 		private final String ALL = "ALL";
 
-		@Argument(metaVar = "-|<INDEX>|<KEY>|ALL", usage = "the key to remove", required = true)
+		@Argument(metaVar = "<INDEX>|<KEY>|ALL", usage = "the key to remove", required = true)
 		private List<String> removeKeys = new ArrayList<String>();
 
 		@Override
