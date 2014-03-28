@@ -36,7 +36,7 @@ abstract class BaseKeyCommand extends SshCommand {
 	protected List<String> readKeys(List<String> sshKeys)
 			throws UnsupportedEncodingException, IOException {
 		int idx = -1;
-		if ((idx = sshKeys.indexOf("-")) >= 0) {
+		if (sshKeys.isEmpty() || (idx = sshKeys.indexOf("-")) >= 0) {
 			String sshKey = "";
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					in, Charsets.UTF_8));

@@ -226,7 +226,7 @@ public class GitBlit extends GitblitManager {
 	public boolean deleteRepositoryModel(RepositoryModel model) {
 		boolean success = repositoryManager.deleteRepositoryModel(model);
 		if (success && ticketService != null) {
-			return ticketService.deleteAll(model);
+			ticketService.deleteAll(model);
 		}
 		return success;
 	}
