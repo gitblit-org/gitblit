@@ -74,7 +74,7 @@ public class UsersDispatcher extends DispatchCommand {
 		}
 	}
 
-	@CommandMetaData(name = "new", description = "Create a new user account")
+	@CommandMetaData(name = "new", aliases = { "add" }, description = "Create a new user account")
 	@UsageExample(syntax = "${cmd} john 12345 --email john@smith.com --canFork --canCreate")
 	public static class NewUser extends UserCommand {
 
@@ -165,7 +165,7 @@ public class UsersDispatcher extends DispatchCommand {
 		protected List<String> fieldValues = new ArrayList<String>();
 
 		protected enum Field {
-			name, displayName, email, password, canAdmin, canFork, canCreate;
+			name, displayName, email, password, canAdmin, canFork, canCreate, disabled;
 
 			static Field fromString(String name) {
 				for (Field field : values()) {
@@ -252,6 +252,9 @@ public class UsersDispatcher extends DispatchCommand {
 				break;
 			case canCreate:
 				user.canCreate = toBool(value);
+				break;
+			case disabled:
+				user.disabled = toBool(value);
 				break;
 			default:
 				throw new UnloggedFailure(1,  String.format("Field %s was not properly handled by the set command.", fieldName));
