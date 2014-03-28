@@ -30,6 +30,8 @@ r22: {
     dependencyChanges:
     - args4j 2.0.26
     - JGit 3.3.1
+    - Mina SSHD 0.10.1
+    - pf4j 0.6
     contributors:
     - James Moger
     - David Ostrovsky
