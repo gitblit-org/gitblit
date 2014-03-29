@@ -21,7 +21,7 @@ case "$1" in
       then
       echo $"Starting gitblit server"
       cd $GITBLIT_PATH
-      $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER > $GITBLIT_LOG 2>&1 &
+      $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER --dailyLogFile &
       echo "."
       exit $RETVAL
     fi
