@@ -93,7 +93,7 @@ public class SshDaemonTest extends GitblitUnitTest {
         pair.getPublic().getEncoded();
         assertTrue(session.authPublicKey("admin", pair).await().isSuccess());
 
-        ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_EXEC, "gitblit version");
+        ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_EXEC, "version");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Writer w = new OutputStreamWriter(baos);
         w.close();

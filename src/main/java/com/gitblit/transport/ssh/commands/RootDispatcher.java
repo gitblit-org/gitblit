@@ -24,7 +24,7 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.git.GitDispatcher;
-import com.gitblit.transport.ssh.gitblit.GitblitDispatcher;
+import com.gitblit.transport.ssh.keys.KeysDispatcher;
 
 /**
  * The root dispatcher is the dispatch command that handles registering all
@@ -41,8 +41,10 @@ class RootDispatcher extends DispatchCommand {
 		setContext(new SshCommandContext(gitblit, client, cmdLine));
 
 		UserModel user = client.getUser();
-		register(user, GitblitDispatcher.class);
+		register(user, VersionCommand.class);
 		register(user, GitDispatcher.class);
+		register(user, KeysDispatcher.class);
+		register(user, PluginDispatcher.class);
 
 		List<DispatchCommand> exts = gitblit.getExtensions(DispatchCommand.class);
 		for (DispatchCommand ext : exts) {
