@@ -15,19 +15,10 @@
  */
 package com.gitblit.manager;
 
-import java.util.List;
-
+import ro.fortsoft.pf4j.PluginManager;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-public interface IPluginManager extends IManager {
-
-	/**
-	 * Retrieves the extension for given class 'clazz'.
-	 *
-	 * @param clazz extension point class to retrieve extension for
-	 * @return list of extensions
-	 */
-	public <T> List<T> getExtensions(Class<T> clazz);
+public interface IPluginManager extends IManager, PluginManager {
 
 	/**
      * Retrieves the {@link PluginWrapper} that loaded the given class 'clazz'.
@@ -35,5 +26,13 @@ public interface IPluginManager extends IManager {
      * @param clazz extension point class to retrieve extension for
      * @return PluginWrapper that loaded the given class
      */
-    public PluginWrapper whichPlugin(Class<?> clazz);
+    PluginWrapper whichPlugin(Class<?> clazz);
+    
+    /**
+     * Delete the plugin represented by {@link PluginWrapper}.
+     * 
+     * @param wrapper
+     * @return true if successful
+     */
+    boolean deletePlugin(PluginWrapper wrapper);
 }

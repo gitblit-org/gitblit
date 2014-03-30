@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.gitblit.transport.ssh.gitblit;
+package com.gitblit.transport.ssh.commands;
 
 import com.gitblit.Constants;
-import com.gitblit.transport.ssh.commands.CommandMetaData;
-import com.gitblit.transport.ssh.commands.SshCommand;
 
 @CommandMetaData(name="version", description = "Display the Gitblit version")
 public class VersionCommand extends SshCommand {

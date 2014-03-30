@@ -165,7 +165,7 @@ public class WelcomeShell implements Factory<Command> {
 				msg.append(nl);
 				msg.append(nl);
 
-				msg.append(String.format("   cat ~/.ssh/id_rsa.pub | ssh -l %s -p %d %s gitblit keys add", user.username, port, hostname));
+				msg.append(String.format("   cat ~/.ssh/id_rsa.pub | ssh -l %s -p %d %s keys add", user.username, port, hostname));
 				msg.append(nl);
 				msg.append(nl);
 

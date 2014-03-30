@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh.gitblit;
+package com.gitblit.transport.ssh.keys;
 
 import java.io.IOException;
 import java.util.ArrayList;
