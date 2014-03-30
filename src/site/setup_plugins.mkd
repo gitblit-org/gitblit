@@ -3,4 +3,45 @@
 
 *SINCE 1.5.0*
 
-Document (limited) plugin infrastructure.
+Gitblit supports extending and enhacing the core functionality through plugins.  This mechanism is very young and incomplete with few extension points, but you can expect it to evolve rapidly in upcoming releases.
+
+### Architecture
+
+The existing plugin mechanism is based on [pf4j](https://github.com/decebals/pf4j).  Plugins are distributed as zip files and may include their runtime dependencies or may rely on the bundled dependencies of other plugins and/or Gitblit core.
+
+The zip plugins are stored in `${baseFolder}/plugins` and are unpacked on startup into folders of the same name.
+
+A plugin defines it's metadata in the META-INF/MANIFEST.MF file:
+
+    Plugin-Class: com.gitblit.plugins.cookbook.CookbookPlugin
+    Plugin-Dependencies: foo, bar
+    Plugin-Id: gitblit-plugin
+    Plugin-Provider: John Doe
+    Plugin-Version: 1.0
+
+In addition to extending Gitblit core, plugins can also define extension points that may be implemented by other plugins.  Therefore a plugin may depend on other plugins.
+
+    Plugin-Dependencies: foo, bar
+
+Plugins are controlled by the `plugin` SSH dispatch command.  Only *administrators* have permission to use this dispatch command.
+
+The pf4j plugin framework relies on a javac apt processor to generate compile-time extension information, so be sure to enable apt processing in your build process.
+
+### Extension Point: SSH DispatchCommand
+
+You can provide your own custom SSH commands by extending the DispatchCommand.
+
+For some examples of how to do this, please see:
+
+[gitblit-cookbook-plugin (Maven project)](https://dev.gitblit.com/summary/gitblit-cookbook-plugin.git)
+[gitblit-powertools-plugin (Ant/Moxie project)](https://dev.gitblit.com/summary/gitblit-powertools-plugin.git)
+
+### Mac OSX Fonts
+
+Gitblit's core SSH commands and those in the *powertools* plugin rely on use of ANSI border characters to provide a pretty presentation of data.  Unfortunately, the fonts provided by Apple - while very nice - don't work well with ANSI border characters.  The following public domain fixed-width, fixed-point, bitmapped fonts work very nicely.  I find the 6x12 font with a line spacing of ~0.8 to be quite acceptable.
+
+[6x12.dfont](6x12.dfont)
+[6x13.dfont](6x13.dfont)
+[7x13.dfont](7x13.dfont)
+[7x14.dfont](7x14.dfont)
+
