@@ -1046,5 +1046,19 @@
 			<arg value="-DcreateChecksum=true" />
 		</exec>
 	</target>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Install Gitblit JAR for usage as Moxie artifact
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="installMoxie" depends="compile" description="Install Gitblit JAR as a Moxie artifact">
+		<local name="project.jar" />
+		<property name="project.jar" value="${project.targetDirectory}/${project.artifactId}-${project.version}.jar" />
+		<property name="resourceFolderPrefix" value="" />
+		<mx:jar destfile="${project.jar}" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}" />
+
+		<mx:install />
+	</target>
 	
 </project>

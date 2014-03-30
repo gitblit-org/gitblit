@@ -42,7 +42,9 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.fortsoft.pf4j.PluginClassLoader;
 import ro.fortsoft.pf4j.PluginWrapper;
+import ro.fortsoft.pf4j.RuntimeMode;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
@@ -1186,5 +1188,55 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public PluginWrapper whichPlugin(Class<?> clazz) {
 		return pluginManager.whichPlugin(clazz);
+	}
+
+	@Override
+	public boolean deletePlugin(PluginWrapper wrapper) {
+		return pluginManager.deletePlugin(wrapper);
+	}
+
+	@Override
+	public List<PluginWrapper> getPlugins() {
+		return pluginManager.getPlugins();
+	}
+
+	@Override
+	public List<PluginWrapper> getResolvedPlugins() {
+		return pluginManager.getResolvedPlugins();
+	}
+
+	@Override
+	public List<PluginWrapper> getUnresolvedPlugins() {
+		return pluginManager.getUnresolvedPlugins();
+	}
+
+	@Override
+	public List<PluginWrapper> getStartedPlugins() {
+		return pluginManager.getStartedPlugins();
+	}
+
+	@Override
+	public void loadPlugins() {
+		pluginManager.loadPlugins();
+	}
+
+	@Override
+	public void startPlugins() {
+		pluginManager.startPlugins();
+	}
+
+	@Override
+	public void stopPlugins() {
+		pluginManager.stopPlugins();
+	}
+
+	@Override
+	public PluginClassLoader getPluginClassLoader(String pluginId) {
+		return pluginManager.getPluginClassLoader(pluginId);
+	}
+
+	@Override
+	public RuntimeMode getRuntimeMode() {
+		return pluginManager.getRuntimeMode();
 	}
 }
