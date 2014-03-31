@@ -897,11 +897,20 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 		if (parseMessage) {
 			// parse commit message looking for fixes/closes #n
-			Pattern p = Pattern.compile("(?:fixes|closes)[\\s-]+#?(\\d+)", Pattern.CASE_INSENSITIVE);
-			Matcher m = p.matcher(commit.getFullMessage());
-			while (m.find()) {
-				String val = m.group(1);
-				return Long.parseLong(val);
+			String dx = "(?:fixes|closes)[\\s-]+#?(\\d+)";
+			String x = settings.getString(Keys.tickets.closeOnPushCommitMessageRegex, dx);
+			if (StringUtils.isEmpty(x)) {
+				x = dx;
+			}
+			try {
+				Pattern p = Pattern.compile(x, Pattern.CASE_INSENSITIVE);
+				Matcher m = p.matcher(commit.getFullMessage());
+				while (m.find()) {
+					String val = m.group(1);
+					return Long.parseLong(val);
+				}
+			} catch (Exception e) {
+				LOGGER.error(String.format("Failed to parse \"%s\" in commit %s", x, commit.getName()), e);
 			}
 		}
 		return 0L;

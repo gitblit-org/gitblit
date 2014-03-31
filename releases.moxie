@@ -15,6 +15,7 @@ r22: {
     - Ensure the Lucene ticket index is updated on repository deletion.
     changes:
     - Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (issue-348)
+    - The ticket close-on-push commit message regular expression is now configurable by a setting (issue-404)
     - Option to allow LDAP users to directly authenticate without performing LDAP searches (pr-162)
     - Replace JCommander with args4j to be consistent with other tools (ticket-28)
     additions:
@@ -29,6 +30,7 @@ r22: {
     - Jeremie Brebec
     settings:
     - { name: 'realm.ldap.bindpattern', defaultValue: ' ' }
+    - { name: 'tickets.closeOnPushCommitMessageRegex', defaultValue: '(?:fixes|closes)[\\s-]+#?(\\d+)' }
 }
 
 #
