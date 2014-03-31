@@ -258,6 +258,19 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNull(userThreeModel.getTeam("git_admins"));
 		assertTrue(userThreeModel.canAdmin);
 	}
+	
+	@Test
+	public void testBindWithUser() {
+		settings.put(Keys.realm.ldap.bindpattern, "CN=${username},OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain");
+		settings.put(Keys.realm.ldap.username, "");
+		settings.put(Keys.realm.ldap.password, "");
+
+		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray());
+		assertNotNull(userOneModel);
+		
+		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray());
+		assertNull(userOneModelFailedAuth);
+	}
 
 	private int countLdapUsersInUserManager() {
 		int ldapAccountCount = 0;

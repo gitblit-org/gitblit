@@ -299,7 +299,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				String bindPattern = settings.getString(Keys.realm.ldap.bindpattern, "");
 				if (!StringUtils.isEmpty(bindPattern)) {
 					try {
-						String bindUser = StringUtils.replace(bindPattern, "${username}", simpleUsername);
+						String bindUser = StringUtils.replace(bindPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
 						ldapConnection.bind(bindUser, new String(password));
 						
 						alreadyAuthenticated = true;
