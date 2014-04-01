@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.Option;
 
 import ro.fortsoft.pf4j.PluginDependency;
 import ro.fortsoft.pf4j.PluginDescriptor;
@@ -26,6 +27,8 @@ import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import com.gitblit.manager.IGitblit;
+import com.gitblit.models.PluginRegistry.PluginRegistration;
+import com.gitblit.models.PluginRegistry.PluginRelease;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
@@ -46,7 +49,8 @@ public class PluginDispatcher extends DispatchCommand {
 		register(user, StopPlugin.class);
 		register(user, ShowPlugin.class);
 		register(user, RemovePlugin.class);
-		register(user, UploadPlugin.class);
+		register(user, InstallPlugin.class);
+		register(user, AvailablePlugins.class);
 	}
 
 	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List the loaded plugins")
@@ -82,7 +86,7 @@ public class PluginDispatcher extends DispatchCommand {
 
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}
-		
+
 		@Override
 		protected void asTabbed(List<PluginWrapper> list) {
 			for (PluginWrapper pw : list) {
@@ -95,7 +99,7 @@ public class PluginDispatcher extends DispatchCommand {
 			}
 		}
 	}
-	
+
 	@CommandMetaData(name = "start", description = "Start a plugin")
 	public static class StartPlugin extends SshCommand {
 
@@ -128,7 +132,7 @@ public class PluginDispatcher extends DispatchCommand {
 				}
 			}
 		}
-		
+
 		protected void start(PluginWrapper pw) throws UnloggedFailure {
 			String id = pw.getDescriptor().getPluginId();
 			if (pw.getPluginState() == PluginState.STARTED) {
@@ -143,7 +147,7 @@ public class PluginDispatcher extends DispatchCommand {
 			}
 		}
 	}
-	
+
 
 	@CommandMetaData(name = "stop", description = "Stop a plugin")
 	public static class StopPlugin extends SshCommand {
@@ -177,7 +181,7 @@ public class PluginDispatcher extends DispatchCommand {
 			}
 			}
 		}
-		
+
 		protected void stop(PluginWrapper pw) throws UnloggedFailure {
 			String id = pw.getDescriptor().getPluginId();
 			if (pw.getPluginState() == PluginState.STOPPED) {
@@ -192,7 +196,7 @@ public class PluginDispatcher extends DispatchCommand {
 			}
 		}
 	}
-	
+
 	@CommandMetaData(name = "show", description = "Show the details of a plugin")
 	public static class ShowPlugin extends SshCommand {
 
@@ -230,7 +234,7 @@ public class PluginDispatcher extends DispatchCommand {
 					String ext = exts.get(i);
 					data[0] = new Object[] { ext.toString(), ext.toString() };
 				}
-				extensions = FlipTable.of(headers, data, Borders.COLS);		
+				extensions = FlipTable.of(headers, data, Borders.COLS);
 			}
 
 			// DEPENDENCIES
@@ -246,9 +250,9 @@ public class PluginDispatcher extends DispatchCommand {
 					PluginDependency dep = deps.get(i);
 					data[0] = new Object[] { dep.getPluginId(), dep.getPluginVersion() };
 				}
-				dependencies = FlipTable.of(headers, data, Borders.COLS);		
+				dependencies = FlipTable.of(headers, data, Borders.COLS);
 			}
-			
+
 			String[] headers = { d.getPluginId() };
 			Object[][] data = new Object[5][];
 			data[0] = new Object[] { fields };
@@ -256,10 +260,10 @@ public class PluginDispatcher extends DispatchCommand {
 			data[2] = new Object[] { extensions };
 			data[3] = new Object[] { "DEPENDENCIES" };
 			data[4] = new Object[] { dependencies };
-			stdout.println(FlipTable.of(headers, data));		
+			stdout.println(FlipTable.of(headers, data));
 		}
 	}
-	
+
 	@CommandMetaData(name = "remove", aliases= { "rm", "del" }, description = "Remove a plugin", hidden = true)
 	public static class RemovePlugin extends SshCommand {
 
@@ -282,12 +286,98 @@ public class PluginDispatcher extends DispatchCommand {
 			}
 		}
 	}
-	
-	@CommandMetaData(name = "receive", aliases= { "upload" }, description = "Upload a plugin to the server", hidden = true)
-	public static class UploadPlugin extends SshCommand {
+
+	@CommandMetaData(name = "install", description = "Download and installs a plugin", hidden = true)
+	public static class InstallPlugin extends SshCommand {
+
+		@Argument(index = 0, required = true, metaVar = "<URL>|<ID>|<NAME>", usage = "the id, name, or the url of the plugin to download and install")
+		protected String urlOrIdOrName;
+
+		@Option(name = "--version", usage = "The specific version to install")
+		private String version;
 
 		@Override
 		public void run() throws UnloggedFailure {
+			IGitblit gitblit = getContext().getGitblit();
+			try {
+				String ulc = urlOrIdOrName.toLowerCase();
+				if (ulc.startsWith("http://") || ulc.startsWith("https://")) {
+					if (gitblit.installPlugin(urlOrIdOrName)) {
+						stdout.println(String.format("Installed %s", urlOrIdOrName));
+					} else {
+						new UnloggedFailure(1, String.format("Failed to install %s", urlOrIdOrName));
+					}
+				} else {
+					PluginRelease pv = gitblit.lookupRelease(urlOrIdOrName, version);
+					if (pv == null) {
+						throw new UnloggedFailure(1,  String.format("Plugin \"%s\" is not in the registry!", urlOrIdOrName));
+					}
+					if (gitblit.installPlugin(pv)) {
+						stdout.println(String.format("Installed %s", urlOrIdOrName));
+					} else {
+						throw new UnloggedFailure(1, String.format("Failed to install %s", urlOrIdOrName));
+					}
+				}
+			} catch (Exception e) {
+				log.error("Failed to install " + urlOrIdOrName, e);
+				throw new UnloggedFailure(1, String.format("Failed to install %s", urlOrIdOrName), e);
+			}
+		}
+	}
+
+	@CommandMetaData(name = "available", description = "List the available plugins")
+	public static class AvailablePlugins extends ListFilterCommand<PluginRegistration> {
+
+		@Option(name = "--refresh", aliases = { "-r" }, usage = "refresh the plugin registry")
+		protected boolean refresh;
+
+		@Override
+		protected List<PluginRegistration> getItems() throws UnloggedFailure {
+			IGitblit gitblit = getContext().getGitblit();
+			if (refresh) {
+				gitblit.refreshRegistry();
+			}
+			List<PluginRegistration> list = gitblit.getRegisteredPlugins();
+			return list;
+		}
+
+		@Override
+		protected boolean matches(String filter, PluginRegistration t) {
+			return t.id.matches(filter) || t.name.matches(filter);
+		}
+
+		@Override
+		protected void asTable(List<PluginRegistration> list) {
+			String[] headers;
+			if (verbose) {
+				String [] h = { "Name", "Description", "Installed", "Release", "State", "Id", "Provider" };
+				headers = h;
+			} else {
+				String [] h = { "Name", "Description", "Installed", "Release", "State" };
+				headers = h;
+			}
+			Object[][] data = new Object[list.size()][];
+			for (int i = 0; i < list.size(); i++) {
+				PluginRegistration p = list.get(i);
+				if (verbose) {
+					data[i] = new Object[] {p.name, p.description, p.installedRelease, p.currentRelease, p.getInstallState(), p.id, p.provider};
+				} else {
+					data[i] = new Object[] {p.name, p.description, p.installedRelease, p.currentRelease, p.getInstallState()};
+				}
+			}
+
+			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
+		}
+
+		@Override
+		protected void asTabbed(List<PluginRegistration> list) {
+			for (PluginRegistration p : list) {
+				if (verbose) {
+					outTabbed(p.name, p.description, p.currentRelease, p.getInstallState(), p.id, p.provider);
+				} else {
+					outTabbed(p.name, p.description, p.currentRelease, p.getInstallState());
+				}
+			}
 		}
 	}
 }
