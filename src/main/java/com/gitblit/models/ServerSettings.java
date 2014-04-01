@@ -58,4 +58,8 @@ public class ServerSettings implements Serializable {
 	public boolean hasKey(String key) {
 		return settings.containsKey(key);
 	}
+
+	public SettingModel remove(String key) {
+		return settings.remove(key);
+	}
 }

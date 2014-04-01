@@ -4,8 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+
 import com.gitblit.GitBlitServer;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
@@ -36,14 +37,14 @@ public class GitBlitServer4UITests extends GitBlitServer {
 
 		Params.baseFolder = folder;
 		Params params = new Params();
-		JCommander jc = new JCommander(params);
+		CmdLineParser parser = new CmdLineParser(params);
 		try {
-			jc.parse(filtered.toArray(new String[filtered.size()]));
+			parser.parseArgument(filtered);
 			if (params.help) {
-				server.usage(jc, null);
+				server.usage(parser, null);
 			}
-		} catch (ParameterException t) {
-			server.usage(jc, t);
+		} catch (CmdLineException t) {
+			server.usage(parser, t);
 		}
 
 		if (params.stop) {

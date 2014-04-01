@@ -180,9 +180,14 @@ public class GitBlit extends GitblitManager {
 	@Override
 	public boolean deleteRepository(String repositoryName) {
 		RepositoryModel repository = repositoryManager.getRepositoryModel(repositoryName);
-		boolean success = repositoryManager.deleteRepository(repositoryName);
+		return deleteRepositoryModel(repository);
+	}
+
+	@Override
+	public boolean deleteRepositoryModel(RepositoryModel model) {
+		boolean success = repositoryManager.deleteRepositoryModel(model);
 		if (success && ticketService != null) {
-			return ticketService.deleteAll(repository);
+			return ticketService.deleteAll(model);
 		}
 		return success;
 	}

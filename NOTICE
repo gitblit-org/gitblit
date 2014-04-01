@@ -152,22 +152,6 @@ JUnit
    http://junit.org
 
 ---------------------------------------------------------------------------
-ant-googlecode
----------------------------------------------------------------------------
-   ant-googlecode, released under the
-   New BSD License
-   
-   http://code.google.com/p/ant-googlecode
-
----------------------------------------------------------------------------
-GenJar
----------------------------------------------------------------------------
-   GenJar, released under the
-   Apache Software License, Version 1.1.
-   
-   http://genjar.sourceforge.net
-   
----------------------------------------------------------------------------
 Fancybox image viewer
 ---------------------------------------------------------------------------
    Fancybox image viewer, released under the
@@ -342,3 +326,11 @@ Jedis
    MIT license
    
    https://github.com/xetorthio/jedis
+
+---------------------------------------------------------------------------
+args4j
+---------------------------------------------------------------------------
+   args4j, release under the
+   Apache License 2.0
+   
+   http://args4j.kohsuke.org

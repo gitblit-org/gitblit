@@ -775,6 +775,9 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				}
 
 				TicketModel ticket = ticketService.getTicket(repository, ticketNumber);
+				if (ticket == null) {
+					continue;
+				}
 				String integrationBranch;
 				if (StringUtils.isEmpty(ticket.mergeTo)) {
 					// unspecified integration branch
@@ -897,7 +900,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			Pattern p = Pattern.compile("(?:fixes|closes)[\\s-]+#?(\\d+)", Pattern.CASE_INSENSITIVE);
 			Matcher m = p.matcher(commit.getFullMessage());
 			while (m.find()) {
-				String val = m.group();
+				String val = m.group(1);
 				return Long.parseLong(val);
 			}
 		}

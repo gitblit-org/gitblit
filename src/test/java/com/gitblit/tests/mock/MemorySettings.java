@@ -48,6 +48,11 @@ public class MemorySettings extends IStoredSettings {
 	}
 
 	@Override
+	public boolean saveSettings() {
+		return false;
+	}
+
+	@Override
 	public boolean saveSettings(Map<String, String> updatedSettings) {
 		return false;
 	}

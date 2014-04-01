@@ -607,6 +607,8 @@
 					<divider />
 					<link name="Bintray (1.4.0+)" src="https://bintray.com/jamesmoger/generic/Gitblit" />
 					<link name="GoogleCode (pre-1.4.0)" src="https://code.google.com/p/gitblit/downloads/list?can=1" />
+					<divider />
+					<link name="Maven Repository" src="${project.mavenUrl}" />
 				</menu>
 				
 				<menu name="links">

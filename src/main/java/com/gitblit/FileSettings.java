@@ -103,6 +103,23 @@ public class FileSettings extends IStoredSettings {
 		return properties;
 	}
 
+	@Override
+	public boolean saveSettings() {
+		String content = FileUtils.readContent(propertiesFile, "\n");
+		for (String key : removals) {
+			String regex = "(?m)^(" + regExEscape(key) + "\\s*+=\\s*+)"
+				    + "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";
+			content = content.replaceAll(regex, "");
+		}
+		removals.clear();
+
+		FileUtils.writeContent(propertiesFile, content);
+		// manually set the forceReload flag because not all JVMs support real
+		// millisecond resolution of lastModified. (issue-55)
+		forceReload = true;
+		return true;
+	}
+
 	/**
 	 * Updates the specified settings in the settings file.
 	 */

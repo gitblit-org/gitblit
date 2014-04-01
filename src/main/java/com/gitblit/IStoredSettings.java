@@ -20,6 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,8 @@ public abstract class IStoredSettings {
 	protected final Logger logger;
 
 	protected final Properties overrides = new Properties();
+
+	protected final Set<String> removals = new TreeSet<String>();
 
 	public IStoredSettings(Class<? extends IStoredSettings> clazz) {
 		logger = LoggerFactory.getLogger(clazz);
@@ -341,6 +345,34 @@ public abstract class IStoredSettings {
 	public void overrideSetting(String key, boolean value) {
 		overrides.put(key, "" + value);
 	}
+
+	/**
+	 * Tests for the existence of a setting.
+	 *
+	 * @param key
+	 * @return true if the setting exists
+	 */
+	public boolean hasSettings(String key) {
+		return getString(key, null) != null;
+	}
+
+	/**
+	 * Remove a setting.
+	 *
+	 * @param key
+	 */
+	public void removeSetting(String key) {
+		getSettings().remove(key);
+		overrides.remove(key);
+		removals.add(key);
+	}
+
+	/**
+	 * Saves the current settings.
+	 *
+	 * @param map
+	 */
+	public abstract boolean saveSettings();
 
 	/**
 	 * Updates the values for the specified keys and persists the entire

@@ -69,17 +69,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jcommander-1.17.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jcommander-1.17.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jcommander-1.17.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="log4j-1.2.17.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/log4j-1.2.17.jar!/" />
@@ -430,24 +419,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-3.3.0.201403021825-r.jar">
+      <library name="org.eclipse.jgit-3.3.1.201403241930-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.3.0.201403021825-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.3.1.201403241930-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.3.0.201403021825-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.3.1.201403241930-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jsch-0.1.46.jar">
+      <library name="jsch-0.1.50.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jsch-0.1.46.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jsch-0.1.50.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jsch-0.1.46.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jsch-0.1.50.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -507,13 +496,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-3.3.0.201403021825-r.jar">
+      <library name="org.eclipse.jgit.http.server-3.3.1.201403241930-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.3.0.201403021825-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.3.1.201403241930-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.3.0.201403021825-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.3.1.201403241930-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -754,6 +743,17 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/libpam4j-1.7.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="args4j-2.0.26.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/args4j-2.0.26.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/args4j-2.0.26.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
