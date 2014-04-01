@@ -1668,6 +1668,24 @@ public class JGitUtils {
 	}
 
 	/**
+	 * Returns the list of tags in the repository. If repository does not exist
+	 * or is empty, an empty list is returned.
+	 *
+	 * @param repository
+	 * @param fullName
+	 *            if true, /refs/tags/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @param maxCount
+	 *            if < 0, all tags are returned
+	 * @param offset
+	 *            if maxCount provided sets the starting point of the records to return
+	 * @return list of tags
+	 */
+	public static List<RefModel> getTags(Repository repository, boolean fullName, int maxCount, int offset) {
+		return getRefs(repository, Constants.R_TAGS, fullName, maxCount, offset);
+	}
+
+	/**
 	 * Returns the list of local branches in the repository. If repository does
 	 * not exist or is empty, an empty list is returned.
 	 *
@@ -1748,6 +1766,27 @@ public class JGitUtils {
 	 */
 	private static List<RefModel> getRefs(Repository repository, String refs, boolean fullName,
 			int maxCount) {
+		return getRefs(repository, refs, fullName, maxCount, 0);
+	}
+
+	/**
+	 * Returns a list of references in the repository matching "refs". If the
+	 * repository is null or empty, an empty list is returned.
+	 *
+	 * @param repository
+	 * @param refs
+	 *            if unspecified, all refs are returned
+	 * @param fullName
+	 *            if true, /refs/something/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @param maxCount
+	 *            if < 0, all references are returned
+	 * @param offset
+	 *            if maxCount provided sets the starting point of the records to return
+	 * @return list of references
+	 */
+	private static List<RefModel> getRefs(Repository repository, String refs, boolean fullName,
+			int maxCount, int offset) {
 		List<RefModel> list = new ArrayList<RefModel>();
 		if (maxCount == 0) {
 			return list;
@@ -1771,7 +1810,14 @@ public class JGitUtils {
 			Collections.sort(list);
 			Collections.reverse(list);
 			if (maxCount > 0 && list.size() > maxCount) {
-				list = new ArrayList<RefModel>(list.subList(0, maxCount));
+				if (offset < 0) {
+					offset = 0;
+				}
+				int endIndex = offset + maxCount;
+				if (endIndex > list.size()) {
+					endIndex = list.size();
+				}
+				list = new ArrayList<RefModel>(list.subList(offset, endIndex));
 			}
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to retrieve {1}", refs);
