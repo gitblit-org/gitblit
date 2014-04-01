@@ -61,6 +61,8 @@ import com.gitblit.models.ForkModel;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.Mailing;
 import com.gitblit.models.Metric;
+import com.gitblit.models.PluginRegistry.PluginRegistration;
+import com.gitblit.models.PluginRegistry.PluginRelease;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
@@ -1180,6 +1182,10 @@ public class GitblitManager implements IGitblit {
 		return repositoryManager.isIdle(repository);
 	}
 
+	/*
+	 * PLUGIN MANAGER
+	 */
+
 	@Override
 	public <T> List<T> getExtensions(Class<T> clazz) {
 		return pluginManager.getExtensions(clazz);
@@ -1193,6 +1199,36 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public boolean deletePlugin(PluginWrapper wrapper) {
 		return pluginManager.deletePlugin(wrapper);
+	}
+
+	@Override
+	public boolean refreshRegistry() {
+		return pluginManager.refreshRegistry();
+	}
+
+	@Override
+	public boolean installPlugin(String url) {
+		return pluginManager.installPlugin(url);
+	}
+
+	@Override
+	public boolean installPlugin(PluginRelease pv) {
+		return pluginManager.installPlugin(pv);
+	}
+
+	@Override
+	public List<PluginRegistration> getRegisteredPlugins() {
+		return pluginManager.getRegisteredPlugins();
+	}
+
+	@Override
+	public PluginRegistration lookupPlugin(String idOrName) {
+		return pluginManager.lookupPlugin(idOrName);
+	}
+
+	@Override
+	public PluginRelease lookupRelease(String idOrName, String version) {
+		return pluginManager.lookupRelease(idOrName, version);
 	}
 
 	@Override
