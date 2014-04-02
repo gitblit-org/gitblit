@@ -540,6 +540,25 @@ public class Constants {
 		}
 	}
 
+	public static enum Transport {
+		// ordered for url advertisements, assuming equal access permissions
+		SSH, HTTPS, HTTP, GIT;
+
+		public static Transport fromString(String value) {
+			for (Transport t : values()) {
+				if (t.name().equalsIgnoreCase(value)) {
+					return t;
+				}
+			}
+			return null;
+		}
+
+		public static Transport fromUrl(String url) {
+			String scheme = url.substring(0, url.indexOf("://"));
+			return fromString(scheme);
+		}
+	}
+
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Unused {
