@@ -244,6 +244,7 @@ public class PluginManager extends DefaultPluginManager implements IPluginManage
 	 */
 	protected boolean download(String url) throws IOException {
 		File pFolder = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
+		pFolder.mkdirs();
 		File tmpFile = new File(pFolder, StringUtils.getSHA1(url) + ".tmp");
 		if (tmpFile.exists()) {
 			tmpFile.delete();
