@@ -17,12 +17,17 @@ package com.gitblit;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.Transport;
 import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
@@ -116,6 +121,32 @@ public class GitBlit extends GitblitManager {
 		return new Object [] { new GitBlitModule()};
 	}
 
+	protected boolean acceptPush(Transport byTransport) {
+		if (byTransport == null) {
+			logger.info("Unknown transport, push rejected!");
+			return false;
+		}
+
+		Set<Transport> transports = new HashSet<Transport>();
+		for (String value : getSettings().getStrings(Keys.git.acceptedPushTransports)) {
+			Transport transport = Transport.fromString(value);
+			if (transport == null) {
+				logger.info(String.format("Ignoring unknown registered transport %s", value));
+				continue;
+			}
+
+			transports.add(transport);
+		}
+
+		if (transports.isEmpty()) {
+			// no transports are explicitly specified, all are acceptable
+			return true;
+		}
+
+		// verify that the transport is permitted
+		return transports.contains(byTransport);
+	}
+
 	/**
 	 * Returns a list of repository URLs and the user access permission.
 	 *
@@ -137,6 +168,12 @@ public class GitBlit extends GitblitManager {
 		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
+				Transport transport = Transport.fromString(request.getScheme());
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(transport)) {
+					// downgrade the repo permission for this transport
+					// because it is not an acceptable PUSH transport
+					permission = AccessPermission.CLONE;
+				}
 				list.add(new RepositoryUrl(getRepositoryUrl(request, username, repository), permission));
 			}
 		}
@@ -146,6 +183,12 @@ public class GitBlit extends GitblitManager {
 		if (!StringUtils.isEmpty(sshDaemonUrl)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(Transport.SSH)) {
+					// downgrade the repo permission for this transport
+					// because it is not an acceptable PUSH transport
+					permission = AccessPermission.CLONE;
+				}
+
 				list.add(new RepositoryUrl(sshDaemonUrl, permission));
 			}
 		}
@@ -155,6 +198,11 @@ public class GitBlit extends GitblitManager {
 		if (!StringUtils.isEmpty(gitDaemonUrl)) {
 			AccessPermission permission = servicesManager.getGitDaemonAccessPermission(user, repository);
 			if (permission.exceeds(AccessPermission.NONE)) {
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(Transport.GIT)) {
+					// downgrade the repo permission for this transport
+					// because it is not an acceptable PUSH transport
+					permission = AccessPermission.CLONE;
+				}
 				list.add(new RepositoryUrl(gitDaemonUrl, permission));
 			}
 		}
@@ -173,6 +221,34 @@ public class GitBlit extends GitblitManager {
 				list.add(new RepositoryUrl(MessageFormat.format(url, repository.name), null));
 			}
 		}
+
+		// sort transports by highest permission and then by transport security
+		Collections.sort(list, new Comparator<RepositoryUrl>() {
+
+			@Override
+			public int compare(RepositoryUrl o1, RepositoryUrl o2) {
+				if (!o1.isExternal() && o2.isExternal()) {
+					// prefer Gitblit over external
+					return -1;
+				} else if (o1.isExternal() && !o2.isExternal()) {
+					// prefer Gitblit over external
+					return 1;
+				} else if (o1.isExternal() && o2.isExternal()) {
+					// sort by Transport ordinal
+					return o1.transport.compareTo(o2.transport);
+				} else if (o1.permission.exceeds(o2.permission)) {
+					// prefer highest permission
+					return -1;
+				} else if (o2.permission.exceeds(o1.permission)) {
+					// prefer highest permission
+					return 1;
+				}
+
+				// prefer more secure transports
+				return o1.transport.compareTo(o2.transport);
+			}
+		});
+
 		return list;
 	}
 

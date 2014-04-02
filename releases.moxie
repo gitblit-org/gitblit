@@ -15,10 +15,12 @@ r22: {
     changes:
     - Option to allow LDAP users to directly authenticate without performing LDAP searches (pr-162))
     - Replace JCommander with args4j to be consistent with other tools (ticket-28)
+    - Sort repository urls by descending permissions and by transport security within equal permissions
     additions:
     - Added an SSH daemon with public key authentication (issue-369, ticket-6)
     - Added beginnings of a plugin framework for extending Gitblit (issue-381, ticket-23)
     - Added a French translation (pr-163)
+    - Added a setting to control what transports may be used for pushes
     dependencyChanges:
     - args4j 2.0.26
     - JGit 3.3.1
@@ -31,6 +33,7 @@ r22: {
     - Jeremie Brebec
     settings:
     - { name: 'realm.ldap.bindpattern', defaultValue: ' ' }
+    - { name: 'git.acceptedPushTransports', defaultValue: ' ' }
     - { name: 'git.sshPort', defaultValue: '29418' }
     - { name: 'git.sshBindInterface', defaultValue: ' ' }
     - { name: 'git.sshKeysManager', defaultValue: 'com.gitblit.transport.ssh.FileKeyManager' }
