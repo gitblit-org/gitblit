@@ -2,12 +2,15 @@ package com.gitblit.transport.ssh;
 
 import java.io.Serializable;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.util.Buffer;
 import org.eclipse.jgit.lib.Constants;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -30,13 +33,17 @@ public class SshKey implements Serializable {
 
 	private String toString;
 
+	private AccessPermission permission;
+
 	public SshKey(String data) {
 		this.rawData = data;
+		this.permission = AccessPermission.PUSH;
 	}
 
 	public SshKey(PublicKey key) {
 		this.publicKey = key;
 		this.comment = "";
+		this.permission = AccessPermission.PUSH;
 	}
 
 	public PublicKey getPublicKey() {
@@ -76,6 +83,46 @@ public class SshKey implements Serializable {
 		if (rawData != null) {
 			rawData = null;
 		}
+	}
+
+	/**
+	 * Returns true if this key may be used to clone or fetch.
+	 *
+	 * @return true if this key can be used to clone or fetch
+	 */
+	public boolean canClone() {
+		return permission.atLeast(AccessPermission.CLONE);
+	}
+
+	/**
+	 * Returns true if this key may be used to push changes.
+	 *
+	 * @return true if this key can be used to push changes
+	 */
+	public boolean canPush() {
+		return permission.atLeast(AccessPermission.PUSH);
+	}
+
+	/**
+	 * Returns the access permission for the key.
+	 *
+	 * @return the access permission for the key
+	 */
+	public AccessPermission getPermission() {
+		return permission;
+	}
+
+	/**
+	 * Control the access permission assigned to this key.
+	 *
+	 * @param value
+	 */
+	public void setPermission(AccessPermission value) throws IllegalArgumentException {
+		List<AccessPermission> permitted = Arrays.asList(AccessPermission.SSHPERMISSIONS);
+		if (!permitted.contains(value)) {
+			throw new IllegalArgumentException("Illegal SSH public key permission specified: " + value);
+		}
+		this.permission = value;
 	}
 
 	public String getRawData() {
