@@ -423,6 +423,8 @@ public class Constants {
 
 		public static final AccessPermission [] NEWPERMISSIONS = { EXCLUDE, VIEW, CLONE, PUSH, CREATE, DELETE, REWIND };
 
+		public static final AccessPermission [] SSHPERMISSIONS = { VIEW, CLONE, PUSH };
+
 		public static AccessPermission LEGACY = REWIND;
 
 		public final String code;

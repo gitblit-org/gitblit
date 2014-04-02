@@ -17,6 +17,7 @@ package com.gitblit.transport.ssh.git;
 
 import org.eclipse.jgit.transport.UploadPack;
 
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 
 @CommandMetaData(name = "git-upload-pack", description = "Sends packs to a client for clone and fetch", hidden = true)
@@ -24,6 +25,10 @@ public class Upload extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
 		try {
+			SshKey key = getContext().getClient().getKey();
+			if (key != null && !key.canClone()) {
+				throw new Failure(1, "Sorry, your SSH public key is not allowed to clone!");
+			}
 			UploadPack up = uploadPackFactory.create(getContext().getClient(), repo);
 			up.upload(in, out, null);
 		} catch (Exception e) {

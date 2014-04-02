@@ -24,6 +24,7 @@ import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.SshKey;
@@ -33,6 +34,7 @@ import com.gitblit.transport.ssh.commands.SshCommand;
 import com.gitblit.transport.ssh.commands.UsageExample;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
+import com.gitblit.utils.StringUtils;
 import com.google.common.base.Joiner;
 
 /**
@@ -54,7 +56,7 @@ public class KeysDispatcher extends DispatchCommand {
 	}
 
 	@CommandMetaData(name = "add", description = "Add an SSH public key to your account")
-	@UsageExample(syntax = "cat ~/.ssh/id_rsa.pub | ${ssh} ${cmd} -", description = "Upload your SSH public key and add it to your account")
+	@UsageExample(syntax = "cat ~/.ssh/id_rsa.pub | ${ssh} ${cmd}", description = "Upload your SSH public key and add it to your account")
 	public static class AddKey extends BaseKeyCommand {
 
 		protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -62,12 +64,33 @@ public class KeysDispatcher extends DispatchCommand {
 		@Argument(metaVar = "<KEY>", usage = "the key(s) to add")
 		private List<String> addKeys = new ArrayList<String>();
 
+		@Option(name = "--permission", aliases = { "-p" }, metaVar = "PERMISSION", usage = "set the key access permission")
+		private String permission;
+
+		@Override
+		protected String getUsageText() {
+			String permissions = Joiner.on(", ").join(AccessPermission.SSHPERMISSIONS);
+			StringBuilder sb = new StringBuilder();
+			sb.append("Valid SSH public key permissions are:\n   ").append(permissions);
+			return sb.toString();
+		}
+
 		@Override
 		public void run() throws IOException, UnloggedFailure {
 			String username = getContext().getClient().getUsername();
 			List<String> keys = readKeys(addKeys);
 			for (String key : keys) {
 				SshKey sshKey = parseKey(key);
+				if (!StringUtils.isEmpty(permission)) {
+					AccessPermission ap = AccessPermission.fromCode(permission);
+					if (ap.exceeds(AccessPermission.NONE)) {
+						try {
+							sshKey.setPermission(ap);
+						} catch (IllegalArgumentException e) {
+							throw new UnloggedFailure(1, e.getMessage());
+						}
+					}
+				}
 				getKeyManager().addKey(username, sshKey);
 				log.info("added SSH public key for {}", username);
 			}
@@ -167,14 +190,15 @@ public class KeysDispatcher extends DispatchCommand {
 		}
 
 		protected void asTable(List<SshKey> keys) {
-			String[] headers = { "#", "Fingerprint", "Comment", "Type" };
+			String[] headers = { "#", "Fingerprint", "Comment", "Permission", "Type" };
 			int len = keys == null ? 0 : keys.size();
 			Object[][] data = new Object[len][];
 			for (int i = 0; i < len; i++) {
 				// show 1-based index numbers with the fingerprint
 				// this is useful for comparing with "ssh-add -l"
 				SshKey k = keys.get(i);
-				data[i] = new Object[] { (i + 1), k.getFingerprint(), k.getComment(), k.getAlgorithm() };
+				data[i] = new Object[] { (i + 1), k.getFingerprint(), k.getComment(),
+						k.getPermission(), k.getAlgorithm() };
 			}
 
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
@@ -211,9 +235,9 @@ public class KeysDispatcher extends DispatchCommand {
 		}
 
 		protected void asTable(int index, SshKey key) {
-			String[] headers = { "#", "Fingerprint", "Comment", "Type" };
+			String[] headers = { "#", "Fingerprint", "Comment", "Permission", "Type" };
 			Object[][] data = new Object[1][];
-			data[0] = new Object[] { index, key.getFingerprint(), key.getComment(), key.getAlgorithm() };
+			data[0] = new Object[] { index, key.getFingerprint(), key.getComment(), key.getPermission(), key.getAlgorithm() };
 
 			stdout.println(FlipTable.of(headers, data, Borders.BODY_HCOLS));
 		}

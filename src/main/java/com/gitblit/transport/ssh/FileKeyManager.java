@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Keys;
 import com.gitblit.manager.IRuntimeManager;
 import com.google.common.base.Charsets;
@@ -105,8 +106,18 @@ public class FileKeyManager extends IPublicKeyManager {
 						// skip comments
 						continue;
 					}
-					SshKey key = new SshKey(entry);
-					list.add(key);
+					String [] parts = entry.split(" ", 2);
+					AccessPermission perm = AccessPermission.fromCode(parts[0]);
+					if (perm.equals(AccessPermission.NONE)) {
+						// ssh-rsa DATA COMMENT
+						SshKey key = new SshKey(entry);
+						list.add(key);
+					} else if (perm.exceeds(AccessPermission.NONE)) {
+						// PERMISSION ssh-rsa DATA COMMENT
+						SshKey key = new SshKey(parts[1]);
+						key.setPermission(perm);
+						list.add(key);
+					}
 				}
 
 				if (list.isEmpty()) {
@@ -129,7 +140,6 @@ public class FileKeyManager extends IPublicKeyManager {
 	@Override
 	public boolean addKey(String username, SshKey key) {
 		try {
-			String newKey = stripCommentFromKey(key.getRawData());
 			boolean replaced = false;
 			List<String> lines = new ArrayList<String>();
 			File keystore = getKeystore(username);
@@ -147,10 +157,10 @@ public class FileKeyManager extends IPublicKeyManager {
 						continue;
 					}
 
-					String oldKey = stripCommentFromKey(line);
-					if (newKey.equals(oldKey)) {
+					SshKey oldKey = parseKey(line);
+					if (key.equals(oldKey)) {
 						// replace key
-						lines.add(key.getRawData());
+						lines.add(key.getPermission() + " " + key.getRawData());
 						replaced = true;
 					} else {
 						// retain key
@@ -161,7 +171,7 @@ public class FileKeyManager extends IPublicKeyManager {
 
 			if (!replaced) {
 				// new key, append
-				lines.add(key.getRawData());
+				lines.add(key.getPermission() + " " + key.getRawData());
 			}
 
 			// write keystore
@@ -182,8 +192,6 @@ public class FileKeyManager extends IPublicKeyManager {
 	@Override
 	public boolean removeKey(String username, SshKey key) {
 		try {
-			String rmKey = stripCommentFromKey(key.getRawData());
-
 			File keystore = getKeystore(username);
 			if (keystore.exists()) {
 				List<String> lines = new ArrayList<String>();
@@ -201,8 +209,8 @@ public class FileKeyManager extends IPublicKeyManager {
 					}
 
 					// only include keys that are NOT rmKey
-					String oldKey = stripCommentFromKey(line);
-					if (!rmKey.equals(oldKey)) {
+					SshKey oldKey = parseKey(line);
+					if (!key.equals(oldKey)) {
 						lines.add(entry);
 					}
 				}
@@ -242,10 +250,18 @@ public class FileKeyManager extends IPublicKeyManager {
 		return keys;
 	}
 
-	/* Strips the comment from the key data and eliminates whitespace diffs */
-	protected String stripCommentFromKey(String data) {
-		String [] cols = data.split(" ", 3);
-		String key = Joiner.on(" ").join(cols[0], cols[1]);
-		return key;
+	protected SshKey parseKey(String line) {
+		String [] parts = line.split(" ", 2);
+		AccessPermission perm = AccessPermission.fromCode(parts[0]);
+		if (perm.equals(AccessPermission.NONE)) {
+			// ssh-rsa DATA COMMENT
+			SshKey key = new SshKey(line);
+			return key;
+		} else {
+			// PERMISSION ssh-rsa DATA COMMENT
+			SshKey key = new SshKey(parts[1]);
+			key.setPermission(perm);
+			return key;
+		}
 	}
 }

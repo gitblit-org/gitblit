@@ -17,12 +17,17 @@ package com.gitblit.transport.ssh.git;
 
 import org.eclipse.jgit.transport.ReceivePack;
 
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 
 @CommandMetaData(name = "git-receive-pack", description = "Receives pushes from a client", hidden = true)
 public class Receive extends BaseGitCommand {
 	@Override
 	protected void runImpl() throws Failure {
+		SshKey key = getContext().getClient().getKey();
+		if (key != null && !key.canPush()) {
+			throw new Failure(1, "Sorry, your SSH public key is not allowed to push changes!");
+		}
 		try {
 			ReceivePack rp = receivePackFactory.create(getContext().getClient(), repo);
 			rp.receive(in, out, null);
