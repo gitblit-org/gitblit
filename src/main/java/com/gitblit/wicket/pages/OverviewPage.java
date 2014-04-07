@@ -37,9 +37,9 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.charting.GoogleChart;
-import com.gitblit.wicket.charting.GoogleCharts;
-import com.gitblit.wicket.charting.GoogleLineChart;
+import com.gitblit.wicket.charting.Chart;
+import com.gitblit.wicket.charting.Charts;
+import com.gitblit.wicket.charting.Flotr2Charts;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ReflogPanel;
@@ -135,8 +135,10 @@ public class OverviewPage extends RepositoryPage {
 		if ((metrics != null) && (metrics.size() > 0)
 				&& app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 
+			Charts charts = new Flotr2Charts();
+			
 			// daily line chart
-			GoogleChart chart = new GoogleLineChart("chartDaily", "", "unit",
+			Chart chart = charts.createLineChart("chartDaily", "", "unit",
 					getString("gb.commits"));
 			for (Metric metric : metrics) {
 				chart.addValue(metric.name, metric.count);
@@ -144,7 +146,6 @@ public class OverviewPage extends RepositoryPage {
 			chart.setWidth(375);
 			chart.setHeight(150);
 
-			GoogleCharts charts = new GoogleCharts();
 			charts.addChart(chart);
 			add(new HeaderContributor(charts));
 		}

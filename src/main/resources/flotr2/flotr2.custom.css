@@ -1,0 +1,21 @@
+.flotr-mouse-value {
+    opacity: 1 !important;
+    background-color: #FFFFFF !important;
+    color: #666 !important;
+    font-size: 10px;
+    border: 1px solid #ddd;
+}
+
+.flotr-legend-label{
+    opacity: 1 !important;
+    background-color: #FFFFFF !important;
+    color: #666 !important;
+    font-size: 10px;
+    padding: 2px;
+    border-style: none !important;
+}
+
+.flotr-title {
+  text-align: left !important;
+  font-size: 10px !important;
+}

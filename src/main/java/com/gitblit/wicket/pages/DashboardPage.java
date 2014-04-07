@@ -48,9 +48,9 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
-import com.gitblit.wicket.charting.GoogleChart;
-import com.gitblit.wicket.charting.GoogleCharts;
-import com.gitblit.wicket.charting.GooglePieChart;
+import com.gitblit.wicket.charting.Chart;
+import com.gitblit.wicket.charting.Charts;
+import com.gitblit.wicket.charting.Flotr2Charts;
 import com.gitblit.wicket.panels.DigestsPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -218,19 +218,21 @@ public abstract class DashboardPage extends RootPage {
 
 		if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 			// build google charts
-			GoogleCharts charts = new GoogleCharts();
+			Charts charts = new Flotr2Charts();
 
 			// active repositories pie chart
-			GoogleChart chart = new GooglePieChart("chartRepositories", getString("gb.activeRepositories"),
+			Chart chart = charts.createPieChart("chartRepositories", getString("gb.activeRepositories"),
 					getString("gb.repository"), getString("gb.commits"));
 			for (Metric metric : repositoryMetrics.values()) {
 				chart.addValue(metric.name, metric.count);
 			}
 			chart.setShowLegend(false);
+			String url = urlFor(SummaryPage.class, null).toString() + "?r=";
+			chart.setClickUrl(url);
 			charts.addChart(chart);
 
 			// active authors pie chart
-			chart = new GooglePieChart("chartAuthors", getString("gb.activeAuthors"),
+			chart = charts.createPieChart("chartAuthors", getString("gb.activeAuthors"),
 					getString("gb.author"), getString("gb.commits"));
 			for (Metric metric : authorMetrics.values()) {
 				chart.addValue(metric.name, metric.count);

@@ -41,10 +41,9 @@ import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.charting.GoogleChart;
-import com.gitblit.wicket.charting.GoogleCharts;
-import com.gitblit.wicket.charting.GoogleLineChart;
-import com.gitblit.wicket.charting.GooglePieChart;
+import com.gitblit.wicket.charting.Chart;
+import com.gitblit.wicket.charting.Charts;
+import com.gitblit.wicket.charting.Flotr2Charts;
 import com.gitblit.wicket.panels.ActivityPanel;
 
 /**
@@ -118,7 +117,7 @@ public class ActivityPage extends RootPage {
 
 			// create the activity charts
 			if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
-				GoogleCharts charts = createCharts(recentActivity);
+				Charts charts = createCharts(recentActivity);
 				add(new HeaderContributor(charts));
 				add(new Fragment("chartsPanel", "chartsFragment", this));
 			} else {
@@ -166,7 +165,7 @@ public class ActivityPage extends RootPage {
 	 * @param recentActivity
 	 * @return
 	 */
-	private GoogleCharts createCharts(List<Activity> recentActivity) {
+	private Charts createCharts(List<Activity> recentActivity) {
 		// activity metrics
 		Map<String, Metric> repositoryMetrics = new HashMap<String, Metric>();
 		Map<String, Metric> authorMetrics = new HashMap<String, Metric>();
@@ -193,34 +192,36 @@ public class ActivityPage extends RootPage {
 			}
 		}
 
-		// build google charts
-		GoogleCharts charts = new GoogleCharts();
+		// build charts
+		Charts charts = new Flotr2Charts();
 
 		// sort in reverse-chronological order and then reverse that
 		Collections.sort(recentActivity);
 		Collections.reverse(recentActivity);
 
 		// daily line chart
-		GoogleChart chart = new GoogleLineChart("chartDaily", getString("gb.dailyActivity"), "day",
+		Chart chart = charts.createLineChart("chartDaily", getString("gb.dailyActivity"), "day",
 				getString("gb.commits"));
 		SimpleDateFormat df = new SimpleDateFormat("MMM dd");
 		df.setTimeZone(getTimeZone());
 		for (Activity metric : recentActivity) {
-			chart.addValue(df.format(metric.startDate), metric.getCommitCount());
+			chart.addValue(metric.startDate, metric.getCommitCount());
 		}
 		charts.addChart(chart);
 
-		// active repositories pie chart
-		chart = new GooglePieChart("chartRepositories", getString("gb.activeRepositories"),
+		// active repositories pie chart 
+		chart = charts.createPieChart("chartRepositories", getString("gb.activeRepositories"),
 				getString("gb.repository"), getString("gb.commits"));
 		for (Metric metric : repositoryMetrics.values()) {
 			chart.addValue(metric.name, metric.count);
 		}
 		chart.setShowLegend(false);
+		String url = urlFor(SummaryPage.class, null).toString() + "?r=";
+		chart.setClickUrl(url);
 		charts.addChart(chart);
 
 		// active authors pie chart
-		chart = new GooglePieChart("chartAuthors", getString("gb.activeAuthors"),
+		chart = charts.createPieChart("chartAuthors", getString("gb.activeAuthors"),
 				getString("gb.author"), getString("gb.commits"));
 		for (Metric metric : authorMetrics.values()) {
 			chart.addValue(metric.name, metric.count);
