@@ -16,10 +16,16 @@
 package com.gitblit.wicket.charting;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
+import com.gitblit.Keys;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebApp;
+import com.gitblit.wicket.GitBlitWebSession;
 
 /**
  * Abstract parent class for Google Charts built with the Visualization API.
@@ -27,7 +33,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public abstract class GoogleChart implements Serializable {
+public abstract class Chart implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	final String tagId;
@@ -39,10 +45,11 @@ public abstract class GoogleChart implements Serializable {
 	int width;
 	int height;
 	boolean showLegend;
+	String dateFormat = "MMM dd";
 
-	public GoogleChart(String tagId, String title, String keyName, String valueName) {
+	public Chart(String tagId, String title, String keyName, String valueName) {
 		this.tagId = tagId;
-		this.dataName = StringUtils.getSHA1(title).substring(0, 8);
+		this.dataName = StringUtils.getSHA1(tagId).substring(0, 8);
 		this.title = title;
 		this.keyName = keyName;
 		this.valueName = valueName;
@@ -73,12 +80,30 @@ public abstract class GoogleChart implements Serializable {
 	public void addValue(String name, double value) {
 		values.add(new ChartValue(name, (float) value));
 	}
+	
+	public void addValue(Date date, int value) {
+		addValue(date, value, dateFormat);
+	}
+	
+	public void addValue(Date date, int value, String format) {
+		dateFormat = format;
+		SimpleDateFormat df = new SimpleDateFormat(format);
+		df.setTimeZone(getTimeZone());
+		String name = df.format(date);
+		values.add(new ChartValue(name, value));
+	}
+
 
 	protected abstract void appendChart(StringBuilder sb);
 
 	protected void line(StringBuilder sb, String line) {
 		sb.append(line);
 		sb.append('\n');
+	}
+	
+	protected TimeZone getTimeZone() {
+		return  GitBlitWebApp.get().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
+				.getTimezone() :  GitBlitWebApp.get().getTimezone();
 	}
 
 	protected class ChartValue implements Serializable, Comparable<ChartValue> {

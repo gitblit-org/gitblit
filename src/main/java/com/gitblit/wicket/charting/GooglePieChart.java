@@ -28,7 +28,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class GooglePieChart extends GoogleChart {
+public class GooglePieChart extends Chart {
 
 	private static final long serialVersionUID = 1L;
 

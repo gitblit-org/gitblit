@@ -18,14 +18,17 @@ package com.gitblit.wicket.pages;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
 import org.wicketstuff.googlecharts.ChartAxis;
@@ -37,12 +40,16 @@ import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
+import com.gitblit.Keys;
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.charting.Chart;
+import com.gitblit.wicket.charting.Charts;
+import com.gitblit.wicket.charting.Flotr2Charts;
 import com.gitblit.wicket.charting.SecureChart;
 
 @CacheControl(LastModified.REPOSITORY)
@@ -66,9 +73,69 @@ public class MetricsPage extends RepositoryPage {
 					MessageFormat.format(getString("gb.branchStats"), metricsTotal.count,
 							metricsTotal.tag, getTimeUtils().duration(metricsTotal.duration))));
 		}
-		insertLinePlot("commitsChart", metrics);
-		insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
-		insertPieChart("authorsChart", getAuthorMetrics(r, objectId));
+		
+		Charts charts = null;
+		if(app().settings().getString(Keys.web.chartType, "google").equalsIgnoreCase("flotr2")){
+			charts = new Flotr2Charts();
+			add(WicketUtils.newBlankImage("commitsChart"));
+			add(WicketUtils.newBlankImage("dayOfWeekChart"));
+			add(WicketUtils.newBlankImage("authorsChart"));
+				
+			createLineChart(charts, "commitsChart", metrics);
+			createBarChart(charts, "dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
+			createPieChart(charts, "authorsChart", getAuthorMetrics(r, objectId));
+			
+			add(new HeaderContributor(charts));
+		}
+		else {
+			insertLinePlot("commitsChart", metrics);
+			insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
+			insertPieChart("authorsChart", getAuthorMetrics(r, objectId));
+		}
+	}
+
+	private void createLineChart(Charts charts, String id, List<Metric> metrics) {
+		if ((metrics != null) && (metrics.size() > 0)) {
+			
+			Chart chart = charts.createLineChart(id, "", "day",
+					getString("gb.commits"));
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			df.setTimeZone(getTimeZone());
+			for (Metric metric : metrics) {
+				Date date;
+				try {
+					date = df.parse(metric.name);
+				} catch (ParseException e) {
+					logger.error("Unable to parse date: " + metric.name);
+					return;
+				}
+				chart.addValue(date, (int)metric.count);
+			}
+			charts.addChart(chart);	
+		}
+	}
+	
+	private void createPieChart(Charts charts, String id, List<Metric> metrics) {
+		if ((metrics != null) && (metrics.size() > 0)) {
+			
+			Chart chart = charts.createPieChart(id, "", "day",
+					getString("gb.commits"));
+			for (Metric metric : metrics) {
+				chart.addValue(metric.name, (int)metric.count);
+			}
+			charts.addChart(chart);	
+		}
+	}
+	
+	private void createBarChart(Charts charts, String id, List<Metric> metrics) {
+		if ((metrics != null) && (metrics.size() > 0)) {
+			Chart chart = charts.createBarChart(id, "", "day",
+					getString("gb.commits"));
+			for (Metric metric : metrics) {
+				chart.addValue(metric.name, (int)metric.count);
+			}
+			charts.addChart(chart);	
+		}
 	}
 
 	private void insertLinePlot(String wicketId, List<Metric> metrics) {

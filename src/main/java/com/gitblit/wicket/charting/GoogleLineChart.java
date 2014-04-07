@@ -23,7 +23,7 @@ import java.text.MessageFormat;
  * @author James Moger
  *
  */
-public class GoogleLineChart extends GoogleChart {
+public class GoogleLineChart extends Chart {
 
 	private static final long serialVersionUID = 1L;
 

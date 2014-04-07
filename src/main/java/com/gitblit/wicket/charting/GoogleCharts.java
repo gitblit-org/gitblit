@@ -15,10 +15,6 @@
  */
 package com.gitblit.wicket.charting;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 
 /**
@@ -29,15 +25,9 @@ import org.apache.wicket.markup.html.IHeaderResponse;
  * @author James Moger
  *
  */
-public class GoogleCharts implements IHeaderContributor {
+public class GoogleCharts extends Charts {
 
 	private static final long serialVersionUID = 1L;
-
-	public final List<GoogleChart> charts = new ArrayList<GoogleChart>();
-
-	public void addChart(GoogleChart chart) {
-		charts.add(chart);
-	}
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
@@ -51,7 +41,7 @@ public class GoogleCharts implements IHeaderContributor {
 		line(sb, "function drawChart() {");
 
 		// add charts to header
-		for (GoogleChart chart : charts) {
+		for (Chart chart : charts) {
 			chart.appendChart(sb);
 		}
 
@@ -60,8 +50,23 @@ public class GoogleCharts implements IHeaderContributor {
 		response.renderJavascript(sb.toString(), null);
 	}
 
-	private void line(StringBuilder sb, String line) {
-		sb.append(line);
-		sb.append('\n');
+	@Override
+	public Chart createPieChart(String tagId, String title, String keyName,
+			String valueName) {
+		return new GooglePieChart(tagId, title, keyName, valueName);
 	}
+
+	@Override
+	public Chart createLineChart(String tagId, String title, String keyName,
+			String valueName) {
+		return new GoogleLineChart(tagId, title, keyName, valueName);
+	}
+
+	@Override
+	public Chart createBarChart(String tagId, String title, String keyName,
+			String valueName) {
+		return null;
+	}
+
+
 }
