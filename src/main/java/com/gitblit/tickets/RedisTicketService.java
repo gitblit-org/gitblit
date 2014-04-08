@@ -168,7 +168,7 @@ public class RedisTicketService extends ITicketService {
 		}
 		try {
 			Boolean exists = jedis.exists(key(repository, KeyType.journal, ticketId));
-			return exists != null && !exists;
+			return exists != null && exists;
 		} catch (JedisException e) {
 			log.error("failed to check hasTicket from Redis @ " + getUrl(), e);
 			pool.returnBrokenResource(jedis);
