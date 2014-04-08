@@ -25,7 +25,7 @@ public class Flotr2PieChart extends Chart {
 			if(i > 0){
 				sb.append(",");
 			}
-			line(sb, MessageFormat.format("'{'data : [ [0, {0}] ], label : ''{1}'', color: ''{2}'' '}'", value.value, value.name, StringUtils.getColor(value.name)));
+			line(sb, MessageFormat.format("'{'data : [ [0, {0}] ], label : ''{1}'', color: ''{2}'' '}'", Float.toString(value.value), value.name, StringUtils.getColor(value.name)));
 		}
 		line(sb, "]");
 		

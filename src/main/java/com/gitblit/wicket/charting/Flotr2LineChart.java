@@ -70,7 +70,7 @@ public class Flotr2LineChart extends Chart {
 			if(i > 0){
 				sb.append(",");
 			}
-			line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, value.value));
+			line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, Float.toString(value.value)));
 		}
 		line(sb, MessageFormat.format(" ], label : ''{0}'' '}'", valueName));
 		line(sb, "]");

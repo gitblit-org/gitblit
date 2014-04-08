@@ -73,10 +73,10 @@ public class Flotr2BarChart extends Chart {
 				sb.append(",");
 			}
 			if(xAxisIsDate){
-				line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, value.value));
+				line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, Float.toString(value.value)));
 			}
 			else {
-				line(sb, MessageFormat.format("[{0}, {1}] ",  i, value.value));
+				line(sb, MessageFormat.format("[{0}, {1}] ",  Integer.toString(i), Float.toString(value.value)));
 			}
 			
 		}
