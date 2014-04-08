@@ -100,6 +100,9 @@ public class MetricsPage extends RepositoryPage {
 			Chart chart = charts.createLineChart(id, "", "day",
 					getString("gb.commits"));
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			if(metrics.size() > 0 && metrics.get(0).name.length() == 7){
+				df = new SimpleDateFormat("yyyy-MM");
+			}
 			df.setTimeZone(getTimeZone());
 			for (Metric metric : metrics) {
 				Date date;
