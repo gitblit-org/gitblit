@@ -119,8 +119,12 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 						final Map<String, UserModel> ldapUsers = new HashMap<String, UserModel>();
 
 						for (SearchResultEntry loggingInUser : result.getSearchEntries()) {
-
-							final String username = loggingInUser.getAttribute(uidAttribute).getValue();
+							Attribute uid = loggingInUser.getAttribute(uidAttribute);
+							if (uid == null) {
+								logger.error("Can not synchronize with LDAP, missing \"{}\" attribute", uidAttribute);
+								continue;
+							}
+							final String username = uid.getValue();
 							logger.debug("LDAP synchronizing: " + username);
 
 							UserModel user = userManager.getUserModel(username);
@@ -295,13 +299,13 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		if (ldapConnection != null) {
 			try {
 				boolean alreadyAuthenticated = false;
-				
+
 				String bindPattern = settings.getString(Keys.realm.ldap.bindpattern, "");
 				if (!StringUtils.isEmpty(bindPattern)) {
 					try {
 						String bindUser = StringUtils.replace(bindPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
 						ldapConnection.bind(bindUser, new String(password));
-						
+
 						alreadyAuthenticated = true;
 					} catch (LDAPException e) {
 						return null;
