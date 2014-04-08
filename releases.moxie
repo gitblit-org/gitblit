@@ -11,6 +11,7 @@ r22: {
     security: ~
     fixes:
     - Repository mailing lists could not be reset from the Edit Repository page (issue-399)
+    - Fix intermittent NPE in determining commit date in RefModel (issue-401)
     - Fix closing ticket on push by parsing commit messages for closes|fixes (issue-404)
     - Ensure the Lucene ticket index is updated on repository deletion.
     changes:
