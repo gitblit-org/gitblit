@@ -161,7 +161,7 @@ public class SummaryPage extends RepositoryPage {
 			daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		}
 		
-		List<RepositoryModel> models = new ArrayList<>();
+		List<RepositoryModel> models = new ArrayList<RepositoryModel>();
 		models.add(model);
 		
 		List<Activity> recentActivity = ActivityUtils.getRecentActivity(
