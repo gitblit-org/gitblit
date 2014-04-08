@@ -90,7 +90,7 @@ public class FileKeyManager extends IPublicKeyManager {
 	@Override
 	protected List<SshKey> getKeysImpl(String username) {
 		try {
-			log.info("loading keystore for {}", username);
+			log.info("loading ssh keystore for {}", username);
 			File keystore = getKeystore(username);
 			if (!keystore.exists()) {
 				return null;
@@ -128,7 +128,7 @@ public class FileKeyManager extends IPublicKeyManager {
 				return list;
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("Canot read ssh keys", e);
+			throw new RuntimeException("Cannot read ssh keys", e);
 		}
 		return null;
 	}

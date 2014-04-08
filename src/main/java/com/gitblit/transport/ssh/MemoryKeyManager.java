@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class MemoryKeyManager extends IPublicKeyManager {
 
-	Map<String, List<SshKey>> keys;
+	final Map<String, List<SshKey>> keys;
 
 	public MemoryKeyManager() {
 		keys = new HashMap<String, List<SshKey>>();
@@ -57,7 +57,8 @@ public class MemoryKeyManager extends IPublicKeyManager {
 
 	@Override
 	protected boolean isStale(String username) {
-		return false;
+		// always return true so we gets keys from our hashmap
+		return true;
 	}
 
 	@Override
@@ -75,6 +76,7 @@ public class MemoryKeyManager extends IPublicKeyManager {
 		if (!keys.containsKey(id)) {
 			keys.put(id, new ArrayList<SshKey>());
 		}
+		log.info("added {} key {}", username, key.getFingerprint());
 		return keys.get(id).add(key);
 	}
 
@@ -82,15 +84,27 @@ public class MemoryKeyManager extends IPublicKeyManager {
 	public boolean removeKey(String username, SshKey key) {
 		String id = username.toLowerCase();
 		if (!keys.containsKey(id)) {
+			log.info("can't remove keys for {}", username);
 			return false;
 		}
-		return keys.get(id).remove(key);
+		List<SshKey> list = keys.get(id);
+		boolean success = list.remove(key);
+		if (success) {
+			log.info("removed {} key {}", username, key.getFingerprint());
+		}
+
+		if (list.isEmpty()) {
+			keys.remove(id);
+			log.info("no {} keys left, removed {}", username, username);
+		}
+		return success;
 	}
 
 	@Override
 	public boolean removeAllKeys(String username) {
 		String id = username.toLowerCase();
 		keys.remove(id.toLowerCase());
+		log.info("removed all keys for {}", username);
 		return true;
 	}
 }

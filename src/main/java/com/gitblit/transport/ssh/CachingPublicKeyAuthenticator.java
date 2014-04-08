@@ -38,8 +38,7 @@ import com.google.common.base.Preconditions;
  * @author Eric Myrhe
  *
  */
-public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
-		SessionListener {
+public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator, SessionListener {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -47,18 +46,15 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 
 	protected final IAuthenticationManager authManager;
 
-	private final Map<ServerSession, Map<PublicKey, Boolean>> cache =
-			new ConcurrentHashMap<ServerSession, Map<PublicKey, Boolean>>();
+	private final Map<ServerSession, Map<PublicKey, Boolean>> cache = new ConcurrentHashMap<ServerSession, Map<PublicKey, Boolean>>();
 
-	public CachingPublicKeyAuthenticator(IPublicKeyManager keyManager,
-			IAuthenticationManager authManager) {
+	public CachingPublicKeyAuthenticator(IPublicKeyManager keyManager, IAuthenticationManager authManager) {
 		this.keyManager = keyManager;
 		this.authManager = authManager;
 	}
 
 	@Override
-	public boolean authenticate(String username, PublicKey key,
-			ServerSession session) {
+	public boolean authenticate(String username, PublicKey key, ServerSession session) {
 		Map<PublicKey, Boolean> map = cache.get(session);
 		if (map == null) {
 			map = new HashMap<PublicKey, Boolean>();
@@ -73,19 +69,21 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 		return result;
 	}
 
-	private boolean doAuthenticate(String username, PublicKey suppliedKey,
-			ServerSession session) {
+	private boolean doAuthenticate(String username, PublicKey suppliedKey, ServerSession session) {
 		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 		Preconditions.checkState(client.getUser() == null);
 		username = username.toLowerCase(Locale.US);
 		List<SshKey> keys = keyManager.getKeys(username);
-		if (keys == null || keys.isEmpty()) {
-			log.info("{} has not added any public keys for ssh authentication",
-					username);
+		if (keys.isEmpty()) {
+			log.info("{} has not added any public keys for ssh authentication", username);
 			return false;
 		}
 
+		SshKey pk = new SshKey(suppliedKey);
+		log.debug("auth supplied {}", pk.getFingerprint());
+
 		for (SshKey key : keys) {
+			log.debug("auth compare to {}", key.getFingerprint());
 			if (key.equals(suppliedKey)) {
 				UserModel user = authManager.authenticate(username, key);
 				if (user != null) {
@@ -96,8 +94,7 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator,
 			}
 		}
 
-		log.warn("could not authenticate {} for SSH using the supplied public key",
-				username);
+		log.warn("could not authenticate {} for SSH using the supplied public key", username);
 		return false;
 	}
 

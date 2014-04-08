@@ -61,7 +61,7 @@ public class KeysDispatcher extends DispatchCommand {
 
 		protected final Logger log = LoggerFactory.getLogger(getClass());
 
-		@Argument(metaVar = "<KEY>", usage = "the key(s) to add")
+		@Argument(metaVar = "<STDIN>", usage = "the key to add")
 		private List<String> addKeys = new ArrayList<String>();
 
 		@Option(name = "--permission", aliases = { "-p" }, metaVar = "PERMISSION", usage = "set the key access permission")
@@ -76,7 +76,7 @@ public class KeysDispatcher extends DispatchCommand {
 		}
 
 		@Override
-		public void run() throws IOException, UnloggedFailure {
+		public void run() throws IOException, Failure {
 			String username = getContext().getClient().getUsername();
 			List<String> keys = readKeys(addKeys);
 			for (String key : keys) {
@@ -87,7 +87,7 @@ public class KeysDispatcher extends DispatchCommand {
 						try {
 							sshKey.setPermission(ap);
 						} catch (IllegalArgumentException e) {
-							throw new UnloggedFailure(1, e.getMessage());
+							throw new Failure(1, e.getMessage());
 						}
 					}
 				}
@@ -105,22 +105,21 @@ public class KeysDispatcher extends DispatchCommand {
 
 		private final String ALL = "ALL";
 
-		@Argument(metaVar = "<INDEX>|<KEY>|ALL", usage = "the key to remove", required = true)
-		private List<String> removeKeys = new ArrayList<String>();
+		@Argument(metaVar = "<INDEX>|ALL", usage = "the key to remove", required = true)
+		private List<String> keyParameters = new ArrayList<String>();
 
 		@Override
-		public void run() throws IOException, UnloggedFailure {
+		public void run() throws IOException, Failure {
 			String username = getContext().getClient().getUsername();
 			// remove a key that has been piped to the command
 			// or remove all keys
 
-			List<SshKey> currentKeys = getKeyManager().getKeys(username);
-			if (currentKeys == null || currentKeys.isEmpty()) {
+			List<SshKey> registeredKeys = new ArrayList<SshKey>(getKeyManager().getKeys(username));
+			if (registeredKeys.isEmpty()) {
 				throw new UnloggedFailure(1, "There are no registered keys!");
 			}
 
-			List<String> keys = readKeys(removeKeys);
-			if (keys.contains(ALL)) {
+			if (keyParameters.contains(ALL)) {
 				if (getKeyManager().removeAllKeys(username)) {
 					stdout.println("Removed all keys.");
 					log.info("removed all SSH public keys from {}", username);
@@ -128,32 +127,25 @@ public class KeysDispatcher extends DispatchCommand {
 					log.warn("failed to remove all SSH public keys from {}", username);
 				}
 			} else {
-				for (String key : keys) {
+				for (String keyParameter : keyParameters) {
 					try {
 						// remove a key by it's index (1-based indexing)
-						int index = Integer.parseInt(key);
-						if (index > keys.size()) {
-							if (keys.size() == 1) {
-								throw new UnloggedFailure(1, "Invalid index specified. There is only 1 registered key.");
+						int index = Integer.parseInt(keyParameter);
+						if (index > registeredKeys.size()) {
+							if (keyParameters.size() == 1) {
+								throw new Failure(1, "Invalid index specified. There is only 1 registered key.");
 							}
-							throw new UnloggedFailure(1, String.format("Invalid index specified. There are %d registered keys.", keys.size()));
+							throw new Failure(1, String.format("Invalid index specified. There are %d registered keys.", registeredKeys.size()));
 						}
-						SshKey sshKey = currentKeys.get(index - 1);
+						SshKey sshKey = registeredKeys.get(index - 1);
 						if (getKeyManager().removeKey(username, sshKey)) {
 							stdout.println(String.format("Removed %s", sshKey.getFingerprint()));
 						} else {
-							throw new UnloggedFailure(1,  String.format("failed to remove #%s: %s", key, sshKey.getFingerprint()));
+							throw new Failure(1,  String.format("failed to remove #%s: %s", keyParameter, sshKey.getFingerprint()));
 						}
-					} catch (Exception e) {
-						// remove key by raw key data
-						SshKey sshKey = parseKey(key);
-						if (getKeyManager().removeKey(username, sshKey)) {
-							stdout.println(String.format("Removed %s", sshKey.getFingerprint()));
-							log.info("removed SSH public key {} from {}", sshKey.getFingerprint(), username);
-						} else {
-							log.warn("failed to remove SSH public key {} from {}", sshKey.getFingerprint(), username);
-							throw new UnloggedFailure(1,  String.format("failed to remove %s", sshKey.getFingerprint()));
-						}
+					} catch (NumberFormatException e) {
+						log.warn("failed to remove SSH public key {} from {}", keyParameter, username);
+						throw new Failure(1,  String.format("failed to remove key %s", keyParameter));
 					}
 				}
 			}
@@ -254,7 +246,7 @@ public class KeysDispatcher extends DispatchCommand {
 		private List<String> values = new ArrayList<String>();
 
 		@Override
-		public void run() throws UnloggedFailure {
+		public void run() throws Failure {
 			final String username = getContext().getClient().getUsername();
 			IPublicKeyManager keyManager = getContext().getGitblit().getPublicKeyManager();
 			List<SshKey> keys = keyManager.getKeys(username);
@@ -268,7 +260,7 @@ public class KeysDispatcher extends DispatchCommand {
 			if (keyManager.addKey(username, key)) {
 				stdout.println(String.format("Updated the comment for key #%d.", index));
 			} else {
-				throw new UnloggedFailure(1, String.format("Failed to update the comment for key #%d!", index));
+				throw new Failure(1, String.format("Failed to update the comment for key #%d!", index));
 			}
 		}
 

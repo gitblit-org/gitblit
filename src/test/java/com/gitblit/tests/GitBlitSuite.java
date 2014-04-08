@@ -64,7 +64,8 @@ import com.gitblit.utils.JGitUtils;
 		SshDaemonTest.class, GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
 		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdAuthenticationTest.class,
 		ModelUtilsTest.class, JnaUtilsTest.class, LdapSyncServiceTest.class, FileTicketServiceTest.class,
-		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class })
+		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class,
+		SshKeysDispatcherTest.class })
 public class GitBlitSuite {
 
 	public static final File BASEFOLDER = new File("data");
@@ -137,11 +138,16 @@ public class GitBlitSuite {
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
 			@Override
 			public void run() {
-				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
-						"" + shutdownPort, "--gitPort", "" + gitPort, "--repositoriesFolder",
-						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						GitBlitSuite.USERSCONF.getAbsolutePath(), "--settings", GitBlitSuite.SETTINGS.getAbsolutePath(),
-						"--baseFolder", "data", "--sshPort", "" + sshPort);
+				GitBlitServer.main(
+						"--httpPort", "" + port,
+						"--httpsPort", "0",
+						"--shutdownPort", "" + shutdownPort,
+						"--gitPort", "" + gitPort,
+						"--sshPort", "" + sshPort,
+						"--repositoriesFolder", GitBlitSuite.REPOSITORIES.getAbsolutePath(),
+						"--userService", GitBlitSuite.USERSCONF.getAbsolutePath(),
+						"--settings", GitBlitSuite.SETTINGS.getAbsolutePath(),
+						"--baseFolder", "data");
 			}
 		});
 
