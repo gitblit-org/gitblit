@@ -604,7 +604,11 @@ public class EditRepositoryPage extends RootSubPage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(RepositoriesPage.class);
+				if (isCreate) {
+					setResponsePage(RepositoriesPage.class);
+				} else {
+					setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryModel.name));
+				}
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
