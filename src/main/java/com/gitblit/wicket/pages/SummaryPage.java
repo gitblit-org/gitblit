@@ -15,9 +15,15 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -30,13 +36,19 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.wicketstuff.googlecharts.ChartAxis;
+import org.wicketstuff.googlecharts.ChartAxisType;
+import org.wicketstuff.googlecharts.ChartProvider;
+import org.wicketstuff.googlecharts.ChartType;
+import org.wicketstuff.googlecharts.IChartData;
+import org.wicketstuff.googlecharts.LineStyle;
+import org.wicketstuff.googlecharts.MarkerType;
+import org.wicketstuff.googlecharts.ShapeMarker;
 
 import com.gitblit.Keys;
-import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
@@ -49,7 +61,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
 import com.gitblit.wicket.charting.Flotr2Charts;
-import com.gitblit.wicket.charting.GoogleCharts;
+import com.gitblit.wicket.charting.SecureChart;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.LogPanel;
@@ -155,27 +167,18 @@ public class SummaryPage extends RepositoryPage {
 			// global, no readme on summary page
 			add(new Label("readme").setVisible(false));
 		}
-
-		int daysBack = WicketUtils.getDaysBack(params);
-		if (daysBack < 1) {
-			daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
-		}
 		
-		List<RepositoryModel> models = new ArrayList<RepositoryModel>();
-		models.add(model);
-		
-		List<Activity> recentActivity = ActivityUtils.getRecentActivity(
-				app().settings(),
-				app().repositories(),
-				models,
-				daysBack,
-				objectId,
-				getTimeZone());
-		
-		if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
-			Charts charts = createCharts(recentActivity);
+		if(app().settings().getString(Keys.web.chartType, "google").equalsIgnoreCase("flotr2")){
+			add(WicketUtils.newBlankImage("commitsChart"));
+			Charts charts = createCharts(metrics);
 			add(new HeaderContributor(charts));
 		}
+		else {
+			// Display an activity line graph
+			insertActivityGraph(metrics);
+		}
+		
+		
 	}
 
 	@Override
@@ -183,25 +186,56 @@ public class SummaryPage extends RepositoryPage {
 		return getString("gb.summary");
 	}
 	
-	private Charts createCharts(List<Activity> recentActivity) {
+	private void insertActivityGraph(List<Metric> metrics) {
+		if ((metrics != null) && (metrics.size() > 0)
+				&& app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+			IChartData data = WicketUtils.getChartData(metrics);
+
+			ChartProvider provider = new ChartProvider(new Dimension(290, 120), ChartType.LINE,
+					data);
+			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
+			dateAxis.setLabels(new String[] { metrics.get(0).name,
+					metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
+			provider.addAxis(dateAxis);
+
+			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
+			commitAxis.setLabels(new String[] { "",
+					String.valueOf((int) WicketUtils.maxValue(metrics)) });
+			provider.addAxis(commitAxis);
+			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });
+			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.decode("#002060"), 1, -1, 5));
+
+			add(new SecureChart("commitsChart", provider));
+		} else {
+			add(WicketUtils.newBlankImage("commitsChart"));
+		}
+	}
+	
+	private Charts createCharts(List<Metric> metrics) {
 		
-		Charts charts = null;
-		if(app().settings().getString(Keys.web.chartType, "google").equalsIgnoreCase("flotr2")){
-			charts = new Flotr2Charts();
+		Charts charts = new Flotr2Charts();
+		
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		if(metrics.size() > 0 && metrics.get(0).name.length() == 7){
+			df = new SimpleDateFormat("yyyy-MM");
 		}
-		else {
-			charts = new GoogleCharts();
-		}
+		df.setTimeZone(getTimeZone());
 					
 		// build google charts
-		Chart chart = charts.createLineChart("activityGraph", getString("gb.activity"), "day", getString("gb.commits"));
+		Chart chart = charts.createLineChart("commitsChart", getString("gb.activity"), "day", getString("gb.commits"));
 
-		for (Activity metric : recentActivity) {
-			chart.addValue(metric.startDate, metric.getCommitCount());
+		for (Metric metric : metrics) {
+			Date date;
+			try {
+				date = df.parse(metric.name);
+			} catch (ParseException e) {
+				logger.error("Unable to parse date: " + metric.name);
+				return charts;
+			}
+			chart.addValue(date, (int)metric.count);
 		}
 		charts.addChart(chart);
 
-		
 		return charts;
 	}
 
