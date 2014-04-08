@@ -1821,6 +1821,9 @@ public class RepositoryManager implements IRepositoryManager {
 	protected void confirmWriteAccess() {
 		if (runtimeManager.isServingRepositories()) {
 			try {
+				if (!getRepositoriesFolder().exists()) {
+					getRepositoriesFolder().mkdirs();
+				}
 				File file = File.createTempFile(".test-", ".txt", getRepositoriesFolder());
 				file.delete();
 			} catch (Exception e) {
