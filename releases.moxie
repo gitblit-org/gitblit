@@ -16,6 +16,7 @@ r22: {
     changes:
     - Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (issue-348)
     - The ticket close-on-push commit message regular expression is now configurable by a setting (issue-404)
+    - Redirect to summary page on edit repository (issue-405)
     - Option to allow LDAP users to directly authenticate without performing LDAP searches (pr-162)
     - Replace JCommander with args4j to be consistent with other tools (ticket-28)
     additions:

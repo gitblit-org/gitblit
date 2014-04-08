@@ -427,7 +427,11 @@ public class EditRepositoryPage extends RootSubPage {
 					return;
 				}
 				setRedirect(false);
-				setResponsePage(RepositoriesPage.class);
+				if (isCreate) {
+					setResponsePage(RepositoriesPage.class);
+				} else {
+					setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryModel.name));
+				}
 			}
 		};
 
