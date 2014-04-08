@@ -16,6 +16,7 @@
 package com.gitblit.transport.ssh;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,11 @@ public abstract class IPublicKeyManager implements IManager {
 			.build(new CacheLoader<String, List<SshKey>>() {
 				@Override
 				public List<SshKey> load(String username) {
-					return getKeysImpl(username);
+					List<SshKey> keys = getKeysImpl(username);
+					if (keys == null) {
+						return Collections.emptyList();
+					}
+					return Collections.unmodifiableList(keys);
 				}
 			});
 

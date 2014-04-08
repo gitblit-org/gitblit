@@ -15,102 +15,76 @@
  */
 package com.gitblit.tests;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.security.KeyPair;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.List;
 
-import org.apache.sshd.ClientChannel;
 import org.apache.sshd.ClientSession;
 import org.apache.sshd.SshClient;
-import org.apache.sshd.common.KeyPairProvider;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.SshSessionFactory;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.util.FileUtils;
 import org.junit.Test;
 
 import com.gitblit.Constants;
-import com.gitblit.transport.ssh.IPublicKeyManager;
-import com.gitblit.transport.ssh.MemoryKeyManager;
-import com.gitblit.transport.ssh.SshKey;
+import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.JGitUtils;
 
-public class SshDaemonTest extends GitblitUnitTest {
+public class SshDaemonTest extends SshUnitTest {
 
-	private static final AtomicBoolean started = new AtomicBoolean(false);
-	private static KeyPair pair;
+	static File ticgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
 
-	@BeforeClass
-	public static void startGitblit() throws Exception {
-		started.set(GitBlitSuite.startGitblit());
-		pair = SshUtils.createTestHostKeyProvider().loadKey(KeyPairProvider.SSH_RSA);
-	}
-
-	@AfterClass
-	public static void stopGitblit() throws Exception {
-		if (started.get()) {
-			GitBlitSuite.stopGitblit();
-		}
-	}
-
-	protected MemoryKeyManager getKeyManager() {
-		IPublicKeyManager mgr = gitblit().getPublicKeyManager();
-		if (mgr instanceof MemoryKeyManager) {
-			return (MemoryKeyManager) gitblit().getPublicKeyManager();
-		} else {
-			throw new RuntimeException("unexpected key manager type " + mgr.getClass().getName());
-		}
-	}
-
-	@Before
-	public void prepare() {
-		MemoryKeyManager keyMgr = getKeyManager();
-		keyMgr.addKey("admin", new SshKey(pair.getPublic()));
-	}
-
-	@After
-	public void tearDown() {
-		MemoryKeyManager keyMgr = getKeyManager();
-		keyMgr.removeAllKeys("admin");
-	}
+	String url = GitBlitSuite.sshDaemonUrl;
 
 	@Test
 	public void testPublicKeyAuthentication() throws Exception {
-		SshClient client = SshClient.setUpDefaultClient();
-        client.start();
-        ClientSession session = client.connect("localhost", GitBlitSuite.sshPort).await().getSession();
-        pair.getPublic().getEncoded();
-        assertTrue(session.authPublicKey("admin", pair).await().isSuccess());
+		SshClient client = getClient();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).await().getSession();
+		session.addPublicKeyIdentity(rwKeyPair);
+		assertTrue(session.auth().await().isSuccess());
 	}
 
 	@Test
 	public void testVersionCommand() throws Exception {
-		SshClient client = SshClient.setUpDefaultClient();
-        client.start();
-        ClientSession session = client.connect("localhost", GitBlitSuite.sshPort).await().getSession();
-        pair.getPublic().getEncoded();
-        assertTrue(session.authPublicKey("admin", pair).await().isSuccess());
+		String result = testSshCommand("version");
+		assertEquals(Constants.getGitBlitVersion(), result);
+	}
 
-        ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_EXEC, "version");
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Writer w = new OutputStreamWriter(baos);
-        w.close();
-        channel.setIn(new ByteArrayInputStream(baos.toByteArray()));
+	@Test
+	public void testCloneCommand() throws Exception {
+		if (ticgitFolder.exists()) {
+			GitBlitSuite.close(ticgitFolder);
+			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE);
+		}
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStream err = new ByteArrayOutputStream();
-        channel.setOut(out);
-        channel.setErr(err);
-        channel.open();
+		// set clone restriction
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
+		model.accessRestriction = AccessRestrictionType.CLONE;
+		model.authorizationControl = AuthorizationControl.NAMED;
+		repositories().updateRepositoryModel(model.name, model, false);
 
-        channel.waitFor(ClientChannel.CLOSED, 0);
+		JschConfigTestSessionFactory sessionFactory = new JschConfigTestSessionFactory(roKeyPair);
+		SshSessionFactory.setInstance(sessionFactory);
 
-        String result = out.toString().trim();
-        channel.close(false);
-        client.stop();
+		CloneCommand clone = Git.cloneRepository();
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
+		clone.setDirectory(ticgitFolder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		Git git = clone.call();
+		List<RevCommit> commits = JGitUtils.getRevLog(git.getRepository(), 10);
+		GitBlitSuite.close(git);
+		assertEquals(10, commits.size());
 
-        assertEquals(Constants.getGitBlitVersion(), result);
-     }
+		// restore anonymous repository access
+		model.accessRestriction = AccessRestrictionType.NONE;
+		model.authorizationControl = AuthorizationControl.NAMED;
+		repositories().updateRepositoryModel(model.name, model, false);
+	}
 }

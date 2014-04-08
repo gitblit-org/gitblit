@@ -155,8 +155,8 @@ public class SshKey implements Serializable {
 				final byte [] bin = Base64.decodeBase64(Constants.encodeASCII(parts[1]));
 				hash = StringUtils.getMD5(bin);
 			} else {
-				// TODO get hash from publickey
-				hash = "todo";
+				// TODO calculate the correct hash from a PublicKey instance
+				hash = StringUtils.getMD5(getPublicKey().getEncoded());
 			}
 			for (int i = 0; i < hash.length(); i += 2) {
 				sb.append(hash.charAt(i)).append(hash.charAt(i + 1)).append(':');

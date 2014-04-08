@@ -41,7 +41,7 @@ public class SshServerSessionFactory extends SessionFactory {
 
 	@Override
 	protected AbstractSession createSession(final IoSession io) throws Exception {
-		log.info("connection accepted on " + io);
+		log.info("creating ssh session from {}", io.getRemoteAddress());
 
 		if (io instanceof MinaSession) {
 			if (((MinaSession) io).getSession().getConfig() instanceof SocketSessionConfig) {
@@ -59,7 +59,7 @@ public class SshServerSessionFactory extends SessionFactory {
 		session.addCloseSessionListener(new SshFutureListener<CloseFuture>() {
 			@Override
 			public void operationComplete(CloseFuture future) {
-				log.info("connection closed on " + io);
+				log.info("closed ssh session from {}", io.getRemoteAddress());
 			}
 		});
 		return session;
