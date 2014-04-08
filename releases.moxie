@@ -16,6 +16,7 @@ r22: {
     - Ensure the Lucene ticket index is updated on repository deletion.
     changes:
     - Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (issue-348)
+    - Improve logging for missing LDAP uid attribute when synchronizing (issue-394)
     - The ticket close-on-push commit message regular expression is now configurable by a setting (issue-404)
     - Redirect to summary page on edit repository (issue-405)
     - Option to allow LDAP users to directly authenticate without performing LDAP searches (pr-162)
