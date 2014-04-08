@@ -872,7 +872,9 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 		} catch (Exception e) {
 			log.error(null, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return false;
 	}
