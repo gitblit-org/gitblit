@@ -437,7 +437,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				patchsetRefCmd.setResult(Result.OK);
 
 				// update the ticket branch ref
-				RefUpdate ru = updateRef(patchsetCmd.getTicketBranch(), patchsetCmd.getNewId());
+				RefUpdate ru = updateRef(
+						patchsetCmd.getTicketBranch(),
+						patchsetCmd.getNewId(),
+						patchsetCmd.getPatchsetType());
 				updateReflog(ru);
 
 				TicketModel ticket = processPatchset(patchsetCmd);
@@ -835,8 +838,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					psCmd.updateTicket(c, mergeTo, ticket, null);
 
 					// create a ticket patchset ref
-					updateRef(psCmd.getPatchsetBranch(), c.getId());
-					RefUpdate ru = updateRef(psCmd.getTicketBranch(), c.getId());
+					updateRef(psCmd.getPatchsetBranch(), c.getId(), patchset.type);
+					RefUpdate ru = updateRef(psCmd.getTicketBranch(), c.getId(), patchset.type);
 					updateReflog(ru);
 
 					// create a change from the patchset command
@@ -1052,7 +1055,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		return newPatchset;
 	}
 
-	private RefUpdate updateRef(String ref, ObjectId newId) {
+	private RefUpdate updateRef(String ref, ObjectId newId, PatchsetType type) {
 		ObjectId ticketRefId = ObjectId.zeroId();
 		try {
 			ticketRefId = getRepository().resolve(ref);
@@ -1063,7 +1066,17 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		try {
 			RefUpdate ru = getRepository().updateRef(ref,  false);
 			ru.setRefLogIdent(getRefLogIdent());
-			ru.setForceUpdate(true);
+			switch (type) {
+			case Amend:
+			case Rebase:
+			case Rebase_Squash:
+			case Squash:
+				ru.setForceUpdate(true);
+				break;
+			default:
+				break;
+			}
+
 			ru.setExpectedOldObjectId(ticketRefId);
 			ru.setNewObjectId(newId);
 			RefUpdate.Result result = ru.update(getRevWalk());
