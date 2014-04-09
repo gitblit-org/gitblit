@@ -28,7 +28,7 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 
 /**
- * Abstract parent class for Google Charts built with the Visualization API.
+ * Abstract parent class for different type of chart: bar, pie & line
  *
  * @author James Moger
  *
@@ -46,6 +46,7 @@ public abstract class Chart implements Serializable {
 	int height;
 	boolean showLegend;
 	String dateFormat = "MMM dd";
+	String clickUrl = null;
 
 	public Chart(String tagId, String title, String keyName, String valueName) {
 		this.tagId = tagId;
@@ -82,12 +83,7 @@ public abstract class Chart implements Serializable {
 	}
 	
 	public void addValue(Date date, int value) {
-		addValue(date, value, dateFormat);
-	}
-	
-	public void addValue(Date date, int value, String format) {
-		dateFormat = format;
-		SimpleDateFormat df = new SimpleDateFormat(format);
+		SimpleDateFormat df = new SimpleDateFormat(dateFormat);
 		df.setTimeZone(getTimeZone());
 		String name = df.format(date);
 		values.add(new ChartValue(name, value));
@@ -128,5 +124,21 @@ public abstract class Chart implements Serializable {
 			}
 			return 0;
 		}
+	}
+
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	public String getClickUrl() {
+		return clickUrl;
+	}
+
+	public void setClickUrl(String clickUrl) {
+		this.clickUrl = clickUrl;
 	}
 }

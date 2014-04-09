@@ -51,7 +51,6 @@ import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
 import com.gitblit.wicket.charting.Flotr2Charts;
-import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.panels.DigestsPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -219,13 +218,7 @@ public abstract class DashboardPage extends RootPage {
 
 		if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 			// build google charts
-			Charts charts = null;
-			if(app().settings().getString(Keys.web.chartType, "google").equalsIgnoreCase("flotr2")){
-				charts = new Flotr2Charts();
-			}
-			else {
-				charts = new GoogleCharts();
-			}
+			Charts charts = new Flotr2Charts();
 
 			// active repositories pie chart
 			Chart chart = charts.createPieChart("chartRepositories", getString("gb.activeRepositories"),
@@ -234,6 +227,7 @@ public abstract class DashboardPage extends RootPage {
 				chart.addValue(metric.name, metric.count);
 			}
 			chart.setShowLegend(false);
+			chart.setClickUrl("summary/");
 			charts.addChart(chart);
 
 			// active authors pie chart

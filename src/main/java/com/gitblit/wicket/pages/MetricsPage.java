@@ -15,8 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,16 +29,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
-import org.wicketstuff.googlecharts.ChartAxis;
-import org.wicketstuff.googlecharts.ChartAxisType;
-import org.wicketstuff.googlecharts.ChartProvider;
-import org.wicketstuff.googlecharts.ChartType;
-import org.wicketstuff.googlecharts.IChartData;
-import org.wicketstuff.googlecharts.LineStyle;
-import org.wicketstuff.googlecharts.MarkerType;
-import org.wicketstuff.googlecharts.ShapeMarker;
 
-import com.gitblit.Keys;
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
@@ -50,7 +39,6 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
 import com.gitblit.wicket.charting.Flotr2Charts;
-import com.gitblit.wicket.charting.SecureChart;
 
 @CacheControl(LastModified.REPOSITORY)
 public class MetricsPage extends RepositoryPage {
@@ -74,24 +62,18 @@ public class MetricsPage extends RepositoryPage {
 							metricsTotal.tag, getTimeUtils().duration(metricsTotal.duration))));
 		}
 		
-		Charts charts = null;
-		if(app().settings().getString(Keys.web.chartType, "google").equalsIgnoreCase("flotr2")){
-			charts = new Flotr2Charts();
-			add(WicketUtils.newBlankImage("commitsChart"));
-			add(WicketUtils.newBlankImage("dayOfWeekChart"));
-			add(WicketUtils.newBlankImage("authorsChart"));
-				
-			createLineChart(charts, "commitsChart", metrics);
-			createBarChart(charts, "dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
-			createPieChart(charts, "authorsChart", getAuthorMetrics(r, objectId));
+		Charts charts =  new Flotr2Charts();
+	
+		add(WicketUtils.newBlankImage("commitsChart"));
+		add(WicketUtils.newBlankImage("dayOfWeekChart"));
+		add(WicketUtils.newBlankImage("authorsChart"));
 			
-			add(new HeaderContributor(charts));
-		}
-		else {
-			insertLinePlot("commitsChart", metrics);
-			insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
-			insertPieChart("authorsChart", getAuthorMetrics(r, objectId));
-		}
+		createLineChart(charts, "commitsChart", metrics);
+		createBarChart(charts, "dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
+		createPieChart(charts, "authorsChart", getAuthorMetrics(r, objectId));
+		
+		add(new HeaderContributor(charts));
+
 	}
 
 	private void createLineChart(Charts charts, String id, List<Metric> metrics) {
@@ -100,10 +82,13 @@ public class MetricsPage extends RepositoryPage {
 			Chart chart = charts.createLineChart(id, "", "day",
 					getString("gb.commits"));
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			String displayFormat = "MMM dd";
 			if(metrics.size() > 0 && metrics.get(0).name.length() == 7){
 				df = new SimpleDateFormat("yyyy-MM");
+				displayFormat = "MMM";
 			}
 			df.setTimeZone(getTimeZone());
+			chart.setDateFormat(displayFormat);
 			for (Metric metric : metrics) {
 				Date date;
 				try {
@@ -138,71 +123,6 @@ public class MetricsPage extends RepositoryPage {
 				chart.addValue(metric.name, (int)metric.count);
 			}
 			charts.addChart(chart);	
-		}
-	}
-
-	private void insertLinePlot(String wicketId, List<Metric> metrics) {
-		if ((metrics != null) && (metrics.size() > 0)) {
-			IChartData data = WicketUtils.getChartData(metrics);
-
-			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE,
-					data);
-			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
-			dateAxis.setLabels(new String[] { metrics.get(0).name,
-					metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
-			provider.addAxis(dateAxis);
-
-			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
-			commitAxis.setLabels(new String[] { "",
-					String.valueOf((int) WicketUtils.maxValue(metrics)) });
-			provider.addAxis(commitAxis);
-
-			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });
-			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.decode("#002060"), 1, -1, 5));
-
-			add(new SecureChart(wicketId, provider));
-		} else {
-			add(WicketUtils.newBlankImage(wicketId));
-		}
-	}
-
-	private void insertBarPlot(String wicketId, List<Metric> metrics) {
-		if ((metrics != null) && (metrics.size() > 0)) {
-			IChartData data = WicketUtils.getChartData(metrics);
-
-			ChartProvider provider = new ChartProvider(new Dimension(400, 100),
-					ChartType.BAR_VERTICAL_SET, data);
-			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
-			List<String> labels = new ArrayList<String>();
-			for (Metric metric : metrics) {
-				labels.add(metric.name);
-			}
-			dateAxis.setLabels(labels.toArray(new String[labels.size()]));
-			provider.addAxis(dateAxis);
-
-			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
-			commitAxis.setLabels(new String[] { "",
-					String.valueOf((int) WicketUtils.maxValue(metrics)) });
-			provider.addAxis(commitAxis);
-
-			add(new SecureChart(wicketId, provider));
-		} else {
-			add(WicketUtils.newBlankImage(wicketId));
-		}
-	}
-
-	private void insertPieChart(String wicketId, List<Metric> metrics) {
-		if ((metrics != null) && (metrics.size() > 0)) {
-			IChartData data = WicketUtils.getChartData(metrics);
-			List<String> labels = new ArrayList<String>();
-			for (Metric metric : metrics) {
-				labels.add(metric.name);
-			}
-			ChartProvider provider = new ChartProvider(new Dimension(800, 200), ChartType.PIE, data);
-			provider.setPieLabels(labels.toArray(new String[labels.size()]));
-			add(new SecureChart(wicketId, provider));
-		} else {
-			add(WicketUtils.newBlankImage(wicketId));
 		}
 	}
 

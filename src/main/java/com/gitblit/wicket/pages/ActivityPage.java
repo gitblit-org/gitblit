@@ -44,7 +44,6 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
 import com.gitblit.wicket.charting.Flotr2Charts;
-import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.panels.ActivityPanel;
 
 /**
@@ -194,13 +193,7 @@ public class ActivityPage extends RootPage {
 		}
 
 		// build charts
-		Charts charts = null;
-		if(app().settings().getString(Keys.web.chartType, "google").equalsIgnoreCase("flotr2")){
-			charts = new Flotr2Charts();
-		}
-		else {
-			charts = new GoogleCharts();
-		}
+		Charts charts = new Flotr2Charts();
 
 		// sort in reverse-chronological order and then reverse that
 		Collections.sort(recentActivity);
@@ -223,6 +216,7 @@ public class ActivityPage extends RootPage {
 			chart.addValue(metric.name, metric.count);
 		}
 		chart.setShowLegend(false);
+		chart.setClickUrl("../summary/");
 		charts.addChart(chart);
 
 		// active authors pie chart

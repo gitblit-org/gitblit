@@ -40,7 +40,6 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
 import com.gitblit.wicket.charting.Flotr2Charts;
-import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ReflogPanel;
@@ -136,13 +135,7 @@ public class OverviewPage extends RepositoryPage {
 		if ((metrics != null) && (metrics.size() > 0)
 				&& app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 
-			Charts charts = null;
-			if(app().settings().getString(Keys.web.chartType, "google").equalsIgnoreCase("flotr2")){
-				charts = new Flotr2Charts();
-			}
-			else {
-				charts = new GoogleCharts();
-			}
+			Charts charts = new Flotr2Charts();
 			
 			// daily line chart
 			Chart chart = charts.createLineChart("chartDaily", "", "unit",

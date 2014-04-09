@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 gitblit.com.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.gitblit.wicket.charting;
 
 import java.text.MessageFormat;
@@ -6,6 +21,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
+/**
+ * Implementation of a Bar chart using the flotr2 library
+ *
+ * @author Tim Ryan
+ *
+ */
 public class Flotr2BarChart extends Chart {
 
 	private static final long serialVersionUID = 1L;
@@ -80,7 +101,7 @@ public class Flotr2BarChart extends Chart {
 			}
 			
 		}
-		line(sb, MessageFormat.format(" ], label : ''{0}'' '}'", valueName));
+		line(sb, MessageFormat.format(" ], label : ''{0}'', color: ''#FF9900'' '}'", valueName));
 		line(sb, "]");
 		
 		// Add the options
@@ -93,10 +114,10 @@ public class Flotr2BarChart extends Chart {
 		line(sb, "  horizontal : false,");
 		line(sb, "  barWidth : 1");
 		line(sb, "},");
-		line(sb, "points: { show: true },");	
+		line(sb, "points: { show: false },");	
 		line(sb, "mouse: {");
 		line(sb, "  track: true,");
-		line(sb, "  lineColor: '#25A7DF',");
+		line(sb, "  lineColor: '#002060',");
 		line(sb, "  position: 'ne',");
 		line(sb, "  trackFormatter: function (obj) {");
 		line(sb, "    return labels_" + dataName + "[obj.index] + ': ' + parseInt(obj.y) + ' ' +  obj.series.label;");
@@ -135,9 +156,8 @@ public class Flotr2BarChart extends Chart {
 	}
 
 	@Override
-	public void addValue(Date date, int value, String format) {
+	public void addValue(Date date, int value) {
 		xAxisIsDate = true;
-		dateFormat = format;
 		String name = String.valueOf(date.getTime());
 		super.addValue(name, value);
 	}
