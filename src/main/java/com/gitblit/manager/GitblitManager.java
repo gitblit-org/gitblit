@@ -338,6 +338,9 @@ public class GitblitManager implements IGitblit {
 					repositoryManager.updateRepositoryModel(model.name, model, false);
 				}
 			}
+
+			// rename the user's ssh public keystore
+			getPublicKeyManager().renameUser(username, user.username);
 		}
 		if (!userManager.updateUserModel(username, user)) {
 			throw new GitBlitException("Failed to update user!");
