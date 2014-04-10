@@ -16,7 +16,6 @@
 package com.gitblit.wicket.charting;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +41,7 @@ public abstract class Chart implements Serializable {
 	final String keyName;
 	final String valueName;
 	final List<ChartValue> values;
+	final List<ChartValue> highlights;
 	int width;
 	int height;
 	boolean showLegend;
@@ -55,6 +55,7 @@ public abstract class Chart implements Serializable {
 		this.keyName = keyName;
 		this.valueName = valueName;
 		values = new ArrayList<ChartValue>();
+		highlights = new ArrayList<ChartValue>();
 		showLegend = true;
 	}
 
@@ -83,12 +84,12 @@ public abstract class Chart implements Serializable {
 	}
 	
 	public void addValue(Date date, int value) {
-		SimpleDateFormat df = new SimpleDateFormat(dateFormat);
-		df.setTimeZone(getTimeZone());
-		String name = df.format(date);
-		values.add(new ChartValue(name, value));
+		values.add(new ChartValue(String.valueOf(date.getTime()), value));
 	}
-
+	
+	public void addHighlight(Date date, int value) {
+		highlights.add(new ChartValue(String.valueOf(date.getTime()), value));
+	}
 
 	protected abstract void appendChart(StringBuilder sb);
 

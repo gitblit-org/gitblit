@@ -17,8 +17,6 @@ package com.gitblit.wicket.charting;
 
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -46,18 +44,7 @@ public class Flotr2LineChart extends Chart {
 		if(xAxisIsDate){
 			// Generate labels for the dates
 			SimpleDateFormat df = new SimpleDateFormat(dateFormat);
-			df.setTimeZone(getTimeZone());
-			
-			// Sort the values first
-			Collections.sort(values, new Comparator<ChartValue>() {
-
-		        public int compare(ChartValue o1, ChartValue o2) {
-		        	long long1 = Long.parseLong(o1.name);
-		        	long long2 = Long.parseLong(o2.name);
-		            return (int) (long2 - long1);
-		        }
-		        
-		    });			
+			df.setTimeZone(getTimeZone());		
 			
 			for (int i = 0; i < values.size(); i++) {
 				ChartValue value = values.get(i);
@@ -93,7 +80,20 @@ public class Flotr2LineChart extends Chart {
 			}
 			line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, Float.toString(value.value)));
 		}
-		line(sb, MessageFormat.format(" ], label : ''{0}'', color: ''#ff9900'' '}'", valueName));
+		line(sb, MessageFormat.format(" ], label : ''{0}'', lines : '{' show : true '}', color: ''#ff9900'' '}'", valueName));
+		
+		if(highlights.size() > 0){
+			// get the highlights
+			line(sb, ", { data : [ ");
+			for (int i = 0; i < highlights.size(); i++) {
+				ChartValue value = highlights.get(i);
+				if(i > 0){
+					sb.append(",");
+				}
+				line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, Float.toString(value.value)));
+			}
+			line(sb, MessageFormat.format(" ], label : ''{0}'', points : '{' show : true, fill: true, fillColor:''#002060'' '}', color: ''#ff9900'' '}'", valueName));
+		}
 		line(sb, "]");
 		
 		// Add the options
@@ -101,14 +101,6 @@ public class Flotr2LineChart extends Chart {
 		if(title != null && title.isEmpty() == false){
 			line(sb, MessageFormat.format("title : ''{0}'',", title));
 		}
-		line(sb, "lines : {");
-		line(sb, "  show : true");
-		line(sb, "},");
-		line(sb, "points: {");
-		line(sb, "  show: true,");	
-		line(sb, "  fill: true,");	
-		line(sb, "  fillColor:'#002060'");
-		line(sb, "},");	
 		line(sb, "mouse: {");
 		line(sb, "  track: true,");
 		line(sb, "  lineColor: '#002060',");
@@ -150,8 +142,7 @@ public class Flotr2LineChart extends Chart {
 	@Override
 	public void addValue(Date date, int value) {
 		xAxisIsDate = true;
-		String name = String.valueOf(date.getTime());
-		super.addValue(name, value);
+		super.addValue(date, value);
 	}
 	
 	

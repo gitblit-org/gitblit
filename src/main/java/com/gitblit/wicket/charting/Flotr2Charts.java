@@ -38,8 +38,8 @@ public class Flotr2Charts extends Charts {
 		String contextPath = servletContext.getContextPath();
 		
 		response.renderJavascriptReference(contextPath + "/bootstrap/js/jquery.js");
-		response.renderJavascriptReference(contextPath + "/flotr2.min.js");
-		response.renderCSSReference(contextPath + "/flotr2.custom.css");
+		response.renderJavascriptReference(contextPath + "/flotr2/flotr2.min.js");
+		response.renderCSSReference(contextPath + "/flotr2/flotr2.custom.css");
 		
 		// prepare draw chart function
 		StringBuilder sb = new StringBuilder();

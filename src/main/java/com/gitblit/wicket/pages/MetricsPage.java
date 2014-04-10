@@ -85,7 +85,7 @@ public class MetricsPage extends RepositoryPage {
 			String displayFormat = "MMM dd";
 			if(metrics.size() > 0 && metrics.get(0).name.length() == 7){
 				df = new SimpleDateFormat("yyyy-MM");
-				displayFormat = "MMM";
+				displayFormat = "yyyy MMM";
 			}
 			df.setTimeZone(getTimeZone());
 			chart.setDateFormat(displayFormat);
@@ -98,6 +98,9 @@ public class MetricsPage extends RepositoryPage {
 					return;
 				}
 				chart.addValue(date, (int)metric.count);
+				if(metric.tag > 0 ){
+					chart.addHighlight(date, (int)metric.count);
+				}
 			}
 			charts.addChart(chart);	
 		}

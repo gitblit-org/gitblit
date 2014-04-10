@@ -227,7 +227,8 @@ public abstract class DashboardPage extends RootPage {
 				chart.addValue(metric.name, metric.count);
 			}
 			chart.setShowLegend(false);
-			chart.setClickUrl("summary/");
+			String url = urlFor(SummaryPage.class, null).toString() + "?r=";
+			chart.setClickUrl(url);
 			charts.addChart(chart);
 
 			// active authors pie chart
