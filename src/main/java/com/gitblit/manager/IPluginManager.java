@@ -15,15 +15,74 @@
  */
 package com.gitblit.manager;
 
+import java.io.IOException;
 import java.util.List;
 
-import ro.fortsoft.pf4j.PluginManager;
+import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginWrapper;
 
+import com.gitblit.models.PluginRegistry.InstallState;
 import com.gitblit.models.PluginRegistry.PluginRegistration;
 import com.gitblit.models.PluginRegistry.PluginRelease;
 
-public interface IPluginManager extends IManager, PluginManager {
+public interface IPluginManager extends IManager {
+
+	/**
+	 * Starts all plugins.
+	 */
+	void startPlugins();
+
+	/**
+	 * Stops all plugins.
+	 */
+	void stopPlugins();
+
+	/**
+	 * Starts the specified plugin.
+	 *
+	 * @param pluginId
+	 * @return the state of the plugin
+	 */
+	PluginState startPlugin(String pluginId);
+
+	/**
+	 * Stops the specified plugin.
+	 *
+	 * @param pluginId
+	 * @return the state of the plugin
+	 */
+	PluginState stopPlugin(String pluginId);
+
+	/**
+	 * Returns the list of extensions the plugin provides.
+	 *
+	 * @param type
+	 * @return a list of extensions the plugin provides
+	 */
+	List<Class<?>> getExtensionClasses(String pluginId);
+
+	/**
+	 * Returns the list of extension instances for a given extension point.
+	 *
+	 * @param type
+	 * @return a list of extension instances
+	 */
+	<T> List<T> getExtensions(Class<T> type);
+
+	/**
+	 * Returns the list of all resolved plugins.
+	 *
+	 * @return a list of resolved plugins
+	 */
+	List<PluginWrapper> getPlugins();
+
+	/**
+	 * Retrieves the {@link PluginWrapper} for the specified plugin id.
+	 *
+	 * @param pluginId
+	 * @return the plugin wrapper
+	 */
+	PluginWrapper getPlugin(String pluginId);
 
 	/**
      * Retrieves the {@link PluginWrapper} that loaded the given class 'clazz'.
@@ -34,12 +93,28 @@ public interface IPluginManager extends IManager, PluginManager {
     PluginWrapper whichPlugin(Class<?> clazz);
 
     /**
-     * Delete the plugin represented by {@link PluginWrapper}.
+     * Disable the plugin represented by pluginId.
      *
-     * @param wrapper
+     * @param pluginId
      * @return true if successful
      */
-    boolean deletePlugin(PluginWrapper wrapper);
+    boolean disablePlugin(String pluginId);
+
+    /**
+     * Enable the plugin represented by pluginId.
+     *
+     * @param pluginId
+     * @return true if successful
+     */
+    boolean enablePlugin(String pluginId);
+
+    /**
+     * Delete the plugin represented by pluginId.
+     *
+     * @param pluginId
+     * @return true if successful
+     */
+    boolean deletePlugin(String pluginId);
 
     /**
      * Refresh the plugin registry.
@@ -48,13 +123,11 @@ public interface IPluginManager extends IManager, PluginManager {
 
     /**
      * Install the plugin from the specified url.
+     *
+     * @param url
+     * @param verifyChecksum
      */
-    boolean installPlugin(String url);
-
-    /**
-     * Install the plugin.
-     */
-    boolean installPlugin(PluginRelease pr);
+    boolean installPlugin(String url, boolean verifyChecksum) throws IOException;
 
     /**
      * The list of all registered plugins.
@@ -62,6 +135,14 @@ public interface IPluginManager extends IManager, PluginManager {
      * @return a list of registered plugins
      */
     List<PluginRegistration> getRegisteredPlugins();
+
+    /**
+     * Return a list of registered plugins that match the install state.
+     *
+     * @param state
+     * @return the list of plugins that match the install state
+     */
+    List<PluginRegistration> getRegisteredPlugins(InstallState state);
 
     /**
      * Lookup a plugin registration from the plugin registries.
