@@ -16,6 +16,7 @@ r22: {
     - Ensure the Lucene ticket index is updated on repository deletion.
     - Fixed failure to properly determine hasTicket in RedisTicketService
     changes:
+    - Switch from GoogleCharts to self-hosted flotr2 charts (issue-283, ticket-43, pr-166)
     - Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (issue-348)
     - Improve logging for missing LDAP uid attribute when synchronizing (issue-394)
     - The ticket close-on-push commit message regular expression is now configurable by a setting (issue-404)
@@ -32,6 +33,7 @@ r22: {
     - David Ostrovsky
     - Johann Ollivier-Lapeyre
     - Jeremie Brebec
+    - Tim Ryan
     settings:
     - { name: 'realm.ldap.bindpattern', defaultValue: ' ' }
     - { name: 'tickets.closeOnPushCommitMessageRegex', defaultValue: '(?:fixes|closes)[\\s-]+#?(\\d+)' }
