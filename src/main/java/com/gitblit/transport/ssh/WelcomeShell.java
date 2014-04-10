@@ -134,7 +134,7 @@ public class WelcomeShell implements Factory<Command> {
 			msg.append(user.getDisplayName());
 			msg.append(", you have successfully connected over SSH.");
 			msg.append(nl);
-			msg.append(" Interactive shells are disabled.");
+			msg.append(" Interactive shells are not available.");
 			msg.append(nl);
 			msg.append(nl);
 			msg.append("   client:   ");
