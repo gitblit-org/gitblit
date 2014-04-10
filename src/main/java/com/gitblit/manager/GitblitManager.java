@@ -42,9 +42,8 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ro.fortsoft.pf4j.PluginClassLoader;
+import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginWrapper;
-import ro.fortsoft.pf4j.RuntimeMode;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
@@ -61,6 +60,7 @@ import com.gitblit.models.ForkModel;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.Mailing;
 import com.gitblit.models.Metric;
+import com.gitblit.models.PluginRegistry.InstallState;
 import com.gitblit.models.PluginRegistry.PluginRegistration;
 import com.gitblit.models.PluginRegistry.PluginRelease;
 import com.gitblit.models.ProjectModel;
@@ -1190,76 +1190,6 @@ public class GitblitManager implements IGitblit {
 	 */
 
 	@Override
-	public <T> List<T> getExtensions(Class<T> clazz) {
-		return pluginManager.getExtensions(clazz);
-	}
-
-	@Override
-	public PluginWrapper whichPlugin(Class<?> clazz) {
-		return pluginManager.whichPlugin(clazz);
-	}
-
-	@Override
-	public boolean deletePlugin(PluginWrapper wrapper) {
-		return pluginManager.deletePlugin(wrapper);
-	}
-
-	@Override
-	public boolean refreshRegistry() {
-		return pluginManager.refreshRegistry();
-	}
-
-	@Override
-	public boolean installPlugin(String url) {
-		return pluginManager.installPlugin(url);
-	}
-
-	@Override
-	public boolean installPlugin(PluginRelease pv) {
-		return pluginManager.installPlugin(pv);
-	}
-
-	@Override
-	public List<PluginRegistration> getRegisteredPlugins() {
-		return pluginManager.getRegisteredPlugins();
-	}
-
-	@Override
-	public PluginRegistration lookupPlugin(String idOrName) {
-		return pluginManager.lookupPlugin(idOrName);
-	}
-
-	@Override
-	public PluginRelease lookupRelease(String idOrName, String version) {
-		return pluginManager.lookupRelease(idOrName, version);
-	}
-
-	@Override
-	public List<PluginWrapper> getPlugins() {
-		return pluginManager.getPlugins();
-	}
-
-	@Override
-	public List<PluginWrapper> getResolvedPlugins() {
-		return pluginManager.getResolvedPlugins();
-	}
-
-	@Override
-	public List<PluginWrapper> getUnresolvedPlugins() {
-		return pluginManager.getUnresolvedPlugins();
-	}
-
-	@Override
-	public List<PluginWrapper> getStartedPlugins() {
-		return pluginManager.getStartedPlugins();
-	}
-
-	@Override
-	public void loadPlugins() {
-		pluginManager.loadPlugins();
-	}
-
-	@Override
 	public void startPlugins() {
 		pluginManager.startPlugins();
 	}
@@ -1270,12 +1200,82 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public PluginClassLoader getPluginClassLoader(String pluginId) {
-		return pluginManager.getPluginClassLoader(pluginId);
+	public List<PluginWrapper> getPlugins() {
+		return pluginManager.getPlugins();
 	}
 
 	@Override
-	public RuntimeMode getRuntimeMode() {
-		return pluginManager.getRuntimeMode();
+	public PluginWrapper getPlugin(String pluginId) {
+		return pluginManager.getPlugin(pluginId);
+	}
+
+	@Override
+	public List<Class<?>> getExtensionClasses(String pluginId) {
+		return pluginManager.getExtensionClasses(pluginId);
+	}
+
+	@Override
+	public <T> List<T> getExtensions(Class<T> clazz) {
+		return pluginManager.getExtensions(clazz);
+	}
+
+	@Override
+	public PluginWrapper whichPlugin(Class<?> clazz) {
+		return pluginManager.whichPlugin(clazz);
+	}
+
+	@Override
+	public PluginState startPlugin(String pluginId) {
+		return pluginManager.startPlugin(pluginId);
+	}
+
+	@Override
+	public PluginState stopPlugin(String pluginId) {
+		return pluginManager.stopPlugin(pluginId);
+	}
+
+	@Override
+	public boolean disablePlugin(String pluginId) {
+		return pluginManager.disablePlugin(pluginId);
+	}
+
+	@Override
+	public boolean enablePlugin(String pluginId) {
+		return pluginManager.enablePlugin(pluginId);
+	}
+
+	@Override
+	public boolean deletePlugin(String pluginId) {
+		return pluginManager.deletePlugin(pluginId);
+	}
+
+	@Override
+	public boolean refreshRegistry() {
+		return pluginManager.refreshRegistry();
+	}
+
+	@Override
+	public boolean installPlugin(String url, boolean verifyChecksum) throws IOException {
+		return pluginManager.installPlugin(url, verifyChecksum);
+	}
+
+	@Override
+	public List<PluginRegistration> getRegisteredPlugins() {
+		return pluginManager.getRegisteredPlugins();
+	}
+
+	@Override
+	public List<PluginRegistration> getRegisteredPlugins(InstallState state) {
+		return pluginManager.getRegisteredPlugins(state);
+	}
+
+	@Override
+	public PluginRegistration lookupPlugin(String idOrName) {
+		return pluginManager.lookupPlugin(idOrName);
+	}
+
+	@Override
+	public PluginRelease lookupRelease(String idOrName, String version) {
+		return pluginManager.lookupRelease(idOrName, version);
 	}
 }

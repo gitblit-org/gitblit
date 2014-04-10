@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.parboiled.common.StringUtils;
 
@@ -37,7 +38,13 @@ public class PluginRegistry implements Serializable {
 
 	public PluginRegistry(String name) {
 		this.name = name;
-		registrations = new ArrayList<PluginRegistration>();
+		registrations = new CopyOnWriteArrayList<PluginRegistration>();
+	}
+
+	public void setup() {
+		for (PluginRegistration reg : registrations) {
+			reg.registry = name;
+		}
 	}
 
 	public PluginRegistration lookup(String idOrName) {
@@ -80,6 +87,8 @@ public class PluginRegistry implements Serializable {
 
 		public transient String installedRelease;
 
+		public transient String registry;
+
 		public List<PluginRelease> releases;
 
 		public PluginRegistration(String id) {
@@ -90,10 +99,12 @@ public class PluginRegistry implements Serializable {
 		public PluginRelease getCurrentRelease() {
 			PluginRelease current = null;
 			if (!StringUtils.isEmpty(currentRelease)) {
+				// find specified
 				current = getRelease(currentRelease);
 			}
 
 			if (current == null) {
+				// find by date
 				Date date = new Date(0);
 				for (PluginRelease pv : releases) {
 					if (pv.date.after(date)) {
@@ -135,9 +146,15 @@ public class PluginRegistry implements Serializable {
 		}
 	}
 
-	public static class PluginRelease {
+	public static class PluginRelease implements Comparable<PluginRelease> {
 		public String version;
 		public Date date;
+		public String requires;
 		public String url;
+
+		@Override
+		public int compareTo(PluginRelease o) {
+			return PluginVersion.createVersion(version).compareTo(PluginVersion.createVersion(o.version));
+		}
 	}
 }
