@@ -179,17 +179,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="googlecharts-1.4.21.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/googlecharts-1.4.21.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/googlecharts-1.4.21.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="lucene-core-4.6.0.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/lucene-core-4.6.0.jar!/" />

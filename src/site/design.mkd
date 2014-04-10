@@ -17,6 +17,8 @@ The following dependencies are bundled with Gitblit.
 - [Clippy](https://github.com/mojombo/clippy) (MIT)
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
 - [Commons Daemon](http://commons.apache.org/daemon) (Apache 2.0)
+- [jQuery](https://jquery.org) (MIT)
+- [flotr2](http://humblesoftware.com/flotr2) (BSD)
 - magnifying glass search icon courtesy of [Gnome](http://gnome.org) (Creative Commons CC-BY)
 - Git logo originally designed by [Jason Long](http://git-scm.com/downloads/logos)
 - modified Git logo originally designed by [Henrik Nyh](http://henrik.nyh.se/2007/06/alternative-git-logo-and-favicon)
@@ -28,7 +30,6 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 
 - [JGit][jgit] (EDL 1.0)
 - [Wicket](http://wicket.apache.org) (Apache 2.0)
-- [WicketStuff GoogleCharts](https://github.com/wicketstuff/core/wiki/GoogleCharts) (Apache 2.0)
 - [Jetty](http://eclipse.org/jetty) (Apache 2.0, EPL 1.0)
 - [SLF4J](http://www.slf4j.org) (MIT/X11)
 - [Log4j](http://logging.apache.org/log4j) (Apache 2.0)

@@ -138,7 +138,6 @@ dependencies:
 - compile 'org.apache.wicket:wicket:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-auth-roles:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-extensions:${wicket.version}' :war !org.mockito
-- compile 'org.wicketstuff:googlecharts:${wicket.version}' :war
 - compile 'org.apache.lucene:lucene-core:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-analyzers-common:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient

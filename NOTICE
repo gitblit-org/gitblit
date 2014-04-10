@@ -48,14 +48,6 @@ Apache Wicket
    http://wicket.apache.org
    
 ---------------------------------------------------------------------------
-WicketStuff GoogleCharts
----------------------------------------------------------------------------
-   WicketStuff GoogleCharts, released under the
-   Apache Software License, Version 2.0.
-
-   https://github.com/wicketstuff/core/wiki/GoogleCharts   
-   
----------------------------------------------------------------------------
 Jetty
 ---------------------------------------------------------------------------
    Jetty, released under the
@@ -203,7 +195,7 @@ GLYHPICONS
 UnboundID
 ---------------------------------------------------------------------------
    UnboundID, released under the
-   GNU LESSER GENERAL PUBLIC LICENSE. (http://www.unboundid.com/products/ldap-sdk/docs/LICENSE-LGPLv2.1.txt)
+   GNU LESSER GENERAL PUBLIC LICENSE.
 
    http://www.unboundid.com
 
@@ -211,7 +203,7 @@ UnboundID
 JCalendar
 ---------------------------------------------------------------------------
    JCalendar, released under the
-   GNU LESSER GENERAL PUBLIC LICENSE. (http://www.unboundid.com/products/ldap-sdk/docs/LICENSE-LGPLv2.1.txt)
+   GNU LESSER GENERAL PUBLIC LICENSE.
 
    http://www.toedter.com/en/jcalendar
    
@@ -334,3 +326,20 @@ args4j
    Apache License 2.0
    
    http://args4j.kohsuke.org
+
+---------------------------------------------------------------------------
+jQuery
+---------------------------------------------------------------------------
+   jQuery, release under the
+   MIT License
+   
+   https://jquery.org
+
+---------------------------------------------------------------------------
+flotr2
+---------------------------------------------------------------------------
+   flotr2, release under the
+   BSD License
+   
+   http://humblesoftware.com/flotr2
+   
