@@ -13,7 +13,7 @@
 	<table style="width:100%;">
 		<tr>
 			<!-- branch stats -->
-			<td colspan=2>
+			<td colspan="2">
 				<h2><wicket:message key="gb.stats"></wicket:message></h2>
 				<span wicket:id="branchStats"></span>		
 			</td>
@@ -22,19 +22,19 @@
 			<!-- commit activity trend -->
 			<td>
 				<h2><wicket:message key="gb.commitActivityTrend"></wicket:message></h2>
-				<div><img wicket:id="commitsChart" /></div>		
+				<div style="width:400px; height:100px;" id="commitsChart"></div>
 			</td>
 			<!-- commit activity by day of week -->
 			<td>
 				<h2><wicket:message key="gb.commitActivityDOW"></wicket:message></h2>
-				<div><img wicket:id="dayOfWeekChart" /></div>
+				<div style="width:400px; height:100px;" id="dayOfWeekChart"></div>
 			</td>
 		</tr>
 		<tr>
 			<!-- commit activity by primary authors -->
-			<td colspan=2>
-				<h2><wicket:message key="gb.commitActivityAuthors"></wicket:message></h2>
-				<div style="text-align: center;"><img wicket:id="authorsChart" /></div>
+			<td colspan="2" >
+				<h2 style="text-align: center;"><wicket:message key="gb.commitActivityAuthors"></wicket:message></h2>
+				<div style="margin: 0px auto;width:800px; height:200px;" id="authorsChart"></div>
 			</td>
 		</tr>		
 	</table>	
