@@ -79,6 +79,17 @@ public abstract class IPublicKeyManager implements IManager {
 		return null;
 	}
 
+	public final void renameUser(String oldName, String newName) {
+		List<SshKey> keys = getKeys(oldName);
+		if (keys == null || keys.isEmpty()) {
+			return;
+		}
+		removeAllKeys(oldName);
+		for (SshKey key : keys) {
+			addKey(newName, key);
+		}
+	}
+
 	protected abstract boolean isStale(String username);
 
 	protected abstract List<SshKey> getKeysImpl(String username);
