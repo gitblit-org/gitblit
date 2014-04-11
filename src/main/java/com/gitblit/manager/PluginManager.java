@@ -80,6 +80,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	public PluginManager(IRuntimeManager runtimeManager) {
 		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
+		dir.mkdirs();
 		this.runtimeManager = runtimeManager;
 		this.pf4j = new DefaultPluginManager(dir);
 	}
@@ -229,11 +230,11 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	}
 
 	@Override
-	public synchronized boolean refreshRegistry() {
+	public synchronized boolean refreshRegistry(boolean verifyChecksum) {
 		String dr = "http://gitblit.github.io/gitblit-registry/plugins.json";
 		String url = runtimeManager.getSettings().getString(Keys.plugins.registry, dr);
 		try {
-			File file = download(url, true);
+			File file = download(url, verifyChecksum);
 			if (file != null && file.exists()) {
 				URL selfUrl = new URL(url.substring(0, url.lastIndexOf('/')));
 				// replace ${self} with the registry url
@@ -260,7 +261,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 		File[] files = folder.listFiles(jsonFilter);
 		if (files == null || files.length == 0) {
 			// automatically retrieve the registry if we don't have a local copy
-			refreshRegistry();
+			refreshRegistry(true);
 			files = folder.listFiles(jsonFilter);
 		}
 
