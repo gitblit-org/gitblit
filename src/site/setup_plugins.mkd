@@ -67,32 +67,48 @@ You can provide your own custom pre and/or post receive hooks by extending the *
 
 ```java
 import com.gitblit.extensions.ReceiveHook;
+import java.util.Collection;
+import org.eclipse.jgit.transport.ReceiveCommand;
 import ro.fortsoft.pf4j.Extension;
 
 @Extension
-public class MyHook extends ReceiveHook {
+public class MyReceiveHook extends ReceiveHook {
 
     @Override
     public void onPreReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
-        RepositoryModel repository = receivePack.getRepositoryModel();
-        UserModel user = receivePack.getUserModel();
-        receivePack.sendInfo("Hi {0}, I see {1} commands for {2} onPreReceive",
-                        user.getDisplayName(),
-                        commands.size(),
-                        repository.name);
     }
 
     @Override
     public void onPostReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
-        RepositoryModel repository = receivePack.getRepositoryModel();
-        UserModel user = receivePack.getUserModel();
-        receivePack.sendInfo("Hi {0}, I see {1} commands for {2} onPostReceive",
-                        user.getDisplayName(),
-                        commands.size(),
-                        repository.name);
     }
 }
 
+```
+
+### Extension Point: Patchset Hook
+
+You can provide your own custom patchset hook by extending the *PatchsetHook* class.
+
+```java
+import com.gitblit.extensions.PatchsetHook;
+import com.gitblit.models.TicketModel;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyPatchsetHook extends PatchsetHook {
+
+    @Override
+    public void onNewPatchset(TicketModel ticket) {
+    }
+
+    @Override
+    public void onUpdatePatchset(TicketModel ticket) {
+    }
+
+    @Override
+    public void onMergePatchset(TicketModel ticket) {
+    }
+}
 ```
 
 ### Mac OSX Fonts

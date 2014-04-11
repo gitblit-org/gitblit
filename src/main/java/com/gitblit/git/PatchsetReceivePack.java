@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
+import com.gitblit.extensions.PatchsetHook;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
@@ -716,6 +717,15 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				RefLogUtils.updateRefLog(user, getRepository(),
 						Arrays.asList(new ReceiveCommand(cmd.getOldId(), cmd.getNewId(), cmd.getRefName())));
 
+				// call any patchset hooks
+				for (PatchsetHook hook : gitblit.getExtensions(PatchsetHook.class)) {
+					try {
+						hook.onNewPatchset(ticket);
+					} catch (Exception e) {
+						LOGGER.error("Failed to execute extension", e);
+					}
+				}
+
 				return ticket;
 			} else {
 				sendError("FAILED to create ticket");
@@ -742,6 +752,20 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// log the new patchset ref
 				RefLogUtils.updateRefLog(user, getRepository(),
 					Arrays.asList(new ReceiveCommand(cmd.getOldId(), cmd.getNewId(), cmd.getRefName())));
+
+				// call any patchset hooks
+				final boolean isNewPatchset = change.patchset.rev == 1;
+				for (PatchsetHook hook : gitblit.getExtensions(PatchsetHook.class)) {
+					try {
+						if (isNewPatchset) {
+							hook.onNewPatchset(ticket);
+						} else {
+							hook.onUpdatePatchset(ticket);
+						}
+					} catch (Exception e) {
+						LOGGER.error("Failed to execute extension", e);
+					}
+				}
 
 				// return the updated ticket
 				return ticket;
@@ -1166,6 +1190,15 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				ReceiveCommand cmd = new ReceiveCommand(oldRef.getObjectId(),
 						ObjectId.fromString(mergeResult.sha), oldRef.getName());
 				RefLogUtils.updateRefLog(user, getRepository(), Arrays.asList(cmd));
+			}
+
+			// call patchset hooks
+			for (PatchsetHook hook : gitblit.getExtensions(PatchsetHook.class)) {
+				try {
+					hook.onMergePatchset(ticket);
+				} catch (Exception e) {
+					LOGGER.error("Failed to execute extension", e);
+				}
 			}
 			return mergeResult.status;
 		} else {
