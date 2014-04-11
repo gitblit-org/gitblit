@@ -33,13 +33,14 @@ r22: {
     - args4j 2.0.26
     - JGit 3.3.1
     - Mina SSHD 0.10.1
-    - pf4j 0.6
+    - pf4j 0.7.1
     contributors:
     - James Moger
     - David Ostrovsky
     - Johann Ollivier-Lapeyre
     - Jeremie Brebec
     - Tim Ryan
+    - Decebal Suiu
     settings:
     - { name: 'realm.ldap.bindpattern', defaultValue: ' ' }
     - { name: 'tickets.closeOnPushCommitMessageRegex', defaultValue: '(?:fixes|closes)[\\s-]+#?(\\d+)' }
