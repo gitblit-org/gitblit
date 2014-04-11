@@ -47,6 +47,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.client.Translation;
+import com.gitblit.extensions.ReceiveHook;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -156,6 +157,14 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 	 */
 	@Override
 	public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
+
+		if (commands.size() == 0) {
+			// no receive commands to process
+			// this can happen if receive pack subclasses intercept and filter
+			// the commands
+			LOGGER.debug("skipping pre-receive processing, no refs created, updated, or removed");
+			return;
+		}
 
 		if (repository.isMirror) {
 			// repository is a mirror
@@ -276,6 +285,15 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			}
 		}
 
+		// call pre-receive plugins
+		for (ReceiveHook hook : gitblit.getExtensions(ReceiveHook.class)) {
+			try {
+				hook.onPreReceive(this, commands);
+			} catch (Exception e) {
+				LOGGER.error("Failed to execute extension", e);
+			}
+		}
+
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(gitblit.getPreReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
@@ -298,7 +316,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 	@Override
 	public void onPostReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
 		if (commands.size() == 0) {
-			LOGGER.debug("skipping post-receive hooks, no refs created, updated, or removed");
+			LOGGER.debug("skipping post-receive processing, no refs created, updated, or removed");
 			return;
 		}
 
@@ -379,6 +397,15 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			}
 		}
 
+		// call post-receive plugins
+		for (ReceiveHook hook : gitblit.getExtensions(ReceiveHook.class)) {
+			try {
+				hook.onPostReceive(this, commands);
+			} catch (Exception e) {
+				LOGGER.error("Failed to execute extension", e);
+			}
+		}
+
 		// run Groovy hook scripts
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(gitblit.getPostReceiveScriptsInherited(repository));
@@ -434,7 +461,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		this.gitblitUrl = url;
 	}
 
-	protected void sendRejection(final ReceiveCommand cmd, final String why, Object... objects) {
+	public void sendRejection(final ReceiveCommand cmd, final String why, Object... objects) {
 		String text;
 		if (ArrayUtils.isEmpty(objects)) {
 			text = why;
@@ -445,15 +472,15 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		LOGGER.error(text + " (" + user.username + ")");
 	}
 
-	protected void sendHeader(String msg, Object... objects) {
+	public void sendHeader(String msg, Object... objects) {
 		sendInfo("--> ", msg, objects);
 	}
 
-	protected void sendInfo(String msg, Object... objects) {
+	public void sendInfo(String msg, Object... objects) {
 		sendInfo("    ", msg, objects);
 	}
 
-	protected void sendInfo(String prefix, String msg, Object... objects) {
+	private void sendInfo(String prefix, String msg, Object... objects) {
 		String text;
 		if (ArrayUtils.isEmpty(objects)) {
 			text = msg;
@@ -467,7 +494,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		}
 	}
 
-	protected void sendError(String msg, Object... objects) {
+	public void sendError(String msg, Object... objects) {
 		String text;
 		if (ArrayUtils.isEmpty(objects)) {
 			text = msg;
@@ -531,5 +558,17 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 						MessageFormat.format("Failed to execute Groovy script {0}", script), e);
 			}
 		}
+	}
+
+	public IGitblit getGitblit() {
+		return gitblit;
+	}
+
+	public RepositoryModel getRepositoryModel() {
+		return repository;
+	}
+
+	public UserModel getUserModel() {
+		return user;
 	}
 }

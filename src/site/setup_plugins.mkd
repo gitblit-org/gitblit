@@ -54,12 +54,46 @@ Gitblit also supports loading multiple plugin registries.  Just place another **
 
 ### Extension Point: SSH DispatchCommand
 
-You can provide your own custom SSH commands by extending the DispatchCommand.
+You can provide your own custom SSH commands by extending the *DispatchCommand* class.
 
 For some examples of how to do this, please see:
 
 [gitblit-cookbook-plugin (Maven project)](https://dev.gitblit.com/summary/gitblit-cookbook-plugin.git)
 [gitblit-powertools-plugin (Ant/Moxie project)](https://dev.gitblit.com/summary/gitblit-powertools-plugin.git)
+
+### Extension Point: Pre- and Post- Receive Hook
+
+You can provide your own custom pre and/or post receive hooks by extending the *ReceiveHook* class.
+
+```java
+import com.gitblit.extensions.ReceiveHook;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyHook extends ReceiveHook {
+
+    @Override
+    public void onPreReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
+        RepositoryModel repository = receivePack.getRepositoryModel();
+        UserModel user = receivePack.getUserModel();
+        receivePack.sendInfo("Hi {0}, I see {1} commands for {2} onPreReceive",
+                        user.getDisplayName(),
+                        commands.size(),
+                        repository.name);
+    }
+
+    @Override
+    public void onPostReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
+        RepositoryModel repository = receivePack.getRepositoryModel();
+        UserModel user = receivePack.getUserModel();
+        receivePack.sendInfo("Hi {0}, I see {1} commands for {2} onPostReceive",
+                        user.getDisplayName(),
+                        commands.size(),
+                        repository.name);
+    }
+}
+
+```
 
 ### Mac OSX Fonts
 
