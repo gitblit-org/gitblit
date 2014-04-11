@@ -14,9 +14,8 @@
 	<classpathentry kind="lib" path="ext/slf4j-api-1.6.6.jar" sourcepath="ext/src/slf4j-api-1.6.6.jar" />
 	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.6.6.jar" sourcepath="ext/src/slf4j-log4j12-1.6.6.jar" />
 	<classpathentry kind="lib" path="ext/mail-1.4.3.jar" sourcepath="ext/src/mail-1.4.3.jar" />
-	<classpathentry kind="lib" path="ext/javax.servlet-api-3.0.1.jar" sourcepath="ext/src/javax.servlet-api-3.0.1.jar" />
-	<classpathentry kind="lib" path="ext/jetty-webapp-8.1.13.v20130916.jar" sourcepath="ext/src/jetty-webapp-8.1.13.v20130916.jar" />
-	<classpathentry kind="lib" path="ext/jetty-ajp-8.1.13.v20130916.jar" sourcepath="ext/src/jetty-ajp-8.1.13.v20130916.jar" />
+	<classpathentry kind="lib" path="ext/javax.servlet-api-3.1.0.jar" sourcepath="ext/src/javax.servlet-api-3.1.0.jar" />
+	<classpathentry kind="lib" path="ext/jetty-all-9.1.4.v20140401.jar" sourcepath="ext/src/jetty-all-9.1.4.v20140401.jar" />
 	<classpathentry kind="lib" path="ext/wicket-1.4.21.jar" sourcepath="ext/src/wicket-1.4.21.jar" />
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.21.jar" sourcepath="ext/src/wicket-auth-roles-1.4.21.jar" />
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.21.jar" sourcepath="ext/src/wicket-extensions-1.4.21.jar" />

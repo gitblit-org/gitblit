@@ -1,6 +1,6 @@
 ## Running Gitblit behind Apache
 
-Gitblit runs fine behind Apache.  You may use either *mod_proxy* (GO or WAR) or *mod_proxy_ajp* (GO).
+Gitblit runs fine behind Apache.
 
 Each Linux distribution may vary on the exact configuration of Apache 2.2.  
 Here is a sample configuration that works on Debian 7.0 (Wheezy), your distribution may be different.
@@ -13,7 +13,6 @@ cd /etc/apache2/mods-enabled
 ln -s ../mods-available/proxy.load proxy.load
 ln -s ../mods-available/proxy_balancer.load proxy_balancer.load
 ln -s ../mods-available/proxy_http.load proxy_http.load
-ln -s ../mods-available/proxy_ajp.load proxy_ajp.load
 ```
 ### Configuring Apache to use the proxy modules
 
@@ -57,16 +56,12 @@ ProxyPreserveHost On
 # context path for your repository url.
 # If you are not using subdomain proxying, then ignore this setting.
 #RequestHeader set X-Forwarded-Context /
-
-#ProxyPass /gitblit ajp://localhost:8009/gitblit
 ```
 
 **Please** make sure to:  
     1. Review the security of these settings as appropriate for your deployment
-    2. Uncomment the *ProxyPass* setting for whichever connection you prefer (http/ajp)
+    2. Uncomment the *ProxyPass* setting
     3. Correctly set the ports and context paths both in the *ProxyPass* definition and your Gitblit installation  
-    If you are using Gitblit GO you can easily configure the AJP connector by specifying a non-zero AJP port.  
-    Please remember that on Linux/UNIX, ports < 1024 require root permissions to open.
     4. Set *web.mountParameters=false* in `gitblit.properties` or `web.xml` this will use parameterized URLs.  
     Alternatively, you can respecify *web.forwardSlashCharacter*.
 

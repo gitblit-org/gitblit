@@ -76,7 +76,6 @@
 - Integrated GUI tool to facilitate x509 PKI including ssl and client certificate generation, client certificate revocation, and client certificate distribution
 - Single text file for configuring server and gitblit
 - A Windows service installation script and configuration tool
-- Built-in AJP connector for Apache httpd
 
 ## Limitations
 - Built-in access controls are not branch-based, they are repository-based.
