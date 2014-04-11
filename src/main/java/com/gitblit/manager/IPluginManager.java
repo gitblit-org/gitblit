@@ -118,8 +118,10 @@ public interface IPluginManager extends IManager {
 
     /**
      * Refresh the plugin registry.
+     *
+     * @param verifyChecksum
      */
-    boolean refreshRegistry();
+    boolean refreshRegistry(boolean verifyChecksum);
 
     /**
      * Install the plugin from the specified url.

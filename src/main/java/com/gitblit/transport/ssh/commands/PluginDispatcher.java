@@ -410,10 +410,14 @@ public class PluginDispatcher extends DispatchCommand {
 
 	@CommandMetaData(name = "refresh", description = "Refresh the plugin registry data")
 	public static class RefreshPlugins extends SshCommand {
+
+		@Option(name = "--noverify", usage = "Disable checksum verification")
+		private boolean disableChecksum;
+
 		@Override
 		public void run() throws Failure {
 			IGitblit gitblit = getContext().getGitblit();
-			gitblit.refreshRegistry();
+			gitblit.refreshRegistry(!disableChecksum);
 		}
 	}
 
@@ -426,11 +430,14 @@ public class PluginDispatcher extends DispatchCommand {
 		@Option(name = "--updates", aliases = { "-u" }, usage = "show available updates")
 		protected boolean updates;
 
+		@Option(name = "--noverify", usage = "Disable checksum verification")
+		private boolean disableChecksum;
+
 		@Override
 		protected List<PluginRegistration> getItems() throws UnloggedFailure {
 			IGitblit gitblit = getContext().getGitblit();
 			if (refresh) {
-				gitblit.refreshRegistry();
+				gitblit.refreshRegistry(!disableChecksum);
 			}
 
 			List<PluginRegistration> list;

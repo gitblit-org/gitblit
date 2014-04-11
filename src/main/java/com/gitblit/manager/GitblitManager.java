@@ -1250,8 +1250,8 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public boolean refreshRegistry() {
-		return pluginManager.refreshRegistry();
+	public boolean refreshRegistry(boolean verifyChecksum) {
+		return pluginManager.refreshRegistry(verifyChecksum);
 	}
 
 	@Override
