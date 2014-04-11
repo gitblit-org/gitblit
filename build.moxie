@@ -101,7 +101,7 @@ repositories: central, eclipse-snapshots, eclipse
 
 # Convenience properties for dependencies
 properties: {
-  jetty.version  : 8.1.13.v20130916
+  jetty.version  : 9.1.4.v20140401
   wicket.version : 1.4.21
   lucene.version : 4.6.0
   jgit.version   : 3.3.1.201403241930-r
@@ -134,9 +134,8 @@ dependencies:
 - compile 'org.slf4j:slf4j-api:1.6.6' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-log4j12:1.6.6' :war :fedclient :authority
 - compile 'javax.mail:mail:1.4.3' :war :authority
-- compile 'javax.servlet:javax.servlet-api:3.0.1' :fedclient
-- compile 'org.eclipse.jetty.aggregate:jetty-webapp:${jetty.version}' @jar
-- compile 'org.eclipse.jetty:jetty-ajp:${jetty.version}' @jar
+- compile 'javax.servlet:javax.servlet-api:3.1.0' :fedclient
+- compile 'org.eclipse.jetty.aggregate:jetty-all:${jetty.version}' @jar
 - compile 'org.apache.wicket:wicket:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-auth-roles:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-extensions:${wicket.version}' :war !org.mockito

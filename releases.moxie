@@ -24,7 +24,10 @@ r22: {
     - Option to allow LDAP users to directly authenticate without performing LDAP searches (pr-162)
     - Replace JCommander with args4j to be consistent with other tools (ticket-28)
     - Sort repository urls by descending permissions and by transport security within equal permissions
-    - Move to Java 7
+    - Move to Java 7 & updated to Jetty 9.1.4
+    - dropped AJP support because it has been removed from upstream Jetty
+    - dropped settings: server.useNio, server.ajpPort, server.ajpBindInterface
+    - dropped GO parameters: --ajpPort, --useNio
     additions:
     - Added an SSH daemon with public key authentication (issue-369, ticket-6)
     - Added beginnings of a plugin framework for extending Gitblit (issue-381, ticket-23)
@@ -32,6 +35,7 @@ r22: {
     - Added a setting to control what transports may be used for pushes
     dependencyChanges:
     - Java 7
+    - Jetty 9.1.4
     - args4j 2.0.26
     - JGit 3.3.1
     - Mina SSHD 0.10.1

@@ -117,10 +117,10 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
     --baseFolder           The default base folder for all relative file reference settings
     --repositoriesFolder   Git Repositories Folder
     --userService          Authentication and Authorization Service (filename or fully qualified classname)
-    --useNio               Use NIO Connector else use Socket Connector.
     --httpPort             HTTP port for to serve. (port <= 0 will disable this connector)
     --httpsPort            HTTPS port to serve.  (port <= 0 will disable this connector)
-    --ajpPort              AJP port to serve.  (port <= 0 will disable this connector)
+    --sshPort              SSH Daemon port to serve.  (port <= 0 will disable this daemon)
+    --gitPort              Git Daemon port to serve.  (port <= 0 will disable this daemon)
     --alias                Alias in keystore of SSL cert to use for https serving
     --storePassword        Password for SSL (https) keystore.
     --shutdownPort         Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)
