@@ -21,9 +21,10 @@
     - **RWD** (clone and push with ref creation, deletion)
     - **RW+** (clone and push with ref creation, deletion, rewind)
 - Menu driven native platform clone links for all popular Git clients
-- *Experimental* built-in Garbage Collection
+- Garbage Collection service
 - Ability to federate with one or more other Gitblit instances
 - RSS/JSON RPC interface
+- An evolving plugin infrastructure
 - Java/Swing Gitblit Manager tool
 - Responsive web UI that subtracts elements to be usable on phones, tablets, and desktop browsers
 - Groovy pre- and post- push hook scripts, per-repository or globally for all repositories
@@ -46,7 +47,7 @@
 - User-tracked reflog for pushes, tags, etc.
 - Fanout PubSub notifications service for self-hosted [Sparkleshare](http://sparkleshare.org) use
 - gh-pages display support (Jekyll is not supported)
-- Branch metrics (uses Google Charts)
+- Branch metrics
 - HEAD and Branch RSS feeds
 - Blame annotations view
 - Dates can optionally be displayed using the browser's reported timezone
