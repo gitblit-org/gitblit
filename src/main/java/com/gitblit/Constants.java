@@ -423,6 +423,8 @@ public class Constants {
 
 		public static final AccessPermission [] NEWPERMISSIONS = { EXCLUDE, VIEW, CLONE, PUSH, CREATE, DELETE, REWIND };
 
+		public static final AccessPermission [] SSHPERMISSIONS = { VIEW, CLONE, PUSH };
+
 		public static AccessPermission LEGACY = REWIND;
 
 		public final String code;
@@ -501,7 +503,7 @@ public class Constants {
 	}
 
 	public static enum AuthenticationType {
-		CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER;
+		PUBLIC_KEY, CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER;
 
 		public boolean isStandard() {
 			return ordinal() <= COOKIE.ordinal();
@@ -535,6 +537,25 @@ public class Constants {
 				}
 			}
 			return CommitMessageRenderer.PLAIN;
+		}
+	}
+
+	public static enum Transport {
+		// ordered for url advertisements, assuming equal access permissions
+		SSH, HTTPS, HTTP, GIT;
+
+		public static Transport fromString(String value) {
+			for (Transport t : values()) {
+				if (t.name().equalsIgnoreCase(value)) {
+					return t;
+				}
+			}
+			return null;
+		}
+
+		public static Transport fromUrl(String url) {
+			String scheme = url.substring(0, url.indexOf("://"));
+			return fromString(scheme);
 		}
 	}
 

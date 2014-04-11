@@ -529,6 +529,28 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="sshd-core-0.10.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/sshd-core-0.10.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-0.10.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="mina-core-2.0.7.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.7.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.7.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="rome-0.9.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/rome-0.9.jar!/" />
@@ -765,6 +787,17 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/commons-pool2-2.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="pf4j-0.7.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/pf4j-0.7.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/pf4j-0.7.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

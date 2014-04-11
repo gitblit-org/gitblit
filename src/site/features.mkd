@@ -1,6 +1,7 @@
 ## Standard Features (GO/WAR)
-- JGit http/https SmartHTTP servlet
-- JGit git protocol daemon
+- Integrated JGit http/https SmartHTTP servlet
+- Integrated JGit git protocol daemon
+- Integrated Mina SSHD daemon
 - Optional feature to allow users to create personal repositories
 - Optional feature to fork a repository to a personal repository
 - Optional feature to create a repository on push
@@ -20,9 +21,10 @@
     - **RWD** (clone and push with ref creation, deletion)
     - **RW+** (clone and push with ref creation, deletion, rewind)
 - Menu driven native platform clone links for all popular Git clients
-- *Experimental* built-in Garbage Collection
+- Garbage Collection service
 - Ability to federate with one or more other Gitblit instances
 - RSS/JSON RPC interface
+- An evolving plugin infrastructure
 - Java/Swing Gitblit Manager tool
 - Responsive web UI that subtracts elements to be usable on phones, tablets, and desktop browsers
 - Groovy pre- and post- push hook scripts, per-repository or globally for all repositories
@@ -45,7 +47,7 @@
 - User-tracked reflog for pushes, tags, etc.
 - Fanout PubSub notifications service for self-hosted [Sparkleshare](http://sparkleshare.org) use
 - gh-pages display support (Jekyll is not supported)
-- Branch metrics (uses Google Charts)
+- Branch metrics
 - HEAD and Branch RSS feeds
 - Blame annotations view
 - Dates can optionally be displayed using the browser's reported timezone
@@ -77,7 +79,6 @@
 - Built-in AJP connector for Apache httpd
 
 ## Limitations
-- HTTP/HTTPS/GIT are the only supported Git protocols (SSH is in progress, ticket-6)
 - Built-in access controls are not branch-based, they are repository-based.
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

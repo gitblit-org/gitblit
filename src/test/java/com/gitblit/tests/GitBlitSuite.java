@@ -61,10 +61,11 @@ import com.gitblit.utils.JGitUtils;
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, X509UtilsTest.class,
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
-		GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
+		SshDaemonTest.class, GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
 		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdAuthenticationTest.class,
 		ModelUtilsTest.class, JnaUtilsTest.class, LdapSyncServiceTest.class, FileTicketServiceTest.class,
-		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class })
+		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class,
+		SshKeysDispatcherTest.class })
 public class GitBlitSuite {
 
 	public static final File BASEFOLDER = new File("data");
@@ -78,10 +79,12 @@ public class GitBlitSuite {
 	static int port = 8280;
 	static int gitPort = 8300;
 	static int shutdownPort = 8281;
+	static int sshPort = 39418;
 
 	public static String url = "http://localhost:" + port;
 	public static String gitServletUrl = "http://localhost:" + port + "/git";
 	public static String gitDaemonUrl = "git://localhost:" + gitPort;
+	public static String sshDaemonUrl = "ssh://admin@localhost:" + sshPort;
 	public static String account = "admin";
 	public static String password = "admin";
 
@@ -135,10 +138,15 @@ public class GitBlitSuite {
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
 			@Override
 			public void run() {
-				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
-						"" + shutdownPort, "--gitPort", "" + gitPort, "--repositoriesFolder",
-						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						GitBlitSuite.USERSCONF.getAbsolutePath(), "--settings", GitBlitSuite.SETTINGS.getAbsolutePath(),
+				GitBlitServer.main(
+						"--httpPort", "" + port,
+						"--httpsPort", "0",
+						"--shutdownPort", "" + shutdownPort,
+						"--gitPort", "" + gitPort,
+						"--sshPort", "" + sshPort,
+						"--repositoriesFolder", GitBlitSuite.REPOSITORIES.getAbsolutePath(),
+						"--userService", GitBlitSuite.USERSCONF.getAbsolutePath(),
+						"--settings", GitBlitSuite.SETTINGS.getAbsolutePath(),
 						"--baseFolder", "data");
 			}
 		});

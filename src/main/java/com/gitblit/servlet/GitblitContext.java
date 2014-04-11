@@ -43,10 +43,12 @@ import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.IManager;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
+import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -149,7 +151,7 @@ public class GitblitContext extends DaggerContext {
 			String contextRealPath = context.getRealPath("/");
 			File contextFolder = (contextRealPath != null) ? new File(contextRealPath) : null;
 
-			// if the base folder dosen't match the default assume they don't want to use express, 
+			// if the base folder dosen't match the default assume they don't want to use express,
 			// this allows for other containers to customise the basefolder per context.
 			String defaultBase = Constants.contextFolder$ + "/WEB-INF/data";
 			String base = lookupBaseFolderFromJndi();
@@ -175,9 +177,11 @@ public class GitblitContext extends DaggerContext {
 		managers.add(runtime);
 
 		// start all other managers
+		startManager(injector, IPluginManager.class);
 		startManager(injector, INotificationManager.class);
 		startManager(injector, IUserManager.class);
 		startManager(injector, IAuthenticationManager.class);
+		startManager(injector, IPublicKeyManager.class);
 		startManager(injector, IRepositoryManager.class);
 		startManager(injector, IProjectManager.class);
 		startManager(injector, IFederationManager.class);

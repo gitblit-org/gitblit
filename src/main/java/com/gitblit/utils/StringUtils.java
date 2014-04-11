@@ -307,7 +307,7 @@ public class StringUtils {
 	 * @param bytes
 	 * @return byte array as hex string
 	 */
-	private static String toHex(byte[] bytes) {
+	public static String toHex(byte[] bytes) {
 		StringBuilder sb = new StringBuilder(bytes.length * 2);
 		for (int i = 0; i < bytes.length; i++) {
 			if ((bytes[i] & 0xff) < 0x10) {

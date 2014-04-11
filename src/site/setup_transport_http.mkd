@@ -1,5 +1,6 @@
 
-## Client Setup and Configuration
+## Using the HTTP/HTTPS transport
+
 ### Https with Self-Signed Certificates
 You must tell Git/JGit not to verify the self-signed certificate in order to perform any remote Git operations.
 
@@ -42,6 +43,3 @@ error: error:14077458:SSL routines:SSL23_GET_SERVER_HELLO:reason(1112) while acc
 fatal: HTTP request failed
 ```
 
-### Cloning a Repository 
-
-Gitblit provides many custom clone links for popular Git clients on the Summary page of each repository.  If you have one or more of those clients installed, you should be able to click the link to initiate cloning with the selected tool.

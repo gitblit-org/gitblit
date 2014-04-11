@@ -54,7 +54,6 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.URIish;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
@@ -734,16 +733,17 @@ public class TicketPage extends TicketBasePage {
 		 */
 		if (currentPatchset == null) {
 			// no patchset available
-			String repoUrl = getRepositoryUrl(user, repository);
-			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository) && !StringUtils.isEmpty(repoUrl)) {
+			RepositoryUrl repoUrl = getRepositoryUrl(user, repository);
+			boolean canPropose = repoUrl != null && repoUrl.permission.atLeast(AccessPermission.CLONE) && !UserModel.ANONYMOUS.equals(user);
+			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository) && canPropose) {
 				// ticket & repo will accept a proposal patchset
 				// show the instructions for proposing a patchset
 				Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
 				changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
 				changeIdFrag.add(new Label("ptWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")));
-				changeIdFrag.add(new Label("ptWorkflowSteps", getProposeWorkflow("propose_pt.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
+				changeIdFrag.add(new Label("ptWorkflowSteps", getProposeWorkflow("propose_pt.md", repoUrl.url, ticket.number)).setEscapeModelStrings(false));
 				changeIdFrag.add(new Label("gitWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Git")));
-				changeIdFrag.add(new Label("gitWorkflowSteps", getProposeWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
+				changeIdFrag.add(new Label("gitWorkflowSteps", getProposeWorkflow("propose_git.md", repoUrl.url, ticket.number)).setEscapeModelStrings(false));
 				add(changeIdFrag);
 			} else {
 				// explain why you can't propose a patchset
@@ -757,6 +757,12 @@ public class TicketPage extends TicketBasePage {
 					reason = getString("gb.repositoryIsFrozen");
 				} else if (!repository.acceptNewPatchsets) {
 					reason = getString("gb.repositoryDoesNotAcceptPatchsets");
+				} else if (!canPropose) {
+					if (UserModel.ANONYMOUS.equals(user)) {
+						reason = getString("gb.anonymousCanNotPropose");
+					} else {
+						reason = getString("gb.youDoNotHaveClonePermission");
+					}
 				} else {
 					reason = getString("gb.serverDoesNotAcceptPatchsets");
 				}
@@ -1476,19 +1482,14 @@ public class TicketPage extends TicketBasePage {
 	 * @param repository
 	 * @return the primary repository url
 	 */
-	protected String getRepositoryUrl(UserModel user, RepositoryModel repository) {
+	protected RepositoryUrl getRepositoryUrl(UserModel user, RepositoryModel repository) {
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
 		List<RepositoryUrl> urls = app().gitblit().getRepositoryUrls(req, user, repository);
 		if (ArrayUtils.isEmpty(urls)) {
 			return null;
 		}
-		String primaryurl = urls.get(0).url;
-		String url = primaryurl;
-		try {
-			url = new URIish(primaryurl).setUser(null).toString();
-		} catch (Exception e) {
-		}
-		return url;
+		RepositoryUrl primary = urls.get(0);
+		return primary;
 	}
 
 	/**

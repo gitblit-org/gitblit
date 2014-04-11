@@ -47,6 +47,7 @@ import com.gitblit.auth.SalesforceAuthProvider;
 import com.gitblit.auth.WindowsAuthProvider;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
@@ -159,7 +160,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		}
 		return this;
 	}
-	
+
 	public void addAuthenticationProvider(AuthenticationProvider prov) {
 		authenticationProviders.add(prov);
 	}
@@ -290,6 +291,37 @@ public class AuthenticationManager implements IAuthenticationManager {
 	}
 
 	/**
+	 * Authenticate a user based on a public key.
+	 *
+	 * This implementation assumes that the authentication has already take place
+	 * (e.g. SSHDaemon) and that this is a validation/verification of the user.
+	 *
+	 * @param username
+	 * @param key
+	 * @return a user object or null
+	 */
+	@Override
+	public UserModel authenticate(String username, SshKey key) {
+		if (username != null) {
+			if (!StringUtils.isEmpty(username)) {
+				UserModel user = userManager.getUserModel(username);
+				if (user != null) {
+					// existing user
+					logger.debug(MessageFormat.format("{0} authenticated by {1} public key",
+							user.username, key.getAlgorithm()));
+					return validateAuthentication(user, AuthenticationType.PUBLIC_KEY);
+				}
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0} during public key authentication",
+							username));
+			}
+		} else {
+			logger.warn("Empty user passed to AuthenticationManager.authenticate!");
+		}
+		return null;
+	}
+
+
+	/**
 	 * This method allows the authentication manager to reject authentication
 	 * attempts.  It is called after the username/secret have been verified to
 	 * ensure that the authentication technique has been logged.
@@ -359,14 +391,14 @@ public class AuthenticationManager implements IAuthenticationManager {
 				}
 			}
 		}
-		
+
 		// could not authenticate locally or with a provider
 		return null;
 	}
-	
+
 	/**
 	 * Returns a UserModel if local authentication succeeds.
-	 * 
+	 *
 	 * @param user
 	 * @param password
 	 * @return a UserModel if local authentication succeeds, null otherwise

@@ -194,7 +194,7 @@ public class LuceneService implements Runnable {
 	 * Synchronously indexes a repository. This may build a complete index of a
 	 * repository or it may update an existing index.
 	 *
-	 * @param name
+	 * @param displayName
 	 *            the name of the repository
 	 * @param repository
 	 *            the repository object

@@ -17,17 +17,23 @@ package com.gitblit;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.Transport;
 import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -41,6 +47,7 @@ import com.gitblit.tickets.FileTicketService;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.NullTicketService;
 import com.gitblit.tickets.RedisTicketService;
+import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.StringUtils;
 
 import dagger.Module;
@@ -64,17 +71,21 @@ public class GitBlit extends GitblitManager {
 
 	public GitBlit(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager) {
 
 		super(runtimeManager,
+				pluginManager,
 				notificationManager,
 				userManager,
 				authenticationManager,
+				publicKeyManager,
 				repositoryManager,
 				projectManager,
 				federationManager);
@@ -101,8 +112,39 @@ public class GitBlit extends GitblitManager {
 		return this;
 	}
 
+	@Override
+	public boolean isServingRepositories() {
+		return servicesManager.isServingRepositories();
+	}
+
 	protected Object [] getModules() {
 		return new Object [] { new GitBlitModule()};
+	}
+
+	protected boolean acceptPush(Transport byTransport) {
+		if (byTransport == null) {
+			logger.info("Unknown transport, push rejected!");
+			return false;
+		}
+
+		Set<Transport> transports = new HashSet<Transport>();
+		for (String value : getSettings().getStrings(Keys.git.acceptedPushTransports)) {
+			Transport transport = Transport.fromString(value);
+			if (transport == null) {
+				logger.info(String.format("Ignoring unknown registered transport %s", value));
+				continue;
+			}
+
+			transports.add(transport);
+		}
+
+		if (transports.isEmpty()) {
+			// no transports are explicitly specified, all are acceptable
+			return true;
+		}
+
+		// verify that the transport is permitted
+		return transports.contains(byTransport);
 	}
 
 	/**
@@ -121,11 +163,33 @@ public class GitBlit extends GitblitManager {
 		String username = StringUtils.encodeUsername(UserModel.ANONYMOUS.equals(user) ? "" : user.username);
 
 		List<RepositoryUrl> list = new ArrayList<RepositoryUrl>();
+
 		// http/https url
 		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
+				Transport transport = Transport.fromString(request.getScheme());
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(transport)) {
+					// downgrade the repo permission for this transport
+					// because it is not an acceptable PUSH transport
+					permission = AccessPermission.CLONE;
+				}
 				list.add(new RepositoryUrl(getRepositoryUrl(request, username, repository), permission));
+			}
+		}
+
+		// ssh daemon url
+		String sshDaemonUrl = servicesManager.getSshDaemonUrl(request, user, repository);
+		if (!StringUtils.isEmpty(sshDaemonUrl)) {
+			AccessPermission permission = user.getRepositoryPermission(repository).permission;
+			if (permission.exceeds(AccessPermission.NONE)) {
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(Transport.SSH)) {
+					// downgrade the repo permission for this transport
+					// because it is not an acceptable PUSH transport
+					permission = AccessPermission.CLONE;
+				}
+
+				list.add(new RepositoryUrl(sshDaemonUrl, permission));
 			}
 		}
 
@@ -134,6 +198,11 @@ public class GitBlit extends GitblitManager {
 		if (!StringUtils.isEmpty(gitDaemonUrl)) {
 			AccessPermission permission = servicesManager.getGitDaemonAccessPermission(user, repository);
 			if (permission.exceeds(AccessPermission.NONE)) {
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(Transport.GIT)) {
+					// downgrade the repo permission for this transport
+					// because it is not an acceptable PUSH transport
+					permission = AccessPermission.CLONE;
+				}
 				list.add(new RepositoryUrl(gitDaemonUrl, permission));
 			}
 		}
@@ -152,6 +221,34 @@ public class GitBlit extends GitblitManager {
 				list.add(new RepositoryUrl(MessageFormat.format(url, repository.name), null));
 			}
 		}
+
+		// sort transports by highest permission and then by transport security
+		Collections.sort(list, new Comparator<RepositoryUrl>() {
+
+			@Override
+			public int compare(RepositoryUrl o1, RepositoryUrl o2) {
+				if (!o1.isExternal() && o2.isExternal()) {
+					// prefer Gitblit over external
+					return -1;
+				} else if (o1.isExternal() && !o2.isExternal()) {
+					// prefer Gitblit over external
+					return 1;
+				} else if (o1.isExternal() && o2.isExternal()) {
+					// sort by Transport ordinal
+					return o1.transport.compareTo(o2.transport);
+				} else if (o1.permission.exceeds(o2.permission)) {
+					// prefer highest permission
+					return -1;
+				} else if (o2.permission.exceeds(o1.permission)) {
+					// prefer highest permission
+					return 1;
+				}
+
+				// prefer more secure transports
+				return o1.transport.compareTo(o2.transport);
+			}
+		});
+
 		return list;
 	}
 
@@ -175,6 +272,24 @@ public class GitBlit extends GitblitManager {
 	}
 
 	/**
+	 * Delete the user and all associated public ssh keys.
+	 */
+	@Override
+	public boolean deleteUser(String username) {
+		UserModel user = userManager.getUserModel(username);
+		return deleteUserModel(user);
+	}
+
+	@Override
+	public boolean deleteUserModel(UserModel model) {
+		boolean success = userManager.deleteUserModel(model);
+		if (success) {
+			getPublicKeyManager().removeAllKeys(model.username);
+		}
+		return success;
+	}
+
+	/**
 	 * Delete the repository and all associated tickets.
 	 */
 	@Override
@@ -187,7 +302,7 @@ public class GitBlit extends GitblitManager {
 	public boolean deleteRepositoryModel(RepositoryModel model) {
 		boolean success = repositoryManager.deleteRepositoryModel(model);
 		if (success && ticketService != null) {
-			return ticketService.deleteAll(model);
+			ticketService.deleteAll(model);
 		}
 		return success;
 	}
@@ -252,7 +367,7 @@ public class GitBlit extends GitblitManager {
 					FileTicketService.class,
 					BranchTicketService.class,
 					RedisTicketService.class
-			}
+				}
 			)
 	class GitBlitModule {
 

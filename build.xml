@@ -561,9 +561,10 @@
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 					</menu>
 					<divider />
-					<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-						<page name="git client setup" src="setup_client.mkd" />
-						<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+					<menu name="Client Usage" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="using HTTP/HTTPS" src="setup_transport_http.mkd" />
+						<page name="using SSH" src="setup_transport_ssh.mkd" />
+						<page name="using the Eclipse plugin" src="eclipse_plugin.mkd" />
 					</menu>
 					<divider />
 					<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
@@ -572,6 +573,10 @@
 					  <page name="barnum" src="tickets_barnum.mkd" />
 					  <page name="setup" src="tickets_setup.mkd" />
 					  <page name="replication &amp; advanced administration" src="tickets_replication.mkd" />
+					</menu>
+					<divider />
+					<menu name="Plugins" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+					  <page name="plugins" src="setup_plugins.mkd" />
 					</menu>
 					<divider />
 					<page name="federation" src="federation.mkd" />
@@ -616,6 +621,8 @@
 					<link name="Gitblit Next (SNAPSHOT)" src="https://next-gitblit.rhcloud.com" />
 					<divider />
 					<link name="Gitblit (Self-Hosted)" src="https://dev.gitblit.com" />
+					<divider />
+					<link name="Plugin Registry" src="http://plugins.gitblit.com" />
 					<divider />
 					<link name="Github" src="${project.scmUrl}" />
 					<link name="Issues" src="${project.issuesUrl}" />
@@ -877,9 +884,10 @@
 							<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 						</menu>
 						<divider />
-						<menu name="Client Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-							<page name="git client setup" src="setup_client.mkd" />
-							<page name="eclipse plugin" src="eclipse_plugin.mkd" />
+						<menu name="Client Usage" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="using HTTP/HTTPS" src="setup_transport_http.mkd" />
+							<page name="using SSH" src="setup_transport_ssh.mkd" />
+							<page name="using the Eclipse plugin" src="eclipse_plugin.mkd" />
 						</menu>
 						<divider />
 						<menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
@@ -888,6 +896,10 @@
 							<page name="barnum" src="tickets_barnum.mkd" />
 							<page name="setup" src="tickets_setup.mkd" />
 							<page name="replication &amp; advanced administration" src="tickets_replication.mkd" />
+						</menu>
+						<divider />
+						<menu name="Plugins" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						  <page name="plugins" src="setup_plugins.mkd" />
 						</menu>
 						<divider />
 						<page name="federation" src="federation.mkd" />
@@ -905,6 +917,8 @@
 					<menu name="links">
 						<link name="Gitblit Demo (RELEASE)" src="https://demo-gitblit.rhcloud.com" />
 						<link name="Gitbilt Next (SNAPSHOT)" src="https://next-gitblit.rhcloud.com" />
+						<divider />
+						<link name="Plugin Registry" src="http://plugins.gitblit.com" />
 						<divider />
 						<link name="Github" src="${project.scmUrl}" />
 						<link name="Issues" src="${project.issuesUrl}" />
@@ -1039,6 +1053,20 @@
 			<arg value="-DrepositoryId=${project.maven.repo.id}" />
 			<arg value="-DcreateChecksum=true" />
 		</exec>
+	</target>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Install Gitblit JAR for usage as Moxie artifact
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="installMoxie" depends="compile" description="Install Gitblit JAR as a Moxie artifact">
+		<local name="project.jar" />
+		<property name="project.jar" value="${project.targetDirectory}/${project.artifactId}-${project.version}.jar" />
+		<property name="resourceFolderPrefix" value="" />
+		<mx:jar destfile="${project.jar}" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}" />
+
+		<mx:install />
 	</target>
 	
 </project>

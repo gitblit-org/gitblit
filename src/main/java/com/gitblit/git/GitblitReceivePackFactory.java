@@ -15,6 +15,9 @@
  */
 package com.gitblit.git;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jgit.lib.PersonIdent;
@@ -26,11 +29,14 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.Transport;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.transport.git.GitDaemonClient;
+import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -64,21 +70,29 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 		String origin = "";
 		String gitblitUrl = "";
 		int timeout = 0;
+		Transport transport = null;
 
 		if (req instanceof HttpServletRequest) {
 			// http/https request may or may not be authenticated
-			HttpServletRequest request = (HttpServletRequest) req;
-			repositoryName = request.getAttribute("gitblitRepositoryName").toString();
-			origin = request.getRemoteHost();
-			gitblitUrl = HttpUtils.getGitblitURL(request);
+			HttpServletRequest client = (HttpServletRequest) req;
+			repositoryName = client.getAttribute("gitblitRepositoryName").toString();
+			origin = client.getRemoteHost();
+			gitblitUrl = HttpUtils.getGitblitURL(client);
 
 			// determine pushing user
-			String username = request.getRemoteUser();
+			String username = client.getRemoteUser();
 			if (!StringUtils.isEmpty(username)) {
 				UserModel u = gitblit.getUserModel(username);
 				if (u != null) {
 					user = u;
 				}
+			}
+
+			// determine the transport
+			if ("http".equals(client.getScheme())) {
+				transport = Transport.HTTP;
+			} else if ("https".equals(client.getScheme())) {
+				transport = Transport.HTTPS;
 			}
 		} else if (req instanceof GitDaemonClient) {
 			// git daemon request is always anonymous
@@ -88,6 +102,20 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 			// set timeout from Git daemon
 			timeout = client.getDaemon().getTimeout();
+
+			transport = Transport.GIT;
+		} else if (req instanceof SshDaemonClient) {
+			// SSH request is always authenticated
+			SshDaemonClient client = (SshDaemonClient) req;
+			repositoryName = client.getRepositoryName();
+			origin = client.getRemoteAddress().toString();
+			user = client.getUser();
+
+			transport = Transport.SSH;
+		}
+
+		if (!acceptPush(transport)) {
+			throw new ServiceNotAuthorizedException();
 		}
 
 		boolean allowAnonymousPushes = settings.getBoolean(Keys.git.allowAnonymousPushes, false);
@@ -116,5 +144,31 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 		rp.setTimeout(timeout);
 
 		return rp;
+	}
+
+	protected boolean acceptPush(Transport byTransport) {
+		if (byTransport == null) {
+			logger.info("Unknown transport, push rejected!");
+			return false;
+		}
+
+		Set<Transport> transports = new HashSet<Transport>();
+		for (String value : gitblit.getSettings().getStrings(Keys.git.acceptedPushTransports)) {
+			Transport transport = Transport.fromString(value);
+			if (transport == null) {
+				logger.info(String.format("Ignoring unknown registered transport %s", value));
+				continue;
+			}
+
+			transports.add(transport);
+		}
+
+		if (transports.isEmpty()) {
+			// no transports are explicitly specified, all are acceptable
+			return true;
+		}
+
+		// verify that the transport is permitted
+		return transports.contains(byTransport);
 	}
 }

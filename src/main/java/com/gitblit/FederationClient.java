@@ -97,7 +97,7 @@ public class FederationClient {
 		UserManager users = new UserManager(runtime).start();
 		RepositoryManager repositories = new RepositoryManager(runtime, users).start();
 		FederationManager federation = new FederationManager(runtime, notifications, repositories).start();
-		IGitblit gitblit = new GitblitManager(runtime, notifications, users, null, repositories, null, federation);
+		IGitblit gitblit = new GitblitManager(runtime, null, notifications, users, null, null, repositories, null, federation);
 
 		FederationPullService puller = new FederationPullService(gitblit, federation.getFederationRegistrations()) {
 			@Override

@@ -165,7 +165,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		if (repository.isMirror) {
 			urlPanel.add(WicketUtils.newImage("accessRestrictionIcon", "mirror_16x16.png",
 					getString("gb.isMirror")));
-		} else if (app().runtime().isServingRepositories()) {
+		} else if (app().gitblit().isServingRepositories()) {
 			switch (repository.accessRestriction) {
 			case NONE:
 				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
@@ -210,7 +210,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		return urlPanel;
 	}
 
-	protected Fragment createApplicationMenus(String wicketId, UserModel user, final RepositoryModel repository, final List<RepositoryUrl> repositoryUrls) {
+	protected Fragment createApplicationMenus(String wicketId, final UserModel user, final RepositoryModel repository, final List<RepositoryUrl> repositoryUrls) {
 		final List<GitClientApplication> displayedApps = new ArrayList<GitClientApplication>();
 		final String userAgent = ((WebClientInfo) GitBlitWebSession.get().getClientInfo()).getUserAgent();
 
@@ -309,13 +309,13 @@ public class RepositoryUrlPanel extends BasePanel {
 
 						if (!StringUtils.isEmpty(clientApp.cloneUrl)) {
 							// custom registered url
-							String url = substitute(clientApp.cloneUrl, repoUrl.url, baseURL);
+							String url = substitute(clientApp.cloneUrl, repoUrl.url, baseURL, user.username, repository.name);
 							fragment.add(new LinkPanel("content", "applicationMenuItem", getString("gb.clone") + " " + repoUrl.url, url));
 							repoLinkItem.add(fragment);
 							fragment.add(new Label("copyFunction").setVisible(false));
 						} else if (!StringUtils.isEmpty(clientApp.command)) {
 							// command-line
-							String command = substitute(clientApp.command, repoUrl.url, baseURL);
+							String command = substitute(clientApp.command, repoUrl.url, baseURL, user.username, repository.name);
 							Label content = new Label("content", command);
 							WicketUtils.setCssClass(content, "commandMenuItem");
 							fragment.add(content);
@@ -334,8 +334,8 @@ public class RepositoryUrlPanel extends BasePanel {
 		return applicationMenus;
 	}
 
-	protected String substitute(String pattern, String repoUrl, String baseUrl) {
-		return pattern.replace("${repoUrl}", repoUrl).replace("${baseUrl}", baseUrl);
+	protected String substitute(String pattern, String repoUrl, String baseUrl, String username, String repository) {
+		return pattern.replace("${repoUrl}", repoUrl).replace("${baseUrl}", baseUrl).replace("${username}", username).replace("${repository}", repository);
 	}
 
 	protected Label createPermissionBadge(String wicketId, RepositoryUrl repoUrl) {

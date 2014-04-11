@@ -23,15 +23,22 @@ import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
+import com.gitblit.manager.PluginManager;
 import com.gitblit.manager.ProjectManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
+import com.gitblit.transport.ssh.FileKeyManager;
+import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.transport.ssh.MemoryKeyManager;
+import com.gitblit.transport.ssh.NullKeyManager;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 
 import dagger.Module;
@@ -50,9 +57,11 @@ import dagger.Provides;
 
 			// core managers
 			IRuntimeManager.class,
+			IPluginManager.class,
 			INotificationManager.class,
 			IUserManager.class,
 			IAuthenticationManager.class,
+			IPublicKeyManager.class,
 			IRepositoryManager.class,
 			IProjectManager.class,
 			IFederationManager.class,
@@ -62,7 +71,7 @@ import dagger.Provides;
 
 			// the Gitblit Wicket app
 			GitBlitWebApp.class
-	}
+		}
 )
 public class DaggerModule {
 
@@ -72,6 +81,10 @@ public class DaggerModule {
 
 	@Provides @Singleton IRuntimeManager provideRuntimeManager(IStoredSettings settings) {
 		return new RuntimeManager(settings);
+	}
+
+	@Provides @Singleton IPluginManager providePluginManager(IRuntimeManager runtimeManager) {
+		return new PluginManager(runtimeManager);
 	}
 
 	@Provides @Singleton INotificationManager provideNotificationManager(IStoredSettings settings) {
@@ -89,6 +102,31 @@ public class DaggerModule {
 		return new AuthenticationManager(
 				runtimeManager,
 				userManager);
+	}
+
+	@Provides @Singleton IPublicKeyManager providePublicKeyManager(
+			IStoredSettings settings,
+			IRuntimeManager runtimeManager) {
+
+		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
+		if (StringUtils.isEmpty(clazz)) {
+			clazz = FileKeyManager.class.getName();
+		}
+		if (FileKeyManager.class.getName().equals(clazz)) {
+			return new FileKeyManager(runtimeManager);
+		} else if (NullKeyManager.class.getName().equals(clazz)) {
+			return new NullKeyManager();
+		} else if (MemoryKeyManager.class.getName().equals(clazz)) {
+			return new MemoryKeyManager();
+		} else {
+			try {
+				Class<?> mgrClass = Class.forName(clazz);
+				return (IPublicKeyManager) mgrClass.newInstance();
+			} catch (Exception e) {
+
+			}
+			return null;
+		}
 	}
 
 	@Provides @Singleton IRepositoryManager provideRepositoryManager(
@@ -124,18 +162,22 @@ public class DaggerModule {
 
 	@Provides @Singleton IGitblit provideGitblit(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager) {
 
 		return new GitBlit(
 				runtimeManager,
+				pluginManager,
 				notificationManager,
 				userManager,
 				authenticationManager,
+				publicKeyManager,
 				repositoryManager,
 				projectManager,
 				federationManager);
@@ -146,6 +188,7 @@ public class DaggerModule {
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
+			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager,
@@ -156,6 +199,7 @@ public class DaggerModule {
 				notificationManager,
 				userManager,
 				authenticationManager,
+				publicKeyManager,
 				repositoryManager,
 				projectManager,
 				federationManager,

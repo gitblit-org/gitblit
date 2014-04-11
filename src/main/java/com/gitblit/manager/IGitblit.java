@@ -27,9 +27,11 @@ import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
+import com.gitblit.transport.ssh.IPublicKeyManager;
 
 public interface IGitblit extends IManager,
 									IRuntimeManager,
+									IPluginManager,
 									INotificationManager,
 									IUserManager,
 									IAuthenticationManager,
@@ -108,5 +110,12 @@ public interface IGitblit extends IManager,
 	 * @return a ticket service
 	 */
 	ITicketService getTicketService();
+
+	/**
+	 * Returns the SSH public key manager.
+	 *
+	 * @return the SSH public key manager
+	 */
+	IPublicKeyManager getPublicKeyManager();
 
 }
