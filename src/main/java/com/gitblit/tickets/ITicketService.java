@@ -35,7 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.extensions.TicketHook;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
@@ -94,6 +96,8 @@ public abstract class ITicketService {
 
 	protected final IRepositoryManager repositoryManager;
 
+	protected final IPluginManager pluginManager;
+
 	protected final TicketIndexer indexer;
 
 	private final Cache<TicketKey, TicketModel> ticketsCache;
@@ -136,6 +140,7 @@ public abstract class ITicketService {
 	 */
 	public ITicketService(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IRepositoryManager repositoryManager) {
@@ -143,6 +148,7 @@ public abstract class ITicketService {
 		this.log = LoggerFactory.getLogger(getClass());
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
+		this.pluginManager = pluginManager;
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.repositoryManager = repositoryManager;
@@ -832,6 +838,17 @@ public abstract class ITicketService {
 		if (success) {
 			TicketModel ticket = getTicket(repository, ticketId);
 			indexer.index(ticket);
+
+			// call the ticket hooks
+			if (pluginManager != null) {
+				for (TicketHook hook : pluginManager.getExtensions(TicketHook.class)) {
+					try {
+						hook.onNewTicket(ticket);
+					} catch (Exception e) {
+						log.error("Failed to execute extension", e);
+					}
+				}
+			}
 			return ticket;
 		}
 		return null;
@@ -862,6 +879,17 @@ public abstract class ITicketService {
 			TicketModel ticket = getTicket(repository, ticketId);
 			ticketsCache.put(key, ticket);
 			indexer.index(ticket);
+
+			// call the ticket hooks
+			if (pluginManager != null) {
+				for (TicketHook hook : pluginManager.getExtensions(TicketHook.class)) {
+					try {
+						hook.onUpdateTicket(ticket, change);
+					} catch (Exception e) {
+						log.error("Failed to execute extension", e);
+					}
+				}
+			}
 			return ticket;
 		}
 		return null;

@@ -17,10 +17,12 @@ package com.gitblit.tests;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
+import com.gitblit.manager.PluginManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
@@ -49,12 +51,14 @@ public class FileTicketServiceTest extends TicketServiceTest {
 		IStoredSettings settings = getSettings(deleteAll);
 
 		IRuntimeManager runtimeManager = new RuntimeManager(settings).start();
+		IPluginManager pluginManager = new PluginManager(runtimeManager).start();
 		INotificationManager notificationManager = new NotificationManager(settings).start();
 		IUserManager userManager = new UserManager(runtimeManager).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, userManager).start();
 
 		FileTicketService service = new FileTicketService(
 				runtimeManager,
+				pluginManager,
 				notificationManager,
 				userManager,
 				repositoryManager).start();

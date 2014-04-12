@@ -139,13 +139,13 @@ public class ReindexTickets {
 			Class<?> serviceClass = Class.forName(serviceName);
 			if (RedisTicketService.class.isAssignableFrom(serviceClass)) {
 				// Redis ticket service
-				ticketService = new RedisTicketService(runtimeManager, null, null, repositoryManager).start();
+				ticketService = new RedisTicketService(runtimeManager, null, null, null, repositoryManager).start();
 			} else if (BranchTicketService.class.isAssignableFrom(serviceClass)) {
 				// Branch ticket service
-				ticketService = new BranchTicketService(runtimeManager, null, null, repositoryManager).start();
+				ticketService = new BranchTicketService(runtimeManager, null, null, null, repositoryManager).start();
 			} else if (FileTicketService.class.isAssignableFrom(serviceClass)) {
 				// File ticket service
-				ticketService = new FileTicketService(runtimeManager, null, null, repositoryManager).start();
+				ticketService = new FileTicketService(runtimeManager, null, null, null, repositoryManager).start();
 			} else {
 				System.err.println("Unknown ticket service " + serviceName);
 				System.exit(1);

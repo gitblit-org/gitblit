@@ -111,6 +111,29 @@ public class MyPatchsetHook extends PatchsetHook {
 }
 ```
 
+### Extension Point: Ticket Hook
+
+You can provide your own custom ticket hook by extending the *TicketHook* class.
+
+```java
+import com.gitblit.extensions.TicketHook;
+import com.gitblit.models.TicketModel;
+import com.gitblit.models.TicketModel.Change;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyTicketHook extends TicketHook {
+
+    @Override
+    public void onNewTicket(TicketModel ticket) {
+    }
+
+    @Override
+    public void onUpdateTicket(TicketModel ticket, Change change) {
+    }
+}
+```
+
 ### Mac OSX Fonts
 
 Gitblit's core SSH commands and those in the *powertools* plugin rely on use of ANSI border characters to provide a pretty presentation of data.  Unfortunately, the fonts provided by Apple - while very nice - don't work well with ANSI border characters.  The following public domain fixed-width, fixed-point, bitmapped fonts work very nicely.  I find the 6x12 font with a line spacing of ~0.8 to be quite acceptable.

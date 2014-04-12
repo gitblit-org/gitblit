@@ -29,6 +29,7 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
@@ -58,11 +59,13 @@ public class FileTicketService extends ITicketService {
 
 	public FileTicketService(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IRepositoryManager repositoryManager) {
 
 		super(runtimeManager,
+				pluginManager,
 				notificationManager,
 				userManager,
 				repositoryManager);

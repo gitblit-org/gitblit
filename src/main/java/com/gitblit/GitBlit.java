@@ -352,6 +352,7 @@ public class GitBlit extends GitblitManager {
 
 					// core managers
 					IRuntimeManager.class,
+					IPluginManager.class,
 					INotificationManager.class,
 					IUserManager.class,
 					IAuthenticationManager.class,
@@ -377,6 +378,10 @@ public class GitBlit extends GitblitManager {
 
 		@Provides @Singleton IRuntimeManager provideRuntimeManager() {
 			return runtimeManager;
+		}
+
+		@Provides @Singleton IPluginManager providePluginManager() {
+			return pluginManager;
 		}
 
 		@Provides @Singleton INotificationManager provideNotificationManager() {
@@ -410,6 +415,7 @@ public class GitBlit extends GitblitManager {
 		@Provides @Singleton NullTicketService provideNullTicketService() {
 			return new NullTicketService(
 					runtimeManager,
+					pluginManager,
 					notificationManager,
 					userManager,
 					repositoryManager);
@@ -418,6 +424,7 @@ public class GitBlit extends GitblitManager {
 		@Provides @Singleton FileTicketService provideFileTicketService() {
 			return new FileTicketService(
 					runtimeManager,
+					pluginManager,
 					notificationManager,
 					userManager,
 					repositoryManager);
@@ -426,6 +433,7 @@ public class GitBlit extends GitblitManager {
 		@Provides @Singleton BranchTicketService provideBranchTicketService() {
 			return new BranchTicketService(
 					runtimeManager,
+					pluginManager,
 					notificationManager,
 					userManager,
 					repositoryManager);
@@ -434,6 +442,7 @@ public class GitBlit extends GitblitManager {
 		@Provides @Singleton RedisTicketService provideRedisTicketService() {
 			return new RedisTicketService(
 					runtimeManager,
+					pluginManager,
 					notificationManager,
 					userManager,
 					repositoryManager);
