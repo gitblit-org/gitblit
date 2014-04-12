@@ -320,9 +320,9 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	}
 
 	@Override
-	public synchronized PluginRegistration lookupPlugin(String idOrName) {
+	public synchronized PluginRegistration lookupPlugin(String pluginId) {
 		for (PluginRegistration reg : getRegisteredPlugins()) {
-			if (reg.id.equalsIgnoreCase(idOrName) || reg.name.equalsIgnoreCase(idOrName)) {
+			if (reg.id.equalsIgnoreCase(pluginId)) {
 				return reg;
 			}
 		}
@@ -330,8 +330,8 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	}
 
 	@Override
-	public synchronized PluginRelease lookupRelease(String idOrName, String version) {
-		PluginRegistration reg = lookupPlugin(idOrName);
+	public synchronized PluginRelease lookupRelease(String pluginId, String version) {
+		PluginRegistration reg = lookupPlugin(pluginId);
 		if (reg == null) {
 			return null;
 		}

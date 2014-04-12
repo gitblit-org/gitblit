@@ -1270,12 +1270,12 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public PluginRegistration lookupPlugin(String idOrName) {
-		return pluginManager.lookupPlugin(idOrName);
+	public PluginRegistration lookupPlugin(String pluginId) {
+		return pluginManager.lookupPlugin(pluginId);
 	}
 
 	@Override
-	public PluginRelease lookupRelease(String idOrName, String version) {
-		return pluginManager.lookupRelease(idOrName, version);
+	public PluginRelease lookupRelease(String pluginId, String version) {
+		return pluginManager.lookupRelease(pluginId, version);
 	}
 }

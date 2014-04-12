@@ -47,10 +47,9 @@ public class PluginRegistry implements Serializable {
 		}
 	}
 
-	public PluginRegistration lookup(String idOrName) {
+	public PluginRegistration lookup(String id) {
 		for (PluginRegistration registration : registrations) {
-			if (registration.id.equalsIgnoreCase(idOrName)
-					|| registration.name.equalsIgnoreCase(idOrName)) {
+			if (registration.id.equalsIgnoreCase(id)) {
 				return registration;
 			}
 		}
@@ -74,8 +73,6 @@ public class PluginRegistry implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		public final String id;
-
-		public String name;
 
 		public String description;
 

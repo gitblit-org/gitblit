@@ -73,7 +73,7 @@ public class PluginDispatcher extends DispatchCommand {
 		protected void asTable(List<PluginWrapper> list) {
 			String[] headers;
 			if (verbose) {
-				String [] h = { "#", "Id", "Version", "State", "Path", "Provider"};
+				String [] h = { "#", "Id", "Description", "Version", "Requires", "State", "Path", "Provider"};
 				headers = h;
 			} else {
 				String [] h = { "#", "Id", "Version", "State", "Path"};
@@ -84,7 +84,7 @@ public class PluginDispatcher extends DispatchCommand {
 				PluginWrapper p = list.get(i);
 				PluginDescriptor d = p.getDescriptor();
 				if (verbose) {
-					data[i] = new Object[] { "" + (i + 1), d.getPluginId(), d.getVersion(), p.getPluginState(), p.getPluginPath(), d.getProvider() };
+					data[i] = new Object[] { "" + (i + 1), d.getPluginId(), null/*d.getDescription()*/, d.getVersion(), null/*d.getRequires()*/, p.getPluginState(), p.getPluginPath(), d.getProvider() };
 				} else {
 					data[i] = new Object[] { "" + (i + 1), d.getPluginId(), d.getVersion(), p.getPluginState(), p.getPluginPath() };
 				}
@@ -98,7 +98,7 @@ public class PluginDispatcher extends DispatchCommand {
 			for (PluginWrapper pw : list) {
 				PluginDescriptor d = pw.getDescriptor();
 				if (verbose) {
-					outTabbed(d.getPluginId(), d.getVersion(), pw.getPluginState(), pw.getPluginPath(), d.getProvider());
+					outTabbed(d.getPluginId(), null/*d.getDescription()*/, d.getVersion(), null/*d.getRequires()*/, pw.getPluginState(), pw.getPluginPath(), d.getProvider());
 				} else {
 					outTabbed(d.getPluginId(), d.getVersion(), pw.getPluginState(), pw.getPluginPath());
 				}
@@ -256,8 +256,9 @@ public class PluginDispatcher extends DispatchCommand {
 
 		protected String buildFieldTable(PluginWrapper pw, PluginRegistration reg) {
 			final String id = pw == null ? reg.id : pw.getPluginId();
-			final String name = reg == null ? "" : reg.name;
-			final String version = pw == null ? "" : pw.getDescriptor().getVersion().toString();
+			final String description = reg == null ? ""/*pw.getDescriptor().getDescription()*/ : reg.description;
+			final String version = pw == null ? reg.getCurrentRelease().version : pw.getDescriptor().getVersion().toString();
+			final String requires = pw == null ? reg.getCurrentRelease().requires : ""/*pw.getDescriptor().getRequires().toString()*/;
 			final String provider = pw == null ? reg.provider : pw.getDescriptor().getProvider();
 			final String registry = reg == null ? "" : reg.registry;
 			final String path = pw == null ? "" : pw.getPluginPath();
@@ -277,10 +278,11 @@ public class PluginDispatcher extends DispatchCommand {
 			StringBuilder sb = new StringBuilder();
 			sb.append("ID          : ").append(id).append('\n');
 			sb.append("Version     : ").append(version).append('\n');
+			sb.append("Requires    : ").append(requires).append('\n');
 			sb.append("State       : ").append(state).append('\n');
 			sb.append("Path        : ").append(path).append('\n');
 			sb.append('\n');
-			sb.append("Name        : ").append(name).append('\n');
+			sb.append("Description : ").append(description).append('\n');
 			sb.append("Provider    : ").append(provider).append('\n');
 			sb.append("Project URL : ").append(projectUrl).append('\n');
 			sb.append("Registry    : ").append(registry).append('\n');
@@ -451,17 +453,17 @@ public class PluginDispatcher extends DispatchCommand {
 
 		@Override
 		protected boolean matches(String filter, PluginRegistration t) {
-			return t.id.matches(filter) || t.name.matches(filter);
+			return t.id.matches(filter) || (t.description != null && t.description.matches(filter));
 		}
 
 		@Override
 		protected void asTable(List<PluginRegistration> list) {
 			String[] headers;
 			if (verbose) {
-				String [] h = { "Id", "Name", "Description", "Installed", "Current", "Requires", "State", "Registry" };
+				String [] h = { "Id", "Description", "Installed", "Current", "Requires", "State", "Registry" };
 				headers = h;
 			} else {
-				String [] h = { "Id", "Name", "Installed", "Current", "Requires", "State" };
+				String [] h = { "Id", "Installed", "Current", "Requires", "State" };
 				headers = h;
 			}
 			Object[][] data = new Object[list.size()][];
@@ -469,9 +471,9 @@ public class PluginDispatcher extends DispatchCommand {
 				PluginRegistration p = list.get(i);
 				PluginRelease curr = p.getCurrentRelease();
 				if (verbose) {
-					data[i] = new Object[] {p.id, p.name, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.registry};
+					data[i] = new Object[] {p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.registry};
 				} else {
-					data[i] = new Object[] {p.id, p.name, p.installedRelease, curr.version, curr.requires, p.getInstallState()};
+					data[i] = new Object[] {p.id, p.installedRelease, curr.version, curr.requires, p.getInstallState()};
 				}
 			}
 
@@ -483,9 +485,9 @@ public class PluginDispatcher extends DispatchCommand {
 			for (PluginRegistration p : list) {
 				PluginRelease curr = p.getCurrentRelease();
 				if (verbose) {
-					outTabbed(p.id, p.name, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.provider, p.registry);
+					outTabbed(p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.provider, p.registry);
 				} else {
-					outTabbed(p.id, p.name, p.installedRelease, curr.version, curr.requires, p.getInstallState());
+					outTabbed(p.id, p.installedRelease, curr.version, curr.requires, p.getInstallState());
 				}
 			}
 		}
