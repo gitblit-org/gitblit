@@ -1,0 +1,115 @@
+## Extension Points
+
+Gitblit offers several extension points for enhancing and customizing it's runtime behavior.
+
+Each available extension point has a sample implementation in the [gitblit-cookbook-plugin (Maven project)](https://dev.gitblit.com/summary/gitblit-cookbook-plugin.git).
+
+### SSH Dispatch Command
+
+*SINCE 1.5.0*
+
+You can provide your own custom SSH commands by subclassing the *DispatchCommand* class.
+
+```java
+import ro.fortsoft.pf4j.Extension;
+
+import com.gitblit.models.UserModel;
+import com.gitblit.transport.ssh.commands.CommandMetaData;
+import com.gitblit.transport.ssh.commands.DispatchCommand;
+
+@Extension
+@CommandMetaData(name = "mycommands", description = "Sample SSH dispatcher")
+public class MyDispatcher extends DispatchCommand {
+
+    @Override
+    protected void setup(UserModel user) {
+        // commands in this dispatcher
+        register(user, CommandA.class);
+        register(user, CommandB.class);
+
+        // nested dispatchers
+        register(user, SubDispatcher1.class);
+        register(user, SubDispatcher2.class);
+    }
+}
+```
+
+### Pre- and Post- Receive Hook
+
+*SINCE 1.5.0*
+
+You can provide your own custom pre and/or post receive hooks by subclassing the *ReceiveHook* class.
+
+```java
+import com.gitblit.extensions.ReceiveHook;
+import java.util.Collection;
+import org.eclipse.jgit.transport.ReceiveCommand;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyReceiveHook extends ReceiveHook {
+
+    @Override
+    public void onPreReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
+    }
+
+    @Override
+    public void onPostReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
+    }
+}
+
+```
+
+### Patchset Hook
+
+*SINCE 1.5.0*
+
+You can provide your own custom patchset hook by subclassing the *PatchsetHook* class.
+
+```java
+import com.gitblit.extensions.PatchsetHook;
+import com.gitblit.models.TicketModel;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyPatchsetHook extends PatchsetHook {
+
+    @Override
+    public void onNewPatchset(TicketModel ticket) {
+    }
+
+    @Override
+    public void onUpdatePatchset(TicketModel ticket) {
+    }
+
+    @Override
+    public void onMergePatchset(TicketModel ticket) {
+    }
+}
+```
+
+### Ticket Hook
+
+*SINCE 1.5.0*
+
+You can provide your own custom ticket hook by subclassing the *TicketHook* class.
+
+```java
+import com.gitblit.extensions.TicketHook;
+import com.gitblit.models.TicketModel;
+import com.gitblit.models.TicketModel.Change;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyTicketHook extends TicketHook {
+
+    @Override
+    public void onNewTicket(TicketModel ticket) {
+    }
+
+    @Override
+    public void onUpdateTicket(TicketModel ticket, Change change) {
+    }
+}
+```
+

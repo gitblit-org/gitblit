@@ -576,7 +576,8 @@
 					</menu>
 					<divider />
 					<menu name="Plugins" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-					  <page name="plugins" src="setup_plugins.mkd" />
+					  <page name="overview" src="plugins_overview.mkd" />
+					  <page name="extension points" src="plugins_extensions.mkd" />
 					</menu>
 					<divider />
 					<page name="federation" src="federation.mkd" />
@@ -899,7 +900,8 @@
 						</menu>
 						<divider />
 						<menu name="Plugins" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-						  <page name="plugins" src="setup_plugins.mkd" />
+						  <page name="overview" src="plugins_overview.mkd" />
+						  <page name="extension points" src="plugins_extensions.mkd" />
 						</menu>
 						<divider />
 						<page name="federation" src="federation.mkd" />

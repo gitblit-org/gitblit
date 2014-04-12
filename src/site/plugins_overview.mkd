@@ -5,6 +5,12 @@
 
 Gitblit supports extending and enhancing the core functionality through plugins.  This mechanism is very young and incomplete with few extension points, but you can expect it to evolve rapidly in upcoming releases.
 
+### What is a plugin?
+
+A plugin is a collection of Java classes and required jar dependencies bundled together in a zip file.  A plugin may optionally include *Extensions* which enhance Gitblit at specific Gitblit-specified *ExtensionPoints*.
+
+*Plugins* are singleton instances that are *STARTED* when Gitblit launches and *STOPPED* when Gitblit terminates.  *Extensions* are dynamic instances that are created when Gitblit processes requests that trigger *ExtensionPoints*.
+
 ### Architecture
 
 The existing plugin mechanism is based on [pf4j](https://github.com/decebals/pf4j).  Plugins are distributed as zip files and may include their runtime dependencies or may rely on the bundled dependencies of other plugins and/or Gitblit core.
@@ -13,11 +19,11 @@ The zip plugins are stored in `${baseFolder}/plugins` and are unpacked on startu
 
 A plugin defines it's metadata in the META-INF/MANIFEST.MF file:
 
+    Plugin-Id: powertools
+    Plugin-Description: Gitblit Powertools
     Plugin-Class: com.gitblit.plugin.powertools.Powertools
-    Plugin-Dependencies: 
-    Plugin-Id: com.gitblit.plugin:powertools
-    Plugin-Provider: James Moger
-    Plugin-Version: 1.1.0
+    Plugin-Version: 1.2.0
+    Plugin-Provider: gitblit.com
 
 In addition to extending Gitblit core, plugins can also define extension points that may be implemented by other plugins.  Therefore a plugin may depend on other plugins.
 
@@ -25,6 +31,10 @@ In addition to extending Gitblit core, plugins can also define extension points 
 
 **NOTE:**
 The pf4j plugin framework relies on a javac apt processor to generate compile-time extension information, so be sure to enable apt processing in your build process.
+
+#### Limitations of Dependencies & Requires
+
+Plugins may specify dependencies by ID, but may not specify specific versions of a dependency.  The plugin registry allows you to specify a *requires* version of Gitblit, but this is not currently enforced.
 
 ### Managing Plugins
 
@@ -52,91 +62,9 @@ The `plugins.json` file is parameterized with the `${self}` placeholder.  This p
 
 Gitblit also supports loading multiple plugin registries.  Just place another **properly formatted** `.json` file in `${baseFolder}/plugins` and Gitblit will load that as an additional registry.
 
-### Extension Point: SSH DispatchCommand
-
-You can provide your own custom SSH commands by extending the *DispatchCommand* class.
-
-For some examples of how to do this, please see:
-
-[gitblit-cookbook-plugin (Maven project)](https://dev.gitblit.com/summary/gitblit-cookbook-plugin.git)
-[gitblit-powertools-plugin (Ant/Moxie project)](https://dev.gitblit.com/summary/gitblit-powertools-plugin.git)
-
-### Extension Point: Pre- and Post- Receive Hook
-
-You can provide your own custom pre and/or post receive hooks by extending the *ReceiveHook* class.
-
-```java
-import com.gitblit.extensions.ReceiveHook;
-import java.util.Collection;
-import org.eclipse.jgit.transport.ReceiveCommand;
-import ro.fortsoft.pf4j.Extension;
-
-@Extension
-public class MyReceiveHook extends ReceiveHook {
-
-    @Override
-    public void onPreReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
-    }
-
-    @Override
-    public void onPostReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands) {
-    }
-}
-
-```
-
-### Extension Point: Patchset Hook
-
-You can provide your own custom patchset hook by extending the *PatchsetHook* class.
-
-```java
-import com.gitblit.extensions.PatchsetHook;
-import com.gitblit.models.TicketModel;
-import ro.fortsoft.pf4j.Extension;
-
-@Extension
-public class MyPatchsetHook extends PatchsetHook {
-
-    @Override
-    public void onNewPatchset(TicketModel ticket) {
-    }
-
-    @Override
-    public void onUpdatePatchset(TicketModel ticket) {
-    }
-
-    @Override
-    public void onMergePatchset(TicketModel ticket) {
-    }
-}
-```
-
-### Extension Point: Ticket Hook
-
-You can provide your own custom ticket hook by extending the *TicketHook* class.
-
-```java
-import com.gitblit.extensions.TicketHook;
-import com.gitblit.models.TicketModel;
-import com.gitblit.models.TicketModel.Change;
-import ro.fortsoft.pf4j.Extension;
-
-@Extension
-public class MyTicketHook extends TicketHook {
-
-    @Override
-    public void onNewTicket(TicketModel ticket) {
-    }
-
-    @Override
-    public void onUpdateTicket(TicketModel ticket, Change change) {
-    }
-}
-```
-
 ### Mac OSX Fonts
 
-Gitblit's core SSH commands and those in the *powertools* plugin rely on use of ANSI border characters to provide a pretty presentation of data.  Unfortunately, the fonts provided by Apple - while very nice - don't work well with ANSI border characters.  The following public domain fixed-width, fixed-point, bitmapped fonts work very nicely.  I find the 6x12 font with a line spacing of ~0.8 to be quite acceptable.
+Gitblit's core SSH commands and those in the *powertools* plugin rely on ANSI border characters to provide a pretty presentation of data.  Unfortunately, the fonts provided by Apple - while very nice - don't work well with ANSI border characters.  The following public domain fixed-width, fixed-point, bitmapped fonts work very nicely.  I find the 6x12 font with a line spacing of ~0.8 to be quite acceptable.
 
 [6x12.dfont](6x12.dfont)
 [6x13.dfont](6x13.dfont)
