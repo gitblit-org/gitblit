@@ -1021,13 +1021,23 @@
 	-->
 	<target name="installMaven" depends="compile" description="Install Gitblit JAR as Maven module">
 		<local name="project.jar" />
-		<property name="project.jar" value="${project.outputDirectory}/gitblit.jar" />
+		<property name="project.jar" value="${project.outputDirectory}/${project.artifactId}.jar" />
 		<property name="resourceFolderPrefix" value="" />
-		<mx:jar destfile="${project.jar}" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}" />
+		<mx:jar destfile="${project.jar}" packageSources="true" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}" />
 
+		<!-- Install Binary jar -->
 		<exec executable="mvn">
 			<arg value="install:install-file" />
 			<arg value="-Dfile=${project.jar}" />
+			<arg value="-DpomFile=${basedir}/pom.xml" />
+			<arg value="-DcreateChecksum=true" />
+		</exec>
+		
+		<!-- Install Sources  jar -->
+		<exec executable="mvn">
+			<arg value="install:install-file" />
+			<arg value="-Dfile=${project.outputDirectory}/${project.artifactId}-sources.jar" />
+			<arg value="-Dclassifier=sources" />
 			<arg value="-DpomFile=${basedir}/pom.xml" />
 			<arg value="-DcreateChecksum=true" />
 		</exec>
@@ -1045,7 +1055,7 @@
 	<target name="uploadMaven" depends="compile" description="Upload Gitblit JAR to remote Maven repository">
 		<local name="project.jar" />
 		<property name="project.jar" value="${project.outputDirectory}/gitblit.jar" />
-		<mx:jar destfile="${project.jar}" includeresources="true" />
+		<mx:jar destfile="${project.jar}" packageSources="true" includeresources="true" />
 
 		<exec executable="mvn">
 			<arg value="deploy:deploy-file" />
@@ -1066,7 +1076,7 @@
 		<local name="project.jar" />
 		<property name="project.jar" value="${project.targetDirectory}/${project.artifactId}-${project.version}.jar" />
 		<property name="resourceFolderPrefix" value="" />
-		<mx:jar destfile="${project.jar}" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}" />
+		<mx:jar destfile="${project.jar}" packageSources="true" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}" />
 
 		<mx:install />
 	</target>
