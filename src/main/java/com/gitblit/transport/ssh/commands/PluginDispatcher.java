@@ -138,7 +138,7 @@ public class PluginDispatcher extends DispatchCommand {
 	@CommandMetaData(name = "start", description = "Start a plugin")
 	public static class StartPlugin extends PluginCommand {
 
-		@Argument(index = 0, required = true, metaVar = "ALL|<id>", usage = "the plugin to start")
+		@Argument(index = 0, required = true, metaVar = "ALL|<ID>|<INDEX>", usage = "the plugin to start")
 		protected String id;
 
 		@Override
@@ -166,7 +166,7 @@ public class PluginDispatcher extends DispatchCommand {
 	@CommandMetaData(name = "stop", description = "Stop a plugin")
 	public static class StopPlugin extends PluginCommand {
 
-		@Argument(index = 0, required = true, metaVar = "ALL|<id>", usage = "the plugin to stop")
+		@Argument(index = 0, required = true, metaVar = "ALL|<ID>|<INDEX>", usage = "the plugin to stop")
 		protected String id;
 
 		@Override
@@ -194,7 +194,7 @@ public class PluginDispatcher extends DispatchCommand {
 	@CommandMetaData(name = "enable", description = "Enable a plugin")
 	public static class EnablePlugin extends PluginCommand {
 
-		@Argument(index = 0, required = true, metaVar = "<id>", usage = "the plugin id to enable")
+		@Argument(index = 0, required = true, metaVar = "<ID>|<INDEX>", usage = "the plugin to enable")
 		protected String id;
 
 		@Override
@@ -216,7 +216,7 @@ public class PluginDispatcher extends DispatchCommand {
 	@CommandMetaData(name = "disable", description = "Disable a plugin")
 	public static class DisablePlugin extends PluginCommand {
 
-		@Argument(index = 0, required = true, metaVar = "<id>", usage = "the plugin to disable")
+		@Argument(index = 0, required = true, metaVar = "<ID>|<INDEX>", usage = "the plugin to disable")
 		protected String id;
 
 		@Override
@@ -238,7 +238,7 @@ public class PluginDispatcher extends DispatchCommand {
 	@CommandMetaData(name = "show", description = "Show the details of a plugin")
 	public static class ShowPlugin extends PluginCommand {
 
-		@Argument(index = 0, required = true, metaVar = "<id>", usage = "the plugin to show")
+		@Argument(index = 0, required = true, metaVar = "<ID>|<INDEX>", usage = "the plugin to show")
 		protected String id;
 
 		@Override
@@ -498,8 +498,8 @@ public class PluginDispatcher extends DispatchCommand {
 	@CommandMetaData(name = "install", description = "Download and installs a plugin")
 	public static class InstallPlugin extends SshCommand {
 
-		@Argument(index = 0, required = true, metaVar = "<URL>|<ID>|<NAME>", usage = "the id, name, or the url of the plugin to download and install")
-		protected String urlOrIdOrName;
+		@Argument(index = 0, required = true, metaVar = "<URL>|<ID>", usage = "the id or the url of the plugin to download and install")
+		protected String urlOrId;
 
 		@Option(name = "--version", usage = "The specific version to install")
 		private String version;
@@ -511,27 +511,27 @@ public class PluginDispatcher extends DispatchCommand {
 		public void run() throws Failure {
 			IGitblit gitblit = getContext().getGitblit();
 			try {
-				String ulc = urlOrIdOrName.toLowerCase();
+				String ulc = urlOrId.toLowerCase();
 				if (ulc.startsWith("http://") || ulc.startsWith("https://")) {
-					if (gitblit.installPlugin(urlOrIdOrName, !disableChecksum)) {
-						stdout.println(String.format("Installed %s", urlOrIdOrName));
+					if (gitblit.installPlugin(urlOrId, !disableChecksum)) {
+						stdout.println(String.format("Installed %s", urlOrId));
 					} else {
-						new Failure(1, String.format("Failed to install %s", urlOrIdOrName));
+						new Failure(1, String.format("Failed to install %s", urlOrId));
 					}
 				} else {
-					PluginRelease pv = gitblit.lookupRelease(urlOrIdOrName, version);
+					PluginRelease pv = gitblit.lookupRelease(urlOrId, version);
 					if (pv == null) {
-						throw new Failure(1,  String.format("Plugin \"%s\" is not in the registry!", urlOrIdOrName));
+						throw new Failure(1,  String.format("Plugin \"%s\" is not in the registry!", urlOrId));
 					}
 					if (gitblit.installPlugin(pv.url, !disableChecksum)) {
-						stdout.println(String.format("Installed %s", urlOrIdOrName));
+						stdout.println(String.format("Installed %s", urlOrId));
 					} else {
-						throw new Failure(1, String.format("Failed to install %s", urlOrIdOrName));
+						throw new Failure(1, String.format("Failed to install %s", urlOrId));
 					}
 				}
 			} catch (IOException e) {
-				log.error("Failed to install " + urlOrIdOrName, e);
-				throw new Failure(1, String.format("Failed to install %s", urlOrIdOrName), e);
+				log.error("Failed to install " + urlOrId, e);
+				throw new Failure(1, String.format("Failed to install %s", urlOrId), e);
 			}
 		}
 	}
@@ -577,7 +577,7 @@ public class PluginDispatcher extends DispatchCommand {
 	@CommandMetaData(name = "uninstall", aliases = { "rm", "del" }, description = "Uninstall a plugin")
 	public static class UninstallPlugin extends PluginCommand {
 
-		@Argument(index = 0, required = true, metaVar = "<id>", usage = "the plugin to uninstall")
+		@Argument(index = 0, required = true, metaVar = "<ID>|<INDEX>", usage = "the plugin to uninstall")
 		protected String id;
 
 		@Override
