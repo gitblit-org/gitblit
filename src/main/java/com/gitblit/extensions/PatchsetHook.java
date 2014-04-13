@@ -23,6 +23,7 @@ import com.gitblit.models.TicketModel;
  * Extension point for plugins to respond to Ticket patchset changes.
  *
  * @author James Moger
+ * @since 1.5.0
  *
  */
 public abstract class PatchsetHook implements ExtensionPoint {
@@ -33,6 +34,7 @@ public abstract class PatchsetHook implements ExtensionPoint {
 	 * proposal or it may be a existing ticket that now has a new patchset.
 	 *
 	 * @param ticket
+	 * @since 1.5.0
 	 */
 	public abstract void onNewPatchset(TicketModel ticket);
 
@@ -40,6 +42,7 @@ public abstract class PatchsetHook implements ExtensionPoint {
 	 * Called after a patchset has been FAST-FORWARD updated.
 	 *
 	 * @param ticket
+	 * @since 1.5.0
 	 */
 	public abstract void onUpdatePatchset(TicketModel ticket);
 
@@ -48,6 +51,7 @@ public abstract class PatchsetHook implements ExtensionPoint {
 	 * in the ticket.
 	 *
 	 * @param ticket
+	 * @since 1.5.0
 	 */
 	public abstract void onMergePatchset(TicketModel ticket);
 }

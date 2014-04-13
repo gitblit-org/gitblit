@@ -27,7 +27,7 @@ import com.gitblit.git.GitblitReceivePack;
  * Extension point for plugins to process commits on Pre- and Post- Receive.
  *
  * @author James Moger
- *
+ * @since 1.5.0
  */
 public abstract class ReceiveHook implements ExtensionPoint {
 
@@ -38,6 +38,7 @@ public abstract class ReceiveHook implements ExtensionPoint {
 	 *
 	 * @param receivePack
 	 * @param commands
+	 * @since 1.5.0
 	 */
 	public abstract void onPreReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands);
 
@@ -48,6 +49,7 @@ public abstract class ReceiveHook implements ExtensionPoint {
 	 *
 	 * @param receivePack
 	 * @param commands
+	 * @since 1.5.0
 	 */
 	public abstract void onPostReceive(GitblitReceivePack receivePack, Collection<ReceiveCommand> commands);
 }

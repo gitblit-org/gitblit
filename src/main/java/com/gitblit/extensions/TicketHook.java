@@ -24,7 +24,7 @@ import com.gitblit.models.TicketModel.Change;
  * Extension point for plugins to respond to Ticket changes.
  *
  * @author James Moger
- *
+ * @since 1.5.0
  */
 public abstract class TicketHook implements ExtensionPoint {
 
@@ -32,6 +32,7 @@ public abstract class TicketHook implements ExtensionPoint {
 	 * Called when a new ticket is created.
 	 *
 	 * @param ticket
+	 * @since 1.5.0
 	 */
 	public abstract void onNewTicket(TicketModel ticket);
 
@@ -41,6 +42,7 @@ public abstract class TicketHook implements ExtensionPoint {
 	 *
 	 * @param ticket
 	 * @param change
+	 * @since 1.5.0
 	 */
 	public abstract void onUpdateTicket(TicketModel ticket, Change change);
 }

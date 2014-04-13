@@ -40,6 +40,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
+/**
+ * Parses an SSH command-line and dispatches the command to the appropriate
+ * BaseCommand instance.
+ *
+ * @since 1.5.0
+ */
 public abstract class DispatchCommand extends BaseCommand implements ExtensionPoint {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -89,6 +95,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	 * registered within this method.
 	 *
 	 * @param user
+	 * @since 1.5.0
 	 */
 	protected abstract void setup(UserModel user);
 

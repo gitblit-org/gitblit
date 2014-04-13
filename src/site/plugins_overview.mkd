@@ -20,7 +20,7 @@ The zip plugins are stored in `${baseFolder}/plugins` and are unpacked on startu
 A plugin defines it's metadata in the META-INF/MANIFEST.MF file:
 
     Plugin-Id: powertools
-    Plugin-Description: Gitblit Powertools
+    Plugin-Description: Command and control Gitblit over SSH
     Plugin-Class: com.gitblit.plugin.powertools.Powertools
     Plugin-Version: 1.2.0
     Plugin-Provider: gitblit.com
