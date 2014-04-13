@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2009 The Android Open Source Project
  * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,11 +45,6 @@ import com.gitblit.utils.WorkQueue;
 import com.google.common.util.concurrent.Atomics;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-/**
- *
- * @author Eric Myhre
- *
- */
 public class SshCommandFactory implements CommandFactory {
 	private static final Logger logger = LoggerFactory.getLogger(SshCommandFactory.class);
 

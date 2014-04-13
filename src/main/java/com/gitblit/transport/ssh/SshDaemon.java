@@ -50,8 +50,6 @@ import com.google.common.io.Files;
  * Manager for the ssh transport. Roughly analogous to the
  * {@link com.gitblit.transport.git.GitDaemon} class.
  *
- * @author Eric Myhre
- *
  */
 public class SshDaemon {
 

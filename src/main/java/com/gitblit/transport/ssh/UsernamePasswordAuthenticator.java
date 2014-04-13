@@ -27,6 +27,8 @@ import com.gitblit.models.UserModel;
 
 /**
  *
+ * Authenticates an SSH session with username/password credentials.
+ *
  * @author James Moger
  *
  */

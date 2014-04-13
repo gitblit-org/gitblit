@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2009 The Android Open Source Project
  * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,10 +30,6 @@ import com.gitblit.git.RepositoryResolver;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.commands.BaseCommand;
 
-/**
- * @author Eric Myhre
- *
- */
 abstract class BaseGitCommand extends BaseCommand {
 	@Argument(index = 0, metaVar = "REPOSITORY", required = true, usage = "repository name")
 	protected String repository;

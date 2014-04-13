@@ -34,8 +34,7 @@ import com.gitblit.models.UserModel;
 import com.google.common.base.Preconditions;
 
 /**
- *
- * @author Eric Myrhe
+ * Authenticates an SSH session against a public key.
  *
  */
 public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator, SessionListener {
