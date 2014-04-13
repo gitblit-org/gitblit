@@ -1260,6 +1260,11 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public boolean upgradePlugin(String pluginId, String url, boolean verifyChecksum) throws IOException {
+		return pluginManager.upgradePlugin(pluginId, url, verifyChecksum);
+	}
+
+	@Override
 	public List<PluginRegistration> getRegisteredPlugins() {
 		return pluginManager.getRegisteredPlugins();
 	}

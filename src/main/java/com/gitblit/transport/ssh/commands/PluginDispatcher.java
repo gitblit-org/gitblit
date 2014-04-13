@@ -15,6 +15,7 @@
  */
 package com.gitblit.transport.ssh.commands;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class PluginDispatcher extends DispatchCommand {
 		register(user, RefreshPlugins.class);
 		register(user, AvailablePlugins.class);
 		register(user, InstallPlugin.class);
+		register(user, UpgradePlugin.class);
 		register(user, UninstallPlugin.class);
 	}
 
@@ -444,7 +446,7 @@ public class PluginDispatcher extends DispatchCommand {
 
 			List<PluginRegistration> list;
 			if (updates) {
-				list = gitblit.getRegisteredPlugins(InstallState.CAN_UPDATE);
+				list = gitblit.getRegisteredPlugins(InstallState.UPDATE_AVAILABLE);
 			} else {
 				list = gitblit.getRegisteredPlugins();
 			}
@@ -527,9 +529,47 @@ public class PluginDispatcher extends DispatchCommand {
 						throw new Failure(1, String.format("Failed to install %s", urlOrIdOrName));
 					}
 				}
-			} catch (Exception e) {
+			} catch (IOException e) {
 				log.error("Failed to install " + urlOrIdOrName, e);
 				throw new Failure(1, String.format("Failed to install %s", urlOrIdOrName), e);
+			}
+		}
+	}
+
+	@CommandMetaData(name = "upgrade", description = "Upgrade a plugin")
+	public static class UpgradePlugin extends PluginCommand {
+
+		@Argument(index = 0, required = true, metaVar = "<ID>|<INDEX>", usage = "the plugin to upgrade")
+		protected String id;
+
+		@Option(name = "--version", usage = "The specific version to install")
+		private String version;
+
+		@Option(name = "--noverify", usage = "Disable checksum verification")
+		private boolean disableChecksum;
+
+		@Override
+		public void run() throws Failure {
+			IGitblit gitblit = getContext().getGitblit();
+			PluginWrapper pluginWrapper = getPlugin(id);
+			if (pluginWrapper == null) {
+				throw new UnloggedFailure("Invalid plugin specified!");
+			}
+
+			PluginRelease pv = gitblit.lookupRelease(pluginWrapper.getPluginId(), version);
+			if (pv == null) {
+				throw new Failure(1,  String.format("Plugin \"%s\" is not in the registry!", pluginWrapper.getPluginId()));
+			}
+
+			try {
+				if (gitblit.upgradePlugin(pluginWrapper.getPluginId(), pv.url, !disableChecksum)) {
+					stdout.println(String.format("Upgraded %s", pluginWrapper.getPluginId()));
+				} else {
+					throw new Failure(1, String.format("Failed to upgrade %s", pluginWrapper.getPluginId()));
+				}
+			} catch (IOException e) {
+				log.error("Failed to upgrade " + pluginWrapper.getPluginId(), e);
+				throw new Failure(1, String.format("Failed to upgrade %s", pluginWrapper.getPluginId()), e);
 			}
 		}
 	}

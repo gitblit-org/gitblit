@@ -132,6 +132,17 @@ public interface IPluginManager extends IManager {
     boolean installPlugin(String url, boolean verifyChecksum) throws IOException;
 
     /**
+     * Upgrade the install plugin from the specified url.
+     *
+     * @param pluginId
+     * @param url
+     * @param verifyChecksum
+     * @return true if the upgrade has been successful
+     * @throws IOException
+     */
+    boolean upgradePlugin(String pluginId, String url, boolean verifyChecksum) throws IOException;
+
+    /**
      * The list of all registered plugins.
      *
      * @return a list of registered plugins

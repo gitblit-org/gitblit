@@ -130,6 +130,29 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 		return PluginState.STARTED.equals(state);
 	}
 
+	public synchronized boolean upgradePlugin(String pluginId, String url, boolean verifyChecksum) throws IOException {
+		// ensure we can download the update BEFORE we remove the existing one
+		File file = download(url, verifyChecksum);
+		if (file == null || !file.exists()) {
+			logger.error("Failed to download plugin {}", url);
+			return false;
+		}
+
+		if (deletePlugin(pluginId)) {
+			String newPluginId = pf4j.loadPlugin(file);
+			if (StringUtils.isEmpty(newPluginId)) {
+				logger.error("Failed to load plugin {}", file);
+				return false;
+			}
+
+			PluginState state = pf4j.startPlugin(newPluginId);
+			return PluginState.STARTED.equals(state);
+		} else {
+			logger.error("Failed to delete plugin {}", pluginId);
+		}
+		return false;
+	}
+
 	@Override
 	public synchronized boolean disablePlugin(String pluginId) {
 		return pf4j.disablePlugin(pluginId);
@@ -296,6 +319,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 				map.put(reg.id, reg);
 			}
 		}
+
 		for (PluginWrapper pw : pf4j.getPlugins()) {
 			String id = pw.getDescriptor().getPluginId();
 			PluginVersion pv = pw.getDescriptor().getVersion();

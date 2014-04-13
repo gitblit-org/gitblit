@@ -62,7 +62,7 @@ public class PluginRegistry implements Serializable {
 	}
 
 	public static enum InstallState {
-		NOT_INSTALLED, INSTALLED, CAN_UPDATE, UNKNOWN
+		NOT_INSTALLED, INSTALLED, UPDATE_AVAILABLE, UNKNOWN
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class PluginRegistry implements Serializable {
 			case -1:
 				return InstallState.UNKNOWN;
 			case 1:
-				return InstallState.CAN_UPDATE;
+				return InstallState.UPDATE_AVAILABLE;
 			default:
 				return InstallState.INSTALLED;
 			}
