@@ -21,8 +21,10 @@ r22: {
     - Repository mailing lists could not be reset from the Edit Repository page (issue-399)
     - Fix intermittent NPE in determining commit date in RefModel (issue-401)
     - Fix closing ticket on push by parsing commit messages for closes|fixes (issue-404)
+    - Fix diffstat display for a ticket with a pending submodule change (issue-407)
     - Ensure the Lucene ticket index is updated on repository deletion.
     - Fixed failure to properly determine hasTicket in RedisTicketService
+    - Fixed handling of pushing ticket branch deletions
     changes:
     - Switch from GoogleCharts to self-hosted flotr2 charts (issue-283, ticket-43, pr-166)
     - Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (issue-348)

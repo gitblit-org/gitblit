@@ -309,6 +309,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			}
 
 			if (isPatchsetRef(cmd.getRefName()) && processPatchsets) {
+
 				if (ticketService == null) {
 					sendRejection(cmd, "Sorry, the ticket service is unavailable and can not accept patchsets at this time.");
 					continue;
@@ -343,6 +344,20 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					LOGGER.error("{} already has refs in the {} namespace",
 							repository.name, Constants.R_FOR);
 					sendRejection(cmd, "Sorry, a repository administrator will have to remove the {} namespace", Constants.R_FOR);
+					continue;
+				}
+
+				if (cmd.getNewId().equals(ObjectId.zeroId())) {
+					// ref deletion request
+					if (cmd.getRefName().startsWith(Constants.R_TICKET)) {
+						if (user.canDeleteRef(repository)) {
+							batch.addCommand(cmd);
+						} else {
+							sendRejection(cmd, "Sorry, you do not have permission to delete {}", cmd.getRefName());
+						}
+					} else {
+						sendRejection(cmd, "Sorry, you can not delete {}", cmd.getRefName());
+					}
 					continue;
 				}
 
