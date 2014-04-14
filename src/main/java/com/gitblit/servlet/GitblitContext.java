@@ -177,7 +177,6 @@ public class GitblitContext extends DaggerContext {
 		managers.add(runtime);
 
 		// start all other managers
-		startManager(injector, IPluginManager.class);
 		startManager(injector, INotificationManager.class);
 		startManager(injector, IUserManager.class);
 		startManager(injector, IAuthenticationManager.class);
@@ -186,6 +185,10 @@ public class GitblitContext extends DaggerContext {
 		startManager(injector, IProjectManager.class);
 		startManager(injector, IFederationManager.class);
 		startManager(injector, IGitblit.class);
+
+		// start the plugin manager last so that plugins can depend on
+		// deterministic access to all other managers in their start() methods
+		startManager(injector, IPluginManager.class);
 
 		logger.info("");
 		logger.info("All managers started.");
