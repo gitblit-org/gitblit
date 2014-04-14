@@ -53,6 +53,7 @@ public class KeysDispatcher extends DispatchCommand {
 		register(user, ListKeys.class);
 		register(user, WhichKey.class);
 		register(user, CommentKey.class);
+		register(user, PermissionKey.class);
 	}
 
 	@CommandMetaData(name = "add", description = "Add an SSH public key to your account")
@@ -259,6 +260,43 @@ public class KeysDispatcher extends DispatchCommand {
 			key.setComment(comment);
 			if (keyManager.addKey(username, key)) {
 				stdout.println(String.format("Updated the comment for key #%d.", index));
+			} else {
+				throw new Failure(1, String.format("Failed to update the comment for key #%d!", index));
+			}
+		}
+
+	}
+
+	@CommandMetaData(name = "permission", description = "Set the permission of an SSH public key")
+	@UsageExample(syntax = "${cmd} 3 RW", description = "Set the permission for key #3 to PUSH (PW)")
+	public static class PermissionKey extends SshCommand {
+
+		@Argument(index = 0, metaVar = "INDEX", usage = "the key index", required = true)
+		private int index;
+
+		@Argument(index = 1, metaVar = "PERMISSION", usage = "the new permission", required = true)
+		private String value;
+
+		@Override
+		public void run() throws Failure {
+			final String username = getContext().getClient().getUsername();
+			IPublicKeyManager keyManager = getContext().getGitblit().getPublicKeyManager();
+			List<SshKey> keys = keyManager.getKeys(username);
+			if (index > keys.size()) {
+				throw new UnloggedFailure(1,  "Invalid key index!");
+			}
+
+			SshKey key = keys.get(index - 1);
+			AccessPermission permission = AccessPermission.fromCode(value);
+			if (permission.exceeds(AccessPermission.NONE)) {
+				try {
+					key.setPermission(permission);
+				} catch (IllegalArgumentException e) {
+					throw new Failure(1, e.getMessage());
+				}
+			}
+			if (keyManager.addKey(username, key)) {
+				stdout.println(String.format("Updated the permission for key #%d.", index));
 			} else {
 				throw new Failure(1, String.format("Failed to update the comment for key #%d!", index));
 			}

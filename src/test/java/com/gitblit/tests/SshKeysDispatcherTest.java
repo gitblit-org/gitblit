@@ -112,4 +112,20 @@ public class SshKeysDispatcherTest extends SshUnitTest {
 		keys = getKeyManager().getKeys(username);
 		assertEquals(comment, keys.get(0).getComment());
 	}
+
+	@Test
+	public void testKeysPermissionCommand() throws Exception {
+		List<SshKey> keys = getKeyManager().getKeys(username);
+		assertTrue(StringUtils.isEmpty(keys.get(0).getComment()));
+		testSshCommand(String.format("keys permission 1 %s", AccessPermission.CLONE));
+
+		keys = getKeyManager().getKeys(username);
+		assertEquals(AccessPermission.CLONE, keys.get(0).getPermission());
+
+		testSshCommand(String.format("keys permission 1 %s", AccessPermission.PUSH));
+
+		keys = getKeyManager().getKeys(username);
+		assertEquals(AccessPermission.PUSH, keys.get(0).getPermission());
+
+	}
 }
