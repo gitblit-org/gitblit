@@ -51,11 +51,11 @@ public class RegistrantPermissionsPanel extends JPanel {
 
 	private RegistrantPermissionsTableModel tableModel;
 
-	private DefaultComboBoxModel registrantModel;
+	private DefaultComboBoxModel<String> registrantModel;
 
-	private JComboBox registrantSelector;
+	private JComboBox<String> registrantSelector;
 
-	private JComboBox permissionSelector;
+	private JComboBox<AccessPermission> permissionSelector;
 
 	private JButton addButton;
 
@@ -93,9 +93,9 @@ public class RegistrantPermissionsPanel extends JPanel {
 		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Permission.ordinal())
 		.setCellEditor(new AccessPermissionEditor());
 
-		registrantModel = new DefaultComboBoxModel();
-		registrantSelector = new JComboBox(registrantModel);
-		permissionSelector = new JComboBox(AccessPermission.NEWPERMISSIONS);
+		registrantModel = new DefaultComboBoxModel<String>();
+		registrantSelector = new JComboBox<String>(registrantModel);
+		permissionSelector = new JComboBox<AccessPermission>(AccessPermission.NEWPERMISSIONS);
 		addButton = new JButton(Translation.get("gb.add"));
 		addButton.addActionListener(new ActionListener() {
 			@Override
@@ -188,7 +188,7 @@ public class RegistrantPermissionsPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		public AccessPermissionEditor() {
-	        super(new JComboBox(AccessPermission.values()));
+	        super(new JComboBox<AccessPermission>(AccessPermission.values()));
 	    }
 	}
 

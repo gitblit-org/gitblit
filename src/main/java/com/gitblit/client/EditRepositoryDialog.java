@@ -96,7 +96,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JCheckBox requireApproval;
 
-	private JComboBox mergeToField;
+	private JComboBox<String> mergeToField;
 
 	private JCheckBox useIncrementalPushTags;
 
@@ -110,7 +110,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JTextField mailingListsField;
 
-	private JComboBox accessRestriction;
+	private JComboBox<AccessRestrictionType> accessRestriction;
 
 	private JRadioButton allowAuthenticated;
 
@@ -120,17 +120,17 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JCheckBox verifyCommitter;
 
-	private JComboBox federationStrategy;
+	private JComboBox<FederationStrategy> federationStrategy;
 
 	private JPalette<String> ownersPalette;
 
-	private JComboBox headRefField;
+	private JComboBox<String> headRefField;
 
-	private JComboBox gcPeriod;
+	private JComboBox<Integer> gcPeriod;
 
 	private JTextField gcThreshold;
 
-	private JComboBox maxActivityCommits;
+	private JComboBox<Integer> maxActivityCommits;
 
 	private RegistrantPermissionsPanel usersPalette;
 
@@ -198,16 +198,15 @@ public class EditRepositoryDialog extends JDialog {
 		originField.setEditable(false);
 
 		if (ArrayUtils.isEmpty(anRepository.availableRefs)) {
-			headRefField = new JComboBox();
+			headRefField = new JComboBox<String>();
 			headRefField.setEnabled(false);
 		} else {
-			headRefField = new JComboBox(
-					anRepository.availableRefs.toArray());
+			headRefField = new JComboBox<String>(anRepository.availableRefs.toArray(new String[0]));
 			headRefField.setSelectedItem(anRepository.HEAD);
 		}
 
 		Integer []  gcPeriods =  { 1, 2, 3, 4, 5, 7, 10, 14 };
-		gcPeriod = new JComboBox(gcPeriods);
+		gcPeriod = new JComboBox<Integer>(gcPeriods);
 		gcPeriod.setSelectedItem(anRepository.gcPeriod);
 
 		gcThreshold = new JTextField(8);
@@ -223,11 +222,10 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.requireApproval);
 
 		if (ArrayUtils.isEmpty(anRepository.availableRefs)) {
-			mergeToField = new JComboBox();
+			mergeToField = new JComboBox<String>();
 			mergeToField.setEnabled(false);
 		} else {
-			mergeToField = new JComboBox(
-					anRepository.availableRefs.toArray());
+			mergeToField = new JComboBox<String>(anRepository.availableRefs.toArray(new String[0]));
 			mergeToField.setSelectedItem(anRepository.mergeTo);
 		}
 
@@ -245,7 +243,7 @@ public class EditRepositoryDialog extends JDialog {
 		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"),
 				anRepository.isFrozen);
 
-		maxActivityCommits = new JComboBox(new Integer [] { -1, 0, 25, 50, 75, 100, 150, 250, 500 });
+		maxActivityCommits = new JComboBox<Integer>(new Integer [] { -1, 0, 25, 50, 75, 100, 150, 250, 500 });
 		maxActivityCommits.setSelectedItem(anRepository.maxActivityCommits);
 
 		mailingListsField = new JTextField(
@@ -253,7 +251,7 @@ public class EditRepositoryDialog extends JDialog {
 						: StringUtils.flattenStrings(anRepository.mailingLists,
 								" "), 50);
 
-		accessRestriction = new JComboBox(AccessRestrictionType.values());
+		accessRestriction = new JComboBox<AccessRestrictionType>(AccessRestrictionType.values());
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
 		accessRestriction.setSelectedItem(anRepository.accessRestriction);
 		accessRestriction.addItemListener(new ItemListener() {
@@ -310,7 +308,7 @@ public class EditRepositoryDialog extends JDialog {
 		if (StringUtils.isEmpty(anRepository.origin)) {
 			federationStrategies.remove(FederationStrategy.FEDERATE_ORIGIN);
 		}
-		federationStrategy = new JComboBox(federationStrategies.toArray());
+		federationStrategy = new JComboBox<FederationStrategy>(federationStrategies.toArray(new FederationStrategy[0]));
 		federationStrategy.setRenderer(new FederationStrategyRenderer());
 		federationStrategy.setSelectedItem(anRepository.federationStrategy);
 
@@ -802,28 +800,23 @@ public class EditRepositoryDialog extends JDialog {
 	 * strategy.
 	 */
 	private class FederationStrategyRenderer extends JLabel implements
-			ListCellRenderer {
+			ListCellRenderer<FederationStrategy> {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value,
+		public Component getListCellRendererComponent(JList list, FederationStrategy value,
 				int index, boolean isSelected, boolean cellHasFocus) {
-			if (value instanceof FederationStrategy) {
-				FederationStrategy strategy = (FederationStrategy) value;
-				switch (strategy) {
-				case EXCLUDE:
-					setText(Translation.get("gb.excludeFromFederation"));
-					break;
-				case FEDERATE_THIS:
-					setText(Translation.get("gb.federateThis"));
-					break;
-				case FEDERATE_ORIGIN:
-					setText(Translation.get("gb.federateOrigin"));
-					break;
-				}
-			} else {
-				setText(value.toString());
+			switch (value) {
+			case EXCLUDE:
+				setText(Translation.get("gb.excludeFromFederation"));
+				break;
+			case FEDERATE_THIS:
+				setText(Translation.get("gb.federateThis"));
+				break;
+			case FEDERATE_ORIGIN:
+				setText(Translation.get("gb.federateOrigin"));
+				break;
 			}
 			return this;
 		}

@@ -69,13 +69,13 @@ public abstract class FeedsPanel extends JPanel {
 
 	private JTable table;
 
-	private DefaultComboBoxModel repositoryChoices;
+	private DefaultComboBoxModel<String> repositoryChoices;
 
-	private JComboBox repositorySelector;
+	private JComboBox<String> repositorySelector;
 
-	private DefaultComboBoxModel authorChoices;
+	private DefaultComboBoxModel<String> authorChoices;
 
-	private JComboBox authorSelector;
+	private JComboBox<String> authorSelector;
 
 	private int page;
 
@@ -203,8 +203,8 @@ public abstract class FeedsPanel extends JPanel {
 			}
 		});
 
-		repositoryChoices = new DefaultComboBoxModel();
-		repositorySelector = new JComboBox(repositoryChoices);
+		repositoryChoices = new DefaultComboBoxModel<String>();
+		repositorySelector = new JComboBox<String>(repositoryChoices);
 		repositorySelector.setRenderer(nameRenderer);
 		repositorySelector.setForeground(nameRenderer.getForeground());
 		repositorySelector.addActionListener(new ActionListener() {
@@ -225,8 +225,8 @@ public abstract class FeedsPanel extends JPanel {
 				filterFeeds();
 			}
 		});
-		authorChoices = new DefaultComboBoxModel();
-		authorSelector = new JComboBox(authorChoices);
+		authorChoices = new DefaultComboBoxModel<String>();
+		authorSelector = new JComboBox<String>(authorChoices);
 		authorSelector.setRenderer(nameRenderer);
 		authorSelector.setForeground(nameRenderer.getForeground());
 		authorSelector.addActionListener(new ActionListener() {
