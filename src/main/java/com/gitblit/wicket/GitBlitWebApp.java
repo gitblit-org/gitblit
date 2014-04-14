@@ -34,6 +34,7 @@ import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -90,6 +91,8 @@ public class GitBlitWebApp extends WebApplication {
 
 	private final IRuntimeManager runtimeManager;
 
+	private final IPluginManager pluginManager;
+
 	private final INotificationManager notificationManager;
 
 	private final IUserManager userManager;
@@ -108,6 +111,7 @@ public class GitBlitWebApp extends WebApplication {
 
 	public GitBlitWebApp(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
@@ -120,6 +124,7 @@ public class GitBlitWebApp extends WebApplication {
 		super();
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
+		this.pluginManager = pluginManager;
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.authenticationManager = authenticationManager;
@@ -271,6 +276,10 @@ public class GitBlitWebApp extends WebApplication {
 
 	public IRuntimeManager runtime() {
 		return runtimeManager;
+	}
+
+	public IPluginManager plugins() {
+		return pluginManager;
 	}
 
 	public INotificationManager notifier() {

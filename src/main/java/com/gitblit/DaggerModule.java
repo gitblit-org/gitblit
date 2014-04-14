@@ -185,6 +185,7 @@ public class DaggerModule {
 
 	@Provides @Singleton GitBlitWebApp provideWebApplication(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
@@ -196,6 +197,7 @@ public class DaggerModule {
 
 		return new GitBlitWebApp(
 				runtimeManager,
+				pluginManager,
 				notificationManager,
 				userManager,
 				authenticationManager,
