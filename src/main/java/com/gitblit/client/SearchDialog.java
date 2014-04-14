@@ -69,17 +69,17 @@ public class SearchDialog extends JFrame {
 
 	private JTable table;
 
-	private JComboBox repositorySelector;
+	private JComboBox<RepositoryModel> repositorySelector;
 
-	private DefaultComboBoxModel branchChoices;
+	private DefaultComboBoxModel<String> branchChoices;
 
-	private JComboBox branchSelector;
+	private JComboBox<String> branchSelector;
 
-	private JComboBox searchTypeSelector;
+	private JComboBox<Constants.SearchType> searchTypeSelector;
 
 	private JTextField searchFragment;
 
-	private JComboBox maxHitsSelector;
+	private JComboBox<Integer> maxHitsSelector;
 
 	private int page;
 
@@ -202,7 +202,7 @@ public class SearchDialog extends JFrame {
 			}
 		});
 
-		repositorySelector = new JComboBox(gitblit.getRepositories().toArray());
+		repositorySelector = new JComboBox<RepositoryModel>(gitblit.getRepositories().toArray(new RepositoryModel[0]));
 		repositorySelector.setRenderer(nameRenderer);
 		repositorySelector.setForeground(nameRenderer.getForeground());
 		repositorySelector.addActionListener(new ActionListener() {
@@ -230,14 +230,14 @@ public class SearchDialog extends JFrame {
 			}
 		});
 
-		branchChoices = new DefaultComboBoxModel();
-		branchSelector = new JComboBox(branchChoices);
+		branchChoices = new DefaultComboBoxModel<String>();
+		branchSelector = new JComboBox<String>(branchChoices);
 		branchSelector.setRenderer(new BranchRenderer());
 
-		searchTypeSelector = new JComboBox(Constants.SearchType.values());
+		searchTypeSelector = new JComboBox<Constants.SearchType>(Constants.SearchType.values());
 		searchTypeSelector.setSelectedItem(Constants.SearchType.COMMIT);
 
-		maxHitsSelector = new JComboBox(new Integer[] { 25, 50, 75, 100 });
+		maxHitsSelector = new JComboBox<Integer>(new Integer[] { 25, 50, 75, 100 });
 		maxHitsSelector.setSelectedIndex(0);
 
 		searchFragment = new JTextField(25);

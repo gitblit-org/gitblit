@@ -404,10 +404,12 @@ public class EditRepositoryPage extends RootSubPage {
 
 					// custom fields
 					repositoryModel.customFields = new LinkedHashMap<String, String>();
-					for (int i = 0; i < customFieldsListView.size(); i++) {
+					for (int i = 0; i < customFieldsListView.size(); i++) {						
+						@SuppressWarnings("unchecked")
 						ListItem<String> child = (ListItem<String>) customFieldsListView.get(i);
 						String key = child.getModelObject();
 
+						@SuppressWarnings("unchecked")
 						TextField<String> field = (TextField<String>) child.get("customFieldValue");
 						String value = field.getValue();
 

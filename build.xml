@@ -108,7 +108,9 @@
 			 	todir="${project.src.dir}" />
 
 		<!-- Compile project -->
-		<mx:javac scope="compile" clean="true" />
+		<mx:javac scope="compile" clean="true">
+			<compilerArg value="-Xlint:unchecked" />
+		</mx:javac>
 		
 	</target>
 

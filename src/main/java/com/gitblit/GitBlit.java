@@ -323,7 +323,7 @@ public class GitBlit extends GitblitManager {
 			clazz = NullTicketService.class.getName();
 		}
 		try {
-			Class<? extends ITicketService> serviceClass = (Class<? extends ITicketService>) Class.forName(clazz);
+			Class<? extends ITicketService> serviceClass = (Class<? extends ITicketService>) Class.forName(clazz).asSubclass(ITicketService.class);
 			ticketService = injector.get(serviceClass).start();
 			if (ticketService instanceof NullTicketService) {
 				logger.warn("No ticket service configured.");

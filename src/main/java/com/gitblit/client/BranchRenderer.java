@@ -30,7 +30,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author James Moger
  *
  */
-public class BranchRenderer extends DefaultTableCellRenderer implements ListCellRenderer {
+public class BranchRenderer extends DefaultTableCellRenderer implements ListCellRenderer<Object> {
 
 	private static final long serialVersionUID = 1L;
 
