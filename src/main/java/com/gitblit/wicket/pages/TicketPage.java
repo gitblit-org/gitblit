@@ -1141,7 +1141,6 @@ public class TicketPage extends TicketBasePage {
 				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 				setChangeTypeTooltip(changeType, entry.changeType);
 				item.add(changeType);
-				item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
 
 				boolean hasSubmodule = false;
 				String submodulePath = null;
@@ -1184,6 +1183,7 @@ public class TicketPage extends TicketBasePage {
 						item.add(new LinkPanel("pathName", "list", displayPath, BlobDiffPage.class,
 								WicketUtils.newPathParameter(repositoryName, currentPatchset.tip, path), true));
 					}
+					item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
 				}
 
 				// quick links
