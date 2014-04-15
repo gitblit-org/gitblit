@@ -2,20 +2,56 @@
 
 Gitblit offers several extension points for enhancing and customizing it's runtime behavior.
 
-Each available extension point has a sample implementation in the [gitblit-cookbook-plugin (Maven project)](https://dev.gitblit.com/summary/gitblit-cookbook-plugin.git).
+Each available extension point has a sample implementation in the [gitblit-cookbook-plugin (Maven project)](https://github.com/gitblit/gitblit-cookbook-plugin).
+
+**NOTE:**
+Gitblit does not yet offer a comprehensize dependency injection architecture.  This will be addressed in a subsequent release.  For now you may access all of Gitblit's core managers through a static singleton app context:
+
+```java
+import com.gitblit.extensions.GitblitPlugin;
+import com.gitblit.servlet.GitblitContext;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IUserManager;
+import com.gitblit.manager.IAuthenticationManager;
+import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IProjectManager;
+import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IPluginManager;
+import com.gitblit.manager.IGitblit;
+
+public class ExamplePlugin extends GitblitPlugin {
+
+    @Override
+    public void start() {
+        IRuntimeManager runtime = GitblitContext.getManager(IRuntimeManager.class);
+        IUserManager users = GitblitContext.getManager(IUserManager.class);
+        IAuthenticationManager auth = GitblitContext.getManager(IAuthenticationManager.class);
+        INotificationManager notifications = GitblitContext.getManager(INotificationManager.class);
+        IRepositoryManager repos = GitblitContext.getManager(IRepositoryManager.class);
+        IProjectManager projects = GitblitContext.getManager(IProjectManager.class);
+        IFederationManager federation = GitblitContext.getManager(IFederationManager.class);
+        IPluginManager plugins = GitblitContext.getManager(IPluginManager.class);
+        IGitblit gitblit = GitblitContext.getManager(IGitblit.class);
+    }
+}
+```
 
 ### SSH Dispatch Command
 
 *SINCE 1.5.0*
 
-You can provide your own custom SSH commands by subclassing the *DispatchCommand* class.
+You can provide your own custom SSH command hierarchies by subclassing the *DispatchCommand* class.
 
 ```java
 import ro.fortsoft.pf4j.Extension;
-
+import org.kohsuke.args4j.Option;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
+import com.gitblit.transport.ssh.commands.UsageExample;
 
 @Extension
 @CommandMetaData(name = "mycommands", description = "Sample SSH dispatcher")
@@ -30,6 +66,25 @@ public class MyDispatcher extends DispatchCommand {
         // nested dispatchers
         register(user, SubDispatcher1.class);
         register(user, SubDispatcher2.class);
+    }
+
+    @CommandMetaData(name = "commanda", aliases = { "ca" }, description = "description of command a")
+    @UsageExample(syntax = "${cmd} --myflag", description = "description of commanda with --myflag")
+    public static class CommandA extends SshCommand {
+
+        protected final Logger log = LoggerFactory.getLogger(getClass());
+
+        @Option(name = "--myflag", aliases = { "-m" }, usage = "enable myflag")
+        boolean myflag;
+
+        @Override
+        public void run() throws Failure {
+            if (myflag) {
+                log.info("Run with --myflag");
+            } else {
+                log.info("Run without --myflag");
+            }
+        }
     }
 }
 ```

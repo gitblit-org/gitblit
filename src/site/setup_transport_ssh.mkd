@@ -80,7 +80,14 @@ You can also remove all your public keys from your account.
 
     ssh -l <username> -p 29418 <hostname> keys remove ALL
 
-### SSH Command Plugins
+##### keys permission
 
-Gitblit supports loading custom SSH command plugins.
+You may control the access permission for each SSH key.  This is more of a safety feature than a security measure.
+
+| Permission | Description                                     |
+| ---------- | ----------------------------------------------- |
+| V          | SSH key may not be used for clone/fetch or push |
+| R          | SSH key may be used to clone/fetch              |
+| RW         | SSH key may be used to clone/fetch and push     |
+
 

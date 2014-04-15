@@ -23,6 +23,7 @@ A plugin defines it's metadata in the META-INF/MANIFEST.MF file:
     Plugin-Description: Command and control Gitblit over SSH
     Plugin-Class: com.gitblit.plugin.powertools.Powertools
     Plugin-Version: 1.2.0
+    Plugin-Requires: 1.5.0
     Plugin-Provider: gitblit.com
 
 In addition to extending Gitblit core, plugins can also define extension points that may be implemented by other plugins.  Therefore a plugin may depend on other plugins.
@@ -32,9 +33,9 @@ In addition to extending Gitblit core, plugins can also define extension points 
 **NOTE:**
 The pf4j plugin framework relies on a javac apt processor to generate compile-time extension information, so be sure to enable apt processing in your build process.
 
-#### Limitations of Dependencies & Requires
+#### Limitations of Dependencies
 
-Plugins may specify dependencies by ID, but may not specify specific versions of a dependency.  The plugin registry allows you to specify a *requires* version of Gitblit, but this is not currently enforced.
+Plugins may specify dependencies by ID, but may not specify specific versions of a dependency.
 
 ### Managing Plugins
 
