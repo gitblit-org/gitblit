@@ -92,6 +92,10 @@ public abstract class TicketServiceTest extends GitblitUnitTest {
 
 	@Test
 	public void testLifecycle() throws Exception {
+		// query non-existent ticket
+		TicketModel nonExistent = service.getTicket(getRepository(), 0);
+		assertNull(nonExistent);
+		
 		// create and insert a ticket
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
 		TicketModel ticket = service.createTicket(getRepository(), c1);
