@@ -222,7 +222,7 @@ public class ActivityUtils {
 	 * @throws IOException
 	 */
 	public static GravatarProfile getGravatarProfile(String hash) throws IOException {
-		String url = MessageFormat.format("https://www.gravatar.com/{0}.json", hash);
+		String url = MessageFormat.format("https://secure.gravatar.com/{0}.json", hash);
 		// Gravatar has a complex json structure
 		Type profileType = new TypeToken<Map<String, List<GravatarProfile>>>() {
 		}.getType();
