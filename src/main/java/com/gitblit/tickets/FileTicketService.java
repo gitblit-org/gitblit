@@ -207,62 +207,82 @@ public class FileTicketService extends ITicketService {
 	@Override
 	public List<TicketModel> getTickets(RepositoryModel repository, TicketFilter filter) {
 		List<TicketModel> list = new ArrayList<TicketModel>();
-
-		Repository db = repositoryManager.getRepository(repository.name);
-		try {
-			// Collect the set of all json files
-			File dir = new File(db.getDirectory(), TICKETS_PATH);
-			List<File> journals = findAll(dir, JOURNAL);
-
-			// Deserialize each ticket and optionally filter out unwanted tickets
-			for (File journal : journals) {
-				String json = null;
-				try {
-					json = new String(FileUtils.readContent(journal), Constants.ENCODING);
-				} catch (Exception e) {
-					log.error(null, e);
-				}
-				if (StringUtils.isEmpty(json)) {
-					// journal was touched but no changes were written
-					continue;
-				}
-				try {
-					// Reconstruct ticketId from the path
-					// id/26/326/journal.json
-					String path = FileUtils.getRelativePath(dir, journal);
-					String tid = path.split("/")[1];
-					long ticketId = Long.parseLong(tid);
-					List<Change> changes = TicketSerializer.deserializeJournal(json);
-					if (ArrayUtils.isEmpty(changes)) {
-						log.warn("Empty journal for {}:{}", repository, journal);
+		List<Repository> databases = new ArrayList<Repository>();
+		List<RepositoryModel> models = new ArrayList<RepositoryModel>();
+		
+		if(repository == null)
+		{
+			List<String> allRepo = repositoryManager.getRepositoryList();
+			for(int i = 0; i < allRepo.size(); i++)
+			{
+				databases.add(repositoryManager.getRepository(allRepo.get(i)));
+				models.add(repositoryManager.getRepositoryModel(allRepo.get(i)));
+			}
+		}
+		else
+		{
+			databases.add(repositoryManager.getRepository(repository.name));
+			models.add(repository);
+		}
+		
+		for(int i = 0; i < databases.size(); i++)
+		{
+			Repository db = databases.get(i);
+			try {
+				// Collect the set of all json files
+				File dir = new File(db.getDirectory(), TICKETS_PATH);
+				List<File> journals = findAll(dir, JOURNAL);
+	
+				// Deserialize each ticket and optionally filter out unwanted tickets
+				for (File journal : journals) {
+					String json = null;
+					try {
+						json = new String(FileUtils.readContent(journal), Constants.ENCODING);
+					} catch (Exception e) {
+						log.error(null, e);
+					}
+					if (StringUtils.isEmpty(json)) {
+						// journal was touched but no changes were written
 						continue;
 					}
-					TicketModel ticket = TicketModel.buildTicket(changes);
-					ticket.project = repository.projectPath;
-					ticket.repository = repository.name;
-					ticket.number = ticketId;
-
-					// add the ticket, conditionally, to the list
-					if (filter == null) {
-						list.add(ticket);
-					} else {
-						if (filter.accept(ticket)) {
-							list.add(ticket);
+					try {
+						// Reconstruct ticketId from the path
+						// id/26/326/journal.json
+						String path = FileUtils.getRelativePath(dir, journal);
+						String tid = path.split("/")[1];
+						long ticketId = Long.parseLong(tid);
+						List<Change> changes = TicketSerializer.deserializeJournal(json);
+						if (ArrayUtils.isEmpty(changes)) {
+							log.warn("Empty journal for {}:{}", models.get(i), journal);
+							continue;
 						}
+						TicketModel ticket = TicketModel.buildTicket(changes);
+						ticket.project = models.get(i).projectPath;
+						ticket.repository = models.get(i).name;
+						ticket.number = ticketId;
+	
+						// add the ticket, conditionally, to the list
+						if (filter == null) {
+							list.add(ticket);
+						} else {
+							if (filter.accept(ticket)) {
+								list.add(ticket);
+							}
+						}
+					} catch (Exception e) {
+						log.error("failed to deserialize {}/{}\n{}",
+								new Object [] { models.get(i), journal, e.getMessage()});
+						log.error(null, e);
 					}
-				} catch (Exception e) {
-					log.error("failed to deserialize {}/{}\n{}",
-							new Object [] { repository, journal, e.getMessage()});
-					log.error(null, e);
 				}
+			} finally {
+				db.close();
 			}
-
-			// sort the tickets by creation
-			Collections.sort(list);
-			return list;
-		} finally {
-			db.close();
 		}
+		
+		// sort the tickets by creation
+		Collections.sort(list);
+		return list;
 	}
 
 	private List<File> findAll(File dir, String filename) {
