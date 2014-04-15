@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.parboiled.common.StringUtils;
 
-import ro.fortsoft.pf4j.PluginVersion;
+import ro.fortsoft.pf4j.Version;
 
 /**
  * Represents a list of plugin registrations.
@@ -125,8 +125,8 @@ public class PluginRegistry implements Serializable {
 			if (StringUtils.isEmpty(installedRelease)) {
 				return InstallState.NOT_INSTALLED;
 			}
-			PluginVersion ir = PluginVersion.createVersion(installedRelease);
-			PluginVersion cr = PluginVersion.createVersion(currentRelease);
+			Version ir = Version.createVersion(installedRelease);
+			Version cr = Version.createVersion(currentRelease);
 			switch (ir.compareTo(cr)) {
 			case -1:
 				return InstallState.UNKNOWN;
@@ -151,7 +151,7 @@ public class PluginRegistry implements Serializable {
 
 		@Override
 		public int compareTo(PluginRelease o) {
-			return PluginVersion.createVersion(version).compareTo(PluginVersion.createVersion(o.version));
+			return Version.createVersion(version).compareTo(Version.createVersion(o.version));
 		}
 	}
 }
