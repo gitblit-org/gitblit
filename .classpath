@@ -11,8 +11,8 @@
 	<classpathentry kind="lib" path="ext/javawriter-2.1.1.jar" sourcepath="ext/src/javawriter-2.1.1.jar" />
 	<classpathentry kind="lib" path="ext/annotations-12.0.jar" sourcepath="ext/src/annotations-12.0.jar" />
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17.jar" />
-	<classpathentry kind="lib" path="ext/slf4j-api-1.6.6.jar" sourcepath="ext/src/slf4j-api-1.6.6.jar" />
-	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.6.6.jar" sourcepath="ext/src/slf4j-log4j12-1.6.6.jar" />
+	<classpathentry kind="lib" path="ext/slf4j-api-1.7.5.jar" />
+	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.7.5.jar" />
 	<classpathentry kind="lib" path="ext/mail-1.4.3.jar" sourcepath="ext/src/mail-1.4.3.jar" />
 	<classpathentry kind="lib" path="ext/javax.servlet-api-3.1.0.jar" sourcepath="ext/src/javax.servlet-api-3.1.0.jar" />
 	<classpathentry kind="lib" path="ext/jetty-all-9.1.4.v20140401.jar" sourcepath="ext/src/jetty-all-9.1.4.v20140401.jar" />

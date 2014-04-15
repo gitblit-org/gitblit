@@ -50,6 +50,7 @@ r22: {
     - JGit 3.3.1
     - Mina SSHD 0.10.1
     - pf4j 0.8.0
+    - SLF4J 1.7.5
     contributors:
     - James Moger
     - David Ostrovsky

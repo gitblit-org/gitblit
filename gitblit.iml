@@ -80,25 +80,21 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-api-1.6.6.jar">
+      <library name="slf4j-api-1.7.5.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.6.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.5.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.6.6.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-log4j12-1.6.6.jar">
+      <library name="slf4j-log4j12-1.7.5.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.6.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.5.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.6.6.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
