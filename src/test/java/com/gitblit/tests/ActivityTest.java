@@ -26,7 +26,7 @@ public class ActivityTest extends GitblitUnitTest {
 
 	@Test
 	public void testGravatarProfile() throws IOException {
-		GravatarProfile profile = ActivityUtils.getGravatarProfile("beau@dentedreality.com.au");
+		GravatarProfile profile = ActivityUtils.getGravatarProfileFromAddress("beau@dentedreality.com.au");
 		assertEquals("beau", profile.preferredUsername);
 	}
 }
