@@ -81,6 +81,7 @@ import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
+import com.gitblit.wicket.pages.MyTicketsPage;
 
 public class GitBlitWebApp extends WebApplication {
 
@@ -191,6 +192,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/tickets/export", ExportTicketPage.class, "r", "h");
 		mount("/milestones/new", NewMilestonePage.class, "r");
 		mount("/milestones/edit", EditMilestonePage.class, "r", "h");
+		mount("/mytickets", MyTicketsPage.class, "r", "h");
 
 		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r");

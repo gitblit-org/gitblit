@@ -779,12 +779,21 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	public abstract boolean hasTicket(RepositoryModel repository, long ticketId);
+	
+	/**
+	 * Returns all tickets.  This is not a Lucene search!
+	 * 
+	 * @return all tickets
+	 */
+	public List<TicketModel> getTickets() {
+		return getTickets(null, null);
+	}
 
 	/**
 	 * Returns all tickets.  This is not a Lucene search!
 	 *
 	 * @param repository
-	 * @return all tickets
+	 * @return all tickets of a given repository
 	 * @since 1.4.0
 	 */
 	public List<TicketModel> getTickets(RepositoryModel repository) {
