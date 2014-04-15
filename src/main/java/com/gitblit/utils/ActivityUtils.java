@@ -15,9 +15,6 @@
  */
 package com.gitblit.utils;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -38,11 +35,9 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.Activity;
-import com.gitblit.models.GravatarProfile;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Utility class for building activity information from repositories.
@@ -162,19 +157,6 @@ public class ActivityUtils {
 	}
 
 	/**
-	 * Returns the Gravatar profile, if available, for the specified email
-	 * address.
-	 *
-	 * @param emailaddress
-	 * @return a Gravatar Profile
-	 * @throws IOException
-	 */
-	public static GravatarProfile getGravatarProfileFromAddress(String emailaddress)
-			throws IOException {
-		return getGravatarProfile(StringUtils.getMD5(emailaddress.toLowerCase()));
-	}
-
-	/**
 	 * Creates a Gravatar thumbnail url from the specified email address.
 	 *
 	 * @param email
@@ -210,33 +192,5 @@ public class ActivityUtils {
 		String url = MessageFormat.format(
 				"https://www.gravatar.com/avatar/{0}?s={1,number,0}&d=mm", emailHash, width);
 		return url;
-	}
-
-	/**
-	 * Returns the Gravatar profile, if available, for the specified hashcode.
-	 * address.
-	 *
-	 * @param hash
-	 *            the hash of the email address
-	 * @return a Gravatar Profile
-	 * @throws IOException
-	 */
-	public static GravatarProfile getGravatarProfile(String hash) throws IOException {
-		String url = MessageFormat.format("https://www.gravatar.com/{0}.json", hash);
-		// Gravatar has a complex json structure
-		Type profileType = new TypeToken<Map<String, List<GravatarProfile>>>() {
-		}.getType();
-		Map<String, List<GravatarProfile>> profiles = null;
-		try {
-			profiles = JsonUtils.retrieveJson(url, profileType);
-		} catch (FileNotFoundException e) {
-		}
-		if (profiles == null || profiles.size() == 0) {
-			return null;
-		}
-		// due to the complex json structure we need to pull out the profile
-		// from a list 2 levels deep
-		GravatarProfile profile = profiles.values().iterator().next().get(0);
-		return profile;
 	}
 }

@@ -59,6 +59,7 @@ r22: {
     - Tim Ryan
     - Decebal Suiu
     - Eric Myrhe
+    - Kevin Walter
     settings:
     - { name: 'realm.ldap.bindpattern', defaultValue: ' ' }
     - { name: 'tickets.closeOnPushCommitMessageRegex', defaultValue: '(?:fixes|closes)[\\s-]+#?(\\d+)' }
