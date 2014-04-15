@@ -20,12 +20,20 @@ import java.util.List;
 
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginWrapper;
+import ro.fortsoft.pf4j.Version;
 
 import com.gitblit.models.PluginRegistry.InstallState;
 import com.gitblit.models.PluginRegistry.PluginRegistration;
 import com.gitblit.models.PluginRegistry.PluginRelease;
 
 public interface IPluginManager extends IManager {
+
+	/**
+	 * Returns the system version.
+	 *
+	 * @return the system version
+	 */
+	Version getSystemVersion();
 
 	/**
 	 * Starts all plugins.

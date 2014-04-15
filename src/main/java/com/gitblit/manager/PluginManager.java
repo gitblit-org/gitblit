@@ -42,9 +42,10 @@ import ro.fortsoft.pf4j.PluginClassLoader;
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginStateEvent;
 import ro.fortsoft.pf4j.PluginStateListener;
-import ro.fortsoft.pf4j.PluginVersion;
 import ro.fortsoft.pf4j.PluginWrapper;
+import ro.fortsoft.pf4j.Version;
 
+import com.gitblit.Constants;
 import com.gitblit.Keys;
 import com.gitblit.models.PluginRegistry;
 import com.gitblit.models.PluginRegistry.InstallState;
@@ -63,6 +64,7 @@ import com.google.common.io.InputSupplier;
  * the Dagger DI and retrieve extensions provided by active plugins.
  *
  * @author David Ostrovsky
+ * @author James Moger
  *
  */
 public class PluginManager implements IPluginManager, PluginStateListener {
@@ -82,7 +84,20 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
 		dir.mkdirs();
 		this.runtimeManager = runtimeManager;
+
 		this.pf4j = new DefaultPluginManager(dir);
+
+		try {
+			Version systemVersion = Version.createVersion(Constants.getVersion());
+			pf4j.setSystemVersion(systemVersion);
+		} catch (Exception e) {
+			logger.error(null, e);
+		}
+	}
+
+	@Override
+	public Version getSystemVersion() {
+		return pf4j.getSystemVersion();
 	}
 
 	@Override
@@ -130,6 +145,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 		return PluginState.STARTED.equals(state);
 	}
 
+	@Override
 	public synchronized boolean upgradePlugin(String pluginId, String url, boolean verifyChecksum) throws IOException {
 		// ensure we can download the update BEFORE we remove the existing one
 		File file = download(url, verifyChecksum);
@@ -185,7 +201,6 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 							(file.getName().toLowerCase().endsWith(".sha1")
 									|| file.getName().toLowerCase().endsWith(".md5"));
 				}
-
 			});
 
 			if (checksums != null) {
@@ -322,7 +337,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 		for (PluginWrapper pw : pf4j.getPlugins()) {
 			String id = pw.getDescriptor().getPluginId();
-			PluginVersion pv = pw.getDescriptor().getVersion();
+			Version pv = pw.getDescriptor().getVersion();
 			PluginRegistration reg = map.get(id);
 			if (reg != null) {
 				reg.installedRelease = pv.toString();

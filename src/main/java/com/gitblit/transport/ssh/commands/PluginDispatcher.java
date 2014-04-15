@@ -27,6 +27,7 @@ import ro.fortsoft.pf4j.PluginDependency;
 import ro.fortsoft.pf4j.PluginDescriptor;
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginWrapper;
+import ro.fortsoft.pf4j.Version;
 
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.PluginRegistry.InstallState;
@@ -35,6 +36,7 @@ import com.gitblit.models.PluginRegistry.PluginRelease;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
+import com.gitblit.utils.StringUtils;
 import com.google.common.base.Joiner;
 
 /**
@@ -519,11 +521,24 @@ public class PluginDispatcher extends DispatchCommand {
 						new UnloggedFailure(1, String.format("Failed to install %s", urlOrId));
 					}
 				} else {
-					PluginRelease pv = gitblit.lookupRelease(urlOrId, version);
-					if (pv == null) {
-						throw new Failure(1,  String.format("Plugin \"%s\" is not in the registry!", urlOrId));
+					PluginRelease pr = gitblit.lookupRelease(urlOrId, version);
+					if (pr == null) {
+						throw new UnloggedFailure(1,  String.format("Plugin \"%s\" is not in the registry!", urlOrId));
 					}
-					if (gitblit.installPlugin(pv.url, !disableChecksum)) {
+
+					// enforce minimum system requirement
+					if (!StringUtils.isEmpty(pr.requires)) {
+						Version requires = Version.createVersion(pr.requires);
+						Version system = gitblit.getSystemVersion();
+						boolean isValid = system.isZero() || system.atLeast(requires);
+						if (!isValid) {
+							String msg = String.format("Plugin \"%s:%s\" requires Gitblit %s",
+									urlOrId, pr.version, pr.requires);
+							throw new UnloggedFailure(1, msg);
+						}
+					}
+
+					if (gitblit.installPlugin(pr.url, !disableChecksum)) {
 						stdout.println(String.format("Installed %s", urlOrId));
 					} else {
 						throw new UnloggedFailure(1, String.format("Failed to install %s", urlOrId));
@@ -556,13 +571,24 @@ public class PluginDispatcher extends DispatchCommand {
 				throw new UnloggedFailure("Invalid plugin specified!");
 			}
 
-			PluginRelease pv = gitblit.lookupRelease(pluginWrapper.getPluginId(), version);
-			if (pv == null) {
+			PluginRelease pr = gitblit.lookupRelease(pluginWrapper.getPluginId(), version);
+			if (pr == null) {
 				throw new UnloggedFailure(1,  String.format("Plugin \"%s\" is not in the registry!", pluginWrapper.getPluginId()));
 			}
 
+			// enforce minimum system requirement
+			if (!StringUtils.isEmpty(pr.requires)) {
+				Version requires = Version.createVersion(pr.requires);
+				Version system = gitblit.getSystemVersion();
+				boolean isValid = system.isZero() || system.atLeast(requires);
+				if (!isValid) {
+					throw new Failure(1, String.format("Plugin \"%s:%s\" requires Gitblit %s",
+							pluginWrapper.getPluginId(), pr.version, pr.requires));
+				}
+			}
+
 			try {
-				if (gitblit.upgradePlugin(pluginWrapper.getPluginId(), pv.url, !disableChecksum)) {
+				if (gitblit.upgradePlugin(pluginWrapper.getPluginId(), pr.url, !disableChecksum)) {
 					stdout.println(String.format("Upgraded %s", pluginWrapper.getPluginId()));
 				} else {
 					throw new UnloggedFailure(1, String.format("Failed to upgrade %s", pluginWrapper.getPluginId()));

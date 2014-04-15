@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginWrapper;
+import ro.fortsoft.pf4j.Version;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
@@ -1188,6 +1189,11 @@ public class GitblitManager implements IGitblit {
 	/*
 	 * PLUGIN MANAGER
 	 */
+
+	@Override
+	public Version getSystemVersion() {
+		return pluginManager.getSystemVersion();
+	}
 
 	@Override
 	public void startPlugins() {
