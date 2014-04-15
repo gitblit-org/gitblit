@@ -713,27 +713,30 @@ public abstract class ITicketService {
 	public final TicketModel getTicket(RepositoryModel repository, long ticketId) {
 		TicketKey key = new TicketKey(repository, ticketId);
 		TicketModel ticket = ticketsCache.getIfPresent(key);
-
+		
+		// if ticket not cached
 		if (ticket == null) {
-			// load & cache ticket
+			//load ticket
 			ticket = getTicketImpl(repository, ticketId);
-			if (ticket.hasPatchsets()) {
-				Repository r = repositoryManager.getRepository(repository.name);
-				try {
-					Patchset patchset = ticket.getCurrentPatchset();
-					DiffStat diffStat = DiffUtils.getDiffStat(r, patchset.base, patchset.tip);
-					// diffstat could be null if we have ticket data without the
-					// commit objects.  e.g. ticket replication without repo
-					// mirroring
-					if (diffStat != null) {
-						ticket.insertions = diffStat.getInsertions();
-						ticket.deletions = diffStat.getDeletions();
-					}
-				} finally {
-					r.close();
-				}
-			}
+			// if ticket exists
 			if (ticket != null) {
+				if (ticket.hasPatchsets()) {
+					Repository r = repositoryManager.getRepository(repository.name);
+					try {
+						Patchset patchset = ticket.getCurrentPatchset();
+						DiffStat diffStat = DiffUtils.getDiffStat(r, patchset.base, patchset.tip);
+						// diffstat could be null if we have ticket data without the
+						// commit objects.  e.g. ticket replication without repo
+						// mirroring
+						if (diffStat != null) {
+							ticket.insertions = diffStat.getInsertions();
+							ticket.deletions = diffStat.getDeletions();
+						}
+					} finally {
+						r.close();
+					}
+				}
+				//cache ticket
 				ticketsCache.put(key, ticket);
 			}
 		}
