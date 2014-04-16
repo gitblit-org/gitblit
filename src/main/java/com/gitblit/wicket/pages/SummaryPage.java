@@ -16,12 +16,11 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -156,21 +155,24 @@ public class SummaryPage extends RepositoryPage {
 			// global, no readme on summary page
 			add(new Label("readme").setVisible(false));
 		}
-		
-		Charts charts = createCharts(metrics);
-		add(new HeaderContributor(charts));
-		
+
+		if (metrics == null || metrics.isEmpty()) {
+			add(new Label("commitsChart").setVisible(false));
+		} else {
+			Charts charts = createCharts(metrics);
+			add(new HeaderContributor(charts));
+		}
 	}
 
 	@Override
 	protected String getPageName() {
 		return getString("gb.summary");
 	}
-	
+
 	private Charts createCharts(List<Metric> metrics) {
-		
+
 		Charts charts = new Flotr2Charts();
-		
+
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		String displayFormat = "MMM dd";
 		if(metrics.size() > 0 && metrics.get(0).name.length() == 7){
@@ -178,11 +180,11 @@ public class SummaryPage extends RepositoryPage {
 			displayFormat = "yyyy MMM";
 		}
 		df.setTimeZone(getTimeZone());
-					
+
 		// build google charts
 		Chart chart = charts.createLineChart("commitsChart", getString("gb.activity"), "day", getString("gb.commits"));
 		chart.setDateFormat(displayFormat);
-	
+
 		for (Metric metric : metrics) {
 			Date date;
 			try {
