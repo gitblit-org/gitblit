@@ -3,6 +3,7 @@ package com.gitblit.wicket.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.tickets.ITicketService;
@@ -32,6 +33,9 @@ public class MyTicketsPage extends RootPage {
 			currentUser = UserModel.ANONYMOUS;
 		}
 		String username = currentUser.getName();
+		
+		String message = "Welcome on GitBlit";
+		this.add(new Label("myTicketsMessage", message));		
 		
 		ITicketService tickets = GitBlitWebApp.get().tickets();
 		List<TicketModel> returnedTickets = tickets.getTickets(null);
@@ -73,6 +77,7 @@ public class MyTicketsPage extends RootPage {
 			{
 				final TicketModel ticket = item.getModelObject();
 				String ticketUrl = app().tickets().getTicketUrl(ticket);
+				item.add(new Label("repositoryName", ticket.repository));
 				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
 				item.add(new Label("ticketDescription", ticket.body));
 			}
@@ -87,6 +92,7 @@ public class MyTicketsPage extends RootPage {
 			{
 				final TicketModel ticket = item.getModelObject();
 				String ticketUrl = app().tickets().getTicketUrl(ticket);
+				item.add(new Label("repositoryName", ticket.repository));
 				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
 				item.add(new Label("ticketDescription", ticket.body));
 			}
@@ -101,6 +107,7 @@ public class MyTicketsPage extends RootPage {
 			{
 				final TicketModel ticket = item.getModelObject();
 				String ticketUrl = app().tickets().getTicketUrl(ticket);
+				item.add(new Label("repositoryName", ticket.repository));
 				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
 				item.add(new Label("ticketDescription", ticket.body));
 			}
@@ -115,6 +122,7 @@ public class MyTicketsPage extends RootPage {
 			{
 				final TicketModel ticket = item.getModelObject();
 				String ticketUrl = app().tickets().getTicketUrl(ticket);
+				item.add(new Label("repositoryName", ticket.repository));
 				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
 				item.add(new Label("ticketDescription", ticket.body));
 			}
