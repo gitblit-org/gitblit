@@ -157,9 +157,12 @@ public class SummaryPage extends RepositoryPage {
 			add(new Label("readme").setVisible(false));
 		}
 		
-		Charts charts = createCharts(metrics);
-		add(new HeaderContributor(charts));
-		
+		if(metrics==null||metrics.size()<1){
+			add(WicketUtils.newBlankImage("commitsChart"));
+		}else{
+			Charts charts = createCharts(metrics);
+			add(new HeaderContributor(charts));	
+		}	
 	}
 
 	@Override
