@@ -28,7 +28,7 @@ Your ticket journals are persisted to `id/{shard}/{id}/journal.json`.  These jou
 
 Your ticket journals are persisted to a Redis data store.  *Make sure you configure your Redis instance for durability!!*  This particular service is highly-scalable and very fast.  Plus you can use all of the power of Redis replication, should you want.
 
-The main drawback to this service is that Redis is primarily a Unix tool and works best on a Unix server.  While there is a Windows port, sort-of maintained by Microsoft, it is not actively updated.
+The main drawback to this service is that Redis is primarily a Unix tool and works best on a Unix server.  Microsoft is engaged with the Redis community and they do maintain a semi-active port of Redis for Windows servers.
 
     tickets.redis.url = redis://(:{password}@){hostname}:{port}(/{databaseId})
 

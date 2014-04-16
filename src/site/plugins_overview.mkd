@@ -15,13 +15,13 @@ A plugin is a collection of Java classes and required jar dependencies bundled t
 
 The existing plugin mechanism is based on [pf4j](https://github.com/decebals/pf4j).  Plugins are distributed as zip files and may include their runtime dependencies or may rely on the bundled dependencies of other plugins and/or Gitblit core.
 
-The zip plugins are stored in `${baseFolder}/plugins` and are unpacked on startup into folders of the same name.
+The plugin zip files are stored in `${baseFolder}/plugins` and are unpacked on startup into folders of the same name.
 
 A plugin defines it's metadata in the META-INF/MANIFEST.MF file:
 
     Plugin-Id: powertools
     Plugin-Description: Command and control Gitblit over SSH
-    Plugin-Class: com.gitblit.plugin.powertools.Powertools
+    Plugin-Class: com.gitblit.plugin.powertools.Plugin
     Plugin-Version: 1.2.0
     Plugin-Requires: 1.5.0
     Plugin-Provider: gitblit.com
@@ -33,17 +33,17 @@ In addition to extending Gitblit core, plugins can also define extension points 
 **NOTE:**
 The pf4j plugin framework relies on a javac apt processor to generate compile-time extension information, so be sure to enable apt processing in your build process.
 
-#### Limitations of Dependencies
+#### Limitations of Plugin Dependencies
 
-Plugins may specify dependencies by ID, but may not specify specific versions of a dependency.
+Plugins may specify plugin dependencies by their ID, but they may not specify dependency versions.
 
 ### Managing Plugins
 
 Administrators may manage plugins through the `plugin` SSH dispatch command:
 
-    ssh host plugin
+    ssh host -l username -p 29418 plugin
 
-Through this command interface plugins can be started, stopped, disabled, enabled, installed, uninstalled, listed, etc.
+Through this command interface plugins can be started, stopped, disabled, enabled, installed, uninstalled, listed, etc.  Each command is supports the `--help` argument which will guide you in understanding the options and usage of the command.
 
 ### Default Plugin Registry
 
@@ -55,11 +55,11 @@ The [registry](http://plugins.gitblit.com/plugins.json) is currently hosted in a
 
 ### Contributing Plugins to the Default Registry
 
-If you develop your own plugins that you want hosted by or linked in the default registry, open pull request for the registry repository.  Any contributed binaries hosted in this repository must have Maven metadata and the SHA-1 & MD5 checksums.  By default, Gitblit enforces checksum validation on all downloads.
+If you develop your own plugins that you want hosted by or linked in the default registry, open a pull request for the registry repository.  Any contributed binaries hosted in this repository must have Maven metadata and the SHA-1 & MD5 checksums.  By default, Gitblit enforces checksum validation on all downloads.
 
 ### Hosting your Own Registry / Allowing Multiple Registries
 
-The `plugins.json` file is parameterized with the `${self}` placeholder.  This parameter is substituted on download with with the source URL of the registry file.  This allows you to clone and serve your own copy of this git repository or just server your own `plugins.json` on your own network.
+The `plugins.json` file is parameterized with the `${self}` placeholder.  This parameter is substituted on download with with the source URL of the registry file.  This allows you to clone and serve your own copy of this git repository or just serve your own `plugins.json` on your own network.
 
 Gitblit also supports loading multiple plugin registries.  Just place another **properly formatted** `.json` file in `${baseFolder}/plugins` and Gitblit will load that as an additional registry.
 
