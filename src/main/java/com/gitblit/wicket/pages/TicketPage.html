@@ -316,9 +316,10 @@ pt push</pre>
 
 <!-- PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="patchsetFragment">
-	<div class="row" style="padding: 0px 0px 20px;">
+	<div class="row" style="padding: 0px;">
  		<div class="span12 attribution-border">
-			<div wicket:id="panel"></div>		
+ 			<div wicket:id="mergePanel" style="margin-bottom: 10px;"></div>
+			<div wicket:id="panel"></div>
 		</div>
 	</div>
 	
@@ -351,9 +352,8 @@ pt push</pre>
 
 <!-- COLLAPSIBLE PATCHSET (temp) -->
 <wicket:fragment wicket:id="collapsiblePatchsetFragment">
-<div wicket:id="mergePanel" style="margin-bottom: 10px;"></div>
 <div class="accordion" id="accordionPatchset" style="clear:both;margin: 0px;">
-<div class="patch-group">
+<div class="patch-group" style="margin-bottom: 20px;">
    	<div class="accordion-heading">
 		<div class="attribution-patch-pullright">	
 			<div style="padding-bottom: 2px;"> 

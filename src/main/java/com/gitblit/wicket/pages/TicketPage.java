@@ -774,12 +774,19 @@ public class TicketPage extends TicketBasePage {
 			Fragment patchsetFrag = new Fragment("patchset", "patchsetFragment", this);
 			patchsetFrag.add(new Label("commitsInPatchset", MessageFormat.format(getString("gb.commitsInPatchsetN"), currentPatchset.number)));
 
-			// current revision
-			MarkupContainer panel = createPatchsetPanel("panel", repository, user);
-			patchsetFrag.add(panel);
-			addUserAttributions(patchsetFrag, currentRevision, avatarWidth);
-			addUserAttributions(panel, currentRevision, 0);
-			addDateAttributions(panel, currentRevision);
+			patchsetFrag.add(createMergePanel(user, repository));
+
+			if (ticket.isOpen()) {
+				// current revision
+				MarkupContainer panel = createPatchsetPanel("panel", repository, user);
+				patchsetFrag.add(panel);
+				addUserAttributions(patchsetFrag, currentRevision, avatarWidth);
+				addUserAttributions(panel, currentRevision, 0);
+				addDateAttributions(panel, currentRevision);
+			} else {
+				// current revision
+				patchsetFrag.add(new Label("panel").setVisible(false));
+			}
 
 			// commits
 			List<RevCommit> commits = JGitUtils.getRevLog(getRepository(), currentPatchset.base, currentPatchset.tip);
@@ -1213,7 +1220,6 @@ public class TicketPage extends TicketBasePage {
 
 		addPtCheckoutInstructions(user, repository, panel);
 		addGitCheckoutInstructions(user, repository, panel);
-		panel.add(createMergePanel(user, repository));
 
 		return panel;
 	}
