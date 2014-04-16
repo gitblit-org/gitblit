@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.eclipse.jgit.lib.Repository;
 
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
@@ -228,47 +229,65 @@ public class RedisTicketService extends ITicketService {
 	public List<TicketModel> getTickets(RepositoryModel repository, TicketFilter filter) {
 		Jedis jedis = pool.getResource();
 		List<TicketModel> list = new ArrayList<TicketModel>();
+		List<RepositoryModel> models = new ArrayList<RepositoryModel>();
+		
+		if(repository == null)
+		{
+			List<String> allRepo = repositoryManager.getRepositoryList();
+			for(int i = 0; i < allRepo.size(); i++)
+			{
+				models.add(repositoryManager.getRepositoryModel(allRepo.get(i)));
+			}
+		}
+		else
+		{
+			models.add(repository);
+		}
+		
 		if (jedis == null) {
 			return list;
 		}
-		try {
-			// Deserialize each journal, build the ticket, and optionally filter
-			Set<String> keys = jedis.keys(key(repository, KeyType.journal, "*"));
-			for (String key : keys) {
-				// {repo}:journal:{id}
-				String id = key.split(":")[2];
-				long ticketId = Long.parseLong(id);
-				List<Change> changes = getJournal(jedis, repository, ticketId);
-				if (ArrayUtils.isEmpty(changes)) {
-					log.warn("Empty journal for {}:{}", repository, ticketId);
-					continue;
-				}
-				TicketModel ticket = TicketModel.buildTicket(changes);
-				ticket.project = repository.projectPath;
-				ticket.repository = repository.name;
-				ticket.number = ticketId;
-
-				// add the ticket, conditionally, to the list
-				if (filter == null) {
-					list.add(ticket);
-				} else {
-					if (filter.accept(ticket)) {
+		for(int i = 0; i < models.size(); i++)
+		{
+			RepositoryModel model = models.get(i);
+			try {
+				// Deserialize each journal, build the ticket, and optionally filter
+				Set<String> keys = jedis.keys(key(model, KeyType.journal, "*"));
+				for (String key : keys) {
+					// {repo}:journal:{id}
+					String id = key.split(":")[2];
+					long ticketId = Long.parseLong(id);
+					List<Change> changes = getJournal(jedis, model, ticketId);
+					if (ArrayUtils.isEmpty(changes)) {
+						log.warn("Empty journal for {}:{}", model, ticketId);
+						continue;
+					}
+					TicketModel ticket = TicketModel.buildTicket(changes);
+					ticket.project = model.projectPath;
+					ticket.repository = model.name;
+					ticket.number = ticketId;
+	
+					// add the ticket, conditionally, to the list
+					if (filter == null) {
 						list.add(ticket);
+					} else {
+						if (filter.accept(ticket)) {
+							list.add(ticket);
+						}
 					}
 				}
-			}
-
-			// sort the tickets by creation
-			Collections.sort(list);
-		} catch (JedisException e) {
-			log.error("failed to retrieve tickets from Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
+			} catch (JedisException e) {
+				log.error("failed to retrieve tickets from Redis @ " + getUrl(), e);
+				pool.returnBrokenResource(jedis);
+				jedis = null;
+			} finally {
+				if (jedis != null) {
+					pool.returnResource(jedis);
+				}
 			}
 		}
+		// sort the tickets by creation
+		Collections.sort(list);
 		return list;
 	}
 

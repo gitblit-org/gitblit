@@ -436,64 +436,84 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	@Override
 	public List<TicketModel> getTickets(RepositoryModel repository, TicketFilter filter) {
 		List<TicketModel> list = new ArrayList<TicketModel>();
-
-		Repository db = repositoryManager.getRepository(repository.name);
-		try {
-			RefModel ticketsBranch = getTicketsBranch(db);
-			if (ticketsBranch == null) {
-				return list;
+		List<Repository> databases = new ArrayList<Repository>();
+		List<RepositoryModel> models = new ArrayList<RepositoryModel>();
+		
+		if(repository == null)
+		{
+			List<String> allRepo = repositoryManager.getRepositoryList();
+			for(int i = 0; i < allRepo.size(); i++)
+			{
+				databases.add(repositoryManager.getRepository(allRepo.get(i)));
+				models.add(repositoryManager.getRepositoryModel(allRepo.get(i)));
 			}
+		}
+		else
+		{
+			databases.add(repositoryManager.getRepository(repository.name));
+			models.add(repository);
+		}
 
-			// Collect the set of all json files
-			List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), BRANCH);
-
-			// Deserialize each ticket and optionally filter out unwanted tickets
-			for (PathModel path : paths) {
-				String name = path.name.substring(path.name.lastIndexOf('/') + 1);
-				if (!JOURNAL.equals(name)) {
-					continue;
+		for(int i = 0; i < databases.size(); i++)
+		{
+			Repository db = databases.get(i);
+			try {
+				RefModel ticketsBranch = getTicketsBranch(db);
+				if (ticketsBranch == null) {
+					return list;
 				}
-				String json = readTicketsFile(db, path.path);
-				if (StringUtils.isEmpty(json)) {
-					// journal was touched but no changes were written
-					continue;
-				}
-				try {
-					// Reconstruct ticketId from the path
-					// id/26/326/journal.json
-					String tid = path.path.split("/")[2];
-					long ticketId = Long.parseLong(tid);
-					List<Change> changes = TicketSerializer.deserializeJournal(json);
-					if (ArrayUtils.isEmpty(changes)) {
-						log.warn("Empty journal for {}:{}", repository, path.path);
+	
+				// Collect the set of all json files
+				List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), BRANCH);
+	
+				// Deserialize each ticket and optionally filter out unwanted tickets
+				for (PathModel path : paths) {
+					String name = path.name.substring(path.name.lastIndexOf('/') + 1);
+					if (!JOURNAL.equals(name)) {
 						continue;
 					}
-					TicketModel ticket = TicketModel.buildTicket(changes);
-					ticket.project = repository.projectPath;
-					ticket.repository = repository.name;
-					ticket.number = ticketId;
-
-					// add the ticket, conditionally, to the list
-					if (filter == null) {
-						list.add(ticket);
-					} else {
-						if (filter.accept(ticket)) {
-							list.add(ticket);
-						}
+					String json = readTicketsFile(db, path.path);
+					if (StringUtils.isEmpty(json)) {
+						// journal was touched but no changes were written
+						continue;
 					}
-				} catch (Exception e) {
-					log.error("failed to deserialize {}/{}\n{}",
-							new Object [] { repository, path.path, e.getMessage()});
-					log.error(null, e);
+					try {
+						// Reconstruct ticketId from the path
+						// id/26/326/journal.json
+						String tid = path.path.split("/")[2];
+						long ticketId = Long.parseLong(tid);
+						List<Change> changes = TicketSerializer.deserializeJournal(json);
+						if (ArrayUtils.isEmpty(changes)) {
+							log.warn("Empty journal for {}:{}", models.get(i), path.path);
+							continue;
+						}
+						TicketModel ticket = TicketModel.buildTicket(changes);
+						ticket.project = models.get(i).projectPath;
+						ticket.repository = models.get(i).name;
+						ticket.number = ticketId;
+	
+						// add the ticket, conditionally, to the list
+						if (filter == null) {
+							list.add(ticket);
+						} else {
+							if (filter.accept(ticket)) {
+								list.add(ticket);
+							}
+						}
+					} catch (Exception e) {
+						log.error("failed to deserialize {}/{}\n{}",
+								new Object [] { repository, path.path, e.getMessage()});
+						log.error(null, e);
+					}
 				}
+			} finally {
+				db.close();
 			}
-
-			// sort the tickets by creation
-			Collections.sort(list);
-			return list;
-		} finally {
-			db.close();
 		}
+
+		// sort the tickets by creation
+		Collections.sort(list);
+		return list;
 	}
 
 	/**
