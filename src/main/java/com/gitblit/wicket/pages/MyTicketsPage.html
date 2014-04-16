@@ -6,45 +6,53 @@
 
 <body>
 	<wicket:extend>
-		<table>
-			<span>Responsible Tickets</span>
-			<tbody>
-				<tr wicket:id="responsibleTickets">
-					<td><span wicket:id="ticketName"></span></td>
-					<td><span wicket:id="ticketDescription"></span></td>
-				</tr>
-			</tbody>
-		</table>
-		
-		<table>
-			<span>Author Tickets</span>
-			<tbody>
-				<tr wicket:id="authorTickets">
-					<td><span wicket:id="ticketName"></span></td>
-					<td><span wicket:id="ticketDescription"></span></td>
-				</tr>
-			</tbody>
-		</table>
-		
-		<table>
-			<span>Voted Tickets</span>
-			<tbody>
-				<tr wicket:id="votedTickets">
-					<td><span wicket:id="ticketName"></span></td>
-					<td><span wicket:id="ticketDescription"></span></td>
-				</tr>
-			</tbody>
-		</table>
-		
-		<table>
-			<span>Watched Tickets</span>
-			<tbody>
-				<tr wicket:id="watchedTickets">
-					<td><span wicket:id="ticketName"></span></td>
-					<td><span wicket:id="ticketDescription"></span></td>
-				</tr>
-			</tbody>
-		</table>
+		<div class="container">
+			<div class="markdown" style="padding: 10px 0px 5px 0px;" wicket:id="myTicketsMessage">[my tickets message]</div>
+			
+			<table>
+				<span>Responsible Tickets</span>
+				<tbody>
+					<tr wicket:id="responsibleTickets">
+						<td><span wicket:id="repositoryName"></span></td>
+						<td><span wicket:id="ticketName"></span></td>
+						<td><span wicket:id="ticketDescription"></span></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<table>
+				<span>Author Tickets</span>
+				<tbody>
+					<tr wicket:id="authorTickets">
+						<td><span wicket:id="repositoryName"></span></td>
+						<td><span wicket:id="ticketName"></span></td>
+						<td><span wicket:id="ticketDescription"></span></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<table>
+				<span>Voted Tickets</span>
+				<tbody>
+					<tr wicket:id="votedTickets">
+						<td><span wicket:id="repositoryName"></span></td>
+						<td><span wicket:id="ticketName"></span></td>
+						<td><span wicket:id="ticketDescription"></span></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<table>
+				<span>Watched Tickets</span>
+				<tbody>
+					<tr wicket:id="watchedTickets">
+						<td><span wicket:id="repositoryName"></span></td>
+						<td><span wicket:id="ticketName"></span></td>
+						<td><span wicket:id="ticketDescription"></span></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</wicket:extend>
 </body>
 </html>
