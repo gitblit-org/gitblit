@@ -587,10 +587,13 @@ public class WicketUtils {
 		if (TimeUtils.isToday(date, timeZone)) {
 			title = timeUtils.today();
 		} else if (TimeUtils.isYesterday(date, timeZone)) {
-				title = timeUtils.yesterday();
+			title = timeUtils.yesterday();
 		} else if (date.getTime() <= System.currentTimeMillis()) {
 			// past
 			title = timeUtils.timeAgo(date);
+		} else {
+			// future
+			title = timeUtils.inFuture(date);
 		}
 		if ((System.currentTimeMillis() - date.getTime()) < 10 * 24 * 60 * 60 * 1000L) {
 			String tmp = dateString;

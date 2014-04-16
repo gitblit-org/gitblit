@@ -164,6 +164,9 @@ public class TicketsPage extends TicketBasePage {
 			if (currentMilestone == null) {
 				// milestone not found, create a temporary one
 				currentMilestone = new TicketMilestone(milestoneParam);
+				String q = QueryBuilder.q(Lucene.rid.matches(getRepositoryModel().getRID())).and(Lucene.milestone.matches(milestoneParam)).build();
+				currentMilestone.tickets = app().tickets().queryFor(q, 1, 0, Lucene.number.name(), true);
+				milestones.add(currentMilestone);
 			}
 		}
 
@@ -643,15 +646,35 @@ public class TicketsPage extends TicketBasePage {
 		};
 		add(ticketsView);
 
-		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>("milestoneList", milestonesDp) {
+		List<TicketMilestone> allMilestones = app().tickets().getMilestones(getRepositoryModel());
+		ListDataProvider<TicketMilestone> allMilestonesDp = new ListDataProvider<TicketMilestone>(allMilestones);
+		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>("milestoneList", allMilestonesDp) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void populateItem(final Item<TicketMilestone> item) {
 				final TicketMilestone tm = item.getModelObject();
-				item.add(new Label("milestoneName", tm.name));
-				item.add(new Label("milestoneState", tm.status.name()));
-				item.add(new Label("milestoneDue", tm.due == null ? getString("gb.notSpecified") : tm.due.toString()));
+				PageParameters params = queryParameters(null, tm.name, null, null, null, desc, 1);
+				item.add(new LinkPanel("milestoneName", null, tm.name, TicketsPage.class, params).setRenderBodyOnly(true));
+
+				String css;
+				switch (tm.status) {
+				case Open:
+					css = "aui-lozenge aui-lozenge-subtle";
+					break;
+				default:
+					css = "aui-lozenge";
+					break;
+				}
+				Label stateLabel = new Label("milestoneState", tm.status.name());
+				WicketUtils.setCssClass(stateLabel, css);
+				item.add(stateLabel);
+
+				if (tm.due == null) {
+					item.add(new Label("milestoneDue", getString("gb.notSpecified")));
+				} else {
+					item.add(WicketUtils.createDatestampLabel("milestoneDue", tm.due, getTimeZone(), getTimeUtils()));
+				}
 			}
 		};
 		add(milestonesList);
