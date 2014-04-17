@@ -1251,8 +1251,8 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public boolean deletePlugin(String pluginId) {
-		return pluginManager.deletePlugin(pluginId);
+	public boolean uninstallPlugin(String pluginId) {
+		return pluginManager.uninstallPlugin(pluginId);
 	}
 
 	@Override

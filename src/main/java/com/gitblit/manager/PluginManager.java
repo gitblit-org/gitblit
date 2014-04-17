@@ -47,6 +47,7 @@ import ro.fortsoft.pf4j.Version;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
+import com.gitblit.extensions.GitblitPlugin;
 import com.gitblit.models.PluginRegistry;
 import com.gitblit.models.PluginRegistry.InstallState;
 import com.gitblit.models.PluginRegistry.PluginRegistration;
@@ -141,6 +142,12 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 			return false;
 		}
 
+		// allow the plugin to prepare for operation after installation
+		PluginWrapper pluginWrapper = pf4j.getPlugin(pluginId);
+		if (pluginWrapper.getPlugin() instanceof GitblitPlugin) {
+			((GitblitPlugin) pluginWrapper.getPlugin()).onInstall();
+		}
+
 		PluginState state = pf4j.startPlugin(pluginId);
 		return PluginState.STARTED.equals(state);
 	}
@@ -154,11 +161,18 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 			return false;
 		}
 
-		if (deletePlugin(pluginId)) {
+		Version oldVersion = pf4j.getPlugin(pluginId).getDescriptor().getVersion();
+		if (removePlugin(pluginId, false)) {
 			String newPluginId = pf4j.loadPlugin(file);
 			if (StringUtils.isEmpty(newPluginId)) {
 				logger.error("Failed to load plugin {}", file);
 				return false;
+			}
+
+			// the plugin to handle an upgrade
+			PluginWrapper pluginWrapper = pf4j.getPlugin(newPluginId);
+			if (pluginWrapper.getPlugin() instanceof GitblitPlugin) {
+				((GitblitPlugin) pluginWrapper.getPlugin()).onUpgrade(oldVersion);
 			}
 
 			PluginState state = pf4j.startPlugin(newPluginId);
@@ -183,9 +197,21 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	}
 
 	@Override
-	public synchronized boolean deletePlugin(String pluginId) {
+	public synchronized boolean uninstallPlugin(String pluginId) {
+		return removePlugin(pluginId, true);
+	}
+
+	protected boolean removePlugin(String pluginId, boolean isUninstall) {
 		PluginWrapper pluginWrapper = getPlugin(pluginId);
 		final String name = pluginWrapper.getPluginPath().substring(1);
+
+		if (isUninstall) {
+			// allow the plugin to prepare for uninstallation
+			if (pluginWrapper.getPlugin() instanceof GitblitPlugin) {
+				((GitblitPlugin) pluginWrapper.getPlugin()).onUninstall();
+			}
+		}
+
 		if (pf4j.deletePlugin(pluginId)) {
 
 			// delete the checksums

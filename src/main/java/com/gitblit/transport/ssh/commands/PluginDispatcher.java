@@ -614,7 +614,7 @@ public class PluginDispatcher extends DispatchCommand {
 				throw new UnloggedFailure(String.format("Plugin %s is not installed!", id));
 			}
 
-			if (gitblit.deletePlugin(pluginWrapper.getPluginId())) {
+			if (gitblit.uninstallPlugin(pluginWrapper.getPluginId())) {
 				stdout.println(String.format("Uninstalled %s", pluginWrapper.getPluginId()));
 			} else {
 				throw new UnloggedFailure(1, String.format("Failed to uninstall %s", pluginWrapper.getPluginId()));

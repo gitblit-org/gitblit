@@ -122,7 +122,7 @@ public interface IPluginManager extends IManager {
      * @param pluginId
      * @return true if successful
      */
-    boolean deletePlugin(String pluginId);
+    boolean uninstallPlugin(String pluginId);
 
     /**
      * Refresh the plugin registry.

@@ -19,6 +19,7 @@ import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IGitblit;
+import ro.fortsoft.pf4j.Version;
 
 public class ExamplePlugin extends GitblitPlugin {
 
@@ -33,6 +34,22 @@ public class ExamplePlugin extends GitblitPlugin {
         IFederationManager federation = GitblitContext.getManager(IFederationManager.class);
         IPluginManager plugins = GitblitContext.getManager(IPluginManager.class);
         IGitblit gitblit = GitblitContext.getManager(IGitblit.class);
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void onInstall() {
+    }
+
+    @Override
+    public void onUpgrade(Version oldVersion) {
+    }
+
+    @Override
+    public void onUninstall() {
     }
 }
 ```
