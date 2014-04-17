@@ -29,6 +29,7 @@ public interface IProjectManager extends IManager {
 	 * @param user
 	 * @param includeUsers
 	 * @return list of projects that are accessible to the user
+ 	 * @since 1.4.0
 	 */
 	List<ProjectModel> getProjectModels(UserModel user, boolean includeUsers);
 
@@ -38,6 +39,7 @@ public interface IProjectManager extends IManager {
 	 * @param name
 	 * @param user
 	 * @return a project model, or null if it does not exist
+ 	 * @since 1.4.0
 	 */
 	ProjectModel getProjectModel(String name, UserModel user);
 
@@ -46,6 +48,7 @@ public interface IProjectManager extends IManager {
 	 *
 	 * @param name a project name
 	 * @return a project model or null if the project does not exist
+ 	 * @since 1.4.0
 	 */
 	ProjectModel getProjectModel(String name);
 
@@ -57,6 +60,7 @@ public interface IProjectManager extends IManager {
 	 * @param repositoryModels
 	 * @param includeUsers
 	 * @return a list of project models
+ 	 * @since 1.4.0
 	 */
 	List<ProjectModel> getProjectModels(List<RepositoryModel> repositoryModels, boolean includeUsers);
 

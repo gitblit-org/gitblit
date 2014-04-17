@@ -36,6 +36,7 @@ public interface IFederationManager extends IManager {
 	 * Gitblit is running on a cloud service and may return an adjusted path.
 	 *
 	 * @return the proposals folder path
+	 * @since 1.4.0
 	 */
 	File getProposalsFolder();
 
@@ -45,6 +46,7 @@ public interface IFederationManager extends IManager {
 	 * Returns the federation user account.
 	 *
 	 * @return the federation user account
+	 * @since 1.4.0
 	 */
 	UserModel getFederationUser();
 
@@ -53,6 +55,7 @@ public interface IFederationManager extends IManager {
 	 *
 	 * @param httpRequest
 	 * @return the federation user, if authenticated
+	 * @since 1.4.0
 	 */
 	UserModel authenticate(HttpServletRequest httpRequest);
 
@@ -61,6 +64,7 @@ public interface IFederationManager extends IManager {
 	 * try to pull.
 	 *
 	 * @return list of registered gitblit instances
+	 * @since 1.4.0
 	 */
 	List<FederationModel> getFederationRegistrations();
 
@@ -70,6 +74,7 @@ public interface IFederationManager extends IManager {
 	 * @param name
 	 *            the name of the registration
 	 * @return a federation registration
+	 * @since 1.4.0
 	 */
 	FederationModel getFederationRegistration(String url, String name);
 
@@ -77,6 +82,7 @@ public interface IFederationManager extends IManager {
 	 * Returns the list of federation sets.
 	 *
 	 * @return list of federation sets
+	 * @since 1.4.0
 	 */
 	List<FederationSet> getFederationSets(String gitblitUrl);
 
@@ -84,6 +90,7 @@ public interface IFederationManager extends IManager {
 	 * Returns the list of possible federation tokens for this Gitblit instance.
 	 *
 	 * @return list of federation tokens
+	 * @since 1.4.0
 	 */
 	List<String> getFederationTokens();
 
@@ -92,6 +99,7 @@ public interface IFederationManager extends IManager {
 	 *
 	 * @param type
 	 * @return a federation token
+	 * @since 1.4.0
 	 */
 	String getFederationToken(FederationToken type);
 
@@ -100,6 +108,7 @@ public interface IFederationManager extends IManager {
 	 *
 	 * @param value
 	 * @return a federation token
+	 * @since 1.4.0
 	 */
 	String getFederationToken(String value);
 
@@ -110,6 +119,7 @@ public interface IFederationManager extends IManager {
 	 * @param req
 	 * @param token
 	 * @return true if the request can be executed
+	 * @since 1.4.0
 	 */
 	boolean validateFederationRequest(FederationRequest req, String token);
 
@@ -121,6 +131,7 @@ public interface IFederationManager extends IManager {
 	 * @param registration
 	 *            the registration from the pulling Gitblit instance
 	 * @return true if acknowledged
+	 * @since 1.4.0
 	 */
 	boolean acknowledgeFederationStatus(String identification, FederationModel registration);
 
@@ -128,6 +139,7 @@ public interface IFederationManager extends IManager {
 	 * Returns the list of registration results.
 	 *
 	 * @return the list of registration results
+	 * @since 1.4.0
 	 */
 	List<FederationModel> getFederationResultRegistrations();
 
@@ -141,6 +153,7 @@ public interface IFederationManager extends IManager {
 	 *            the url of your gitblit instance to send an email to
 	 *            administrators
 	 * @return true if the proposal was submitted
+	 * @since 1.4.0
 	 */
 	boolean submitFederationProposal(FederationProposal proposal, String gitblitUrl);
 
@@ -148,6 +161,7 @@ public interface IFederationManager extends IManager {
 	 * Returns the list of pending federation proposals
 	 *
 	 * @return list of federation proposals
+	 * @since 1.4.0
 	 */
 	List<FederationProposal> getPendingFederationProposals();
 
@@ -159,6 +173,7 @@ public interface IFederationManager extends IManager {
 	 * @param token
 	 *            the federation token
 	 * @return a map of <cloneurl, RepositoryModel>
+	 * @since 1.4.0
 	 */
 	Map<String, RepositoryModel> getRepositories(String gitblitUrl, String token);
 
@@ -169,6 +184,7 @@ public interface IFederationManager extends IManager {
 	 *            the url of this Gitblit instance
 	 * @param token
 	 * @return a potential proposal
+	 * @since 1.4.0
 	 */
 	FederationProposal createFederationProposal(String gitblitUrl, String token);
 
@@ -177,6 +193,7 @@ public interface IFederationManager extends IManager {
 	 *
 	 * @param token
 	 * @return the specified proposal or null
+	 * @since 1.4.0
 	 */
 	FederationProposal getPendingFederationProposal(String token);
 
@@ -186,6 +203,7 @@ public interface IFederationManager extends IManager {
 	 * @param a
 	 *            proposal
 	 * @return true if the proposal was deleted
+	 * @since 1.4.0
 	 */
 	boolean deletePendingFederationProposal(FederationProposal proposal);
 

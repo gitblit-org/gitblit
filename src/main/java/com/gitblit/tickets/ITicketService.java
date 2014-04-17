@@ -167,13 +167,13 @@ public abstract class ITicketService {
 
 	/**
 	 * Start the service.
-	 *
+	 * @since 1.4.0
 	 */
 	public abstract ITicketService start();
 
 	/**
 	 * Stop the service.
-	 *
+	 * @since 1.4.0
 	 */
 	public final ITicketService stop() {
 		indexer.close();
@@ -185,7 +185,7 @@ public abstract class ITicketService {
 
 	/**
 	 * Creates a ticket notifier.  The ticket notifier is not thread-safe!
-	 *
+	 * @since 1.4.0
 	 */
 	public TicketNotifier createNotifier() {
 		return new TicketNotifier(
@@ -200,6 +200,7 @@ public abstract class ITicketService {
 	 * Returns the ready status of the ticket service.
 	 *
 	 * @return true if the ticket service is ready
+	 * @since 1.4.0
 	 */
 	public boolean isReady() {
 		return true;
@@ -210,6 +211,7 @@ public abstract class ITicketService {
 	 *
 	 * @param repository
 	 * @return true if patchsets are being accepted
+	 * @since 1.4.0
 	 */
 	public boolean isAcceptingNewPatchsets(RepositoryModel repository) {
 		return isReady()
@@ -224,6 +226,7 @@ public abstract class ITicketService {
 	 *
 	 * @param repository
 	 * @return true if tickets are being accepted
+	 * @since 1.4.0
 	 */
 	public boolean isAcceptingNewTickets(RepositoryModel repository) {
 		return isReady()
@@ -237,6 +240,7 @@ public abstract class ITicketService {
 	 *
 	 * @param repository
 	 * @return true if tickets are allowed to be updated
+	 * @since 1.4.0
 	 */
 	public boolean isAcceptingTicketUpdates(RepositoryModel repository) {
 		return isReady()
@@ -249,6 +253,7 @@ public abstract class ITicketService {
 	 * Returns true if the repository has any tickets
 	 * @param repository
 	 * @return true if the repository has tickets
+	 * @since 1.4.0
 	 */
 	public boolean hasTickets(RepositoryModel repository) {
 		return indexer.hasTickets(repository);
@@ -256,11 +261,13 @@ public abstract class ITicketService {
 
 	/**
 	 * Closes any open resources used by this service.
+	 * @since 1.4.0
 	 */
 	protected abstract void close();
 
 	/**
 	 * Reset all caches in the service.
+	 * @since 1.4.0
 	 */
 	public final synchronized void resetCaches() {
 		ticketsCache.invalidateAll();
@@ -269,10 +276,15 @@ public abstract class ITicketService {
 		resetCachesImpl();
 	}
 
+	/**
+	 * Reset all caches in the service.
+	 * @since 1.4.0
+	 */
 	protected abstract void resetCachesImpl();
 
 	/**
 	 * Reset any caches for the repository in the service.
+	 * @since 1.4.0
 	 */
 	public final synchronized void resetCaches(RepositoryModel repository) {
 		List<TicketKey> repoKeys = new ArrayList<TicketKey>();
@@ -287,6 +299,12 @@ public abstract class ITicketService {
 		resetCachesImpl(repository);
 	}
 
+	/**
+	 * Reset the caches for the specified repository.
+	 *
+	 * @param repository
+	 * @since 1.4.0
+	 */
 	protected abstract void resetCachesImpl(RepositoryModel repository);
 
 
@@ -295,6 +313,7 @@ public abstract class ITicketService {
 	 *
 	 * @param repository
 	 * @return the list of labels
+	 * @since 1.4.0
 	 */
 	public List<TicketLabel> getLabels(RepositoryModel repository) {
 		String key = repository.name;
@@ -327,6 +346,7 @@ public abstract class ITicketService {
 	 * @param repository
 	 * @param label
 	 * @return a TicketLabel
+	 * @since 1.4.0
 	 */
 	public TicketLabel getLabel(RepositoryModel repository, String label) {
 		for (TicketLabel tl : getLabels(repository)) {
@@ -346,6 +366,7 @@ public abstract class ITicketService {
 	 * @param milestone
 	 * @param createdBy
 	 * @return the label
+	 * @since 1.4.0
 	 */
 	public synchronized TicketLabel createLabel(RepositoryModel repository, String label, String createdBy) {
 		TicketLabel lb = new TicketMilestone(label);
@@ -370,6 +391,7 @@ public abstract class ITicketService {
 	 * @param label
 	 * @param createdBy
 	 * @return true if the update was successful
+	 * @since 1.4.0
 	 */
 	public synchronized boolean updateLabel(RepositoryModel repository, TicketLabel label, String createdBy) {
 		Repository db = null;
@@ -396,6 +418,7 @@ public abstract class ITicketService {
 	 * @param newName
 	 * @param createdBy
 	 * @return true if the rename was successful
+	 * @since 1.4.0
 	 */
 	public synchronized boolean renameLabel(RepositoryModel repository, String oldName, String newName, String createdBy) {
 		if (StringUtils.isEmpty(newName)) {
@@ -433,6 +456,7 @@ public abstract class ITicketService {
 	 * @param label
 	 * @param createdBy
 	 * @return true if the delete was successful
+	 * @since 1.4.0
 	 */
 	public synchronized boolean deleteLabel(RepositoryModel repository, String label, String createdBy) {
 		if (StringUtils.isEmpty(label)) {
@@ -459,6 +483,7 @@ public abstract class ITicketService {
 	 *
 	 * @param repository
 	 * @return the list of milestones
+	 * @since 1.4.0
 	 */
 	public List<TicketMilestone> getMilestones(RepositoryModel repository) {
 		String key = repository.name;
@@ -500,6 +525,7 @@ public abstract class ITicketService {
 	 * @param repository
 	 * @param status
 	 * @return the list of milestones
+	 * @since 1.4.0
 	 */
 	public List<TicketMilestone> getMilestones(RepositoryModel repository, Status status) {
 		List<TicketMilestone> matches = new ArrayList<TicketMilestone>();
@@ -517,6 +543,7 @@ public abstract class ITicketService {
 	 * @param repository
 	 * @param milestone
 	 * @return the milestone or null if it does not exist
+	 * @since 1.4.0
 	 */
 	public TicketMilestone getMilestone(RepositoryModel repository, String milestone) {
 		for (TicketMilestone ms : getMilestones(repository)) {
@@ -536,6 +563,7 @@ public abstract class ITicketService {
 	 * @param milestone
 	 * @param createdBy
 	 * @return the milestone
+	 * @since 1.4.0
 	 */
 	public synchronized TicketMilestone createMilestone(RepositoryModel repository, String milestone, String createdBy) {
 		TicketMilestone ms = new TicketMilestone(milestone);
@@ -563,6 +591,7 @@ public abstract class ITicketService {
 	 * @param milestone
 	 * @param createdBy
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public synchronized boolean updateMilestone(RepositoryModel repository, TicketMilestone milestone, String createdBy) {
 		Repository db = null;
@@ -595,6 +624,7 @@ public abstract class ITicketService {
 	 * @param newName
 	 * @param createdBy
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName, String newName, String createdBy) {
 		if (StringUtils.isEmpty(newName)) {
@@ -633,6 +663,7 @@ public abstract class ITicketService {
 		}
 		return false;
 	}
+
 	/**
 	 * Deletes a milestone.
 	 *
@@ -640,6 +671,7 @@ public abstract class ITicketService {
 	 * @param milestone
 	 * @param createdBy
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public synchronized boolean deleteMilestone(RepositoryModel repository, String milestone, String createdBy) {
 		if (StringUtils.isEmpty(milestone)) {
@@ -668,6 +700,7 @@ public abstract class ITicketService {
 	 *
 	 * @param repository
 	 * @return a new ticket id
+	 * @since 1.4.0
 	 */
 	public abstract long assignNewId(RepositoryModel repository);
 
@@ -677,6 +710,7 @@ public abstract class ITicketService {
 	 * @param repository
 	 * @param ticketId
 	 * @return true if the ticket exists
+	 * @since 1.4.0
 	 */
 	public abstract boolean hasTicket(RepositoryModel repository, long ticketId);
 
@@ -685,6 +719,7 @@ public abstract class ITicketService {
 	 *
 	 * @param repository
 	 * @return all tickets
+	 * @since 1.4.0
 	 */
 	public List<TicketModel> getTickets(RepositoryModel repository) {
 		return getTickets(repository, null);
@@ -700,6 +735,7 @@ public abstract class ITicketService {
 	 * @param filter
 	 *            optional issue filter to only return matching results
 	 * @return a list of tickets
+	 * @since 1.4.0
 	 */
 	public abstract List<TicketModel> getTickets(RepositoryModel repository, TicketFilter filter);
 
@@ -709,11 +745,12 @@ public abstract class ITicketService {
 	 * @param repository
 	 * @param ticketId
 	 * @return a ticket, if it exists, otherwise null
+	 * @since 1.4.0
 	 */
 	public final TicketModel getTicket(RepositoryModel repository, long ticketId) {
 		TicketKey key = new TicketKey(repository, ticketId);
 		TicketModel ticket = ticketsCache.getIfPresent(key);
-		
+
 		// if ticket not cached
 		if (ticket == null) {
 			//load ticket
@@ -749,6 +786,7 @@ public abstract class ITicketService {
 	 * @param repository
 	 * @param ticketId
 	 * @return a ticket, if it exists, otherwise null
+	 * @since 1.4.0
 	 */
 	protected abstract TicketModel getTicketImpl(RepositoryModel repository, long ticketId);
 
@@ -757,6 +795,7 @@ public abstract class ITicketService {
 	 *
 	 * @param ticket
 	 * @return the ticket url
+	 * @since 1.4.0
 	 */
 	public String getTicketUrl(TicketModel ticket) {
 		final String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
@@ -770,6 +809,7 @@ public abstract class ITicketService {
 	 * @param base
 	 * @param tip
 	 * @return the compare url
+	 * @since 1.4.0
 	 */
 	public String getCompareUrl(TicketModel ticket, String base, String tip) {
 		final String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
@@ -781,6 +821,7 @@ public abstract class ITicketService {
 	 * Returns true if attachments are supported.
 	 *
 	 * @return true if attachments are supported
+	 * @since 1.4.0
 	 */
 	public abstract boolean supportsAttachments();
 
@@ -791,6 +832,7 @@ public abstract class ITicketService {
 	 * @param ticketId
 	 * @param filename
 	 * @return an attachment, if found, null otherwise
+	 * @since 1.4.0
 	 */
 	public abstract Attachment getAttachment(RepositoryModel repository, long ticketId, String filename);
 
@@ -802,6 +844,7 @@ public abstract class ITicketService {
 	 * @param repository
 	 * @param change
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public TicketModel createTicket(RepositoryModel repository, Change change) {
 		return createTicket(repository, 0L, change);
@@ -816,6 +859,7 @@ public abstract class ITicketService {
 	 * @param ticketId (if <=0 the ticket id will be assigned)
 	 * @param change
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public TicketModel createTicket(RepositoryModel repository, long ticketId, Change change) {
 
@@ -864,6 +908,7 @@ public abstract class ITicketService {
 	 * @param ticketId
 	 * @param change
 	 * @return the ticket model if successful
+	 * @since 1.4.0
 	 */
 	public final TicketModel updateTicket(RepositoryModel repository, long ticketId, Change change) {
 		if (change == null) {
@@ -902,6 +947,7 @@ public abstract class ITicketService {
 	 * Deletes all tickets in every repository.
 	 *
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public boolean deleteAll() {
 		List<String> repositories = repositoryManager.getRepositoryList();
@@ -924,6 +970,7 @@ public abstract class ITicketService {
 	 * Deletes all tickets in the specified repository.
 	 * @param repository
 	 * @return true if succesful
+	 * @since 1.4.0
 	 */
 	public boolean deleteAll(RepositoryModel repository) {
 		boolean success = deleteAllImpl(repository);
@@ -935,6 +982,12 @@ public abstract class ITicketService {
 		return success;
 	}
 
+	/**
+	 * Delete all tickets for the specified repository.
+	 * @param repository
+	 * @return true if successful
+	 * @since 1.4.0
+	 */
 	protected abstract boolean deleteAllImpl(RepositoryModel repository);
 
 	/**
@@ -943,6 +996,7 @@ public abstract class ITicketService {
 	 * @param oldRepositoryName
 	 * @param newRepositoryName
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public boolean rename(RepositoryModel oldRepository, RepositoryModel newRepository) {
 		if (renameImpl(oldRepository, newRepository)) {
@@ -954,6 +1008,14 @@ public abstract class ITicketService {
 		return false;
 	}
 
+	/**
+	 * Renames a repository.
+	 *
+	 * @param oldRepository
+	 * @param newRepository
+	 * @return true if successful
+	 * @since 1.4.0
+	 */
 	protected abstract boolean renameImpl(RepositoryModel oldRepository, RepositoryModel newRepository);
 
 	/**
@@ -963,6 +1025,7 @@ public abstract class ITicketService {
 	 * @param ticketId
 	 * @param deletedBy
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	public boolean deleteTicket(RepositoryModel repository, long ticketId, String deletedBy) {
 		TicketModel ticket = getTicket(repository, ticketId);
@@ -984,6 +1047,7 @@ public abstract class ITicketService {
 	 * @param ticket
 	 * @param deletedBy
 	 * @return true if successful
+	 * @since 1.4.0
 	 */
 	protected abstract boolean deleteTicketImpl(RepositoryModel repository, TicketModel ticket, String deletedBy);
 
@@ -999,6 +1063,7 @@ public abstract class ITicketService {
 	 * @param comment
 	 *            the revised comment
 	 * @return the revised ticket if the change was successful
+	 * @since 1.4.0
 	 */
 	public final TicketModel updateComment(TicketModel ticket, String commentId,
 			String updatedBy, String comment) {
@@ -1019,6 +1084,7 @@ public abstract class ITicketService {
 	 * @param deletedBy
 	 * 			the user deleting the comment
 	 * @return the revised ticket if the deletion was successful
+	 * @since 1.4.0
 	 */
 	public final TicketModel deleteComment(TicketModel ticket, String commentId, String deletedBy) {
 		Change deletion = new Change(deletedBy);
@@ -1037,6 +1103,7 @@ public abstract class ITicketService {
 	 * @param ticketId
 	 * @param change
 	 * @return true, if the change was committed
+	 * @since 1.4.0
 	 */
 	protected abstract boolean commitChangeImpl(RepositoryModel repository, long ticketId, Change change);
 
@@ -1051,6 +1118,7 @@ public abstract class ITicketService {
 	 * @param page
 	 * @param pageSize
 	 * @return a list of matching tickets
+	 * @since 1.4.0
 	 */
 	public List<QueryResult> searchFor(RepositoryModel repository, String text, int page, int pageSize) {
 		return indexer.searchFor(repository, text, page, pageSize);
@@ -1065,6 +1133,7 @@ public abstract class ITicketService {
 	 * @param sortBy
 	 * @param descending
 	 * @return a list of matching tickets or an empty list
+	 * @since 1.4.0
 	 */
 	public List<QueryResult> queryFor(String query, int page, int pageSize, String sortBy, boolean descending) {
 		return indexer.queryFor(query, page, pageSize, sortBy, descending);
@@ -1073,6 +1142,7 @@ public abstract class ITicketService {
 	/**
 	 * Destroys an existing index and reindexes all tickets.
 	 * This operation may be expensive and time-consuming.
+	 * @since 1.4.0
 	 */
 	public void reindex() {
 		long start = System.nanoTime();
@@ -1099,6 +1169,7 @@ public abstract class ITicketService {
 	/**
 	 * Destroys any existing index and reindexes all tickets.
 	 * This operation may be expensive and time-consuming.
+	 * @since 1.4.0
 	 */
 	public void reindex(RepositoryModel repository) {
 		long start = System.nanoTime();
@@ -1116,6 +1187,7 @@ public abstract class ITicketService {
 	 * of ticket updates, namely merging from the web ui.
 	 *
 	 * @param runnable
+	 * @since 1.4.0
 	 */
 	public synchronized void exec(Runnable runnable) {
 		runnable.run();

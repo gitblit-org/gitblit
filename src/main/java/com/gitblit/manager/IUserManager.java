@@ -24,6 +24,7 @@ public interface IUserManager extends IManager, IUserService {
 	 *
 	 * @param username
 	 * @return true if the specified username represents an internal account
+ 	 * @since 1.4.0
 	 */
 	boolean isInternalAccount(String username);
 

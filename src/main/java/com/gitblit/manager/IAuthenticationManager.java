@@ -31,6 +31,7 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param httpRequest
 	 * @return a user object or null
+	 * @since 1.4.0
 	 */
 	UserModel authenticate(HttpServletRequest httpRequest);
 
@@ -40,6 +41,7 @@ public interface IAuthenticationManager extends IManager {
 	 * @param username
 	 * @param key
 	 * @return a user object or null
+* 	 * @since 1.5.0
 	 */
 	UserModel authenticate(String username, SshKey key);
 
@@ -52,6 +54,7 @@ public interface IAuthenticationManager extends IManager {
 	 * @param httpRequest
 	 * @param requiresCertificate
 	 * @return a user object or null
+	 * @since 1.4.0
 	 */
 	UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate);
 
@@ -62,6 +65,7 @@ public interface IAuthenticationManager extends IManager {
 	 * @param username
 	 * @param password
 	 * @return a user object or null
+	 * @since 1.4.0
 	 */
 	UserModel authenticate(String username, char[] password);
 
@@ -70,6 +74,7 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param request
 	 * @return the Gitblit cookie for the request or null if not found
+	 * @since 1.4.0
 	 */
 	String getCookie(HttpServletRequest request);
 
@@ -78,6 +83,7 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param response
 	 * @param user
+	 * @since 1.4.0
 	 */
 	void setCookie(HttpServletResponse response, UserModel user);
 
@@ -85,6 +91,7 @@ public interface IAuthenticationManager extends IManager {
 	 * Logout a user.
 	 *
 	 * @param user
+	 * @since 1.4.0
 	 */
 	void logout(HttpServletResponse response, UserModel user);
 
@@ -92,7 +99,7 @@ public interface IAuthenticationManager extends IManager {
 	 * Does the user service support changes to credentials?
 	 *
 	 * @return true or false
-	 * @since 1.0.0
+	 * @since 1.4.0
 	 */
 	boolean supportsCredentialChanges(UserModel user);
 
@@ -101,6 +108,7 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param user
 	 * @return true if the user service supports display name changes
+	 * @since 1.4.0
 	 */
 	boolean supportsDisplayNameChanges(UserModel user);
 
@@ -109,6 +117,7 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param user
 	 * @return true if the user service supports email address changes
+	 * @since 1.4.0
 	 */
 	boolean supportsEmailAddressChanges(UserModel user);
 
@@ -117,6 +126,7 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param user
 	 * @return true if the user service supports team membership changes
+	 * @since 1.4.0
 	 */
 	boolean supportsTeamMembershipChanges(UserModel user);
 
@@ -125,6 +135,7 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param user
 	 * @return true if the team memberships can be changed
+	 * @since 1.4.0
 	 */
 	boolean supportsTeamMembershipChanges(TeamModel team);
 

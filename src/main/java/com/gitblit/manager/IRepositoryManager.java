@@ -37,6 +37,7 @@ public interface IRepositoryManager extends IManager {
 	 * Gitblit is running on a cloud service and may return an adjusted path.
 	 *
 	 * @return the repositories folder path
+ 	 * @since 1.4.0
 	 */
 	File getRepositoriesFolder();
 
@@ -45,6 +46,7 @@ public interface IRepositoryManager extends IManager {
 	 * Gitblit is running on a cloud service and may return an adjusted path.
 	 *
 	 * @return the Groovy hook scripts folder path
+ 	 * @since 1.4.0
 	 */
 	File getHooksFolder();
 
@@ -53,6 +55,7 @@ public interface IRepositoryManager extends IManager {
 	 * Gitblit is running on a cloud service and may return an adjusted path.
 	 *
 	 * @return the Groovy grapes folder path
+ 	 * @since 1.4.0
 	 */
 	File getGrapesFolder();
 
@@ -60,6 +63,7 @@ public interface IRepositoryManager extends IManager {
 	 * Returns the most recent change date of any repository served by Gitblit.
 	 *
 	 * @return a date
+ 	 * @since 1.4.0
 	 */
 	Date getLastActivityDate();
 
@@ -69,6 +73,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param user
 	 * @return the effective list of permissions for the user
+ 	 * @since 1.4.0
 	 */
 	List<RegistrantAccessPermission> getUserAccessPermissions(UserModel user);
 
@@ -79,6 +84,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repository
 	 * @return a list of RegistrantAccessPermissions
+ 	 * @since 1.4.0
 	 */
 	List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository);
 
@@ -88,6 +94,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repository
 	 * @param permissions
 	 * @return true if the user models have been updated
+ 	 * @since 1.4.0
 	 */
 	boolean setUserAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions);
 
@@ -98,6 +105,7 @@ public interface IRepositoryManager extends IManager {
 	 * @see IUserService.getUsernamesForRepositoryRole(String)
 	 * @param repository
 	 * @return list of all usernames that have an access permission for the repository
+ 	 * @since 1.4.0
 	 */
 	List<String> getRepositoryUsers(RepositoryModel repository);
 
@@ -108,6 +116,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repository
 	 * @return a list of RegistrantAccessPermissions
+ 	 * @since 1.4.0
 	 */
 	List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository);
 
@@ -117,6 +126,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repository
 	 * @param permissions
 	 * @return true if the team models have been updated
+ 	 * @since 1.4.0
 	 */
 	boolean setTeamAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions);
 
@@ -127,6 +137,7 @@ public interface IRepositoryManager extends IManager {
 	 * @see IUserService.getTeamnamesForRepositoryRole(String)
 	 * @param repository
 	 * @return list of all teamnames with explicit access permissions to the repository
+ 	 * @since 1.4.0
 	 */
 	List<String> getRepositoryTeams(RepositoryModel repository);
 
@@ -135,11 +146,14 @@ public interface IRepositoryManager extends IManager {
 	 * configured to cache the repository list.
 	 *
 	 * @param model
+ 	 * @since 1.4.0
 	 */
 	void addToCachedRepositoryList(RepositoryModel model);
 
 	/**
 	 * Resets the repository list cache.
+	 *
+ 	 * @since 1.4.0
 	 *
 	 */
 	void resetRepositoryListCache();
@@ -149,6 +163,7 @@ public interface IRepositoryManager extends IManager {
 	 * does not consider user access permissions.
 	 *
 	 * @return list of all repositories
+ 	 * @since 1.4.0
 	 */
 	List<String> getRepositoryList();
 
@@ -157,6 +172,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repositoryName
 	 * @return repository or null
+ 	 * @since 1.4.0
 	 */
 	Repository getRepository(String repositoryName);
 
@@ -166,6 +182,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repositoryName
 	 * @param logError
 	 * @return repository or null
+ 	 * @since 1.4.0
 	 */
 	Repository getRepository(String repositoryName, boolean logError);
 
@@ -174,6 +191,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param user
 	 * @return list of repository models accessible to user
+ 	 * @since 1.4.0
 	 */
 	List<RepositoryModel> getRepositoryModels(UserModel user);
 
@@ -184,6 +202,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param user
 	 * @param repositoryName
 	 * @return repository model or null
+ 	 * @since 1.4.0
 	 */
 	RepositoryModel getRepositoryModel(UserModel user, String repositoryName);
 
@@ -193,6 +212,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repositoryName
 	 * @return repository model or null
+ 	 * @since 1.4.0
 	 */
 	RepositoryModel getRepositoryModel(String repositoryName);
 
@@ -201,6 +221,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repository
 	 * @return the star count
+ 	 * @since 1.4.0
 	 */
 	long getStarCount(RepositoryModel repository);
 
@@ -209,6 +230,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param n
 	 * @return true if the repository exists
+ 	 * @since 1.4.0
 	 */
 	boolean hasRepository(String repositoryName);
 
@@ -218,6 +240,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param n
 	 * @param caseInsensitive
 	 * @return true if the repository exists
+ 	 * @since 1.4.0
 	 */
 	boolean hasRepository(String repositoryName, boolean caseSensitiveCheck);
 
@@ -228,6 +251,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param username
 	 * @param origin
 	 * @return true the if the user has a fork
+ 	 * @since 1.4.0
 	 */
 	boolean hasFork(String username, String origin);
 
@@ -238,6 +262,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param username
 	 * @param origin
 	 * @return the name of the user's fork, null otherwise
+ 	 * @since 1.4.0
 	 */
 	String getFork(String username, String origin);
 
@@ -247,6 +272,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repository
 	 * @return a ForkModel
+ 	 * @since 1.4.0
 	 */
 	ForkModel getForkNetwork(String repository);
 
@@ -258,6 +284,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param model
 	 * @return size in bytes of the repository
+ 	 * @since 1.4.0
 	 */
 	long updateLastChangeFields(Repository r, RepositoryModel model);
 
@@ -270,6 +297,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param model
 	 * @param repository
 	 * @return a new array list of metrics
+ 	 * @since 1.4.0
 	 */
 	List<Metric> getRepositoryDefaultMetrics(RepositoryModel model, Repository repository);
 
@@ -286,6 +314,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repository
 	 * @param isCreate
 	 * @throws GitBlitException
+ 	 * @since 1.4.0
 	 */
 	void updateRepositoryModel(String repositoryName, RepositoryModel repository, boolean isCreate)
 			throws GitBlitException;
@@ -297,6 +326,7 @@ public interface IRepositoryManager extends IManager {
 	 *            the Git repository
 	 * @param repository
 	 *            the Gitblit repository model
+ 	 * @since 1.4.0
 	 */
 	void updateConfiguration(Repository r, RepositoryModel repository);
 
@@ -306,6 +336,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param model
 	 * @return true if successful
+ 	 * @since 1.4.0
 	 */
 	boolean deleteRepositoryModel(RepositoryModel model);
 
@@ -315,6 +346,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repositoryName
 	 * @return true if successful
+ 	 * @since 1.4.0
 	 */
 	boolean deleteRepository(String repositoryName);
 
@@ -323,6 +355,7 @@ public interface IRepositoryManager extends IManager {
 	 * .groovy extension
 	 *
 	 * @return list of available hook scripts
+ 	 * @since 1.4.0
 	 */
 	List<String> getAllScripts();
 
@@ -333,6 +366,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repository
 	 *            if null only the globally specified scripts are returned
 	 * @return a list of scripts
+ 	 * @since 1.4.0
 	 */
 	List<String> getPreReceiveScriptsInherited(RepositoryModel repository);
 
@@ -344,6 +378,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repository
 	 *            optional parameter
 	 * @return list of available hook scripts
+ 	 * @since 1.4.0
 	 */
 	List<String> getPreReceiveScriptsUnused(RepositoryModel repository);
 
@@ -354,6 +389,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repository
 	 *            if null only the globally specified scripts are returned
 	 * @return a list of scripts
+ 	 * @since 1.4.0
 	 */
 	List<String> getPostReceiveScriptsInherited(RepositoryModel repository);
 
@@ -365,6 +401,7 @@ public interface IRepositoryManager extends IManager {
 	 * @param repository
 	 *            optional parameter
 	 * @return list of available hook scripts
+ 	 * @since 1.4.0
 	 */
 	List<String> getPostReceiveScriptsUnused(RepositoryModel repository);
 
@@ -375,13 +412,15 @@ public interface IRepositoryManager extends IManager {
 	 * @param page
 	 * @param pageSize
 	 * @param repositories
-	 * @return
+	 * @return a list of search results
+ 	 * @since 1.4.0
 	 */
 	List<SearchResult> search(String query, int page, int pageSize, List<String> repositories);
 
 	/**
 	 *
 	 * @return true if we are running the gc executor
+ 	 * @since 1.4.0
 	 */
 	boolean isCollectingGarbage();
 
@@ -390,18 +429,21 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repositoryName
 	 * @return true if actively collecting garbage
+ 	 * @since 1.4.0
 	 */
 	boolean isCollectingGarbage(String repositoryName);
 
 	/**
 	 * Ensures that all cached repositories are completely closed and their resources
 	 * are properly released.
+ 	 * @since 1.4.0
 	 */
 	void closeAll();
 
 	/**
 	 * Ensures that a cached repository is completely closed and it's resources
 	 * are properly released.
+ 	 * @since 1.4.0
 	 */
 	void close(String repository);
 
@@ -410,6 +452,7 @@ public interface IRepositoryManager extends IManager {
 	 *
 	 * @param repository
 	 * @return true if the repository is idle
+ 	 * @since 1.4.0
 	 */
 	boolean isIdle(Repository repository);
 }

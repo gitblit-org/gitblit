@@ -32,16 +32,19 @@ public interface IPluginManager extends IManager {
 	 * Returns the system version.
 	 *
 	 * @return the system version
+ 	 * @since 1.5.0
 	 */
 	Version getSystemVersion();
 
 	/**
 	 * Starts all plugins.
+ 	 * @since 1.5.0
 	 */
 	void startPlugins();
 
 	/**
 	 * Stops all plugins.
+ 	 * @since 1.5.0
 	 */
 	void stopPlugins();
 
@@ -50,6 +53,7 @@ public interface IPluginManager extends IManager {
 	 *
 	 * @param pluginId
 	 * @return the state of the plugin
+ 	 * @since 1.5.0
 	 */
 	PluginState startPlugin(String pluginId);
 
@@ -58,6 +62,7 @@ public interface IPluginManager extends IManager {
 	 *
 	 * @param pluginId
 	 * @return the state of the plugin
+ 	 * @since 1.5.0
 	 */
 	PluginState stopPlugin(String pluginId);
 
@@ -66,6 +71,7 @@ public interface IPluginManager extends IManager {
 	 *
 	 * @param type
 	 * @return a list of extensions the plugin provides
+ 	 * @since 1.5.0
 	 */
 	List<Class<?>> getExtensionClasses(String pluginId);
 
@@ -74,6 +80,7 @@ public interface IPluginManager extends IManager {
 	 *
 	 * @param type
 	 * @return a list of extension instances
+ 	 * @since 1.5.0
 	 */
 	<T> List<T> getExtensions(Class<T> type);
 
@@ -81,6 +88,7 @@ public interface IPluginManager extends IManager {
 	 * Returns the list of all resolved plugins.
 	 *
 	 * @return a list of resolved plugins
+ 	 * @since 1.5.0
 	 */
 	List<PluginWrapper> getPlugins();
 
@@ -89,6 +97,7 @@ public interface IPluginManager extends IManager {
 	 *
 	 * @param pluginId
 	 * @return the plugin wrapper
+ 	 * @since 1.5.0
 	 */
 	PluginWrapper getPlugin(String pluginId);
 
@@ -97,6 +106,7 @@ public interface IPluginManager extends IManager {
      *
      * @param clazz extension point class to retrieve extension for
      * @return PluginWrapper that loaded the given class
+ 	 * @since 1.5.0
      */
     PluginWrapper whichPlugin(Class<?> clazz);
 
@@ -105,6 +115,7 @@ public interface IPluginManager extends IManager {
      *
      * @param pluginId
      * @return true if successful
+ 	 * @since 1.5.0
      */
     boolean disablePlugin(String pluginId);
 
@@ -113,6 +124,7 @@ public interface IPluginManager extends IManager {
      *
      * @param pluginId
      * @return true if successful
+ 	 * @since 1.5.0
      */
     boolean enablePlugin(String pluginId);
 
@@ -121,6 +133,7 @@ public interface IPluginManager extends IManager {
      *
      * @param pluginId
      * @return true if successful
+ 	 * @since 1.5.0
      */
     boolean uninstallPlugin(String pluginId);
 
@@ -128,6 +141,7 @@ public interface IPluginManager extends IManager {
      * Refresh the plugin registry.
      *
      * @param verifyChecksum
+ 	 * @since 1.5.0
      */
     boolean refreshRegistry(boolean verifyChecksum);
 
@@ -136,6 +150,7 @@ public interface IPluginManager extends IManager {
      *
      * @param url
      * @param verifyChecksum
+ 	 * @since 1.5.0
      */
     boolean installPlugin(String url, boolean verifyChecksum) throws IOException;
 
@@ -147,6 +162,7 @@ public interface IPluginManager extends IManager {
      * @param verifyChecksum
      * @return true if the upgrade has been successful
      * @throws IOException
+ 	 * @since 1.5.0
      */
     boolean upgradePlugin(String pluginId, String url, boolean verifyChecksum) throws IOException;
 
@@ -154,6 +170,7 @@ public interface IPluginManager extends IManager {
      * The list of all registered plugins.
      *
      * @return a list of registered plugins
+ 	 * @since 1.5.0
      */
     List<PluginRegistration> getRegisteredPlugins();
 
@@ -162,6 +179,7 @@ public interface IPluginManager extends IManager {
      *
      * @param state
      * @return the list of plugins that match the install state
+ 	 * @since 1.5.0
      */
     List<PluginRegistration> getRegisteredPlugins(InstallState state);
 
@@ -170,6 +188,7 @@ public interface IPluginManager extends IManager {
      *
      * @param idOrName
      * @return a plugin registration or null
+ 	 * @since 1.5.0
      */
     PluginRegistration lookupPlugin(String idOrName);
 
@@ -179,6 +198,7 @@ public interface IPluginManager extends IManager {
      * @param idOrName
      * @param version (use null for the current version)
      * @return the identified plugin version or null
+ 	 * @since 1.5.0
      */
     PluginRelease lookupRelease(String idOrName, String version);
 }
