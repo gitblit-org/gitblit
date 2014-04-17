@@ -119,6 +119,17 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		setAllowDeletes(user.canDeleteRef(repository));
 		setAllowNonFastForwards(user.canRewindRef(repository));
 
+		int maxObjectSz = settings.getInteger(Keys.git.maxObjectSizeLimit, -1);
+		if (maxObjectSz >= 0) {
+			setMaxObjectSizeLimit(maxObjectSz);
+		}
+		int maxPackSz = settings.getInteger(Keys.git.maxPackSizeLimit, -1);
+		if (maxPackSz >= 0) {
+			setMaxPackSizeLimit(maxPackSz);
+		}
+		setCheckReceivedObjects(settings.getBoolean(Keys.git.checkReceivedObjects, true));
+		setCheckReferencedObjectsAreReachable(settings.getBoolean(Keys.git.checkReferencedObjectsAreReachable, true));
+
 		// setup pre and post receive hook
 		setPreReceiveHook(this);
 		setPostReceiveHook(this);

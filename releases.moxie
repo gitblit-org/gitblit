@@ -43,6 +43,7 @@ r22: {
     - Added beginnings of a plugin framework for extending Gitblit (issue-381, ticket-23)
     - Added a French translation (pr-163)
     - Added a setting to control what transports may be used for pushes
+    - Expose JGit 3.x receive pack settings (issue-408)
     dependencyChanges:
     - Java 7
     - Jetty 9.1.4
@@ -64,6 +65,10 @@ r22: {
     - { name: 'realm.ldap.bindpattern', defaultValue: ' ' }
     - { name: 'tickets.closeOnPushCommitMessageRegex', defaultValue: '(?:fixes|closes)[\\s-]+#?(\\d+)' }
     - { name: 'git.acceptedPushTransports', defaultValue: ' ' }
+    - { name: 'git.checkReceivedObjects', defaultValue: 'true' }
+    - { name: 'git.checkReferencedObjectsAreReachable', defaultValue: 'true' }
+    - { name: 'git.maxObjectSizeLimit', defaultValue: '0' }
+    - { name: 'git.maxPackSizeLimit', defaultValue: '-1' }
     - { name: 'git.sshPort', defaultValue: '29418' }
     - { name: 'git.sshBindInterface', defaultValue: ' ' }
     - { name: 'git.sshKeysManager', defaultValue: 'com.gitblit.transport.ssh.FileKeyManager' }
