@@ -9,49 +9,36 @@
 		<div class="container">
 			<div class="markdown" style="padding: 10px 0px 5px 0px;" wicket:id="myTicketsMessage">[my tickets message]</div>
 			
-			<table>
-				<span>Responsible Tickets</span>
+			<table class="tickets">
+				<span wicket:id="headerContent"></span>
 				<tbody>
-					<tr wicket:id="responsibleTickets">
-						<td><span wicket:id="repositoryName"></span></td>
-						<td><span wicket:id="ticketName"></span></td>
-						<td><span wicket:id="ticketDescription"></span></td>
-					</tr>
-				</tbody>
+		       		<tr wicket:id="row">
+		       			<span wicket:id="rowContent"></span>
+		       		</tr>
+		    	</tbody>
 			</table>
-			
-			<table>
-				<span>Author Tickets</span>
-				<tbody>
-					<tr wicket:id="authorTickets">
-						<td><span wicket:id="repositoryName"></span></td>
-						<td><span wicket:id="ticketName"></span></td>
-						<td><span wicket:id="ticketDescription"></span></td>
-					</tr>
-				</tbody>
-			</table>
-			
-			<table>
-				<span>Voted Tickets</span>
-				<tbody>
-					<tr wicket:id="votedTickets">
-						<td><span wicket:id="repositoryName"></span></td>
-						<td><span wicket:id="ticketName"></span></td>
-						<td><span wicket:id="ticketDescription"></span></td>
-					</tr>
-				</tbody>
-			</table>
-			
-			<table>
-				<span>Watched Tickets</span>
-				<tbody>
-					<tr wicket:id="watchedTickets">
-						<td><span wicket:id="repositoryName"></span></td>
-						<td><span wicket:id="ticketName"></span></td>
-						<td><span wicket:id="ticketDescription"></span></td>
-					</tr>
-				</tbody>
-			</table>
+	
+			<wicket:fragment wicket:id="ticketsHeader">
+				<tr>
+					<th class="left">
+						<img style="vertical-align: middle;" src="git-black-16x16.png"/>
+						<wicket:message key="gb.repository">Repository</wicket:message>
+					</th>
+					<th class="hidden-phone" ><span><wicket:message key="gb.ticket">Ticket</wicket:message></span></th>
+					<th class="hidden-phone" ><span><wicket:message key="gb.description">Description</wicket:message></span></th>
+					<th class="hidden-tablet hidden-phone right"><span><wicket:message key="gb.responsible">Responsible</wicket:message></span></th>
+				</tr>
+			</wicket:fragment>
+				
+			<wicket:fragment wicket:id="ticketRow">
+		        <td class="left" style="padding-left:3px;">
+		        	<b><span class="repositorySwatch" wicket:id="repositorySwatch"></span></b>
+		        	<span style="padding-left:3px;" wicket:id="repositoryName">[repository name]</span>
+		        </td>
+		        <td class="hidden-phone"><span class="list" wicket:id="ticketName">[ticket name]</span></td>
+		        <td class="hidden-phone"><span class="list" wicket:id="ticketDescription">[ticket description]</span></td>
+		        <td class="hidden-tablet hidden-phone author right"><span wicket:id="ticketResponsible">[ticket responsible]</span></td>
+			</wicket:fragment>
 		</div>
 	</wicket:extend>
 </body>

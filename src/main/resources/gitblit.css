@@ -1599,6 +1599,54 @@ table.repositories tr.group td a {
 	color: black;
 }
 
+table.tickets {	
+	border:1px solid #ddd;
+	border-spacing: 0px;
+	width: 100%;
+}
+
+table.tickets th {
+	padding: 4px;
+	border:0;
+}
+
+table.tickets th.right {	
+	border-right: 1px solid #ddd;	
+}	
+
+table.tickets td {
+	padding: 2px;
+	border-left: 0;
+}
+
+table.tickets td.rightAlign {	
+	text-align: right;
+	border-right: 1px solid #ddd;	
+}	
+
+table.tickets td.icon img {
+	vertical-align: top;
+}
+
+table.tickets tr.group {
+	background-color: #ccc;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+table.tickets tr.group td {
+	font-weight: bold;		
+	color: black;
+	background-color: #ddd;
+	padding-left: 5px;
+	border-top: 1px solid #aaa; 	
+ 	border-bottom: 1px solid #aaa; 
+}
+
+table.tickets tr.group td a {
+	color: black;
+}
+
 table.palette { border:0; width: 0 !important; }
 table.palette td.header { 
 	font-weight: bold; 

@@ -1,19 +1,28 @@
 package com.gitblit.wicket.pages;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
+import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 
 public class MyTicketsPage extends RootPage {
@@ -34,103 +43,75 @@ public class MyTicketsPage extends RootPage {
 		}
 		String username = currentUser.getName();
 		
+		// TODO - Recover the Welcome message
 		String message = "Welcome on GitBlit";
-		this.add(new Label("myTicketsMessage", message));		
+		this.add(new Label("myTicketsMessage", message));
+		
+		Fragment fragment = new Fragment("headerContent", "ticketsHeader", this);
+		add(fragment);
 		
 		ITicketService tickets = GitBlitWebApp.get().tickets();
 		List<TicketModel> returnedTickets = tickets.getTickets(null);
+		List<TicketModel> yourTickets = new ArrayList<TicketModel>();
 		
-		List<TicketModel> responsibleTickets = new ArrayList<TicketModel>();
-		List<TicketModel> authorTickets = new ArrayList<TicketModel>();
-		List<TicketModel> votedTickets = new ArrayList<TicketModel>();
-		List<TicketModel> watchedTickets = new ArrayList<TicketModel>();
 		for(int i = 0; i < returnedTickets.size(); i++)
 		{
 			TicketModel ticket = returnedTickets.get(i);
 			if(ticket.isOpen())
 			{
-				if(ticket.isResponsible(username))
+				if(ticket.isResponsible(username) || ticket.isAuthor(username)
+						|| ticket.isVoter(username) || ticket.isWatching(username))
 				{
-					responsibleTickets.add(ticket);
-				}
-				if(ticket.isAuthor(username))
-				{
-					authorTickets.add(ticket);
-				}
-				if(ticket.isVoter(username))
-				{
-					votedTickets.add(ticket);
-				}
-				if(ticket.isWatching(username))
-				{
-					watchedTickets.add(ticket);
+					yourTickets.add(ticket);
 				}
 			}
 		}
 		
-		ListView<TicketModel> responsibleView = new ListView<TicketModel>("responsibleTickets", responsibleTickets)
-		{
+		final ListDataProvider<TicketModel> dp = new ListDataProvider<TicketModel>(yourTickets);
+		
+		DataView<TicketModel> dataView = new DataView<TicketModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
-			public void populateItem(final ListItem<TicketModel> item)
-			{
-				final TicketModel ticket = item.getModelObject();
-				String ticketUrl = app().tickets().getTicketUrl(ticket);
-				item.add(new Label("repositoryName", ticket.repository));
-				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
-				item.add(new Label("ticketDescription", ticket.body));
+			protected void populateItem(Item<TicketModel> item) {
+				TicketModel ticketModel = item.getModelObject();
+				RepositoryModel repository = app().repositories().getRepositoryModel(ticketModel.repository);
+				
+				Fragment row = new Fragment("rowContent", "ticketRow", this);
+				item.add(row);
+				
+				Component swatch;
+				if(repository.isBare)
+				{
+					swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
+				}
+				else
+				{
+					swatch = new Label("repositorySwatch", "!");
+					WicketUtils.setHtmlTooltip(swatch, getString("gb.workingCopyWarning"));
+				}
+				WicketUtils.setCssBackground(swatch, repository.toString());
+				row.add(swatch);
+				
+				PageParameters pp = WicketUtils.newRepositoryParameter(repository.name);
+				Class<? extends BasePage> linkPage;
+				if (repository.hasCommits) {
+					// repository has content
+					linkPage = SummaryPage.class;
+				} else {
+					// new/empty repository OR proposed repository
+					linkPage = EmptyRepositoryPage.class;
+				}
+				
+				String ticketUrl = app().tickets().getTicketUrl(ticketModel);
+				
+				row.add(new LinkPanel("repositoryName", "list", repository.name, linkPage, pp));
+				row.add(new LinkPanel("ticketName", "list", ticketModel.title, ticketUrl));
+				row.add(new LinkPanel("ticketDescription", "list", ticketModel.body, ticketUrl));
+				row.add(new Label("ticketResponsible", ticketModel.responsible));
 			}
 		};
 		
-		ListView<TicketModel> authorView = new ListView<TicketModel>("authorTickets", authorTickets)
-		{
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public void populateItem(final ListItem<TicketModel> item)
-			{
-				final TicketModel ticket = item.getModelObject();
-				String ticketUrl = app().tickets().getTicketUrl(ticket);
-				item.add(new Label("repositoryName", ticket.repository));
-				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
-				item.add(new Label("ticketDescription", ticket.body));
-			}
-		};
-		
-		ListView<TicketModel> votedView = new ListView<TicketModel>("votedTickets", votedTickets)
-		{
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public void populateItem(final ListItem<TicketModel> item)
-			{
-				final TicketModel ticket = item.getModelObject();
-				String ticketUrl = app().tickets().getTicketUrl(ticket);
-				item.add(new Label("repositoryName", ticket.repository));
-				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
-				item.add(new Label("ticketDescription", ticket.body));
-			}
-		};
-		
-		ListView<TicketModel> watchedView = new ListView<TicketModel>("watchedTickets", watchedTickets)
-		{
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public void populateItem(final ListItem<TicketModel> item)
-			{
-				final TicketModel ticket = item.getModelObject();
-				String ticketUrl = app().tickets().getTicketUrl(ticket);
-				item.add(new Label("repositoryName", ticket.repository));
-				item.add(new LinkPanel("ticketName", "", ticket.title, ticketUrl));
-				item.add(new Label("ticketDescription", ticket.body));
-			}
-		};
-		
-		add(responsibleView);
-		add(authorView);
-		add(votedView);
-		add(watchedView);
+		add(dataView);
 	}
 }
