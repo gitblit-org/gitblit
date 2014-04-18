@@ -225,7 +225,8 @@ public class CommitCache {
 		List<RepositoryCommit> commits = new ArrayList<RepositoryCommit>();
 		for (RevCommit commit : JGitUtils.getRevLog(repository, branch, sinceDate)) {
 			RepositoryCommit commitModel = new RepositoryCommit(repositoryName, branch, commit);
-			commitModel.setRefs(allRefs.get(commitModel.getName()));
+			List<RefModel> commitRefs = allRefs.get(commitModel.getId());
+			commitModel.setRefs(commitRefs);
 			commits.add(commitModel);
 		}
 		return commits;
@@ -245,7 +246,8 @@ public class CommitCache {
 		List<RepositoryCommit> commits = new ArrayList<RepositoryCommit>();
 		for (RevCommit commit : JGitUtils.getRevLog(repository, sinceCommit.getName(), branch)) {
 			RepositoryCommit commitModel = new RepositoryCommit(repositoryName, branch, commit);
-			commitModel.setRefs(allRefs.get(commitModel.getName()));
+			List<RefModel> commitRefs = allRefs.get(commitModel.getId());
+			commitModel.setRefs(commitRefs);
 			commits.add(commitModel);
 		}
 		return commits;
