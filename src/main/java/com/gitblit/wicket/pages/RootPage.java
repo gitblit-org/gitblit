@@ -173,7 +173,7 @@ public abstract class RootPage extends BasePage {
 			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
 			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
-			//pages.add(new PageRegistration("gb.mytickets", MyTicketsPage.class, getRootPageParameters()));
+			pages.add(new PageRegistration("gb.mytickets", MyTicketsPage.class, getRootPageParameters()));
 			if (app().settings().getBoolean(Keys.web.allowLuceneIndexing, true)) {
 				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
 			}
