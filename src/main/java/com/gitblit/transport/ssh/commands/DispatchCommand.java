@@ -96,57 +96,55 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	 * Setup this dispatcher. Commands and nested dispatchers are normally
 	 * registered within this method.
 	 *
-	 * @param user
 	 * @since 1.5.0
 	 */
-	protected abstract void setup(UserModel user);
+	protected abstract void setup();
 
 	/**
 	 * Register a command or a dispatcher by it's class.
 	 *
-	 * @param user
 	 * @param clazz
 	 */
 	@SuppressWarnings("unchecked")
-	protected final void register(UserModel user, Class<? extends BaseCommand> clazz) {
+	protected final void register(Class<? extends BaseCommand> clazz) {
 		if (DispatchCommand.class.isAssignableFrom(clazz)) {
-			registerDispatcher(user, (Class<? extends DispatchCommand>) clazz);
+			registerDispatcher((Class<? extends DispatchCommand>) clazz);
 			return;
 		}
 
-		registerCommand(user, clazz);
+		registerCommand(clazz);
 	}
 
 	/**
 	 * Register a command or a dispatcher instance.
 	 *
-	 * @param user
 	 * @param cmd
 	 */
-	protected final void register(UserModel user, BaseCommand cmd) {
+	protected final void register(BaseCommand cmd) {
 		if (cmd instanceof DispatchCommand) {
-			registerDispatcher(user, (DispatchCommand) cmd);
+			registerDispatcher((DispatchCommand) cmd);
 			return;
 		}
-		registerCommand(user, cmd);
+		registerCommand(cmd);
 	}
 
-	private void registerDispatcher(UserModel user, Class<? extends DispatchCommand> clazz) {
+	private void registerDispatcher(Class<? extends DispatchCommand> clazz) {
 		try {
 			DispatchCommand dispatcher = clazz.newInstance();
-			registerDispatcher(user, dispatcher);
+			registerDispatcher(dispatcher);
 		} catch (Exception e) {
 			log.error("failed to instantiate {}", clazz.getName());
 		}
 	}
 
-	private void registerDispatcher(UserModel user, DispatchCommand dispatcher) {
+	private void registerDispatcher(DispatchCommand dispatcher) {
 		Class<? extends DispatchCommand> dispatcherClass = dispatcher.getClass();
 		if (!dispatcherClass.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", dispatcher.getName(),
 					CommandMetaData.class.getName()));
 		}
 
+		UserModel user = getContext().getClient().getUser();
 		CommandMetaData meta = dispatcherClass.getAnnotation(CommandMetaData.class);
 		if (meta.admin() && !user.canAdmin()) {
 			log.debug(MessageFormat.format("excluding admin dispatcher {0} for {1}",
@@ -155,7 +153,8 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 		}
 
 		try {
-			dispatcher.setup(user);
+			dispatcher.setContext(getContext());
+			dispatcher.setup();
 			if (dispatcher.commands.isEmpty() && dispatcher.dispatchers.isEmpty()) {
 				log.debug(MessageFormat.format("excluding empty dispatcher {0} for {1}",
 						meta.name(), user.username));
@@ -179,14 +178,15 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	/**
 	 * Registers a command as long as the user is permitted to execute it.
 	 *
-	 * @param user
 	 * @param clazz
 	 */
-	private void registerCommand(UserModel user, Class<? extends BaseCommand> clazz) {
+	private void registerCommand(Class<? extends BaseCommand> clazz) {
 		if (!clazz.isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", clazz.getName(),
 					CommandMetaData.class.getName()));
 		}
+
+		UserModel user = getContext().getClient().getUser();
 		CommandMetaData meta = clazz.getAnnotation(CommandMetaData.class);
 		if (meta.admin() && !user.canAdmin()) {
 			log.debug(MessageFormat.format("excluding admin command {0} for {1}", meta.name(), user.username));
@@ -198,14 +198,15 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 	/**
 	 * Registers a command as long as the user is permitted to execute it.
 	 *
-	 * @param user
 	 * @param cmd
 	 */
-	private void registerCommand(UserModel user, BaseCommand cmd) {
+	private void registerCommand(BaseCommand cmd) {
 		if (!cmd.getClass().isAnnotationPresent(CommandMetaData.class)) {
 			throw new RuntimeException(MessageFormat.format("{0} must be annotated with {1}!", cmd.getName(),
 					CommandMetaData.class.getName()));
 		}
+
+		UserModel user = getContext().getClient().getUser();
 		CommandMetaData meta = cmd.getClass().getAnnotation(CommandMetaData.class);
 		if (meta.admin() && !user.canAdmin()) {
 			log.debug(MessageFormat.format("excluding admin command {0} for {1}", meta.name(), user.username));

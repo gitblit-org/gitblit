@@ -75,14 +75,14 @@ import com.gitblit.transport.ssh.commands.UsageExample;
 public class MyDispatcher extends DispatchCommand {
 
     @Override
-    protected void setup(UserModel user) {
+    protected void setup() {
         // commands in this dispatcher
-        register(user, CommandA.class);
-        register(user, CommandB.class);
+        register(CommandA.class);
+        register(CommandB.class);
 
         // nested dispatchers
-        register(user, SubDispatcher1.class);
-        register(user, SubDispatcher2.class);
+        register(SubDispatcher1.class);
+        register(SubDispatcher2.class);
     }
 
     @CommandMetaData(name = "commanda", aliases = { "ca" }, description = "description of command a")

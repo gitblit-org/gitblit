@@ -33,7 +33,6 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.models.PluginRegistry.InstallState;
 import com.gitblit.models.PluginRegistry.PluginRegistration;
 import com.gitblit.models.PluginRegistry.PluginRelease;
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.FlipTable;
 import com.gitblit.utils.FlipTable.Borders;
 import com.gitblit.utils.StringUtils;
@@ -49,18 +48,18 @@ import com.google.common.base.Joiner;
 public class PluginDispatcher extends DispatchCommand {
 
 	@Override
-	protected void setup(UserModel user) {
-		register(user, ListPlugins.class);
-		register(user, StartPlugin.class);
-		register(user, StopPlugin.class);
-		register(user, EnablePlugin.class);
-		register(user, DisablePlugin.class);
-		register(user, ShowPlugin.class);
-		register(user, RefreshPlugins.class);
-		register(user, AvailablePlugins.class);
-		register(user, InstallPlugin.class);
-		register(user, UpgradePlugin.class);
-		register(user, UninstallPlugin.class);
+	protected void setup() {
+		register(ListPlugins.class);
+		register(StartPlugin.class);
+		register(StopPlugin.class);
+		register(EnablePlugin.class);
+		register(DisablePlugin.class);
+		register(ShowPlugin.class);
+		register(RefreshPlugins.class);
+		register(AvailablePlugins.class);
+		register(InstallPlugin.class);
+		register(UpgradePlugin.class);
+		register(UninstallPlugin.class);
 	}
 
 	@CommandMetaData(name = "list", aliases = { "ls" }, description = "List plugins")

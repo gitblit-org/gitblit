@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import ro.fortsoft.pf4j.PluginWrapper;
 
 import com.gitblit.manager.IGitblit;
-import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.git.GitDispatcher;
 import com.gitblit.transport.ssh.keys.KeysDispatcher;
@@ -42,11 +41,10 @@ class RootDispatcher extends DispatchCommand {
 		super();
 		setContext(new SshCommandContext(gitblit, client, cmdLine));
 
-		UserModel user = client.getUser();
-		register(user, VersionCommand.class);
-		register(user, GitDispatcher.class);
-		register(user, KeysDispatcher.class);
-		register(user, PluginDispatcher.class);
+		register(VersionCommand.class);
+		register(GitDispatcher.class);
+		register(KeysDispatcher.class);
+		register(PluginDispatcher.class);
 
 		List<DispatchCommand> exts = gitblit.getExtensions(DispatchCommand.class);
 		for (DispatchCommand ext : exts) {
@@ -55,11 +53,11 @@ class RootDispatcher extends DispatchCommand {
 			String plugin = wrapper.getDescriptor().getPluginId();
 			CommandMetaData meta = extClass.getAnnotation(CommandMetaData.class);
 			log.debug("Dispatcher {} is loaded from plugin {}", meta.name(), plugin);
-			register(user, ext);
+			register(ext);
 		}
 	}
 
 	@Override
-	protected final void setup(UserModel user) {
+	protected final void setup() {
 	}
 }

@@ -20,7 +20,6 @@ import com.gitblit.git.GitblitReceivePackFactory;
 import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
-import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.commands.BaseCommand;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
@@ -54,10 +53,10 @@ public class GitDispatcher extends DispatchCommand {
 	}
 
 	@Override
-	protected void setup(UserModel user) {
-		register(user, Upload.class);
-		register(user, Receive.class);
-		register(user, GarbageCollectionCommand.class);
+	protected void setup() {
+		register(Upload.class);
+		register(Receive.class);
+		register(GarbageCollectionCommand.class);
 	}
 
 	@Override
