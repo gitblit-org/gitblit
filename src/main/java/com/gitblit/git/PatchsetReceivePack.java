@@ -536,8 +536,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 						break;
 					}
 				}
-				sendError("Sorry, {0} already merged {1} from ticket {2,number,0} to {3}!",
+				if (mergeChange != null) {
+					sendError("Sorry, {0} already merged {1} from ticket {2,number,0} to {3}!",
 						mergeChange.author, mergeChange.patchset, number, ticket.mergeTo);
+				}
 				sendRejection(cmd, "Ticket {0,number,0} already resolved", number);
 				return null;
 			} else if (!StringUtils.isEmpty(ticket.mergeTo)) {
