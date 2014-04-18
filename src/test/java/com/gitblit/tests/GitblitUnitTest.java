@@ -16,13 +16,13 @@
 package com.gitblit.tests;
 
 import com.gitblit.IStoredSettings;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.servlet.GitblitContext;
 

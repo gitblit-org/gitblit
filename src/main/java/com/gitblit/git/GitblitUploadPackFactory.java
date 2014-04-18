@@ -15,8 +15,6 @@
  */
 package com.gitblit.git;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.UploadPack;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
@@ -24,7 +22,6 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
 import com.gitblit.manager.IAuthenticationManager;
-import com.gitblit.models.UserModel;
 import com.gitblit.transport.git.GitDaemonClient;
 
 /**

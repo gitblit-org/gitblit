@@ -33,9 +33,7 @@ import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
-import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -350,13 +348,13 @@ public abstract class BaseCommand implements Command, SessionAware {
 	}
 
 	/** Runnable function which can throw an exception. */
-	public static interface CommandRunnable {
-		public void run() throws Exception;
+	public interface CommandRunnable {
+		void run() throws Exception;
 	}
 
 	/** Runnable function which can retrieve a project name related to the task */
-	public static interface RepositoryCommandRunnable extends CommandRunnable {
-		public String getRepository();
+	public interface RepositoryCommandRunnable extends CommandRunnable {
+		String getRepository();
 	}
 
 	/**
@@ -398,8 +396,8 @@ public abstract class BaseCommand implements Command, SessionAware {
 	}
 
 	private int handleError(final Throwable e) {
-		if ((e.getClass() == IOException.class && "Pipe closed".equals(e.getMessage())) || //
-				(e.getClass() == SshException.class && "Already closed".equals(e.getMessage())) || //
+		if ((e.getClass() == IOException.class && "Pipe closed".equals(e.getMessage())) ||
+				(e.getClass() == SshException.class && "Already closed".equals(e.getMessage())) ||
 				e.getClass() == InterruptedIOException.class) {
 			// This is sshd telling us the client just dropped off while
 			// we were waiting for a read or a write to complete. Either

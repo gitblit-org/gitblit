@@ -22,9 +22,9 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
+import com.gitblit.Keys;
 import com.gitblit.servlet.DownloadZipServlet;
 import com.gitblit.servlet.DownloadZipServlet.Format;
-import com.gitblit.Keys;
 
 public class CompressedDownloadsPanel extends BasePanel {
 
