@@ -98,7 +98,9 @@ public class PAMAuthProvider extends UsernamePasswordAuthenticationProvider {
 			logger.error(e.getMessage());
 			return null;
 		} finally {
-			pam.dispose();
+			if (pam != null) {
+				pam.dispose();
+			}
 		}
 
         UserModel user = userManager.getUserModel(username);
