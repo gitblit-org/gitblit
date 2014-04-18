@@ -420,6 +420,11 @@ public class JGitUtilsTest extends GitblitUnitTest {
 		String contentA = JGitUtils.getStringContent(repository, (RevTree) null, "java.java");
 		RevCommit commit = JGitUtils.getCommit(repository, Constants.HEAD);
 		String contentB = JGitUtils.getStringContent(repository, commit.getTree(), "java.java");
+
+		assertTrue("ContentA is null!", contentA != null && contentA.length() > 0);
+		assertTrue("ContentB is null!", contentB != null && contentB.length() > 0);
+		assertTrue(contentA.equals(contentB));
+
 		String contentC = JGitUtils.getStringContent(repository, commit.getTree(), "missing.txt");
 
 		// manually construct a blob, calculate the hash, lookup the hash in git
@@ -429,9 +434,6 @@ public class JGitUtilsTest extends GitblitUnitTest {
 		String sha1 = StringUtils.getSHA1(sb.toString());
 		String contentD = JGitUtils.getStringContent(repository, sha1);
 		repository.close();
-		assertTrue("ContentA is null!", contentA != null && contentA.length() > 0);
-		assertTrue("ContentB is null!", contentB != null && contentB.length() > 0);
-		assertTrue(contentA.equals(contentB));
 		assertNull(contentC);
 		assertTrue(contentA.equals(contentD));
 	}
