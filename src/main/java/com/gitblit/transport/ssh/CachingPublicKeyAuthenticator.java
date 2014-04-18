@@ -83,7 +83,7 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator, Se
 
 		for (SshKey key : keys) {
 			log.debug("auth compare to {}", key.getFingerprint());
-			if (key.equals(suppliedKey)) {
+			if (key.getPublicKey().equals(suppliedKey)) {
 				UserModel user = authManager.authenticate(username, key);
 				if (user != null) {
 					client.setUser(user);
