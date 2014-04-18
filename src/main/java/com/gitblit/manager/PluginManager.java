@@ -403,7 +403,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 		PluginRelease pv;
 		if (StringUtils.isEmpty(version)) {
-			pv = reg.getCurrentRelease();
+			pv = reg.getCurrentRelease(getSystemVersion());
 		} else {
 			pv = reg.getRelease(version);
 		}

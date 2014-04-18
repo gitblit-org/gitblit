@@ -259,10 +259,18 @@ public class PluginDispatcher extends DispatchCommand {
 		}
 
 		protected String buildFieldTable(PluginWrapper pw, PluginRegistration reg) {
+			Version system = getContext().getGitblit().getSystemVersion();
+			PluginRelease current = reg == null ? null : reg.getCurrentRelease(system);
+			if (current == null) {
+				current = new PluginRelease();
+				current.version = "";
+				current.requires = "";
+			}
+
 			final String id = pw == null ? reg.id : pw.getPluginId();
 			final String description = reg == null ? pw.getDescriptor().getPluginDescription() : reg.description;
-			final String version = pw == null ? reg.getCurrentRelease().version : pw.getDescriptor().getVersion().toString();
-			final String requires = pw == null ? reg.getCurrentRelease().requires : pw.getDescriptor().getRequires().toString();
+			final String version = pw == null ? current.version : pw.getDescriptor().getVersion().toString();
+			final String requires = pw == null ? current.requires : pw.getDescriptor().getRequires().toString();
 			final String provider = pw == null ? reg.provider : pw.getDescriptor().getProvider();
 			final String registry = reg == null ? "" : reg.registry;
 			final String path = pw == null ? "" : pw.getPluginPath();
@@ -470,10 +478,14 @@ public class PluginDispatcher extends DispatchCommand {
 				String [] h = { "Id", "Installed", "Current", "Requires", "State" };
 				headers = h;
 			}
+			Version system = getContext().getGitblit().getSystemVersion();
 			Object[][] data = new Object[list.size()][];
 			for (int i = 0; i < list.size(); i++) {
 				PluginRegistration p = list.get(i);
-				PluginRelease curr = p.getCurrentRelease();
+				PluginRelease curr = p.getCurrentRelease(system);
+				if (curr == null) {
+					curr = new PluginRelease();
+				}
 				if (verbose) {
 					data[i] = new Object[] {p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.registry};
 				} else {
@@ -486,8 +498,12 @@ public class PluginDispatcher extends DispatchCommand {
 
 		@Override
 		protected void asTabbed(List<PluginRegistration> list) {
+			Version system = getContext().getGitblit().getSystemVersion();
 			for (PluginRegistration p : list) {
-				PluginRelease curr = p.getCurrentRelease();
+				PluginRelease curr = p.getCurrentRelease(system);
+				if (curr == null) {
+					curr = new PluginRelease();
+				}
 				if (verbose) {
 					outTabbed(p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.provider, p.registry);
 				} else {

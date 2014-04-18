@@ -93,19 +93,40 @@ public class PluginRegistry implements Serializable {
 			this.releases = new ArrayList<PluginRelease>();
 		}
 
-		public PluginRelease getCurrentRelease() {
+		public PluginRelease getCurrentRelease(Version system) {
 			PluginRelease current = null;
 			if (!StringUtils.isEmpty(currentRelease)) {
 				// find specified
 				current = getRelease(currentRelease);
 			}
 
+			if (current != null) {
+				// verify the current release is acceptable for this system
+				Version requires = Version.ZERO;
+				if (!StringUtils.isEmpty(current.requires)) {
+					requires = Version.createVersion(current.requires);
+				}
+
+				if (!system.isZero() && !system.atLeast(requires)) {
+					// requires newer system version
+					current = null;
+				}
+			}
+
 			if (current == null) {
 				// find by date
 				Date date = new Date(0);
 				for (PluginRelease pv : releases) {
-					if (pv.date.after(date)) {
-						current = pv;
+					Version requires = Version.ZERO;
+					if (!StringUtils.isEmpty(pv.requires)) {
+						requires = Version.createVersion(pv.requires);
+					}
+
+					if (system.isZero() || system.atLeast(requires)) {
+						if (pv.date.after(date)) {
+							current = pv;
+							date = pv.date;
+						}
 					}
 				}
 			}
@@ -143,7 +164,10 @@ public class PluginRegistry implements Serializable {
 		}
 	}
 
-	public static class PluginRelease implements Comparable<PluginRelease> {
+	public static class PluginRelease implements Serializable, Comparable<PluginRelease> {
+
+		private static final long serialVersionUID = 1L;
+
 		public String version;
 		public Date date;
 		public String requires;
