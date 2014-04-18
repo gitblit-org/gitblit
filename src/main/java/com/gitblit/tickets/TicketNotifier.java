@@ -204,7 +204,9 @@ public class TicketNotifier {
 			} catch (Exception e) {
 				Logger.getLogger(getClass()).error("failed to get changed paths", e);
 			} finally {
-				repo.close();
+				if (repo != null) {
+					repo.close();
+				}
 			}
 
 			String compareUrl = ticketService.getCompareUrl(ticket, base, patchset.tip);
