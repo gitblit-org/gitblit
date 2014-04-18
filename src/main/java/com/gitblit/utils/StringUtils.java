@@ -642,7 +642,7 @@ public class StringUtils {
 				// ignore unsupported charsets
 			}
 		}
-		if (value.startsWith("\uFEFF")) {
+		if (value != null && value.startsWith("\uFEFF")) {
 			// strip UTF-8 BOM
             return value.substring(1);
         }
