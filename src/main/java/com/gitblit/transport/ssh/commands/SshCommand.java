@@ -85,5 +85,5 @@ public abstract class SshCommand extends BaseCommand {
 		}
 	}
 
-	protected abstract void run() throws UnloggedFailure, Failure, Exception;
+	protected abstract void run() throws Failure, Exception;
 }
