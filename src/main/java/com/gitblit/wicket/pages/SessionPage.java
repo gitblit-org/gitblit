@@ -56,8 +56,8 @@ public abstract class SessionPage extends WebPage {
 			// any changes to permissions or roles (issue-186)
 			UserModel user = app().users().getUserModel(session.getUser().username);
 
-			if (user.disabled) {
-				// user was disabled during session
+			if (user == null || user.disabled) {
+				// user was deleted/disabled during session
 				HttpServletResponse response = ((WebResponse) getRequestCycle().getResponse())
 						.getHttpServletResponse();
 				app().authentication().logout(response, user);
