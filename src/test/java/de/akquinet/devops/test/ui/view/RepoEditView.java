@@ -24,9 +24,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * class representing the tabs you can access when you edit a repo.
- * 
+ *
  * @author saheba
- * 
+ *
  */
 public class RepoEditView extends GitblitDashboardView {
 
@@ -60,7 +60,6 @@ public class RepoEditView extends GitblitDashboardView {
 		String linkText = "access permissions";
 		List<WebElement> found = getDriver().findElements(
 				By.partialLinkText(linkText));
-		System.out.println("PERM TABS found =" + found.size());
 		if (found != null && found.size() == 1) {
 			found.get(0).click();
 			return true;
@@ -119,12 +118,11 @@ public class RepoEditView extends GitblitDashboardView {
 		String xpath = "//input[@name =\"authorizationControl\" and @value=\""
 				+ option + "\"]";
 		List<WebElement> found = getDriver().findElements(By.xpath(xpath));
-		System.out.println("found auth CONTROL options " + found.size());
-		if (found == null || found.size() == 0 || found.size() > 1) {
-			return false;
+		if (found != null && found.size() == 1) {
+			found.get(0).click();
+			return true;
 		}
-		found.get(0).click();
-		return true;
+		return false;
 	}
 
 	private boolean isPermissionViewDisabled(String prefix, String view) {
