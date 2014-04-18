@@ -36,6 +36,7 @@ import java.security.cert.CertPathBuilder;
 import java.security.cert.CertPathBuilderException;
 import java.security.cert.CertStore;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
@@ -81,6 +82,7 @@ import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
 import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1070,7 +1072,7 @@ public class X509Utils {
 			x509log.log(MessageFormat.format("Revoked certificate {0,number,0} reason: {1} [{2}]",
 					cert.getSerialNumber(), reason.toString(), cert.getSubjectDN().getName()));
 			return true;
-		} catch (Exception e) {
+		} catch (IOException | OperatorCreationException | CertificateEncodingException e) {
 			logger.error(MessageFormat.format("Failed to revoke certificate {0,number,0} [{1}] in {2}",
 					cert.getSerialNumber(), cert.getSubjectDN().getName(), caRevocationList));
 		}
