@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.5.0 release
 #
 r22: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.5.0 released
+    id: 1.5.0
+    date: 2014-04-17
     note: Gitblit now requires Java 7 for build & runtime.
     html: ~
     text: ''
@@ -1271,6 +1271,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r22
-release: &r21
-releases: &r[1..21]
+snapshot: ~
+release: &r22
+releases: &r[1..22]
