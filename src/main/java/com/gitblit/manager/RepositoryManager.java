@@ -785,10 +785,11 @@ public class RepositoryManager implements IRepositoryManager {
 		model.projectPath = StringUtils.getFirstPathElement(repositoryName);
 
 		StoredConfig config = r.getConfig();
-		boolean hasOrigin = !StringUtils.isEmpty(config.getString("remote", "origin", "url"));
+		boolean hasOrigin = false;
 
 		if (config != null) {
 			// Initialize description from description file
+			hasOrigin = !StringUtils.isEmpty(config.getString("remote", "origin", "url"));
 			if (getConfig(config,"description", null) == null) {
 				File descFile = new File(r.getDirectory(), "description");
 				if (descFile.exists()) {
