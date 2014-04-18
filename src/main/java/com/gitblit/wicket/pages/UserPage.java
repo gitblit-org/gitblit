@@ -83,13 +83,6 @@ public class UserPage extends RootPage {
 			user = new UserModel(userName);
 		}
 
-		String projectName = user.getPersonalPath();
-
-		ProjectModel project = app().projects().getProjectModel(projectName);
-		if (project == null) {
-			project = new ProjectModel(projectName);
-		}
-
 		add(new Label("userDisplayName", user.getDisplayName()));
 		add(new Label("userUsername", user.username));
 		LinkPanel email = new LinkPanel("userEmail", null, user.emailAddress, "mailto:#");
