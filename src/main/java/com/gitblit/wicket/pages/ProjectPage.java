@@ -92,7 +92,7 @@ public class ProjectPage extends DashboardPage {
 			return;
 		}
 
-		String projectName = WicketUtils.getProjectName(params);
+		String projectName = params == null ? null : WicketUtils.getProjectName(params);
 		if (StringUtils.isEmpty(projectName)) {
 			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
@@ -134,7 +134,9 @@ public class ProjectPage extends DashboardPage {
 		// reset the daysback parameter so that we have a complete project
 		// repository list.  the recent activity will be built up by the
 		// reflog utils.
-		params.remove("db");
+		if (params != null) {
+			params.remove("db");
+		}
 
 		List<RepositoryModel> repositories = getRepositories(params);
 		Collections.sort(repositories, new Comparator<RepositoryModel>() {
