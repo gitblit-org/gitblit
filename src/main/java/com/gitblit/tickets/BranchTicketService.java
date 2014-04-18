@@ -659,7 +659,9 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 						ticket.number, db.getDirectory()), t);
 			} finally {
 				// release the treewalk
-				treeWalk.release();
+				if (treeWalk != null) {
+					treeWalk.release();
+				}
 			}
 		} finally {
 			db.close();
