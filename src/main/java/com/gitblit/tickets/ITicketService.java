@@ -379,7 +379,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to create label " + label + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return lb;
 	}
@@ -405,7 +407,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to update label " + label + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return false;
 	}
@@ -444,7 +448,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to rename label " + oldName + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return false;
 	}
@@ -473,7 +479,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to delete label " + label + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return false;
 	}
@@ -579,7 +587,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to create milestone " + milestone + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return ms;
 	}
@@ -611,7 +621,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to update milestone " + milestone + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return false;
 	}
@@ -659,7 +671,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to rename milestone " + oldName + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return false;
 	}
@@ -690,7 +704,9 @@ public abstract class ITicketService {
 		} catch (IOException e) {
 			log.error("failed to delete milestone " + milestone + " in " + repository, e);
 		} finally {
-			db.close();
+			if (db != null) {
+				db.close();
+			}
 		}
 		return false;
 	}
