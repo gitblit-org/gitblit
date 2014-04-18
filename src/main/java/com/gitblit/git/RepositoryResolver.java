@@ -83,8 +83,8 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 	protected boolean isExportOk(X req, String repositoryName, Repository db) throws IOException {
 		RepositoryModel model = gitblit.getRepositoryModel(repositoryName);
 
+		UserModel user = UserModel.ANONYMOUS;
 		String scheme = null;
-		UserModel user = null;
 		String origin = null;
 
 		if (req instanceof GitDaemonClient) {
@@ -93,7 +93,6 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 			GitDaemonClient client = (GitDaemonClient) req;
 			scheme = "git";
 			origin = client.getRemoteAddress().toString();
-			user = UserModel.ANONYMOUS;
 		} else if (req instanceof HttpServletRequest) {
 			// http/https request
 			HttpServletRequest client = (HttpServletRequest) req;
