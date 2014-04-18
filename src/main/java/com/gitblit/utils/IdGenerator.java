@@ -17,8 +17,6 @@ package com.gitblit.utils;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-
 /** Simple class to produce 4 billion keys randomly distributed. */
 public class IdGenerator {
   /** Format an id created by this class as a hex string. */
@@ -34,7 +32,6 @@ public class IdGenerator {
 
   private final AtomicInteger gen;
 
-  @Inject
   public IdGenerator() {
     gen = new AtomicInteger(new Random().nextInt());
   }
