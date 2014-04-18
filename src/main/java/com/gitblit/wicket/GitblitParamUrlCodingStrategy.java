@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.request.RequestParameters;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 import org.apache.wicket.util.string.AppendingStringBuffer;
@@ -117,8 +116,6 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 		logger.debug(MessageFormat
 				.format("REQ: {0} PARAMS {1}", getMountPath(), parametersFragment));
 
-		final PageParameters parameters = new PageParameters(decodeParameters(parametersFragment,
-				requestParameters.getParameters()));
 		return super.decode(requestParameters);
 	}
 
