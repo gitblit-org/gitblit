@@ -441,7 +441,7 @@ public class GitblitManager implements IGitblit {
 		// no user definitions, use system definitions
 		if (!clientApplications.hasCurrent("system", new Date(0))) {
 			try {
-				InputStream is = getClass().getResourceAsStream("/clientapps.json");
+				InputStream is = GitblitManager.class.getResourceAsStream("/clientapps.json");
 				Collection<GitClientApplication> clients = readClientApplications(is);
 				is.close();
 				if (clients != null) {
@@ -483,7 +483,7 @@ public class GitblitManager implements IGitblit {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting
 			// models map.
-			InputStream is = getClass().getResourceAsStream("/reference.properties");
+			InputStream is = GitblitManager.class.getResourceAsStream("/reference.properties");
 			BufferedReader propertiesReader = new BufferedReader(new InputStreamReader(is));
 			StringBuilder description = new StringBuilder();
 			SettingModel setting = new SettingModel();
