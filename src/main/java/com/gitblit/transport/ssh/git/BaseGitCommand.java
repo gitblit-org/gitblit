@@ -86,10 +86,9 @@ abstract class BaseGitCommand extends BaseCommand {
 		repository = repository.replace('\\', '/');
 		// ssh://git@thishost/path should always be name="/path" here
 		//
-		if (!repository.startsWith("/")) {
-			throw new Failure(1, "fatal: '" + repository + "': not starts with / character");
+		if (repository.startsWith("/")) {
+			repository = repository.substring(1);
 		}
-		repository = repository.substring(1);
 		try {
 			return repositoryResolver.open(getContext().getClient(), repository);
 		} catch (Exception e) {
