@@ -1,4 +1,22 @@
 #
+# ${project.version} release
+#
+r23: {
+    title: ${project.name} ${project.version} released
+    id: ${project.version}
+    date: ${project.buildDate}
+    note: ~
+    html: ~
+    text: ~
+    security: ~
+    fixes: ~
+    changes: ~
+    additions: ~
+    dependencyChanges: ~
+    contributors: ~
+}
+
+#
 # 1.5.0 release
 #
 r22: {
@@ -1271,6 +1289,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: ~
+snapshot: &r23
 release: &r22
 releases: &r[1..22]
