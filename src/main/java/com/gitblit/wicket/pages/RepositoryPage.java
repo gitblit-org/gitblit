@@ -326,7 +326,7 @@ public abstract class RepositoryPage extends RootPage {
 		}
 
 		// fork controls
-		if (!allowForkControls() || user == null || !user.isAuthenticated) {
+		if (!allowForkControls() || !user.isAuthenticated) {
 			// must be logged-in to fork, hide all fork controls
 			add(new ExternalLink("forkLink", "").setVisible(false));
 			add(new ExternalLink("myForkLink", "").setVisible(false));
