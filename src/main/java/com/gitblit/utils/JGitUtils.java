@@ -2257,7 +2257,9 @@ public class JGitUtils {
 		} catch (IOException e) {
 			LOGGER.error("Failed to determine canMerge", e);
 		} finally {
-			revWalk.release();
+			if (revWalk != null) {
+				revWalk.release();
+			}
 		}
 		return MergeStatus.NOT_MERGEABLE;
 	}
@@ -2348,7 +2350,9 @@ public class JGitUtils {
 		} catch (IOException e) {
 			LOGGER.error("Failed to merge", e);
 		} finally {
-			revWalk.release();
+			if (revWalk != null) {
+				revWalk.release();
+			}
 		}
 		return new MergeResult(MergeStatus.FAILED, null);
 	}
