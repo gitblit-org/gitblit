@@ -518,7 +518,7 @@ public class PluginDispatcher extends DispatchCommand {
 					if (gitblit.installPlugin(urlOrId, !disableChecksum)) {
 						stdout.println(String.format("Installed %s", urlOrId));
 					} else {
-						new UnloggedFailure(1, String.format("Failed to install %s", urlOrId));
+						throw new UnloggedFailure(1, String.format("Failed to install %s", urlOrId));
 					}
 				} else {
 					PluginRelease pr = gitblit.lookupRelease(urlOrId, version);
