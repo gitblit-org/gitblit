@@ -79,9 +79,7 @@ public class GitblitContext extends DaggerContext {
 	 * Construct a Gitblit WAR/Express context.
 	 */
 	public GitblitContext() {
-		this.goSettings = null;
-		this.goBaseFolder = null;
-		gitblit = this;
+		this(null, null);
 	}
 
 	/**
