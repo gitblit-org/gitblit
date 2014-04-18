@@ -363,19 +363,19 @@ public class DiffUtils {
 	public static DiffStat getDiffStat(Repository repository, String base, String tip) {
 		RevCommit baseCommit = null;
 		RevCommit tipCommit = null;
-		RevWalk revWalk = null;
+		RevWalk revWalk = new RevWalk(repository);
 		try {
-			revWalk = new RevWalk(repository);
 			tipCommit = revWalk.parseCommit(repository.resolve(tip));
 			if (!StringUtils.isEmpty(base)) {
 				baseCommit = revWalk.parseCommit(repository.resolve(base));
 			}
+			return getDiffStat(repository, baseCommit, tipCommit, null);
 		} catch (Exception e) {
 			LOGGER.error("failed to generate diffstat!", e);
 		} finally {
 			revWalk.dispose();
 		}
-		return getDiffStat(repository, baseCommit, tipCommit, null);
+		return null;
 	}
 
 	public static DiffStat getDiffStat(Repository repository, RevCommit commit) {
