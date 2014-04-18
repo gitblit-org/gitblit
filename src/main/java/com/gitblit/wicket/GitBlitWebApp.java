@@ -80,6 +80,7 @@ import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
+import com.gitblit.wicket.pages.MyTicketsPage;
 
 public class GitBlitWebApp extends WebApplication {
 
@@ -182,12 +183,13 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/blame", BlamePage.class, "r", "h", "f");
 		mount("/users", UsersPage.class);
 		mount("/logout", LogoutPage.class);
-
+		
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r", "h");
 		mount("/tickets/new", NewTicketPage.class, "r");
 		mount("/tickets/edit", EditTicketPage.class, "r", "h");
 		mount("/tickets/export", ExportTicketPage.class, "r", "h");
+		mount("/mytickets", MyTicketsPage.class, "r", "h");
 
 		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r");
