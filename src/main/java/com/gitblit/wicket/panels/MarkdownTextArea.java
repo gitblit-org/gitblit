@@ -37,7 +37,6 @@ public class MarkdownTextArea extends TextArea {
 
 	public MarkdownTextArea(String id, final IModel<String> previewModel, final Label previewLabel) {
 		super(id);
-		this.repositoryName = repositoryName;
 		setModel(new PropertyModel(this, "text"));
 		add(new AjaxFormComponentUpdatingBehavior("onblur") {
 			private static final long serialVersionUID = 1L;
