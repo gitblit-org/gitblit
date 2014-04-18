@@ -101,6 +101,9 @@ public class EditTicketPage extends RepositoryPage {
 				|| !currentUser.canEdit(ticket, getRepositoryModel())
 				|| !app().tickets().isAcceptingTicketUpdates(getRepositoryModel())) {
 			setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(repositoryName, "" + ticketId));
+
+			// create a placeholder object so we don't trigger NPEs
+			ticket = new TicketModel();
 		}
 
 		typeModel = Model.of(ticket.type);
