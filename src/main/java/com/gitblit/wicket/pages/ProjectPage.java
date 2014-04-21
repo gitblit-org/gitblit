@@ -26,6 +26,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 
 import com.gitblit.Keys;
+import com.gitblit.models.Menu.MenuDivider;
+import com.gitblit.models.Menu.MenuItem;
+import com.gitblit.models.Menu.ParameterMenuItem;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -38,7 +41,6 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.FilterableRepositoryList;
@@ -172,7 +174,7 @@ public class ProjectPage extends DashboardPage {
 
 		if (menu.menuItems.size() > 0) {
 			// Reset Filter
-			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), "p", WicketUtils.getProjectName(params)));
+			menu.menuItems.add(new ParameterMenuItem(getString("gb.reset"), "p", WicketUtils.getProjectName(params)));
 		}
 
 		pages.add(menu);
@@ -202,8 +204,8 @@ public class ProjectPage extends DashboardPage {
 		return null;
 	}
 
-	protected List<DropDownMenuItem> getProjectsMenu() {
-		List<DropDownMenuItem> menu = new ArrayList<DropDownMenuItem>();
+	protected List<MenuItem> getProjectsMenu() {
+		List<MenuItem> menu = new ArrayList<MenuItem>();
 		List<ProjectModel> projects = new ArrayList<ProjectModel>();
 		for (ProjectModel model : getProjectModels()) {
 			if (!model.isUserProject()) {
@@ -230,11 +232,11 @@ public class ProjectPage extends DashboardPage {
 		}
 
 		for (ProjectModel project : projects) {
-			menu.add(new DropDownMenuItem(project.getDisplayName(), "p", project.name));
+			menu.add(new ParameterMenuItem(project.getDisplayName(), "p", project.name));
 		}
 		if (showAllProjects) {
-			menu.add(new DropDownMenuItem());
-			menu.add(new DropDownMenuItem("all projects", null, null));
+			menu.add(new MenuDivider());
+			menu.add(new ParameterMenuItem("all projects"));
 		}
 		return menu;
 	}

@@ -36,6 +36,7 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Keys;
 import com.gitblit.models.DailyLogEntry;
+import com.gitblit.models.Menu.ParameterMenuItem;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryCommit;
@@ -46,7 +47,6 @@ import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
@@ -152,7 +152,7 @@ public abstract class DashboardPage extends RootPage {
 
 		if (menu.menuItems.size() > 0) {
 			// Reset Filter
-			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), null, null));
+			menu.menuItems.add(new ParameterMenuItem(getString("gb.reset")));
 		}
 
 		pages.add(menu);

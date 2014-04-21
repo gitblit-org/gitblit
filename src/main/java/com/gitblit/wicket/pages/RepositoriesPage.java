@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Keys;
+import com.gitblit.models.Menu.ParameterMenuItem;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -36,7 +37,6 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
@@ -105,7 +105,7 @@ public class RepositoriesPage extends RootPage {
 
 		if (menu.menuItems.size() > 0) {
 			// Reset Filter
-			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), null, null));
+			menu.menuItems.add(new ParameterMenuItem(getString("gb.reset")));
 		}
 
 		pages.add(menu);
