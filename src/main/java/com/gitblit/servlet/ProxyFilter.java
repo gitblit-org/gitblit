@@ -25,14 +25,17 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import ro.fortsoft.pf4j.PluginWrapper;
+
 import com.gitblit.dagger.DaggerFilter;
 import com.gitblit.extensions.HttpRequestFilter;
 import com.gitblit.manager.IPluginManager;
+import com.gitblit.manager.IRuntimeManager;
 
 import dagger.ObjectGraph;
 
 /**
- * A request filter than allows regsitered extension request filters to access
+ * A request filter than allows registered extension request filters to access
  * request data.  The intended purpose is for server monitoring plugins.
  *
  * @author David Ostrovsky
@@ -43,10 +46,17 @@ public class ProxyFilter extends DaggerFilter {
 
 	@Override
 	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) throws ServletException {
+		IRuntimeManager runtimeManager = dagger.get(IRuntimeManager.class);
 		IPluginManager pluginManager = dagger.get(IPluginManager.class);
+
 		filters = pluginManager.getExtensions(HttpRequestFilter.class);
 		for (HttpRequestFilter f : filters) {
-			f.init(filterConfig);
+			// wrap the filter config for Gitblit settings retrieval
+			PluginWrapper pluginWrapper = pluginManager.whichPlugin(f.getClass());
+			FilterConfig runtimeConfig = new FilterRuntimeConfig(runtimeManager,
+					pluginWrapper.getPluginId(), filterConfig);
+
+			f.init(runtimeConfig);
 		}
 	}
 
