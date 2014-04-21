@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 
-import com.gitblit.utils.StringUtils;
+import com.gitblit.models.Menu.MenuItem;
 
 /**
  * Represents a page link registration for the topbar.
@@ -88,156 +88,12 @@ public class PageRegistration implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		public final List<DropDownMenuItem> menuItems;
+		public final List<MenuItem> menuItems;
 
 		public DropDownMenuRegistration(String translationKey, Class<? extends WebPage> pageClass) {
 			super(translationKey, pageClass);
-			menuItems = new ArrayList<DropDownMenuItem>();
+			menuItems = new ArrayList<MenuItem>();
 		}
 	}
 
-	/**
-	 * A MenuItem for the DropDownMenu.
-	 *
-	 * @author James Moger
-	 *
-	 */
-	public static class DropDownMenuItem implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		final PageParameters parameters;
-		final String displayText;
-		final String parameter;
-		final String value;
-		final boolean isSelected;
-
-		/**
-		 * Divider constructor.
-		 */
-		public DropDownMenuItem() {
-			this(null, null, null, null);
-		}
-
-		/**
-		 * Standard Menu Item constructor.
-		 *
-		 * @param displayText
-		 * @param parameter
-		 * @param value
-		 */
-		public DropDownMenuItem(String displayText, String parameter, String value) {
-			this(displayText, parameter, value, null);
-		}
-
-		/**
-		 * Standard Menu Item constructor that preserves aggregate parameters.
-		 *
-		 * @param displayText
-		 * @param parameter
-		 * @param value
-		 */
-		public DropDownMenuItem(String displayText, String parameter, String value,
-				PageParameters params) {
-			this.displayText = displayText;
-			this.parameter = parameter;
-			this.value = value;
-
-			if (params == null) {
-				// no parameters specified
-				parameters = new PageParameters();
-				setParameter(parameter, value);
-				isSelected = false;
-			} else {
-				parameters = new PageParameters(params);
-				if (parameters.containsKey(parameter)) {
-					isSelected = params.getString(parameter).equals(value);
-					// set the new selection value
-					setParameter(parameter, value);
-				} else {
-					// not currently selected
-					isSelected = false;
-					setParameter(parameter, value);
-				}
-			}
-		}
-
-		protected void setParameter(String parameter, String value) {
-			if (!StringUtils.isEmpty(parameter)) {
-				if (StringUtils.isEmpty(value)) {
-					this.parameters.remove(parameter);
-				} else {
-					this.parameters.put(parameter, value);
-				}
-			}
-		}
-
-		public String formatParameter() {
-			if (StringUtils.isEmpty(parameter) || StringUtils.isEmpty(value)) {
-				return "";
-			}
-			return parameter + "=" + value;
-		}
-
-		public PageParameters getPageParameters() {
-			return parameters;
-		}
-
-		public boolean isDivider() {
-			return displayText == null && value == null && parameter == null;
-		}
-
-		public boolean isSelected() {
-			return isSelected;
-		}
-
-		@Override
-		public int hashCode() {
-			if (isDivider()) {
-				// divider menu item
-				return super.hashCode();
-			}
-			if (StringUtils.isEmpty(displayText)) {
-				return value.hashCode() + parameter.hashCode();
-			}
-			return displayText.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o instanceof DropDownMenuItem) {
-				return hashCode() == o.hashCode();
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			if (StringUtils.isEmpty(displayText)) {
-				return formatParameter();
-			}
-			return displayText;
-		}
-	}
-
-	public static class DropDownToggleItem extends DropDownMenuItem {
-
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Toggle Menu Item constructor that preserves aggregate parameters.
-		 *
-		 * @param displayText
-		 * @param parameter
-		 * @param value
-		 */
-		public DropDownToggleItem(String displayText, String parameter, String value,
-				PageParameters params) {
-			super(displayText, parameter, value, params);
-			if (isSelected) {
-				// already selected, so remove this enables toggling
-				parameters.remove(parameter);
-			}
-		}
-	}
 }

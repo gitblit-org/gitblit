@@ -47,6 +47,12 @@ import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
+import com.gitblit.extensions.AdminMenuExtension;
+import com.gitblit.models.Menu.MenuDivider;
+import com.gitblit.models.Menu.MenuItem;
+import com.gitblit.models.Menu.PageLinkMenuItem;
+import com.gitblit.models.Menu.ParameterMenuItem;
+import com.gitblit.models.Menu.ToggleMenuItem;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -54,8 +60,7 @@ import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
-import com.gitblit.wicket.PageRegistration.DropDownToggleItem;
+import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.GravatarImage;
@@ -164,9 +169,6 @@ public abstract class RootPage extends BasePage {
 			add(new Label("userPanel").setVisible(false));
 		}
 
-		boolean showRegistrations = app().federation().canFederate()
-				&& app().settings().getBoolean(Keys.web.showFederationRegistrations, false);
-
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
 		if (!authenticateView || (authenticateView && isLoggedIn)) {
@@ -181,11 +183,29 @@ public abstract class RootPage extends BasePage {
 			if (allowLucene) {
 				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
 			}
+
+			UserModel user = GitBlitWebSession.get().getUser();
+
 			if (showAdmin) {
-				pages.add(new PageRegistration("gb.users", UsersPage.class));
-			}
-			if (showAdmin || showRegistrations) {
-				pages.add(new PageRegistration("gb.federation", FederationPage.class));
+				// admin dropdown menu
+				DropDownMenuRegistration adminMenu = new DropDownMenuRegistration("gb.adminMenuItem", MyDashboardPage.class);
+
+				adminMenu.menuItems.add(new PageLinkMenuItem(getString("gb.users"), UsersPage.class));
+
+				boolean showRegistrations = app().federation().canFederate()
+						&& app().settings().getBoolean(Keys.web.showFederationRegistrations, false);
+				if (showRegistrations) {
+					adminMenu.menuItems.add(new PageLinkMenuItem(getString("gb.federation"), FederationPage.class));
+				}
+
+				// allow plugins to contribute admin menu items
+				List<AdminMenuExtension> extensions = app().plugins().getExtensions(AdminMenuExtension.class);
+				for (AdminMenuExtension ext : extensions) {
+					adminMenu.menuItems.add(new MenuDivider());
+					adminMenu.menuItems.addAll(ext.getMenuItems(user));
+				}
+
+				pages.add(adminMenu);
 			}
 
 			if (!authenticateView || (authenticateView && isLoggedIn)) {
@@ -289,9 +309,9 @@ public abstract class RootPage extends BasePage {
 
 	}
 
-	protected List<DropDownMenuItem> getRepositoryFilterItems(PageParameters params) {
+	protected List<com.gitblit.models.Menu.MenuItem> getRepositoryFilterItems(PageParameters params) {
 		final UserModel user = GitBlitWebSession.get().getUser();
-		Set<DropDownMenuItem> filters = new LinkedHashSet<DropDownMenuItem>();
+		Set<MenuItem> filters = new LinkedHashSet<MenuItem>();
 		List<RepositoryModel> repositories = getRepositoryModels();
 
 		// accessible repositories by federation set
@@ -310,11 +330,11 @@ public abstract class RootPage extends BasePage {
 			List<String> sets = new ArrayList<String>(setMap.keySet());
 			Collections.sort(sets);
 			for (String set : sets) {
-				filters.add(new DropDownToggleItem(MessageFormat.format("{0} ({1})", set,
+				filters.add(new ToggleMenuItem(MessageFormat.format("{0} ({1})", set,
 						setMap.get(set).get()), "set", set, params));
 			}
 			// divider
-			filters.add(new DropDownMenuItem());
+			filters.add(new MenuDivider());
 		}
 
 		// user's team memberships
@@ -322,11 +342,11 @@ public abstract class RootPage extends BasePage {
 			List<TeamModel> teams = new ArrayList<TeamModel>(user.teams);
 			Collections.sort(teams);
 			for (TeamModel team : teams) {
-				filters.add(new DropDownToggleItem(MessageFormat.format("{0} ({1})", team.name,
+				filters.add(new ToggleMenuItem(MessageFormat.format("{0} ({1})", team.name,
 						team.repositories.size()), "team", team.name, params));
 			}
 			// divider
-			filters.add(new DropDownMenuItem());
+			filters.add(new MenuDivider());
 		}
 
 		// custom filters
@@ -337,18 +357,18 @@ public abstract class RootPage extends BasePage {
 			for (String expression : expressions) {
 				if (!StringUtils.isEmpty(expression)) {
 					addedExpression = true;
-					filters.add(new DropDownToggleItem(null, "x", expression, params));
+					filters.add(new ToggleMenuItem(null, "x", expression, params));
 				}
 			}
 			// if we added any custom expressions, add a divider
 			if (addedExpression) {
-				filters.add(new DropDownMenuItem());
+				filters.add(new MenuDivider());
 			}
 		}
-		return new ArrayList<DropDownMenuItem>(filters);
+		return new ArrayList<MenuItem>(filters);
 	}
 
-	protected List<DropDownMenuItem> getTimeFilterItems(PageParameters params) {
+	protected List<MenuItem> getTimeFilterItems(PageParameters params) {
 		// days back choices - additive parameters
 		int daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
@@ -369,7 +389,7 @@ public abstract class RootPage extends BasePage {
 			clonedParams.put("db",  daysBack);
 		}
 
-		List<DropDownMenuItem> items = new ArrayList<DropDownMenuItem>();
+		List<MenuItem> items = new ArrayList<MenuItem>();
 		Set<Integer> choicesSet = new TreeSet<Integer>(app().settings().getIntegers(Keys.web.activityDurationChoices));
 		if (choicesSet.isEmpty()) {
 			 choicesSet.addAll(Arrays.asList(1, 3, 7, 14, 21, 28));
@@ -379,13 +399,13 @@ public abstract class RootPage extends BasePage {
 		String lastDaysPattern = getString("gb.lastNDays");
 		for (Integer db : choices) {
 			if (db == 1) {
-				items.add(new DropDownMenuItem(getString("gb.time.today"), "db", db.toString(), clonedParams));
+				items.add(new ParameterMenuItem(getString("gb.time.today"), "db", db.toString(), clonedParams));
 			} else {
 				String txt = MessageFormat.format(lastDaysPattern, db);
-				items.add(new DropDownMenuItem(txt, "db", db.toString(), clonedParams));
+				items.add(new ParameterMenuItem(txt, "db", db.toString(), clonedParams));
 			}
 		}
-		items.add(new DropDownMenuItem());
+		items.add(new MenuDivider());
 		return items;
 	}
 
