@@ -41,13 +41,17 @@ import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
-import com.gitblit.extensions.AdminMenuExtension;
+import com.gitblit.extensions.UserMenuExtension;
+import com.gitblit.models.Menu.ExternalLinkMenuItem;
 import com.gitblit.models.Menu.MenuDivider;
 import com.gitblit.models.Menu.MenuItem;
 import com.gitblit.models.Menu.PageLinkMenuItem;
@@ -60,10 +64,10 @@ import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
 
 /**
@@ -177,30 +181,6 @@ public abstract class RootPage extends BasePage {
 			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
 			if (app().settings().getBoolean(Keys.web.allowLuceneIndexing, true)) {
 				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
-			}
-
-			UserModel user = GitBlitWebSession.get().getUser();
-
-			if (showAdmin) {
-				// admin dropdown menu
-				DropDownMenuRegistration adminMenu = new DropDownMenuRegistration("gb.adminMenuItem", MyDashboardPage.class);
-
-				adminMenu.menuItems.add(new PageLinkMenuItem(getString("gb.users"), UsersPage.class));
-
-				boolean showRegistrations = app().federation().canFederate()
-						&& app().settings().getBoolean(Keys.web.showFederationRegistrations, false);
-				if (showRegistrations) {
-					adminMenu.menuItems.add(new PageLinkMenuItem(getString("gb.federation"), FederationPage.class));
-				}
-
-				// allow plugins to contribute admin menu items
-				List<AdminMenuExtension> extensions = app().plugins().getExtensions(AdminMenuExtension.class);
-				for (AdminMenuExtension ext : extensions) {
-					adminMenu.menuItems.add(new MenuDivider());
-					adminMenu.menuItems.addAll(ext.getMenuItems(user));
-				}
-
-				pages.add(adminMenu);
 			}
 
 			if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
@@ -589,6 +569,11 @@ public abstract class RootPage extends BasePage {
 		public UserMenu(String id, String markupId, MarkupContainer markupProvider) {
 			super(id, markupId, markupProvider);
 			setRenderBodyOnly(true);
+		}
+
+		@Override
+		protected void onInitialize() {
+			super.onInitialize();
 
 			GitBlitWebSession session = GitBlitWebSession.get();
 			UserModel user = session.getUser();
@@ -601,19 +586,105 @@ public abstract class RootPage extends BasePage {
 				add(new Label("username", user.getDisplayName()));
 			}
 
-			add(new Label("displayName", user.getDisplayName()));
+			List<MenuItem> standardItems = new ArrayList<MenuItem>();
+			standardItems.add(new MenuDivider());
+			if (user.canAdmin() || user.canCreate()) {
+				standardItems.add(new PageLinkMenuItem("gb.newRepository", EditRepositoryPage.class));
+			}
+			standardItems.add(new PageLinkMenuItem("gb.myProfile", UserPage.class,
+					WicketUtils.newUsernameParameter(user.username)));
+			if (editCredentials) {
+				standardItems.add(new PageLinkMenuItem("gb.changePassword", ChangePasswordPage.class));
+			}
+			standardItems.add(new MenuDivider());
+			add(newSubmenu("standardMenu", user.getDisplayName(), standardItems));
 
-			add(new BookmarkablePageLink<Void>("newRepository",
-					EditRepositoryPage.class).setVisible(user.canAdmin() || user.canCreate()));
+			if (showAdmin) {
+				// admin menu
+				List<MenuItem> adminItems = new ArrayList<MenuItem>();
+				adminItems.add(new MenuDivider());
+				adminItems.add(new PageLinkMenuItem("gb.users", UsersPage.class));
+				adminItems.add(new PageLinkMenuItem("gb.teams", TeamsPage.class));
 
-			add(new BookmarkablePageLink<Void>("myProfile",
-					UserPage.class, WicketUtils.newUsernameParameter(user.username)));
+				boolean showRegistrations = app().federation().canFederate()
+						&& app().settings().getBoolean(Keys.web.showFederationRegistrations, false);
+				if (showRegistrations) {
+					adminItems.add(new PageLinkMenuItem("gb.federation", FederationPage.class));
+				}
+				adminItems.add(new MenuDivider());
 
-			add(new BookmarkablePageLink<Void>("changePassword",
-					ChangePasswordPage.class).setVisible(editCredentials));
+				add(newSubmenu("adminMenu", getString("gb.administration"), adminItems));
+			} else {
+				add(new Label("adminMenu").setVisible(false));
+			}
+
+			// plugin extension items
+			List<MenuItem> extensionItems = new ArrayList<MenuItem>();
+			List<UserMenuExtension> extensions = app().plugins().getExtensions(UserMenuExtension.class);
+			for (UserMenuExtension ext : extensions) {
+				List<MenuItem> items = ext.getMenuItems(user);
+				extensionItems.addAll(items);
+			}
+
+			if (extensionItems.isEmpty()) {
+				// no extension items
+				add(new Label("extensionsMenu").setVisible(false));
+			} else {
+				// found extension items
+				extensionItems.add(0, new MenuDivider());
+				add(newSubmenu("extensionsMenu", getString("gb.extensions"), extensionItems));
+				extensionItems.add(new MenuDivider());
+			}
 
 			add(new BookmarkablePageLink<Void>("logout",
 					LogoutPage.class).setVisible(standardLogin));
+		}
+
+		/**
+		 * Creates a submenu.  This is not actually submenu because we're using
+		 * an older Twitter Bootstrap which is pre-submenu.
+		 *
+		 * @param wicketId
+		 * @param submenuTitle
+		 * @param menuItems
+		 * @return a submenu fragment
+		 */
+		private Fragment newSubmenu(String wicketId, String submenuTitle, List<MenuItem> menuItems) {
+			Fragment submenu = new Fragment(wicketId, "submenuFragment", this);
+			submenu.add(new Label("submenuTitle", submenuTitle).setRenderBodyOnly(true));
+			ListDataProvider<MenuItem> menuItemsDp = new ListDataProvider<MenuItem>(menuItems);
+			DataView<MenuItem> submenuItems = new DataView<MenuItem>("submenuItem", menuItemsDp) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void populateItem(final Item<MenuItem> menuItem) {
+					final MenuItem item = menuItem.getModelObject();
+					String name = item.toString();
+					try {
+						// try to lookup translation
+						name = getString(name);
+					} catch (Exception e) {
+					}
+					if (item instanceof PageLinkMenuItem) {
+						// link to another Wicket page
+						PageLinkMenuItem pageLink = (PageLinkMenuItem) item;
+						menuItem.add(new LinkPanel("submenuLink", null, null, name, pageLink.getPageClass(),
+								pageLink.getPageParameters(), false).setRenderBodyOnly(true));
+					} else if (item instanceof ExternalLinkMenuItem) {
+						// link to a specified href
+						ExternalLinkMenuItem extLink = (ExternalLinkMenuItem) item;
+						menuItem.add(new LinkPanel("submenuLink", null, name, extLink.getHref(),
+								extLink.openInNewWindow()).setRenderBodyOnly(true));
+					} else if (item instanceof MenuDivider) {
+						// divider
+						menuItem.add(new Label("submenuLink").setRenderBodyOnly(true));
+						WicketUtils.setCssClass(menuItem, "divider");
+					}
+				}
+			};
+			submenu.add(submenuItems);
+			submenu.setRenderBodyOnly(true);
+			return submenu;
 		}
 	}
 }

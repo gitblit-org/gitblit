@@ -45,25 +45,32 @@ public class NavigationPanel extends Panel {
 			@Override
 			public void populateItem(final Item<PageRegistration> item) {
 				PageRegistration entry = item.getModelObject();
+				String linkText = entry.translationKey;
+				try {
+					// try to lookup translation key
+					linkText = getString(entry.translationKey);
+				} catch (Exception e) {
+				}
+
 				if (entry.hiddenPhone) {
 					WicketUtils.setCssClass(item, "hidden-phone");
 				}
 				if (entry instanceof OtherPageLink) {
 					// other link
 					OtherPageLink link = (OtherPageLink) entry;
-					Component c = new LinkPanel("link", null, getString(entry.translationKey), link.url);
+					Component c = new LinkPanel("link", null, linkText, link.url);
 					c.setRenderBodyOnly(true);
 					item.add(c);
 				} else if (entry instanceof DropDownMenuRegistration) {
 					// drop down menu
 					DropDownMenuRegistration reg = (DropDownMenuRegistration) entry;
-					Component c = new DropDownMenu("link", getString(entry.translationKey), reg);
+					Component c = new DropDownMenu("link", linkText, reg);
 					c.setRenderBodyOnly(true);
 					item.add(c);
 					WicketUtils.setCssClass(item, "dropdown");
 				} else {
 					// standard page link
-					Component c = new LinkPanel("link", null, getString(entry.translationKey),
+					Component c = new LinkPanel("link", null, linkText,
 							entry.pageClass, entry.params);
 					c.setRenderBodyOnly(true);
 					if (entry.pageClass.equals(pageClass)) {

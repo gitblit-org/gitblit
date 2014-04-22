@@ -67,13 +67,13 @@ public class PageRegistration implements Serializable {
 
 		public final String url;
 
-		public OtherPageLink(String translationKey, String url) {
-			super(translationKey, null);
+		public OtherPageLink(String keyOrText, String url) {
+			super(keyOrText, null);
 			this.url = url;
 		}
 
-		public OtherPageLink(String translationKey, String url, boolean hiddenPhone) {
-			super(translationKey, null, null, hiddenPhone);
+		public OtherPageLink(String keyOrText, String url, boolean hiddenPhone) {
+			super(keyOrText, null, null, hiddenPhone);
 			this.url = url;
 		}
 	}
@@ -90,8 +90,8 @@ public class PageRegistration implements Serializable {
 
 		public final List<MenuItem> menuItems;
 
-		public DropDownMenuRegistration(String translationKey, Class<? extends WebPage> pageClass) {
-			super(translationKey, pageClass);
+		public DropDownMenuRegistration(String keyOrText, Class<? extends WebPage> pageClass) {
+			super(keyOrText, pageClass);
 			menuItems = new ArrayList<MenuItem>();
 		}
 	}

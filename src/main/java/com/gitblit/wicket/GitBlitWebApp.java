@@ -76,6 +76,7 @@ import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
+import com.gitblit.wicket.pages.TeamsPage;
 import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
@@ -181,6 +182,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/metrics", MetricsPage.class, "r");
 		mount("/blame", BlamePage.class, "r", "h", "f");
 		mount("/users", UsersPage.class);
+		mount("/teams", TeamsPage.class);
 		mount("/logout", LogoutPage.class);
 
 		// setup ticket urls

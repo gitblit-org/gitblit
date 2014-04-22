@@ -205,23 +205,23 @@ public class MyRequestFilter extends HttpRequestFilter {
 }
 ```
 
-### Admin Menu Items
+### User Menu Items
 
 *SINCE 1.6.0*
 
-You can provide your own admin menu items by subclassing the *AdminMenuExtension* class.
+You can provide your own user menu items by subclassing the *UserMenuExtension* class.
 
 ```java
 import java.util.Arrays;
 import java.util.List;
 import ro.fortsoft.pf4j.Extension;
-import com.gitblit.extensions.AdminMenuExtension;
+import com.gitblit.extensions.UserMenuExtension;
 import com.gitblit.models.Menu.ExternalLinkMenuItem;
 import com.gitblit.models.Menu.MenuItem;
 import com.gitblit.models.UserModel;
 
 @Extension
-public class MyAdminMenuContributor extends AdminMenuExtension {
+public class MyUserMenuContributor extends UserMenuExtension {
 
     @Override
     public List<MenuItem> getMenuItems(UserModel user) {
@@ -229,5 +229,3 @@ public class MyAdminMenuContributor extends AdminMenuExtension {
     }
 }
 ```
-
-
