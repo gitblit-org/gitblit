@@ -34,12 +34,14 @@ public class MyTicketsPage extends RootPage {
 	
 	public MyTicketsPage(PageParameters params)
 	{
-		super();
+		super(params);
 		setupPage("", getString("gb.mytickets"));
 		
 		UserModel currentUser = GitBlitWebSession.get().getUser();
 		if (currentUser == null) {
-			currentUser = UserModel.ANONYMOUS;
+			setRedirect(true);
+			setResponsePage(getApplication().getHomePage());
+			return;
 		}
 		String username = currentUser.getName();
 		
