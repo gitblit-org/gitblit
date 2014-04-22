@@ -51,15 +51,17 @@
 		<li class="dropdown">
 			<a data-toggle="dropdown" class="dropdown-toggle" style="text-decoration: none;" href="#"><span wicket:id="username"></span> <b class="caret"></b></a>
         	<ul class="dropdown-menu">
-        		<li style="color:#ccc;padding-left:15px;font-weight:bold;"><span wicket:id="displayName"></span></li>
-        		<li class="divider"></li>
-            	<li><a wicket:id="newRepository"><wicket:message key="gb.newRepository"></wicket:message></a></li>
-            	<li><a wicket:id="myProfile"><wicket:message key="gb.myProfile"></wicket:message></a></li>
-            	<li><a wicket:id="changePassword"><wicket:message key="gb.changePassword"></wicket:message></a></li>
-            	<li class="divider"></li>
+            	<span wicket:id="standardMenu"></span>
+            	<span wicket:id="adminMenu"></span>
+            	<span wicket:id="extensionsMenu"></span>
         		<li><a wicket:id="logout"><wicket:message key="gb.logout"></wicket:message></a></li>
 			</ul>
 		</li>
+	</wicket:fragment>
+
+	<wicket:fragment wicket:id="submenuFragment">
+		<li style="color:#ccc;padding-left:15px;font-weight:bold;"><span wicket:id="submenuTitle"></span></li>
+		<li wicket:id="submenuItem"><span wicket:id="submenuLink"></span></li>
 	</wicket:fragment>
 	
 </wicket:extend>
