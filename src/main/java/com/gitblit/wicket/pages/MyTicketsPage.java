@@ -61,7 +61,7 @@ public class MyTicketsPage extends RootPage {
 		}
 		
 		final String username = currentUser.getName();
-		final String[] statiiParam = (params == null) ? new String[0] : params.getStringArray(Lucene.status.name());
+		final String[] statiiParam = (params == null) ? openStatii : params.getStringArray(Lucene.status.name());
 		final String assignedToParam = (params == null) ? "" : params.getString(Lucene.responsible.name(), null);
 		final String milestoneParam = (params == null) ? "" : params.getString(Lucene.milestone.name(), null);
 		final String queryParam = (params == null || StringUtils.isEmpty(params.getString("q", null))) ? "watchedby:" + username : params.getString("q", null);
@@ -256,8 +256,22 @@ public class MyTicketsPage extends RootPage {
 		}
 		final String luceneQuery = qb.build();
 		
+		// paging links
+		int page = (params != null) ? Math.max(1, WicketUtils.getPage(params)) : 1;
+		int pageSize = app().settings().getInteger(Keys.tickets.perPage, 25);
+		
 		ITicketService tickets = GitBlitWebApp.get().tickets();
-		List<QueryResult> results = tickets.queryFor(luceneQuery, 0, 0, Lucene.updated.name(), true);
+		List<QueryResult> results;
+		if(StringUtils.isEmpty(searchParam))
+		{
+			results = tickets.queryFor(luceneQuery, page, pageSize, sortBy, desc);
+		}
+		else
+		{
+			results = tickets.searchFor(null, searchParam, page, pageSize);
+		}
+		int totalResults = results.size() == 0 ? 0 : results.get(0).totalResults;
+		buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, page, pageSize, results.size(), totalResults);
 		
 		final ListDataProvider<QueryResult> dp = new ListDataProvider<QueryResult>(results);
 		
@@ -305,12 +319,6 @@ public class MyTicketsPage extends RootPage {
 				}
 			}
 		};
-		
-		// paging links
-		int page = (params != null) ? Math.max(1, WicketUtils.getPage(params)) : 1;
-		int pageSize = app().settings().getInteger(Keys.tickets.perPage, 25);
-		int totalResults = results.size() == 0 ? 0 : results.get(0).totalResults;
-		buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, page, pageSize, results.size(), totalResults);
 		
 		add(dataView);
 	}
@@ -515,8 +523,8 @@ public class MyTicketsPage extends RootPage {
 		boolean showNav = total > (2 * pageSize);
 		boolean allowPrev = page > 1;
 		boolean allowNext = (pageSize * (page - 1) + count) < total;
-		add(new BookmarkablePageLink<Void>("prevLink", TicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, page - 1)).setEnabled(allowPrev).setVisible(showNav));
-		add(new BookmarkablePageLink<Void>("nextLink", TicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, page + 1)).setEnabled(allowNext).setVisible(showNav));
+		add(new BookmarkablePageLink<Void>("prevLink", MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, page - 1)).setEnabled(allowPrev).setVisible(showNav));
+		add(new BookmarkablePageLink<Void>("nextLink", MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, page + 1)).setEnabled(allowNext).setVisible(showNav));
 
 		if (total <= pageSize) {
 			add(new Label("pageLink").setVisible(false));
@@ -545,7 +553,7 @@ public class MyTicketsPage extends RootPage {
 			@Override
 			public void populateItem(final Item<Integer> item) {
 				final Integer i = item.getModelObject();
-				LinkPanel link = new LinkPanel("page", null, "" + i, TicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, i));
+				LinkPanel link = new LinkPanel("page", null, "" + i, MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, i));
 				link.setRenderBodyOnly(true);
 				if (i == page) {
 					WicketUtils.setCssClass(item, "active");
