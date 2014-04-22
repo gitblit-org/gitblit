@@ -7,35 +7,94 @@
 <body>
 	<wicket:extend>
 		<div class="container">
-			<table class="tickets">
-				<thead>
-					<tr>
-						<th class="left">
-							<img style="vertical-align: middle;" src="git-black-16x16.png"/>
-							<wicket:message key="gb.repository">Repository</wicket:message>
-						</th>
-						<th class="hidden-phone" colspan='2'><span><wicket:message key="gb.ticket">Ticket</wicket:message></span></th>
-						<th class="hidden-tablet hidden-phone"><span><wicket:message key="gb.status">Status</wicket:message></span></th>
-						<th class="hidden-tablet hidden-phone right"><span><wicket:message key="gb.responsible">Responsible</wicket:message></span></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr wicket:id="row">
-						<td class="left" style="padding-left:3px;">
-							<b><span class="repositorySwatch" wicket:id="repositorySwatch"></span></b>
-							<span style="padding-left:3px;" wicket:id="repositoryName">[repository name]</span>
-						</td>
-						<td class="hidden-phone">
-							<span wicket:id="ticketIcon">[ticket icon]</span>
-							<span class="list" wicket:id="ticketTitle">[ticket title]</span>
-							<span style="color:#888;"> (#<span wicket:id="ticketNumber">[ticket number]</span>)</span>
-						</td>
-						<td><span class="badge badge-info" wicket:id="ticketVotes"></span></td>
-						<td><span wicket:id="ticketStatus"></span></td>
-						<td class="hidden-tablet hidden-phone author right"><span wicket:id="ticketResponsibleImg"></span><span wicket:id="ticketResponsible">[ticket responsible]</span></td>
-					</tr>
-				</tbody>
-			</table>
+		
+			<!-- search tickets form -->
+			<div class="hidden-phone pull-right">
+				<form class="form-search" style="margin: 0px;" wicket:id="ticketSearchForm">
+					<div class="input-append">
+						<input type="text" class="search-query" style="width: 170px;border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
+						<button class="btn" style="border-radius: 0 14px 14px 0px;margin-left:-5px;" type="submit"><i class="icon-search"></i></button>
+					</div>
+				</form>
+			</div>
+			<ul class="nav nav-tabs"></ul>
+			
+			<div class="tab-content">
+				<div class="row" style="min-height:400px;" >
+					<div class="tab-pane active" id="tickets">
+						<!-- query controls -->
+						<div class="span3">
+							<div class="hidden-phone">
+								<ul class="nav nav-list">
+									<li class="nav-header"><wicket:message key="gb.queries"></wicket:message></li>
+									<li><a wicket:id="changesQuery"><i class="fa fa-code-fork"></i> <wicket:message key="gb.proposalTickets"></wicket:message></a></li>
+									<li><a wicket:id="bugsQuery"><i class="fa fa-bug"></i> <wicket:message key="gb.bugTickets"></wicket:message></a></li>
+									<li><a wicket:id="enhancementsQuery"><i class="fa fa-magic"></i> <wicket:message key="gb.enhancementTickets"></wicket:message></a></li>
+									<li><a wicket:id="tasksQuery"><i class="fa fa-ticket"></i> <wicket:message key="gb.taskTickets"></wicket:message></a></li>
+									<li><a wicket:id="questionsQuery"><i class="fa fa-question"></i> <wicket:message key="gb.questionTickets"></wicket:message></a></li>
+									<li wicket:id="userDivider" class="divider"></li>
+									<li><a wicket:id="createdQuery"><i class="fa fa-user"></i> <wicket:message key="gb.yourCreatedTickets"></wicket:message></a></li>
+									<li><a wicket:id="watchedQuery"><i class="fa fa-eye"></i> <wicket:message key="gb.yourWatchedTickets"></wicket:message></a></li>
+									<li><a wicket:id="mentionsQuery"><i class="fa fa-comment"></i> <wicket:message key="gb.mentionsMeTickets"></wicket:message></a></li>
+									<li class="divider"></li>
+									<li><a wicket:id="resetQuery"><i class="fa fa-bolt"></i> <wicket:message key="gb.reset"></wicket:message></a></li>
+								</ul>
+							</div>
+						</div>
+						
+						<!-- tickets -->
+						<div class="span9">
+							<div class="btn-toolbar" style="margin-top: 0px;">
+								<div class="btn-group">
+									<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.status"></wicket:message>: <span style="font-weight:bold;" wicket:id="selectedStatii"></span> <span class="caret"></span></a>
+									<ul class="dropdown-menu">
+										<li><a wicket:id="openTickets"><wicket:message key="gb.open"></wicket:message></a></li>
+										<li><a wicket:id="closedTickets"><wicket:message key="gb.closed"></wicket:message></a></li>
+										<li><a wicket:id="allTickets"><wicket:message key="gb.all"></wicket:message></a></li>
+										<li class="divider"></li>
+										<li wicket:id="statii"><span wicket:id="statusLink"></span></li>
+									</ul>
+								</div>
+
+								<div class="btn-group">
+									<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-sort"></i> <wicket:message key="gb.sort"></wicket:message>: <span style="font-weight:bold;" wicket:id="currentSort"></span> <span class="caret"></span></a>
+									<ul class="dropdown-menu">
+										<li wicket:id="sort"><span wicket:id="sortLink"></span></li>
+									</ul>
+								</div>
+							
+								<div class="btn-group pull-right">
+									<div class="pagination pagination-right pagination-small">
+										<ul>
+											<li><a wicket:id="prevLink"><i class="fa fa-angle-double-left"></i></a></li>
+											<li wicket:id="pageLink"><span wicket:id="page"></span></li>
+											<li><a wicket:id="nextLink"><i class="fa fa-angle-double-right"></i></a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+							<table class="table tickets">
+								<tbody>
+									<tr wicket:id="row">
+										<td class="left" style="padding-left:3px;">
+											<b><span class="repositorySwatch" wicket:id="repositorySwatch"></span></b>
+											<span style="padding-left:3px;" wicket:id="repositoryName">[repository name]</span>
+										</td>
+										<td class="hidden-phone">
+											<span wicket:id="ticketIcon">[ticket icon]</span>
+											<span class="list" wicket:id="ticketTitle">[ticket title]</span>
+											<span style="color:#888;"> (#<span wicket:id="ticketNumber">[ticket number]</span>)</span>
+										</td>
+										<td><span class="badge badge-info" wicket:id="ticketVotes"></span></td>
+										<td><span wicket:id="ticketStatus"></span></td>
+										<td class="hidden-tablet hidden-phone author right"><span wicket:id="ticketResponsibleImg"></span><span wicket:id="ticketResponsible">[ticket responsible]</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</wicket:extend>
 </body>
