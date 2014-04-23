@@ -9,7 +9,8 @@ r23: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+    - Fix subdirectory links in pages servlet (issue-411)
     changes:
     - improve French translation (pr-176)
     - simplify current plugin release detection and ignore the currentRelease registry field 
@@ -20,6 +21,7 @@ r23: {
     - James Moger
     - Julien Kirch
     - Ralph Hoffman
+    - Olivier Rouits
 }
 
 #

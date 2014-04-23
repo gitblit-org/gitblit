@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -228,11 +229,17 @@ public class PagesServlet extends DaggerServlet {
 					response.getWriter().append("<thead><tr><th>path</th><th>mode</th><th>size</th></tr>");
 					response.getWriter().append("</thead>");
 					response.getWriter().append("<tbody>");
-					String pattern = "<tr><td><a href=\"{0}\">{0}</a></td><td>{1}</td><td>{2}</td></tr>";
+					String pattern = "<tr><td><a href=\"{0}\">{1}</a></td><td>{2}</td><td>{3}</td></tr>";
 					final ByteFormat byteFormat = new ByteFormat();
 					List<PathModel> entries = JGitUtils.getFilesInPath(r, resource, commit);
+					if (!entries.isEmpty()) {
+						if (entries.get(0).path.indexOf('/') > -1) {
+							// we are in a subdirectory, add parent directory link
+							entries.add(0, new PathModel("..", resource + "/..", 0, FileMode.TREE.getBits(), null, null));
+						}
+					}
 					for (PathModel entry : entries) {
-						response.getWriter().append(MessageFormat.format(pattern, entry.name, JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
+						response.getWriter().append(MessageFormat.format(pattern, entry.path, entry.name, JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
 					}
 					response.getWriter().append("</tbody>");
 					response.getWriter().append("</table>");
