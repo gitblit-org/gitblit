@@ -111,6 +111,10 @@ public class PagesServlet extends DaggerServlet {
 			// strip leading /
 			path = path.substring(1);
 		}
+		if (path.charAt(path.length() - 1) == '/') {
+			// strip trailing slash
+			path = path.substring(0, path.length() - 1);
+		}
 
 		// determine repository and resource from url
 		String repository = "";
@@ -229,7 +233,7 @@ public class PagesServlet extends DaggerServlet {
 					response.getWriter().append("<thead><tr><th>path</th><th>mode</th><th>size</th></tr>");
 					response.getWriter().append("</thead>");
 					response.getWriter().append("<tbody>");
-					String pattern = "<tr><td><a href=\"{0}\">{1}</a></td><td>{2}</td><td>{3}</td></tr>";
+					String pattern = "<tr><td><a href=\"{0}/{1}\">{1}</a></td><td>{2}</td><td>{3}</td></tr>";
 					final ByteFormat byteFormat = new ByteFormat();
 					List<PathModel> entries = JGitUtils.getFilesInPath(r, resource, commit);
 					if (!entries.isEmpty()) {
@@ -238,8 +242,15 @@ public class PagesServlet extends DaggerServlet {
 							entries.add(0, new PathModel("..", resource + "/..", 0, FileMode.TREE.getBits(), null, null));
 						}
 					}
+
+					String basePath = request.getServletPath() + request.getPathInfo();
+					if (basePath.charAt(basePath.length() - 1) == '/') {
+						// strip trailing slash
+						basePath = basePath.substring(0, basePath.length() - 1);
+					}
 					for (PathModel entry : entries) {
-						response.getWriter().append(MessageFormat.format(pattern, entry.path, entry.name, JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
+						response.getWriter().append(MessageFormat.format(pattern, basePath, entry.name,
+								JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
 					}
 					response.getWriter().append("</tbody>");
 					response.getWriter().append("</table>");
