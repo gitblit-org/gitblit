@@ -14,10 +14,12 @@ r23: {
     - Fix subdirectory navigation in pages servlet (issue-412)
     changes:
     - improve French translation (pr-176)
-    - simplify current plugin release detection and ignore the currentRelease registry field 
+    - simplify current plugin release detection and ignore the currentRelease registry field
+    - split pages servlet into two servlets (issue-413)
     additions: ~
     dependencyChanges:
     - update to Apache MINA/SSHD 0.11.0 (issue-410)
+    - added Apache Tiki 1.5 (issue-413)
     contributors:
     - James Moger
     - Julien Kirch
