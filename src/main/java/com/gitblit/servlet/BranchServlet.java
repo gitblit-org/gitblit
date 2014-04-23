@@ -35,8 +35,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tika.Tika;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.MutableObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -252,10 +258,7 @@ public class BranchServlet extends DaggerServlet {
 					}
 
 					// send content
-					byte [] content = JGitUtils.getByteContent(r, commit.getTree(), requestedPath, false);
-					InputStream is = new ByteArrayInputStream(content);
-					sendContent(response, JGitUtils.getCommitDate(commit), is);
-
+					streamFromRepo(response, r, commit, requestedPath);
 					return;
 				} catch (Exception e) {
 					logger.error(null, e);
@@ -366,6 +369,42 @@ public class BranchServlet extends DaggerServlet {
 		} finally {
 			r.close();
 		}
+	}
+
+	private void streamFromRepo(HttpServletResponse response, Repository repository,
+			RevCommit commit, String requestedPath) throws IOException {
+
+		response.setDateHeader("Last-Modified", JGitUtils.getCommitDate(commit).getTime());
+		response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+
+		RevWalk rw = new RevWalk(repository);
+		TreeWalk tw = new TreeWalk(repository);
+		try {
+			tw.reset();
+			tw.addTree(commit.getTree());
+			PathFilter f = PathFilter.create(requestedPath);
+			tw.setFilter(f);
+			tw.setRecursive(true);
+			MutableObjectId id = new MutableObjectId();
+			ObjectReader reader = tw.getObjectReader();
+			while (tw.next()) {
+				FileMode mode = tw.getFileMode(0);
+				if (mode == FileMode.GITLINK || mode == FileMode.TREE) {
+					continue;
+				}
+				tw.getObjectId(id, 0);
+
+				long len = reader.getObjectSize(id, org.eclipse.jgit.lib.Constants.OBJ_BLOB);
+				response.setIntHeader("Content-Length", (int) len);
+				ObjectLoader ldr = repository.open(id);
+				ldr.copyTo(response.getOutputStream());
+			}
+		} finally {
+			tw.release();
+			rw.dispose();
+		}
+
+		response.flushBuffer();
 	}
 
 	private void sendContent(HttpServletResponse response, Date date, InputStream is) throws ServletException, IOException {
