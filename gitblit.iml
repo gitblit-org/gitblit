@@ -85,7 +85,9 @@
           <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.5.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.5.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -94,7 +96,9 @@
           <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.5.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.5.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -514,13 +518,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="sshd-core-0.10.1.jar">
+      <library name="sshd-core-0.11.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/sshd-core-0.10.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/sshd-core-0.11.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-0.10.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-0.11.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -10,7 +10,7 @@ name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.5.1-SNAPSHOT
+version: 1.6.0-SNAPSHOT
 inceptionYear: 2011
 
 # Current stable release
@@ -109,7 +109,7 @@ properties: {
   bouncycastle.version : 1.49
   selenium.version : 2.28.0
   wikitext.version : 1.4
-  sshd.version: 0.10.1
+  sshd.version: 0.11.0
   mina.version: 2.0.7
   }
 
