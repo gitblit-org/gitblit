@@ -80,8 +80,6 @@ public class PluginRegistry implements Serializable {
 
 		public String projectUrl;
 
-		public String currentRelease;
-
 		public transient String installedRelease;
 
 		public transient String registry;
@@ -95,38 +93,17 @@ public class PluginRegistry implements Serializable {
 
 		public PluginRelease getCurrentRelease(Version system) {
 			PluginRelease current = null;
-			if (!StringUtils.isEmpty(currentRelease)) {
-				// find specified
-				current = getRelease(currentRelease);
-			}
-
-			if (current != null) {
-				// verify the current release is acceptable for this system
+			Date date = new Date(0);
+			for (PluginRelease pv : releases) {
 				Version requires = Version.ZERO;
-				if (!StringUtils.isEmpty(current.requires)) {
-					requires = Version.createVersion(current.requires);
+				if (!StringUtils.isEmpty(pv.requires)) {
+					requires = Version.createVersion(pv.requires);
 				}
 
-				if (!system.isZero() && !system.atLeast(requires)) {
-					// requires newer system version
-					current = null;
-				}
-			}
-
-			if (current == null) {
-				// find by date
-				Date date = new Date(0);
-				for (PluginRelease pv : releases) {
-					Version requires = Version.ZERO;
-					if (!StringUtils.isEmpty(pv.requires)) {
-						requires = Version.createVersion(pv.requires);
-					}
-
-					if (system.isZero() || system.atLeast(requires)) {
-						if (pv.date.after(date)) {
-							current = pv;
-							date = pv.date;
-						}
+				if (system.isZero() || system.atLeast(requires)) {
+					if (pv.date.after(date)) {
+						current = pv;
+						date = pv.date;
 					}
 				}
 			}
@@ -142,12 +119,16 @@ public class PluginRegistry implements Serializable {
 			return null;
 		}
 
-		public InstallState getInstallState() {
+		public InstallState getInstallState(Version system) {
 			if (StringUtils.isEmpty(installedRelease)) {
 				return InstallState.NOT_INSTALLED;
 			}
 			Version ir = Version.createVersion(installedRelease);
-			Version cr = Version.createVersion(currentRelease);
+			Version cr = Version.ZERO;
+			PluginRelease curr = getCurrentRelease(system);
+			if (cr != null) {
+				cr = Version.createVersion(curr.version);
+			}
 			switch (ir.compareTo(cr)) {
 			case -1:
 				return InstallState.UNKNOWN;

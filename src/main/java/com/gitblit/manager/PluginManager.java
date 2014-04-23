@@ -377,7 +377,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 		List<PluginRegistration> list = getRegisteredPlugins();
 		Iterator<PluginRegistration> itr = list.iterator();
 		while (itr.hasNext()) {
-			if (state != itr.next().getInstallState()) {
+			if (state != itr.next().getInstallState(getSystemVersion())) {
 				itr.remove();
 			}
 		}

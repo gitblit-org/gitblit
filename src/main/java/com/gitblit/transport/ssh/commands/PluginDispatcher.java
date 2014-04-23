@@ -283,7 +283,7 @@ public class PluginDispatcher extends DispatchCommand {
 				state = Joiner.on(", ").join(InstallState.INSTALLED, pw.getPluginState());
 			} else {
 				// registered, installed plugin
-				state = Joiner.on(", ").join(reg.getInstallState(), pw.getPluginState());
+				state = Joiner.on(", ").join(reg.getInstallState(system), pw.getPluginState());
 			}
 
 			StringBuilder sb = new StringBuilder();
@@ -486,9 +486,9 @@ public class PluginDispatcher extends DispatchCommand {
 					curr = new PluginRelease();
 				}
 				if (verbose) {
-					data[i] = new Object[] {p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.registry};
+					data[i] = new Object[] {p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(system), p.registry};
 				} else {
-					data[i] = new Object[] {p.id, p.installedRelease, curr.version, curr.requires, p.getInstallState()};
+					data[i] = new Object[] {p.id, p.installedRelease, curr.version, curr.requires, p.getInstallState(system)};
 				}
 			}
 
@@ -504,9 +504,9 @@ public class PluginDispatcher extends DispatchCommand {
 					curr = new PluginRelease();
 				}
 				if (verbose) {
-					outTabbed(p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(), p.provider, p.registry);
+					outTabbed(p.id, p.description, p.installedRelease, curr.version, curr.requires, p.getInstallState(system), p.provider, p.registry);
 				} else {
-					outTabbed(p.id, p.installedRelease, curr.version, curr.requires, p.getInstallState());
+					outTabbed(p.id, p.installedRelease, curr.version, curr.requires, p.getInstallState(system));
 				}
 			}
 		}
