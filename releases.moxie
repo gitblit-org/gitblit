@@ -10,12 +10,14 @@ r23: {
     text: ~
     security: ~
     fixes: ~
-    changes: ~
+    changes:
+    - improve French translation (pr-176)
     additions: ~
     dependencyChanges:
     - update to Apache MINA/SSHD 0.11.0 (issue-410)
     contributors:
     - James Moger
+    - Julien Kirch
     - Ralph Hoffman
 }
 
