@@ -157,7 +157,6 @@ public class PagesServlet extends DaggerServlet {
 						"# Error\nSorry, the repository {0} does not have a **gh-pages** branch!",
 						repository);
 				error(response, mkd);
-				r.close();
 				return;
 			}
 
@@ -309,10 +308,10 @@ public class PagesServlet extends DaggerServlet {
 				logger.error("Failed to write page to client", t);
 			}
 
-			// close the repository
-			r.close();
 		} catch (Throwable t) {
 			logger.error("Failed to write page to client", t);
+		} finally {
+			r.close();
 		}
 	}
 
