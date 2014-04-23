@@ -20,8 +20,8 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -111,10 +111,6 @@ public class PagesServlet extends DaggerServlet {
 			// strip leading /
 			path = path.substring(1);
 		}
-		if (path.charAt(path.length() - 1) == '/') {
-			// strip trailing slash
-			path = path.substring(0, path.length() - 1);
-		}
 
 		// determine repository and resource from url
 		String repository = "";
@@ -174,45 +170,59 @@ public class PagesServlet extends DaggerServlet {
 			if (res.endsWith("/")) {
 				res = res.substring(0, res.length() - 1);
 			}
-			Set<String> names = new TreeSet<String>();
-			for (PathModel entry : JGitUtils.getFilesInPath(r, res, commit)) {
-				names.add(entry.name);
-			}
+
+			List<PathModel> pathEntries = JGitUtils.getFilesInPath(r, res, commit);
 
 			byte[] content = null;
-			if (names.isEmpty()) {
+			if (pathEntries.isEmpty()) {
 				// not a path, a specific resource
 				try {
-					String contentType = context.getMimeType(resource);
+					String contentType = context.getMimeType(res);
 					if (contentType == null) {
 						contentType = "text/plain";
 					}
 					if (contentType.startsWith("text")) {
-						content = JGitUtils.getStringContent(r, tree, resource, encodings).getBytes(
+						content = JGitUtils.getStringContent(r, tree, res, encodings).getBytes(
 								Constants.ENCODING);
 					} else {
-						content = JGitUtils.getByteContent(r, tree, resource, false);
+						content = JGitUtils.getByteContent(r, tree, res, false);
 					}
 					response.setContentType(contentType);
 				} catch (Exception e) {
 				}
 			} else {
-				// path
+				// path request
+				if (!request.getPathInfo().endsWith("/")) {
+					// redirect to trailing '/' url
+					response.sendRedirect(request.getServletPath() + request.getPathInfo() + "/");
+					return;
+				}
+
+				Map<String, String> names = new TreeMap<String, String>();
+				for (PathModel entry : pathEntries) {
+					names.put(entry.name.toLowerCase(), entry.name);
+				}
+
 				List<String> extensions = new ArrayList<String>();
 				extensions.add("html");
 				extensions.add("htm");
 				extensions.addAll(processor.getMarkupExtensions());
 				for (String ext : extensions) {
-					String file = "index." + ext;
+					String key = "index." + ext;
 
-					if (names.contains(file)) {
-						String stringContent = JGitUtils.getStringContent(r, tree, file, encodings);
+					if (names.containsKey(key)) {
+						String fileName = names.get(key);
+						String fullPath = fileName;
+						if (!res.isEmpty()) {
+							fullPath = res + "/" + fileName;
+						}
+						String stringContent = JGitUtils.getStringContent(r, tree, fullPath, encodings);
 						if (stringContent == null) {
 							continue;
 						}
 						content = stringContent.getBytes(Constants.ENCODING);
 						if (content != null) {
-							resource = file;
+							res = fullPath;
 							// assume text/html unless the servlet container
 							// overrides
 							response.setContentType("text/html; charset=" + Constants.ENCODING);
@@ -222,39 +232,9 @@ public class PagesServlet extends DaggerServlet {
 				}
 			}
 
-			// no content, try custom 404 page
+			// no content, document list or custom 404 page
 			if (ArrayUtils.isEmpty(content)) {
-				String ext = StringUtils.getFileExtension(resource);
-				if (StringUtils.isEmpty(ext)) {
-					// document list
-					response.setContentType("text/html");
-					response.getWriter().append("<style>table th, table td { min-width: 150px; text-align: left; }</style>");
-					response.getWriter().append("<table>");
-					response.getWriter().append("<thead><tr><th>path</th><th>mode</th><th>size</th></tr>");
-					response.getWriter().append("</thead>");
-					response.getWriter().append("<tbody>");
-					String pattern = "<tr><td><a href=\"{0}/{1}\">{1}</a></td><td>{2}</td><td>{3}</td></tr>";
-					final ByteFormat byteFormat = new ByteFormat();
-					List<PathModel> entries = JGitUtils.getFilesInPath(r, resource, commit);
-					if (!entries.isEmpty()) {
-						if (entries.get(0).path.indexOf('/') > -1) {
-							// we are in a subdirectory, add parent directory link
-							entries.add(0, new PathModel("..", resource + "/..", 0, FileMode.TREE.getBits(), null, null));
-						}
-					}
-
-					String basePath = request.getServletPath() + request.getPathInfo();
-					if (basePath.charAt(basePath.length() - 1) == '/') {
-						// strip trailing slash
-						basePath = basePath.substring(0, basePath.length() - 1);
-					}
-					for (PathModel entry : entries) {
-						response.getWriter().append(MessageFormat.format(pattern, basePath, entry.name,
-								JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
-					}
-					response.getWriter().append("</tbody>");
-					response.getWriter().append("</table>");
-				} else {
+				if (pathEntries.isEmpty()) {
 					// 404
 					String custom404 = JGitUtils.getStringContent(r, tree, "404.html", encodings);
 					if (!StringUtils.isEmpty(custom404)) {
@@ -278,6 +258,34 @@ public class PagesServlet extends DaggerServlet {
 					} catch (Throwable t) {
 						logger.error("Failed to write page to client", t);
 					}
+				} else {
+					// document list
+					response.setContentType("text/html");
+					response.getWriter().append("<style>table th, table td { min-width: 150px; text-align: left; }</style>");
+					response.getWriter().append("<table>");
+					response.getWriter().append("<thead><tr><th>path</th><th>mode</th><th>size</th></tr>");
+					response.getWriter().append("</thead>");
+					response.getWriter().append("<tbody>");
+					String pattern = "<tr><td><a href=\"{0}/{1}\">{1}</a></td><td>{2}</td><td>{3}</td></tr>";
+					final ByteFormat byteFormat = new ByteFormat();
+					if (!pathEntries.isEmpty()) {
+						if (pathEntries.get(0).path.indexOf('/') > -1) {
+							// we are in a subdirectory, add parent directory link
+							pathEntries.add(0, new PathModel("..", resource + "/..", 0, FileMode.TREE.getBits(), null, null));
+						}
+					}
+
+					String basePath = request.getServletPath() + request.getPathInfo();
+					if (basePath.charAt(basePath.length() - 1) == '/') {
+						// strip trailing slash
+						basePath = basePath.substring(0, basePath.length() - 1);
+					}
+					for (PathModel entry : pathEntries) {
+						response.getWriter().append(MessageFormat.format(pattern, basePath, entry.name,
+								JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
+					}
+					response.getWriter().append("</tbody>");
+					response.getWriter().append("</table>");
 				}
 				return;
 			}
