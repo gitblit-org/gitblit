@@ -15,11 +15,6 @@
  */
 package com.gitblit.servlet;
 
-import org.eclipse.jgit.lib.Repository;
-
-import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.UserModel;
 
 /**
  * The PagesFilter is an AccessRestrictionFilter which ensures the gh-pages
@@ -28,99 +23,7 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-public class PagesFilter extends AccessRestrictionFilter {
+public class PagesFilter extends BranchFilter {
 
-	/**
-	 * Extract the repository name from the url.
-	 *
-	 * @param url
-	 * @return repository name
-	 */
-	@Override
-	protected String extractRepositoryName(String url) {
-		// get the repository name from the url by finding a known url suffix
-		String repository = "";
-		Repository r = null;
-		int offset = 0;
-		while (r == null) {
-			int slash = url.indexOf('/', offset);
-			if (slash == -1) {
-				repository = url;
-			} else {
-				repository = url.substring(0, slash);
-			}
-			r = repositoryManager.getRepository(repository, false);
-			if (r == null) {
-				// try again
-				offset = slash + 1;
-			} else {
-				// close the repo
-				r.close();
-			}
-			if (repository.equals(url)) {
-				// either only repository in url or no repository found
-				break;
-			}
-		}
-		return repository;
-	}
 
-	/**
-	 * Analyze the url and returns the action of the request.
-	 *
-	 * @param cloneUrl
-	 * @return action of the request
-	 */
-	@Override
-	protected String getUrlRequestAction(String suffix) {
-		return "VIEW";
-	}
-
-	/**
-	 * Determine if a non-existing repository can be created using this filter.
-	 *
-	 * @return true if the filter allows repository creation
-	 */
-	@Override
-	protected boolean isCreationAllowed() {
-		return false;
-	}
-
-	/**
-	 * Determine if the action may be executed on the repository.
-	 *
-	 * @param repository
-	 * @param action
-	 * @return true if the action may be performed
-	 */
-	@Override
-	protected boolean isActionAllowed(RepositoryModel repository, String action) {
-		return true;
-	}
-
-	/**
-	 * Determine if the repository requires authentication.
-	 *
-	 * @param repository
-	 * @param action
-	 * @return true if authentication required
-	 */
-	@Override
-	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
-		return repository.accessRestriction.atLeast(AccessRestrictionType.VIEW);
-	}
-
-	/**
-	 * Determine if the user can access the repository and perform the specified
-	 * action.
-	 *
-	 * @param repository
-	 * @param user
-	 * @param action
-	 * @return true if user may execute the action on the repository
-	 */
-	@Override
-	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {
-		return user.canView(repository);
-	}
 }

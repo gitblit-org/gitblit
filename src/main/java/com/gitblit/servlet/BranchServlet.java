@@ -1,0 +1,404 @@
+/*
+ * Copyright 2014 gitblit.com.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.gitblit.servlet;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.tika.Tika;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gitblit.Constants;
+import com.gitblit.dagger.DaggerServlet;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.models.PathModel;
+import com.gitblit.utils.ByteFormat;
+import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MarkdownUtils;
+import com.gitblit.utils.StringUtils;
+
+import dagger.ObjectGraph;
+
+/**
+ * Serves the content of a branch.
+ *
+ * @author James Moger
+ *
+ */
+public class BranchServlet extends DaggerServlet {
+
+	private static final long serialVersionUID = 1L;
+
+	private transient Logger logger = LoggerFactory.getLogger(BranchServlet.class);
+
+	private IRepositoryManager repositoryManager;
+
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	}
+
+	/**
+	 * Returns an url to this servlet for the specified parameters.
+	 *
+	 * @param baseURL
+	 * @param repository
+	 * @param branch
+	 * @param path
+	 * @return an url
+	 */
+	public static String asLink(String baseURL, String repository, String branch, String path) {
+		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
+			baseURL = baseURL.substring(0, baseURL.length() - 1);
+		}
+		return baseURL + Constants.BRANCH + repository + "/" + (branch == null ? "" : (branch + "/" + (path == null ? "" : (path + "/"))));
+	}
+
+	protected String getBranch(String repository, HttpServletRequest request) {
+		String pi = request.getPathInfo();
+		String branch = pi.substring(pi.indexOf(repository) + repository.length() + 1);
+		int fs = branch.indexOf('/');
+		if (fs > -1) {
+			branch = branch.substring(0, fs);
+		}
+		return branch;
+	}
+
+	protected String getPath(String repository, String branch, HttpServletRequest request) {
+		String base = repository + "/" + branch;
+		String pi = request.getPathInfo().substring(1);
+		if (pi.equals(base)) {
+			return "";
+		}
+		String path = pi.substring(pi.indexOf(base) + base.length() + 1);
+		if (path.endsWith("/")) {
+			path = path.substring(0, path.length() - 1);
+		}
+		return path;
+	}
+
+	protected boolean renderIndex() {
+		return false;
+	}
+
+	/**
+	 * Retrieves the specified resource from the specified branch of the
+	 * repository.
+	 *
+	 * @param request
+	 * @param response
+	 * @throws javax.servlet.ServletException
+	 * @throws java.io.IOException
+	 */
+	private void processRequest(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String path = request.getPathInfo();
+		if (path.toLowerCase().endsWith(".git")) {
+			// forward to url with trailing /
+			// this is important for relative pages links
+			response.sendRedirect(request.getServletPath() + path + "/");
+			return;
+		}
+		if (path.charAt(0) == '/') {
+			// strip leading /
+			path = path.substring(1);
+		}
+
+		// determine repository and resource from url
+		String repository = "";
+		Repository r = null;
+		int offset = 0;
+		while (r == null) {
+			int slash = path.indexOf('/', offset);
+			if (slash == -1) {
+				repository = path;
+			} else {
+				repository = path.substring(0, slash);
+			}
+			offset += slash;
+			r = repositoryManager.getRepository(repository, false);
+			if (repository.equals(path)) {
+				// either only repository in url or no repository found
+				break;
+			}
+		}
+
+		ServletContext context = request.getSession().getServletContext();
+
+		try {
+			if (r == null) {
+				// repository not found!
+				String mkd = MessageFormat.format(
+						"# Error\nSorry, no valid **repository** specified in this url: {0}!",
+						path);
+				error(response, mkd);
+				return;
+			}
+
+			// identify the branch
+			String branch = getBranch(repository, request);
+			if (StringUtils.isEmpty(branch)) {
+				branch = r.getBranch();
+				if (branch == null) {
+					// no branches found!  empty?
+					String mkd = MessageFormat.format(
+							"# Error\nSorry, no valid **branch** specified in this url: {0}!",
+							path);
+					error(response, mkd);
+				} else {
+					// redirect to default branch
+					String base = request.getRequestURI();
+					String url = base + branch + "/";
+					response.sendRedirect(url);
+				}
+				return;
+			}
+
+			// identify the requested path
+			String requestedPath = getPath(repository, branch, request);
+
+			// identify the commit
+			RevCommit commit = JGitUtils.getCommit(r, branch);
+			if (commit == null) {
+				// branch not found!
+				String mkd = MessageFormat.format(
+						"# Error\nSorry, the repository {0} does not have a **{1}** branch!",
+						repository, branch);
+				error(response, mkd);
+				return;
+			}
+
+
+			List<PathModel> pathEntries = JGitUtils.getFilesInPath(r, requestedPath, commit);
+			if (pathEntries.isEmpty()) {
+				// requested a specific resource
+				try {
+					String file = StringUtils.getLastPathElement(requestedPath);
+
+					// query Tika for the content type
+					Tika tika = new Tika();
+					String contentType = tika.detect(file);
+
+					if (contentType == null) {
+						// ask the container for the content type
+						contentType = context.getMimeType(requestedPath);
+
+						if (contentType == null) {
+							// still unknown content type, assume binary
+							contentType = "application/octet-stream";
+						}
+					}
+					response.setContentType(contentType);
+
+
+					if (contentType.startsWith("text/")
+							|| "application/json".equals(contentType)
+							|| "application/xml".equals(contentType)) {
+
+						// serve text content
+						String encoding = commit.getEncoding().name();
+						response.setCharacterEncoding(encoding);
+					} else {
+						// serve binary content
+						String filename = StringUtils.getLastPathElement(requestedPath);
+						try {
+					    	String userAgent = request.getHeader("User-Agent");
+							if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
+							      response.setHeader("Content-Disposition", "filename=\""
+							    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
+							} else if (userAgent != null && userAgent.indexOf("MSIE") > -1) {
+							      response.setHeader("Content-Disposition", "attachment; filename=\""
+							    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
+							} else {
+									response.setHeader("Content-Disposition", "attachment; filename=\""
+									      + new String(filename.getBytes(Constants.ENCODING), "latin1") + "\"");
+							}
+						}
+						catch (UnsupportedEncodingException e) {
+							response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+						}
+					}
+
+					// send content
+					byte [] content = JGitUtils.getByteContent(r, commit.getTree(), requestedPath, false);
+					InputStream is = new ByteArrayInputStream(content);
+					sendContent(response, JGitUtils.getCommitDate(commit), is);
+
+					return;
+				} catch (Exception e) {
+					logger.error(null, e);
+				}
+			} else {
+				// path request
+				if (!request.getPathInfo().endsWith("/")) {
+					// redirect to trailing '/' url
+					response.sendRedirect(request.getServletPath() + request.getPathInfo() + "/");
+					return;
+				}
+
+				if (renderIndex()) {
+					// locate and render an index file
+					Map<String, String> names = new TreeMap<String, String>();
+					for (PathModel entry : pathEntries) {
+						names.put(entry.name.toLowerCase(), entry.name);
+					}
+
+					List<String> extensions = new ArrayList<String>();
+					extensions.add("html");
+					extensions.add("htm");
+
+					String content = null;
+					for (String ext : extensions) {
+						String key = "index." + ext;
+
+						if (names.containsKey(key)) {
+							String fileName = names.get(key);
+							String fullPath = fileName;
+							if (!requestedPath.isEmpty()) {
+								fullPath = requestedPath + "/" + fileName;
+							}
+
+							String encoding = commit.getEncoding().name();
+							String stringContent = JGitUtils.getStringContent(r, commit.getTree(), fullPath, encoding);
+							if (stringContent == null) {
+								continue;
+							}
+							content = stringContent;
+							requestedPath = fullPath;
+							break;
+						}
+					}
+
+					response.setContentType("text/html; charset=" + Constants.ENCODING);
+					byte [] bytes = content.getBytes(Constants.ENCODING);
+
+					ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+					sendContent(response, JGitUtils.getCommitDate(commit), is);
+					return;
+				}
+			}
+
+			// no content, document list or 404 page
+			if (pathEntries.isEmpty()) {
+				// default 404 page
+				String str = MessageFormat.format(
+						"# Error\nSorry, the requested resource **{0}** was not found.",
+						requestedPath);
+				String content = MarkdownUtils.transformMarkdown(str);
+
+				try {
+					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+
+					byte [] bytes = content.getBytes(Constants.ENCODING);
+					ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+					sendContent(response, new Date(), is);
+					return;
+				} catch (Throwable t) {
+					logger.error("Failed to write page to client", t);
+				}
+			} else {
+				//
+				// directory list
+				//
+				response.setContentType("text/html");
+				response.getWriter().append("<style>table th, table td { min-width: 150px; text-align: left; }</style>");
+				response.getWriter().append("<table>");
+				response.getWriter().append("<thead><tr><th>path</th><th>mode</th><th>size</th></tr>");
+				response.getWriter().append("</thead>");
+				response.getWriter().append("<tbody>");
+				String pattern = "<tr><td><a href=\"{0}/{1}\">{1}</a></td><td>{2}</td><td>{3}</td></tr>";
+				final ByteFormat byteFormat = new ByteFormat();
+				if (!pathEntries.isEmpty()) {
+					if (pathEntries.get(0).path.indexOf('/') > -1) {
+						// we are in a subdirectory, add parent directory link
+						String pp = URLEncoder.encode(requestedPath, Constants.ENCODING);
+						pathEntries.add(0, new PathModel("..", pp + "/..", 0, FileMode.TREE.getBits(), null, null));
+					}
+				}
+
+				String basePath = request.getServletPath() + request.getPathInfo();
+				if (basePath.charAt(basePath.length() - 1) == '/') {
+					// strip trailing slash
+					basePath = basePath.substring(0, basePath.length() - 1);
+				}
+				for (PathModel entry : pathEntries) {
+					String pp = URLEncoder.encode(entry.name, Constants.ENCODING);
+					response.getWriter().append(MessageFormat.format(pattern, basePath, pp,
+							JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
+				}
+				response.getWriter().append("</tbody>");
+				response.getWriter().append("</table>");
+			}
+		} catch (Throwable t) {
+			logger.error("Failed to write page to client", t);
+		} finally {
+			r.close();
+		}
+	}
+
+	private void sendContent(HttpServletResponse response, Date date, InputStream is) throws ServletException, IOException {
+		response.setDateHeader("Last-Modified", date.getTime());
+		response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+		try {
+			byte[] tmp = new byte[8192];
+			int len = 0;
+			while ((len = is.read(tmp)) > -1) {
+				response.getOutputStream().write(tmp, 0, len);
+			}
+		} finally {
+			is.close();
+		}
+		response.flushBuffer();
+	}
+
+	private void error(HttpServletResponse response, String mkd) throws ServletException,
+			IOException, ParseException {
+		String content = MarkdownUtils.transformMarkdown(mkd);
+		response.setContentType("text/html; charset=" + Constants.ENCODING);
+		response.getWriter().write(content);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		processRequest(request, response);
+	}
+
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		processRequest(request, response);
+	}
+}
