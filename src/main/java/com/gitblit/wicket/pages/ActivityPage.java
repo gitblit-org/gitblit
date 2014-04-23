@@ -32,14 +32,14 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import com.gitblit.Keys;
 import com.gitblit.models.Activity;
 import com.gitblit.models.Menu.ParameterMenuItem;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.models.Metric;
+import com.gitblit.models.NavLink;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
-import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
@@ -135,8 +135,8 @@ public class ActivityPage extends RootPage {
 	}
 
 	@Override
-	protected void addDropDownMenus(List<PageRegistration> pages) {
-		DropDownMenuRegistration filters = new DropDownMenuRegistration("gb.filters",
+	protected void addDropDownMenus(List<NavLink> navLinks) {
+		DropDownPageMenuNavLink filters = new DropDownPageMenuNavLink("gb.filters",
 				ActivityPage.class);
 
 		PageParameters currentParameters = getPageParameters();
@@ -155,7 +155,7 @@ public class ActivityPage extends RootPage {
 			// Reset Filter
 			filters.menuItems.add(new ParameterMenuItem(getString("gb.reset")));
 		}
-		pages.add(filters);
+		navLinks.add(filters);
 	}
 
 	/**

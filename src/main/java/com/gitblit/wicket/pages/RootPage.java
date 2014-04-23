@@ -50,6 +50,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
+import com.gitblit.extensions.NavLinkExtension;
 import com.gitblit.extensions.UserMenuExtension;
 import com.gitblit.models.Menu.ExternalLinkMenuItem;
 import com.gitblit.models.Menu.MenuDivider;
@@ -57,13 +58,14 @@ import com.gitblit.models.Menu.MenuItem;
 import com.gitblit.models.Menu.PageLinkMenuItem;
 import com.gitblit.models.Menu.ParameterMenuItem;
 import com.gitblit.models.Menu.ToggleMenuItem;
+import com.gitblit.models.NavLink;
+import com.gitblit.models.NavLink.PageNavLink;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.GravatarImage;
@@ -174,50 +176,37 @@ public abstract class RootPage extends BasePage {
 		}
 
 		// navigation links
-		List<PageRegistration> pages = new ArrayList<PageRegistration>();
+		List<NavLink> navLinks = new ArrayList<NavLink>();
 		if (!authenticateView || (authenticateView && isLoggedIn)) {
-			pages.add(new PageRegistration(isLoggedIn ? "gb.myDashboard" : "gb.dashboard", MyDashboardPage.class,
+			navLinks.add(new PageNavLink(isLoggedIn ? "gb.myDashboard" : "gb.dashboard", MyDashboardPage.class,
 					getRootPageParameters()));
 			if (isLoggedIn && app().tickets().isReady()) {
-				pages.add(new PageRegistration("gb.myTickets", MyTicketsPage.class));
+				navLinks.add(new PageNavLink("gb.myTickets", MyTicketsPage.class));
 			}
-			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
+			navLinks.add(new PageNavLink("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
-			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
+			navLinks.add(new PageNavLink("gb.activity", ActivityPage.class, getRootPageParameters()));
 			if (allowLucene) {
-				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
-			}
-
-			UserModel user = GitBlitWebSession.get().getUser();
-
-			if (showAdmin) {
-				// admin dropdown menu
-				DropDownMenuRegistration adminMenu = new DropDownMenuRegistration("gb.adminMenuItem", MyDashboardPage.class);
-
-				adminMenu.menuItems.add(new PageLinkMenuItem(getString("gb.users"), UsersPage.class));
-
-				boolean showRegistrations = app().federation().canFederate()
-						&& app().settings().getBoolean(Keys.web.showFederationRegistrations, false);
-				if (showRegistrations) {
-					adminMenu.menuItems.add(new PageLinkMenuItem(getString("gb.federation"), FederationPage.class));
-				}
-
-				// allow plugins to contribute admin menu items
-				List<AdminMenuExtension> extensions = app().plugins().getExtensions(AdminMenuExtension.class);
-				for (AdminMenuExtension ext : extensions) {
-					adminMenu.menuItems.add(new MenuDivider());
-					adminMenu.menuItems.addAll(ext.getMenuItems(user));
-				}
-
-				pages.add(adminMenu);
+				navLinks.add(new PageNavLink("gb.search", LuceneSearchPage.class));
 			}
 
 			if (!authenticateView || (authenticateView && isLoggedIn)) {
-				addDropDownMenus(pages);
+				addDropDownMenus(navLinks);
+			}
+
+			UserModel user = UserModel.ANONYMOUS;
+			if (isLoggedIn) {
+				user = GitBlitWebSession.get().getUser();
+			}
+
+			// add nav link extensions
+			List<NavLinkExtension> extensions = app().plugins().getExtensions(NavLinkExtension.class);
+			for (NavLinkExtension ext : extensions) {
+				navLinks.addAll(ext.getNavLinks(user));
 			}
 		}
 
-		NavigationPanel navPanel = new NavigationPanel("navPanel", getRootNavPageClass(), pages);
+		NavigationPanel navPanel = new NavigationPanel("navPanel", getRootNavPageClass(), navLinks);
 		add(navPanel);
 
 		// display an error message cached from a redirect
@@ -309,7 +298,7 @@ public abstract class RootPage extends BasePage {
 		return repositoryModels;
 	}
 
-	protected void addDropDownMenus(List<PageRegistration> pages) {
+	protected void addDropDownMenus(List<NavLink> navLinks) {
 
 	}
 

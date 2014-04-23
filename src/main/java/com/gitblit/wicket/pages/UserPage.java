@@ -30,6 +30,8 @@ import org.eclipse.jgit.lib.PersonIdent;
 
 import com.gitblit.Keys;
 import com.gitblit.models.Menu.ParameterMenuItem;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
+import com.gitblit.models.NavLink;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -37,8 +39,6 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
-import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -127,10 +127,10 @@ public class UserPage extends RootPage {
 	}
 
 	@Override
-	protected void addDropDownMenus(List<PageRegistration> pages) {
+	protected void addDropDownMenus(List<NavLink> navLinks) {
 		PageParameters params = getPageParameters();
 
-		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
+		DropDownPageMenuNavLink menu = new DropDownPageMenuNavLink("gb.filters",
 				UserPage.class);
 		// preserve time filter option on repository choices
 		menu.menuItems.addAll(getRepositoryFilterItems(params));
@@ -143,6 +143,6 @@ public class UserPage extends RootPage {
 			menu.menuItems.add(new ParameterMenuItem(getString("gb.reset")));
 		}
 
-		pages.add(menu);
+		navLinks.add(menu);
 	}
 }
