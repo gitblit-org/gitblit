@@ -37,7 +37,9 @@ import org.eclipse.jgit.lib.Repository;
 import com.gitblit.Keys;
 import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.Menu.ParameterMenuItem;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.models.Metric;
+import com.gitblit.models.NavLink;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
@@ -46,8 +48,6 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
-import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.charting.Chart;
 import com.gitblit.wicket.charting.Charts;
 import com.gitblit.wicket.charting.Flotr2Charts;
@@ -141,10 +141,10 @@ public abstract class DashboardPage extends RootPage {
 	}
 
 	@Override
-	protected void addDropDownMenus(List<PageRegistration> pages) {
+	protected void addDropDownMenus(List<NavLink> navLinks) {
 		PageParameters params = getPageParameters();
 
-		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
+		DropDownPageMenuNavLink menu = new DropDownPageMenuNavLink("gb.filters",
 				GitBlitWebApp.get().getHomePage());
 
 		// preserve repository filter option on time choices
@@ -155,7 +155,7 @@ public abstract class DashboardPage extends RootPage {
 			menu.menuItems.add(new ParameterMenuItem(getString("gb.reset")));
 		}
 
-		pages.add(menu);
+		navLinks.add(menu);
 	}
 
 

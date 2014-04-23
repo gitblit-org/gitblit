@@ -28,8 +28,12 @@ import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 
+import ro.fortsoft.pf4j.PluginState;
+import ro.fortsoft.pf4j.PluginWrapper;
+
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.extensions.GitblitWicketPlugin;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
@@ -82,7 +86,7 @@ import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
 
-public class GitBlitWebApp extends WebApplication {
+public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final Class<? extends WebPage> homePageClass = MyDashboardPage.class;
 
@@ -207,11 +211,29 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/forks", ForksPage.class, "r");
 		mount("/fork", ForkPage.class, "r");
 
+		// allow started Wicket plugins to initialize
+		for (PluginWrapper pluginWrapper : pluginManager.getPlugins()) {
+			if (PluginState.STARTED != pluginWrapper.getPluginState()) {
+				continue;
+			}
+			if (pluginWrapper.getPlugin() instanceof GitblitWicketPlugin) {
+				GitblitWicketPlugin wicketPlugin = (GitblitWicketPlugin) pluginWrapper.getPlugin();
+				wicketPlugin.init(this);
+			}
+		}
+
+		 // customize the Wicket class resolver to load from plugins
+        PluginClassResolver classResolver = new PluginClassResolver(pluginManager);
+        getApplicationSettings().setClassResolver(classResolver);
+
 		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
-		super.init();
 	}
 
-	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#mount(java.lang.String, java.lang.Class, java.lang.String)
+	 */
+	@Override
+	public void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
 		if (parameters == null) {
 			parameters = new String[] {};
 		}
@@ -227,15 +249,26 @@ public class GitBlitWebApp extends WebApplication {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getHomePage()
+	 */
 	@Override
 	public Class<? extends WebPage> getHomePage() {
 		return homePageClass;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#isCacheablePage(java.lang.String)
+	 */
+	@Override
 	public boolean isCacheablePage(String mountPoint) {
 		return cacheablePages.containsKey(mountPoint);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getCacheControl(java.lang.String)
+	 */
+	@Override
 	public CacheControl getCacheControl(String mountPoint) {
 		return cacheablePages.get(mountPoint);
 	}
@@ -251,15 +284,18 @@ public class GitBlitWebApp extends WebApplication {
 		return gitBlitWebSession;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#settings()
+	 */
+	@Override
 	public IStoredSettings settings() {
 		return settings;
 	}
 
-	/**
-	 * Is Gitblit running in debug mode?
-	 *
-	 * @return true if Gitblit is running in debug mode
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#isDebugMode()
 	 */
+	@Override
 	public boolean isDebugMode() {
 		return runtimeManager.isDebugMode();
 	}
@@ -268,58 +304,114 @@ public class GitBlitWebApp extends WebApplication {
 	 * These methods look strange... and they are... but they are the first
 	 * step towards modularization across multiple commits.
 	 */
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getBootDate()
+	 */
+	@Override
 	public Date getBootDate() {
 		return runtimeManager.getBootDate();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getLastActivityDate()
+	 */
+	@Override
 	public Date getLastActivityDate() {
 		return repositoryManager.getLastActivityDate();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#runtime()
+	 */
+	@Override
 	public IRuntimeManager runtime() {
 		return runtimeManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#plugins()
+	 */
+	@Override
 	public IPluginManager plugins() {
 		return pluginManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#notifier()
+	 */
+	@Override
 	public INotificationManager notifier() {
 		return notificationManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#users()
+	 */
+	@Override
 	public IUserManager users() {
 		return userManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#authentication()
+	 */
+	@Override
 	public IAuthenticationManager authentication() {
 		return authenticationManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#keys()
+	 */
+	@Override
 	public IPublicKeyManager keys() {
 		return publicKeyManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#repositories()
+	 */
+	@Override
 	public IRepositoryManager repositories() {
 		return repositoryManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#projects()
+	 */
+	@Override
 	public IProjectManager projects() {
 		return projectManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#federation()
+	 */
+	@Override
 	public IFederationManager federation() {
 		return federationManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#gitblit()
+	 */
+	@Override
 	public IGitblit gitblit() {
 		return gitblit;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#tickets()
+	 */
+	@Override
 	public ITicketService tickets() {
 		return gitblit.getTicketService();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getTimezone()
+	 */
+	@Override
 	public TimeZone getTimezone() {
 		return runtimeManager.getTimezone();
 	}

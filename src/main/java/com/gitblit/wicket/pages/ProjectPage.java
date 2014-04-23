@@ -29,6 +29,8 @@ import com.gitblit.Keys;
 import com.gitblit.models.Menu.MenuDivider;
 import com.gitblit.models.Menu.MenuItem;
 import com.gitblit.models.Menu.ParameterMenuItem;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
+import com.gitblit.models.NavLink;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -40,8 +42,6 @@ import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
-import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.FilterableRepositoryList;
 
@@ -161,10 +161,10 @@ public class ProjectPage extends DashboardPage {
 	}
 
 	@Override
-	protected void addDropDownMenus(List<PageRegistration> pages) {
+	protected void addDropDownMenus(List<NavLink> navLinks) {
 		PageParameters params = getPageParameters();
 
-		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
+		DropDownPageMenuNavLink menu = new DropDownPageMenuNavLink("gb.filters",
 				ProjectPage.class);
 		// preserve time filter option on repository choices
 		menu.menuItems.addAll(getRepositoryFilterItems(params));
@@ -177,12 +177,12 @@ public class ProjectPage extends DashboardPage {
 			menu.menuItems.add(new ParameterMenuItem(getString("gb.reset"), "p", WicketUtils.getProjectName(params)));
 		}
 
-		pages.add(menu);
+		navLinks.add(menu);
 
-		DropDownMenuRegistration projects = new DropDownMenuRegistration("gb.projects",
+		DropDownPageMenuNavLink projects = new DropDownPageMenuNavLink("gb.projects",
 				ProjectPage.class);
 		projects.menuItems.addAll(getProjectsMenu());
-		pages.add(projects);
+		navLinks.add(projects);
 	}
 
 	@Override

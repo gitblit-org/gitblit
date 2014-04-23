@@ -21,24 +21,24 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.models.Menu.MenuDivider;
 import com.gitblit.models.Menu.ExternalLinkMenuItem;
+import com.gitblit.models.Menu.MenuDivider;
 import com.gitblit.models.Menu.MenuItem;
 import com.gitblit.models.Menu.PageLinkMenuItem;
 import com.gitblit.models.Menu.ParameterMenuItem;
-import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
+import com.gitblit.models.NavLink.DropDownMenuNavLink;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.wicket.WicketUtils;
 
 public class DropDownMenu extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	public DropDownMenu(String id, String label, final DropDownMenuRegistration menu) {
+	public DropDownMenu(String id, String label, final DropDownPageMenuNavLink menu) {
 		super(id);
 
 		add(new Label("label", label).setRenderBodyOnly(true));
-		ListDataProvider<MenuItem> items = new ListDataProvider<MenuItem>(
-				menu.menuItems);
+		ListDataProvider<MenuItem> items = new ListDataProvider<MenuItem>(menu.menuItems);
 		DataView<MenuItem> view = new DataView<MenuItem>("menuItems", items) {
 			private static final long serialVersionUID = 1L;
 
@@ -70,6 +70,41 @@ public class DropDownMenu extends Panel {
 					}
 					item.add(new LinkPanel("menuItem", icon, null, entry.toString(), menu.pageClass,
 							parameter.getPageParameters(), false).setRenderBodyOnly(true));
+				}
+			}
+		};
+		add(view);
+		setRenderBodyOnly(true);
+	}
+
+	public DropDownMenu(String id, String label, final DropDownMenuNavLink menu) {
+		super(id);
+
+		add(new Label("label", label).setRenderBodyOnly(true));
+		ListDataProvider<MenuItem> items = new ListDataProvider<MenuItem>(menu.menuItems);
+		DataView<MenuItem> view = new DataView<MenuItem>("menuItems", items) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void populateItem(final Item<MenuItem> item) {
+				MenuItem entry = item.getModelObject();
+				if (entry instanceof PageLinkMenuItem) {
+					// link to another Wicket page
+					PageLinkMenuItem pageLink = (PageLinkMenuItem) entry;
+					item.add(new LinkPanel("menuItem", null, null, pageLink.toString(), pageLink.getPageClass(),
+							pageLink.getPageParameters(), false).setRenderBodyOnly(true));
+				} else if (entry instanceof ExternalLinkMenuItem) {
+					// link to a specified href
+					ExternalLinkMenuItem extLink = (ExternalLinkMenuItem) entry;
+					item.add(new LinkPanel("menuItem", null, extLink.toString(), extLink.getHref(),
+							extLink.openInNewWindow()).setRenderBodyOnly(true));
+				} else if (entry instanceof MenuDivider) {
+					// divider
+					item.add(new Label("menuItem").setRenderBodyOnly(true));
+					WicketUtils.setCssClass(item, "divider");
+				} else {
+					throw new IllegalArgumentException(String.format("Unexpected menuitem type %s",
+							entry.getClass().getSimpleName()));
 				}
 			}
 		};

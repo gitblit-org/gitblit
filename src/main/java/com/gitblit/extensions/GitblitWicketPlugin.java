@@ -15,26 +15,35 @@
  */
 package com.gitblit.extensions;
 
-import java.util.List;
+import org.apache.wicket.Application;
+import org.apache.wicket.IInitializer;
 
-import ro.fortsoft.pf4j.ExtensionPoint;
+import ro.fortsoft.pf4j.PluginWrapper;
 
-import com.gitblit.models.Menu.MenuItem;
-import com.gitblit.models.UserModel;
+import com.gitblit.wicket.GitblitWicketApp;
 
 /**
- * Extension point to contribute administration menu items.
+ * A Gitblit plugin that is allowed to extend the Wicket webapp.
  *
  * @author James Moger
  * @since 1.6.0
- *
  */
-public abstract class AdminMenuExtension implements ExtensionPoint {
+public abstract class GitblitWicketPlugin extends GitblitPlugin implements IInitializer  {
+
+	public GitblitWicketPlugin(PluginWrapper wrapper) {
+		super(wrapper);
+	}
+
+	@Override
+	public final void init(Application application) {
+		init((GitblitWicketApp) application);
+	}
 
 	/**
-	 * @param user
+	 * Allows plugins to extend the web application.
+	 *
+	 * @param app
 	 * @since 1.6.0
-	 * @return a list of menu items
 	 */
-	public abstract List<MenuItem> getMenuItems(UserModel user);
+	protected abstract void init(GitblitWicketApp app);
 }
