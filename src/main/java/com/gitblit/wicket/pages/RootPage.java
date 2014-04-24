@@ -172,13 +172,12 @@ public abstract class RootPage extends BasePage {
 		if (!authenticateView || (authenticateView && isLoggedIn)) {
 			pages.add(new PageRegistration(isLoggedIn ? "gb.myDashboard" : "gb.dashboard", MyDashboardPage.class,
 					getRootPageParameters()));
+			if (isLoggedIn && app().tickets().isReady()) {
+				pages.add(new PageRegistration("gb.mytickets", MyTicketsPage.class));
+			}
 			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
 			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
-			if(isLoggedIn)
-			{
-				pages.add(new PageRegistration("gb.mytickets", MyTicketsPage.class, getRootPageParameters()));
-			}
 			if (allowLucene) {
 				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
 			}
