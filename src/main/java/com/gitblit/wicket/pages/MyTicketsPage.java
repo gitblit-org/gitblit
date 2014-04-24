@@ -21,9 +21,9 @@ import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
-import com.gitblit.models.UserModel;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.TicketModel.Type;
+import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.QueryBuilder;
 import com.gitblit.tickets.QueryResult;
@@ -42,24 +42,24 @@ public class MyTicketsPage extends RootPage {
 	public static final String [] openStatii = new String [] { Status.New.name().toLowerCase(), Status.Open.name().toLowerCase() };
 
 	public static final String [] closedStatii = new String [] { "!" + Status.New.name().toLowerCase(), "!" + Status.Open.name().toLowerCase() };
-	
+
 	public MyTicketsPage()
 	{
-		this(null);	
+		this(null);
 	}
-	
+
 	public MyTicketsPage(PageParameters params)
 	{
 		super(params);
 		setupPage("", getString("gb.mytickets"));
-		
+
 		UserModel currentUser = GitBlitWebSession.get().getUser();
 		if (currentUser == null) {
 			setRedirect(true);
 			setResponsePage(getApplication().getHomePage());
 			return;
 		}
-		
+
 		final String username = currentUser.getName();
 		final String[] statiiParam = (params == null) ? openStatii : params.getStringArray(Lucene.status.name());
 		final String assignedToParam = (params == null) ? "" : params.getString(Lucene.responsible.name(), null);
@@ -68,12 +68,12 @@ public class MyTicketsPage extends RootPage {
 		final String searchParam = (params == null) ? "" : params.getString("s", null);
 		final String sortBy = (params == null) ? "" : Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
 		final boolean desc = (params == null) ? true : !"asc".equals(params.getString("direction", "desc"));
-		
+
 		// add search form
 		TicketSearchForm searchForm = new TicketSearchForm("ticketSearchForm", searchParam);
 		add(searchForm);
 		searchForm.setTranslatedAttributes();
-		
+
 		// standard queries
 		add(new BookmarkablePageLink<Void>("changesQuery", MyTicketsPage.class,
 				queryParameters(
@@ -164,7 +164,7 @@ public class MyTicketsPage extends RootPage {
 						sortBy,
 						desc,
 						1)));
-						
+
 		// states
 		if (ArrayUtils.isEmpty(statiiParam)) {
 			add(new Label("selectedStatii", getString("gb.all")));
@@ -174,7 +174,7 @@ public class MyTicketsPage extends RootPage {
 		add(new BookmarkablePageLink<Void>("openTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, openStatii, assignedToParam, sortBy, desc, 1)));
 		add(new BookmarkablePageLink<Void>("closedTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, closedStatii, assignedToParam, sortBy, desc, 1)));
 		add(new BookmarkablePageLink<Void>("allTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, null, assignedToParam, sortBy, desc, 1)));
-		
+
 		// by status
 		List<Status> statii = new ArrayList<Status>(Arrays.asList(Status.values()));
 		statii.remove(Status.Closed);
@@ -225,17 +225,9 @@ public class MyTicketsPage extends RootPage {
 			}
 		};
 		add(sortMenu);
-		
+
 		// Build Query here
 		QueryBuilder qb = new QueryBuilder(queryParam);
-		if (!qb.containsField(Lucene.responsible.name())) {
-			// specify the responsible
-			qb.and(Lucene.responsible.matches(assignedToParam));
-		}
-		if (!qb.containsField(Lucene.milestone.name())) {
-			// specify the milestone
-			qb.and(Lucene.milestone.matches(milestoneParam));
-		}
 		if (!qb.containsField(Lucene.status.name()) && !ArrayUtils.isEmpty(statiiParam)) {
 			// specify the states
 			boolean not = false;
@@ -254,12 +246,27 @@ public class MyTicketsPage extends RootPage {
 				qb.and(q.toSubquery().toString());
 			}
 		}
-		final String luceneQuery = qb.build();
-		
+
+		final String luceneQuery;
+		if (qb.containsField(Lucene.createdby.name())
+				|| qb.containsField(Lucene.responsible.name())
+				|| qb.containsField(Lucene.watchedby.name())) {
+			// focused "my tickets" query
+			luceneQuery = qb.build();
+		} else {
+			// general "my tickets" query
+			QueryBuilder myQuery = new QueryBuilder();
+			myQuery.or(Lucene.createdby.matches(username));
+			myQuery.or(Lucene.responsible.matches(username));
+			myQuery.or(Lucene.watchedby.matches(username));
+			myQuery.and(qb.toSubquery().toString());
+			luceneQuery = myQuery.build();
+		}
+
 		// paging links
 		int page = (params != null) ? Math.max(1, WicketUtils.getPage(params)) : 1;
 		int pageSize = app().settings().getInteger(Keys.tickets.perPage, 25);
-		
+
 		ITicketService tickets = GitBlitWebApp.get().tickets();
 		List<QueryResult> results;
 		if(StringUtils.isEmpty(searchParam))
@@ -272,9 +279,9 @@ public class MyTicketsPage extends RootPage {
 		}
 		int totalResults = results.size() == 0 ? 0 : results.get(0).totalResults;
 		buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, page, pageSize, results.size(), totalResults);
-		
+
 		final ListDataProvider<QueryResult> dp = new ListDataProvider<QueryResult>(results);
-		
+
 		DataView<QueryResult> dataView = new DataView<QueryResult>("row", dp) {
 			private static final long serialVersionUID = 1L;
 
@@ -282,15 +289,15 @@ public class MyTicketsPage extends RootPage {
 			protected void populateItem(Item<QueryResult> item) {
 				QueryResult ticket = item.getModelObject();
 				RepositoryModel repository = app().repositories().getRepositoryModel(ticket.repository);
-				
+
 				Component swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
 				WicketUtils.setCssBackground(swatch, repository.toString());
 				item.add(swatch);
-				
+
 				PageParameters rp = WicketUtils.newRepositoryParameter(ticket.repository);
 				PageParameters tp = WicketUtils.newObjectParameter(ticket.repository, "" + ticket.number);
 				item.add(new LinkPanel("repositoryName", "list", StringUtils.stripDotGit(ticket.repository), SummaryPage.class, rp));
-				
+
 				item.add(getStateIcon("ticketIcon", ticket.type, ticket.status));
 				item.add(new Label("ticketNumber", "" + ticket.number));
 				item.add(new LinkPanel("ticketTitle", "list", ticket.title, TicketsPage.class, tp));
@@ -304,7 +311,7 @@ public class MyTicketsPage extends RootPage {
 				String statusClass = getStatusClass(ticket.status);
 				WicketUtils.setCssClass(ticketStatus, statusClass);
 				item.add(ticketStatus);
-				
+
 				UserModel responsible = app().users().getUserModel(ticket.responsible);
 				if (responsible == null) {
 					if (ticket.responsible == null) {
@@ -319,10 +326,10 @@ public class MyTicketsPage extends RootPage {
 				}
 			}
 		};
-		
+
 		add(dataView);
 	}
-	
+
 	protected Label getStateIcon(String wicketId, TicketModel ticket) {
 		return getStateIcon(wicketId, ticket.type, ticket.status);
 	}
