@@ -6,18 +6,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.Constants;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
@@ -28,7 +31,9 @@ import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.QueryBuilder;
 import com.gitblit.tickets.QueryResult;
 import com.gitblit.tickets.TicketIndexer.Lucene;
+import com.gitblit.tickets.TicketLabel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -68,6 +73,9 @@ public class MyTicketsPage extends RootPage {
 		final String searchParam = (params == null) ? "" : params.getString("s", null);
 		final String sortBy = (params == null) ? "" : Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
 		final boolean desc = (params == null) ? true : !"asc".equals(params.getString("direction", "desc"));
+
+		add(new GravatarImage("userGravatar", currentUser, "gravatar", 36, false));
+		add(new Label("userDisplayName", currentUser.getDisplayName()));
 
 		// add search form
 		TicketSearchForm searchForm = new TicketSearchForm("ticketSearchForm", searchParam);
@@ -280,6 +288,7 @@ public class MyTicketsPage extends RootPage {
 		int totalResults = results.size() == 0 ? 0 : results.get(0).totalResults;
 		buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, page, pageSize, results.size(), totalResults);
 
+		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
 		final ListDataProvider<QueryResult> dp = new ListDataProvider<QueryResult>(results);
 
 		DataView<QueryResult> dataView = new DataView<QueryResult>("row", dp) {
@@ -287,43 +296,168 @@ public class MyTicketsPage extends RootPage {
 
 			@Override
 			protected void populateItem(Item<QueryResult> item) {
-				QueryResult ticket = item.getModelObject();
-				RepositoryModel repository = app().repositories().getRepositoryModel(ticket.repository);
+				final QueryResult ticket = item.getModelObject();
+				final RepositoryModel repository = app().repositories().getRepositoryModel(ticket.repository);
 
-				Component swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
-				WicketUtils.setCssBackground(swatch, repository.toString());
-				item.add(swatch);
+				if (showSwatch) {
+					// set repository color
+					String color = StringUtils.getColor(StringUtils.stripDotGit(repository.name));
+					WicketUtils.setCssStyle(item, MessageFormat.format("border-left: 2px solid {0};", color));
+				}
 
 				PageParameters rp = WicketUtils.newRepositoryParameter(ticket.repository);
 				PageParameters tp = WicketUtils.newObjectParameter(ticket.repository, "" + ticket.number);
-				item.add(new LinkPanel("repositoryName", "list", StringUtils.stripDotGit(ticket.repository), SummaryPage.class, rp));
+				item.add(new LinkPanel("repositoryLink", null, StringUtils.stripDotGit(ticket.repository), SummaryPage.class, rp));
 
-				item.add(getStateIcon("ticketIcon", ticket.type, ticket.status));
-				item.add(new Label("ticketNumber", "" + ticket.number));
-				item.add(new LinkPanel("ticketTitle", "list", ticket.title, TicketsPage.class, tp));
+				item.add(getStateIcon("state", ticket.type, ticket.status));
+				item.add(new Label("id", "" + ticket.number));
+				UserModel creator = app().users().getUserModel(ticket.createdBy);
+				if (creator != null) {
+					item.add(new LinkPanel("createdBy", null, creator.getDisplayName(),
+						UserPage.class, WicketUtils.newUsernameParameter(ticket.createdBy)));
+				} else {
+					item.add(new Label("createdBy", ticket.createdBy));
+				}
+				item.add(WicketUtils.createDateLabel("createDate", ticket.createdAt, GitBlitWebSession
+						.get().getTimezone(), getTimeUtils(), false));
+
+				if (ticket.updatedAt == null) {
+					item.add(new Label("updated").setVisible(false));
+				} else {
+					Fragment updated = new Fragment("updated", "updatedFragment", this);
+					UserModel updater = app().users().getUserModel(ticket.updatedBy);
+					if (updater != null) {
+						updated.add(new LinkPanel("updatedBy", null, updater.getDisplayName(),
+								UserPage.class, WicketUtils.newUsernameParameter(ticket.updatedBy)));
+					} else {
+						updated.add(new Label("updatedBy", ticket.updatedBy));
+					}
+					updated.add(WicketUtils.createDateLabel("updateDate", ticket.updatedAt, GitBlitWebSession
+							.get().getTimezone(), getTimeUtils(), false));
+					item.add(updated);
+				}
+
+				item.add(new LinkPanel("title", "list subject", StringUtils.trimString(
+						ticket.title, Constants.LEN_SHORTLOG), TicketsPage.class, tp));
+
+				ListDataProvider<String> labelsProvider = new ListDataProvider<String>(ticket.getLabels());
+				DataView<String> labelsView = new DataView<String>("labels", labelsProvider) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void populateItem(final Item<String> labelItem) {
+						BugtraqProcessor btp  = new BugtraqProcessor(app().settings());
+						Repository db = app().repositories().getRepository(repository.name);
+						String content = btp.processPlainCommitMessage(db, repository.name, labelItem.getModelObject());
+						db.close();
+						Label label = new Label("label", content);
+						label.setEscapeModelStrings(false);
+						TicketLabel tLabel = app().tickets().getLabel(repository, labelItem.getModelObject());
+						String background = MessageFormat.format("background-color:{0};", tLabel.color);
+						label.add(new SimpleAttributeModifier("style", background));
+						labelItem.add(label);
+					}
+				};
+				item.add(labelsView);
+
+				if (StringUtils.isEmpty(ticket.responsible)) {
+					item.add(new Label("responsible").setVisible(false));
+				} else {
+					UserModel responsible = app().users().getUserModel(ticket.responsible);
+					if (responsible == null) {
+						responsible = new UserModel(ticket.responsible);
+					}
+					GravatarImage avatar = new GravatarImage("responsible", responsible.getDisplayName(),
+							responsible.emailAddress, null, 16, true);
+					avatar.setTooltip(getString("gb.responsible") + ": " + responsible.getDisplayName());
+					item.add(avatar);
+				}
 
 				// votes indicator
-				Label v = new Label("ticketVotes", "" + ticket.votesCount);
+				Label v = new Label("votes", "" + ticket.votesCount);
 				WicketUtils.setHtmlTooltip(v, getString("gb.votes"));
 				item.add(v.setVisible(ticket.votesCount > 0));
 
-				Label ticketStatus = new Label("ticketStatus", ticket.status.toString());
-				String statusClass = getStatusClass(ticket.status);
-				WicketUtils.setCssClass(ticketStatus, statusClass);
-				item.add(ticketStatus);
+				// watching indicator
+				item.add(new Label("watching").setVisible(ticket.isWatching(GitBlitWebSession.get().getUsername())));
 
-				UserModel responsible = app().users().getUserModel(ticket.responsible);
-				if (responsible == null) {
-					if (ticket.responsible == null) {
-						item.add(new Label("ticketResponsibleImg").setVisible(false));
-					} else {
-						item.add(new GravatarImage("ticketResponsibleImg", ticket.responsible, ticket.responsible, null, 16, true));
+				// status indicator
+				String css = getLozengeClass(ticket.status, true);
+				Label l = new Label("status", ticket.status.toString());
+				WicketUtils.setCssClass(l, css);
+				item.add(l);
+
+				// add the ticket indicators/icons
+				List<Indicator> indicators = new ArrayList<Indicator>();
+
+				// comments
+				if (ticket.commentsCount > 0) {
+					int count = ticket.commentsCount;
+					String pattern = "gb.nComments";
+					if (count == 1) {
+						pattern = "gb.oneComment";
 					}
-					item.add(new Label("ticketResponsible", ticket.responsible));
-				} else {
-					item.add(new GravatarImage("ticketResponsibleImg", responsible, null, 16, true));
-					item.add(new LinkPanel("ticketResponsible", null, responsible.getDisplayName(), UserPage.class, WicketUtils.newUsernameParameter(ticket.responsible)));
+					indicators.add(new Indicator("fa fa-comment", count, pattern));
 				}
+
+				// participants
+				if (!ArrayUtils.isEmpty(ticket.participants)) {
+					int count = ticket.participants.size();
+					if (count > 1) {
+						String pattern = "gb.nParticipants";
+						indicators.add(new Indicator("fa fa-user", count, pattern));
+					}
+				}
+
+				// attachments
+				if (!ArrayUtils.isEmpty(ticket.attachments)) {
+					int count = ticket.attachments.size();
+					String pattern = "gb.nAttachments";
+					if (count == 1) {
+						pattern = "gb.oneAttachment";
+					}
+					indicators.add(new Indicator("fa fa-file", count, pattern));
+				}
+
+				// patchset revisions
+				if (ticket.patchset != null) {
+					int count = ticket.patchset.commits;
+					String pattern = "gb.nCommits";
+					if (count == 1) {
+						pattern = "gb.oneCommit";
+					}
+					indicators.add(new Indicator("fa fa-code", count, pattern));
+				}
+
+				// milestone
+				if (!StringUtils.isEmpty(ticket.milestone)) {
+					indicators.add(new Indicator("fa fa-bullseye", ticket.milestone));
+				}
+
+				ListDataProvider<Indicator> indicatorsDp = new ListDataProvider<Indicator>(indicators);
+				DataView<Indicator> indicatorsView = new DataView<Indicator>("indicators", indicatorsDp) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void populateItem(final Item<Indicator> item) {
+						Indicator indicator = item.getModelObject();
+						String tooltip = indicator.getTooltip();
+
+						Label icon = new Label("icon");
+						WicketUtils.setCssClass(icon, indicator.css);
+						item.add(icon);
+
+						if (indicator.count > 0) {
+							Label count = new Label("count", "" + indicator.count);
+							item.add(count.setVisible(!StringUtils.isEmpty(tooltip)));
+						} else {
+							item.add(new Label("count").setVisible(false));
+						}
+
+						WicketUtils.setHtmlTooltip(item, tooltip);
+					}
+				};
+				item.add(indicatorsView);
 			}
 		};
 
@@ -569,5 +703,30 @@ public class MyTicketsPage extends RootPage {
 			}
 		};
 		add(pagesView);
+	}
+
+	private class Indicator implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		final String css;
+		final int count;
+		final String tooltip;
+
+		Indicator(String css, String tooltip) {
+			this.css = css;
+			this.tooltip = tooltip;
+			this.count = 0;
+		}
+
+		Indicator(String css, int count, String pattern) {
+			this.css = css;
+			this.count = count;
+			this.tooltip = StringUtils.isEmpty(pattern) ? "" : MessageFormat.format(getString(pattern), count);
+		}
+
+		String getTooltip() {
+			return tooltip;
+		}
 	}
 }
