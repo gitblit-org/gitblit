@@ -37,17 +37,20 @@ abstract class BaseKeyCommand extends SshCommand {
 			throws UnsupportedEncodingException, IOException {
 		int idx = -1;
 		if (sshKeys.isEmpty() || (idx = sshKeys.indexOf("-")) >= 0) {
-			String sshKey = "";
+			String content = "";
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					in, Charsets.UTF_8));
 			String line;
 			while ((line = br.readLine()) != null) {
-				sshKey += line + "\n";
+				content += line + "\n";
 			}
-			if (idx == -1) {
-				sshKeys.add(sshKey.trim());
-			} else {
-				sshKeys.set(idx, sshKey.trim());
+			final String sshKey = content.trim();
+			if (!sshKey.isEmpty()) {
+				if (idx == -1) {
+					sshKeys.add(sshKey);
+				} else {
+					sshKeys.set(idx, sshKey);
+				}
 			}
 		}
 		return sshKeys;

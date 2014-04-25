@@ -72,7 +72,7 @@ public class SshKey implements Serializable {
 			try {
 				publicKey = new Buffer(bin).getRawPublicKey();
 			} catch (SshException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		}
 		return publicKey;
