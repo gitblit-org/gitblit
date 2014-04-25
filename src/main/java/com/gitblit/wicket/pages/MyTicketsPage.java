@@ -172,6 +172,15 @@ public class MyTicketsPage extends RootPage {
 						sortBy,
 						desc,
 						1)));
+		add(new BookmarkablePageLink<Void>("responsibleQuery", MyTicketsPage.class,
+				queryParameters(
+						Lucene.responsible.matches(username),
+						milestoneParam,
+						statiiParam,
+						assignedToParam,
+						sortBy,
+						desc,
+						1)));
 
 		// states
 		if (ArrayUtils.isEmpty(statiiParam)) {
