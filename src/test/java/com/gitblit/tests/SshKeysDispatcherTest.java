@@ -103,6 +103,20 @@ public class SshKeysDispatcherTest extends SshUnitTest {
 	}
 
 	@Test
+	public void testKeysAddBlankCommand() throws Exception {
+		testSshCommand("keys add --permission R", "\n");
+		List<SshKey> keys = getKeyManager().getKeys(username);
+		assertEquals(String.format("There are %d keys!", keys.size()), 2, keys.size());
+	}
+
+	@Test
+	public void testKeysAddInvalidCommand() throws Exception {
+		testSshCommand("keys add --permission R", "My invalid key\n");
+		List<SshKey> keys = getKeyManager().getKeys(username);
+		assertEquals(String.format("There are %d keys!", keys.size()), 2, keys.size());
+	}
+
+	@Test
 	public void testKeysCommentCommand() throws Exception {
 		List<SshKey> keys = getKeyManager().getKeys(username);
 		assertTrue(StringUtils.isEmpty(keys.get(0).getComment()));

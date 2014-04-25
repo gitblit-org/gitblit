@@ -79,8 +79,21 @@ public class KeysDispatcher extends DispatchCommand {
 		public void run() throws IOException, Failure {
 			String username = getContext().getClient().getUsername();
 			List<String> keys = readKeys(addKeys);
+			if (keys.isEmpty()) {
+				throw new UnloggedFailure("No public keys were read from STDIN!");
+			}
 			for (String key : keys) {
 				SshKey sshKey = parseKey(key);
+				try {
+					// this method parses the rawdata and produces a public key
+					// if it fails it will throw a Buffer.BufferException
+					// the null check is a QC verification on top of that
+					if (sshKey.getPublicKey() == null) {
+						throw new RuntimeException();
+					}
+				} catch (RuntimeException e) {
+					throw new UnloggedFailure("The data read from SDTIN can not be parsed as an SSH public key!");
+				}
 				if (!StringUtils.isEmpty(permission)) {
 					AccessPermission ap = AccessPermission.fromCode(permission);
 					if (ap.exceeds(AccessPermission.NONE)) {
