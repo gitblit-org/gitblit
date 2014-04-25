@@ -56,7 +56,7 @@ public class MyTicketsPage extends RootPage {
 	public MyTicketsPage(PageParameters params)
 	{
 		super(params);
-		setupPage("", getString("gb.mytickets"));
+		setupPage("", getString("gb.myTickets"));
 
 		UserModel currentUser = GitBlitWebSession.get().getUser();
 		if (currentUser == null) {
