@@ -173,7 +173,7 @@ public abstract class RootPage extends BasePage {
 			pages.add(new PageRegistration(isLoggedIn ? "gb.myDashboard" : "gb.dashboard", MyDashboardPage.class,
 					getRootPageParameters()));
 			if (isLoggedIn && app().tickets().isReady()) {
-				pages.add(new PageRegistration("gb.mytickets", MyTicketsPage.class));
+				pages.add(new PageRegistration("gb.myTickets", MyTicketsPage.class));
 			}
 			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
