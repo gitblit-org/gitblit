@@ -145,20 +145,36 @@ public class ProjectRepositoryPanel extends BasePanel {
 
 					@Override
 					public void onClick() {
-						if (app().repositories().deleteRepositoryModel(entry)) {
+						// refresh the model
+						RepositoryModel model = app().repositories().getRepositoryModel(entry.name);
+						if (isDeleteAllowed(model) &&
+								app().repositories().deleteRepositoryModel(model)) {
 							// redirect to the owning page
-							if (entry.isPersonalRepository()) {
-								setResponsePage(getPage().getClass(), WicketUtils.newUsernameParameter(entry.projectPath.substring(1)));
+							if (model.isPersonalRepository()) {
+								setResponsePage(getPage().getClass(), WicketUtils.newUsernameParameter(model.projectPath.substring(1)));
 							} else {
-								setResponsePage(getPage().getClass(), WicketUtils.newProjectParameter(entry.projectPath));
+								setResponsePage(getPage().getClass(), WicketUtils.newProjectParameter(model.projectPath));
 							}
 						} else {
-							error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
+							error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), model));
 						}
 					}
+
+					@Override
+					public boolean isEnabled() {
+						return isDeleteAllowed(entry);
+					}
+
+					private boolean isDeleteAllowed(
+							final RepositoryModel model) {
+						return app().settings().getBoolean(Keys.web.allowDeletingNonEmptyRepositories, true)
+								|| !model.hasCommits;
+					}
 				};
-				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						localizer.getString("gb.deleteRepository", parent), entry)));
+				if (deleteLink.isEnabled()) {
+					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+							localizer.getString("gb.deleteRepository", parent), entry)));
+				}
 				repositoryLinks.add(deleteLink);
 			}
 		} else {
