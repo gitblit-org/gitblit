@@ -37,6 +37,10 @@ public class TicketMilestone extends TicketLabel {
 		super(name);
 		status = Status.Open;
 	}
+	
+	public void setDue(Date due) {
+		this.due = due;
+	}
 
 	public int getProgress() {
 		int total = getTotalTickets();

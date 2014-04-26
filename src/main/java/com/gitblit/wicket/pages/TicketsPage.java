@@ -42,6 +42,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
@@ -646,7 +647,19 @@ public class TicketsPage extends TicketBasePage {
 		};
 		add(ticketsView);
 
-		List<TicketMilestone> allMilestones = app().tickets().getMilestones(getRepositoryModel());
+		// new milestone link
+		RepositoryModel repositoryModel = getRepositoryModel();
+		final boolean acceptingUpdates = app().tickets().isAcceptingTicketUpdates(repositoryModel)
+				 && user != null && user.canAdmin(getRepositoryModel());
+		if (acceptingUpdates) {
+			add(new LinkPanel("newMilestone", null, getString("gb.newMilestone"),
+				NewMilestonePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		} else {
+			add(new Label("newMilestone").setVisible(false));
+		}
+		
+		// milestones list
+		List<TicketMilestone> allMilestones = app().tickets().getMilestones(repositoryModel);
 		ListDataProvider<TicketMilestone> allMilestonesDp = new ListDataProvider<TicketMilestone>(allMilestones);
 		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>("milestoneList", allMilestonesDp) {
 			private static final long serialVersionUID = 1L;
@@ -674,6 +687,12 @@ public class TicketsPage extends TicketBasePage {
 					item.add(new Label("milestoneDue", getString("gb.notSpecified")));
 				} else {
 					item.add(WicketUtils.createDatestampLabel("milestoneDue", tm.due, getTimeZone(), getTimeUtils()));
+				}
+				if (acceptingUpdates) {
+					item.add(new LinkPanel("editMilestone", null, getString("gb.edit"), EditMilestonePage.class,
+						WicketUtils.newObjectParameter(repositoryName, tm.name)));
+				} else {
+					item.add(new Label("editMilestone").setVisible(false));
 				}
 			}
 		};
