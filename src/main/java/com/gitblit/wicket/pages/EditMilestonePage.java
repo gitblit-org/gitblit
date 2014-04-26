@@ -28,13 +28,13 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.parboiled.common.StringUtils;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.TicketMilestone;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
@@ -47,13 +47,13 @@ import com.gitblit.wicket.WicketUtils;
 public class EditMilestonePage extends RepositoryPage {
 
 	private final String oldName;
-	
+
 	private IModel<String> nameModel;
 
 	private IModel<Date> dueModel;
-	
+
 	private IModel<Status> statusModel;
-	
+
 	private IModel<Boolean> notificationModel;
 
 	public EditMilestonePage(PageParameters params) {
@@ -64,7 +64,7 @@ public class EditMilestonePage extends RepositoryPage {
 			// ticket service is read-only
 			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
-		
+
 		UserModel currentUser = GitBlitWebSession.get().getUser();
 		if (currentUser == null) {
 			currentUser = UserModel.ANONYMOUS;
@@ -74,13 +74,13 @@ public class EditMilestonePage extends RepositoryPage {
 			// administration prohibited
 			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
-		
+
 		oldName = WicketUtils.getObject(params);
 		if (StringUtils.isEmpty(oldName)) {
 			// milestone not specified
 			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
-		
+
 		TicketMilestone tm = app().tickets().getMilestone(getRepositoryModel(), oldName);
 		if (tm == null) {
 			// milestone does not exist
@@ -96,30 +96,30 @@ public class EditMilestonePage extends RepositoryPage {
 
 			@Override
 			protected void onSubmit() {
-				
+
 				String name = nameModel.getObject();
 				if (StringUtils.isEmpty(name)) {
 					return;
 				}
-				
+
 				Date due = dueModel.getObject();
 				Status status = statusModel.getObject();
 				boolean rename = !name.equals(oldName);
 				boolean notify = notificationModel.getObject();
-				
+
 				UserModel currentUser = GitBlitWebSession.get().getUser();
 				String createdBy = currentUser.username;
-				
+
 				TicketMilestone tm = app().tickets().getMilestone(getRepositoryModel(), oldName);
 				tm.setName(name);
 				tm.setDue(due);
 				tm.status = status;
-				
+
 				boolean success = true;
 				if (rename) {
 					success = app().tickets().renameMilestone(getRepositoryModel(), oldName, name, createdBy, notify);
 				}
-				
+
 				if (success && app().tickets().updateMilestone(getRepositoryModel(), tm, createdBy)) {
 					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(getRepositoryModel().name));
 				} else {
@@ -133,7 +133,7 @@ public class EditMilestonePage extends RepositoryPage {
 		dueModel = Model.of(tm.due);
 		statusModel = Model.of(tm.status);
 		notificationModel = Model.of(true);
-		
+
 		form.add(new TextField<String>("name", nameModel));
 		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
 
@@ -152,6 +152,23 @@ public class EditMilestonePage extends RepositoryPage {
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
 
+		Button delete = new Button("delete") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				UserModel currentUser = GitBlitWebSession.get().getUser();
+				String createdBy = currentUser.username;
+
+				if (app().tickets().deleteMilestone(getRepositoryModel(), oldName, createdBy)) {
+					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+				} else {
+					// TODO error processing
+				}
+			}
+		};
+		delete.setDefaultFormProcessing(false);
+		form.add(delete);
 	}
 
 	@Override
