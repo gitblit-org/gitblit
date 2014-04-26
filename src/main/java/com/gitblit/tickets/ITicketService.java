@@ -643,7 +643,7 @@ public abstract class ITicketService {
 	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName, String newName, String createdBy) {
 		return renameMilestone(repository, oldName, newName, createdBy, true);
 	}
-	
+
 	/**
 	 * Renames a milestone.
 	 *
@@ -714,6 +714,7 @@ public abstract class ITicketService {
 		}
 		Repository db = null;
 		try {
+			TicketMilestone tm = getMilestone(repository, milestone);
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
 			config.unsetSection(MILESTONE, milestone);
@@ -721,6 +722,14 @@ public abstract class ITicketService {
 
 			milestonesCache.remove(repository.name);
 
+			for (QueryResult qr : tm.tickets) {
+				if (qr.isOpen()) {
+					// reset the milestone only for open tickets
+					Change change = new Change(createdBy);
+					change.setField(Field.milestone, "");
+					TicketModel ticket = updateTicket(repository, qr.number, change);
+				}
+			}
 			return true;
 		} catch (IOException e) {
 			log.error("failed to delete milestone " + milestone + " in " + repository, e);

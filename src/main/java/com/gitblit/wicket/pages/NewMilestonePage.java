@@ -29,6 +29,8 @@ import org.apache.wicket.model.Model;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.TicketMilestone;
+import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
@@ -43,7 +45,7 @@ public class NewMilestonePage extends RepositoryPage {
 	private IModel<String> nameModel;
 
 	private IModel<Date> dueModel;
-	
+
 	public NewMilestonePage(PageParameters params) {
 		super(params);
 
@@ -52,7 +54,7 @@ public class NewMilestonePage extends RepositoryPage {
 			// ticket service is read-only
 			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
-		
+
 		UserModel currentUser = GitBlitWebSession.get().getUser();
 		if (currentUser == null) {
 			currentUser = UserModel.ANONYMOUS;
@@ -72,13 +74,17 @@ public class NewMilestonePage extends RepositoryPage {
 
 			@Override
 			protected void onSubmit() {
-				
+
 				String name = nameModel.getObject();
+				if (StringUtils.isEmpty(name)) {
+					return;
+				}
+
 				Date due = dueModel.getObject();
 
 				UserModel currentUser = GitBlitWebSession.get().getUser();
 				String createdBy = currentUser.username;
-				
+
 				TicketMilestone milestone = app().tickets().createMilestone(getRepositoryModel(), name, createdBy);
 				if (milestone != null) {
 					milestone.due = due;
@@ -92,8 +98,8 @@ public class NewMilestonePage extends RepositoryPage {
 		add(form);
 
 		nameModel = Model.of("");
-		dueModel = Model.of(new Date());
-		
+		dueModel = Model.of(new Date(System.currentTimeMillis() + TimeUtils.ONEDAY));
+
 		form.add(new TextField<String>("name", nameModel));
 		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
 
