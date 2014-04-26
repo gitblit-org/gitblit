@@ -51,6 +51,7 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.EditMilestonePage;
 import com.gitblit.wicket.pages.EditTicketPage;
 import com.gitblit.wicket.pages.ExportTicketPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
@@ -63,6 +64,7 @@ import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.MyDashboardPage;
+import com.gitblit.wicket.pages.NewMilestonePage;
 import com.gitblit.wicket.pages.NewTicketPage;
 import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
@@ -187,6 +189,8 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/tickets/new", NewTicketPage.class, "r");
 		mount("/tickets/edit", EditTicketPage.class, "r", "h");
 		mount("/tickets/export", ExportTicketPage.class, "r", "h");
+		mount("/milestones/new", NewMilestonePage.class, "r");
+		mount("/milestones/edit", EditMilestonePage.class, "r", "h");
 
 		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r");

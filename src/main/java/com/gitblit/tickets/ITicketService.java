@@ -49,6 +49,7 @@ import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.tickets.TicketIndexer.Lucene;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.StringUtils;
@@ -556,9 +557,10 @@ public abstract class ITicketService {
 	public TicketMilestone getMilestone(RepositoryModel repository, String milestone) {
 		for (TicketMilestone ms : getMilestones(repository)) {
 			if (ms.name.equalsIgnoreCase(milestone)) {
+				TicketMilestone tm = DeepCopier.copy(ms);
 				String q = QueryBuilder.q(Lucene.rid.matches(repository.getRID())).and(Lucene.milestone.matches(milestone)).build();
-				ms.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
-				return ms;
+				tm.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
+				return tm;
 			}
 		}
 		return null;
@@ -639,6 +641,21 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName, String newName, String createdBy) {
+		return renameMilestone(repository, oldName, newName, createdBy, true);
+	}
+	
+	/**
+	 * Renames a milestone.
+	 *
+	 * @param repository
+	 * @param oldName
+	 * @param newName
+	 * @param createdBy
+	 * @param send ticket notifications
+	 * @return true if successful
+	 * @since 1.6.0
+	 */
+	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName, String newName, String createdBy, boolean notify) {
 		if (StringUtils.isEmpty(newName)) {
 			throw new IllegalArgumentException("new milestone can not be empty!");
 		}
@@ -651,7 +668,7 @@ public abstract class ITicketService {
 			config.setString(MILESTONE, newName, STATUS, milestone.status.name());
 			config.setString(MILESTONE, newName, COLOR, milestone.color);
 			if (milestone.due != null) {
-				config.setString(MILESTONE, milestone.name, DUE,
+				config.setString(MILESTONE, newName, DUE,
 						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
 			}
 			config.save();
@@ -663,9 +680,13 @@ public abstract class ITicketService {
 				Change change = new Change(createdBy);
 				change.setField(Field.milestone, newName);
 				TicketModel ticket = updateTicket(repository, qr.number, change);
-				notifier.queueMailing(ticket);
+				if (notify && ticket.isOpen()) {
+					notifier.queueMailing(ticket);
+				}
 			}
-			notifier.sendAll();
+			if (notify) {
+				notifier.sendAll();
+			}
 
 			return true;
 		} catch (IOException e) {
