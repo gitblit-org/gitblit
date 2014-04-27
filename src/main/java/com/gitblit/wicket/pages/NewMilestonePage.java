@@ -19,6 +19,8 @@ import java.util.Date;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -68,13 +70,21 @@ public class NewMilestonePage extends RepositoryPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 
-		Form<Void> form = new Form<Void>("editForm") {
+		Form<Void> form = new Form<Void>("editForm");
+		add(form);
+
+		nameModel = Model.of("");
+		dueModel = Model.of(new Date(System.currentTimeMillis() + TimeUtils.ONEDAY));
+
+		form.add(new TextField<String>("name", nameModel));
+		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
+
+		form.add(new AjaxButton("create") {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit() {
-
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				String name = nameModel.getObject();
 				if (StringUtils.isEmpty(name)) {
 					return;
@@ -94,16 +104,8 @@ public class NewMilestonePage extends RepositoryPage {
 					// TODO error
 				}
 			}
-		};
-		add(form);
+		});
 
-		nameModel = Model.of("");
-		dueModel = Model.of(new Date(System.currentTimeMillis() + TimeUtils.ONEDAY));
-
-		form.add(new TextField<String>("name", nameModel));
-		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
-
-		form.add(new Button("create"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
