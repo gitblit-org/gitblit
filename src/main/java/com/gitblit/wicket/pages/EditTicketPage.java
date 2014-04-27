@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -117,103 +119,7 @@ public class EditTicketPage extends RepositoryPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 
-		Form<Void> form = new Form<Void>("editForm") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit() {
-				long ticketId = 0L;
-				try {
-					String h = WicketUtils.getObject(getPageParameters());
-					ticketId = Long.parseLong(h);
-				} catch (Exception e) {
-					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
-				}
-
-				TicketModel ticket = app().tickets().getTicket(getRepositoryModel(), ticketId);
-
-				String createdBy = GitBlitWebSession.get().getUsername();
-				Change change = new Change(createdBy);
-
-				String title = titleModel.getObject();
-				if (!StringUtils.isEmpty(title) && !ticket.title.equals(title)) {
-					// title change
-					change.setField(Field.title, title);
-				}
-
-				String description = descriptionEditor.getText();
-				if ((StringUtils.isEmpty(ticket.body) && !StringUtils.isEmpty(description))
-						|| (!StringUtils.isEmpty(ticket.body) && !ticket.body.equals(description))) {
-					// description change
-					change.setField(Field.body, description);
-				}
-
-				Status status = statusModel.getObject();
-				if (!ticket.status.equals(status)) {
-					// status change
-					change.setField(Field.status, status);
-				}
-
-				Type type = typeModel.getObject();
-				if (!ticket.type.equals(type)) {
-					// type change
-					change.setField(Field.type, type);
-				}
-
-				String topic = topicModel.getObject();
-				if ((StringUtils.isEmpty(ticket.topic) && !StringUtils.isEmpty(topic))
-						|| (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic))) {
-					// topic change
-					change.setField(Field.topic, topic);
-				}
-
-				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
-				if (responsible != null && !responsible.username.equals(ticket.responsible)) {
-					// responsible change
-					change.setField(Field.responsible, responsible.username);
-					if (!StringUtils.isEmpty(responsible.username)) {
-						if (!ticket.isWatching(responsible.username)) {
-							change.watch(responsible.username);
-						}
-					}
-				}
-
-				TicketMilestone milestone = milestoneModel == null ? null : milestoneModel.getObject();
-				if (milestone != null && !milestone.name.equals(ticket.milestone)) {
-					// milestone change
-					if (NIL.equals(milestone.name)) {
-						change.setField(Field.milestone, "");
-					} else {
-						change.setField(Field.milestone, milestone.name);
-					}
-				}
-
-				String mergeTo = mergeToModel.getObject();
-				if ((StringUtils.isEmpty(ticket.mergeTo) && !StringUtils.isEmpty(mergeTo))
-						|| (!StringUtils.isEmpty(mergeTo) && !mergeTo.equals(ticket.mergeTo))) {
-					// integration branch change
-					change.setField(Field.mergeTo, mergeTo);
-				}
-
-				if (change.hasFieldChanges()) {
-					if (!ticket.isWatching(createdBy)) {
-						change.watch(createdBy);
-					}
-					ticket = app().tickets().updateTicket(getRepositoryModel(), ticket.number, change);
-					if (ticket != null) {
-						TicketNotifier notifier = app().tickets().createNotifier();
-						notifier.sendMailing(ticket);
-						setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
-					} else {
-						// TODO error
-					}
-				} else {
-					// nothing to change?!
-					setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
-				}
-			}
-		};
+		Form<Void> form = new Form<Void>("editForm");
 		add(form);
 
 		List<Type> typeChoices;
@@ -324,7 +230,109 @@ public class EditTicketPage extends RepositoryPage {
 			form.add(new Label("milestone").setVisible(false));
 			form.add(new Label("mergeto").setVisible(false));
 		}
-		form.add(new Button("update"));
+
+		form.add(new AjaxButton("update") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				long ticketId = 0L;
+				try {
+					String h = WicketUtils.getObject(getPageParameters());
+					ticketId = Long.parseLong(h);
+				} catch (Exception e) {
+					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+				}
+
+				TicketModel ticket = app().tickets().getTicket(getRepositoryModel(), ticketId);
+
+				String createdBy = GitBlitWebSession.get().getUsername();
+				Change change = new Change(createdBy);
+
+				String title = titleModel.getObject();
+				if (StringUtils.isEmpty(title)) {
+					return;
+				}
+
+				if (!ticket.title.equals(title)) {
+					// title change
+					change.setField(Field.title, title);
+				}
+
+				String description = descriptionEditor.getText();
+				if ((StringUtils.isEmpty(ticket.body) && !StringUtils.isEmpty(description))
+						|| (!StringUtils.isEmpty(ticket.body) && !ticket.body.equals(description))) {
+					// description change
+					change.setField(Field.body, description);
+				}
+
+				Status status = statusModel.getObject();
+				if (!ticket.status.equals(status)) {
+					// status change
+					change.setField(Field.status, status);
+				}
+
+				Type type = typeModel.getObject();
+				if (!ticket.type.equals(type)) {
+					// type change
+					change.setField(Field.type, type);
+				}
+
+				String topic = topicModel.getObject();
+				if ((StringUtils.isEmpty(ticket.topic) && !StringUtils.isEmpty(topic))
+						|| (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic))) {
+					// topic change
+					change.setField(Field.topic, topic);
+				}
+
+				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
+				if (responsible != null && !responsible.username.equals(ticket.responsible)) {
+					// responsible change
+					change.setField(Field.responsible, responsible.username);
+					if (!StringUtils.isEmpty(responsible.username)) {
+						if (!ticket.isWatching(responsible.username)) {
+							change.watch(responsible.username);
+						}
+					}
+				}
+
+				TicketMilestone milestone = milestoneModel == null ? null : milestoneModel.getObject();
+				if (milestone != null && !milestone.name.equals(ticket.milestone)) {
+					// milestone change
+					if (NIL.equals(milestone.name)) {
+						change.setField(Field.milestone, "");
+					} else {
+						change.setField(Field.milestone, milestone.name);
+					}
+				}
+
+				String mergeTo = mergeToModel.getObject();
+				if ((StringUtils.isEmpty(ticket.mergeTo) && !StringUtils.isEmpty(mergeTo))
+						|| (!StringUtils.isEmpty(mergeTo) && !mergeTo.equals(ticket.mergeTo))) {
+					// integration branch change
+					change.setField(Field.mergeTo, mergeTo);
+				}
+
+				if (change.hasFieldChanges()) {
+					if (!ticket.isWatching(createdBy)) {
+						change.watch(createdBy);
+					}
+					ticket = app().tickets().updateTicket(getRepositoryModel(), ticket.number, change);
+					if (ticket != null) {
+						TicketNotifier notifier = app().tickets().createNotifier();
+						notifier.sendMailing(ticket);
+						setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+					} else {
+						// TODO error
+					}
+				} else {
+					// nothing to change?!
+					setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+				}
+			}
+		});
+
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 

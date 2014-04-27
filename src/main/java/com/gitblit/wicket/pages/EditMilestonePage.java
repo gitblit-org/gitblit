@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -90,13 +92,26 @@ public class EditMilestonePage extends RepositoryPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 
-		Form<Void> form = new Form<Void>("editForm") {
+		Form<Void> form = new Form<Void>("editForm");
+		add(form);
+
+		nameModel = Model.of(tm.name);
+		dueModel = Model.of(tm.due);
+		statusModel = Model.of(tm.status);
+		notificationModel = Model.of(true);
+
+		form.add(new TextField<String>("name", nameModel));
+		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
+
+		List<Status> statusChoices = Arrays.asList(Status.Open, Status.Closed);
+		form.add(new DropDownChoice<TicketModel.Status>("status", statusModel, statusChoices));
+
+		form.add(new AjaxButton("save") {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit() {
-
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				String name = nameModel.getObject();
 				if (StringUtils.isEmpty(name)) {
 					return;
@@ -126,21 +141,7 @@ public class EditMilestonePage extends RepositoryPage {
 					// TODO error
 				}
 			}
-		};
-		add(form);
-
-		nameModel = Model.of(tm.name);
-		dueModel = Model.of(tm.due);
-		statusModel = Model.of(tm.status);
-		notificationModel = Model.of(true);
-
-		form.add(new TextField<String>("name", nameModel));
-		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
-
-		List<Status> statusChoices = Arrays.asList(Status.Open, Status.Closed);
-		form.add(new DropDownChoice<TicketModel.Status>("status", statusModel, statusChoices));
-
-		form.add(new Button("save"));
+		});
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
