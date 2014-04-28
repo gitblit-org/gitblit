@@ -95,7 +95,7 @@ public abstract class TicketServiceTest extends GitblitUnitTest {
 		// query non-existent ticket
 		TicketModel nonExistent = service.getTicket(getRepository(), 0);
 		assertNull(nonExistent);
-		
+
 		// create and insert a ticket
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
 		TicketModel ticket = service.createTicket(getRepository(), c1);
@@ -204,6 +204,9 @@ public abstract class TicketServiceTest extends GitblitUnitTest {
 		results = service.queryFor(Lucene.status.matches(Status.Resolved.name()), 1, 10, Lucene.created.name(), true);
 		assertEquals(1, results.size());
 		assertTrue(results.get(0).title.startsWith("testUpdates"));
+
+		// check the ids
+		assertEquals("[1, 2]", service.getIds(getRepository()).toString());
 
 		// delete all tickets
 		for (TicketModel aTicket : allTickets) {
