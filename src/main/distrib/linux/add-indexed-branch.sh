@@ -18,4 +18,4 @@
 FOLDER=data/git
 EXCLUSIONS=--skip test.git --skip group/test*
 BRANCH=default
-java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.AddIndexedBranch --repositoriesFolder $FOLDER% --branch $BRANCH $EXCLUSIONS
+java -cp gitblit.jar:"ext/*" com.gitblit.AddIndexedBranch --repositoriesFolder $FOLDER --branch $BRANCH $EXCLUSIONS
