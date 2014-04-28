@@ -378,6 +378,37 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	}
 
 	/**
+	 * Returns the assigned ticket ids.
+	 *
+	 * @return the assigned ticket ids
+	 */
+	@Override
+	public synchronized Set<Long> getIds(RepositoryModel repository) {
+		Repository db = repositoryManager.getRepository(repository.name);
+		try {
+			if (getTicketsBranch(db) == null) {
+				return Collections.emptySet();
+			}
+			Set<Long> ids = new TreeSet<Long>();
+			List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), BRANCH);
+			for (PathModel path : paths) {
+				String name = path.name.substring(path.name.lastIndexOf('/') + 1);
+				if (!JOURNAL.equals(name)) {
+					continue;
+				}
+				String tid = path.path.split("/")[2];
+				long ticketId = Long.parseLong(tid);
+				ids.add(ticketId);
+			}
+			return ids;
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
+	}
+
+	/**
 	 * Assigns a new ticket id.
 	 *
 	 * @param repository
@@ -398,16 +429,10 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			}
 			AtomicLong lastId = lastAssignedId.get(repository.name);
 			if (lastId.get() <= 0) {
-				List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), BRANCH);
-				for (PathModel path : paths) {
-					String name = path.name.substring(path.name.lastIndexOf('/') + 1);
-					if (!JOURNAL.equals(name)) {
-						continue;
-					}
-					String tid = path.path.split("/")[2];
-					long ticketId = Long.parseLong(tid);
-					if (ticketId > lastId.get()) {
-						lastId.set(ticketId);
+				Set<Long> ids = getIds(repository);
+				for (long id : ids) {
+					if (id > lastId.get()) {
+						lastId.set(id);
 					}
 				}
 			}
@@ -520,6 +545,28 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 				ticket.number = ticketId;
 			}
 			return ticket;
+		} finally {
+			db.close();
+		}
+	}
+
+	/**
+	 * Retrieves the journal for the ticket.
+	 *
+	 * @param repository
+	 * @param ticketId
+	 * @return a journal, if it exists, otherwise null
+	 */
+	@Override
+	protected List<Change> getJournalImpl(RepositoryModel repository, long ticketId) {
+		Repository db = repositoryManager.getRepository(repository.name);
+		try {
+			List<Change> changes = getJournal(db, ticketId);
+			if (ArrayUtils.isEmpty(changes)) {
+				log.warn("Empty journal for {}:{}", repository, ticketId);
+				return null;
+			}
+			return changes;
 		} finally {
 			db.close();
 		}

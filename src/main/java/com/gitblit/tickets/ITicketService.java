@@ -712,6 +712,15 @@ public abstract class ITicketService {
 	}
 
 	/**
+	 * Returns the set of assigned ticket ids in the repository.
+	 *
+	 * @param repository
+	 * @return a set of assigned ticket ids in the repository
+	 * @since 1.6.0
+	 */
+	public abstract Set<Long> getIds(RepositoryModel repository);
+
+	/**
 	 * Assigns a new ticket id.
 	 *
 	 * @param repository
@@ -805,6 +814,33 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	protected abstract TicketModel getTicketImpl(RepositoryModel repository, long ticketId);
+
+
+	/**
+	 * Returns the journal used to build a ticket.
+	 *
+	 * @param repository
+	 * @param ticketId
+	 * @return the journal for the ticket, if it exists, otherwise null
+	 * @since 1.6.0
+	 */
+	public final List<Change> getJournal(RepositoryModel repository, long ticketId) {
+		if (hasTicket(repository, ticketId)) {
+			List<Change> journal = getJournalImpl(repository, ticketId);
+			return journal;
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves the ticket journal.
+	 *
+	 * @param repository
+	 * @param ticketId
+	 * @return a ticket, if it exists, otherwise null
+	 * @since 1.6.0
+	 */
+	protected abstract List<Change> getJournalImpl(RepositoryModel repository, long ticketId);
 
 	/**
 	 * Get the ticket url

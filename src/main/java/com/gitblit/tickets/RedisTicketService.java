@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
@@ -184,6 +185,30 @@ public class RedisTicketService extends ITicketService {
 		return false;
 	}
 
+	@Override
+	public Set<Long> getIds(RepositoryModel repository) {
+		Set<Long> ids = new TreeSet<Long>();
+		Jedis jedis = pool.getResource();
+		try {// account for migrated tickets
+			Set<String> keys = jedis.keys(key(repository, KeyType.journal, "*"));
+			for (String tkey : keys) {
+				// {repo}:journal:{id}
+				String id = tkey.split(":")[2];
+				long ticketId = Long.parseLong(id);
+				ids.add(ticketId);
+			}
+		} catch (JedisException e) {
+			log.error("failed to assign new ticket id in Redis @ " + getUrl(), e);
+			pool.returnBrokenResource(jedis);
+			jedis = null;
+		} finally {
+			if (jedis != null) {
+				pool.returnResource(jedis);
+			}
+		}
+		return ids;
+	}
+
 	/**
 	 * Assigns a new ticket id.
 	 *
@@ -197,7 +222,14 @@ public class RedisTicketService extends ITicketService {
 			String key = key(repository, KeyType.counter, null);
 			String val = jedis.get(key);
 			if (isNull(val)) {
-				jedis.set(key, "0");
+				long lastId = 0;
+				Set<Long> ids = getIds(repository);
+				for (long id : ids) {
+					if (id > lastId) {
+						lastId = id;
+					}
+				}
+				jedis.set(key, "" + lastId);
 			}
 			long ticketNumber = jedis.incr(key);
 			return ticketNumber;
@@ -273,8 +305,7 @@ public class RedisTicketService extends ITicketService {
 	}
 
 	/**
-	 * Retrieves the ticket from the repository by first looking-up the changeId
-	 * associated with the ticketId.
+	 * Retrieves the ticket from the repository.
 	 *
 	 * @param repository
 	 * @param ticketId
@@ -301,6 +332,39 @@ public class RedisTicketService extends ITicketService {
 			return ticket;
 		} catch (JedisException e) {
 			log.error("failed to retrieve ticket from Redis @ " + getUrl(), e);
+			pool.returnBrokenResource(jedis);
+			jedis = null;
+		} finally {
+			if (jedis != null) {
+				pool.returnResource(jedis);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves the journal for the ticket.
+	 *
+	 * @param repository
+	 * @param ticketId
+	 * @return a journal, if it exists, otherwise null
+	 */
+	@Override
+	protected List<Change> getJournalImpl(RepositoryModel repository, long ticketId) {
+		Jedis jedis = pool.getResource();
+		if (jedis == null) {
+			return null;
+		}
+
+		try {
+			List<Change> changes = getJournal(jedis, repository, ticketId);
+			if (ArrayUtils.isEmpty(changes)) {
+				log.warn("Empty journal for {}:{}", repository, ticketId);
+				return null;
+			}
+			return changes;
+		} catch (JedisException e) {
+			log.error("failed to retrieve journal from Redis @ " + getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
