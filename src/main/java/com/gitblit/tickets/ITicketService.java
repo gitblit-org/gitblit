@@ -651,11 +651,12 @@ public abstract class ITicketService {
 	 * @param oldName
 	 * @param newName
 	 * @param createdBy
-	 * @param send ticket notifications
+	 * @param notifyOpenTickets
 	 * @return true if successful
 	 * @since 1.6.0
 	 */
-	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName, String newName, String createdBy, boolean notify) {
+	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName,
+			String newName, String createdBy, boolean notifyOpenTickets) {
 		if (StringUtils.isEmpty(newName)) {
 			throw new IllegalArgumentException("new milestone can not be empty!");
 		}
@@ -680,11 +681,11 @@ public abstract class ITicketService {
 				Change change = new Change(createdBy);
 				change.setField(Field.milestone, newName);
 				TicketModel ticket = updateTicket(repository, qr.number, change);
-				if (notify && ticket.isOpen()) {
+				if (notifyOpenTickets && ticket.isOpen()) {
 					notifier.queueMailing(ticket);
 				}
 			}
-			if (notify) {
+			if (notifyOpenTickets) {
 				notifier.sendAll();
 			}
 
@@ -709,6 +710,21 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	public synchronized boolean deleteMilestone(RepositoryModel repository, String milestone, String createdBy) {
+		return deleteMilestone(repository, milestone, createdBy, true);
+	}
+
+	/**
+	 * Deletes a milestone.
+	 *
+	 * @param repository
+	 * @param milestone
+	 * @param createdBy
+	 * @param notifyOpenTickets
+	 * @return true if successful
+	 * @since 1.6.0
+	 */
+	public synchronized boolean deleteMilestone(RepositoryModel repository, String milestone,
+			String createdBy, boolean notifyOpenTickets) {
 		if (StringUtils.isEmpty(milestone)) {
 			throw new IllegalArgumentException("milestone can not be empty!");
 		}
@@ -722,13 +738,17 @@ public abstract class ITicketService {
 
 			milestonesCache.remove(repository.name);
 
+			TicketNotifier notifier = createNotifier();
 			for (QueryResult qr : tm.tickets) {
-				if (qr.isOpen()) {
-					// reset the milestone only for open tickets
-					Change change = new Change(createdBy);
-					change.setField(Field.milestone, "");
-					TicketModel ticket = updateTicket(repository, qr.number, change);
+				Change change = new Change(createdBy);
+				change.setField(Field.milestone, "");
+				TicketModel ticket = updateTicket(repository, qr.number, change);
+				if (notifyOpenTickets && ticket.isOpen()) {
+					notifier.queueMailing(ticket);
 				}
+			}
+			if (notifyOpenTickets) {
+				notifier.sendAll();
 			}
 			return true;
 		} catch (IOException e) {

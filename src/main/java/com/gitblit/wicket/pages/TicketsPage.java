@@ -20,6 +20,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -657,9 +658,20 @@ public class TicketsPage extends TicketBasePage {
 		} else {
 			add(new Label("newMilestone").setVisible(false));
 		}
-		
+
 		// milestones list
-		List<TicketMilestone> allMilestones = app().tickets().getMilestones(repositoryModel);
+		List<TicketMilestone> allMilestones = new ArrayList<TicketMilestone>(app().tickets().getMilestones(repositoryModel));
+		Collections.sort(allMilestones, new Comparator<TicketMilestone>() {
+			@Override
+			public int compare(TicketMilestone o1, TicketMilestone o2) {
+				if (o2.isOpen() && !o1.isOpen()) {
+					return 1;
+				} else if (o1.isOpen() && !o2.isOpen()) {
+					return -1;
+				}
+				return o2.due.compareTo(o1.due);
+			}
+		});
 		ListDataProvider<TicketMilestone> allMilestonesDp = new ListDataProvider<TicketMilestone>(allMilestones);
 		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>("milestoneList", allMilestonesDp) {
 			private static final long serialVersionUID = 1L;
@@ -671,15 +683,21 @@ public class TicketsPage extends TicketBasePage {
 				item.add(new LinkPanel("milestoneName", null, tm.name, TicketsPage.class, params).setRenderBodyOnly(true));
 
 				String css;
+				String status = tm.status.name();
 				switch (tm.status) {
 				case Open:
-					css = "aui-lozenge aui-lozenge-subtle";
+					if (tm.isOverdue()) {
+						css = "aui-lozenge aui-lozenge-subtle aui-lozenge-error";
+						status = "overdue";
+					} else {
+						css = "aui-lozenge aui-lozenge-subtle";
+					}
 					break;
 				default:
 					css = "aui-lozenge";
 					break;
 				}
-				Label stateLabel = new Label("milestoneState", tm.status.name());
+				Label stateLabel = new Label("milestoneState", status);
 				WicketUtils.setCssClass(stateLabel, css);
 				item.add(stateLabel);
 
