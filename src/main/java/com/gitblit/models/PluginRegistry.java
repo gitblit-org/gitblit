@@ -126,7 +126,7 @@ public class PluginRegistry implements Serializable {
 			Version ir = Version.createVersion(installedRelease);
 			Version cr = Version.ZERO;
 			PluginRelease curr = getCurrentRelease(system);
-			if (cr != null) {
+			if (curr != null) {
 				cr = Version.createVersion(curr.version);
 			}
 			switch (ir.compareTo(cr)) {
