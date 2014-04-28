@@ -49,6 +49,12 @@ public class UserPreferences implements Serializable {
 		if (StringUtils.isEmpty(locale)) {
 			return null;
 		}
+		int underscore = locale.indexOf('_');
+		if (underscore > 0) {
+			String lang = locale.substring(0, underscore);
+			String cc = locale.substring(underscore + 1);
+			return new Locale(lang, cc);
+		}
 		return new Locale(locale);
 	}
 

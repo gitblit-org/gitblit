@@ -17,6 +17,7 @@ package com.gitblit.tests.mock;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -68,6 +69,11 @@ public class MockRuntimeManager implements IRuntimeManager {
 	@Override
 	public TimeZone getTimezone() {
 		return TimeZone.getDefault();
+	}
+
+	@Override
+	public Locale getLocale() {
+		return Locale.getDefault();
 	}
 
 	@Override
