@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -603,6 +604,11 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public TimeZone getTimezone() {
 		return runtimeManager.getTimezone();
+	}
+
+	@Override
+	public Locale getLocale() {
+		return runtimeManager.getLocale();
 	}
 
 	@Override

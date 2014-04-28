@@ -41,7 +41,6 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
@@ -242,9 +241,9 @@ public class GitBlitWebApp extends WebApplication {
 	public final Session newSession(Request request, Response response) {
 		GitBlitWebSession gitBlitWebSession = new GitBlitWebSession(request);
 
-		String forcedLocale = settings.getString(Keys.web.forceDefaultLocale, null);
-		if (!StringUtils.isEmpty(forcedLocale)) {
-			gitBlitWebSession.setLocale(new Locale(forcedLocale));
+		Locale forcedLocale = runtime().getLocale();
+		if (forcedLocale != null) {
+			gitBlitWebSession.setLocale(forcedLocale);
 		}
 		return gitBlitWebSession;
 	}

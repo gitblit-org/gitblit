@@ -17,6 +17,7 @@ package com.gitblit.manager;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -37,6 +38,14 @@ public interface IRuntimeManager extends IManager {
  	 * @since 1.4.0
 	 */
 	TimeZone getTimezone();
+
+	/**
+	 * Returns the fixed locale for clients, or null if clients may choose their locale
+	 *
+	 * @return a fixed locale or null if clients are allowed to specify locale preference
+ 	 * @since 1.5.1
+	 */
+	Locale getLocale();
 
 	/**
 	 * Determine if this Gitblit instance is actively serving git repositories

@@ -13,6 +13,7 @@ r23: {
     - Fix subdirectory links in pages servlet (issue-411)
     - Fix subdirectory navigation in pages servlet (issue-412)
     - Fix bug in adding invalid or empty SSH keys (ticket-50)
+    - Fix forcing default locale to en or LANG_CC for web ui (ticket-51)
     changes:
     - improve French translation (pr-176)
     - simplify current plugin release detection and ignore the currentRelease registry field 
