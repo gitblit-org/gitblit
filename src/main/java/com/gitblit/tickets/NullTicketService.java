@@ -17,6 +17,7 @@ package com.gitblit.tickets;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
@@ -78,6 +79,11 @@ public class NullTicketService extends ITicketService {
 	}
 
 	@Override
+	public synchronized Set<Long> getIds(RepositoryModel repository) {
+		return Collections.emptySet();
+	}
+
+	@Override
 	public synchronized long assignNewId(RepositoryModel repository) {
 		return 0L;
 	}
@@ -89,6 +95,11 @@ public class NullTicketService extends ITicketService {
 
 	@Override
 	protected TicketModel getTicketImpl(RepositoryModel repository, long ticketId) {
+		return null;
+	}
+
+	@Override
+	protected List<Change> getJournalImpl(RepositoryModel repository, long ticketId) {
 		return null;
 	}
 
