@@ -37,7 +37,15 @@ public class TicketMilestone extends TicketLabel {
 		super(name);
 		status = Status.Open;
 	}
-	
+
+	public boolean isOpen() {
+		return status == Status.Open;
+	}
+
+	public boolean isOverdue() {
+		return due == null ? false : System.currentTimeMillis() > due.getTime();
+	}
+
 	public void setDue(Date due) {
 		this.due = due;
 	}

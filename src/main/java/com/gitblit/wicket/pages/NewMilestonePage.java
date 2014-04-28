@@ -22,6 +22,7 @@ import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -78,6 +79,7 @@ public class NewMilestonePage extends RepositoryPage {
 
 		form.add(new TextField<String>("name", nameModel));
 		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
+		form.add(new Label("dueFormat", "yyyy-MM-dd"));
 
 		form.add(new AjaxButton("create") {
 
@@ -87,6 +89,13 @@ public class NewMilestonePage extends RepositoryPage {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				String name = nameModel.getObject();
 				if (StringUtils.isEmpty(name)) {
+					// invalid name
+					return;
+				}
+
+				TicketMilestone milestone = app().tickets().getMilestone(getRepositoryModel(), name);
+				if (milestone != null) {
+					// milestone already exists
 					return;
 				}
 
@@ -95,7 +104,7 @@ public class NewMilestonePage extends RepositoryPage {
 				UserModel currentUser = GitBlitWebSession.get().getUser();
 				String createdBy = currentUser.username;
 
-				TicketMilestone milestone = app().tickets().createMilestone(getRepositoryModel(), name, createdBy);
+				milestone = app().tickets().createMilestone(getRepositoryModel(), name, createdBy);
 				if (milestone != null) {
 					milestone.due = due;
 					app().tickets().updateMilestone(getRepositoryModel(), milestone, createdBy);

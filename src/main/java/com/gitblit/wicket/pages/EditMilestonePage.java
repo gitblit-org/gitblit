@@ -24,7 +24,9 @@ import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -102,6 +104,8 @@ public class EditMilestonePage extends RepositoryPage {
 
 		form.add(new TextField<String>("name", nameModel));
 		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
+		form.add(new Label("dueFormat", "yyyy-MM-dd"));
+		form.add(new CheckBox("notify", notificationModel));
 
 		List<Status> statusChoices = Arrays.asList(Status.Open, Status.Closed);
 		form.add(new DropDownChoice<TicketModel.Status>("status", statusModel, statusChoices));
@@ -160,8 +164,9 @@ public class EditMilestonePage extends RepositoryPage {
 			public void onSubmit() {
 				UserModel currentUser = GitBlitWebSession.get().getUser();
 				String createdBy = currentUser.username;
+				boolean notify = notificationModel.getObject();
 
-				if (app().tickets().deleteMilestone(getRepositoryModel(), oldName, createdBy)) {
+				if (app().tickets().deleteMilestone(getRepositoryModel(), oldName, createdBy, notify)) {
 					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 				} else {
 					// TODO error processing
