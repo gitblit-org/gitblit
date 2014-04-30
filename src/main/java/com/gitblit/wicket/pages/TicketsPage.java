@@ -660,27 +660,49 @@ public class TicketsPage extends TicketBasePage {
 		}
 
 		// milestones list
-		List<TicketMilestone> allMilestones = new ArrayList<TicketMilestone>(app().tickets().getMilestones(repositoryModel));
-		Collections.sort(allMilestones, new Comparator<TicketMilestone>() {
+		List<TicketMilestone> openMilestones = new ArrayList<TicketMilestone>();
+		List<TicketMilestone> closedMilestones = new ArrayList<TicketMilestone>();
+		for (TicketMilestone milestone : app().tickets().getMilestones(repositoryModel)) {
+			if (milestone.isOpen()) {
+				openMilestones.add(milestone);
+			} else {
+				closedMilestones.add(milestone);
+			}
+		}
+		Collections.sort(openMilestones, new Comparator<TicketMilestone>() {
 			@Override
 			public int compare(TicketMilestone o1, TicketMilestone o2) {
-				if (o2.isOpen() && !o1.isOpen()) {
-					return 1;
-				} else if (o1.isOpen() && !o2.isOpen()) {
-					return -1;
-				}
 				return o2.due.compareTo(o1.due);
 			}
 		});
-		ListDataProvider<TicketMilestone> allMilestonesDp = new ListDataProvider<TicketMilestone>(allMilestones);
-		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>("milestoneList", allMilestonesDp) {
+
+		Collections.sort(closedMilestones, new Comparator<TicketMilestone>() {
+			@Override
+			public int compare(TicketMilestone o1, TicketMilestone o2) {
+				return o2.due.compareTo(o1.due);
+			}
+		});
+
+		DataView<TicketMilestone> openMilestonesList = milestoneList("openMilestonesList", openMilestones, acceptingUpdates);
+		add(openMilestonesList);
+
+		DataView<TicketMilestone> closedMilestonesList = milestoneList("closedMilestonesList", closedMilestones, acceptingUpdates);
+		add(closedMilestonesList);
+	}
+
+	protected DataView<TicketMilestone> milestoneList(String wicketId, List<TicketMilestone> milestones, final boolean acceptingUpdates) {
+		ListDataProvider<TicketMilestone> milestonesDp = new ListDataProvider<TicketMilestone>(milestones);
+		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>(wicketId, milestonesDp) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void populateItem(final Item<TicketMilestone> item) {
+				Fragment entryPanel = new Fragment("entryPanel", "milestoneListFragment", this);
+				item.add(entryPanel);
+
 				final TicketMilestone tm = item.getModelObject();
-				PageParameters params = queryParameters(null, tm.name, null, null, null, desc, 1);
-				item.add(new LinkPanel("milestoneName", null, tm.name, TicketsPage.class, params).setRenderBodyOnly(true));
+				PageParameters params = queryParameters(null, tm.name, null, null, null, true, 1);
+				entryPanel.add(new LinkPanel("milestoneName", null, tm.name, TicketsPage.class, params).setRenderBodyOnly(true));
 
 				String css;
 				String status = tm.status.name();
@@ -699,22 +721,47 @@ public class TicketsPage extends TicketBasePage {
 				}
 				Label stateLabel = new Label("milestoneState", status);
 				WicketUtils.setCssClass(stateLabel, css);
-				item.add(stateLabel);
+				entryPanel.add(stateLabel);
 
 				if (tm.due == null) {
-					item.add(new Label("milestoneDue", getString("gb.notSpecified")));
+					entryPanel.add(new Label("milestoneDue", getString("gb.notSpecified")));
 				} else {
-					item.add(WicketUtils.createDatestampLabel("milestoneDue", tm.due, getTimeZone(), getTimeUtils()));
+					entryPanel.add(WicketUtils.createDatestampLabel("milestoneDue", tm.due, getTimeZone(), getTimeUtils()));
 				}
 				if (acceptingUpdates) {
-					item.add(new LinkPanel("editMilestone", null, getString("gb.edit"), EditMilestonePage.class,
+					entryPanel.add(new LinkPanel("editMilestone", null, getString("gb.edit"), EditMilestonePage.class,
 						WicketUtils.newObjectParameter(repositoryName, tm.name)));
 				} else {
-					item.add(new Label("editMilestone").setVisible(false));
+					entryPanel.add(new Label("editMilestone").setVisible(false));
+				}
+
+				if (tm.isOpen()) {
+					// re-load milestone with query results
+					TicketMilestone m = app().tickets().getMilestone(getRepositoryModel(), tm.name);
+
+					Fragment milestonePanel = new Fragment("milestonePanel", "openMilestoneFragment", this);
+					Label label = new Label("progress");
+					WicketUtils.setCssStyle(label, "width:" + tm.getProgress() + "%;");
+					milestonePanel.add(label);
+
+					milestonePanel.add(new LinkPanel("openTickets", null,
+							MessageFormat.format(getString("gb.nOpenTickets"), m.getOpenTickets()),
+							TicketsPage.class,
+							queryParameters(null, tm.name, openStatii, null, null, true, 1)));
+
+					milestonePanel.add(new LinkPanel("closedTickets", null,
+							MessageFormat.format(getString("gb.nClosedTickets"), m.getClosedTickets()),
+							TicketsPage.class,
+							queryParameters(null, tm.name, closedStatii, null, null, true, 1)));
+
+					milestonePanel.add(new Label("totalTickets", MessageFormat.format(getString("gb.nTotalTickets"), m.getTotalTickets())));
+					entryPanel.add(milestonePanel);
+				} else {
+					entryPanel.add(new Label("milestonePanel").setVisible(false));
 				}
 			}
 		};
-		add(milestonesList);
+		return milestonesList;
 	}
 
 	protected PageParameters queryParameters(
