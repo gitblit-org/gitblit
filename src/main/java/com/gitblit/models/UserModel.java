@@ -552,15 +552,15 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if the user is allowed to administer the specified repository
-	 * 
+	 *
 	 * @param repo
 	 * @return true if the user can administer the repository
 	 */
 	public boolean canAdmin(RepositoryModel repo) {
-		return canAdmin() || isMyPersonalRepository(repo.name);
+		return canAdmin() || repo.isOwner(username) || isMyPersonalRepository(repo.name);
 	}
 
 	public boolean isAuthenticated() {
