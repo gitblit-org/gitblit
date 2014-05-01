@@ -300,7 +300,9 @@ public class WicketUtils {
 
 	public static PageParameters newRepositoryParameter(String repositoryName) {
 		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put("r", repositoryName);
+		if (!StringUtils.isEmpty(repositoryName)) {
+			parameterMap.put("r", repositoryName);
+		}
 		return new PageParameters(parameterMap);
 	}
 

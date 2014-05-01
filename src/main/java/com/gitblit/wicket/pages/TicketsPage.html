@@ -11,7 +11,7 @@
 	<div class="hidden-phone pull-right">
 		<form class="form-search" style="margin: 0px;" wicket:id="ticketSearchForm">
 			<div class="input-append">
-				<input type="text" class="search-query" style="width: 170px;border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
+				<input type="text" class="input-medium search-query" style="border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
 				<button class="btn" style="border-radius: 0 14px 14px 0px;margin-left:-5px;" type="submit"><i class="icon-search"></i></button>
 			</div>
 		</form>
@@ -88,42 +88,7 @@
 				</div>
 			</div>
 		
-		
-			<table class="table tickets">			
-			<tbody>
-       		<tr wicket:id="ticket">
-       			<td class="ticket-list-icon">
-       				<i wicket:id="state"></i>
-       			</td>
-        		<td>
-        			<span wicket:id="title">[title]</span> <span wicket:id="labels" style="font-weight: normal;color:white;"><span class="label" wicket:id="label"></span></span>
-        			<div class="ticket-list-details">
-        				<span style="padding-right: 10px;" class="hidden-phone">
-        					<wicket:message key="gb.createdBy"></wicket:message>
-        					<span style="padding: 0px 2px" wicket:id="createdBy">[createdBy]</span> <span class="date" wicket:id="createDate">[create date]</span>
-        				</span>
-        				<span wicket:id="indicators" style="white-space:nowrap;"><i wicket:id="icon"></i> <span style="padding-right:10px;" wicket:id="count"></span></span>
-        			</div>
-        			<div class="hidden-phone" wicket:id="updated"></div>
-        		</td>
-        		<td class="ticket-list-state">
-       				<span class="badge badge-info" wicket:id="votes"></span>
-        		</td>
-        		<td class="hidden-phone ticket-list-state">
-       				<i wicket:message="title:gb.watching" style="color:#888;" class="fa fa-eye" wicket:id="watching"></i>
-        		</td>
-        		<td class="ticket-list-state">
-       				<div wicket:id="status"></div>
-        		</td>
-        		<td class="indicators">
-        			<div>        	 		        	 		
-        	 			<b>#<span wicket:id="id">[id]</span></b>
-        	 		</div>
-        			<div wicket:id="responsible"></div>
-        		</td>
-       		</tr>
-    		</tbody>
-			</table>
+			<div wicket:id="ticketList"></div>
 		
 			<div class="btn-group pull-right">
 					<div class="pagination pagination-right pagination-small">
@@ -238,13 +203,6 @@
 		<li class="nav-header"><wicket:message key="gb.topicsAndLabels"></wicket:message></li>
 		<li class="dynamicQuery" wicket:id="dynamicQuery"><span><span wicket:id="swatch"></span> <span wicket:id="link"></span></span><span class="pull-right"><i style="font-size: 18px;" wicket:id="checked"></i></span></li>
 	</ul>
-</wicket:fragment>
-
-<wicket:fragment wicket:id="updatedFragment">
-	<div class="ticket-list-details">
-		<wicket:message key="gb.updatedBy"></wicket:message>
-		<span style="padding: 0px 2px" wicket:id="updatedBy">[updatedBy]</span> <span class="date" wicket:id="updateDate">[update date]</span>
-	</div>
 </wicket:fragment>
 
 </wicket:extend>
