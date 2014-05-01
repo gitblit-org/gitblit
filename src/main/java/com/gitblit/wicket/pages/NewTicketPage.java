@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -94,56 +96,7 @@ public class NewTicketPage extends RepositoryPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 
-		Form<Void> form = new Form<Void>("editForm") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit() {
-				String createdBy = GitBlitWebSession.get().getUsername();
-				Change change = new Change(createdBy);
-				change.setField(Field.title, titleModel.getObject());
-				change.setField(Field.body, descriptionEditor.getText());
-				String topic = topicModel.getObject();
-				if (!StringUtils.isEmpty(topic)) {
-					change.setField(Field.topic, topic);
-				}
-
-				// type
-				TicketModel.Type type = TicketModel.Type.defaultType;
-				if (typeModel.getObject() != null) {
-					type = typeModel.getObject();
-				}
-				change.setField(Field.type, type);
-
-				// responsible
-				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
-				if (responsible != null) {
-					change.setField(Field.responsible, responsible.username);
-				}
-
-				// milestone
-				TicketMilestone milestone = milestoneModel == null ? null : milestoneModel.getObject();
-				if (milestone != null) {
-					change.setField(Field.milestone, milestone.name);
-				}
-
-				// integration branch
-				String mergeTo = mergeToModel.getObject();
-				if (!StringUtils.isEmpty(mergeTo)) {
-					change.setField(Field.mergeTo, mergeTo);
-				}
-
-				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), 0L, change);
-				if (ticket != null) {
-					TicketNotifier notifier = app().tickets().createNotifier();
-					notifier.sendMailing(ticket);
-					setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
-				} else {
-					// TODO error
-				}
-			}
-		};
+		Form<Void> form = new Form<Void>("editForm");
 		add(form);
 
 		form.add(new DropDownChoice<TicketModel.Type>("type", typeModel, Arrays.asList(TicketModel.Type.choices())));
@@ -203,7 +156,62 @@ public class NewTicketPage extends RepositoryPage {
 			form.add(new Label("mergeto").setVisible(false));
 		}
 
-		form.add(new Button("create"));
+		form.add(new AjaxButton("create") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				String title = titleModel.getObject();
+				if (StringUtils.isEmpty(title)) {
+					return;
+				}
+
+				String createdBy = GitBlitWebSession.get().getUsername();
+				Change change = new Change(createdBy);
+				change.setField(Field.title, title);
+				change.setField(Field.body, descriptionEditor.getText());
+				String topic = topicModel.getObject();
+				if (!StringUtils.isEmpty(topic)) {
+					change.setField(Field.topic, topic);
+				}
+
+				// type
+				TicketModel.Type type = TicketModel.Type.defaultType;
+				if (typeModel.getObject() != null) {
+					type = typeModel.getObject();
+				}
+				change.setField(Field.type, type);
+
+				// responsible
+				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
+				if (responsible != null) {
+					change.setField(Field.responsible, responsible.username);
+				}
+
+				// milestone
+				TicketMilestone milestone = milestoneModel == null ? null : milestoneModel.getObject();
+				if (milestone != null) {
+					change.setField(Field.milestone, milestone.name);
+				}
+
+				// integration branch
+				String mergeTo = mergeToModel.getObject();
+				if (!StringUtils.isEmpty(mergeTo)) {
+					change.setField(Field.mergeTo, mergeTo);
+				}
+
+				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), 0L, change);
+				if (ticket != null) {
+					TicketNotifier notifier = app().tickets().createNotifier();
+					notifier.sendMailing(ticket);
+					setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+				} else {
+					// TODO error
+				}
+			}
+		});
+
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
