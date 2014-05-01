@@ -14,12 +14,20 @@
 					<div class="span3">
 						<div class="hidden-phone">
 							<div>
-								<div style="display:inline-block;vertical-align:top;padding-right:2px;"><img wicket:id="userGravatar"></img></div>
+								<div style="display:inline-block;vertical-align:top;padding: 0px 2px 2px;"><img wicket:id="userGravatar"></img></div>
 								<div style="display:inline-block;">
 									<div style="font-size:1.5em;" wicket:id="userDisplayName"></div>
-									<div style="color:#888;font-size:1.2em;"><wicket:message key="gb.myTickets"></wicket:message></div>
+									<div style="color:#888;font-size:1.2em;padding-top:4px;"><wicket:message key="gb.myTickets"></wicket:message></div>
 								</div>
 							</div>
+							
+							<!-- search tickets form -->
+							<form class="form-search" style="margin: 10px 0px;" wicket:id="ticketSearchForm">
+								<div class="input-append">
+									<input type="text" class="input-medium search-query" style="border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
+									<button class="btn" style="border-radius: 0 14px 14px 0px;margin-left:-5px;" type="submit"><i class="icon-search"></i></button>
+								</div>
+							</form>
 							
 							<!--  query list -->						
 							<ul class="nav nav-list">
@@ -38,13 +46,6 @@
 								<li><a wicket:id="resetQuery"><i class="fa fa-bolt"></i> <wicket:message key="gb.reset"></wicket:message></a></li>
 							</ul>
 
-							<!-- search tickets form -->
-							<form class="form-search" style="margin: 0px;" wicket:id="ticketSearchForm">
-								<div class="input-append">
-									<input type="text" class="search-query" style="width: 170px;border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
-									<button class="btn" style="border-radius: 0 14px 14px 0px;margin-left:-5px;" type="submit"><i class="icon-search"></i></button>
-								</div>
-							</form>
 						</div>
 					</div>
 					
