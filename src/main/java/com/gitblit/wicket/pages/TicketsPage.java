@@ -20,6 +20,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,6 +43,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
@@ -646,38 +648,120 @@ public class TicketsPage extends TicketBasePage {
 		};
 		add(ticketsView);
 
-		List<TicketMilestone> allMilestones = app().tickets().getMilestones(getRepositoryModel());
-		ListDataProvider<TicketMilestone> allMilestonesDp = new ListDataProvider<TicketMilestone>(allMilestones);
-		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>("milestoneList", allMilestonesDp) {
+		// new milestone link
+		RepositoryModel repositoryModel = getRepositoryModel();
+		final boolean acceptingUpdates = app().tickets().isAcceptingTicketUpdates(repositoryModel)
+				 && user != null && user.canAdmin(getRepositoryModel());
+		if (acceptingUpdates) {
+			add(new LinkPanel("newMilestone", null, getString("gb.newMilestone"),
+				NewMilestonePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		} else {
+			add(new Label("newMilestone").setVisible(false));
+		}
+
+		// milestones list
+		List<TicketMilestone> openMilestones = new ArrayList<TicketMilestone>();
+		List<TicketMilestone> closedMilestones = new ArrayList<TicketMilestone>();
+		for (TicketMilestone milestone : app().tickets().getMilestones(repositoryModel)) {
+			if (milestone.isOpen()) {
+				openMilestones.add(milestone);
+			} else {
+				closedMilestones.add(milestone);
+			}
+		}
+		Collections.sort(openMilestones, new Comparator<TicketMilestone>() {
+			@Override
+			public int compare(TicketMilestone o1, TicketMilestone o2) {
+				return o2.due.compareTo(o1.due);
+			}
+		});
+
+		Collections.sort(closedMilestones, new Comparator<TicketMilestone>() {
+			@Override
+			public int compare(TicketMilestone o1, TicketMilestone o2) {
+				return o2.due.compareTo(o1.due);
+			}
+		});
+
+		DataView<TicketMilestone> openMilestonesList = milestoneList("openMilestonesList", openMilestones, acceptingUpdates);
+		add(openMilestonesList);
+
+		DataView<TicketMilestone> closedMilestonesList = milestoneList("closedMilestonesList", closedMilestones, acceptingUpdates);
+		add(closedMilestonesList);
+	}
+
+	protected DataView<TicketMilestone> milestoneList(String wicketId, List<TicketMilestone> milestones, final boolean acceptingUpdates) {
+		ListDataProvider<TicketMilestone> milestonesDp = new ListDataProvider<TicketMilestone>(milestones);
+		DataView<TicketMilestone> milestonesList = new DataView<TicketMilestone>(wicketId, milestonesDp) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void populateItem(final Item<TicketMilestone> item) {
+				Fragment entryPanel = new Fragment("entryPanel", "milestoneListFragment", this);
+				item.add(entryPanel);
+
 				final TicketMilestone tm = item.getModelObject();
-				PageParameters params = queryParameters(null, tm.name, null, null, null, desc, 1);
-				item.add(new LinkPanel("milestoneName", null, tm.name, TicketsPage.class, params).setRenderBodyOnly(true));
+				PageParameters params = queryParameters(null, tm.name, null, null, null, true, 1);
+				entryPanel.add(new LinkPanel("milestoneName", null, tm.name, TicketsPage.class, params).setRenderBodyOnly(true));
 
 				String css;
+				String status = tm.status.name();
 				switch (tm.status) {
 				case Open:
-					css = "aui-lozenge aui-lozenge-subtle";
+					if (tm.isOverdue()) {
+						css = "aui-lozenge aui-lozenge-subtle aui-lozenge-error";
+						status = "overdue";
+					} else {
+						css = "aui-lozenge aui-lozenge-subtle";
+					}
 					break;
 				default:
 					css = "aui-lozenge";
 					break;
 				}
-				Label stateLabel = new Label("milestoneState", tm.status.name());
+				Label stateLabel = new Label("milestoneState", status);
 				WicketUtils.setCssClass(stateLabel, css);
-				item.add(stateLabel);
+				entryPanel.add(stateLabel);
 
 				if (tm.due == null) {
-					item.add(new Label("milestoneDue", getString("gb.notSpecified")));
+					entryPanel.add(new Label("milestoneDue", getString("gb.notSpecified")));
 				} else {
-					item.add(WicketUtils.createDatestampLabel("milestoneDue", tm.due, getTimeZone(), getTimeUtils()));
+					entryPanel.add(WicketUtils.createDatestampLabel("milestoneDue", tm.due, getTimeZone(), getTimeUtils()));
+				}
+				if (acceptingUpdates) {
+					entryPanel.add(new LinkPanel("editMilestone", null, getString("gb.edit"), EditMilestonePage.class,
+						WicketUtils.newObjectParameter(repositoryName, tm.name)));
+				} else {
+					entryPanel.add(new Label("editMilestone").setVisible(false));
+				}
+
+				if (tm.isOpen()) {
+					// re-load milestone with query results
+					TicketMilestone m = app().tickets().getMilestone(getRepositoryModel(), tm.name);
+
+					Fragment milestonePanel = new Fragment("milestonePanel", "openMilestoneFragment", this);
+					Label label = new Label("progress");
+					WicketUtils.setCssStyle(label, "width:" + tm.getProgress() + "%;");
+					milestonePanel.add(label);
+
+					milestonePanel.add(new LinkPanel("openTickets", null,
+							MessageFormat.format(getString("gb.nOpenTickets"), m.getOpenTickets()),
+							TicketsPage.class,
+							queryParameters(null, tm.name, openStatii, null, null, true, 1)));
+
+					milestonePanel.add(new LinkPanel("closedTickets", null,
+							MessageFormat.format(getString("gb.nClosedTickets"), m.getClosedTickets()),
+							TicketsPage.class,
+							queryParameters(null, tm.name, closedStatii, null, null, true, 1)));
+
+					milestonePanel.add(new Label("totalTickets", MessageFormat.format(getString("gb.nTotalTickets"), m.getTotalTickets())));
+					entryPanel.add(milestonePanel);
+				} else {
+					entryPanel.add(new Label("milestonePanel").setVisible(false));
 				}
 			}
 		};
-		add(milestonesList);
+		return milestonesList;
 	}
 
 	protected PageParameters queryParameters(

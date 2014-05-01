@@ -49,6 +49,7 @@ import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.tickets.TicketIndexer.Lucene;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.StringUtils;
@@ -556,9 +557,10 @@ public abstract class ITicketService {
 	public TicketMilestone getMilestone(RepositoryModel repository, String milestone) {
 		for (TicketMilestone ms : getMilestones(repository)) {
 			if (ms.name.equalsIgnoreCase(milestone)) {
+				TicketMilestone tm = DeepCopier.copy(ms);
 				String q = QueryBuilder.q(Lucene.rid.matches(repository.getRID())).and(Lucene.milestone.matches(milestone)).build();
-				ms.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
-				return ms;
+				tm.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
+				return tm;
 			}
 		}
 		return null;
@@ -639,6 +641,22 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName, String newName, String createdBy) {
+		return renameMilestone(repository, oldName, newName, createdBy, true);
+	}
+
+	/**
+	 * Renames a milestone.
+	 *
+	 * @param repository
+	 * @param oldName
+	 * @param newName
+	 * @param createdBy
+	 * @param notifyOpenTickets
+	 * @return true if successful
+	 * @since 1.6.0
+	 */
+	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName,
+			String newName, String createdBy, boolean notifyOpenTickets) {
 		if (StringUtils.isEmpty(newName)) {
 			throw new IllegalArgumentException("new milestone can not be empty!");
 		}
@@ -651,7 +669,7 @@ public abstract class ITicketService {
 			config.setString(MILESTONE, newName, STATUS, milestone.status.name());
 			config.setString(MILESTONE, newName, COLOR, milestone.color);
 			if (milestone.due != null) {
-				config.setString(MILESTONE, milestone.name, DUE,
+				config.setString(MILESTONE, newName, DUE,
 						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
 			}
 			config.save();
@@ -663,9 +681,13 @@ public abstract class ITicketService {
 				Change change = new Change(createdBy);
 				change.setField(Field.milestone, newName);
 				TicketModel ticket = updateTicket(repository, qr.number, change);
-				notifier.queueMailing(ticket);
+				if (notifyOpenTickets && ticket.isOpen()) {
+					notifier.queueMailing(ticket);
+				}
 			}
-			notifier.sendAll();
+			if (notifyOpenTickets) {
+				notifier.sendAll();
+			}
 
 			return true;
 		} catch (IOException e) {
@@ -688,11 +710,27 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	public synchronized boolean deleteMilestone(RepositoryModel repository, String milestone, String createdBy) {
+		return deleteMilestone(repository, milestone, createdBy, true);
+	}
+
+	/**
+	 * Deletes a milestone.
+	 *
+	 * @param repository
+	 * @param milestone
+	 * @param createdBy
+	 * @param notifyOpenTickets
+	 * @return true if successful
+	 * @since 1.6.0
+	 */
+	public synchronized boolean deleteMilestone(RepositoryModel repository, String milestone,
+			String createdBy, boolean notifyOpenTickets) {
 		if (StringUtils.isEmpty(milestone)) {
 			throw new IllegalArgumentException("milestone can not be empty!");
 		}
 		Repository db = null;
 		try {
+			TicketMilestone tm = getMilestone(repository, milestone);
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
 			config.unsetSection(MILESTONE, milestone);
@@ -700,6 +738,18 @@ public abstract class ITicketService {
 
 			milestonesCache.remove(repository.name);
 
+			TicketNotifier notifier = createNotifier();
+			for (QueryResult qr : tm.tickets) {
+				Change change = new Change(createdBy);
+				change.setField(Field.milestone, "");
+				TicketModel ticket = updateTicket(repository, qr.number, change);
+				if (notifyOpenTickets && ticket.isOpen()) {
+					notifier.queueMailing(ticket);
+				}
+			}
+			if (notifyOpenTickets) {
+				notifier.sendAll();
+			}
 			return true;
 		} catch (IOException e) {
 			log.error("failed to delete milestone " + milestone + " in " + repository, e);

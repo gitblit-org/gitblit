@@ -74,6 +74,14 @@ public class QueryResult implements Serializable {
 		return type != null && Type.Proposal == type;
 	}
 
+	public boolean isOpen() {
+		return !status.isClosed();
+	}
+
+	public boolean isClosed() {
+		return status.isClosed();
+	}
+
 	public boolean isMerged() {
 		return Status.Merged == status && !StringUtils.isEmpty(mergeSha);
 	}

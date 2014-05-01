@@ -139,13 +139,50 @@
 	</div>
 	<div class="tab-pane" id="milestones">
 		<div class="row">
-			<div class="span9" wicket:id="milestoneList" style="padding-bottom: 10px;">
-				<h3><span wicket:id="milestoneName"></span> <small><span wicket:id="milestoneState"></span></small></h3>
-				<i style="color:#888;"class="fa fa-calendar"></i> <span wicket:id="milestoneDue"></span>
+			<span class="span12" style="padding-bottom:10px;" wicket:id="newMilestone"></span>
+		</div>
+
+		<div class="row">
+			<div class="span12"><h2><wicket:message key="gb.openMilestones"></wicket:message></h2></div>
+			<div class="span12"><hr/></div>
+		</div>		
+		<div class="row">
+			<div class="span4" wicket:id="openMilestonesList" style="padding-bottom: 20px;">
+				<div wicket:id="entryPanel"></div>
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="span12"><h2><wicket:message key="gb.closedMilestones"></wicket:message></h2></div>
+			<div class="span12"><hr/></div>
+		</div>		
+		<div class="row">
+			<div class="span4" wicket:id="closedMilestonesList" style="padding-bottom: 15px;">
+				<div wicket:id="entryPanel"></div>
+			</div>
+		</div>
+		
 	</div>
 </div>
+
+<wicket:fragment wicket:id="milestoneListFragment">
+	<h3><span wicket:id="milestoneName"></span> <small><span wicket:id="milestoneState"></span></small></h3>
+	<i style="color:#888;"class="fa fa-calendar"></i> <span wicket:id="milestoneDue"></span> <span wicket:id="editMilestone"></span>
+	<div wicket:id="milestonePanel"></div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="openMilestoneFragment">
+	<div style="clear:both;padding-bottom: 10px;">
+		<div style="margin-bottom: 5px;" class="progress progress-success">
+			<div class="bar" wicket:id="progress"></div>
+		</div>
+		<div class="milestoneOverview">
+			<span wicket:id="openTickets" />,
+			<span wicket:id="closedTickets" />,
+			<span wicket:id="totalTickets" />
+		</div>
+	</div>
+</wicket:fragment>
 
 <wicket:fragment wicket:id="noMilestoneFragment">
 <table style="width: 100%;padding-bottom: 5px;">
