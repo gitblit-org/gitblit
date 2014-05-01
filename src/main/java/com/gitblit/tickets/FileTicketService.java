@@ -228,7 +228,6 @@ public class FileTicketService extends ITicketService {
 		for(int i = 0; i < databases.size(); i++)
 		{
 			Repository db = databases.get(i);
-			RepositoryModel model = models.get(i);
 			try {
 				// Collect the set of all json files
 				File dir = new File(db.getDirectory(), TICKETS_PATH);
@@ -254,12 +253,12 @@ public class FileTicketService extends ITicketService {
 						long ticketId = Long.parseLong(tid);
 						List<Change> changes = TicketSerializer.deserializeJournal(json);
 						if (ArrayUtils.isEmpty(changes)) {
-							log.warn("Empty journal for {}:{}", model, journal);
+							log.warn("Empty journal for {}:{}", models.get(i), journal);
 							continue;
 						}
 						TicketModel ticket = TicketModel.buildTicket(changes);
-						ticket.project = model.projectPath;
-						ticket.repository = model.name;
+						ticket.project = models.get(i).projectPath;
+						ticket.repository = models.get(i).name;
 						ticket.number = ticketId;
 	
 						// add the ticket, conditionally, to the list
@@ -272,7 +271,7 @@ public class FileTicketService extends ITicketService {
 						}
 					} catch (Exception e) {
 						log.error("failed to deserialize {}/{}\n{}",
-								new Object [] { model, journal, e.getMessage()});
+								new Object [] { models.get(i), journal, e.getMessage()});
 						log.error(null, e);
 					}
 				}
