@@ -69,6 +69,7 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.OtherPageLink;
 import com.gitblit.wicket.SessionlessForm;
+import com.gitblit.wicket.TicketsUI;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
@@ -204,7 +205,7 @@ public abstract class RepositoryPage extends RootPage {
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
 		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(getRepositoryModel()) || app().tickets().hasTickets(getRepositoryModel()))) {
 			PageParameters tParams = new PageParameters(params);
-			for (String state : TicketsPage.openStatii) {
+			for (String state : TicketsUI.openStatii) {
 				tParams.add(Lucene.status.name(), state);
 			}
 			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, tParams));

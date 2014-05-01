@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,17 +28,12 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 
-import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -56,18 +50,17 @@ import com.gitblit.tickets.TicketResponsible;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.SessionlessForm;
+import com.gitblit.wicket.TicketsUI;
+import com.gitblit.wicket.TicketsUI.TicketQuery;
+import com.gitblit.wicket.TicketsUI.TicketSort;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.TicketListPanel;
+import com.gitblit.wicket.panels.TicketSearchForm;
 
-public class TicketsPage extends TicketBasePage {
+public class TicketsPage extends RepositoryPage {
 
 	final TicketResponsible any;
-
-	public static final String [] openStatii = new String [] { Status.New.name().toLowerCase(), Status.Open.name().toLowerCase() };
-
-	public static final String [] closedStatii = new String [] { "!" + Status.New.name().toLowerCase(), "!" + Status.Open.name().toLowerCase() };
 
 	public TicketsPage(PageParameters params) {
 		super(params);
@@ -102,11 +95,8 @@ public class TicketsPage extends TicketBasePage {
 		final String sortBy = Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
 		final boolean desc = !"asc".equals(params.getString("direction", "desc"));
 
-
 		// add search form
-		TicketSearchForm searchForm = new TicketSearchForm("ticketSearchForm", repositoryName, searchParam);
-		add(searchForm);
-		searchForm.setTranslatedAttributes();
+		add(new TicketSearchForm("ticketSearchForm", repositoryName, searchParam, getClass(), params));
 
 		final String activeQuery;
 		if (!StringUtils.isEmpty(searchParam)) {
@@ -192,12 +182,12 @@ public class TicketsPage extends TicketBasePage {
 			milestonePanel.add(new LinkPanel("openTickets", null,
 					MessageFormat.format(getString("gb.nOpenTickets"), currentMilestone.getOpenTickets()),
 					TicketsPage.class,
-					queryParameters(null, currentMilestone.name, openStatii, null, sortBy, desc, 1)));
+					queryParameters(null, currentMilestone.name, TicketsUI.openStatii, null, sortBy, desc, 1)));
 
 			milestonePanel.add(new LinkPanel("closedTickets", null,
 					MessageFormat.format(getString("gb.nClosedTickets"), currentMilestone.getClosedTickets()),
 					TicketsPage.class,
-					queryParameters(null, currentMilestone.name, closedStatii, null, sortBy, desc, 1)));
+					queryParameters(null, currentMilestone.name, TicketsUI.closedStatii, null, sortBy, desc, 1)));
 
 			milestonePanel.add(new Label("totalTickets", MessageFormat.format(getString("gb.nTotalTickets"), currentMilestone.getTotalTickets())));
 			add(milestonePanel);
@@ -287,7 +277,7 @@ public class TicketsPage extends TicketBasePage {
 				queryParameters(
 						null,
 						milestoneParam,
-						openStatii,
+						TicketsUI.openStatii,
 						null,
 						null,
 						true,
@@ -397,8 +387,8 @@ public class TicketsPage extends TicketBasePage {
 		} else {
 			add(new Label("selectedStatii", StringUtils.flattenStrings(Arrays.asList(statiiParam), ",")));
 		}
-		add(new BookmarkablePageLink<Void>("openTickets", TicketsPage.class, queryParameters(queryParam, milestoneParam, openStatii, assignedToParam, sortBy, desc, 1)));
-		add(new BookmarkablePageLink<Void>("closedTickets", TicketsPage.class, queryParameters(queryParam, milestoneParam, closedStatii, assignedToParam, sortBy, desc, 1)));
+		add(new BookmarkablePageLink<Void>("openTickets", TicketsPage.class, queryParameters(queryParam, milestoneParam, TicketsUI.openStatii, assignedToParam, sortBy, desc, 1)));
+		add(new BookmarkablePageLink<Void>("closedTickets", TicketsPage.class, queryParameters(queryParam, milestoneParam, TicketsUI.closedStatii, assignedToParam, sortBy, desc, 1)));
 		add(new BookmarkablePageLink<Void>("allTickets", TicketsPage.class, queryParameters(queryParam, milestoneParam, null, assignedToParam, sortBy, desc, 1)));
 
 		// by status
@@ -412,7 +402,7 @@ public class TicketsPage extends TicketBasePage {
 			public void populateItem(final Item<Status> item) {
 				final Status status = item.getModelObject();
 				PageParameters p = queryParameters(queryParam, milestoneParam, new String [] { status.name().toLowerCase() }, assignedToParam, sortBy, desc, 1);
-				String css = getStatusClass(status);
+				String css = TicketsUI.getStatusClass(status);
 				item.add(new LinkPanel("statusLink", css, status.toString(), TicketsPage.class, p).setRenderBodyOnly(true));
 			}
 		};
@@ -491,162 +481,7 @@ public class TicketsPage extends TicketBasePage {
 		// paging links
 		buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, page, pageSize, results.size(), totalResults);
 
-		ListDataProvider<QueryResult> resultsDataProvider = new ListDataProvider<QueryResult>(results);
-		DataView<QueryResult> ticketsView = new DataView<QueryResult>("ticket", resultsDataProvider) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void populateItem(final Item<QueryResult> item) {
-				final QueryResult ticket = item.getModelObject();
-				item.add(getStateIcon("state", ticket.type, ticket.status));
-				item.add(new Label("id", "" + ticket.number));
-				UserModel creator = app().users().getUserModel(ticket.createdBy);
-				if (creator != null) {
-					item.add(new LinkPanel("createdBy", null, creator.getDisplayName(),
-						UserPage.class, WicketUtils.newUsernameParameter(ticket.createdBy)));
-				} else {
-					item.add(new Label("createdBy", ticket.createdBy));
-				}
-				item.add(WicketUtils.createDateLabel("createDate", ticket.createdAt, GitBlitWebSession
-						.get().getTimezone(), getTimeUtils(), false));
-
-				if (ticket.updatedAt == null) {
-					item.add(new Label("updated").setVisible(false));
-				} else {
-					Fragment updated = new Fragment("updated", "updatedFragment", this);
-					UserModel updater = app().users().getUserModel(ticket.updatedBy);
-					if (updater != null) {
-						updated.add(new LinkPanel("updatedBy", null, updater.getDisplayName(),
-								UserPage.class, WicketUtils.newUsernameParameter(ticket.updatedBy)));
-					} else {
-						updated.add(new Label("updatedBy", ticket.updatedBy));
-					}
-					updated.add(WicketUtils.createDateLabel("updateDate", ticket.updatedAt, GitBlitWebSession
-							.get().getTimezone(), getTimeUtils(), false));
-					item.add(updated);
-				}
-
-				item.add(new LinkPanel("title", "list subject", StringUtils.trimString(
-						ticket.title, Constants.LEN_SHORTLOG), TicketsPage.class, newTicketParameter(ticket)));
-
-				ListDataProvider<String> labelsProvider = new ListDataProvider<String>(ticket.getLabels());
-				DataView<String> labelsView = new DataView<String>("labels", labelsProvider) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void populateItem(final Item<String> labelItem) {
-						String content = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, labelItem.getModelObject());
-						Label label = new Label("label", content);
-						label.setEscapeModelStrings(false);
-						TicketLabel tLabel = app().tickets().getLabel(getRepositoryModel(), labelItem.getModelObject());
-						String background = MessageFormat.format("background-color:{0};", tLabel.color);
-						label.add(new SimpleAttributeModifier("style", background));
-						labelItem.add(label);
-					}
-				};
-				item.add(labelsView);
-
-				if (StringUtils.isEmpty(ticket.responsible)) {
-					item.add(new Label("responsible").setVisible(false));
-				} else {
-					UserModel responsible = app().users().getUserModel(ticket.responsible);
-					if (responsible == null) {
-						responsible = new UserModel(ticket.responsible);
-					}
-					GravatarImage avatar = new GravatarImage("responsible", responsible.getDisplayName(),
-							responsible.emailAddress, null, 16, true);
-					avatar.setTooltip(getString("gb.responsible") + ": " + responsible.getDisplayName());
-					item.add(avatar);
-				}
-
-				// votes indicator
-				Label v = new Label("votes", "" + ticket.votesCount);
-				WicketUtils.setHtmlTooltip(v, getString("gb.votes"));
-				item.add(v.setVisible(ticket.votesCount > 0));
-
-				// watching indicator
-				item.add(new Label("watching").setVisible(ticket.isWatching(GitBlitWebSession.get().getUsername())));
-
-				// status indicator
-				String css = getLozengeClass(ticket.status, true);
-				Label l = new Label("status", ticket.status.toString());
-				WicketUtils.setCssClass(l, css);
-				item.add(l);
-
-				// add the ticket indicators/icons
-				List<Indicator> indicators = new ArrayList<Indicator>();
-
-				// comments
-				if (ticket.commentsCount > 0) {
-					int count = ticket.commentsCount;
-					String pattern = "gb.nComments";
-					if (count == 1) {
-						pattern = "gb.oneComment";
-					}
-					indicators.add(new Indicator("fa fa-comment", count, pattern));
-				}
-
-				// participants
-				if (!ArrayUtils.isEmpty(ticket.participants)) {
-					int count = ticket.participants.size();
-					if (count > 1) {
-						String pattern = "gb.nParticipants";
-						indicators.add(new Indicator("fa fa-user", count, pattern));
-					}
-				}
-
-				// attachments
-				if (!ArrayUtils.isEmpty(ticket.attachments)) {
-					int count = ticket.attachments.size();
-					String pattern = "gb.nAttachments";
-					if (count == 1) {
-						pattern = "gb.oneAttachment";
-					}
-					indicators.add(new Indicator("fa fa-file", count, pattern));
-				}
-
-				// patchset revisions
-				if (ticket.patchset != null) {
-					int count = ticket.patchset.commits;
-					String pattern = "gb.nCommits";
-					if (count == 1) {
-						pattern = "gb.oneCommit";
-					}
-					indicators.add(new Indicator("fa fa-code", count, pattern));
-				}
-
-				// milestone
-				if (!StringUtils.isEmpty(ticket.milestone)) {
-					indicators.add(new Indicator("fa fa-bullseye", ticket.milestone));
-				}
-
-				ListDataProvider<Indicator> indicatorsDp = new ListDataProvider<Indicator>(indicators);
-				DataView<Indicator> indicatorsView = new DataView<Indicator>("indicators", indicatorsDp) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void populateItem(final Item<Indicator> item) {
-						Indicator indicator = item.getModelObject();
-						String tooltip = indicator.getTooltip();
-
-						Label icon = new Label("icon");
-						WicketUtils.setCssClass(icon, indicator.css);
-						item.add(icon);
-
-						if (indicator.count > 0) {
-							Label count = new Label("count", "" + indicator.count);
-							item.add(count.setVisible(!StringUtils.isEmpty(tooltip)));
-						} else {
-							item.add(new Label("count").setVisible(false));
-						}
-
-						WicketUtils.setHtmlTooltip(item, tooltip);
-					}
-				};
-				item.add(indicatorsView);
-			}
-		};
-		add(ticketsView);
+		add(new TicketListPanel("ticketList", results, false, false));
 
 		// new milestone link
 		RepositoryModel repositoryModel = getRepositoryModel();
@@ -747,12 +582,12 @@ public class TicketsPage extends TicketBasePage {
 					milestonePanel.add(new LinkPanel("openTickets", null,
 							MessageFormat.format(getString("gb.nOpenTickets"), m.getOpenTickets()),
 							TicketsPage.class,
-							queryParameters(null, tm.name, openStatii, null, null, true, 1)));
+							queryParameters(null, tm.name, TicketsUI.openStatii, null, null, true, 1)));
 
 					milestonePanel.add(new LinkPanel("closedTickets", null,
 							MessageFormat.format(getString("gb.nClosedTickets"), m.getClosedTickets()),
 							TicketsPage.class,
-							queryParameters(null, tm.name, closedStatii, null, null, true, 1)));
+							queryParameters(null, tm.name, TicketsUI.closedStatii, null, null, true, 1)));
 
 					milestonePanel.add(new Label("totalTickets", MessageFormat.format(getString("gb.nTotalTickets"), m.getTotalTickets())));
 					entryPanel.add(milestonePanel);
@@ -863,124 +698,5 @@ public class TicketsPage extends TicketBasePage {
 			}
 		};
 		add(pagesView);
-	}
-
-	private class Indicator implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		final String css;
-		final int count;
-		final String tooltip;
-
-		Indicator(String css, String tooltip) {
-			this.css = css;
-			this.tooltip = tooltip;
-			this.count = 0;
-		}
-
-		Indicator(String css, int count, String pattern) {
-			this.css = css;
-			this.count = count;
-			this.tooltip = StringUtils.isEmpty(pattern) ? "" : MessageFormat.format(getString(pattern), count);
-		}
-
-		String getTooltip() {
-			return tooltip;
-		}
-	}
-
-	private class TicketQuery implements Serializable, Comparable<TicketQuery> {
-
-		private static final long serialVersionUID = 1L;
-
-		final String name;
-		final String query;
-		String color;
-
-		TicketQuery(String name, String query) {
-			this.name = name;
-			this.query = query;
-		}
-
-		TicketQuery color(String value) {
-			this.color = value;
-			return this;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o instanceof TicketQuery) {
-				return ((TicketQuery) o).query.equals(query);
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return query.hashCode();
-		}
-
-		@Override
-		public int compareTo(TicketQuery o) {
-			return query.compareTo(o.query);
-		}
-	}
-
-	private class TicketSort implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		final String name;
-		final String sortBy;
-		final boolean desc;
-
-		TicketSort(String name, String sortBy, boolean desc) {
-			this.name = name;
-			this.sortBy = sortBy;
-			this.desc = desc;
-		}
-	}
-
-	private class TicketSearchForm extends SessionlessForm<Void> implements Serializable {
-		private static final long serialVersionUID = 1L;
-
-		private final String repositoryName;
-
-		private final IModel<String> searchBoxModel;;
-
-		public TicketSearchForm(String id, String repositoryName, String text) {
-			super(id, TicketsPage.this.getClass(), TicketsPage.this.getPageParameters());
-
-			this.repositoryName = repositoryName;
-			this.searchBoxModel = new Model<String>(text == null ? "" : text);
-
-			TextField<String> searchBox = new TextField<String>("ticketSearchBox", searchBoxModel);
-			add(searchBox);
-		}
-
-		void setTranslatedAttributes() {
-			WicketUtils.setHtmlTooltip(get("ticketSearchBox"),
-					MessageFormat.format(getString("gb.searchTicketsTooltip"), repositoryName));
-			WicketUtils.setInputPlaceholder(get("ticketSearchBox"), getString("gb.searchTickets"));
-		}
-
-		@Override
-		public void onSubmit() {
-			String searchString = searchBoxModel.getObject();
-			if (StringUtils.isEmpty(searchString)) {
-				// redirect to self to avoid wicket page update bug
-				String absoluteUrl = getCanonicalUrl();
-				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
-				return;
-			}
-
-			// use an absolute url to workaround Wicket-Tomcat problems with
-			// mounted url parameters (issue-111)
-			PageParameters params = WicketUtils.newRepositoryParameter(repositoryName);
-			params.add("s", searchString);
-			String absoluteUrl = getCanonicalUrl(TicketsPage.class, params);
-			getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
-		}
 	}
 }

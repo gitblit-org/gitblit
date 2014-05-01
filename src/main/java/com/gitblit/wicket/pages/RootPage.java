@@ -134,6 +134,8 @@ public abstract class RootPage extends BasePage {
 		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, false);
 		boolean authenticateAdmin = app().settings().getBoolean(Keys.web.authenticateAdminPages, true);
 		boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, true);
+		boolean allowLucene = app().settings().getBoolean(Keys.web.allowLuceneIndexing, true);
+		boolean isLoggedIn = GitBlitWebSession.get().isLoggedIn();
 
 		if (authenticateAdmin) {
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
@@ -151,7 +153,7 @@ public abstract class RootPage extends BasePage {
 		}
 
 		if (authenticateView || authenticateAdmin) {
-			if (GitBlitWebSession.get().isLoggedIn()) {
+			if (isLoggedIn) {
 				UserMenu userFragment = new UserMenu("userPanel", "userMenuFragment", RootPage.this);
 				add(userFragment);
 			} else {
@@ -167,13 +169,16 @@ public abstract class RootPage extends BasePage {
 
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
-		if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
-			pages.add(new PageRegistration(GitBlitWebSession.get().isLoggedIn() ? "gb.myDashboard" : "gb.dashboard", MyDashboardPage.class,
+		if (!authenticateView || (authenticateView && isLoggedIn)) {
+			pages.add(new PageRegistration(isLoggedIn ? "gb.myDashboard" : "gb.dashboard", MyDashboardPage.class,
 					getRootPageParameters()));
+			if (isLoggedIn && app().tickets().isReady()) {
+				pages.add(new PageRegistration("gb.myTickets", MyTicketsPage.class));
+			}
 			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
 			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
-			if (app().settings().getBoolean(Keys.web.allowLuceneIndexing, true)) {
+			if (allowLucene) {
 				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
 			}
 			if (showAdmin) {
@@ -183,7 +188,7 @@ public abstract class RootPage extends BasePage {
 				pages.add(new PageRegistration("gb.federation", FederationPage.class));
 			}
 
-			if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
+			if (!authenticateView || (authenticateView && isLoggedIn)) {
 				addDropDownMenus(pages);
 			}
 		}
