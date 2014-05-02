@@ -132,6 +132,7 @@ public class MigrateTickets {
 		settings.overrideSetting(Keys.git.enableGarbageCollection, false);
 		settings.overrideSetting(Keys.git.enableMirroring, false);
 		settings.overrideSetting(Keys.web.activityCacheDays, 0);
+		settings.overrideSetting(ITicketService.SETTING_UPDATE_DIFFSTATS, false);
 
 		IRuntimeManager runtimeManager = new RuntimeManager(settings, baseFolder).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null).start();

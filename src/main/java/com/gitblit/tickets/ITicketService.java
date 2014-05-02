@@ -65,6 +65,8 @@ import com.google.common.cache.CacheBuilder;
  */
 public abstract class ITicketService {
 
+	public static final String SETTING_UPDATE_DIFFSTATS = "migration.updateDiffstats";
+
 	private static final String LABEL = "label";
 
 	private static final String MILESTONE = "milestone";
@@ -106,6 +108,8 @@ public abstract class ITicketService {
 	private final Map<String, List<TicketLabel>> labelsCache;
 
 	private final Map<String, List<TicketMilestone>> milestonesCache;
+
+	private final boolean updateDiffstats;
 
 	private static class TicketKey {
 		final String repository;
@@ -164,6 +168,8 @@ public abstract class ITicketService {
 
 		this.labelsCache = new ConcurrentHashMap<String, List<TicketLabel>>();
 		this.milestonesCache = new ConcurrentHashMap<String, List<TicketMilestone>>();
+
+		this.updateDiffstats = settings.getBoolean(SETTING_UPDATE_DIFFSTATS, true);
 	}
 
 	/**
@@ -832,7 +838,7 @@ public abstract class ITicketService {
 			ticket = getTicketImpl(repository, ticketId);
 			// if ticket exists
 			if (ticket != null) {
-				if (ticket.hasPatchsets()) {
+				if (ticket.hasPatchsets() && updateDiffstats) {
 					Repository r = repositoryManager.getRepository(repository.name);
 					try {
 						Patchset patchset = ticket.getCurrentPatchset();
