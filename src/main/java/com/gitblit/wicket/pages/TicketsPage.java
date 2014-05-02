@@ -576,7 +576,7 @@ public class TicketsPage extends RepositoryPage {
 
 					Fragment milestonePanel = new Fragment("milestonePanel", "openMilestoneFragment", this);
 					Label label = new Label("progress");
-					WicketUtils.setCssStyle(label, "width:" + tm.getProgress() + "%;");
+					WicketUtils.setCssStyle(label, "width:" + m.getProgress() + "%;");
 					milestonePanel.add(label);
 
 					milestonePanel.add(new LinkPanel("openTickets", null,
