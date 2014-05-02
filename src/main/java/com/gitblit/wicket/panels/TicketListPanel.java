@@ -32,6 +32,7 @@ import com.gitblit.Constants;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.QueryResult;
+import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.BugtraqProcessor;
@@ -40,7 +41,6 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.TicketsUI;
 import com.gitblit.wicket.TicketsUI.Indicator;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.UserPage;
 
@@ -73,16 +73,19 @@ public class TicketListPanel extends BasePanel {
 					WicketUtils.setCssStyle(item, MessageFormat.format("border-left: 2px solid {0};", color));
 				}
 
-				PageParameters rp = WicketUtils.newRepositoryParameter(ticket.repository);
 				PageParameters tp = WicketUtils.newObjectParameter(ticket.repository, "" + ticket.number);
 
 				if (showRepository) {
 					String name = StringUtils.stripDotGit(ticket.repository);
-					LinkPanel link = new LinkPanel("repositoryLink", null, name, SummaryPage.class, rp);
+					PageParameters rp = new PageParameters(WicketUtils.newRepositoryParameter(ticket.repository));
+					for (String state : TicketsUI.openStatii) {
+						rp.add(Lucene.status.name(), state);
+					}
+					LinkPanel link = new LinkPanel("ticketsLink", null, name, TicketsPage.class, rp);
 					WicketUtils.setCssBackground(link, name);
 					item.add(link);
 				} else {
-					item.add(new Label("repositoryLink").setVisible(false));
+					item.add(new Label("ticketsLink").setVisible(false));
 				}
 
 				item.add(TicketsUI.getStateIcon("state", ticket.type, ticket.status));
