@@ -114,36 +114,23 @@ The answer is, it's really not that different from a GitHub pull request.  When 
 
 Additionally, because the patchset is not linked to a user's personal fork it is possible to allow others to collaborate on development.
 
-## Status
+#### Features
 
-The Tickets feature is highly functional but there are several areas which need further refinements.
-
-#### What is working
-
+- My Tickets page
 - Ticket creation and editing
-- Ticket creation on patchset push
+- Ticket creation on patchset push (proposal)
+- Branch-based pull-requests
 - Comments with Markdown syntax support
 - Rich email notifications
 - Fast-forward patchset updates and patchset rewrites
 - Voting
 - Watching
 - Mentions
-- Partial milestone support
+- Milestones
 - Querying
 - Searching
 - Is Mergeable test on view ticket page load
+- Server-side merge
 - Close-on-push of detected merge
 - Multiple backend choices
-- Server-side merge (testing)
 
-#### TODO
-
-- Implement a My Tickets page (ticket-15)
-- Ticket Lifecycle Hooks (ticket-16)
-- CRUD pages for Milestones (ticket-17)
-- Ticket service migration tool (ticket-19)
-- Collapsible ticket description (e.g. AUI expander)
-- Edit a comment
-- Delete a comment
-- REST API for tooling
-- Client-side Markdown previews (AngularMarkdown?)

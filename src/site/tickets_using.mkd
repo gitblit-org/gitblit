@@ -148,7 +148,7 @@ Add some commits (fast-forward) to ticket *12*.  Set the milestone to *1.4.1*.
 
 ### Merging Patchsets
 
-The Gitblit web ui offers a merge button which *should work* but is not fully tested.  Gitblit does verify that you can cleanly merge a patchset to the integration branch.
+The Gitblit web ui offers a merge button which will work for clean merges of a patchset to the integration branch.
 
 There are complicated merge scenarios for which it may be best to merge using your Git client.  There are several ways to do this, here is a safe merge strategy which pulls into a new branch and then fast-forwards your integration branch, assuming you were happy with the pull (merge).
 
