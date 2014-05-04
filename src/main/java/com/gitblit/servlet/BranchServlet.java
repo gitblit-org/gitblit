@@ -47,8 +47,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
+import com.gitblit.Keys;
 import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
@@ -69,10 +71,13 @@ public class BranchServlet extends DaggerServlet {
 
 	private transient Logger logger = LoggerFactory.getLogger(BranchServlet.class);
 
+	private IRuntimeManager runtimeManager;
+
 	private IRepositoryManager repositoryManager;
 
 	@Override
 	protected void inject(ObjectGraph dagger) {
+		this.runtimeManager = dagger.get(IRuntimeManager.class);
 		this.repositoryManager = dagger.get(IRepositoryManager.class);
 	}
 
@@ -89,7 +94,12 @@ public class BranchServlet extends DaggerServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
-		return baseURL + Constants.BRANCH + repository + "/" + (branch == null ? "" : (branch + "/" + (path == null ? "" : (path + "/"))));
+		String encodedPath = path.replace(' ', '-');
+		try {
+			encodedPath = URLEncoder.encode(encodedPath, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+		}
+		return baseURL + Constants.BRANCH + repository + "/" + (branch == null ? "" : (branch + "/" + (path == null ? "" : (encodedPath + "/"))));
 	}
 
 	protected String getBranch(String repository, HttpServletRequest request) {
@@ -210,9 +220,8 @@ public class BranchServlet extends DaggerServlet {
 			List<PathModel> pathEntries = JGitUtils.getFilesInPath(r, requestedPath, commit);
 			if (pathEntries.isEmpty()) {
 				// requested a specific resource
+				String file = StringUtils.getLastPathElement(requestedPath);
 				try {
-					String file = StringUtils.getLastPathElement(requestedPath);
-
 					// query Tika for the content type
 					Tika tika = new Tika();
 					String contentType = tika.detect(file);
@@ -226,16 +235,20 @@ public class BranchServlet extends DaggerServlet {
 							contentType = "application/octet-stream";
 						}
 					}
-					response.setContentType(contentType);
 
+					setContentType(response, contentType);
 
-					if (contentType.startsWith("text/")
-							|| "application/json".equals(contentType)
-							|| "application/xml".equals(contentType)) {
+					if (isTextType(contentType)) {
 
-						// serve text content
-						String encoding = commit.getEncoding().name();
-						response.setCharacterEncoding(encoding);
+						// load, interpret, and serve text content as UTF-8
+						String [] encodings = runtimeManager.getSettings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
+						String content = JGitUtils.getStringContent(r, commit.getTree(), requestedPath, encodings);
+
+						byte [] bytes = content.getBytes(Constants.ENCODING);
+						response.setContentLength(bytes.length);
+						ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+						sendContent(response, JGitUtils.getCommitDate(commit), is);
+
 					} else {
 						// serve binary content
 						String filename = StringUtils.getLastPathElement(requestedPath);
@@ -255,10 +268,10 @@ public class BranchServlet extends DaggerServlet {
 						catch (UnsupportedEncodingException e) {
 							response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 						}
-					}
 
-					// send content
-					streamFromRepo(response, r, commit, requestedPath);
+						// stream binary content directly from the repository
+						streamFromRepo(response, r, commit, requestedPath);
+					}
 					return;
 				} catch (Exception e) {
 					logger.error(null, e);
@@ -293,8 +306,8 @@ public class BranchServlet extends DaggerServlet {
 								fullPath = requestedPath + "/" + fileName;
 							}
 
-							String encoding = commit.getEncoding().name();
-							String stringContent = JGitUtils.getStringContent(r, commit.getTree(), fullPath, encoding);
+							String [] encodings = runtimeManager.getSettings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
+							String stringContent = JGitUtils.getStringContent(r, commit.getTree(), fullPath, encodings);
 							if (stringContent == null) {
 								continue;
 							}
@@ -306,6 +319,7 @@ public class BranchServlet extends DaggerServlet {
 
 					response.setContentType("text/html; charset=" + Constants.ENCODING);
 					byte [] bytes = content.getBytes(Constants.ENCODING);
+					response.setContentLength(bytes.length);
 
 					ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 					sendContent(response, JGitUtils.getCommitDate(commit), is);
@@ -368,6 +382,29 @@ public class BranchServlet extends DaggerServlet {
 			logger.error("Failed to write page to client", t);
 		} finally {
 			r.close();
+		}
+	}
+
+	protected boolean isTextType(String contentType) {
+		if (contentType.startsWith("text/")
+				|| "application/json".equals(contentType)
+				|| "application/xml".equals(contentType)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Override all text types to be plain text.
+	 *
+	 * @param response
+	 * @param contentType
+	 */
+	protected void setContentType(HttpServletResponse response, String contentType) {
+		if (isTextType(contentType)) {
+			response.setContentType("text/plain");
+		} else {
+			response.setContentType(contentType);
 		}
 	}
 

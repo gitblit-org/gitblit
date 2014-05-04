@@ -16,6 +16,7 @@
 package com.gitblit.servlet;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants;
 
@@ -66,5 +67,10 @@ public class PagesServlet extends BranchServlet {
 	@Override
 	protected boolean renderIndex() {
 		return true;
+	}
+
+	@Override
+	protected void setContentType(HttpServletResponse response, String contentType) {
+		response.setContentType(contentType);;
 	}
 }
