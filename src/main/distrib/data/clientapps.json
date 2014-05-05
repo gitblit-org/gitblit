@@ -93,11 +93,10 @@
 	{
 		"name": "TortoiseGit",
 		"title": "TortoiseGit",
-		"description": "The coolest Interface to Git Version Control",
+		"description": "Windows Shell Interface to Git",
 		"legal": "released under the GPLv2 open source license",
 		"cloneUrl": "tgit://clone/${repoUrl}",
 		"productUrl": "http://www.tortoisegit.org",
-		"transports": [ "http", "https" ],
 		"platforms": [ "windows" ],
 		"icon": "tortoise32.png",
 		"isActive": true
