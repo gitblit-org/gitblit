@@ -41,6 +41,7 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
+import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
@@ -184,8 +185,8 @@ public class ComparePage extends RepositoryPage {
 						item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
 								.newPathParameter(repositoryName, endId, entry.path))
 								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
-						item.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
-								.newPathParameter(repositoryName, endId, entry.path))
+						String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, endId, entry.path);
+						item.add(new ExternalLink("raw", rawUrl)
 								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 						item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
 								.newPathParameter(repositoryName, endId, entry.path))

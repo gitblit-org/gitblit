@@ -134,6 +134,21 @@
 	</servlet-mapping>	
 
 
+	<!-- Raw Servlet
+		 <url-pattern> MUST match: 
+			* RawFilter
+			* com.gitblit.Constants.RAW_PATH
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>RawServlet</servlet-name>
+		<servlet-class>com.gitblit.servlet.RawServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RawServlet</servlet-name>		
+		<url-pattern>/raw/*</url-pattern>
+	</servlet-mapping>	
+
+
 	<!-- Pages Servlet
 		 <url-pattern> MUST match: 
 			* PagesFilter
@@ -263,7 +278,22 @@
 	</filter-mapping>
 
 
-	<!-- Pges Restriction Filter
+	<!-- Branch Restriction Filter
+		 <url-pattern> MUST match: 
+			* RawServlet
+			* com.gitblit.Constants.BRANCH_PATH
+			* Wicket Filter ignorePaths parameter -->
+	<filter>
+		<filter-name>RawFilter</filter-name>
+		<filter-class>com.gitblit.servlet.RawFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>RawFilter</filter-name>
+		<url-pattern>/raw/*</url-pattern>
+	</filter-mapping>
+	
+
+	<!-- Pages Restriction Filter
 		 <url-pattern> MUST match: 
 			* PagesServlet
 			* com.gitblit.Constants.PAGES_PATH
@@ -310,10 +340,12 @@
              	* FederationServlet <url-pattern>
              	* RpcFilter <url-pattern>
              	* RpcServlet <url-pattern>
+             	* RawFilter <url-pattern>
+             	* RawServlet <url-pattern>
              	* PagesFilter <url-pattern>
              	* PagesServlet <url-pattern>
              	* com.gitblit.Constants.PAGES_PATH -->
-            <param-value>r/,git/,pt,feed/,zip/,federation/,rpc/,pages/,robots.txt,logo.png,graph/,sparkleshare/</param-value>
+            <param-value>r/,git/,pt,feed/,zip/,federation/,rpc/,raw/,pages/,robots.txt,logo.png,graph/,sparkleshare/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

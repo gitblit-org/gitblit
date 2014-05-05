@@ -64,13 +64,13 @@ import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.MyDashboardPage;
+import com.gitblit.wicket.pages.MyTicketsPage;
 import com.gitblit.wicket.pages.NewMilestonePage;
 import com.gitblit.wicket.pages.NewTicketPage;
 import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.ProjectsPage;
-import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.ReflogPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ReviewProposalPage;
@@ -81,7 +81,6 @@ import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
-import com.gitblit.wicket.pages.MyTicketsPage;
 
 public class GitBlitWebApp extends WebApplication {
 
@@ -173,7 +172,6 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/tag", TagPage.class, "r", "h");
 		mount("/tree", TreePage.class, "r", "h", "f");
 		mount("/blob", BlobPage.class, "r", "h", "f");
-		mount("/raw", RawPage.class, "r", "h", "f");
 		mount("/blobdiff", BlobDiffPage.class, "r", "h", "f");
 		mount("/commitdiff", CommitDiffPage.class, "r", "h");
 		mount("/compare", ComparePage.class, "r", "h");

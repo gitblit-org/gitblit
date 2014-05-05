@@ -68,6 +68,8 @@ public class Constants {
 
 	public static final String SPARKLESHARE_INVITE_PATH = "/sparkleshare/";
 
+	public static final String RAW_PATH = "/raw/";
+
 	public static final String BRANCH_GRAPH_PATH = "/graph/";
 
 	public static final String BORDER = "*****************************************************************";
