@@ -36,10 +36,10 @@ public abstract class DaggerFilter implements Filter {
 	public final void init(FilterConfig filterConfig) throws ServletException {
 		ServletContext context = filterConfig.getServletContext();
 		ObjectGraph objectGraph = (ObjectGraph) context.getAttribute(DaggerContext.INJECTOR_NAME);
-		inject(objectGraph);
+		inject(objectGraph, filterConfig);
 	}
 
-	protected abstract void inject(ObjectGraph dagger);
+	protected abstract void inject(ObjectGraph dagger, FilterConfig filterConfig) throws ServletException;
 
 	@Override
 	public void destroy() {

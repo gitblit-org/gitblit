@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +48,10 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.extensions.RepositoryNavLinkExtension;
+import com.gitblit.models.NavLink;
+import com.gitblit.models.NavLink.ExternalNavLink;
+import com.gitblit.models.NavLink.PageNavLink;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -66,8 +69,6 @@ import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.OtherPageLink;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.TicketsUI;
 import com.gitblit.wicket.WicketUtils;
@@ -91,7 +92,6 @@ public abstract class RepositoryPage extends RootPage {
 
 	private Map<String, SubmoduleModel> submodules;
 
-	private final Map<String, PageRegistration> registeredPages;
 	private boolean showAdmin;
 	private boolean isOwner;
 
@@ -150,12 +150,11 @@ public abstract class RepositoryPage extends RootPage {
 			}
 		}
 
-		// register the available page links for this page and user
-		registeredPages = registerPages();
+		// register the available navigation links for this page and user
+		List<NavLink> navLinks = registerNavLinks();
 
-		// standard page links
-		List<PageRegistration> pages = new ArrayList<PageRegistration>(registeredPages.values());
-		NavigationPanel navigationPanel = new NavigationPanel("repositoryNavPanel", getRepoNavPageClass(), pages);
+		// standard navigation links
+		NavigationPanel navigationPanel = new NavigationPanel("repositoryNavPanel", getRepoNavPageClass(), navLinks);
 		add(navigationPanel);
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
@@ -183,45 +182,56 @@ public abstract class RepositoryPage extends RootPage {
 		return new BugtraqProcessor(app().settings());
 	}
 
-	private Map<String, PageRegistration> registerPages() {
+	private List<NavLink> registerNavLinks() {
 		PageParameters params = null;
 		if (!StringUtils.isEmpty(repositoryName)) {
 			params = WicketUtils.newRepositoryParameter(repositoryName);
 		}
-		Map<String, PageRegistration> pages = new LinkedHashMap<String, PageRegistration>();
+		List<NavLink> navLinks = new ArrayList<NavLink>();
 
 		Repository r = getRepository();
 		RepositoryModel model = getRepositoryModel();
 
 		// standard links
 		if (RefLogUtils.getRefLogBranch(r) == null) {
-			pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
+			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, params));
 		} else {
-			pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
+			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, params));
 //			pages.put("overview", new PageRegistration("gb.overview", OverviewPage.class, params));
-			pages.put("reflog", new PageRegistration("gb.reflog", ReflogPage.class, params));
+			navLinks.add(new PageNavLink("gb.reflog", ReflogPage.class, params));
 		}
-		pages.put("commits", new PageRegistration("gb.commits", LogPage.class, params));
-		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
+		navLinks.add(new PageNavLink("gb.commits", LogPage.class, params));
+		navLinks.add(new PageNavLink("gb.tree", TreePage.class, params));
 		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(getRepositoryModel()) || app().tickets().hasTickets(getRepositoryModel()))) {
 			PageParameters tParams = new PageParameters(params);
 			for (String state : TicketsUI.openStatii) {
 				tParams.add(Lucene.status.name(), state);
 			}
-			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, tParams));
+			navLinks.add(new PageNavLink("gb.tickets", TicketsPage.class, tParams));
 		}
-		pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params, true));
+		navLinks.add(new PageNavLink("gb.docs", DocsPage.class, params, true));
 		if (app().settings().getBoolean(Keys.web.allowForking, true)) {
-			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params, true));
+			navLinks.add(new PageNavLink("gb.forks", ForksPage.class, params, true));
 		}
-		pages.put("compare", new PageRegistration("gb.compare", ComparePage.class, params, true));
+		navLinks.add(new PageNavLink("gb.compare", ComparePage.class, params, true));
 
 		// conditional links
-		// per-repository extra page links
+		// per-repository extra navlinks
 		if (JGitUtils.getPagesBranch(r) != null) {
-			OtherPageLink pagesLink = new OtherPageLink("gb.pages", PagesServlet.asLink(
+			ExternalNavLink pagesLink = new ExternalNavLink("gb.pages", PagesServlet.asLink(
 					getRequest().getRelativePathPrefixToContextRoot(), repositoryName, null), true);
-			pages.put("pages", pagesLink);
+			navLinks.add(pagesLink);
+		}
+
+		UserModel user = UserModel.ANONYMOUS;
+		if (GitBlitWebSession.get().isLoggedIn()) {
+			user = GitBlitWebSession.get().getUser();
+		}
+
+		// add repository nav link extensions
+		List<RepositoryNavLinkExtension> extensions = app().plugins().getExtensions(RepositoryNavLinkExtension.class);
+		for (RepositoryNavLinkExtension ext : extensions) {
+			navLinks.addAll(ext.getNavLinks(user, model));
 		}
 
 		// Conditionally add edit link
@@ -233,9 +243,8 @@ public abstract class RepositoryPage extends RootPage {
 			showAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
 		}
 		isOwner = GitBlitWebSession.get().isLoggedIn()
-				&& (model.isOwner(GitBlitWebSession.get()
-						.getUsername()));
-		return pages;
+				&& (model.isOwner(GitBlitWebSession.get().getUsername()));
+		return navLinks;
 	}
 
 	protected boolean allowForkControls() {

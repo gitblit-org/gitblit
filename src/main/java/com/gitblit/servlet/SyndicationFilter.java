@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -50,8 +51,8 @@ public class SyndicationFilter extends AuthenticationFilter {
 	private IProjectManager projectManager;
 
 	@Override
-	protected void inject(ObjectGraph dagger) {
-		super.inject(dagger);
+	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
+		super.inject(dagger, filterConfig);
 		this.runtimeManager = dagger.get(IRuntimeManager.class);
 		this.repositoryManager = dagger.get(IRepositoryManager.class);
 		this.projectManager = dagger.get(IProjectManager.class);

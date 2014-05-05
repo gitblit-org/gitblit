@@ -214,6 +214,15 @@
 		<url-pattern>/robots.txt</url-pattern>
 	</servlet-mapping>
 
+    <filter>
+		<filter-name>ProxyFilter</filter-name>
+		<filter-class>com.gitblit.servlet.ProxyFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ProxyFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
 	<!-- Git Access Restriction Filter
 		 <url-pattern> MUST match: 
 			* GitServlet
