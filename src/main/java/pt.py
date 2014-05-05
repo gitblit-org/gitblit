@@ -54,9 +54,9 @@ def fetch(args):
         # fetch all current ticket patchsets
         print("Fetching ticket patchsets from the '{}' repository".format(args.remote))
         if args.quiet:
-            __call(['git', 'fetch', args.remote, '--quiet'])
+            __call(['git', 'fetch', '-p', args.remote, '--quiet'])
         else:
-            __call(['git', 'fetch', args.remote])
+            __call(['git', 'fetch', '-p', args.remote])
     else:
         # fetch specific patchset
         __resolve_patchset(args)
@@ -288,7 +288,7 @@ def propose(args):
         if fields[0] == 'remote' and fields[1].strip().startswith('--> #'):
             # set the upstream branch configuration
             args.id = int(fields[1].strip()[len('--> #'):])
-            __call(['git', 'fetch', args.remote])
+            __call(['git', 'fetch', '-p', args.remote])
             __call(['git', 'branch', '-u', '{}/ticket/{:d}'.format(args.remote, args.id)])
             break
 
