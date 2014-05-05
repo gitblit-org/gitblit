@@ -1,0 +1,1 @@
+[{"date":"2014-05-05T14:58:37Z","author":"james","fields":{"title":"Update javax.mail to 1.5.1","body":"Update to  `com.sun.mail:javax.mail:1.5.1`","topic":"issue-417","type":"Task","responsible":"james","milestone":"v1.6.0","mergeTo":"develop","watchers":"+james","status":"New"}}]
