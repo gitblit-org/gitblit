@@ -44,6 +44,10 @@ public abstract class BasePanel extends Panel {
 		return GitBlitWebApp.get();
 	}
 
+	protected String getContextUrl() {
+		return getRequest().getRelativePathPrefixToContextRoot();
+	}
+
 	protected TimeZone getTimeZone() {
 		return app().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
 				.getTimezone() : app().getTimezone();

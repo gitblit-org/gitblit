@@ -40,6 +40,7 @@ import com.gitblit.Constants;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.RawServlet;
 import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.JGitUtils;
@@ -143,6 +144,8 @@ public class BranchesPanel extends BasePanel {
 							.newObjectParameter(model.name, entry.getName())));
 					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
 							.newObjectParameter(model.name, entry.getName())));
+					String rawUrl = RawServlet.asLink(getContextUrl(), model.name, Repository.shortenRefName(entry.getName()), null);
+					fragment.add(new ExternalLink("raw",  rawUrl));
 					fragment.add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
 							WicketUtils.newObjectParameter(model.name, entry.getName())));
 					fragment.add(new ExternalLink("syndication", SyndicationServlet.asLink(
@@ -158,6 +161,8 @@ public class BranchesPanel extends BasePanel {
 							.newObjectParameter(model.name, entry.getName())));
 					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
 							.newObjectParameter(model.name, entry.getName())));
+					String rawUrl = RawServlet.asLink(getContextUrl(), model.name, Repository.shortenRefName(entry.getName()), null);
+					fragment.add(new ExternalLink("raw",  rawUrl));
 					item.add(fragment);
 				}
 				WicketUtils.setAlternatingBackground(item, counter);

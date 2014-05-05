@@ -94,7 +94,17 @@ public class RawServlet extends DaggerServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
-		String encodedPath = path.replace(' ', '-');
+
+		if (branch != null) {
+			char fsc = '!';
+			char c = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+			if (c != '/') {
+				fsc = c;
+			}
+			branch = branch.replace('/', fsc);
+		}
+
+		String encodedPath = path == null ? "" : path.replace(' ', '-');
 		try {
 			encodedPath = URLEncoder.encode(encodedPath, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
@@ -109,7 +119,8 @@ public class RawServlet extends DaggerServlet {
 		if (fs > -1) {
 			branch = branch.substring(0, fs);
 		}
-		return branch;
+		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		return branch.replace('!', '/').replace(c, '/');
 	}
 
 	protected String getPath(String repository, String branch, HttpServletRequest request) {
