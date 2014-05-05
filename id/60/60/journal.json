@@ -1,0 +1,1 @@
+[{"date":"2014-05-05T17:35:23Z","author":"james","fields":{"title":"Barnum: prune deleted branches","body":"Use the undocumented `-p` argument for git fetch to remove deleted branches.  This is helpful when using the SmartTicketBranches plugin.","type":"Task","responsible":"james","milestone":"v1.6.0","mergeTo":"develop","watchers":"+james","status":"New"}}]
