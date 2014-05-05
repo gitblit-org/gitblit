@@ -89,5 +89,17 @@
 		"icon": "sparkleshare_32x32.png",
 		"minimumPermission" : "RW+",
 		"isActive": false
+	},
+	{
+		"name": "TortoiseGit",
+		"title": "TortoiseGit",
+		"description": "The coolest Interface to Git Version Control",
+		"legal": "released under the GPLv2 open source license",
+		"cloneUrl": "tgit://clone/${repoUrl}",
+		"productUrl": "http://www.tortoisegit.org",
+		"transports": [ "http", "https" ],
+		"platforms": [ "windows" ],
+		"icon": "tortoise32.png",
+		"isActive": true
 	}
 ]
