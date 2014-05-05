@@ -2,5 +2,5 @@
     cd ${repo}
     git checkout -b ${reviewBranch} origin/${integrationBranch}
     ...
-    git push --set-upstream origin ${reviewBranch}
+    git push -u origin ${reviewBranch}
 

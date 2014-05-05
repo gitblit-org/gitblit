@@ -28,7 +28,7 @@ Any authenticated user who can clone your repository.
     ...add a single commit...
     git push origin HEAD:refs/for/new
     # read ticket id from server output
-    git branch --set-upstream-to=origin/ticket/{id}
+    git branch -u origin/ticket/{id}
 
 ### Creating the first Patchset for an Existing Ticket
 
@@ -42,7 +42,7 @@ Any authenticated user who can clone your repository.
     cd repo
     git checkout -b ticket/{id}
     ...add one or more commits...
-    git push --set-upstream origin ticket/{id}
+    git push -u origin ticket/{id}
 
 ### Safely adding commits to a Patchset for an Existing Ticket
 
