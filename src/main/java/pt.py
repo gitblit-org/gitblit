@@ -206,6 +206,12 @@ def start(args):
             branches.append(branch.strip())
 
     branch = 'topic/' + args.topic
+    try:
+        int(args.topic)
+        branch = 'ticket/' + args.topic
+    except ValueError:
+        pass
+
     illegals = set(branches) & {'topic', branch}
 
     # ensure there are no local branch names that will interfere with branch creation
@@ -241,6 +247,13 @@ def propose(args):
                 curr_branch = branch[1:].strip()
                 if curr_branch.startswith('topic/'):
                     topic = curr_branch[6:].strip()
+                    try:
+                        int(topic)
+                        push_ref = topic
+                    except ValueError:
+                        pass
+                if curr_branch.startswith('ticket/'):
+                    topic = curr_branch[7:].strip()
                     try:
                         int(topic)
                         push_ref = topic
