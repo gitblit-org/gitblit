@@ -102,13 +102,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="mail-1.4.3.jar">
+      <library name="javax.mail-1.5.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/mail-1.4.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/javax.mail-1.5.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/mail-1.4.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/javax.mail-1.5.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
