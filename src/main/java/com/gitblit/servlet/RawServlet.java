@@ -65,11 +65,11 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public class BranchServlet extends DaggerServlet {
+public class RawServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private transient Logger logger = LoggerFactory.getLogger(BranchServlet.class);
+	private transient Logger logger = LoggerFactory.getLogger(RawServlet.class);
 
 	private IRuntimeManager runtimeManager;
 
@@ -99,7 +99,7 @@ public class BranchServlet extends DaggerServlet {
 			encodedPath = URLEncoder.encode(encodedPath, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 		}
-		return baseURL + Constants.BRANCH + repository + "/" + (branch == null ? "" : (branch + "/" + (path == null ? "" : (encodedPath + "/"))));
+		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + (path == null ? "" : encodedPath)));
 	}
 
 	protected String getBranch(String repository, HttpServletRequest request) {
@@ -333,18 +333,9 @@ public class BranchServlet extends DaggerServlet {
 				String str = MessageFormat.format(
 						"# Error\nSorry, the requested resource **{0}** was not found.",
 						requestedPath);
-				String content = MarkdownUtils.transformMarkdown(str);
-
-				try {
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-
-					byte [] bytes = content.getBytes(Constants.ENCODING);
-					ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-					sendContent(response, new Date(), is);
-					return;
-				} catch (Throwable t) {
-					logger.error("Failed to write page to client", t);
-				}
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				error(response, str);
+				return;
 			} else {
 				//
 				// directory list
@@ -373,7 +364,8 @@ public class BranchServlet extends DaggerServlet {
 				for (PathModel entry : pathEntries) {
 					String pp = URLEncoder.encode(entry.name, Constants.ENCODING);
 					response.getWriter().append(MessageFormat.format(pattern, basePath, pp,
-							JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
+							JGitUtils.getPermissionsFromMode(entry.mode),
+							entry.isFile() ? byteFormat.format(entry.size) : ""));
 				}
 				response.getWriter().append("</tbody>");
 				response.getWriter().append("</table>");

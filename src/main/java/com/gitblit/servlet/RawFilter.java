@@ -22,13 +22,13 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
 /**
- * The BranchFilter is an AccessRestrictionFilter which ensures http branch
+ * The RawFilter is an AccessRestrictionFilter which ensures http branch
  * requests for a view-restricted repository are authenticated and authorized.
  *
  * @author James Moger
  *
  */
-public class BranchFilter extends AccessRestrictionFilter {
+public class RawFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Extract the repository name from the url.

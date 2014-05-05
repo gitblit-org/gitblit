@@ -26,7 +26,7 @@ import com.gitblit.Constants;
  * @author James Moger
  *
  */
-public class PagesServlet extends BranchServlet {
+public class PagesServlet extends RawServlet {
 
 	private static final long serialVersionUID = 1L;
 

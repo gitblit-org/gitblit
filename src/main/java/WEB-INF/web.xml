@@ -134,18 +134,18 @@
 	</servlet-mapping>	
 
 
-	<!-- Branch Servlet
+	<!-- Raw Servlet
 		 <url-pattern> MUST match: 
-			* BranchFilter
-			* com.gitblit.Constants.BRANCH_PATH
+			* RawFilter
+			* com.gitblit.Constants.RAW_PATH
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
-		<servlet-name>BranchServlet</servlet-name>
-		<servlet-class>com.gitblit.servlet.BranchServlet</servlet-class>
+		<servlet-name>RawServlet</servlet-name>
+		<servlet-class>com.gitblit.servlet.RawServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>BranchServlet</servlet-name>		
-		<url-pattern>/branch/*</url-pattern>
+		<servlet-name>RawServlet</servlet-name>		
+		<url-pattern>/raw/*</url-pattern>
 	</servlet-mapping>	
 
 
@@ -280,16 +280,16 @@
 
 	<!-- Branch Restriction Filter
 		 <url-pattern> MUST match: 
-			* BranchServlet
+			* RawServlet
 			* com.gitblit.Constants.BRANCH_PATH
 			* Wicket Filter ignorePaths parameter -->
 	<filter>
-		<filter-name>BranchFilter</filter-name>
-		<filter-class>com.gitblit.servlet.BranchFilter</filter-class>
+		<filter-name>RawFilter</filter-name>
+		<filter-class>com.gitblit.servlet.RawFilter</filter-class>
 	</filter>
 	<filter-mapping>
-		<filter-name>BranchFilter</filter-name>
-		<url-pattern>/branch/*</url-pattern>
+		<filter-name>RawFilter</filter-name>
+		<url-pattern>/raw/*</url-pattern>
 	</filter-mapping>
 	
 
@@ -340,12 +340,12 @@
              	* FederationServlet <url-pattern>
              	* RpcFilter <url-pattern>
              	* RpcServlet <url-pattern>
-             	* BranchFilter <url-pattern>
-             	* BranchServlet <url-pattern>
+             	* RawFilter <url-pattern>
+             	* RawServlet <url-pattern>
              	* PagesFilter <url-pattern>
              	* PagesServlet <url-pattern>
              	* com.gitblit.Constants.PAGES_PATH -->
-            <param-value>r/,git/,pt,feed/,zip/,federation/,rpc/,branch/,pages/,robots.txt,logo.png,graph/,sparkleshare/</param-value>
+            <param-value>r/,git/,pt,feed/,zip/,federation/,rpc/,raw/,pages/,robots.txt,logo.png,graph/,sparkleshare/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

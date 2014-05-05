@@ -98,6 +98,10 @@ public abstract class BasePage extends SessionPage {
 		}
 	}
 
+	protected String getContextUrl() {
+		return getRequest().getRelativePathPrefixToContextRoot();
+	}
+
 	protected String getCanonicalUrl() {
 		return getCanonicalUrl(getClass(), getPageParameters());
 	}

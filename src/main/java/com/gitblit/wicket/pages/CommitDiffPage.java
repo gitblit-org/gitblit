@@ -34,6 +34,7 @@ import com.gitblit.Constants;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
+import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
@@ -170,8 +171,8 @@ public class CommitDiffPage extends RepositoryPage {
 					item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
 							.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
-					item.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
+					String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, entry.commitId, entry.path);
+					item.add(new ExternalLink("raw", rawUrl)
 							.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))

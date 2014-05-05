@@ -23,7 +23,7 @@ package com.gitblit.servlet;
  * @author James Moger
  *
  */
-public class PagesFilter extends BranchFilter {
+public class PagesFilter extends RawFilter {
 
 
 }
