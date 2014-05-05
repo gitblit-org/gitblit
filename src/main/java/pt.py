@@ -289,7 +289,7 @@ def propose(args):
             # set the upstream branch configuration
             args.id = int(fields[1].strip()[len('--> #'):])
             __call(['git', 'fetch', args.remote])
-            __call(['git', 'branch', '--set-upstream-to={}/ticket/{:d}'.format(args.remote, args.id)])
+            __call(['git', 'branch', '-u', '{}/ticket/{:d}'.format(args.remote, args.id)])
             break
 
     return
