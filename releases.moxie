@@ -19,7 +19,8 @@ r23: {
     changes:
     - improve French translation (pr-176)
     - simplify current plugin release detection and ignore the currentRelease registry field 
-    additions: ~
+    additions:
+    - added TortoiseGit client app menu (pr-182)
     dependencyChanges:
     - update to Apache MINA/SSHD 0.11.0 (issue-410)
     contributors:
@@ -29,6 +30,7 @@ r23: {
     - Olivier Rouits
     - Owen Nelson
     - Alexander Zabluda
+    - Philipp Beckmann
 }
 
 #
