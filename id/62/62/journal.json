@@ -1,0 +1,1 @@
+[{"date":"2014-05-06T14:17:23Z","author":"james","fields":{"title":"Fork tracking in the repository cache is case-sensitive","body":"There is an inconsistency in referencing forks and fork origins in the repository cache wrt. case-sensitivity.","topic":"issue-420","type":"Bug","responsible":"james","milestone":"v1.5.1","mergeTo":"master","watchers":"+james","status":"New"}}]
