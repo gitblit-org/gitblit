@@ -421,8 +421,9 @@ public class RepositoryManager implements IRepositoryManager {
 
 			// update the fork origin repository with this repository clone
 			if (!StringUtils.isEmpty(model.originRepository)) {
-				if (repositoryListCache.containsKey(model.originRepository)) {
-					RepositoryModel origin = repositoryListCache.get(model.originRepository);
+				String originKey = model.originRepository.toLowerCase();
+				if (repositoryListCache.containsKey(originKey)) {
+					RepositoryModel origin = repositoryListCache.get(originKey);
 					origin.addFork(model.name);
 				}
 			}
@@ -534,8 +535,9 @@ public class RepositoryManager implements IRepositoryManager {
 				// rebuild fork networks
 				for (RepositoryModel model : repositoryListCache.values()) {
 					if (!StringUtils.isEmpty(model.originRepository)) {
-						if (repositoryListCache.containsKey(model.originRepository)) {
-							RepositoryModel origin = repositoryListCache.get(model.originRepository);
+						String originKey = model.originRepository.toLowerCase();
+						if (repositoryListCache.containsKey(originKey)) {
+							RepositoryModel origin = repositoryListCache.get(originKey);
 							origin.addFork(model.name);
 						}
 					}
@@ -943,26 +945,31 @@ public class RepositoryManager implements IRepositoryManager {
 	 */
 	@Override
 	public String getFork(String username, String origin) {
+		if (StringUtils.isEmpty(origin)) {
+			return null;
+		}
 		String userProject = ModelUtils.getPersonalPath(username);
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
+			String originKey = origin.toLowerCase();
 			String userPath = userProject + "/";
 
 			// collect all origin nodes in fork network
 			Set<String> roots = new HashSet<String>();
-			roots.add(origin);
-			RepositoryModel originModel = repositoryListCache.get(origin);
+			roots.add(originKey);
+			RepositoryModel originModel = repositoryListCache.get(originKey);
 			while (originModel != null) {
 				if (!ArrayUtils.isEmpty(originModel.forks)) {
 					for (String fork : originModel.forks) {
 						if (!fork.startsWith(userPath)) {
-							roots.add(fork);
+							roots.add(fork.toLowerCase());
 						}
 					}
 				}
 
 				if (originModel.originRepository != null) {
-					roots.add(originModel.originRepository);
-					originModel = repositoryListCache.get(originModel.originRepository);
+					String ooKey = originModel.originRepository.toLowerCase();
+					roots.add(ooKey);
+					originModel = repositoryListCache.get(ooKey);
 				} else {
 					// break
 					originModel = null;
@@ -973,7 +980,7 @@ public class RepositoryManager implements IRepositoryManager {
 				if (repository.startsWith(userPath)) {
 					RepositoryModel model = repositoryListCache.get(repository);
 					if (!StringUtils.isEmpty(model.originRepository)) {
-						if (roots.contains(model.originRepository)) {
+						if (roots.contains(model.originRepository.toLowerCase())) {
 							// user has a fork in this graph
 							return model.name;
 						}
@@ -1013,7 +1020,7 @@ public class RepositoryManager implements IRepositoryManager {
 			// find the root, cached
 			RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
 			while (model.originRepository != null) {
-				model = repositoryListCache.get(model.originRepository);
+				model = repositoryListCache.get(model.originRepository.toLowerCase());
 			}
 			ForkModel root = getForkModelFromCache(model.name);
 			return root;
@@ -1344,7 +1351,7 @@ public class RepositoryManager implements IRepositoryManager {
 
 				// update this repository's origin's fork list
 				if (!StringUtils.isEmpty(repository.originRepository)) {
-					RepositoryModel origin = repositoryListCache.get(repository.originRepository);
+					RepositoryModel origin = repositoryListCache.get(repository.originRepository.toLowerCase());
 					if (origin != null && !ArrayUtils.isEmpty(origin.forks)) {
 						origin.forks.remove(repositoryName);
 						origin.forks.add(repository.name);
