@@ -6,7 +6,7 @@
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="%GCURL%gitblit-${project.releaseVersion}.war">Download Gitblit WAR</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="%GCURL%express-${project.releaseVersion}.zip">Download Gitblit Express</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="%GCURL%manager-${project.releaseVersion}.zip">Download Gitblit Manager</a></div>
-		<a href='https://bintray.com/gitblit/releases/stable/view?source=watch' alt='Get automatic notifications about new "stable" versions'><img src='https://www.bintray.com/docs/images/bintray_badge_color.png'></a>
+		<a href='https://bintray.com/gitblit/releases/gitblit/view?source=watch' alt='Get automatic notifications about new "stable" versions'><img src='https://www.bintray.com/docs/images/bintray_badge_color.png'></a>
 	</div>
 
 	<div style="padding-top:5px;">

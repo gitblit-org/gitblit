@@ -1005,7 +1005,7 @@
 		<sequential>
 			<echo>uploading @{source} to Bintray</echo>
 			<exec executable="curl">
-				<arg line="--silent --show-error -T @{source} -u${bintray.username}:${bintray.apikey} https://api.bintray.com/content/${bintray.username}/generic/${project.name}/${project.version}/@{target}"></arg>
+				<arg line="--silent --show-error -T @{source} -u${bintray.username}:${bintray.apikey} https://api.bintray.com/content/gitblit/releases/gitblit/${project.version}/@{target}"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
