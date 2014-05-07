@@ -445,6 +445,20 @@ public class WicketUtils {
 		return new PageParameters(parameterMap);
 	}
 
+	public static PageParameters newTicketsParameters(String repositoryName, String... states) {
+		PageParameters tParams = newRepositoryParameter(repositoryName);
+		if (states != null) {
+			for (String state : states) {
+				tParams.add("status", state);
+			}
+		}
+		return tParams;
+	}
+
+	public static PageParameters newOpenTicketsParameter(String repositoryName) {
+		return newTicketsParameters(repositoryName, TicketsUI.openStatii);
+	}
+
 	public static String getProjectName(PageParameters params) {
 		return params.getString("p", "");
 	}

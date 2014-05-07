@@ -66,7 +66,7 @@ public class EditMilestonePage extends RepositoryPage {
 		RepositoryModel model = getRepositoryModel();
 		if (!app().tickets().isAcceptingTicketUpdates(model)) {
 			// ticket service is read-only
-			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+			throw new RestartResponseException(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 		}
 
 		UserModel currentUser = GitBlitWebSession.get().getUser();
@@ -76,19 +76,19 @@ public class EditMilestonePage extends RepositoryPage {
 
 		if (!currentUser.isAuthenticated || !currentUser.canAdmin(model)) {
 			// administration prohibited
-			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+			throw new RestartResponseException(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 		}
 
 		oldName = WicketUtils.getObject(params);
 		if (StringUtils.isEmpty(oldName)) {
 			// milestone not specified
-			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+			throw new RestartResponseException(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 		}
 
 		TicketMilestone tm = app().tickets().getMilestone(getRepositoryModel(), oldName);
 		if (tm == null) {
 			// milestone does not exist
-			throw new RestartResponseException(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+			throw new RestartResponseException(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 		}
 
 		setStatelessHint(false);
@@ -140,7 +140,7 @@ public class EditMilestonePage extends RepositoryPage {
 				}
 
 				if (success && app().tickets().updateMilestone(getRepositoryModel(), tm, createdBy)) {
-					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(getRepositoryModel().name));
+					setResponsePage(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 				} else {
 					// TODO error
 				}
@@ -151,7 +151,7 @@ public class EditMilestonePage extends RepositoryPage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+				setResponsePage(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
@@ -167,7 +167,7 @@ public class EditMilestonePage extends RepositoryPage {
 				boolean notify = notificationModel.getObject();
 
 				if (app().tickets().deleteMilestone(getRepositoryModel(), oldName, createdBy, notify)) {
-					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+					setResponsePage(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 				} else {
 					// TODO error processing
 				}

@@ -32,7 +32,6 @@ import com.gitblit.Constants;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.QueryResult;
-import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.BugtraqProcessor;
@@ -77,10 +76,7 @@ public class TicketListPanel extends BasePanel {
 
 				if (showRepository) {
 					String name = StringUtils.stripDotGit(ticket.repository);
-					PageParameters rp = new PageParameters(WicketUtils.newRepositoryParameter(ticket.repository));
-					for (String state : TicketsUI.openStatii) {
-						rp.add(Lucene.status.name(), state);
-					}
+					PageParameters rp =  WicketUtils.newOpenTicketsParameter(ticket.repository);
 					LinkPanel link = new LinkPanel("ticketsLink", null, name, TicketsPage.class, rp);
 					WicketUtils.setCssBackground(link, name);
 					item.add(link);

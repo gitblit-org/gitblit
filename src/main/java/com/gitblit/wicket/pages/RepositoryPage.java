@@ -60,7 +60,6 @@ import com.gitblit.models.UserModel;
 import com.gitblit.models.UserRepositoryPreferences;
 import com.gitblit.servlet.PagesServlet;
 import com.gitblit.servlet.SyndicationServlet;
-import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.DeepCopier;
@@ -70,7 +69,6 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.SessionlessForm;
-import com.gitblit.wicket.TicketsUI;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
@@ -202,11 +200,8 @@ public abstract class RepositoryPage extends RootPage {
 		}
 		navLinks.add(new PageNavLink("gb.commits", LogPage.class, params));
 		navLinks.add(new PageNavLink("gb.tree", TreePage.class, params));
-		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(getRepositoryModel()) || app().tickets().hasTickets(getRepositoryModel()))) {
-			PageParameters tParams = new PageParameters(params);
-			for (String state : TicketsUI.openStatii) {
-				tParams.add(Lucene.status.name(), state);
-			}
+		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(model) || app().tickets().hasTickets(model))) {
+			PageParameters tParams = WicketUtils.newOpenTicketsParameter(repositoryName);
 			navLinks.add(new PageNavLink("gb.tickets", TicketsPage.class, tParams));
 		}
 		navLinks.add(new PageNavLink("gb.docs", DocsPage.class, params, true));
