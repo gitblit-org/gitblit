@@ -25,6 +25,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
+import org.apache.wicket.application.IClassResolver;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 
@@ -226,7 +227,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		}
 
 		 // customize the Wicket class resolver to load from plugins
-        PluginClassResolver classResolver = new PluginClassResolver(pluginManager);
+		IClassResolver coreResolver = getApplicationSettings().getClassResolver();
+        PluginClassResolver classResolver = new PluginClassResolver(coreResolver, pluginManager);
         getApplicationSettings().setClassResolver(classResolver);
 
 		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");

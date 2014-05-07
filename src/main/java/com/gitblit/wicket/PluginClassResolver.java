@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.wicket.Application;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.application.IClassResolver;
 import org.slf4j.Logger;
@@ -40,9 +39,11 @@ import com.gitblit.manager.IPluginManager;
 public class PluginClassResolver implements IClassResolver {
 	private static final Logger logger = LoggerFactory.getLogger(PluginClassResolver.class);
 
+	private final IClassResolver coreResolver;
 	private final IPluginManager pluginManager;
 
-	public PluginClassResolver(IPluginManager pluginManager) {
+	public PluginClassResolver(IClassResolver coreResolver, IPluginManager pluginManager) {
+		this.coreResolver = coreResolver;
 		this.pluginManager = pluginManager;
 	}
 
@@ -65,7 +66,7 @@ public class PluginClassResolver implements IClassResolver {
 			}
 		}
 
-		throw new ClassNotFoundException(className);
+		return coreResolver.resolveClass(className);
 	}
 
 	@Override
@@ -85,6 +86,11 @@ public class PluginClassResolver implements IClassResolver {
 			}
 		}
 
+		Iterator<URL> it = coreResolver.getResources(name);
+		while (it.hasNext()) {
+			URL url = it.next();
+			urls.add(url);
+		}
 		return urls.iterator();
 	}
 
@@ -93,14 +99,6 @@ public class PluginClassResolver implements IClassResolver {
 		try {
 			// Try the classloader for the wicket jar/bundle
 			Enumeration<URL> resources = plugin.getPluginClassLoader().getResources(name);
-			loadResources(resources, loadedFiles);
-
-			// Try the classloader for the user's application jar/bundle
-			resources = Application.get().getClass().getClassLoader().getResources(name);
-			loadResources(resources, loadedFiles);
-
-			// Try the context class loader
-			resources = Thread.currentThread().getContextClassLoader().getResources(name);
 			loadResources(resources, loadedFiles);
 		} catch (IOException e) {
 			throw new WicketRuntimeException(e);
