@@ -159,6 +159,14 @@ public interface IRepositoryManager extends IManager {
 	void resetRepositoryListCache();
 
 	/**
+	 * Reset all caches for this repository.
+	 *
+	 * @param repositoryName
+	 * @since 1.5.1
+	 */
+	void resetRepositoryCache(String repositoryName);
+
+	/**
 	 * Returns the list of all repositories available to Gitblit. This method
 	 * does not consider user access permissions.
 	 *
