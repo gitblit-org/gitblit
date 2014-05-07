@@ -929,6 +929,11 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public void resetRepositoryCache(String repositoryName) {
+		repositoryManager.resetRepositoryCache(repositoryName);
+	}
+
+	@Override
 	public List<String> getRepositoryList() {
 		return repositoryManager.getRepositoryList();
 	}

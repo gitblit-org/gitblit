@@ -455,6 +455,18 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	/**
+	 * Reset all caches for this repository.
+	 *
+	 * @param repositoryName
+	 * @since 1.5.1
+	 */
+	@Override
+	public void resetRepositoryCache(String repositoryName) {
+		removeFromCachedRepositoryList(repositoryName);
+		clearRepositoryMetadataCache(repositoryName);
+	}
+
+	/**
 	 * Resets the repository list cache.
 	 *
 	 */
