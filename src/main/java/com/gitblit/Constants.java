@@ -554,7 +554,12 @@ public class Constants {
 		}
 
 		public static Transport fromUrl(String url) {
-			String scheme = url.substring(0, url.indexOf("://"));
+			int delim = url.indexOf("://");
+			if (delim == -1) {
+				// if no protocol is specified, SSH is assumed by git clients
+				return SSH;
+			}
+			String scheme = url.substring(0, delim);
 			return fromString(scheme);
 		}
 	}
