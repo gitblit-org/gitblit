@@ -89,5 +89,16 @@
 		"icon": "sparkleshare_32x32.png",
 		"minimumPermission" : "RW+",
 		"isActive": false
+	},
+	{
+		"name": "TortoiseGit",
+		"title": "TortoiseGit",
+		"description": "Windows Shell Interface to Git",
+		"legal": "released under the GPLv2 open source license",
+		"cloneUrl": "tgit://clone/${repoUrl}",
+		"productUrl": "http://www.tortoisegit.org",
+		"platforms": [ "windows" ],
+		"icon": "tortoise32.png",
+		"isActive": true
 	}
 ]

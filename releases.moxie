@@ -16,6 +16,7 @@ r23: {
     - Fix forcing default locale to en or LANG_CC for web ui (ticket-51)
     - Fix inconsistency with repository ownership permission checking (ticket-52)
     - Prevent submission from New|Edit ticket page with empty titles (ticket-53)
+    - Fix transport determination for SSH urls served on port 22 (issue-421, ticket-63)
     changes:
     - improve French translation (pr-176)
     - simplify current plugin release detection and ignore the currentRelease registry field
@@ -31,6 +32,8 @@ r23: {
     - Olivier Rouits
     - Owen Nelson
     - Alexander Zabluda
+    - Philipp Beckmann
+    - Jakob Boysen
 }
 
 #
