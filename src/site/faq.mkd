@@ -1,5 +1,13 @@
 ## Troubleshooting
 
+### push failed for branch (n/a (unpacker error))
+
+This is a bug in JGit (issue-408).  TLDR: Newer git clients are optimized to send less data on the wire.  JGit expects complete data to be sent, but there are scenarios where native git can optimize-out sending objects.  By default, JGit requires everything sent be complete and referenceable.
+
+If you experience this, the workaround is to temporarily disable the reachable check for the receive pack, push, and then re-enable the setting.
+
+    git.checkReferencedObjectsAreReachable = false
+
 ### Eclipse/Egit/JGit complains that it "can't open upload pack"?
 There are a few ways this can occur:
 
