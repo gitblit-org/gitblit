@@ -6,7 +6,7 @@
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="%GCURL%gitblit-${project.releaseVersion}.war">Download Gitblit WAR</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="%GCURL%express-${project.releaseVersion}.zip">Download Gitblit Express</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="%GCURL%manager-${project.releaseVersion}.zip">Download Gitblit Manager</a></div>
-		<a href="screenshots.html" title="Screenshots"><img style="margin-top:5px;border:1px solid #ccc;" src="thumbs/00.png" alt="Screenshots" /></a>
+		<a href='https://bintray.com/gitblit/releases/gitblit/view?source=watch' alt='Get automatic notifications about new "stable" versions'><img src='https://www.bintray.com/docs/images/bintray_badge_color.png'></a>
 	</div>
 
 	<div style="padding-top:5px;">
@@ -30,8 +30,6 @@
 Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
 It's designed primarily as a tool for small workgroups who want to host centralized repositories.
 
-You can browse the [stable demo site](https://demo-gitblit.rhcloud.com) or the [snapshot demo site](https://next-gitblit.rhcloud.com), both are hosted on [RedHat's OpenShift][rhcloud] cloud service.
-
 ### GO: Single-Stack Solution
 
 *Gitblit GO* is an integrated, single-stack solution based on Jetty.
@@ -40,17 +38,11 @@ You do not need Apache httpd, Perl, Git, or Gitweb.  Should you want to use some
 
 This is what you should download if you want to go from zero to Git in less than 5 mins.
 
-All dependencies are bundled.
-
 ### WAR: For Your Servlet Container
 *Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
 
-All dependencies are bundled.
-
 ### Express: For the Cloud
 *Gitblit Express* is a prepared distribution for [RedHat's OpenShift][rhcloud] cloud service.
-
-All dependencies are bundled.
 
 ### You decide how to use Gitblit
 
@@ -62,9 +54,11 @@ Gitblit can be used without any other Git tooling (including actual Git) or it c
 
 Administrators can create and manage all repositories, user accounts, and teams from the *Web UI*.  
 Administrators can create and manage all repositories, user accounts, and teams from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
+Administrators can create and manage all repositories, user accounts, and teams from the *command-line* using the [Powertools plugin](https://github.com/gitblit/gitblit-powertools-plugin).
 
 ### Integration with Your Infrastructure
 
+- Extendable by plugins
 - Groovy push hook scripts
 - Pluggable user service mechanism
     - LDAP authentication with optional LDAP-controlled Team memberships

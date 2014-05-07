@@ -5,7 +5,7 @@
 2. The server itself is configured through a simple text file.
 Open `data/gitblit.properties` in your favorite text editor and make sure to review and set:
     - *server.httpPort* and *server.httpsPort*
-    - *server.storePassword*
+    - *server.storePassword* (do not enter *#* characters)
     **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!
     - *git.packedGitLimit* (set larger than the size of your largest repository)
     - *git.streamFileThreshold* (set larger than the size of your largest committed file)
@@ -38,6 +38,8 @@ The EGit failure message is something like:
 	Reason: https:/myserver.com/git/myrepo.git: cannot open git-upload-pack
 
 If you want to serve your repositories to another machine over https then you will want to generate a new certificate for the hostname or ip address you are serving from.
+
+**NOTE:** The Gitblit Authority is a GUI tool and will require X11 forwarding on headless UNIX boxes.
 
 1. `authority.cmd` or `java -jar authority.jar --baseFolder data`
 2. Click the *new ssl certificate* button (red rosette in the toolbar in upper left of window)

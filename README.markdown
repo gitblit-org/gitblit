@@ -4,6 +4,8 @@ Gitblit
 Gitblit is an open source, pure Java Git solution for managing, viewing, and serving [Git](http://git-scm.com) repositories.
 More information about Gitblit can be found [here](http://gitblit.com).
 
+[ ![Download](https://api.bintray.com/packages/gitblit/releases/stable/images/download.png) ](https://bintray.com/gitblit/releases/stable/_latestVersion)
+
 License
 -------
 
