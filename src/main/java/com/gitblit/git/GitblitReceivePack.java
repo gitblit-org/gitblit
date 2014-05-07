@@ -331,6 +331,8 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			return;
 		}
 
+		boolean isRefCreationOrDeletion = false;
+
 		// log ref changes
 		for (ReceiveCommand cmd : commands) {
 
@@ -339,9 +341,11 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 				switch (cmd.getType()) {
 				case DELETE:
 					LOGGER.info(MessageFormat.format("{0} DELETED {1} in {2} ({3})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name()));
+					isRefCreationOrDeletion = true;
 					break;
 				case CREATE:
 					LOGGER.info(MessageFormat.format("{0} CREATED {1} in {2}", user.username, cmd.getRefName(), repository.name));
+					isRefCreationOrDeletion = true;
 					break;
 				case UPDATE:
 					LOGGER.info(MessageFormat.format("{0} UPDATED {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));
@@ -353,6 +357,10 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 					break;
 				}
 			}
+		}
+
+		if (isRefCreationOrDeletion) {
+			gitblit.resetRepositoryCache(repository.name);
 		}
 
 		if (repository.useIncrementalPushTags) {
