@@ -403,6 +403,27 @@ public class Constants {
 	}
 
 	/**
+	 * Enumeration of the feed content object types.
+	 */
+	public static enum FeedObjectType {
+		COMMIT, TAG;
+
+		public static FeedObjectType forName(String name) {
+			for (FeedObjectType type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return COMMIT;
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+	}
+
+	/**
 	 * The types of objects that can be indexed and queried.
 	 */
 	public static enum SearchObjectType {

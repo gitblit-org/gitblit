@@ -32,6 +32,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><th>url parameter</th><th>default</th><th>description</th></tr>
 <tr><td colspan='3'><b>standard query</b></td></tr>
 <tr><td><em>repository</em></td><td><em>required</em></td><td>repository name is part of the url (see examples below)</td></tr>
+<tr><td>ot=</td><td><em>optional</em><br/>default: COMMIT</td><td>object type to return in results. COMMIT or TAG</td></tr>
 <tr><td>h=</td><td><em>optional</em><br/>default: HEAD</td><td>starting branch, ref, or commit id</td></tr>
 <tr><td>l=</td><td><em>optional</em><br/>default: web.syndicationEntries</td><td>maximum return count</td></tr>
 <tr><td>pg=</td><td><em>optional</em><br/>default: 0</td><td>page number for paging<br/>(offset into history = pagenumber*maximum return count)</td></tr>

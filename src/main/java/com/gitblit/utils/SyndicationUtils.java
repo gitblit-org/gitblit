@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.FeedObjectType;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.FeedEntryModel;
 import com.sun.syndication.feed.synd.SyndCategory;
@@ -137,6 +138,59 @@ public class SyndicationUtils {
 	 */
 	public static List<FeedEntryModel> readFeed(String url, String repository, String branch,
 			int numberOfEntries, int page, String username, char[] password) throws IOException {
+		return readFeed(url, repository, branch, FeedObjectType.COMMIT, numberOfEntries,
+				page, username, password);
+	}
+
+	/**
+	 * Reads tags from the specified repository.
+	 *
+	 * @param url
+	 *            the url of the Gitblit server
+	 * @param repository
+	 *            the repository name
+	 * @param branch
+	 *            the branch name (optional)
+	 * @param numberOfEntries
+	 *            the number of entries to retrieve. if <= 0 the server default
+	 *            is used.
+	 * @param page
+	 *            0-indexed. used to paginate the results.
+	 * @param username
+	 * @param password
+	 * @return a list of SyndicationModel entries
+	 * @throws {@link IOException}
+	 */
+	public static List<FeedEntryModel> readTags(String url, String repository,
+			int numberOfEntries, int page, String username, char[] password) throws IOException {
+		return readFeed(url, repository, null, FeedObjectType.TAG, numberOfEntries,
+				page, username, password);
+	}
+
+	/**
+	 * Reads a Gitblit RSS feed.
+	 *
+	 * @param url
+	 *            the url of the Gitblit server
+	 * @param repository
+	 *            the repository name
+	 * @param branch
+	 *            the branch name (optional)
+	 * @param objectType
+	 *            the object type to return (optional, COMMIT assummed)
+	 * @param numberOfEntries
+	 *            the number of entries to retrieve. if <= 0 the server default
+	 *            is used.
+	 * @param page
+	 *            0-indexed. used to paginate the results.
+	 * @param username
+	 * @param password
+	 * @return a list of SyndicationModel entries
+	 * @throws {@link IOException}
+	 */
+	private static List<FeedEntryModel> readFeed(String url, String repository, String branch,
+			FeedObjectType objectType, int numberOfEntries, int page, String username,
+			char[] password) throws IOException {
 		// build feed url
 		List<String> parameters = new ArrayList<String>();
 		if (numberOfEntries > 0) {
@@ -147,6 +201,9 @@ public class SyndicationUtils {
 		}
 		if (!StringUtils.isEmpty(branch)) {
 			parameters.add("h=" + branch);
+		}
+		if (objectType != null) {
+			parameters.add("ot=" + objectType.name());
 		}
 		return readFeed(url, parameters, repository, branch, username, password);
 	}
