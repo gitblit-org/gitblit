@@ -68,6 +68,7 @@ public class MailService implements Runnable {
 		final String mailUser = settings.getString(Keys.mail.username, null);
 		final String mailPassword = settings.getString(Keys.mail.password, null);
 		final boolean smtps = settings.getBoolean(Keys.mail.smtps, false);
+		final boolean starttls = settings.getBoolean(Keys.mail.starttls, false);
 		boolean authenticate = !StringUtils.isEmpty(mailUser) && !StringUtils.isEmpty(mailPassword);
 		String server = settings.getString(Keys.mail.server, "");
 		if (StringUtils.isEmpty(server)) {
@@ -86,6 +87,7 @@ public class MailService implements Runnable {
 		props.setProperty("mail.smtp.port", String.valueOf(port));
 		props.setProperty("mail.smtp.auth", String.valueOf(authenticate));
 		props.setProperty("mail.smtp.auths", String.valueOf(authenticate));
+		props.setProperty("mail.smtp.starttls.enable", String.valueOf(starttls));
 
 		if (isGMail || smtps) {
 			props.setProperty("mail.smtp.starttls.enable", "true");
