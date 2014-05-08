@@ -53,13 +53,12 @@ import dagger.ObjectGraph;
  * Handles remote procedure calls.
  *
  * @author James Moger
- *
  */
 public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int PROTOCOL_VERSION = 7;
+	public static final int PROTOCOL_VERSION = 8;
 
 	private IStoredSettings settings;
 
@@ -80,12 +79,11 @@ public class RpcServlet extends JsonServlet {
 	 * @throws java.io.IOException
 	 */
 	@Override
-	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+			IOException {
 		RpcRequest reqType = RpcRequest.fromName(request.getParameter("req"));
 		String objectName = request.getParameter("name");
-		logger.info(MessageFormat.format("Rpc {0} request from {1}", reqType,
-				request.getRemoteAddr()));
+		logger.info(MessageFormat.format("Rpc {0} request from {1}", reqType, request.getRemoteAddr()));
 
 		UserModel user = (UserModel) request.getUserPrincipal();
 
@@ -130,7 +128,8 @@ public class RpcServlet extends JsonServlet {
 				}
 				if (model.isCollectingGarbage) {
 					// skip garbage collecting repository
-					logger.warn(MessageFormat.format("Temporarily excluding {0} from RPC, busy collecting garbage", model.name));
+					logger.warn(MessageFormat.format("Temporarily excluding {0} from RPC, busy collecting garbage",
+							model.name));
 					continue;
 				}
 				// get local branches
@@ -195,6 +194,33 @@ public class RpcServlet extends JsonServlet {
 				gitblit.updateRepositoryModel(model.name, model, true);
 			} catch (GitBlitException e) {
 				response.setStatus(failureCode);
+			}
+		} else if (RpcRequest.FORK_REPOSITORY.equals(reqType)) {
+			// fork repository
+			RepositoryModel origin = gitblit.getRepositoryModel(objectName);
+			if (origin == null) {
+				// failed to find repository, error is logged by the repository
+				// manager
+				response.setStatus(failureCode);
+			} else {
+				if (user == null || !user.canFork(origin)) {
+					logger.error("User {} is not permitted to fork '{}'!", user == null ? "anonymous" : user.username,
+							objectName);
+					response.setStatus(failureCode);
+				} else {
+					try {
+						// fork the origin
+						RepositoryModel fork = gitblit.fork(origin, user);
+						if (fork == null) {
+							logger.error("Failed to fork repository '{}'!", objectName);
+							response.setStatus(failureCode);
+						} else {
+							logger.info("User {} has forked '{}'!", user.username, objectName);
+						}
+					} catch (GitBlitException e) {
+						response.setStatus(failureCode);
+					}
+				}
 			}
 		} else if (RpcRequest.EDIT_REPOSITORY.equals(reqType)) {
 			// edit repository
@@ -281,7 +307,8 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.SET_REPOSITORY_MEMBER_PERMISSIONS.equals(reqType)) {
 			// set the repository permissions for the specified users
 			RepositoryModel model = gitblit.getRepositoryModel(objectName);
-			Collection<RegistrantAccessPermission> permissions = deserialize(request, response, RpcUtils.REGISTRANT_PERMISSIONS_TYPE);
+			Collection<RegistrantAccessPermission> permissions = deserialize(request, response,
+					RpcUtils.REGISTRANT_PERMISSIONS_TYPE);
 			result = gitblit.setUserAccessPermissions(model, permissions);
 		} else if (RpcRequest.LIST_REPOSITORY_TEAMS.equals(reqType)) {
 			// get repository teams
@@ -297,7 +324,8 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.SET_REPOSITORY_TEAM_PERMISSIONS.equals(reqType)) {
 			// set the repository permissions for the specified teams
 			RepositoryModel model = gitblit.getRepositoryModel(objectName);
-			Collection<RegistrantAccessPermission> permissions = deserialize(request, response, RpcUtils.REGISTRANT_PERMISSIONS_TYPE);
+			Collection<RegistrantAccessPermission> permissions = deserialize(request, response,
+					RpcUtils.REGISTRANT_PERMISSIONS_TYPE);
 			result = gitblit.setTeamAccessPermissions(model, permissions);
 		} else if (RpcRequest.LIST_FEDERATION_REGISTRATIONS.equals(reqType)) {
 			// return the list of federation registrations
@@ -363,8 +391,7 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.EDIT_SETTINGS.equals(reqType)) {
 			// update settings on the server
 			if (allowAdmin) {
-				Map<String, String> map = deserialize(request, response,
-						RpcUtils.SETTINGS_TYPE);
+				Map<String, String> map = deserialize(request, response, RpcUtils.SETTINGS_TYPE);
 				gitblit.updateSettings(map);
 			} else {
 				response.sendError(notAllowedCode);

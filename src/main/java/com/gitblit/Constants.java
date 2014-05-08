@@ -350,9 +350,10 @@ public class Constants {
 	 * a client.
 	 */
 	public static enum RpcRequest {
-		// Order is important here.  anything above LIST_SETTINGS requires
+		// Order is important here.  anything after LIST_SETTINGS requires
 		// administrator privileges and web.allowRpcManagement.
-		CLEAR_REPOSITORY_CACHE, REINDEX_TICKETS, GET_PROTOCOL, LIST_REPOSITORIES, LIST_BRANCHES, GET_USER, LIST_SETTINGS,
+		CLEAR_REPOSITORY_CACHE, REINDEX_TICKETS, GET_PROTOCOL, LIST_REPOSITORIES, LIST_BRANCHES, GET_USER,
+		FORK_REPOSITORY, LIST_SETTINGS,
 		CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY,
 		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER,
 		LIST_TEAMS, CREATE_TEAM, EDIT_TEAM, DELETE_TEAM,

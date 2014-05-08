@@ -203,7 +203,21 @@ public class RpcUtils {
 
 	}
 
-	/**
+    /**
+     * Create a fork of a repository.
+     *
+     * @param repository
+
+     * @return true if the action succeeded
+     * @throws IOException
+     */
+    public static boolean forkRepository(RepositoryModel repository, String serverUrl,
+                                        String account, char[] password) throws IOException {
+        return doAction(RpcRequest.FORK_REPOSITORY, repository.name, null, serverUrl, account, password);
+    }
+
+
+    /**
 	 * Send a revised version of the repository model to the Gitblit server.
 	 *
 	 * @param repository
