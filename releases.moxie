@@ -13,9 +13,11 @@ r24: {
     changes: ~
     additions:
     - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
+    - Add object type (ot) parameter for RSS queries to retrieve tag details (pr-165, ticket-66)
     dependencyChanges: ~
     contributors:
     - Manisha Gayathri
+    - Gerard Smyth
 }
 
 #
