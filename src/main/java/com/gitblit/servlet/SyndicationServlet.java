@@ -164,9 +164,9 @@ public class SyndicationServlet extends DaggerServlet {
 			}
 		}
 
-		Constants.FeedContentObjectType objectType = Constants.FeedContentObjectType.COMMIT;
+		Constants.FeedObjectType objectType = Constants.FeedObjectType.COMMIT;
 		if (!StringUtils.isEmpty(request.getParameter("ot"))) {
-			Constants.FeedContentObjectType type = Constants.FeedContentObjectType.forName(request.getParameter("ot"));
+			Constants.FeedObjectType type = Constants.FeedObjectType.forName(request.getParameter("ot"));
 			if (type != null) {
 				objectType = type;
 			}
@@ -249,7 +249,7 @@ public class SyndicationServlet extends DaggerServlet {
 				feedDescription = model.description;
 			}
 
-			if (objectType == Constants.FeedContentObjectType.TAG) {
+			if (objectType == Constants.FeedObjectType.TAG) {
 
 				String urlPattern;
 				if (mountParameters) {

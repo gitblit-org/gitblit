@@ -402,11 +402,11 @@ public class Constants {
 	/**
 	 * Enumeration of the feed content object types.
 	 */
-	public static enum FeedContentObjectType {
+	public static enum FeedObjectType {
 		COMMIT, TAG;
 
-		public static FeedContentObjectType forName(String name) {
-			for (FeedContentObjectType type : values()) {
+		public static FeedObjectType forName(String name) {
+			for (FeedObjectType type : values()) {
 				if (type.name().equalsIgnoreCase(name)) {
 					return type;
 				}
