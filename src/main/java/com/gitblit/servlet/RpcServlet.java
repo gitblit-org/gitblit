@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.gitblit.models.*;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
@@ -36,6 +35,12 @@ import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
+import com.gitblit.models.RefModel;
+import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerSettings;
+import com.gitblit.models.TeamModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
@@ -53,7 +58,7 @@ public class RpcServlet extends JsonServlet {
 
     private static final long serialVersionUID = 1L;
 
-    public static final int PROTOCOL_VERSION = 7;
+    public static final int PROTOCOL_VERSION = 8;
 
     private IStoredSettings settings;
 
@@ -191,22 +196,31 @@ public class RpcServlet extends JsonServlet {
                 response.setStatus(failureCode);
             }
         } else if (RpcRequest.FORK_REPOSITORY.equals(reqType)) {
-            // fork repository
-            UserRepositoryCompositeModel userRepositoryCompositeModel = deserialize(request, response,
-                    UserRepositoryCompositeModel.class);
-            RepositoryModel repoModel = userRepositoryCompositeModel.getRepositoryModel();
-            UserModel userModel = userRepositoryCompositeModel.getUserModel();
-            try {
-                if (repoModel != null && userModel != null) {
-                    gitblit.fork(repoModel, userModel);
-                } else {
-                    System.out.println("Non existing user model or repo model");
-                    response.setStatus(failureCode);
-                }
-
-            } catch (GitBlitException e) {
-                response.setStatus(failureCode);
-            }
+        	// fork repository
+        	RepositoryModel origin = gitblit.getRepositoryModel(objectName);
+        	if (origin == null) {
+        		// failed to find repository, error is logged by the repository manager
+        		response.setStatus(failureCode);
+        	} else {
+        		if (user == null || !user.canFork(origin)) {
+        			logger.error("User {} is not permitted to fork '{}'!",
+        					user == null ? "anonymous" : user.username, objectName);
+        			response.setStatus(failureCode);
+        		} else {
+        			try {
+        				// fork the origin
+        				RepositoryModel fork = gitblit.fork(origin, user);
+        				if (fork == null) {
+        					logger.error("Failed to fork repository '{}'!", objectName);
+        					response.setStatus(failureCode);
+        				} else {
+        					logger.info("User {} has forked '{}'!", user.username, objectName);
+        				}
+        			} catch (GitBlitException e) {
+        				response.setStatus(failureCode);
+        			}
+        		}
+        	}
         } else if (RpcRequest.EDIT_REPOSITORY.equals(reqType)) {
             // edit repository
             RepositoryModel model = deserialize(request, response, RepositoryModel.class);
