@@ -11,9 +11,11 @@ r24: {
     security: ~
     fixes: ~
     changes: ~
-    additions: ~
+    additions:
+    - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+    - Manisha Gayathri
 }
 
 #

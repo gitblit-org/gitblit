@@ -25,7 +25,16 @@ import java.util.Map;
 import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.GitBlitException.UnknownRequestException;
-import com.gitblit.models.*;
+import com.gitblit.models.FederationModel;
+import com.gitblit.models.FederationProposal;
+import com.gitblit.models.FederationSet;
+import com.gitblit.models.FeedModel;
+import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerSettings;
+import com.gitblit.models.ServerStatus;
+import com.gitblit.models.TeamModel;
+import com.gitblit.models.UserModel;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -195,20 +204,16 @@ public class RpcUtils {
 	}
 
     /**
-     * Create a fork of an already existing repo
+     * Create a fork of a repository.
      *
      * @param repository
-     * @param user
 
      * @return true if the action succeeded
      * @throws IOException
      */
-    public static boolean forkRpository(RepositoryModel repository, UserModel user, String serverUrl,
+    public static boolean forkRepository(RepositoryModel repository, String serverUrl,
                                         String account, char[] password) throws IOException {
-        UserRepositoryCompositeModel userRepositoryCompositeModel = new UserRepositoryCompositeModel();
-        userRepositoryCompositeModel.setRepositoryModel(repository);
-        userRepositoryCompositeModel.setUserModel(user);
-        return doAction(RpcRequest.FORK_REPOSITORY, null, userRepositoryCompositeModel, serverUrl, account, password);
+        return doAction(RpcRequest.FORK_REPOSITORY, repository.name, null, serverUrl, account, password);
     }
 
 
