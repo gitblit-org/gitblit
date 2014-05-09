@@ -11,16 +11,32 @@ r24: {
     security: ~
     fixes: ~
     changes:
+    - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
+    - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
+    - Drop deprecated --set-upstream syntax for -u (ticket-59)
+    - BARNUM: Prune deleted branches on fetch (git fetch -p) (ticket-60)
+    - BARNUM: Create ticket/N instead of topic/N for pt start N (ticket-61)
     - Move repository deletion functions to the edit repository page AND allow deletion to be disabled (pr-180, ticket-67)
+    - Update the Korean translation (pr-184, ticket-69)
     additions:
+    - Add My Tickets page (issue-215, ticket-15)
+    - Added CRUD functionality for Ticket Milestones (ticket-17)
+    - Implemented Ticket migration tool to move between backends (ticket-19)
     - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
     - Add object type (ot) parameter for RSS queries to retrieve tag details (pr-165, ticket-66)
-    dependencyChanges: ~
+    - Add setting to allow STARTTLS without requiring SMTPS (pr-183)
+    dependencyChanges:
+    - Update to javax.mail 1.5.1 (issue-417, ticket-58)
     contributors:
+    - James Moger
+    - David Ostrovsky
     - Manisha Gayathri
     - Gerard Smyth
+    - Christian Buisson
+    - Berke Viktor
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
+    - { name: 'mail.starttls', defaultValue: 'false' }
 }
 
 #
