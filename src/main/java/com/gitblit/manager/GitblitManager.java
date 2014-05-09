@@ -1015,6 +1015,11 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public boolean canDelete(RepositoryModel model) {
+		return repositoryManager.canDelete(model);
+	}
+
+	@Override
 	public boolean deleteRepositoryModel(RepositoryModel model) {
 		return repositoryManager.deleteRepositoryModel(model);
 	}

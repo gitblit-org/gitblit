@@ -1533,6 +1533,17 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	/**
+	 * Returns true if the repository can be deleted.
+	 *
+	 * @return true if the repository can be deleted
+	 */
+	@Override
+	public boolean canDelete(RepositoryModel repository) {
+		return settings.getBoolean(Keys.web.allowDeletingNonEmptyRepositories, true)
+					|| !repository.hasCommits;
+	}
+
+	/**
 	 * Deletes the repository from the file system and removes the repository
 	 * permission from all repository users.
 	 *
@@ -1553,6 +1564,12 @@ public class RepositoryManager implements IRepositoryManager {
 	 */
 	@Override
 	public boolean deleteRepository(String repositoryName) {
+		RepositoryModel repository = getRepositoryModel(repositoryName);
+		if (!canDelete(repository)) {
+			logger.warn("Attempt to delete {} rejected!", repositoryName);
+			return false;
+		}
+
 		try {
 			close(repositoryName);
 			// clear the repository cache

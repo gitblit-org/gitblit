@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.panels;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -320,53 +319,7 @@ public class RepositoriesPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(lastChangeLabel, getString("gb.author") + ": " + entry.lastChangeAuthor);
 				}
 
-				boolean showOwner = user != null && entry.isOwner(user.username);
-				boolean myPersonalRepository = showOwner && entry.isUsersPersonalRepository(user.username);
-				if (showAdmin || myPersonalRepository) {
-					Fragment repositoryLinks = new Fragment("repositoryLinks",
-							"repositoryAdminLinks", this);
-					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
-							EditRepositoryPage.class, WicketUtils
-									.newRepositoryParameter(entry.name)));
-					Link<Void> deleteLink = new Link<Void>("deleteRepository") {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void onClick() {
-							// refresh the model
-							RepositoryModel model = app().repositories().getRepositoryModel(entry.name);
-							if (isDeleteAllowed(model) &&
-									app().repositories().deleteRepositoryModel(model)) {
-								if (dp instanceof SortableRepositoriesProvider) {
-									info(MessageFormat.format(getString("gb.repositoryDeleted"), model));
-									((SortableRepositoriesProvider) dp).remove(model);
-								} else {
-									setResponsePage(getPage().getClass(), getPage().getPageParameters());
-								}
-							} else {
-								error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), model));
-							}
-						}
-
-						@Override
-						public boolean isEnabled() {
-							return isDeleteAllowed(entry);
-						}
-
-						private boolean isDeleteAllowed(
-								final RepositoryModel model) {
-							return app().settings().getBoolean(Keys.web.allowDeletingNonEmptyRepositories, true)
-									|| !model.hasCommits;
-						}
-					};
-					if (deleteLink.isEnabled()) {
-						deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-								getString("gb.deleteRepository"), entry)));
-					}
-					repositoryLinks.add(deleteLink);
-					row.add(repositoryLinks);
-				} else if (showOwner) {
+				if (user != null && user.canAdmin(entry)) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks",
 							"repositoryOwnerLinks", this);
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",

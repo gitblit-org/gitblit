@@ -42,6 +42,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -68,6 +69,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
@@ -613,6 +615,38 @@ public class EditRepositoryPage extends RootSubPage {
 		};
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
+
+		// the user can delete if deletions are allowed AND the user is an admin or the personal owner
+		// assigned ownership is not sufficient to allow deletion
+		boolean canDelete = !isCreate && app().repositories().canDelete(repositoryModel)
+				&& (user.canAdmin() || user.isMyPersonalRepository(repositoryModel.name));
+
+		Link<Void> delete = new Link<Void>("delete") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				RepositoryModel latestModel = app().repositories().getRepositoryModel(repositoryModel.name);
+				boolean canDelete = app().repositories().canDelete(latestModel);
+				if (canDelete) {
+					if (app().repositories().deleteRepositoryModel(latestModel)) {
+						info(MessageFormat.format(getString("gb.repositoryDeleted"), latestModel));
+						setResponsePage(RepositoriesPage.class);
+					} else {
+						error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), latestModel));
+					}
+				} else {
+					error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), latestModel));
+				}
+			}
+		};
+
+		if (canDelete) {
+			delete.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+				getString("gb.deleteRepository"), repositoryModel)));
+		}
+		form.add(delete.setVisible(canDelete));
 
 		add(form);
 	}
