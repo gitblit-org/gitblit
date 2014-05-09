@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -41,6 +43,7 @@ import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 
 /**
  * Page for creating a new milestone.
@@ -157,11 +160,12 @@ public class EditMilestonePage extends RepositoryPage {
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
 
-		Button delete = new Button("delete") {
+		Link<Void> delete = new Link<Void>("delete") {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit() {
+			public void onClick() {
 				UserModel currentUser = GitBlitWebSession.get().getUser();
 				String createdBy = currentUser.username;
 				boolean notify = notificationModel.getObject();
@@ -169,11 +173,14 @@ public class EditMilestonePage extends RepositoryPage {
 				if (app().tickets().deleteMilestone(getRepositoryModel(), oldName, createdBy, notify)) {
 					setResponsePage(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 				} else {
-					// TODO error processing
+					error(MessageFormat.format(getString("gb.milestoneDeleteFailed"), oldName));
 				}
 			}
 		};
-		delete.setDefaultFormProcessing(false);
+
+		delete.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+			getString("gb.deleteMilestone"), oldName)));
+
 		form.add(delete);
 	}
 
