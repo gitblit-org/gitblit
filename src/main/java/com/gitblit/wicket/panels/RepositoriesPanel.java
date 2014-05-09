@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.panels;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -320,37 +319,7 @@ public class RepositoriesPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(lastChangeLabel, getString("gb.author") + ": " + entry.lastChangeAuthor);
 				}
 
-				boolean showOwner = user != null && entry.isOwner(user.username);
-				boolean myPersonalRepository = showOwner && entry.isUsersPersonalRepository(user.username);
-				if (showAdmin || myPersonalRepository) {
-					Fragment repositoryLinks = new Fragment("repositoryLinks",
-							"repositoryAdminLinks", this);
-					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
-							EditRepositoryPage.class, WicketUtils
-									.newRepositoryParameter(entry.name)));
-					Link<Void> deleteLink = new Link<Void>("deleteRepository") {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void onClick() {
-							if (app().repositories().deleteRepositoryModel(entry)) {
-								if (dp instanceof SortableRepositoriesProvider) {
-									info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
-									((SortableRepositoriesProvider) dp).remove(entry);
-								} else {
-									setResponsePage(getPage().getClass(), getPage().getPageParameters());
-								}
-							} else {
-								error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
-							}
-						}
-					};
-					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-							getString("gb.deleteRepository"), entry)));
-					repositoryLinks.add(deleteLink);
-					row.add(repositoryLinks);
-				} else if (showOwner) {
+				if (user != null && user.canAdmin(entry)) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks",
 							"repositoryOwnerLinks", this);
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
