@@ -10,6 +10,7 @@ r24: {
     text: ~
     security: ~
     fixes:
+    - Allow ticket responsible selection if anonymous push is enabled (issue-425, ticket-71)
     - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
     changes:
     - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
