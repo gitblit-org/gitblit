@@ -116,11 +116,21 @@ public class NewTicketPage extends RepositoryPage {
 		if (currentUser.canAdmin(null, getRepositoryModel())) {
 			// responsible
 			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
-			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
-				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-					UserModel user = app().users().getUserModel(rp.registrant);
-					if (user != null) {
+			if (UserModel.ANONYMOUS.canPush(getRepositoryModel())) {
+				// anonymous push allowed
+				for (UserModel user : app().users().getAllUsers()) {
+					if (!user.disabled) {
 						responsibles.add(new TicketResponsible(user));
+					}
+				}
+			} else {
+				// authenticated push
+				for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
+					if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
+						UserModel user = app().users().getUserModel(rp.registrant);
+						if (user != null && !user.disabled) {
+							responsibles.add(new TicketResponsible(user));
+						}
 					}
 				}
 			}
