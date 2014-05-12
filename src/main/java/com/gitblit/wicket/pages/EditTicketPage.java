@@ -163,16 +163,22 @@ public class EditTicketPage extends RepositoryPage {
 			// responsible
 			Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
 
-			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
-				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-					userlist.add(rp.registrant);
+			if (UserModel.ANONYMOUS.canPush(getRepositoryModel())) {
+				// anonymous push
+				userlist.addAll(app().users().getAllUsernames());
+			} else {
+				// authenticated push
+				for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
+					if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
+						userlist.add(rp.registrant);
+					}
 				}
 			}
 
 			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
 			for (String username : userlist) {
 				UserModel user = app().users().getUserModel(username);
-				if (user != null) {
+				if (user != null && !user.disabled) {
 					TicketResponsible responsible = new TicketResponsible(user);
 					responsibles.add(responsible);
 					if (user.username.equals(ticket.responsible)) {
