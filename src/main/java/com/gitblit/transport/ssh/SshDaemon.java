@@ -212,8 +212,8 @@ public class SshDaemon {
             Files.touch(file);
             try {
             	JnaUtils.setFilemode(file, JnaUtils.S_IRUSR | JnaUtils.S_IWUSR);
-            } catch (UnsupportedOperationException e) {
-            	// Windows
+            } catch (UnsatisfiedLinkError | UnsupportedOperationException e) {
+            	// Unexpected/Unsupported OS or Architecture
             }
 
             FileOutputStream os = new FileOutputStream(file);
