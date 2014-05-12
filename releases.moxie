@@ -9,7 +9,8 @@ r24: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+    - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
     changes:
     - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
@@ -34,6 +35,7 @@ r24: {
     - Gerard Smyth
     - Christian Buisson
     - Berke Viktor
+    - Marcus Hunger
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
     - { name: 'mail.starttls', defaultValue: 'false' }
