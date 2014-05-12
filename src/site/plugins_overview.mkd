@@ -45,6 +45,8 @@ Administrators may manage plugins through the `plugin` SSH dispatch command:
 
 Through this command interface plugins can be started, stopped, disabled, enabled, installed, uninstalled, listed, etc.  Each command is supports the `--help` argument which will guide you in understanding the options and usage of the command.
 
+You may watch an Asciinema screencast of how to use the SSH transport and the plugin manager [here](https://asciinema.org/a/9342).
+
 ### Default Plugin Registry
 
 Gitblit provides a simple default registry of plugins. The registry is a JSON file and it lists plugin metadata and download locations.
@@ -62,13 +64,3 @@ If you develop your own plugins that you want hosted by or linked in the default
 The `plugins.json` file is parameterized with the `${self}` placeholder.  This parameter is substituted on download with with the source URL of the registry file.  This allows you to clone and serve your own copy of this git repository or just serve your own `plugins.json` on your own network.
 
 Gitblit also supports loading multiple plugin registries.  Just place another **properly formatted** `.json` file in `${baseFolder}/plugins` and Gitblit will load that as an additional registry.
-
-### Mac OSX Fonts
-
-Gitblit's core SSH commands and those in the *powertools* plugin rely on ANSI border characters to provide a pretty presentation of data.  Unfortunately, the fonts provided by Apple - while very nice - don't work well with ANSI border characters.  The following public domain fixed-width, fixed-point, bitmapped fonts work very nicely.  I find the 6x12 font with a line spacing of ~0.8 to be quite acceptable.
-
-[6x12.dfont](6x12.dfont)
-[6x13.dfont](6x13.dfont)
-[7x13.dfont](7x13.dfont)
-[7x14.dfont](7x14.dfont)
-
