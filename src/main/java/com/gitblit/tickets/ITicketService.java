@@ -251,6 +251,7 @@ public abstract class ITicketService {
 	 */
 	public boolean isAcceptingTicketUpdates(RepositoryModel repository) {
 		return isReady()
+				&& repository.hasCommits
 				&& repository.isBare
 				&& !repository.isFrozen
 				&& !repository.isMirror;
