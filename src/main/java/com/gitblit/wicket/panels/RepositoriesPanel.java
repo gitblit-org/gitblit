@@ -31,7 +31,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -46,7 +45,6 @@ import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
@@ -140,12 +138,11 @@ public class RepositoriesPanel extends BasePanel {
 				Collections.sort(subModels);
 				groupedModels.addAll(subModels);
 			}
-			dp = new RepositoriesProvider(groupedModels);
+			dp = new ListDataProvider<RepositoryModel>(groupedModels);
 		} else {
 			dp = new SortableRepositoriesProvider(models);
 		}
 
-		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
 
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
@@ -319,18 +316,6 @@ public class RepositoriesPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(lastChangeLabel, getString("gb.author") + ": " + entry.lastChangeAuthor);
 				}
 
-				if (user != null && user.canAdmin(entry)) {
-					Fragment repositoryLinks = new Fragment("repositoryLinks",
-							"repositoryOwnerLinks", this);
-					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
-							EditRepositoryPage.class, WicketUtils
-									.newRepositoryParameter(entry.name)));
-					row.add(repositoryLinks);
-				} else {
-					row.add(new Label("repositoryLinks"));
-				}
-				row.add(new ExternalLink("syndication", SyndicationServlet.asLink(baseUrl,
-						entry.name, null, 0)).setVisible(linksActive));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
@@ -387,59 +372,6 @@ public class RepositoriesPanel extends BasePanel {
 		};
 	}
 
-	private static class RepositoriesProvider extends ListDataProvider<RepositoryModel> {
-
-		private static final long serialVersionUID = 1L;
-
-		public RepositoriesProvider(List<RepositoryModel> list) {
-			super(list);
-		}
-
-		@Override
-		public List<RepositoryModel> getData() {
-			return super.getData();
-		}
-
-		public void remove(RepositoryModel model) {
-			int index = getData().indexOf(model);
-			RepositoryModel groupModel = null;
-			if (index == (getData().size() - 1)) {
-				// last element
-				if (index > 0) {
-					// previous element is group header, then this is last
-					// repository in group. remove group too.
-					if (getData().get(index - 1) instanceof GroupRepositoryModel) {
-						groupModel = getData().get(index - 1);
-					}
-				}
-			} else if (index < (getData().size() - 1)) {
-				// not last element. check next element for group match.
-				if (getData().get(index - 1) instanceof GroupRepositoryModel
-						&& getData().get(index + 1) instanceof GroupRepositoryModel) {
-					// repository is sandwiched by group headers so this
-					// repository is the only element in the group. remove
-					// group.
-					groupModel = getData().get(index - 1);
-				}
-			}
-
-			if (groupModel == null) {
-				// Find the group and decrement the count
-				for (int i = index; i >= 0; i--) {
-					if (getData().get(i) instanceof GroupRepositoryModel) {
-						((GroupRepositoryModel) getData().get(i)).count--;
-						break;
-					}
-				}
-			} else {
-				// Remove the group header
-				getData().remove(groupModel);
-			}
-
-			getData().remove(model);
-		}
-	}
-
 	private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel> {
 
 		private static final long serialVersionUID = 1L;
@@ -449,10 +381,6 @@ public class RepositoriesPanel extends BasePanel {
 		protected SortableRepositoriesProvider(List<RepositoryModel> list) {
 			this.list = list;
 			setSort(SortBy.date.name(), false);
-		}
-
-		public void remove(RepositoryModel model) {
-			list.remove(model);
 		}
 
 		@Override
