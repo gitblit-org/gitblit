@@ -54,7 +54,7 @@ public class ExamplePlugin extends GitblitPlugin {
 }
 
 /**
- * You can also create Webapp plugins that register mounted pages.
+ * You can also create Webapp plugins that register pages.
  */
 public class ExampleWicketPlugin extends GitblitWicketPlugin {
     @Override
@@ -282,6 +282,35 @@ public class MyNavLink extends NavLinkExtension {
     public List<NavLink> getNavLinks(UserModel user) {
         NavLink link = new ExternalLinkMenuItem("Github", String.format("https://github.com/%s", user.username));
         return Arrays.asList(link);
+    }
+}
+```
+
+### Lifecycle Listener
+
+*SINCE 1.6.0*
+
+You can provide a lifecycle listener to be notified when Gitblit has completely started and just before Gitblit is gracefully terminated.
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.LifeCycleListener;
+
+@Extension
+public class MyLifeCycleListener extends LifeCycleListener {
+
+    final Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Override
+    public void onStartup() {
+    	log.info("Gitblit is Ready!!");
+    }
+
+    @Override
+    public void onShutdown() {
+    	log.info("Gitblit is Going Down!!");
     }
 }
 ```

@@ -38,6 +38,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.WebXmlSettings;
 import com.gitblit.dagger.DaggerContext;
+import com.gitblit.extensions.LifeCycleListener;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
@@ -191,6 +192,15 @@ public class GitblitContext extends DaggerContext {
 		logger.info("");
 		logger.info("All managers started.");
 		logger.info("");
+
+		IPluginManager pluginManager = injector.get(IPluginManager.class);
+		for (LifeCycleListener listener : pluginManager.getExtensions(LifeCycleListener.class)) {
+			try {
+				listener.onStartup();
+			} catch (Throwable t) {
+				logger.error(null, t);
+			}
+		}
 	}
 
 	private String lookupBaseFolderFromJndi() {
@@ -225,6 +235,16 @@ public class GitblitContext extends DaggerContext {
 	@Override
 	protected void destroyContext(ServletContext context) {
 		logger.info("Gitblit context destroyed by servlet container.");
+
+		IPluginManager pluginManager = getManager(IPluginManager.class);
+		for (LifeCycleListener listener : pluginManager.getExtensions(LifeCycleListener.class)) {
+			try {
+				listener.onShutdown();
+			} catch (Throwable t) {
+				logger.error(null, t);
+			}
+		}
+
 		for (IManager manager : managers) {
 			logger.debug("stopping {}", manager.getClass().getSimpleName());
 			manager.stop();
