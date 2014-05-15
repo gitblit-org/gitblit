@@ -38,14 +38,14 @@ public class Flotr2LineChart extends Chart {
 
 	@Override
 	protected void appendChart(StringBuilder sb) {
-		
+
 		String dName = "data_" + dataName;
 		sb.append("var labels_" + dataName + " = [");
 		if(xAxisIsDate){
 			// Generate labels for the dates
 			SimpleDateFormat df = new SimpleDateFormat(dateFormat);
-			df.setTimeZone(getTimeZone());		
-			
+			df.setTimeZone(getTimeZone());
+
 			for (int i = 0; i < values.size(); i++) {
 				ChartValue value = values.get(i);
 				Date date = new Date(Long.parseLong(value.name));
@@ -55,7 +55,7 @@ public class Flotr2LineChart extends Chart {
 				}
 				sb.append("\"" + label + "\"");
 			}
-			
+
 		}
 		else {
 			for (int i = 0; i < values.size(); i++) {
@@ -67,9 +67,9 @@ public class Flotr2LineChart extends Chart {
 			}
 		}
 		line(sb, "];");
-		
+
 		line(sb, MessageFormat.format("var {0} = Flotr.draw(document.getElementById(''{1}''),", dName, tagId));
-		
+
 		// Add the data
 		line(sb, "[");
 		line(sb, "{ data : [ ");
@@ -80,8 +80,8 @@ public class Flotr2LineChart extends Chart {
 			}
 			line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, Float.toString(value.value)));
 		}
-		line(sb, MessageFormat.format(" ], label : ''{0}'', lines : '{' show : true '}', color: ''#ff9900'' '}'", valueName));
-		
+		line(sb, MessageFormat.format(" ], label : \"{0}\", lines : '{' show : true '}', color: ''#ff9900'' '}'", valueName));
+
 		if(highlights.size() > 0){
 			// get the highlights
 			line(sb, ", { data : [ ");
@@ -92,14 +92,14 @@ public class Flotr2LineChart extends Chart {
 				}
 				line(sb, MessageFormat.format("[{0}, {1}] ",  value.name, Float.toString(value.value)));
 			}
-			line(sb, MessageFormat.format(" ], label : ''{0}'', points : '{' show : true, fill: true, fillColor:''#002060'' '}', color: ''#ff9900'' '}'", valueName));
+			line(sb, MessageFormat.format(" ], label : \"{0}\", points : '{' show : true, fill: true, fillColor:''#002060'' '}', color: ''#ff9900'' '}'", valueName));
 		}
 		line(sb, "]");
-		
+
 		// Add the options
 		line(sb, ", {");
 		if(title != null && title.isEmpty() == false){
-			line(sb, MessageFormat.format("title : ''{0}'',", title));
+			line(sb, MessageFormat.format("title : \"{0}\",", title));
 		}
 		line(sb, "mouse: {");
 		line(sb, "  track: true,");
@@ -114,7 +114,7 @@ public class Flotr2LineChart extends Chart {
 		line(sb, "  showMinorLabels: false,");
 		line(sb, "  autoscale: true,");
 		line(sb, "  autoscaleMargin: 0,");
-		line(sb, "  margin: 10");	
+		line(sb, "  margin: 10");
 		line(sb, "},");
 		line(sb, "yaxis: {");
 		line(sb, "  showLabels: false,");
@@ -136,7 +136,7 @@ public class Flotr2LineChart extends Chart {
 		line(sb, "  show: false");
 		line(sb, "}");
 		line(sb, "});");
-		
+
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public class Flotr2LineChart extends Chart {
 		xAxisIsDate = true;
 		super.addValue(date, value);
 	}
-	
-	
+
+
 
 }

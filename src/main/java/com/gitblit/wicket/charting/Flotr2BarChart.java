@@ -40,27 +40,28 @@ public class Flotr2BarChart extends Chart {
 
 	@Override
 	protected void appendChart(StringBuilder sb) {
-		
+
 		String dName = "data_" + dataName;
 		sb.append("var labels_" + dataName + " = [");
 		if(xAxisIsDate){
-		
+
 			// Generate labels for the dates
 			SimpleDateFormat df = new SimpleDateFormat(dateFormat);
 			df.setTimeZone(getTimeZone());
-			
+
 			// Sort the values first
 			Collections.sort(values, new Comparator<ChartValue>() {
 
-		        public int compare(ChartValue o1, ChartValue o2) {
+		        @Override
+				public int compare(ChartValue o1, ChartValue o2) {
 		        	long long1 = Long.parseLong(o1.name);
 		        	long long2 = Long.parseLong(o2.name);
 		            return (int) (long2 - long1);
 		        }
-		        
+
 		    });
-			
-			
+
+
 			for (int i = 0; i < values.size(); i++) {
 				ChartValue value = values.get(i);
 				Date date = new Date(Long.parseLong(value.name));
@@ -70,7 +71,7 @@ public class Flotr2BarChart extends Chart {
 				}
 				sb.append("[\"" + label + "\", " + value.name + "]");
 			}
-			
+
 		}
 		else {
 			for (int i = 0; i < values.size(); i++) {
@@ -82,9 +83,9 @@ public class Flotr2BarChart extends Chart {
 			}
 		}
 		line(sb, "];");
-		
+
 		line(sb, MessageFormat.format("var {0} = Flotr.draw(document.getElementById(''{1}''),", dName, tagId));
-		
+
 		// Add the data
 		line(sb, "[");
 		line(sb, "{ data : [ ");
@@ -99,22 +100,22 @@ public class Flotr2BarChart extends Chart {
 			else {
 				line(sb, MessageFormat.format("[{0}, {1}] ",  Integer.toString(i), Float.toString(value.value)));
 			}
-			
+
 		}
-		line(sb, MessageFormat.format(" ], label : ''{0}'', color: ''#FF9900'' '}'", valueName));
+		line(sb, MessageFormat.format(" ], label : \"{0}\", color: ''#FF9900'' '}'", valueName));
 		line(sb, "]");
-		
+
 		// Add the options
 		line(sb, ", {");
 		if(title != null && title.isEmpty() == false){
-			line(sb, MessageFormat.format("title : ''{0}'',", title));
+			line(sb, MessageFormat.format("title : \"{0}\",", title));
 		}
 		line(sb, "bars : {");
 		line(sb, "  show : true,");
 		line(sb, "  horizontal : false,");
 		line(sb, "  barWidth : 1");
 		line(sb, "},");
-		line(sb, "points: { show: false },");	
+		line(sb, "points: { show: false },");
 		line(sb, "mouse: {");
 		line(sb, "  track: true,");
 		line(sb, "  lineColor: '#002060',");
@@ -132,7 +133,7 @@ public class Flotr2BarChart extends Chart {
 		line(sb, "      return labels_" + dataName + "[index];");
 		line(sb, "    return \"\";");
 		line(sb, "  },");
-		line(sb, "  margin: 10");	
+		line(sb, "  margin: 10");
 		line(sb, "},");
 		line(sb, "yaxis: {");
 		line(sb, "  showLabels: false,");
@@ -152,7 +153,7 @@ public class Flotr2BarChart extends Chart {
 		line(sb, "  show: false");
 		line(sb, "}");
 		line(sb, "});");
-		
+
 	}
 
 	@Override
@@ -161,7 +162,7 @@ public class Flotr2BarChart extends Chart {
 		String name = String.valueOf(date.getTime());
 		super.addValue(name, value);
 	}
-	
-	
+
+
 
 }
