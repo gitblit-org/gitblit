@@ -397,35 +397,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="asciidoctor-java-integration-0.1.4.jar">
+      <library name="asciidoctorj-1.5.0.preview2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/asciidoctor-java-integration-0.1.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/asciidoctorj-1.5.0.preview2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/asciidoctor-java-integration-0.1.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/asciidoctorj-1.5.0.preview2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jruby-complete-1.7.4.jar">
+      <library name="jruby-complete-1.7.9.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jruby-complete-1.7.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jruby-complete-1.7.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jruby-complete-1.7.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jruby-complete-1.7.9.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jcommander-1.30.jar">
+      <library name="jcommander-1.32.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jcommander-1.30.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jcommander-1.32.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jcommander-1.30.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jcommander-1.32.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
