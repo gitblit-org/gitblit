@@ -108,7 +108,7 @@ public abstract class RepositoryPage extends RootPage {
 			error(MessageFormat.format(getString("gb.repositoryNotSpecifiedFor"), getPageName()), true);
 		}
 
-		if (!getRepositoryModel().hasCommits) {
+		if (!getRepositoryModel().hasCommits && getClass() != EmptyRepositoryPage.class) {
 			throw new RestartResponseException(EmptyRepositoryPage.class, params);
 		}
 
@@ -147,6 +147,16 @@ public abstract class RepositoryPage extends RootPage {
 				}
 			}
 		}
+
+		showAdmin = false;
+		if (app().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
+			boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
+			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
+		} else {
+			showAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
+		}
+		isOwner = GitBlitWebSession.get().isLoggedIn()
+				&& (getRepositoryModel().isOwner(GitBlitWebSession.get().getUsername()));
 
 		// register the available navigation links for this page and user
 		List<NavLink> navLinks = registerNavLinks();
@@ -195,9 +205,14 @@ public abstract class RepositoryPage extends RootPage {
 			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, params));
 		} else {
 			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, params));
-//			pages.put("overview", new PageRegistration("gb.overview", OverviewPage.class, params));
+			//			pages.put("overview", new PageRegistration("gb.overview", OverviewPage.class, params));
 			navLinks.add(new PageNavLink("gb.reflog", ReflogPage.class, params));
 		}
+
+		if (!model.hasCommits) {
+			return navLinks;
+		}
+
 		navLinks.add(new PageNavLink("gb.commits", LogPage.class, params));
 		navLinks.add(new PageNavLink("gb.tree", TreePage.class, params));
 		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(model) || app().tickets().hasTickets(model))) {
@@ -229,16 +244,6 @@ public abstract class RepositoryPage extends RootPage {
 			navLinks.addAll(ext.getNavLinks(user, model));
 		}
 
-		// Conditionally add edit link
-		showAdmin = false;
-		if (app().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
-			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
-		} else {
-			showAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
-		}
-		isOwner = GitBlitWebSession.get().isLoggedIn()
-				&& (model.isOwner(GitBlitWebSession.get().getUsername()));
 		return navLinks;
 	}
 
@@ -311,7 +316,7 @@ public abstract class RepositoryPage extends RootPage {
 		}
 
 		// (un)star link allows a user to star a repository
-		if (user.isAuthenticated) {
+		if (user.isAuthenticated && model.hasCommits) {
 			PageParameters starParams = DeepCopier.copy(getPageParameters());
 			starParams.put(PARAM_STAR, !user.getPreferences().isStarredRepository(model.name));
 			String toggleStarUrl = getRequestCycle().urlFor(getClass(), starParams).toString();
@@ -338,7 +343,7 @@ public abstract class RepositoryPage extends RootPage {
 		} else {
 			String fork = app().repositories().getFork(user.username, model.name);
 			boolean hasFork = fork != null;
-			boolean canFork = user.canFork(model);
+			boolean canFork = user.canFork(model) && model.hasCommits;
 
 			if (hasFork || !canFork) {
 				// user not allowed to fork or fork already exists or repo forbids forking
