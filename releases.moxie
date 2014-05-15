@@ -12,6 +12,7 @@ r24: {
     fixes:
     - Allow ticket responsible selection if anonymous push is enabled (issue-425, ticket-71)
     - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
+    - Fix flotr2 chart generation failure if a label contained a single-quote (ticket-77)
     changes:
     - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
