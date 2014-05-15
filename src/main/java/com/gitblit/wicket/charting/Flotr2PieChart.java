@@ -35,11 +35,11 @@ public class Flotr2PieChart extends Chart {
 
 	@Override
 	protected void appendChart(StringBuilder sb) {
-			
+
 		String dName = "data_" + dataName;
 		line(sb, "var selected_" + dataName + " = null;");
 		line(sb, MessageFormat.format("var {0} = Flotr.draw(document.getElementById(''{1}''),", dName, tagId));
-		
+
 		// Add the data
 		line(sb, "[");
 		for (int i = 0; i < values.size(); i++) {
@@ -47,13 +47,13 @@ public class Flotr2PieChart extends Chart {
 			if(i > 0){
 				sb.append(",");
 			}
-			line(sb, MessageFormat.format("'{'data : [ [0, {0}] ], label : ''{1}'', color: ''{2}'' '}'", Float.toString(value.value), value.name, StringUtils.getColor(value.name)));
+			line(sb, MessageFormat.format("'{'data : [ [0, {0}] ], label : \"{1}\", color: ''{2}'' '}'", Float.toString(value.value), value.name, StringUtils.getColor(value.name)));
 		}
 		line(sb, "]");
-		
+
 		// Add the options
 		line(sb, ", {");
-		line(sb, MessageFormat.format("title : ''{0}'',", title));
+		line(sb, MessageFormat.format("title : \"{0}\",", title));
 		line(sb, "fontSize : 2,");
 		line(sb, "pie : {");
 		line(sb, "  show : true,");
@@ -90,7 +90,7 @@ public class Flotr2PieChart extends Chart {
 		line(sb, "  outlineWidth: 0");
 		line(sb, "}");
 		line(sb, ", legend: {");
-		if(showLegend){		
+		if(showLegend){
 			line(sb, "  show: true");
 		}
 		else {
@@ -98,15 +98,15 @@ public class Flotr2PieChart extends Chart {
 		}
 		line(sb, "}");
 		line(sb, "});");
-		
+
 		if(clickUrl != null && clickUrl.isEmpty() == false){
 			line(sb, MessageFormat.format("Flotr.EventAdapter.observe(document.getElementById(''{0}''), ''flotr:click'', function (mouse, a, b, c) '{'", tagId));
 			line(sb, "  window.location.href = \"" + clickUrl + "\" + selected_" + dataName + ";");
-			line(sb, "});"); 
+			line(sb, "});");
 		}
-		 
-	   
-		
+
+
+
 	}
 
 }
