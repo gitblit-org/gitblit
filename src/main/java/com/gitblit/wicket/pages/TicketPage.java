@@ -278,7 +278,8 @@ public class TicketPage extends RepositoryPage {
 		if (StringUtils.isEmpty(ticket.body)) {
 			desc = getString("gb.noDescriptionGiven");
 		} else {
-			desc = MarkdownUtils.transformGFM(app().settings(), ticket.body, ticket.repository);
+			String bugtraq = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, ticket.body);
+			desc = MarkdownUtils.transformGFM(app().settings(), bugtraq, ticket.repository);
 		}
 		add(new Label("ticketDescription", desc).setEscapeModelStrings(false));
 
@@ -685,7 +686,8 @@ public class TicketPage extends RepositoryPage {
 						/*
 						 * COMMENT
 						 */
-						String comment = MarkdownUtils.transformGFM(app().settings(), entry.comment.text, repositoryName);
+						String bugtraq = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, entry.comment.text);
+						String comment = MarkdownUtils.transformGFM(app().settings(), bugtraq, repositoryName);
 						Fragment frag = new Fragment("entry", "commentFragment", this);
 						Label commentIcon = new Label("commentIcon");
 						if (entry.comment.src == CommentSource.Email) {
