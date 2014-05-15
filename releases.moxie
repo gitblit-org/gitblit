@@ -14,7 +14,6 @@ r24: {
     - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
     - Fix flotr2 chart generation failure if a label contained a single-quote (ticket-77)
     changes:
-    - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
     - Drop deprecated --set-upstream syntax for -u (ticket-59)
     - BARNUM: Prune deleted branches on fetch (git fetch -p) (ticket-60)
@@ -27,9 +26,11 @@ r24: {
     - Add My Tickets page (issue-215, ticket-15)
     - Added CRUD functionality for Ticket Milestones (ticket-17)
     - Implemented Ticket migration tool to move between backends (ticket-19)
+    - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
     - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
     - Add object type (ot) parameter for RSS queries to retrieve tag details (pr-165, ticket-66)
     - Add setting to allow STARTTLS without requiring SMTPS (pr-183)
+    - Added an extension point for monitoring onStartup and onShutdown (ticket-79)
     dependencyChanges:
     - Update to javax.mail 1.5.1 (issue-417, ticket-58)
     contributors:
