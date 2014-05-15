@@ -1,0 +1,1 @@
+[{"date":"2014-05-15T17:09:18Z","author":"james","fields":{"title":"A single quote in a chart label generates invalid JavaScript","body":"Chart labels with a single quite break the generated JavaScript output.","type":"Bug","responsible":"james","milestone":"v1.6.0","mergeTo":"master","watchers":"+james","status":"New"}}]
