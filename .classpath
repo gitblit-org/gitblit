@@ -5,11 +5,10 @@
 	<classpathentry kind="src" path="src/test/java" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/test/bugtraq" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/main/resources" />
-	<classpathentry kind="lib" path="ext/dagger-1.2.1.jar" sourcepath="ext/src/dagger-1.2.1.jar" />
+	<classpathentry kind="lib" path="ext/guice-4.0-beta4.jar" sourcepath="ext/src/guice-4.0-beta4.jar" />
 	<classpathentry kind="lib" path="ext/javax.inject-1.jar" sourcepath="ext/src/javax.inject-1.jar" />
-	<classpathentry kind="lib" path="ext/dagger-compiler-1.2.1.jar" sourcepath="ext/src/dagger-compiler-1.2.1.jar" />
-	<classpathentry kind="lib" path="ext/javawriter-2.3.0.jar" sourcepath="ext/src/javawriter-2.3.0.jar" />
-	<classpathentry kind="lib" path="ext/guava-15.0.jar" sourcepath="ext/src/guava-15.0.jar" />
+	<classpathentry kind="lib" path="ext/aopalliance-1.0.jar" sourcepath="ext/src/aopalliance-1.0.jar" />
+	<classpathentry kind="lib" path="ext/guava-16.0.1.jar" sourcepath="ext/src/guava-16.0.1.jar" />
 	<classpathentry kind="lib" path="ext/annotations-12.0.jar" sourcepath="ext/src/annotations-12.0.jar" />
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17.jar" />
 	<classpathentry kind="lib" path="ext/slf4j-api-1.7.5.jar" sourcepath="ext/src/slf4j-api-1.7.5.jar" />
@@ -88,10 +87,5 @@
 	<classpathentry kind="lib" path="ext/selenium-api-2.28.0.jar" sourcepath="ext/src/selenium-api-2.28.0.jar" />
 	<classpathentry kind="lib" path="ext/commons-exec-1.1.jar" sourcepath="ext/src/commons-exec-1.1.jar" />
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
-	<classpathentry kind="src" path="src/main/dagger">
-		<attributes>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin/classes" />
 </classpath>
