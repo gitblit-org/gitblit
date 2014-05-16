@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +83,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	private int readTimeout = 12800;
 
+	@Inject
 	public PluginManager(IRuntimeManager runtimeManager) {
 		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
 		dir.mkdirs();
