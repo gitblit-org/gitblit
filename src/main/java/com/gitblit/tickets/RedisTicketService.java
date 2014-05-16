@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.Client;
@@ -53,6 +56,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class RedisTicketService extends ITicketService {
 
 	private final JedisPool pool;
@@ -61,6 +65,7 @@ public class RedisTicketService extends ITicketService {
 		journal, ticket, counter
 	}
 
+	@Inject
 	public RedisTicketService(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
