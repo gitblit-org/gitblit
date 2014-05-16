@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.inject.Inject;
+
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
@@ -68,6 +70,7 @@ public class ProjectManager implements IProjectManager {
 
 	private FileBasedConfig projectConfigs;
 
+	@Inject
 	public ProjectManager(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager,
