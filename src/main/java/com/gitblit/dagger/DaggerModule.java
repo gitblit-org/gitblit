@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.dagger;
 
 import javax.inject.Singleton;
 
+import com.gitblit.FileSettings;
+import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
 import com.gitblit.manager.IAuthenticationManager;
