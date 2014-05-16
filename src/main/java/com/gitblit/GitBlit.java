@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessPermission;
@@ -43,17 +42,13 @@ import com.gitblit.manager.ServicesManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
-import com.gitblit.tickets.BranchTicketService;
-import com.gitblit.tickets.FileTicketService;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.NullTicketService;
-import com.gitblit.tickets.RedisTicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.StringUtils;
-
-import dagger.Module;
-import dagger.ObjectGraph;
-import dagger.Provides;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
  * GitBlit is the aggregate manager for the Gitblit webapp.  It provides all
@@ -64,7 +59,7 @@ import dagger.Provides;
  */
 public class GitBlit extends GitblitManager {
 
-	private final ObjectGraph injector;
+	private final Injector injector;
 
 	private final ServicesManager servicesManager;
 
@@ -92,7 +87,7 @@ public class GitBlit extends GitblitManager {
 				projectManager,
 				federationManager);
 
-		this.injector = ObjectGraph.create(getModules());
+		this.injector = Guice.createInjector(getModules());
 
 		this.servicesManager = new ServicesManager(this);
 	}
@@ -119,8 +114,8 @@ public class GitBlit extends GitblitManager {
 		return servicesManager.isServingRepositories();
 	}
 
-	protected Object [] getModules() {
-		return new Object [] { new GitBlitModule()};
+	protected AbstractModule [] getModules() {
+		return new AbstractModule [] { new GitBlitModule()};
 	}
 
 	protected boolean acceptPush(Transport byTransport) {
@@ -326,7 +321,7 @@ public class GitBlit extends GitblitManager {
 		}
 		try {
 			Class<? extends ITicketService> serviceClass = (Class<? extends ITicketService>) Class.forName(clazz);
-			ticketService = injector.get(serviceClass).start();
+			ticketService = injector.getInstance(serviceClass).start();
 			if (ticketService instanceof NullTicketService) {
 				logger.warn("No ticket service configured.");
 			} else if (ticketService.isReady()) {
@@ -336,118 +331,31 @@ public class GitBlit extends GitblitManager {
 			}
 		} catch (Exception e) {
 			logger.error("failed to create ticket service " + clazz, e);
-			ticketService = injector.get(NullTicketService.class).start();
+			ticketService = injector.getInstance(NullTicketService.class).start();
 		}
 	}
 
 	/**
-	 * A nested Dagger graph is used for constructor dependency injection of
+	 * A nested Guice Module is used for constructor dependency injection of
 	 * complex classes.
 	 *
 	 * @author James Moger
 	 *
 	 */
-	@Module(
-			library = true,
-			injects = {
-					IStoredSettings.class,
+	class GitBlitModule extends AbstractModule {
 
-					// core managers
-					IRuntimeManager.class,
-					IPluginManager.class,
-					INotificationManager.class,
-					IUserManager.class,
-					IAuthenticationManager.class,
-					IRepositoryManager.class,
-					IProjectManager.class,
-					IFederationManager.class,
-
-					// the monolithic manager
-					IGitblit.class,
-
-					// ticket services
-					NullTicketService.class,
-					FileTicketService.class,
-					BranchTicketService.class,
-					RedisTicketService.class
-				}
-			)
-	class GitBlitModule {
-
-		@Provides @Singleton IStoredSettings provideSettings() {
-			return settings;
-		}
-
-		@Provides @Singleton IRuntimeManager provideRuntimeManager() {
-			return runtimeManager;
-		}
-
-		@Provides @Singleton IPluginManager providePluginManager() {
-			return pluginManager;
-		}
-
-		@Provides @Singleton INotificationManager provideNotificationManager() {
-			return notificationManager;
-		}
-
-		@Provides @Singleton IUserManager provideUserManager() {
-			return userManager;
-		}
-
-		@Provides @Singleton IAuthenticationManager provideAuthenticationManager() {
-			return authenticationManager;
-		}
-
-		@Provides @Singleton IRepositoryManager provideRepositoryManager() {
-			return repositoryManager;
-		}
-
-		@Provides @Singleton IProjectManager provideProjectManager() {
-			return projectManager;
-		}
-
-		@Provides @Singleton IFederationManager provideFederationManager() {
-			return federationManager;
-		}
-
-		@Provides @Singleton IGitblit provideGitblit() {
-			return GitBlit.this;
-		}
-
-		@Provides @Singleton NullTicketService provideNullTicketService() {
-			return new NullTicketService(
-					runtimeManager,
-					pluginManager,
-					notificationManager,
-					userManager,
-					repositoryManager);
-		}
-
-		@Provides @Singleton FileTicketService provideFileTicketService() {
-			return new FileTicketService(
-					runtimeManager,
-					pluginManager,
-					notificationManager,
-					userManager,
-					repositoryManager);
-		}
-
-		@Provides @Singleton BranchTicketService provideBranchTicketService() {
-			return new BranchTicketService(
-					runtimeManager,
-					pluginManager,
-					notificationManager,
-					userManager,
-					repositoryManager);
-		}
-
-		@Provides @Singleton RedisTicketService provideRedisTicketService() {
-			return new RedisTicketService(
-					runtimeManager,
-					pluginManager,
-					notificationManager,
-					userManager,
-					repositoryManager);
+		@Override
+		protected void configure() {
+			bind(IStoredSettings.class).toInstance(settings);
+			bind(IRuntimeManager.class).toInstance(runtimeManager);
+			bind(IPluginManager.class).toInstance(pluginManager);
+			bind(INotificationManager.class).toInstance(notificationManager);
+			bind(IUserManager.class).toInstance(userManager);
+			bind(IAuthenticationManager.class).toInstance(authenticationManager);
+			bind(IRepositoryManager.class).toInstance(repositoryManager);
+			bind(IProjectManager.class).toInstance(projectManager);
+			bind(IFederationManager.class).toInstance(federationManager);
+			bind(IGitblit.class).toInstance(GitBlit.this);
 		}
 	}
 }
