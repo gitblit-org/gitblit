@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.mail.Message;
 
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ public class NotificationManager implements INotificationManager {
 
 	private final MailService mailService;
 
+	@Inject
 	public NotificationManager(IStoredSettings settings) {
 		this.settings = settings;
 		this.mailService = new MailService(settings);
