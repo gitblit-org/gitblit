@@ -27,6 +27,9 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
@@ -51,6 +54,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class FileTicketService extends ITicketService {
 
 	private static final String JOURNAL = "journal.json";
@@ -59,6 +63,7 @@ public class FileTicketService extends ITicketService {
 
 	private final Map<String, AtomicLong> lastAssignedId;
 
+	@Inject
 	public FileTicketService(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,

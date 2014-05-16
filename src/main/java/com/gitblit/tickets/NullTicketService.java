@@ -19,6 +19,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -35,8 +38,10 @@ import com.gitblit.models.TicketModel.Change;
  * @author James Moger
  *
  */
+@Singleton
 public class NullTicketService extends ITicketService {
 
+	@Inject
 	public NullTicketService(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
