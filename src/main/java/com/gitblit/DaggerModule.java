@@ -72,7 +72,6 @@ import dagger.Provides;
  *
  */
 @Module(
-	library = true,
 	injects = {
 			IStoredSettings.class,
 
@@ -123,29 +122,24 @@ public class DaggerModule {
 		return new FileSettings();
 	}
 
-	@Provides @Singleton IRuntimeManager provideRuntimeManager(IStoredSettings settings) {
-		return new RuntimeManager(settings);
+	@Provides @Singleton IRuntimeManager provideRuntimeManager(RuntimeManager manager) {
+		return manager;
 	}
 
-	@Provides @Singleton IPluginManager providePluginManager(IRuntimeManager runtimeManager) {
-		return new PluginManager(runtimeManager);
+	@Provides @Singleton IPluginManager providePluginManager(PluginManager manager) {
+		return manager;
 	}
 
-	@Provides @Singleton INotificationManager provideNotificationManager(IStoredSettings settings) {
-		return new NotificationManager(settings);
+	@Provides @Singleton INotificationManager provideNotificationManager(NotificationManager manager) {
+		return manager;
 	}
 
-	@Provides @Singleton IUserManager provideUserManager(IRuntimeManager runtimeManager) {
-		return new UserManager(runtimeManager);
+	@Provides @Singleton IUserManager provideUserManager(UserManager manager) {
+		return manager;
 	}
 
-	@Provides @Singleton IAuthenticationManager provideAuthenticationManager(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager) {
-
-		return new AuthenticationManager(
-				runtimeManager,
-				userManager);
+	@Provides @Singleton IAuthenticationManager provideAuthenticationManager(AuthenticationManager manager) {
+		return manager;
 	}
 
 	@Provides @Singleton IPublicKeyManager providePublicKeyManager(
@@ -173,367 +167,19 @@ public class DaggerModule {
 		}
 	}
 
-	@Provides @Singleton IRepositoryManager provideRepositoryManager(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager) {
-
-		return new RepositoryManager(
-				runtimeManager,
-				userManager);
+	@Provides @Singleton IRepositoryManager provideRepositoryManager(RepositoryManager manager) {
+		return manager;
 	}
 
-	@Provides @Singleton IProjectManager provideProjectManager(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IRepositoryManager repositoryManager) {
-
-		return new ProjectManager(
-				runtimeManager,
-				userManager,
-				repositoryManager);
+	@Provides @Singleton IProjectManager provideProjectManager(ProjectManager manager) {
+		return manager;
 	}
 
-	@Provides @Singleton IFederationManager provideFederationManager(
-			IRuntimeManager runtimeManager,
-			INotificationManager notificationManager,
-			IRepositoryManager repositoryManager) {
-
-		return new FederationManager(
-				runtimeManager,
-				notificationManager,
-				repositoryManager);
+	@Provides @Singleton IFederationManager provideFederationManager(FederationManager manager) {
+		return manager;
 	}
 
-	@Provides @Singleton IGitblit provideGitblit(
-			IRuntimeManager runtimeManager,
-			IPluginManager pluginManager,
-			INotificationManager notificationManager,
-			IUserManager userManager,
-			IAuthenticationManager authenticationManager,
-			IPublicKeyManager publicKeyManager,
-			IRepositoryManager repositoryManager,
-			IProjectManager projectManager,
-			IFederationManager federationManager) {
-
-		return new GitBlit(
-				runtimeManager,
-				pluginManager,
-				notificationManager,
-				userManager,
-				authenticationManager,
-				publicKeyManager,
-				repositoryManager,
-				projectManager,
-				federationManager);
-	}
-
-	@Provides @Singleton GitBlitWebApp provideWebApplication(
-			IRuntimeManager runtimeManager,
-			IPluginManager pluginManager,
-			INotificationManager notificationManager,
-			IUserManager userManager,
-			IAuthenticationManager authenticationManager,
-			IPublicKeyManager publicKeyManager,
-			IRepositoryManager repositoryManager,
-			IProjectManager projectManager,
-			IFederationManager federationManager,
-			IGitblit gitblit) {
-
-		return new GitBlitWebApp(
-				runtimeManager,
-				pluginManager,
-				notificationManager,
-				userManager,
-				authenticationManager,
-				publicKeyManager,
-				repositoryManager,
-				projectManager,
-				federationManager,
-				gitblit);
-	}
-//
-//	@Provides @Singleton GitblitWicketFilter provideGitblitWicketFilter(GitBlitWebApp webapp) {
-//		return new GitblitWicketFilter(webapp);
-//	}
-//
-//	@Provides GitServlet provideGitServlet(IGitblit gitblit) {
-//		return new GitServlet(gitblit);
-//	}
-//
-//	@Provides GitFilter provideGitFilter(
-//			IRuntimeManager runtimeManager,
-//			IUserManager userManager,
-//			IAuthenticationManager authenticationManager,
-//			IRepositoryManager repositoryManager,
-//			IFederationManager federationManager) {
-//
-//		return new GitFilter(
-//				runtimeManager,
-//				userManager,
-//				authenticationManager,
-//				repositoryManager,
-//				federationManager);
-//	}
-//
-//	@Provides @Singleton PagesServlet providePagesServlet(
-//			IRuntimeManager runtimeManager,
-//			IRepositoryManager repositoryManager) {
-//
-//		return new PagesServlet(runtimeManager, repositoryManager);
-//	}
-//
-//	@Provides @Singleton PagesFilter providePagesFilter(
-//			IRuntimeManager runtimeManager,
-//			IAuthenticationManager authenticationManager,
-//			IRepositoryManager repositoryManager) {
-//
-//		return new PagesFilter(
-//				runtimeManager,
-//				authenticationManager,
-//				repositoryManager);
-//	}
-//
-//	@Provides @Singleton RpcServlet provideRpcServlet(IGitblit gitblit) {
-//		return new RpcServlet(gitblit);
-//	}
-//
-//	@Provides @Singleton RpcFilter provideRpcFilter(
-//			IRuntimeManager runtimeManager,
-//			IAuthenticationManager authenticationManager) {
-//
-//		return new RpcFilter(runtimeManager, authenticationManager);
-//	}
-//
-//	@Provides @Singleton DownloadZipServlet provideDownloadZipServlet(
-//			IRuntimeManager runtimeManager,
-//			IRepositoryManager repositoryManager) {
-//
-//		return new DownloadZipServlet(runtimeManager, repositoryManager);
-//	}
-//
-//	@Provides @Singleton DownloadZipFilter provideDownloadZipFilter(
-//			IRuntimeManager runtimeManager,
-//			IAuthenticationManager authenticationManager,
-//			IRepositoryManager repositoryManager) {
-//
-//		return new DownloadZipFilter(
-//				runtimeManager,
-//				authenticationManager,
-//				repositoryManager);
-//	}
-//
-//	@Provides @Singleton SyndicationServlet provideSyndicationServlet(
-//			IRuntimeManager runtimeManager,
-//			IRepositoryManager repositoryManager,
-//			IProjectManager projectManager) {
-//
-//		return new SyndicationServlet(
-//				runtimeManager,
-//				repositoryManager,
-//				projectManager);
-//	}
-//
-//	@Provides @Singleton SyndicationFilter provideSyndicationFilter(
-//			IRuntimeManager runtimeManager,
-//			IAuthenticationManager authenticationManager,
-//			IRepositoryManager repositoryManager,
-//			IProjectManager projectManager) {
-//
-//		return new SyndicationFilter(
-//				runtimeManager,
-//				authenticationManager,
-//				repositoryManager,
-//				projectManager);
-//	}
-//
-//	@Provides @Singleton FederationServlet provideFederationServlet(
-//			IRuntimeManager runtimeManager,
-//			IUserManager userManager,
-//			IRepositoryManager repositoryManager,
-//			IFederationManager federationManager) {
-//
-//		return new FederationServlet(
-//				runtimeManager,
-//				userManager,
-//				repositoryManager,
-//				federationManager);
-//	}
-//
-//	@Provides @Singleton SparkleShareInviteServlet provideSparkleshareInviteServlet(
-//			IRuntimeManager runtimeManager,
-//			IUserManager userManager,
-//			IAuthenticationManager authenticationManager,
-//			IRepositoryManager repositoryManager) {
-//
-//		return new SparkleShareInviteServlet(
-//				runtimeManager,
-//				userManager,
-//				authenticationManager,
-//				repositoryManager);
-//	}
-//
-//	@Provides @Singleton BranchGraphServlet provideBranchGraphServlet(
-//			IRuntimeManager runtimeManager,
-//			IRepositoryManager repositoryManager) {
-//
-//		return new BranchGraphServlet(runtimeManager, repositoryManager);
-//	}
-//
-//	@Provides @Singleton RobotsTxtServlet provideRobotsTxtServlet(IRuntimeManager runtimeManager) {
-//		return new RobotsTxtServlet(runtimeManager);
-//	}
-//
-//	@Provides @Singleton LogoServlet provideLogoServlet(IRuntimeManager runtimeManager) {
-//		return new LogoServlet(runtimeManager);
-//	}
-//
-//	@Provides @Singleton EnforceAuthenticationFilter provideEnforceAuthenticationFilter(
-//			IRuntimeManager runtimeManager,
-//			IAuthenticationManager authenticationManager) {
-//
-//		return new EnforceAuthenticationFilter(runtimeManager, authenticationManager);
-//	}
-
-
-	@Provides @Singleton GitblitWicketFilter provideGitblitWicketFilter(GitBlitWebApp webapp) {
-		return new GitblitWicketFilter();
-	}
-
-	@Provides GitServlet provideGitServlet(IGitblit gitblit) {
-		return new GitServlet();
-	}
-
-	@Provides GitFilter provideGitFilter(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager,
-			IFederationManager federationManager) {
-
-		return new GitFilter();
-	}
-
-	@Provides @Singleton RawServlet provideRawServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager) {
-
-		return new RawServlet();
-	}
-
-	@Provides @Singleton RawFilter provideRawFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager) {
-
-		return new RawFilter();
-	}
-
-	@Provides @Singleton PagesServlet providePagesServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager) {
-
-		return new PagesServlet();
-	}
-
-	@Provides @Singleton PagesFilter providePagesFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager) {
-
-		return new PagesFilter();
-	}
-
-	@Provides @Singleton RpcServlet provideRpcServlet(IGitblit gitblit) {
-		return new RpcServlet();
-	}
-
-	@Provides @Singleton RpcFilter provideRpcFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager) {
-
-		return new RpcFilter();
-	}
-
-	@Provides @Singleton DownloadZipServlet provideDownloadZipServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager) {
-
-		return new DownloadZipServlet();
-	}
-
-	@Provides @Singleton DownloadZipFilter provideDownloadZipFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager) {
-
-		return new DownloadZipFilter();
-	}
-
-	@Provides @Singleton SyndicationServlet provideSyndicationServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager,
-			IProjectManager projectManager) {
-
-		return new SyndicationServlet();
-	}
-
-	@Provides @Singleton SyndicationFilter provideSyndicationFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager,
-			IProjectManager projectManager) {
-
-		return new SyndicationFilter();
-	}
-
-	@Provides @Singleton FederationServlet provideFederationServlet(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IRepositoryManager repositoryManager,
-			IFederationManager federationManager) {
-
-		return new FederationServlet();
-	}
-
-	@Provides @Singleton SparkleShareInviteServlet provideSparkleshareInviteServlet(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager) {
-
-		return new SparkleShareInviteServlet();
-	}
-
-	@Provides @Singleton BranchGraphServlet provideBranchGraphServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager) {
-
-		return new BranchGraphServlet();
-	}
-
-	@Provides @Singleton RobotsTxtServlet provideRobotsTxtServlet(IRuntimeManager runtimeManager) {
-		return new RobotsTxtServlet();
-	}
-
-	@Provides @Singleton LogoServlet provideLogoServlet(IRuntimeManager runtimeManager) {
-		return new LogoServlet();
-	}
-
-	@Provides @Singleton PtServlet providePtServlet(IRuntimeManager runtimeManager) {
-		return new PtServlet();
-	}
-
-	@Provides @Singleton ProxyFilter provideProxyFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager) {
-
-		return new ProxyFilter();
-	}
-
-	@Provides @Singleton EnforceAuthenticationFilter provideEnforceAuthenticationFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager) {
-
-		return new EnforceAuthenticationFilter();
+	@Provides @Singleton IGitblit provideGitblit(GitBlit gitblit) {
+		return gitblit;
 	}
 }

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -70,6 +71,7 @@ public class FederationManager implements IFederationManager {
 
 	private final IRepositoryManager repositoryManager;
 
+	@Inject
 	public FederationManager(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,

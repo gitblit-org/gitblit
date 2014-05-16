@@ -22,6 +22,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +49,7 @@ public class RuntimeManager implements IRuntimeManager {
 
 	private TimeZone timezone;
 
+	@Inject
 	public RuntimeManager(IStoredSettings settings) {
 		this(settings, null);
 	}

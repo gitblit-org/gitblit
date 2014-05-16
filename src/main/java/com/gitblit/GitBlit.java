@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
@@ -69,6 +70,7 @@ public class GitBlit extends GitblitManager {
 
 	private ITicketService ticketService;
 
+	@Inject
 	public GitBlit(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,

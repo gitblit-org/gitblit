@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +56,7 @@ public class UserManager implements IUserManager {
 
 	private IUserService userService;
 
+	@Inject
 	public UserManager(IRuntimeManager runtimeManager) {
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;

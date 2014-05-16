@@ -21,6 +21,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.apache.wicket.Application;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
@@ -88,6 +91,7 @@ import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
 
+@Singleton
 public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final Class<? extends WebPage> homePageClass = MyDashboardPage.class;
@@ -116,6 +120,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final IGitblit gitblit;
 
+	@Inject
 	public GitBlitWebApp(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
