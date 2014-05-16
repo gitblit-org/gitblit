@@ -70,6 +70,8 @@ public class Constants {
 
 	public static final String RAW_PATH = "/raw/";
 
+	public static final String PT_PATH = "/pt";
+
 	public static final String BRANCH_GRAPH_PATH = "/graph/";
 
 	public static final String BORDER = "*****************************************************************";
