@@ -34,12 +34,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.annotation.WebListener;
 
 import com.gitblit.Constants;
-import com.gitblit.DaggerModule;
 import com.gitblit.FileSettings;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.WebXmlSettings;
 import com.gitblit.dagger.DaggerContext;
+import com.gitblit.dagger.DaggerModule;
 import com.gitblit.extensions.LifeCycleListener;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
