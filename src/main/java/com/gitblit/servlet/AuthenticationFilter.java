@@ -21,6 +21,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -35,13 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
-import com.gitblit.dagger.DaggerFilter;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
 
 /**
  * The AuthenticationFilter is a servlet filter that preprocesses requests that
@@ -52,7 +50,7 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public abstract class AuthenticationFilter extends DaggerFilter {
+public abstract class AuthenticationFilter implements Filter {
 
 	protected static final String CHALLENGE = "Basic realm=\"" + Constants.NAME + "\"";
 
@@ -62,9 +60,16 @@ public abstract class AuthenticationFilter extends DaggerFilter {
 
 	protected IAuthenticationManager authenticationManager;
 
+	protected AuthenticationFilter(IAuthenticationManager authenticationManager) {
+		this.authenticationManager = authenticationManager;
+	}
+
 	@Override
-	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
-		this.authenticationManager = dagger.get(IAuthenticationManager.class);
+	public void init(FilterConfig filterConfig) throws ServletException {
+	}
+
+	@Override
+	public void destroy() {
 	}
 
 	/**
