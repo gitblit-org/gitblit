@@ -127,8 +127,9 @@ properties: {
 
 dependencies:
 # Dagger dependency injection library (annotation processor)
-- compile 'com.squareup.dagger:dagger:1.1.0' :war apt
-- compile 'com.squareup.dagger:dagger-compiler:1.1.0' :war optional apt
+- compile 'com.squareup.dagger:dagger:1.2.1' :war apt
+- compile 'com.squareup.dagger:dagger-compiler:1.2.1' :war optional apt
+- compile 'com.google.guava:guava:15.0' :war
 # Standard dependencies
 - compile 'com.intellij:annotations:12.0' :war
 - compile 'log4j:log4j:1.2.17' :war :fedclient :authority
