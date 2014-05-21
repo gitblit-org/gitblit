@@ -1,0 +1,3 @@
+## Vennligst logg inn
+
+Angi brukernavn og passord for å få tilgang til Gitblit

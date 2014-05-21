@@ -1,0 +1,3 @@
+## Velkommen til Gitblit
+
+En rask og enkel måte å ha din egen [Git](http://www.git-scm.com) server på.
