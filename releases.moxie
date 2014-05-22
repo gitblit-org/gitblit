@@ -14,6 +14,7 @@ r24: {
     - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
     - Fix flotr2 chart generation failure if a label contained a single-quote (ticket-77)
     - Fix repository cache refresh after ref deletion/addition (issue-433, ticket-82)
+    - Fixed cache miss on repository model retrieval (pr-185, ticket-83)
     changes:
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
     - Drop deprecated --set-upstream syntax for -u (ticket-59)
@@ -42,6 +43,7 @@ r24: {
     - Christian Buisson
     - Berke Viktor
     - Marcus Hunger
+    - Matthias Cullmann
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
     - { name: 'mail.starttls', defaultValue: 'false' }
