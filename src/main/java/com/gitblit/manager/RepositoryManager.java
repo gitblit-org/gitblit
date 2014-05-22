@@ -464,6 +464,8 @@ public class RepositoryManager implements IRepositoryManager {
 	public void resetRepositoryCache(String repositoryName) {
 		removeFromCachedRepositoryList(repositoryName);
 		clearRepositoryMetadataCache(repositoryName);
+		// force a reload of the repository data (ticket-82, issue-433)
+		getRepositoryModel(repositoryName);
 	}
 
 	/**
