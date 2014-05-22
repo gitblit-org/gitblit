@@ -13,6 +13,7 @@ r24: {
     - Allow ticket responsible selection if anonymous push is enabled (issue-425, ticket-71)
     - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
     - Fix flotr2 chart generation failure if a label contained a single-quote (ticket-77)
+    - Fix repository cache refresh after ref deletion/addition (issue-433, ticket-82)
     changes:
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
     - Drop deprecated --set-upstream syntax for -u (ticket-59)
