@@ -685,7 +685,7 @@ public class RepositoryManager implements IRepositoryManager {
 		repositoryName = repositoryName.replace("%7E", "~").replace("%7e", "~");
 
 		if (!repositoryListCache.containsKey(repositoryName)) {
-			RepositoryModel model = loadRepositoryModel(repositoryName);
+			RepositoryModel model = loadRepositoryModel(repositoryName.toLowerCase());
 			if (model == null) {
 				return null;
 			}
