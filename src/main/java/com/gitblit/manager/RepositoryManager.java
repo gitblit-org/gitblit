@@ -684,7 +684,8 @@ public class RepositoryManager implements IRepositoryManager {
 		// http://stackoverflow.com/questions/17183110
 		repositoryName = repositoryName.replace("%7E", "~").replace("%7e", "~");
 
-		if (!repositoryListCache.containsKey(repositoryName)) {
+		String repositoryKey = repositoryName.toLowerCase();
+		if (!repositoryListCache.containsKey(repositoryKey)) {
 			RepositoryModel model = loadRepositoryModel(repositoryName);
 			if (model == null) {
 				return null;
@@ -694,7 +695,7 @@ public class RepositoryManager implements IRepositoryManager {
 		}
 
 		// cached model
-		RepositoryModel model = repositoryListCache.get(repositoryName.toLowerCase());
+		RepositoryModel model = repositoryListCache.get(repositoryKey);
 
 		if (gcExecutor.isCollectingGarbage(model.name)) {
 			// Gitblit is busy collecting garbage, use our cached model
