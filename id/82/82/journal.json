@@ -1,0 +1,1 @@
+[{"date":"2014-05-22T23:10:04Z","author":"james","fields":{"title":"Repository is not properly re-cached after ref deletion/addition","body":"This is a regression introduced by the changes for #54 for the 1.5.1 maintenance release.","topic":"issue-433","type":"Bug","responsible":"james","milestone":"v1.6.0","mergeTo":"master","watchers":"+james","status":"New"}}]
