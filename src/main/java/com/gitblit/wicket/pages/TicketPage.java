@@ -278,7 +278,7 @@ public class TicketPage extends RepositoryPage {
 		if (StringUtils.isEmpty(ticket.body)) {
 			desc = getString("gb.noDescriptionGiven");
 		} else {
-			String bugtraq = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, ticket.body);
+			String bugtraq = bugtraqProcessor().processText(getRepository(), repositoryName, ticket.body);
 			desc = MarkdownUtils.transformGFM(app().settings(), bugtraq, ticket.repository);
 		}
 		add(new Label("ticketDescription", desc).setEscapeModelStrings(false));
@@ -507,7 +507,7 @@ public class TicketPage extends RepositoryPage {
 			add(new Label("ticketTopic").setVisible(false));
 		} else {
 			// process the topic using the bugtraq config to link things
-			String topic = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, ticket.topic);
+			String topic = bugtraqProcessor().processText(getRepository(), repositoryName, ticket.topic);
 			add(new Label("ticketTopic", topic).setEscapeModelStrings(false));
 		}
 
@@ -686,7 +686,7 @@ public class TicketPage extends RepositoryPage {
 						/*
 						 * COMMENT
 						 */
-						String bugtraq = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, entry.comment.text);
+						String bugtraq = bugtraqProcessor().processText(getRepository(), repositoryName, entry.comment.text);
 						String comment = MarkdownUtils.transformGFM(app().settings(), bugtraq, repositoryName);
 						Fragment frag = new Fragment("entry", "commentFragment", this);
 						Label commentIcon = new Label("commentIcon");

@@ -123,7 +123,7 @@ public class TicketListPanel extends BasePanel {
 					public void populateItem(final Item<String> labelItem) {
 						BugtraqProcessor btp  = new BugtraqProcessor(app().settings());
 						Repository db = app().repositories().getRepository(repository.name);
-						String content = btp.processPlainCommitMessage(db, repository.name, labelItem.getModelObject());
+						String content = btp.processText(db, repository.name, labelItem.getModelObject());
 						db.close();
 						Label label = new Label("label", content);
 						label.setEscapeModelStrings(false);
