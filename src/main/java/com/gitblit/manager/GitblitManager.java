@@ -87,6 +87,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.google.inject.Injector;
 
 /**
  * GitblitManager is an aggregate interface delegate.  It implements all the manager
@@ -654,6 +655,11 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public ServerStatus getStatus() {
 		return runtimeManager.getStatus();
+	}
+
+	@Override
+	public Injector getInjector() {
+		return runtimeManager.getInjector();
 	}
 
 	/*

@@ -24,8 +24,11 @@ import java.util.TimeZone;
 import com.gitblit.IStoredSettings;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
+import com.google.inject.Injector;
 
 public interface IRuntimeManager extends IManager {
+
+	Injector getInjector();
 
 	void setBaseFolder(File folder);
 

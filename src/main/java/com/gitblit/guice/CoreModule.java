@@ -47,12 +47,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
 /**
- * GuiceModule references all injectable objects.
+ * CoreModule references all the core business objects.
  *
  * @author James Moger
  *
  */
-public class GuiceModule extends AbstractModule {
+public class CoreModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

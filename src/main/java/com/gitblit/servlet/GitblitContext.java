@@ -23,15 +23,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 import javax.servlet.annotation.WebListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.FileSettings;
@@ -39,8 +41,8 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.WebXmlSettings;
 import com.gitblit.extensions.LifeCycleListener;
-import com.gitblit.guice.GuiceContext;
-import com.gitblit.guice.GuiceModule;
+import com.gitblit.guice.CoreModule;
+import com.gitblit.guice.WebModule;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
@@ -54,9 +56,10 @@ import com.gitblit.manager.IUserManager;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.GitblitWicketFilter;
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.servlet.GuiceServletContextListener;
 
 /**
  * This class is the main entry point for the entire webapp.  It is a singleton
@@ -70,9 +73,11 @@ import com.google.inject.Injector;
  *
  */
 @WebListener
-public class GitblitContext extends GuiceContext {
+public class GitblitContext extends GuiceServletContextListener {
 
 	private static GitblitContext gitblit;
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final List<IManager> managers = new ArrayList<IManager>();
 
@@ -115,20 +120,37 @@ public class GitblitContext extends GuiceContext {
 		return null;
 	}
 
+	@Override
+	protected Injector getInjector() {
+		return Guice.createInjector(getModules());
+	}
+
 	/**
 	 * Returns Gitblit's Guice injection modules.
 	 */
-	@Override
 	protected AbstractModule [] getModules() {
-		return new AbstractModule [] { new GuiceModule() };
+		return new AbstractModule [] { new CoreModule(), new WebModule() };
+	}
+
+	/**
+	 * Configure Gitblit from the web.xml, if no configuration has already been
+	 * specified.
+	 *
+	 * @see ServletContextListener.contextInitialize(ServletContextEvent)
+	 */
+	@Override
+	public final void contextInitialized(ServletContextEvent contextEvent) {
+		super.contextInitialized(contextEvent);
+
+		ServletContext context = contextEvent.getServletContext();
+		startCore(context);
 	}
 
 	/**
 	 * Prepare runtime settings and start all manager instances.
 	 */
-	@Override
-	protected void beforeServletInjection(ServletContext context) {
-		Injector injector = getInjector(context);
+	protected void startCore(ServletContext context) {
+		Injector injector = (Injector) context.getAttribute(Injector.class.getName());
 
 		// create the runtime settings object
 		IStoredSettings runtimeSettings = injector.getInstance(IStoredSettings.class);
@@ -229,46 +251,17 @@ public class GitblitContext extends GuiceContext {
 		logger.info("----[{}]----", clazz.getName());
 	}
 
-	/**
-	 * Instantiate and inject all filters and servlets into the container using
-	 * the servlet 3 specification.
-	 */
 	@Override
-	protected void injectServlets(ServletContext context) {
-		// access restricted servlets
-		serve(context, Constants.R_PATH, GitServlet.class, GitFilter.class);
-		serve(context, Constants.GIT_PATH, GitServlet.class, GitFilter.class);
-		serve(context, Constants.RAW_PATH, RawServlet.class, RawFilter.class);
-		serve(context, Constants.PAGES, PagesServlet.class, PagesFilter.class);
-		serve(context, Constants.RPC_PATH, RpcServlet.class, RpcFilter.class);
-		serve(context, Constants.ZIP_PATH, DownloadZipServlet.class, DownloadZipFilter.class);
-		serve(context, Constants.SYNDICATION_PATH, SyndicationServlet.class, SyndicationFilter.class);
-
-		// servlets
-		serve(context, Constants.FEDERATION_PATH, FederationServlet.class);
-		serve(context, Constants.SPARKLESHARE_INVITE_PATH, SparkleShareInviteServlet.class);
-		serve(context, Constants.BRANCH_GRAPH_PATH, BranchGraphServlet.class);
-		serve(context, Constants.PT_PATH, PtServlet.class);
-		file(context, "/robots.txt", RobotsTxtServlet.class);
-		file(context, "/logo.png", LogoServlet.class);
-
-		// global filters
-		filter(context, "/*", ProxyFilter.class, null);
-		filter(context, "/*", EnforceAuthenticationFilter.class, null);
-
-		// Wicket
-		String toIgnore = StringUtils.flattenStrings(getRegisteredPaths(), ",");
-		Map<String, String> params = new HashMap<String, String>();
-		params.put(GitblitWicketFilter.FILTER_MAPPING_PARAM, "/*");
-		params.put(GitblitWicketFilter.IGNORE_PATHS_PARAM, toIgnore);
-		filter(context, "/*", GitblitWicketFilter.class, params);
+	public final void contextDestroyed(ServletContextEvent contextEvent) {
+		super.contextDestroyed(contextEvent);
+		ServletContext context = contextEvent.getServletContext();
+		destroyContext(context);
 	}
 
 	/**
 	 * Gitblit is being shutdown either because the servlet container is
 	 * shutting down or because the servlet container is re-deploying Gitblit.
 	 */
-	@Override
 	protected void destroyContext(ServletContext context) {
 		logger.info("Gitblit context destroyed by servlet container.");
 
