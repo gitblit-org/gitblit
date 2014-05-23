@@ -28,6 +28,7 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
+import com.google.inject.Injector;
 
 public class MockRuntimeManager implements IRuntimeManager {
 
@@ -54,6 +55,11 @@ public class MockRuntimeManager implements IRuntimeManager {
 		this.serverStatus.servletContainer = "MockServer";
 
 		this.serverSettings = new ServerSettings();
+	}
+
+	@Override
+	public Injector getInjector() {
+		return null;
 	}
 
 	@Override
