@@ -331,6 +331,43 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			return;
 		}
 
+		logRefChange(commands);
+		updateIncrementalPushTags(commands);
+		updateGitblitRefLog(commands);
+
+		// check for updates pushed to the BranchTicketService branch
+		// if the BranchTicketService is active it will reindex, as appropriate
+		for (ReceiveCommand cmd : commands) {
+			if (Result.OK.equals(cmd.getResult())
+					&& BranchTicketService.BRANCH.equals(cmd.getRefName())) {
+				rp.getRepository().fireEvent(new ReceiveCommandEvent(repository, cmd));
+			}
+		}
+
+		// call post-receive plugins
+		for (ReceiveHook hook : gitblit.getExtensions(ReceiveHook.class)) {
+			try {
+				hook.onPostReceive(this, commands);
+			} catch (Exception e) {
+				LOGGER.error("Failed to execute extension", e);
+			}
+		}
+
+		// run Groovy hook scripts
+		Set<String> scripts = new LinkedHashSet<String>();
+		scripts.addAll(gitblit.getPostReceiveScriptsInherited(repository));
+		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
+			scripts.addAll(repository.postReceiveScripts);
+		}
+		runGroovy(commands, scripts);
+	}
+
+	/**
+	 * Log the ref changes in the container log.
+	 *
+	 * @param commands
+	 */
+	protected void logRefChange(Collection<ReceiveCommand> commands) {
 		boolean isRefCreationOrDeletion = false;
 
 		// log ref changes
@@ -362,76 +399,65 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		if (isRefCreationOrDeletion) {
 			gitblit.resetRepositoryCache(repository.name);
 		}
+	}
 
-		if (repository.useIncrementalPushTags) {
-			// tag each pushed branch tip
-			String emailAddress = user.emailAddress == null ? rp.getRefLogIdent().getEmailAddress() : user.emailAddress;
-			PersonIdent userIdent = new PersonIdent(user.getDisplayName(), emailAddress);
-
-			for (ReceiveCommand cmd : commands) {
-				if (!cmd.getRefName().startsWith(Constants.R_HEADS)) {
-					// only tag branch ref changes
-					continue;
-				}
-
-				if (!ReceiveCommand.Type.DELETE.equals(cmd.getType())
-						&& ReceiveCommand.Result.OK.equals(cmd.getResult())) {
-					String objectId = cmd.getNewId().getName();
-					String branch = cmd.getRefName().substring(Constants.R_HEADS.length());
-					// get translation based on the server's locale setting
-					String template = Translation.get("gb.incrementalPushTagMessage");
-					String msg = MessageFormat.format(template, branch);
-					String prefix;
-					if (StringUtils.isEmpty(repository.incrementalPushTagPrefix)) {
-						prefix = settings.getString(Keys.git.defaultIncrementalPushTagPrefix, "r");
-					} else {
-						prefix = repository.incrementalPushTagPrefix;
-					}
-
-					JGitUtils.createIncrementalRevisionTag(
-							rp.getRepository(),
-							objectId,
-							userIdent,
-							prefix,
-							"0",
-							msg);
-				}
-			}
+	/**
+	 * Optionally update the incremental push tags.
+	 *
+	 * @param commands
+	 */
+	protected void updateIncrementalPushTags(Collection<ReceiveCommand> commands) {
+		if (!repository.useIncrementalPushTags) {
+			return;
 		}
 
-		// update push log
-		try {
-			RefLogUtils.updateRefLog(user, rp.getRepository(), commands);
-			LOGGER.debug(MessageFormat.format("{0} push log updated", repository.name));
-		} catch (Exception e) {
-			LOGGER.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
-		}
+		// tag each pushed branch tip
+		String emailAddress = user.emailAddress == null ? getRefLogIdent().getEmailAddress() : user.emailAddress;
+		PersonIdent userIdent = new PersonIdent(user.getDisplayName(), emailAddress);
 
-		// check for updates pushed to the BranchTicketService branch
-		// if the BranchTicketService is active it will reindex, as appropriate
 		for (ReceiveCommand cmd : commands) {
-			if (Result.OK.equals(cmd.getResult())
-					&& BranchTicketService.BRANCH.equals(cmd.getRefName())) {
-				rp.getRepository().fireEvent(new ReceiveCommandEvent(repository, cmd));
+			if (!cmd.getRefName().startsWith(Constants.R_HEADS)) {
+				// only tag branch ref changes
+				continue;
+			}
+
+			if (!ReceiveCommand.Type.DELETE.equals(cmd.getType())
+					&& ReceiveCommand.Result.OK.equals(cmd.getResult())) {
+				String objectId = cmd.getNewId().getName();
+				String branch = cmd.getRefName().substring(Constants.R_HEADS.length());
+				// get translation based on the server's locale setting
+				String template = Translation.get("gb.incrementalPushTagMessage");
+				String msg = MessageFormat.format(template, branch);
+				String prefix;
+				if (StringUtils.isEmpty(repository.incrementalPushTagPrefix)) {
+					prefix = settings.getString(Keys.git.defaultIncrementalPushTagPrefix, "r");
+				} else {
+					prefix = repository.incrementalPushTagPrefix;
+				}
+
+				JGitUtils.createIncrementalRevisionTag(
+						getRepository(),
+						objectId,
+						userIdent,
+						prefix,
+						"0",
+						msg);
 			}
 		}
+	}
 
-		// call post-receive plugins
-		for (ReceiveHook hook : gitblit.getExtensions(ReceiveHook.class)) {
-			try {
-				hook.onPostReceive(this, commands);
-			} catch (Exception e) {
-				LOGGER.error("Failed to execute extension", e);
-			}
+	/**
+	 * Update Gitblit's internal reflog.
+	 *
+	 * @param commands
+	 */
+	protected void updateGitblitRefLog(Collection<ReceiveCommand> commands) {
+		try {
+			RefLogUtils.updateRefLog(user, getRepository(), commands);
+			LOGGER.debug(MessageFormat.format("{0} reflog updated", repository.name));
+		} catch (Exception e) {
+			LOGGER.error(MessageFormat.format("Failed to update {0} reflog", repository.name), e);
 		}
-
-		// run Groovy hook scripts
-		Set<String> scripts = new LinkedHashSet<String>();
-		scripts.addAll(gitblit.getPostReceiveScriptsInherited(repository));
-		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
-			scripts.addAll(repository.postReceiveScripts);
-		}
-		runGroovy(commands, scripts);
 	}
 
 	/** Execute commands to update references. */
