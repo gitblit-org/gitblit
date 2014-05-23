@@ -34,6 +34,7 @@ import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Injector;
 
 public class RuntimeManager implements IRuntimeManager {
 
@@ -48,6 +49,9 @@ public class RuntimeManager implements IRuntimeManager {
 	private File baseFolder;
 
 	private TimeZone timezone;
+
+	@Inject
+	private Injector injector;
 
 	@Inject
 	public RuntimeManager(IStoredSettings settings) {
@@ -75,6 +79,11 @@ public class RuntimeManager implements IRuntimeManager {
 	@Override
 	public RuntimeManager stop() {
 		return this;
+	}
+
+	@Override
+	public Injector getInjector() {
+		return injector;
 	}
 
 	@Override
