@@ -52,7 +52,6 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
-import com.gitblit.wicket.pages.EmptyRepositoryPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -204,15 +203,7 @@ public class RepositoriesPanel extends BasePanel {
 				swatch.setVisible(showSwatch);
 
 				if (linksActive) {
-					Class<? extends BasePage> linkPage;
-					if (entry.hasCommits) {
-						// repository has content
-						linkPage = SummaryPage.class;
-					} else {
-						// new/empty repository OR proposed repository
-						linkPage = EmptyRepositoryPage.class;
-					}
-
+					Class<? extends BasePage> linkPage = SummaryPage.class;
 					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
 					row.add(new LinkPanel("repositoryName", "list", repoName, linkPage, pp));
 					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
