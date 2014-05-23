@@ -48,7 +48,6 @@
 		<property name="manager.zipfile" value="manager-${project.version}.zip" />
 		<property name="authority.zipfile" value="authority-${project.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${project.version}.zip" />
-		<property name="express.zipfile" value="express-${project.version}.zip" />
 		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
 
 		<!-- Download links -->
@@ -311,61 +310,6 @@
 
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		Build a Gitblit filesystem for deployment to RedHat OpenShift Express
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	-->
-	<target name="buildExpress" depends="compile" description="Build exploded WAR file suitable for deployment to OpenShift Express">
-		<echo>Building Gitblit Express for RedHat OpenShift ${project.version}</echo>
-		
-		<local name="express.dir" />
-		<property name="express.dir" value="${project.outputDirectory}/express" />		
-		<delete dir="${express.dir}" />
-		
-		<!-- Create the OpenShift filesystem -->
-		<local name="deployments.root" />
-		<property name="deployments.root" value="${express.dir}/deployments/ROOT.war"/>
-		<mkdir dir="${deployments.root}" />
-		<touch file="${express.dir}/deployments/ROOT.war.dodeploy" />
-
-		<local name="webinf" />
-		<property name="webinf" value="${deployments.root}/WEB-INF" />
-
-		<!-- Prepare the data directory -->
-		<prepareDataDirectory toDir="${webinf}/data" />
-					
-		<!-- Build the Express web.xml from the prototype web.xml and gitblit.properties -->
-		<!-- THIS FILE IS NOT OVERRIDDEN ONCE IT IS BUILT!!! -->
-		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml"
-			propertiesFile="${project.distrib.dir}/data/gitblit.properties"
-			skip="server.*">
-			<replace token="@gb.version@" value="${project.version}" />
-		</mx:webxml>
-
-		<!-- Gitblit classes -->
-		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
-
-		<!-- Build Express Zip file -->
-		<mx:zip basedir="${express.dir}" destfile="${project.targetDirectory}/${express.zipfile}">
-			<fileset dir="${basedir}">
-				<include name="LICENSE" />
-				<include name="NOTICE" />
-			</fileset>
-			<!-- README -->
-			<zipfileset fullpath="README.gitblit" file="${project.siteSourceDirectory}/openshift.mkd" />
-			<!-- resources -->
-			<zipfileset prefix="deployments/ROOT.war" dir="${project.resources.dir}">
-				<exclude name="thumbs.db" />
-				<exclude name="*.mkd" />
-			</zipfileset>
-			<!-- include "war" tagged dependencies -->
-			<dependencies prefix="deployments/ROOT.war/WEB-INF/lib" tag="war" />
-		</mx:zip>
-
-	</target>
-
-
-	<!-- 
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build the stand-alone, Gitblit Manager
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
@@ -542,11 +486,6 @@
 						<page name="upgrade WAR" src="upgrade_war.mkd" />
 					</menu>
 					<divider />
-					<menu name="Gitblit Express" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-						<page name="setup Express" src="setup_express.mkd" />
-						<page name="upgrade Express" src="upgrade_express.mkd" />
-					</menu>
-					<divider />
 					<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 						<page name="administration" src="administration.mkd" />
 						<page name="authentication" src="setup_authentication.mkd" />
@@ -604,7 +543,6 @@
 					<link name="Gitblit GO (Windows)" src="${gc.url}gitblit-${project.releaseVersion}.zip" />
 					<link name="Gitblit GO (Linux/OSX)" src="${gc.url}gitblit-${project.releaseVersion}.tar.gz" />
 					<link name="Gitblit WAR" src="${gc.url}gitblit-${project.releaseVersion}.war" />
-					<link name="Gitblit Express" src="${gc.url}express-${project.releaseVersion}.zip" />
 					<divider />
 					<link name="Gitblit Manager" src="${gc.url}manager-${project.releaseVersion}.zip" />
 					<link name="Federation Client" src="${gc.url}fedclient-${project.releaseVersion}.zip" />
@@ -704,7 +642,7 @@
 		Build all binaries and site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
+	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
 
 	
 	<!--
@@ -756,11 +694,6 @@
 		<bintrayUpload
 			source="${project.targetDirectory}/${gbapi.zipfile}" 
 			target="gbapi-${project.version}.zip" />
-
-		<!-- Upload Gitblit Express for RedHat OpenShift -->
-		<bintrayUpload
-			source="${project.targetDirectory}/${express.zipfile}" 
-			target="express-${project.version}.zip" />
 
 	</target>
 
@@ -861,11 +794,6 @@
 						<menu name="Gitblit WAR" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 							<page name="setup WAR" src="setup_war.mkd" />
 							<page name="upgrade WAR" src="upgrade_war.mkd" />
-						</menu>
-						<divider />
-						<menu name="Gitblit Express" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-							<page name="setup Express" src="setup_express.mkd" />
-							<page name="upgrade Express" src="upgrade_express.mkd" />
 						</menu>
 						<divider />
 						<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">

@@ -4,7 +4,6 @@
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="%GCURL%gitblit-${project.releaseVersion}.zip">Download Gitblit GO (Windows)</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="%GCURL%gitblit-${project.releaseVersion}.tar.gz">Download Gitblit GO (Linux/OSX)</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="%GCURL%gitblit-${project.releaseVersion}.war">Download Gitblit WAR</a></div>
-<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="%GCURL%express-${project.releaseVersion}.zip">Download Gitblit Express</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="%GCURL%manager-${project.releaseVersion}.zip">Download Gitblit Manager</a></div>
 		<a href='https://bintray.com/gitblit/releases/gitblit/view?source=watch' alt='Get automatic notifications about new "stable" versions'><img src='https://www.bintray.com/docs/images/bintray_badge_color.png'></a>
 	</div>
@@ -40,9 +39,6 @@ This is what you should download if you want to go from zero to Git in less than
 
 ### WAR: For Your Servlet Container
 *Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
-
-### Express: For the Cloud
-*Gitblit Express* is a prepared distribution for [RedHat's OpenShift][rhcloud] cloud service.
 
 ### You decide how to use Gitblit
 
@@ -81,4 +77,3 @@ Gitblit requires a Java 7 Runtime Environment (JRE) or a Java 7 Development Kit 
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
-[rhcloud]: https://openshift.redhat.com/app "RedHat OpenShift"
