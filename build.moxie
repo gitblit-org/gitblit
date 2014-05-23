@@ -110,6 +110,7 @@ properties: {
   wikitext.version : 1.4
   sshd.version: 0.11.0
   mina.version: 2.0.7
+  guice.version : 4.0-beta4
   }
 
 # Dependencies
@@ -125,7 +126,8 @@ properties: {
 
 dependencies:
 # Dagger dependency injection library (annotation processor)
-- compile 'com.google.inject:guice:4.0-beta4' :war
+- compile 'com.google.inject:guice:${guice.version}' :war
+- compile 'com.google.inject.extensions:guice-servlet:${guice.version}' :war
 - compile 'com.google.guava:guava:16.0.1' :war
 # Standard dependencies
 - compile 'com.intellij:annotations:12.0' :war
