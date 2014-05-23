@@ -81,7 +81,7 @@ def includeSubmodules = true
 
 def repoName = repository.name
 def destinationFolder = new File(rootFolder, StringUtils.stripDotGit(repoName))
-def srcUrl = 'file://' + new File(GitBlit.getRepositoriesFolder(), repoName).absolutePath
+def srcUrl = 'file://' + new File(gitblit.getRepositoriesFolder(), repoName).absolutePath
 
 // delete any previous clone
 if (destinationFolder.exists()) {
