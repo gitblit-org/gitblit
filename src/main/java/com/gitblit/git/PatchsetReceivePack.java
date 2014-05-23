@@ -1202,11 +1202,15 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		if (ticket != null) {
 			ticketNotifier.queueMailing(ticket);
 
-			// update the reflog with the merge
 			if (oldRef != null) {
 				ReceiveCommand cmd = new ReceiveCommand(oldRef.getObjectId(),
 						ObjectId.fromString(mergeResult.sha), oldRef.getName());
-				RefLogUtils.updateRefLog(user, getRepository(), Arrays.asList(cmd));
+				cmd.setResult(Result.OK);
+				List<ReceiveCommand> commands = Arrays.asList(cmd);
+
+				logRefChange(commands);
+				updateIncrementalPushTags(commands);
+				updateGitblitRefLog(commands);
 			}
 
 			// call patchset hooks
