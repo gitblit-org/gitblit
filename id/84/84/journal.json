@@ -1,0 +1,1 @@
+[{"date":"2014-05-23T12:28:33Z","author":"james","fields":{"title":"Localclone.groovy has a legacy reference to the GitBlit static singleton","topic":"issue-436","type":"Bug","responsible":"james","milestone":"v1.6.0","mergeTo":"master","watchers":"+james","status":"New"}}]
