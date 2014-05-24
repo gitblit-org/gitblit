@@ -30,7 +30,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import javax.servlet.annotation.WebListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,6 @@ import com.google.inject.servlet.GuiceServletContextListener;
  * @author James Moger
  *
  */
-@WebListener
 public class GitblitContext extends GuiceServletContextListener {
 
 	private static GitblitContext gitblit;
