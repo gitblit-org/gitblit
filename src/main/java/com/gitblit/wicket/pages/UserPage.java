@@ -30,8 +30,8 @@ import org.eclipse.jgit.lib.PersonIdent;
 
 import com.gitblit.Keys;
 import com.gitblit.models.Menu.ParameterMenuItem;
-import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.models.NavLink;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -95,7 +95,7 @@ public class UserPage extends RootPage {
 		UserModel sessionUser = GitBlitWebSession.get().getUser();
 		if (sessionUser != null && user.canCreate() && sessionUser.equals(user)) {
 			// user can create personal repositories
-			add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
+			add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
 		} else {
 			add(new Label("newRepository").setVisible(false));
 		}

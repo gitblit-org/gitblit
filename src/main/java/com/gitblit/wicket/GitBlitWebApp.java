@@ -57,6 +57,7 @@ import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.EditMilestonePage;
+import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.EditTicketPage;
 import com.gitblit.wicket.pages.ExportTicketPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
@@ -71,6 +72,7 @@ import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.MyDashboardPage;
 import com.gitblit.wicket.pages.MyTicketsPage;
 import com.gitblit.wicket.pages.NewMilestonePage;
+import com.gitblit.wicket.pages.NewRepositoryPage;
 import com.gitblit.wicket.pages.NewTicketPage;
 import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
@@ -91,6 +93,8 @@ import com.gitblit.wicket.pages.UsersPage;
 public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final Class<? extends WebPage> homePageClass = MyDashboardPage.class;
+
+	private final Class<? extends WebPage> newRepositoryPageClass = NewRepositoryPage.class;
 
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
 
@@ -207,6 +211,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		mount("/proposal", ReviewProposalPage.class, "t");
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
 
+		mount("/new", NewRepositoryPage.class);
+		mount("/edit", EditRepositoryPage.class, "r");
 		mount("/activity", ActivityPage.class, "r", "h");
 		mount("/lucene", LuceneSearchPage.class);
 		mount("/project", ProjectPage.class, "p");
@@ -260,6 +266,10 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	@Override
 	public Class<? extends WebPage> getHomePage() {
 		return homePageClass;
+	}
+
+	public Class<? extends WebPage> getNewRepositoryPage() {
+		return newRepositoryPageClass;
 	}
 
 	/* (non-Javadoc)

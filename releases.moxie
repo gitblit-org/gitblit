@@ -35,6 +35,7 @@ r24: {
     - Add setting to allow STARTTLS without requiring SMTPS (pr-183)
     - Added an extension point for monitoring onStartup and onShutdown (ticket-79)
     - Tag server-side merges when incremental push tags are enabled (issue-432, ticket-85)
+    - Simplified repository creation, offer simple README generation, and insertion of a pre-defined .gitignore file (ticket-76)
     dependencyChanges:
     - Update to javax.mail 1.5.1 (issue-417, ticket-58)
     contributors:
@@ -50,6 +51,7 @@ r24: {
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
     - { name: 'mail.starttls', defaultValue: 'false' }
+    - { name: 'git.gitignoreFolder', defaultValue: '${baseFolder}/gitignore' }
 }
 
 #

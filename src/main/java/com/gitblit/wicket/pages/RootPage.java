@@ -607,7 +607,7 @@ public abstract class RootPage extends BasePage {
 			List<MenuItem> standardItems = new ArrayList<MenuItem>();
 			standardItems.add(new MenuDivider());
 			if (user.canAdmin() || user.canCreate()) {
-				standardItems.add(new PageLinkMenuItem("gb.newRepository", EditRepositoryPage.class));
+				standardItems.add(new PageLinkMenuItem("gb.newRepository", app().getNewRepositoryPage()));
 			}
 			standardItems.add(new PageLinkMenuItem("gb.myProfile", UserPage.class,
 					WicketUtils.newUsernameParameter(user.username)));

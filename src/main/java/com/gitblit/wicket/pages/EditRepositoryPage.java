@@ -429,11 +429,7 @@ public class EditRepositoryPage extends RootSubPage {
 					return;
 				}
 				setRedirect(false);
-				if (isCreate) {
-					setResponsePage(RepositoriesPage.class);
-				} else {
-					setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryModel.name));
-				}
+				setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryModel.name));
 			}
 		};
 
@@ -632,7 +628,15 @@ public class EditRepositoryPage extends RootSubPage {
 				if (canDelete) {
 					if (app().repositories().deleteRepositoryModel(latestModel)) {
 						info(MessageFormat.format(getString("gb.repositoryDeleted"), latestModel));
-						setResponsePage(RepositoriesPage.class);
+						if (latestModel.isPersonalRepository()) {
+							// redirect to user's profile page
+							String prefix = app().settings().getString(Keys.git.userRepositoryPrefix, "~");
+							String username = latestModel.projectPath.substring(prefix.length());
+							setResponsePage(UserPage.class, WicketUtils.newUsernameParameter(username));
+						} else {
+							// redirect to server repositories page
+							setResponsePage(RepositoriesPage.class);
+						}
 					} else {
 						error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), latestModel));
 					}

@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:extend>
+<body onload="document.getElementById('name').focus();">
+	<form style="padding-top:5px;" wicket:id="editForm">
+<div class="row">
+	<div class="span12">
+
+		<table class="plain">
+			<tbody class="settings">
+				<tr>
+					<th><wicket:message key="gb.project"></wicket:message></th>
+					<td></td>
+					<th><wicket:message key="gb.name"></wicket:message></th>
+				</tr>
+				<tr>
+					<td><select class="span2" wicket:id="projectPath" /></td>
+					<td style="font-size:24px;color:#ccc;">/</td>
+					<td class="edit"><input class="span3" type="text" wicket:id="name" id="name" /> &nbsp;<span class="help-inline"><wicket:message key="gb.nameDescription"></wicket:message></span></td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<div>
+			<b><wicket:message key="gb.description"></wicket:message></b><br/>
+			<input class="span6" type="text" wicket:id="description" />
+		</div>
+		
+		<hr/>
+		
+		<span wicket:id="permissionsGroup">
+			<div wicket:id="permissions">
+				<div style="display: inline-block;vertical-align: top;">
+					<input type="radio" wicket:id="radio" />
+					<img wicket:id="image"></img> 
+				</div>
+				<div style="display: inline-block;vertical-align: top;">
+					<b><span wicket:id="name"></span></b><br/>
+					<span wicket:id="description"></span>
+				</div>
+			</div>
+		</span>
+		
+		<hr/>
+		
+		<h4><wicket:message key="gb.initialCommit"></wicket:message></h4>
+		<div>
+			<p><wicket:message key="gb.initialCommitDescription"></wicket:message></p>
+		</div>
+		
+		<div style="clear:both;padding-top:10px;">
+			<div style="display: inline-block;vertical-align: top;">
+				<input type="checkbox" wicket:id="addReadme" />
+			</div>
+			<div style="display: inline-block;">
+				<b><wicket:message key="gb.initWithReadme"></wicket:message></b><br/>
+				<p><wicket:message key="gb.initWithReadmeDescription"></wicket:message></p>
+			</div>
+		</div>
+		
+		<div style="clear:both;padding-top:10px;display:none;">
+			<!-- future GitFlow -->
+			<div style="display: inline-block;vertical-align: top;">
+				<input type="checkbox" wicket:id="addGitflow" />
+			</div>
+			<div style="display: inline-block;">
+				<b><wicket:message key="gb.initWithGitflow"></wicket:message></b>
+				<p><wicket:message key="gb.initWithGitflowDescription"></wicket:message></p>
+			</div>
+		</div>
+		
+		<div style="clear:both;padding-top:10px;">
+			<div style="display: inline-block;vertical-align: top;">
+				<input type="checkbox" wicket:id="addGitignore" />
+			</div>
+			<div style="display:inline-block;">
+				<b><wicket:message key="gb.initWithGitignore"></wicket:message></b><br/>
+				<p><wicket:message key="gb.initWithGitignoreDescription"></wicket:message></p>
+				<p style="padding-top:5px;"><select class="span2" wicket:id="gitignore" /></p>
+			</div>
+		</div>		
+	</div>
+</div>
+
+<div class="row">
+<div class="span12">
+	<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Create" wicket:message="value:gb.create" wicket:id="create" /></div>
+</div>
+</div>
+
+</form>	
+</body>
+</wicket:extend>
+</html>
