@@ -36,6 +36,7 @@ r24: {
     - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
     - Add object type (ot) parameter for RSS queries to retrieve tag details (pr-165, ticket-66)
     - Add setting to allow STARTTLS without requiring SMTPS (pr-183)
+    - Simplified repository creation, offer simple README generation, and insertion of a pre-defined .gitignore file (ticket-76)
     - Added an extension point for monitoring onStartup and onShutdown (ticket-79)
     - Tag server-side merges when incremental push tags are enabled (issue-432, ticket-85)
     - Add setting to control default thread pool size for miscellaneous background tasks (ticket-92)
@@ -55,6 +56,7 @@ r24: {
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
     - { name: 'mail.starttls', defaultValue: 'false' }
     - { name: 'execution.defaultThreadPoolSize', defaultValue: '1' }
+    - { name: 'git.gitignoreFolder', defaultValue: '${baseFolder}/gitignore' }
 }
 
 #

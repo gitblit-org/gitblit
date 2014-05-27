@@ -919,6 +919,12 @@
 					<include name="subgit.groovy" />
 				</fileset>
 			</copy>
+			<mkdir dir="@{toDir}/gitignore" />
+			<copy todir="@{toDir}/gitignore">
+				<fileset dir="${project.distrib.dir}/data/gitignore">					
+					<include name="*.gitignore" />
+				</fileset>
+			</copy>
       </sequential>
 	</macrodef>
 	

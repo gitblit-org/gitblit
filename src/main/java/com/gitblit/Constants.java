@@ -122,6 +122,14 @@ public class Constants {
 
 	public static final String R_TICKETS_PATCHSETS = "refs/tickets/";
 
+	public static final String R_MASTER = "refs/heads/master";
+
+	public static final String MASTER = "master";
+
+	public static final String R_DEVELOP = "refs/heads/develop";
+
+	public static final String DEVELOP = "develop";
+
 	public static String getVersion() {
 		String v = Constants.class.getPackage().getImplementationVersion();
 		if (v == null) {
