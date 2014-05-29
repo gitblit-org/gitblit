@@ -57,6 +57,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Keys;
 import com.gitblit.git.PatchsetCommand;
 import com.gitblit.git.PatchsetReceivePack;
@@ -381,9 +382,16 @@ public class TicketPage extends TicketBasePage {
 				 * RESPONSIBLE LIST
 				 */
 				Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
-				for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
-					if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-						userlist.add(rp.registrant);
+				if (UserModel.ANONYMOUS.canPush(getRepositoryModel())
+						|| AuthorizationControl.AUTHENTICATED == getRepositoryModel().authorizationControl) {
+					// 	authorization is ANONYMOUS or AUTHENTICATED (i.e. all users can be set responsible)
+					userlist.addAll(app().users().getAllUsernames());
+				} else {
+					// authorization is by NAMED users (users with PUSH permission can be set responsible)
+					for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
+						if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
+							userlist.add(rp.registrant);
+						}
 					}
 				}
 				List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
