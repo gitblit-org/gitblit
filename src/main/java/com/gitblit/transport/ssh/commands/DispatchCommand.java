@@ -154,6 +154,7 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
 
 		try {
 			dispatcher.setContext(getContext());
+			dispatcher.setWorkQueue(getWorkQueue());
 			dispatcher.setup();
 			if (dispatcher.commands.isEmpty() && dispatcher.dispatchers.isEmpty()) {
 				log.debug(MessageFormat.format("excluding empty dispatcher {0} for {1}",

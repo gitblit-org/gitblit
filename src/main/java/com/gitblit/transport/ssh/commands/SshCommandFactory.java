@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.SshDaemonClient;
-import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.WorkQueue;
 import com.google.common.util.concurrent.Atomics;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -48,15 +47,16 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 public class SshCommandFactory implements CommandFactory {
 	private static final Logger logger = LoggerFactory.getLogger(SshCommandFactory.class);
 
+	private final WorkQueue workQueue;
 	private final IGitblit gitblit;
 	private final ScheduledExecutorService startExecutor;
 	private final ExecutorService destroyExecutor;
 
-	public SshCommandFactory(IGitblit gitblit, IdGenerator idGenerator) {
+	public SshCommandFactory(IGitblit gitblit, WorkQueue workQueue) {
 		this.gitblit = gitblit;
+		this.workQueue = workQueue;
 
 		int threads = gitblit.getSettings().getInteger(Keys.git.sshCommandStartThreads, 2);
-		WorkQueue workQueue = new WorkQueue(idGenerator);
 		startExecutor = workQueue.createQueue(threads, "SshCommandStart");
 		destroyExecutor = Executors.newSingleThreadExecutor(
 				new ThreadFactoryBuilder()
@@ -70,7 +70,7 @@ public class SshCommandFactory implements CommandFactory {
 	}
 
 	public RootDispatcher createRootDispatcher(SshDaemonClient client, String commandLine) {
-		return new RootDispatcher(gitblit, client, commandLine);
+		return new RootDispatcher(gitblit, client, commandLine, workQueue);
 	}
 
 	@Override

@@ -47,6 +47,7 @@ import com.gitblit.transport.ssh.SshDaemon;
 import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+import com.gitblit.utils.WorkQueue;
 
 /**
  * Services manager manages long-running services/processes that either have no
@@ -66,6 +67,10 @@ public class ServicesManager implements IManager {
 
 	private final IGitblit gitblit;
 
+	private final IdGenerator idGenerator;
+
+	private final WorkQueue workQueue;
+
 	private FanoutService fanoutService;
 
 	private GitDaemon gitDaemon;
@@ -75,6 +80,8 @@ public class ServicesManager implements IManager {
 	public ServicesManager(IGitblit gitblit) {
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;
+		this.idGenerator = new IdGenerator();
+		this.workQueue = new WorkQueue(idGenerator, 1);
 	}
 
 	@Override
@@ -99,6 +106,7 @@ public class ServicesManager implements IManager {
 		if (sshDaemon != null) {
 			sshDaemon.stop();
 		}
+		workQueue.stop();
 		return this;
 	}
 
@@ -158,7 +166,7 @@ public class ServicesManager implements IManager {
 		String bindInterface = settings.getString(Keys.git.sshBindInterface, "localhost");
 		if (port > 0) {
 			try {
-				sshDaemon = new SshDaemon(gitblit, new IdGenerator());
+				sshDaemon = new SshDaemon(gitblit, workQueue);
 				sshDaemon.start();
 			} catch (IOException e) {
 				sshDaemon = null;
