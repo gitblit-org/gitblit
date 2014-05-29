@@ -80,8 +80,9 @@ public class ServicesManager implements IManager {
 	public ServicesManager(IGitblit gitblit) {
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;
+		int defaultThreadPoolSize = settings.getInteger(Keys.execution.defaultThreadPoolSize, 1);
 		this.idGenerator = new IdGenerator();
-		this.workQueue = new WorkQueue(idGenerator, 1);
+		this.workQueue = new WorkQueue(idGenerator, defaultThreadPoolSize);
 	}
 
 	@Override
