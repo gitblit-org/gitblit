@@ -33,12 +33,13 @@ import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
+import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Keys;
-import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.WorkQueue;
 import com.gitblit.utils.WorkQueue.CancelableRunnable;
@@ -80,13 +81,10 @@ public abstract class BaseCommand implements Command, SessionAware {
 	/** The task, as scheduled on a worker thread. */
 	private final AtomicReference<Future<?>> task;
 
-	private final WorkQueue.Executor executor;
+	private WorkQueue workQueue;
 
 	public BaseCommand() {
 		task = Atomics.newReference();
-		IdGenerator gen = new IdGenerator();
-		WorkQueue w = new WorkQueue(gen);
-		this.executor = w.getDefaultQueue();
 	}
 
 	@Override
@@ -97,6 +95,10 @@ public abstract class BaseCommand implements Command, SessionAware {
 	@Override
 	public void destroy() {
 		log.debug("destroying " + getClass().getName());
+		Future<?> future = task.getAndSet(null);
+		if (future != null && !future.isDone()) {
+			future.cancel(true);
+		}
 		session = null;
 		ctx = null;
 	}
@@ -110,10 +112,19 @@ public abstract class BaseCommand implements Command, SessionAware {
 
 	protected void provideStateTo(final BaseCommand cmd) {
 		cmd.setContext(ctx);
+		cmd.setWorkQueue(workQueue);
 		cmd.setInputStream(in);
 		cmd.setOutputStream(out);
 		cmd.setErrorStream(err);
 		cmd.setExitCallback(exit);
+	}
+
+	public WorkQueue getWorkQueue() {
+		return workQueue;
+	}
+
+	public void setWorkQueue(WorkQueue workQueue) {
+		this.workQueue = workQueue;
 	}
 
 	public void setContext(SshCommandContext ctx) {
@@ -467,7 +478,7 @@ public abstract class BaseCommand implements Command, SessionAware {
 	 */
 	protected void startThread(final CommandRunnable thunk) {
 		final TaskThunk tt = new TaskThunk(thunk);
-		task.set(executor.submit(tt));
+		task.set(workQueue.getDefaultQueue().submit(tt));
 	}
 
 	/** Thrown from {@link CommandRunnable#run()} with client message and code. */

@@ -41,9 +41,9 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.commands.SshCommandFactory;
-import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.JnaUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.WorkQueue;
 import com.google.common.io.Files;
 
 /**
@@ -76,8 +76,9 @@ public class SshDaemon {
 	 * Construct the Gitblit SSH daemon.
 	 *
 	 * @param gitblit
+	 * @param workQueue
 	 */
-	public SshDaemon(IGitblit gitblit, IdGenerator idGenerator) {
+	public SshDaemon(IGitblit gitblit, WorkQueue workQueue) {
 		this.gitblit = gitblit;
 
 		IStoredSettings settings = gitblit.getSettings();
@@ -126,7 +127,7 @@ public class SshDaemon {
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
-		sshd.setCommandFactory(new SshCommandFactory(gitblit, idGenerator));
+		sshd.setCommandFactory(new SshCommandFactory(gitblit, workQueue));
 		sshd.setShellFactory(new WelcomeShell(settings));
 
 		// Set the server id.  This can be queried with:
