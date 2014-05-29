@@ -51,17 +51,19 @@ public class WorkQueue {
 
   private Executor defaultQueue;
   private final IdGenerator idGenerator;
+  private final int defaultQueueSize;
   private final CopyOnWriteArrayList<Executor> queues;
 
-  public WorkQueue(final IdGenerator idGenerator) {
+  public WorkQueue(final IdGenerator idGenerator, final int defaultQueueSize) {
     this.idGenerator = idGenerator;
+    this.defaultQueueSize = defaultQueueSize;
     this.queues = new CopyOnWriteArrayList<Executor>();
   }
 
   /** Get the default work queue, for miscellaneous tasks. */
   public synchronized Executor getDefaultQueue() {
     if (defaultQueue == null) {
-      defaultQueue = createQueue(1, "WorkQueue");
+      defaultQueue = createQueue(defaultQueueSize, "WorkQueue");
     }
     return defaultQueue;
   }

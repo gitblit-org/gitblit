@@ -26,6 +26,7 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.git.GitDispatcher;
 import com.gitblit.transport.ssh.keys.KeysDispatcher;
+import com.gitblit.utils.WorkQueue;
 
 /**
  * The root dispatcher is the dispatch command that handles registering all
@@ -37,9 +38,10 @@ class RootDispatcher extends DispatchCommand {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public RootDispatcher(IGitblit gitblit, SshDaemonClient client, String cmdLine) {
+	public RootDispatcher(IGitblit gitblit, SshDaemonClient client, String cmdLine, WorkQueue workQueue) {
 		super();
 		setContext(new SshCommandContext(gitblit, client, cmdLine));
+		setWorkQueue(workQueue);
 
 		register(VersionCommand.class);
 		register(GitDispatcher.class);
