@@ -37,6 +37,7 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
@@ -163,11 +164,12 @@ public class EditTicketPage extends RepositoryPage {
 			// responsible
 			Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
 
-			if (UserModel.ANONYMOUS.canPush(getRepositoryModel())) {
-				// anonymous push
+			if (UserModel.ANONYMOUS.canPush(getRepositoryModel())
+					|| AuthorizationControl.AUTHENTICATED == getRepositoryModel().authorizationControl) {
+				// 	authorization is ANONYMOUS or AUTHENTICATED (i.e. all users can be set responsible)
 				userlist.addAll(app().users().getAllUsernames());
 			} else {
-				// authenticated push
+				// authorization is by NAMED users (users with PUSH permission can be set responsible)
 				for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
 					if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
 						userlist.add(rp.registrant);
