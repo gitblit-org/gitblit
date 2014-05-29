@@ -389,7 +389,7 @@ public class TicketPage extends TicketBasePage {
 				} else {
 					// authorization is by NAMED users (users with PUSH permission can be set responsible)
 					for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
-						if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
+						if (rp.permission.atLeast(AccessPermission.PUSH)) {
 							userlist.add(rp.registrant);
 						}
 					}
