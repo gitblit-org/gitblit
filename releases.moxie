@@ -17,6 +17,7 @@ r24: {
     - Fixed cache miss on repository model retrieval (pr-185, ticket-83)
     - Fixed GitBlit static singleton reference in localclone.groovy (issue-436, ticket-84)
     - Removed Ticket responsible team permission exclusion (ticket-87)
+    - Fixed SSH daemon thread exhaustion (ticket-89)
     - Fixed Ticket responsible selections not considering the AUTHENTICATED authorization control (ticket-91)
     changes:
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
