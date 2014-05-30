@@ -18,7 +18,6 @@ package com.gitblit.wicket.pages;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +60,7 @@ import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.RepositoryNamePanel;
 import com.gitblit.wicket.panels.RepositoryPermissionPanel;
 
 public class NewRepositoryPage extends RootSubPage {
@@ -71,6 +71,7 @@ public class NewRepositoryPage extends RootSubPage {
 	private IModel<Boolean> addGitflowModel;
 	private IModel<Boolean> addGitignoreModel;
 	private RepositoryPermissionPanel permissionPanel;
+	private RepositoryNamePanel namePanel;
 
 	public NewRepositoryPage() {
 		// create constructor
@@ -104,46 +105,11 @@ public class NewRepositoryPage extends RootSubPage {
 
 			@Override
 			protected void onSubmit() {
-
-				// confirm a repository name was entered
-				if (StringUtils.isEmpty(repositoryModel.name)) {
-					error(getString("gb.pleaseSetRepositoryName"));
-					return;
-				}
-
-				String project = repositoryModel.projectPath;
-				String fullName = (project + "/" + repositoryModel.name).trim();
-				fullName = fullName.replace('\\', '/');
-				fullName = fullName.replace("//", "/");
-				if (fullName.charAt(0) == '/') {
-					fullName = fullName.substring(1);
-				}
-				if (fullName.endsWith("/")) {
-					fullName = fullName.substring(0, fullName.length() - 1);
-				}
-
 				try {
-					if (fullName.contains("../")) {
-						error(getString("gb.illegalRelativeSlash"));
+					if (!namePanel.updateModel(repositoryModel)) {
 						return;
 					}
-					if (fullName.contains("/../")) {
-						error(getString("gb.illegalRelativeSlash"));
-						return;
-					}
-
-					// confirm valid characters in repository name
-					Character c = StringUtils.findInvalidCharacter(fullName);
-					if (c != null) {
-						error(MessageFormat.format(getString("gb.illegalCharacterRepositoryName"),
-								c));
-						return;
-					}
-
-					repositoryModel.name = fullName;
-					repositoryModel.projectPath = null;
-
-					permissionPanel.setPermission(repositoryModel);
+					permissionPanel.updateModel(repositoryModel);
 
 					repositoryModel.owners = new ArrayList<String>();
 					repositoryModel.owners.add(GitBlitWebSession.get().getUsername());
@@ -179,47 +145,20 @@ public class NewRepositoryPage extends RootSubPage {
 
 				} catch (GitBlitException e) {
 					error(e.getMessage());
-
-					// restore project and name fields on error condition
-					repositoryModel.projectPath = StringUtils.getFirstPathElement(fullName);
-					if (!StringUtils.isEmpty(repositoryModel.projectPath)) {
-						repositoryModel.name = fullName.substring(repositoryModel.projectPath.length() + 1);
-					}
+					namePanel.resetModel(repositoryModel);
 					return;
 				}
 				setRedirect(true);
-				setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(fullName));
+				setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryModel.name));
 			}
 		};
-
-		GitBlitWebSession session = GitBlitWebSession.get();
-		UserModel user = session.getUser();
-
-		// build project list for repository destination
-		String defaultProject = null;
-		List<String> projects = new ArrayList<String>();
-
-		if (user.canAdmin()) {
-			String main = app().settings().getString(Keys.web.repositoryRootGroupName, "main");
-			projects.add(main);
-			defaultProject = main;
-		}
-
-		if (user.canCreate()) {
-			projects.add(user.getPersonalPath());
-			if (defaultProject == null) {
-				// only prefer personal namespace if default is not already set
-				defaultProject = user.getPersonalPath();
-			}
-		}
-
-		repositoryModel.projectPath = defaultProject;
 
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
-		form.add(new DropDownChoice<String>("projectPath", projects));
-		form.add(new TextField<String>("name"));
+		namePanel = new RepositoryNamePanel("namePanel", repositoryModel);
+		form.add(namePanel);
+
 		form.add(new TextField<String>("description"));
 
 		// prepare the default access controls
