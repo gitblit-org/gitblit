@@ -148,9 +148,9 @@ public class NewRepositoryPage extends RootSubPage {
 					repositoryModel.name = fullName;
 					repositoryModel.projectPath = null;
 
-					Permission permisison = permissionGroup.getModelObject();
-					repositoryModel.accessRestriction = permisison.type;
-					repositoryModel.authorizationControl = AuthorizationControl.NAMED;
+					Permission permission = permissionGroup.getModelObject();
+					repositoryModel.authorizationControl = permission.control;
+					repositoryModel.accessRestriction = permission.type;
 
 					repositoryModel.owners = new ArrayList<String>();
 					repositoryModel.owners.add(GitBlitWebSession.get().getUsername());
@@ -229,15 +229,41 @@ public class NewRepositoryPage extends RootSubPage {
 		form.add(new TextField<String>("name"));
 		form.add(new TextField<String>("description"));
 
-		Permission anonymousPermission = new Permission(getString("gb.anonymous"), getString("gb.anonymousRepoDescription"), "blank.png", AccessRestrictionType.NONE);
-		Permission publicPermission = new Permission(getString("gb.public"), getString("gb.publicRepoDescription"), "lock_go_16x16.png", AccessRestrictionType.PUSH);
-		Permission protectedPermission = new Permission(getString("gb.protected"), getString("gb.protectedRepoDescription"), "lock_pull_16x16.png", AccessRestrictionType.CLONE);
-		Permission privatePermission = new Permission(getString("gb.private"), getString("gb.privateRepoDescription"), "shield_16x16.png", AccessRestrictionType.VIEW);
+		Permission anonymousPermission = new Permission(getString("gb.anonymousPush"),
+				getString("gb.anonymousPushDescription"),
+				"blank.png",
+				AuthorizationControl.AUTHENTICATED,
+				AccessRestrictionType.NONE);
+
+		Permission authenticatedPermission = new Permission(getString("gb.pushRestrictedAuthenticated"),
+				getString("gb.pushRestrictedAuthenticatedDescription"),
+				"lock_go_16x16.png",
+				AuthorizationControl.AUTHENTICATED,
+				AccessRestrictionType.PUSH);
+
+		Permission publicPermission = new Permission(getString("gb.pushRestrictedNamed"),
+				getString("gb.pushRestrictedNamedDescription"),
+				"lock_go_16x16.png",
+				AuthorizationControl.NAMED,
+				AccessRestrictionType.PUSH);
+
+		Permission protectedPermission = new Permission(getString("gb.cloneRestricted"),
+				getString("gb.cloneRestrictedDescription"),
+				"lock_pull_16x16.png",
+				AuthorizationControl.NAMED,
+				AccessRestrictionType.CLONE);
+
+		Permission privatePermission = new Permission(getString("gb.private"),
+				getString("gb.privateRepoDescription"),
+				"shield_16x16.png",
+				AuthorizationControl.NAMED,
+				AccessRestrictionType.VIEW);
 
 		List<Permission> permissions = new ArrayList<Permission>();
 		if (app().settings().getBoolean(Keys.git.allowAnonymousPushes, false)) {
 			permissions.add(anonymousPermission);
 		}
+		permissions.add(authenticatedPermission);
 		permissions.add(publicPermission);
 		permissions.add(protectedPermission);
 		permissions.add(privatePermission);
@@ -248,10 +274,17 @@ public class NewRepositoryPage extends RootSubPage {
 		if (AccessRestrictionType.NONE == defaultRestriction) {
 			defaultRestriction = AccessRestrictionType.PUSH;
 		}
+		AuthorizationControl defaultControl = AuthorizationControl.fromName(
+				app().settings().getString(Keys.git.defaultAuthorizationControl, AuthorizationControl.NAMED.name()));
+
+		if (AuthorizationControl.AUTHENTICATED == defaultControl) {
+			defaultRestriction = AccessRestrictionType.PUSH;
+		}
 
 		Permission defaultPermission = publicPermission;
 		for (Permission permission : permissions) {
-			if (permission.type == defaultRestriction) {
+			if (permission.type == defaultRestriction
+					&& permission.control == defaultControl) {
 				defaultPermission = permission;
 			}
 		}
@@ -481,12 +514,14 @@ public class NewRepositoryPage extends RootSubPage {
 		final String name;
 		final String description;
 		final String image;
+		final AuthorizationControl control;
 		final AccessRestrictionType type;
 
-		Permission(String name, String description, String img, AccessRestrictionType type) {
+		Permission(String name, String description, String img, AuthorizationControl control, AccessRestrictionType type) {
 			this.name = name;
 			this.description = description;
 			this.image = img;
+			this.control = control;
 			this.type = type;
 		}
 	}
