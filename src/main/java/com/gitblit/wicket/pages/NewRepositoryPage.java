@@ -17,7 +17,6 @@ package com.gitblit.wicket.pages;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -27,16 +26,11 @@ import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.Radio;
-import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -67,15 +61,16 @@ import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.RepositoryPermissionPanel;
 
 public class NewRepositoryPage extends RootSubPage {
 
 	private final RepositoryModel repositoryModel;
-	private RadioGroup<Permission> permissionGroup;
 	private IModel<Boolean> addReadmeModel;
 	private Model<String> gitignoreModel;
 	private IModel<Boolean> addGitflowModel;
 	private IModel<Boolean> addGitignoreModel;
+	private RepositoryPermissionPanel permissionPanel;
 
 	public NewRepositoryPage() {
 		// create constructor
@@ -148,9 +143,7 @@ public class NewRepositoryPage extends RootSubPage {
 					repositoryModel.name = fullName;
 					repositoryModel.projectPath = null;
 
-					Permission permission = permissionGroup.getModelObject();
-					repositoryModel.authorizationControl = permission.control;
-					repositoryModel.accessRestriction = permission.type;
+					permissionPanel.setPermission(repositoryModel);
 
 					repositoryModel.owners = new ArrayList<String>();
 					repositoryModel.owners.add(GitBlitWebSession.get().getUsername());
@@ -229,46 +222,7 @@ public class NewRepositoryPage extends RootSubPage {
 		form.add(new TextField<String>("name"));
 		form.add(new TextField<String>("description"));
 
-		Permission anonymousPermission = new Permission(getString("gb.anonymousPush"),
-				getString("gb.anonymousPushDescription"),
-				"blank.png",
-				AuthorizationControl.AUTHENTICATED,
-				AccessRestrictionType.NONE);
-
-		Permission authenticatedPermission = new Permission(getString("gb.pushRestrictedAuthenticated"),
-				getString("gb.pushRestrictedAuthenticatedDescription"),
-				"lock_go_16x16.png",
-				AuthorizationControl.AUTHENTICATED,
-				AccessRestrictionType.PUSH);
-
-		Permission publicPermission = new Permission(getString("gb.pushRestrictedNamed"),
-				getString("gb.pushRestrictedNamedDescription"),
-				"lock_go_16x16.png",
-				AuthorizationControl.NAMED,
-				AccessRestrictionType.PUSH);
-
-		Permission protectedPermission = new Permission(getString("gb.cloneRestricted"),
-				getString("gb.cloneRestrictedDescription"),
-				"lock_pull_16x16.png",
-				AuthorizationControl.NAMED,
-				AccessRestrictionType.CLONE);
-
-		Permission privatePermission = new Permission(getString("gb.private"),
-				getString("gb.privateRepoDescription"),
-				"shield_16x16.png",
-				AuthorizationControl.NAMED,
-				AccessRestrictionType.VIEW);
-
-		List<Permission> permissions = new ArrayList<Permission>();
-		if (app().settings().getBoolean(Keys.git.allowAnonymousPushes, false)) {
-			permissions.add(anonymousPermission);
-		}
-		permissions.add(authenticatedPermission);
-		permissions.add(publicPermission);
-		permissions.add(protectedPermission);
-		permissions.add(privatePermission);
-
-		// determine default permission selection
+		// prepare the default access controls
 		AccessRestrictionType defaultRestriction = AccessRestrictionType.fromName(
 				app().settings().getString(Keys.git.defaultAccessRestriction, AccessRestrictionType.PUSH.name()));
 		if (AccessRestrictionType.NONE == defaultRestriction) {
@@ -281,31 +235,11 @@ public class NewRepositoryPage extends RootSubPage {
 			defaultRestriction = AccessRestrictionType.PUSH;
 		}
 
-		Permission defaultPermission = publicPermission;
-		for (Permission permission : permissions) {
-			if (permission.type == defaultRestriction
-					&& permission.control == defaultControl) {
-				defaultPermission = permission;
-			}
-		}
+		repositoryModel.authorizationControl = defaultControl;
+		repositoryModel.accessRestriction = defaultRestriction;
 
-		permissionGroup = new RadioGroup<>("permissionsGroup", new Model<Permission>(defaultPermission));
-		form.add(permissionGroup);
-
-		ListView<Permission> permissionsList = new ListView<Permission>("permissions", permissions) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void populateItem(ListItem<Permission> item) {
-				Permission p = item.getModelObject();
-				item.add(new Radio<Permission>("radio", item.getModel()));
-				item.add(WicketUtils.newImage("image",  p.image));
-				item.add(new Label("name", p.name));
-				item.add(new Label("description", p.description));
-			}
-		};
-		permissionGroup.add(permissionsList);
+		permissionPanel = new RepositoryPermissionPanel("permissionPanel", repositoryModel);
+		form.add(permissionPanel);
 
 		//
 		// initial commit options
@@ -505,24 +439,5 @@ public class NewRepositoryPage extends RootSubPage {
 			db.close();
 		}
 		return success;
-	}
-
-	private static class Permission implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		final String name;
-		final String description;
-		final String image;
-		final AuthorizationControl control;
-		final AccessRestrictionType type;
-
-		Permission(String name, String description, String img, AuthorizationControl control, AccessRestrictionType type) {
-			this.name = name;
-			this.description = description;
-			this.image = img;
-			this.control = control;
-			this.type = type;
-		}
 	}
 }
