@@ -38,15 +38,15 @@ import com.gitblit.wicket.WicketUtils;
  * @author James Moger
  *
  */
-public class RepositoryPermissionPanel extends BasePanel {
+public class AccessPolicyPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private final RepositoryModel repository;
 
-	private RadioGroup<Permission> permissionGroup;
+	private RadioGroup<AccessPolicy> policiesGroup;
 
-	public RepositoryPermissionPanel(String wicketId, RepositoryModel repository) {
+	public AccessPolicyPanel(String wicketId, RepositoryModel repository) {
 		super(wicketId);
 		this.repository = repository;
 	}
@@ -55,44 +55,44 @@ public class RepositoryPermissionPanel extends BasePanel {
 	protected void onInitialize() {
 		super.onInitialize();
 
-		Permission anonymousPermission = new Permission(getString("gb.anonymousPush"),
-				getString("gb.anonymousPushDescription"),
+		AccessPolicy anonymousPolicy = new AccessPolicy(getString("gb.anonymousPolicy"),
+				getString("gb.anonymousPolicyDescription"),
 				"blank.png",
 				AuthorizationControl.AUTHENTICATED,
 				AccessRestrictionType.NONE);
 
-		Permission authenticatedPermission = new Permission(getString("gb.pushRestrictedAuthenticated"),
-				getString("gb.pushRestrictedAuthenticatedDescription"),
+		AccessPolicy authenticatedPushPolicy = new AccessPolicy(getString("gb.authenticatedPushPolicy"),
+				getString("gb.authenticatedPushPolicyDescription"),
 				"lock_go_16x16.png",
 				AuthorizationControl.AUTHENTICATED,
 				AccessRestrictionType.PUSH);
 
-		Permission publicPermission = new Permission(getString("gb.pushRestrictedNamed"),
-				getString("gb.pushRestrictedNamedDescription"),
+		AccessPolicy namedPushPolicy = new AccessPolicy(getString("gb.namedPushPolicy"),
+				getString("gb.namedPushPolicyDescription"),
 				"lock_go_16x16.png",
 				AuthorizationControl.NAMED,
 				AccessRestrictionType.PUSH);
 
-		Permission protectedPermission = new Permission(getString("gb.cloneRestricted"),
-				getString("gb.cloneRestrictedDescription"),
+		AccessPolicy clonePolicy = new AccessPolicy(getString("gb.clonePolicy"),
+				getString("gb.clonePolicyDescription"),
 				"lock_pull_16x16.png",
 				AuthorizationControl.NAMED,
 				AccessRestrictionType.CLONE);
 
-		Permission privatePermission = new Permission(getString("gb.private"),
-				getString("gb.privateRepoDescription"),
+		AccessPolicy viewPolicy = new AccessPolicy(getString("gb.viewPolicy"),
+				getString("gb.viewPolicyDescription"),
 				"shield_16x16.png",
 				AuthorizationControl.NAMED,
 				AccessRestrictionType.VIEW);
 
-		List<Permission> permissions = new ArrayList<Permission>();
+		List<AccessPolicy> policies = new ArrayList<AccessPolicy>();
 		if (app().settings().getBoolean(Keys.git.allowAnonymousPushes, false)) {
-			permissions.add(anonymousPermission);
+			policies.add(anonymousPolicy);
 		}
-		permissions.add(authenticatedPermission);
-		permissions.add(publicPermission);
-		permissions.add(protectedPermission);
-		permissions.add(privatePermission);
+		policies.add(authenticatedPushPolicy);
+		policies.add(namedPushPolicy);
+		policies.add(clonePolicy);
+		policies.add(viewPolicy);
 
 		AccessRestrictionType defaultRestriction = repository.accessRestriction;
 		if (defaultRestriction == null) {
@@ -106,38 +106,38 @@ public class RepositoryPermissionPanel extends BasePanel {
 					AuthorizationControl.NAMED.name()));
 		}
 
-		Permission defaultPermission = publicPermission;
-		for (Permission permission : permissions) {
-			if (permission.type == defaultRestriction && permission.control == defaultControl) {
-				defaultPermission = permission;
+		AccessPolicy defaultPolicy = namedPushPolicy;
+		for (AccessPolicy policy : policies) {
+			if (policy.type == defaultRestriction && policy.control == defaultControl) {
+				defaultPolicy = policy;
 			}
 		}
 
-		permissionGroup = new RadioGroup<>("permissionsGroup", new Model<Permission>(defaultPermission));
-		ListView<Permission> permissionsList = new ListView<Permission>("permissions", permissions) {
+		policiesGroup = new RadioGroup<>("policiesGroup", new Model<AccessPolicy>(defaultPolicy));
+		ListView<AccessPolicy> policiesList = new ListView<AccessPolicy>("policies", policies) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<Permission> item) {
-				Permission p = item.getModelObject();
-				item.add(new Radio<Permission>("radio", item.getModel()));
+			protected void populateItem(ListItem<AccessPolicy> item) {
+				AccessPolicy p = item.getModelObject();
+				item.add(new Radio<AccessPolicy>("radio", item.getModel()));
 				item.add(WicketUtils.newImage("image",  p.image));
 				item.add(new Label("name", p.name));
 				item.add(new Label("description", p.description));
 			}
 		};
-		permissionGroup.add(permissionsList);
+		policiesGroup.add(policiesList);
 
 		setOutputMarkupId(true);
 
-		add(permissionGroup);
+		add(policiesGroup);
 	}
 
 	public void updateModel(RepositoryModel repository) {
-		Permission permission = permissionGroup.getModelObject();
-		repository.authorizationControl = permission.control;
-		repository.accessRestriction = permission.type;
+		AccessPolicy policy = policiesGroup.getModelObject();
+		repository.authorizationControl = policy.control;
+		repository.accessRestriction = policy.type;
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class RepositoryPermissionPanel extends BasePanel {
 		return false;
 	}
 
-	private static class Permission implements Serializable {
+	private static class AccessPolicy implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
@@ -155,7 +155,7 @@ public class RepositoryPermissionPanel extends BasePanel {
 		final AuthorizationControl control;
 		final AccessRestrictionType type;
 
-		Permission(String name, String description, String img, AuthorizationControl control, AccessRestrictionType type) {
+		AccessPolicy(String name, String description, String img, AuthorizationControl control, AccessRestrictionType type) {
 			this.name = name;
 			this.description = description;
 			this.image = img;

@@ -17,18 +17,20 @@ package com.gitblit.wicket.panels;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
 
+import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 
 /**
- * A radio group panel of the 5 available authorization/access restriction combinations.
+ * A panel for naming a repository, specifying it's project, and entering a description.
  *
  * @author James Moger
  *
@@ -37,44 +39,79 @@ public class RepositoryNamePanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final RepositoryModel repository;
-
 	private String fullName;
+
+	private DropDownChoice<String> projectChoice;
+
+	private TextField<String> nameField;
 
 	public RepositoryNamePanel(String wicketId, RepositoryModel repository) {
 		super(wicketId);
-		this.repository = repository;
-	}
-
-	@Override
-	protected void onInitialize() {
-		super.onInitialize();
 
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();
 
-		// build project list for repository destination
+		// build project set for repository destination
 		String defaultProject = null;
-		List<String> projects = new ArrayList<String>();
+		Set<String> projectNames = new TreeSet<String>();
 
-		if (user.canAdmin()) {
-			projects.add("/");
-			defaultProject = "/";
-		}
-
-		if (user.canCreate()) {
-			String p =  user.getPersonalPath() + "/";
-			projects.add(p);
-			if (defaultProject == null) {
-				// only prefer personal namespace if default is not already set
-				defaultProject = p;
+		// add the registered/known projects
+		for (ProjectModel project : app().projects().getProjectModels(user, false)) {
+			// TODO issue-351: user.canAdmin(project)
+			if (user.canAdmin()) {
+				if (project.isRoot) {
+					projectNames.add("/");
+				} else {
+					projectNames.add(project.name + "/");
+				}
 			}
 		}
 
-		repository.projectPath = defaultProject;
+		// add the user's personal project namespace
+		if (user.canAdmin() || user.canCreate()) {
+			projectNames.add(user.getPersonalPath() + "/");
+		}
 
-		add(new DropDownChoice<String>("projectPath", projects));
-		add(new TextField<String>("name"));
+		if (!StringUtils.isEmpty(repository.name)) {
+			// editing a repository name
+			// set the defaultProject to the current repository project
+			defaultProject = repository.projectPath;
+			if (StringUtils.isEmpty(defaultProject)) {
+				defaultProject = "/";
+			} else {
+				defaultProject += "/";
+			}
+
+			projectNames.add(defaultProject);
+		}
+
+		// if default project is not already set, set preference based on the user permissions
+		if (defaultProject == null) {
+			if (user.canAdmin()) {
+				defaultProject = "/";
+			} else if (user.canCreate()) {
+				defaultProject = user.getPersonalPath() + "/";
+			}
+		}
+
+		// update the model which is reflectively mapped to the Wicket fields by name
+		repository.projectPath = defaultProject;
+		if (repository.projectPath.length() > 1 && !StringUtils.isEmpty(repository.name)) {
+			repository.name = repository.name.substring(repository.projectPath.length());
+		}
+		projectChoice = new DropDownChoice<String>("projectPath", new ArrayList<String>(projectNames));
+		nameField = new TextField<String>("name");
+
+		// only enable project selection if we actually have multiple choices
+		add(projectChoice.setEnabled(projectNames.size() > 1));
+		add(nameField);
+		add(new TextField<String>("description"));
+	}
+
+	public void setEditable(boolean editable) {
+		// only enable project selection if we actually have multiple choices
+		projectChoice.setEnabled(projectChoice.getChoices().size() > 1 && editable);
+		nameField.setEnabled(editable);
 	}
 
 	public boolean updateModel(RepositoryModel repositoryModel) {
