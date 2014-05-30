@@ -11,16 +11,19 @@
 		<tbody class="settings">
 			<tr>
 				<th><wicket:message key="gb.project"></wicket:message></th>
-				<td></td>
 				<th><wicket:message key="gb.name"></wicket:message></th>
 			</tr>
 			<tr>
 				<td><select class="span2" wicket:id="projectPath" /></td>
-				<td style="font-size:24px;color:#ccc;">/</td>
 				<td class="edit"><input class="span3" type="text" wicket:id="name" id="name" /> &nbsp;<span class="help-inline"><wicket:message key="gb.nameDescription"></wicket:message></span></td>
 			</tr>
 		</tbody>
 	</table>
+	
+	<div>
+		<b><wicket:message key="gb.description"></wicket:message></b><br/>
+		<input class="span5" type="text" wicket:id="description" />
+	</div>
 			
 </wicket:panel>
 </body>

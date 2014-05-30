@@ -72,10 +72,13 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
+import com.gitblit.wicket.panels.RepositoryNamePanel;
 
 public class EditRepositoryPage extends RootSubPage {
 
 	private final boolean isCreate;
+
+	RepositoryNamePanel namePanel;
 
 	private boolean isAdmin;
 
@@ -263,59 +266,8 @@ public class EditRepositoryPage extends RootSubPage {
 			@Override
 			protected void onSubmit() {
 				try {
-					// confirm a repository name was entered
-					if (repositoryModel.name == null && StringUtils.isEmpty(repositoryModel.name)) {
-						error(getString("gb.pleaseSetRepositoryName"));
+					if (!namePanel.updateModel(repositoryModel)) {
 						return;
-					}
-
-					// ensure name is trimmed
-					repositoryModel.name = repositoryModel.name.trim();
-
-					// automatically convert backslashes to forward slashes
-					repositoryModel.name = repositoryModel.name.replace('\\', '/');
-					// Automatically replace // with /
-					repositoryModel.name = repositoryModel.name.replace("//", "/");
-
-					// prohibit folder paths
-					if (repositoryModel.name.startsWith("/")) {
-						error(getString("gb.illegalLeadingSlash"));
-						return;
-					}
-					if (repositoryModel.name.startsWith("../")) {
-						error(getString("gb.illegalRelativeSlash"));
-						return;
-					}
-					if (repositoryModel.name.contains("/../")) {
-						error(getString("gb.illegalRelativeSlash"));
-						return;
-					}
-					if (repositoryModel.name.endsWith("/")) {
-						repositoryModel.name = repositoryModel.name.substring(0, repositoryModel.name.length() - 1);
-					}
-
-					// confirm valid characters in repository name
-					Character c = StringUtils.findInvalidCharacter(repositoryModel.name);
-					if (c != null) {
-						error(MessageFormat.format(getString("gb.illegalCharacterRepositoryName"),
-								c));
-						return;
-					}
-
-					if (user.canCreate() && !user.canAdmin() && allowEditName) {
-						// ensure repository name begins with the user's path
-						if (!repositoryModel.name.startsWith(user.getPersonalPath())) {
-							error(MessageFormat.format(getString("gb.illegalPersonalRepositoryLocation"),
-									user.getPersonalPath()));
-							return;
-						}
-
-						if (repositoryModel.name.equals(user.getPersonalPath())) {
-							// reset path prefix and show error
-							repositoryModel.name = user.getPersonalPath() + "/";
-							error(getString("gb.pleaseSetRepositoryName"));
-							return;
-						}
 					}
 
 					// confirm access restriction selection
@@ -426,6 +378,7 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
+					namePanel.resetModel(repositoryModel);
 					return;
 				}
 				setRedirect(false);
@@ -437,8 +390,10 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// field names reflective match RepositoryModel fields
-		form.add(new TextField<String>("name").setEnabled(allowEditName));
-		form.add(new TextField<String>("description"));
+		namePanel = new RepositoryNamePanel("namePanel", repositoryModel);
+		namePanel.setEditable(allowEditName);
+		form.add(namePanel);
+
 		form.add(ownersPalette);
 		form.add(new CheckBox("allowForks").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
 		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction",

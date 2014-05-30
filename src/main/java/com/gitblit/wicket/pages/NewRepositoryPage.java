@@ -29,7 +29,6 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -61,7 +60,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
-import com.gitblit.wicket.panels.RepositoryPermissionPanel;
+import com.gitblit.wicket.panels.AccessPolicyPanel;
 
 public class NewRepositoryPage extends RootSubPage {
 
@@ -70,7 +69,7 @@ public class NewRepositoryPage extends RootSubPage {
 	private Model<String> gitignoreModel;
 	private IModel<Boolean> addGitflowModel;
 	private IModel<Boolean> addGitignoreModel;
-	private RepositoryPermissionPanel permissionPanel;
+	private AccessPolicyPanel permissionPanel;
 	private RepositoryNamePanel namePanel;
 
 	public NewRepositoryPage() {
@@ -159,8 +158,6 @@ public class NewRepositoryPage extends RootSubPage {
 		namePanel = new RepositoryNamePanel("namePanel", repositoryModel);
 		form.add(namePanel);
 
-		form.add(new TextField<String>("description"));
-
 		// prepare the default access controls
 		AccessRestrictionType defaultRestriction = AccessRestrictionType.fromName(
 				app().settings().getString(Keys.git.defaultAccessRestriction, AccessRestrictionType.PUSH.name()));
@@ -177,7 +174,7 @@ public class NewRepositoryPage extends RootSubPage {
 		repositoryModel.authorizationControl = defaultControl;
 		repositoryModel.accessRestriction = defaultRestriction;
 
-		permissionPanel = new RepositoryPermissionPanel("permissionPanel", repositoryModel);
+		permissionPanel = new AccessPolicyPanel("permissionPanel", repositoryModel);
 		form.add(permissionPanel);
 
 		//

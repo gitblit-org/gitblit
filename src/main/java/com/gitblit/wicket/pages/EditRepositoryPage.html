@@ -24,10 +24,10 @@
 
 		<!-- general tab -->
 		<div class="tab-pane active" id="general">
+		<div wicket:id="namePanel"></div>
+		
 		<table class="plain">
 			<tbody class="settings">
-				<tr><th><wicket:message key="gb.name"></wicket:message></th><td class="edit"><input class="span4" type="text" wicket:id="name" id="name" size="40" tabindex="1" /> &nbsp;<span class="help-inline"><wicket:message key="gb.nameDescription"></wicket:message></span></td></tr>
-				<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit"><input class="span4" type="text" wicket:id="description" size="40" tabindex="2" /></td></tr>
 				<tr><th colspan="2"><hr/></th></tr>
 				<tr><th><wicket:message key="gb.origin"></wicket:message></th><td class="edit"><input class="span5" type="text" wicket:id="origin" size="80" tabindex="3" /></td></tr>
 				<tr><th><wicket:message key="gb.headRef"></wicket:message></th><td class="edit"><select class="span3" wicket:id="HEAD" tabindex="4" /> &nbsp;<span class="help-inline"><wicket:message key="gb.headRefDescription"></wicket:message></span></td></tr>
