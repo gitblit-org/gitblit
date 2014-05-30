@@ -134,7 +134,7 @@ public class RepositoryPermissionPanel extends BasePanel {
 		add(permissionGroup);
 	}
 
-	public void setPermission(RepositoryModel repository) {
+	public void updateModel(RepositoryModel repository) {
 		Permission permission = permissionGroup.getModelObject();
 		repository.authorizationControl = permission.control;
 		repository.accessRestriction = permission.type;
