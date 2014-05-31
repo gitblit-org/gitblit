@@ -29,7 +29,6 @@ import java.util.Set;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -40,7 +39,6 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.markup.html.form.RadioChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -69,6 +67,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.AccessPolicyPanel;
 import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
@@ -79,6 +78,8 @@ public class EditRepositoryPage extends RootSubPage {
 	private final boolean isCreate;
 
 	RepositoryNamePanel namePanel;
+
+	AccessPolicyPanel accessPolicyPanel;
 
 	private boolean isAdmin;
 
@@ -396,9 +397,6 @@ public class EditRepositoryPage extends RootSubPage {
 
 		form.add(ownersPalette);
 		form.add(new CheckBox("allowForks").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
-		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction",
-				AccessRestrictionType.choices(app().settings().getBoolean(Keys.git.allowAnonymousPushes, false)), new AccessRestrictionRenderer());
-		form.add(accessRestriction);
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition
 		form.add(new TextField<String>("origin").setEnabled(false/* isCreate */));
@@ -456,11 +454,6 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new TextField<String>("mailingLists", mailingLists));
 		form.add(indexedBranchesPalette);
 
-		List<AuthorizationControl> acList = Arrays.asList(AuthorizationControl.values());
-		final RadioChoice<AuthorizationControl> authorizationControl = new RadioChoice<Constants.AuthorizationControl>(
-				"authorizationControl", acList, new AuthorizationControlRenderer());
-		form.add(authorizationControl);
-
 		final CheckBox verifyCommitter = new CheckBox("verifyCommitter");
 		verifyCommitter.setOutputMarkupId(true);
 		form.add(verifyCommitter);
@@ -484,12 +477,10 @@ public class EditRepositoryPage extends RootSubPage {
 			// anonymous everything, disable all controls
 			usersPalette.setEnabled(false);
 			teamsPalette.setEnabled(false);
-			authorizationControl.setEnabled(false);
 			verifyCommitter.setEnabled(false);
 		} else {
 			// authenticated something
 			// enable authorization controls
-			authorizationControl.setEnabled(true);
 			verifyCommitter.setEnabled(true);
 
 			boolean allowFineGrainedControls = repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
@@ -497,15 +488,15 @@ public class EditRepositoryPage extends RootSubPage {
 			teamsPalette.setEnabled(allowFineGrainedControls);
 		}
 
-		accessRestriction.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		AjaxFormChoiceComponentUpdatingBehavior callback = new AjaxFormChoiceComponentUpdatingBehavior() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				// enable/disable permissions panel based on access restriction
+				accessPolicyPanel.updateModel(repositoryModel);
+
 				boolean allowAuthorizationControl = repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE);
-				authorizationControl.setEnabled(allowAuthorizationControl);
 				verifyCommitter.setEnabled(allowAuthorizationControl);
 
 				boolean allowFineGrainedControls = allowAuthorizationControl && repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
@@ -516,36 +507,14 @@ public class EditRepositoryPage extends RootSubPage {
 					repositoryModel.authorizationControl = AuthorizationControl.NAMED;
 				}
 
-				target.addComponent(authorizationControl);
 				target.addComponent(verifyCommitter);
 				target.addComponent(usersPalette);
 				target.addComponent(teamsPalette);
 			}
-		});
+		};
 
-		authorizationControl.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				// enable/disable permissions panel based on access restriction
-				boolean allowAuthorizationControl = repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE);
-				authorizationControl.setEnabled(allowAuthorizationControl);
-
-				boolean allowFineGrainedControls = allowAuthorizationControl && repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
-				usersPalette.setEnabled(allowFineGrainedControls);
-				teamsPalette.setEnabled(allowFineGrainedControls);
-
-				if (allowFineGrainedControls) {
-					repositoryModel.authorizationControl = AuthorizationControl.NAMED;
-				}
-
-				target.addComponent(authorizationControl);
-				target.addComponent(usersPalette);
-				target.addComponent(teamsPalette);
-			}
-		});
+		accessPolicyPanel = new AccessPolicyPanel("accessPolicyPanel", repositoryModel, callback);
+		form.add(accessPolicyPanel);
 
 		List<CommitMessageRenderer> renderers = Arrays.asList(CommitMessageRenderer.values());
 		DropDownChoice<CommitMessageRenderer> messageRendererChoice = new DropDownChoice<CommitMessageRenderer>("commitMessageRenderer", renderers);
@@ -656,27 +625,6 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 	}
 
-	private class AccessRestrictionRenderer implements IChoiceRenderer<AccessRestrictionType> {
-
-		private static final long serialVersionUID = 1L;
-
-		private final Map<AccessRestrictionType, String> map;
-
-		public AccessRestrictionRenderer() {
-			map = getAccessRestrictions();
-		}
-
-		@Override
-		public String getDisplayValue(AccessRestrictionType type) {
-			return map.get(type);
-		}
-
-		@Override
-		public String getIdValue(AccessRestrictionType type, int index) {
-			return Integer.toString(index);
-		}
-	}
-
 	private class FederationTypeRenderer implements IChoiceRenderer<FederationStrategy> {
 
 		private static final long serialVersionUID = 1L;
@@ -694,27 +642,6 @@ public class EditRepositoryPage extends RootSubPage {
 
 		@Override
 		public String getIdValue(FederationStrategy type, int index) {
-			return Integer.toString(index);
-		}
-	}
-
-	private class AuthorizationControlRenderer implements IChoiceRenderer<AuthorizationControl> {
-
-		private static final long serialVersionUID = 1L;
-
-		private final Map<AuthorizationControl, String> map;
-
-		public AuthorizationControlRenderer() {
-			map = getAuthorizationControls();
-		}
-
-		@Override
-		public String getDisplayValue(AuthorizationControl type) {
-			return map.get(type);
-		}
-
-		@Override
-		public String getIdValue(AuthorizationControl type, int index) {
 			return Integer.toString(index);
 		}
 	}

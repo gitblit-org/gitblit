@@ -59,8 +59,8 @@ import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.RepositoryNamePanel;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
+import com.gitblit.wicket.panels.RepositoryNamePanel;
 
 public class NewRepositoryPage extends RootSubPage {
 
@@ -69,7 +69,7 @@ public class NewRepositoryPage extends RootSubPage {
 	private Model<String> gitignoreModel;
 	private IModel<Boolean> addGitflowModel;
 	private IModel<Boolean> addGitignoreModel;
-	private AccessPolicyPanel permissionPanel;
+	private AccessPolicyPanel accessPolicyPanel;
 	private RepositoryNamePanel namePanel;
 
 	public NewRepositoryPage() {
@@ -108,7 +108,7 @@ public class NewRepositoryPage extends RootSubPage {
 					if (!namePanel.updateModel(repositoryModel)) {
 						return;
 					}
-					permissionPanel.updateModel(repositoryModel);
+					accessPolicyPanel.updateModel(repositoryModel);
 
 					repositoryModel.owners = new ArrayList<String>();
 					repositoryModel.owners.add(GitBlitWebSession.get().getUsername());
@@ -174,8 +174,8 @@ public class NewRepositoryPage extends RootSubPage {
 		repositoryModel.authorizationControl = defaultControl;
 		repositoryModel.accessRestriction = defaultRestriction;
 
-		permissionPanel = new AccessPolicyPanel("permissionPanel", repositoryModel);
-		form.add(permissionPanel);
+		accessPolicyPanel = new AccessPolicyPanel("accessPolicyPanel", repositoryModel);
+		form.add(accessPolicyPanel);
 
 		//
 		// initial commit options
