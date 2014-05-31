@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
@@ -44,11 +45,18 @@ public class AccessPolicyPanel extends BasePanel {
 
 	private final RepositoryModel repository;
 
+	private final AjaxFormChoiceComponentUpdatingBehavior callback;
+
 	private RadioGroup<AccessPolicy> policiesGroup;
 
 	public AccessPolicyPanel(String wicketId, RepositoryModel repository) {
+		this(wicketId, repository, null);
+	}
+
+	public AccessPolicyPanel(String wicketId, RepositoryModel repository, AjaxFormChoiceComponentUpdatingBehavior callback) {
 		super(wicketId);
 		this.repository = repository;
+		this.callback = callback;
 	}
 
 	@Override
@@ -128,10 +136,13 @@ public class AccessPolicyPanel extends BasePanel {
 			}
 		};
 		policiesGroup.add(policiesList);
+		if (callback != null) {
+			policiesGroup.add(callback);
+			policiesGroup.setOutputMarkupId(true);
+		}
+		add(policiesGroup);
 
 		setOutputMarkupId(true);
-
-		add(policiesGroup);
 	}
 
 	public void updateModel(RepositoryModel repository) {
@@ -145,7 +156,7 @@ public class AccessPolicyPanel extends BasePanel {
 		return false;
 	}
 
-	private static class AccessPolicy implements Serializable {
+	public static class AccessPolicy implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
