@@ -9,14 +9,17 @@
 	<form style="padding-top:5px;" wicket:id="editForm">
 <div class="row">
 <div class="span12">
-<div class="tabbable">
+<div class="tabbable tabs-left">
 	<!-- tab titles -->
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#general" data-toggle="tab"><wicket:message key="gb.general"></wicket:message></a></li>
-		<li><a href="#permissions" data-toggle="tab"><wicket:message key="gb.accessPermissions"></wicket:message></a></li>
+		<li><a href="#permissions" data-toggle="tab"><wicket:message key="gb.permissions"></wicket:message></a></li>
+		<li><a href="#receive" data-toggle="tab"><wicket:message key="gb.receive"></wicket:message></a></li>
+		<li><a href="#tickets" data-toggle="tab"><wicket:message key="gb.tickets"></wicket:message></a></li>
 		<li><a href="#federation" data-toggle="tab"><wicket:message key="gb.federation"></wicket:message></a></li>
 		<li><a href="#search" data-toggle="tab"><wicket:message key="gb.search"></wicket:message></a></li>
-		<li><a href="#hooks" data-toggle="tab"><wicket:message key="gb.hookScripts"></wicket:message></a></li>
+		<li><a href="#gc" data-toggle="tab"><wicket:message key="gb.gc"></wicket:message></a></li>
+		<li><a href="#misc" data-toggle="tab"><wicket:message key="gb.miscellaneous"></wicket:message></a></li>
 	</ul>
 
 	<!-- tab content -->
@@ -24,97 +27,200 @@
 
 		<!-- general tab -->
 		<div class="tab-pane active" id="general">
-		<div wicket:id="namePanel"></div>
+
+			<div wicket:id="namePanel"></div>
 		
-		<table class="plain">
-			<tbody class="settings">
-				<tr><th colspan="2"><hr/></th></tr>
-				<tr><th><wicket:message key="gb.origin"></wicket:message></th><td class="edit"><input class="span5" type="text" wicket:id="origin" size="80" tabindex="3" /></td></tr>
-				<tr><th><wicket:message key="gb.headRef"></wicket:message></th><td class="edit"><select class="span3" wicket:id="HEAD" tabindex="4" /> &nbsp;<span class="help-inline"><wicket:message key="gb.headRefDescription"></wicket:message></span></td></tr>
-				<tr><th><wicket:message key="gb.gcPeriod"></wicket:message></th><td class="edit"><select class="span2" wicket:id="gcPeriod" tabindex="5" /> &nbsp;<span class="help-inline"><wicket:message key="gb.gcPeriodDescription"></wicket:message></span></td></tr>
-				<tr><th><wicket:message key="gb.gcThreshold"></wicket:message></th><td class="edit"><input class="span1" type="text" wicket:id="gcThreshold" tabindex="6" /> &nbsp;<span class="help-inline"><wicket:message key="gb.gcThresholdDescription"></wicket:message></span></td></tr>
-				<tr><th colspan="2"><hr/></th></tr>
-				<tr><th><wicket:message key="gb.acceptNewTickets"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="acceptNewTickets" tabindex="7" /> &nbsp;<span class="help-inline"><wicket:message key="gb.acceptNewTicketsDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.acceptNewPatchsets"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="acceptNewPatchsets" tabindex="8" /> &nbsp;<span class="help-inline"><wicket:message key="gb.acceptNewPatchsetsDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.requireApproval"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="requireApproval" tabindex="9" /> &nbsp;<span class="help-inline"><wicket:message key="gb.requireApprovalDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.mergeTo"></wicket:message></th><td class="edit"><select class="span2" wicket:id="mergeTo" tabindex="10" /> &nbsp;<span class="help-inline"><wicket:message key="gb.mergeToDescription"></wicket:message></span></td></tr>
-				<tr><th colspan="2"><hr/></th></tr>
-				<tr><th><wicket:message key="gb.enableIncrementalPushTags"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="useIncrementalPushTags" tabindex="11" /> &nbsp;<span class="help-inline"><wicket:message key="gb.useIncrementalPushTagsDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.showRemoteBranches"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="showRemoteBranches" tabindex="12" /> &nbsp;<span class="help-inline"><wicket:message key="gb.showRemoteBranchesDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.skipSizeCalculation"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="skipSizeCalculation" tabindex="13" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSizeCalculationDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.skipSummaryMetrics"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="skipSummaryMetrics" tabindex="14" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSummaryMetricsDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.maxActivityCommits"></wicket:message></th><td class="edit"><select class="span2" wicket:id="maxActivityCommits" tabindex="15" /> &nbsp;<span class="help-inline"><wicket:message key="gb.maxActivityCommitsDescription"></wicket:message></span></td></tr>
-				<tr><th><wicket:message key="gb.metricAuthorExclusions"></wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="metricAuthorExclusions" size="40" tabindex="16" /></td></tr>
-				<tr><th><wicket:message key="gb.commitMessageRenderer"></wicket:message></th><td class="edit"><select class="span2" wicket:id="commitMessageRenderer" tabindex="17" /></td></tr>
-				<tr><th colspan="2"><hr/></th></tr>
-				<tr><th><wicket:message key="gb.mailingLists"></wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="mailingLists" size="40" tabindex="18" /></td></tr>
-			</tbody>
-		</table>
+			<hr/>
+		
+			<div wicket:id="accessPolicyPanel"></div>
+		
 		</div>
 
 		<!-- access permissions -->
 		<div class="tab-pane" id="permissions">
-			<table class="plain">
-				<tbody class="settings">
-					<tr><th><wicket:message key="gb.owners"></wicket:message></th><td class="edit"><span wicket:id="owners" tabindex="19" /> </td></tr>
-					<tr><th colspan="2"><hr/></th></tr>
-					<tr><th></th><td style="padding:2px;"><span wicket:id="accessPolicyPanel"></span></td></tr>
-					<tr><th colspan="2"><hr/></th></tr>
-					<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="isFrozen" tabindex="21" /> &nbsp;<span class="help-inline"><wicket:message key="gb.isFrozenDescription"></wicket:message></span></label></td></tr>
-					<tr><th><wicket:message key="gb.allowForks"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="allowForks" tabindex="22" /> &nbsp;<span class="help-inline"><wicket:message key="gb.allowForksDescription"></wicket:message></span></label></td></tr>
-					<tr><th><wicket:message key="gb.verifyCommitter"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="verifyCommitter" tabindex="23" /> &nbsp;<span class="help-inline"><wicket:message key="gb.verifyCommitterDescription"></wicket:message></span><br/><span class="help-inline" style="padding-left:10px;"><wicket:message key="gb.verifyCommitterNote"></wicket:message></span></label></td></tr>
-					<tr><th colspan="2"><hr/></th></tr>
-					<tr><th><wicket:message key="gb.userPermissions"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>
-					<tr><th colspan="2"><hr/></th></tr>
-					<tr><th><wicket:message key="gb.teamPermissions"></wicket:message></th><td style="padding:2px;"><span wicket:id="teams"></span></td></tr>
-				</tbody>
-			</table>
+		
+			<h4><wicket:message key="gb.owners"></wicket:message></h4>
+			<p><wicket:message key="gb.ownersDescription"></wicket:message></p>
+			<div wicket:id="owners"></div>
+			
+			<hr />
+
+			<h4><wicket:message key="gb.userPermissions"></wicket:message></h4>
+			<p><wicket:message key="gb.userPermissionsDescription"></wicket:message></p>
+			<div wicket:id="users"></div>
+			
+			<hr />
+
+			<h4><wicket:message key="gb.teamPermissions"></wicket:message></h4>
+			<p><wicket:message key="gb.teamPermissionsDescription"></wicket:message></p>
+			<div wicket:id="teams"></div>
+			
 		</div>
 
-		<!-- federation -->
-		<div class="tab-pane" id="federation">
+		<!-- receive -->
+		<div class="tab-pane" id="receive">
+			<h4><wicket:message key="gb.receiveSettings"></wicket:message></h4>
+			<p><wicket:message key="gb.receiveSettingsDescription"></wicket:message></p>
+					
+			<hr/>
+			
+			<div wicket:id="isFrozen"></div>
+			<div wicket:id="verifyCommitter"></div>
+			<div wicket:id="incrementalPushTags"></div>
+			
+			<hr />
+			
+			<h4><wicket:message key="gb.preReceiveScripts"></wicket:message></h4>
+			<p><wicket:message key="gb.preReceiveDescription"></wicket:message></p>
+			
 			<table class="plain">
 				<tbody class="settings">
-					<tr><th><wicket:message key="gb.federationStrategy"></wicket:message></th><td class="edit"><select class="span4" wicket:id="federationStrategy" tabindex="24" /></td></tr>
-					<tr><th><wicket:message key="gb.federationSets"></wicket:message></th><td style="padding:2px;"><span wicket:id="federationSets"></span></td></tr>
+					<tr>
+						<td style="padding:2px;"><span wicket:id="preReceiveScripts"></span></td>
+						<td style="vertical-align: top;"><span wicket:id="inheritedPreReceive"></span></td>
+					</tr>
 				</tbody>
 			</table>
+
+			<hr />
+			
+			<h4><wicket:message key="gb.postReceiveScripts"></wicket:message></h4>
+			<p><wicket:message key="gb.postReceiveDescription"></wicket:message></p>
+			
+			<table class="plain">
+				<tbody class="settings">
+					<tr>
+						<td style="padding:2px;"><span wicket:id="postReceiveScripts"></span></td>
+						<td style="vertical-align: top;"><span wicket:id="inheritedPostReceive"></span></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div wicket:id="customFieldsSection">
+				<hr />
+				
+				<h4><wicket:message key="gb.customFields"></wicket:message></h4>
+				<p><wicket:message key="gb.customFieldsDescription"></wicket:message></p>
+				<table class="plain">
+					<tbody class="settings">
+						<tr wicket:id="customFieldsListView"><th><span wicket:id="customFieldLabel"></span></th><td class="edit"><input class="span8" type="text" wicket:id="customFieldValue" /></td></tr>
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+
+		<!-- tickets tab -->		
+		<div class="tab-pane" id="tickets">
+
+			<h4><wicket:message key="gb.ticketSettings"></wicket:message></h4>
+			<p><wicket:message key="gb.ticketsWelcome"></wicket:message></p>
+				
+			<hr/>
+		
+			<div wicket:id="acceptNewPatchsets"></div>
+			<div wicket:id="acceptNewTickets"></div>
+			<div wicket:id="requireApproval"></div>
+			<div wicket:id="mergeTo"></div>
+		
+		</div>
+				
+		<!-- federation -->
+		<div class="tab-pane" id="federation">
+			<h4><wicket:message key="gb.federation"></wicket:message></h4>
+			<p><wicket:message key="gb.federationRepositoryDescription"></wicket:message></p>
+					
+			<hr/>
+			
+			<div wicket:id="federationStrategy"></div>
+
+			<hr />
+			
+			<h4><wicket:message key="gb.federationSets"></wicket:message></h4>
+			<p><wicket:message key="gb.federationSetsDescription"></wicket:message></p>
+
+			<div wicket:id="federationSets"></div>
 		</div>
 
 		<!-- search -->
 		<div class="tab-pane" id="search">
-			<table class="plain">
-				<tbody class="settings">
-					<tr><th><wicket:message key="gb.indexedBranches"></wicket:message></th><td style="padding:2px;"><span wicket:id="indexedBranches"></span></td></tr>
-				</tbody>
-			</table>
+		
+			<h4><wicket:message key="gb.indexedBranches"></wicket:message></h4>
+			<p><wicket:message key="gb.indexedBranchesDescription"></wicket:message></p>
+		
+			<div wicket:id="indexedBranches"></div>
 		</div>
 
-		<!-- hooks -->
-		<div class="tab-pane" id="hooks">
-			<table class="plain">
-				<tbody class="settings">
-					<tr><th><wicket:message key="gb.preReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPreReceive"></span></th><td style="padding:2px;"><span wicket:id="preReceiveScripts"></span></td></tr>
-					<tr><th><wicket:message key="gb.postReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPostReceive"></span></th><td style="padding:2px;"><span wicket:id="postReceiveScripts"></span></td></tr>
-					<div wicket:id="customFieldsSection">
-						<tr><td colspan="2"><h3><wicket:message key="gb.customFields"></wicket:message> &nbsp;<small><wicket:message key="gb.customFieldsDescription"></wicket:message></small></h3></td></tr>
-						<tr wicket:id="customFieldsListView"><th><span wicket:id="customFieldLabel"></span></th><td class="edit"><input class="span8" type="text" wicket:id="customFieldValue" /></td></tr>
-					</div>
-				</tbody>
-			</table>
+		<!-- garbage collection -->
+		<div class="tab-pane" id="gc">
+
+			<h4><wicket:message key="gb.garbageCollection"></wicket:message></h4>
+			<p><wicket:message key="gb.garbageCollectionDescription"></wicket:message></p>
+		
+			<div wicket:id="gcPeriod"></div>
+			<div wicket:id="gcThreshold"></div>
+		</div>
+		
+		<!-- misc -->
+		<div class="tab-pane" id="misc">
+
+			<div wicket:id="origin"></div>
+			<div wicket:id="head"></div>
+
+			<hr/>
+			
+			<div wicket:id="showRemoteBranches"></div>
+			<div wicket:id="skipSizeCalculation"></div>
+			<div wicket:id="skipSummaryMetrics"></div>
+			<div wicket:id="maxActivityCommits"></div>
+			<div wicket:id="commitMessageRenderer"></div>
+			<div wicket:id="metricAuthorExclusions"></div>
+			<div wicket:id="mailingLists"></div>
+		
+		</div>
+		
+		<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /> &nbsp; <input class="btn btn-danger" type="submit" value="Delete" wicket:message="value:gb.delete" wicket:id="delete" /></div>
+		
 		</div>
 	</div>
-</div>
-</div>
-</div>
-
-<div class="row">
-<div class="span12">
-	<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /> &nbsp; <input class="btn btn-danger" type="submit" value="Delete" wicket:message="value:gb.delete" wicket:id="delete" /></div>
 </div>
 </div>
 
 </form>	
 </body>
+
+<wicket:fragment wicket:id="checkboxOption">
+	<div style="padding-top:4px;">
+		<div>
+			<label style="font-weight:bold;" class="checkbox"><input type="checkbox" wicket:id="checkbox" /> <span wicket:id="name"></span></label>
+		</div>
+		<label class="checkbox" style="color:#777;" wicket:id="description"></label>
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="choiceOption">
+	<div style="padding-top:4px;">
+		<div>
+			<b><span wicket:id="name"></span></b>
+		</div>
+		<label class="checkbox" style="color:#777;"> <span wicket:id="description"></span>
+		<p style="padding-top:5px;"><select class="span2" wicket:id="choice" /></p>
+		</label>
+		
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="textfieldOption">
+	<div style="padding-top:4px;">
+		<div>
+			<b><span wicket:id="name"></span></b>
+		</div>
+		<label class="checkbox" style="color:#777;"> <span wicket:id="description"></span>
+		<p style="padding-top:5px;"><input class="span2" type="text" wicket:id="text" /></p>
+		</label>
+		
+	</div>
+</wicket:fragment>
+
 </wicket:extend>
 </html>

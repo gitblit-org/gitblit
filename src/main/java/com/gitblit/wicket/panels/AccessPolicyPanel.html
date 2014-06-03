@@ -10,19 +10,32 @@
 	<h4><wicket:message key="gb.accessPolicy"></wicket:message></h4>
 	<p><wicket:message key="gb.accessPolicyDescription"></wicket:message></p>
 		
-	<span wicket:id="policiesGroup">
-			<div wicket:id="policies">
-				<div style="display: inline-block;vertical-align: top;">
-					<input type="radio" wicket:id="radio" />
-					<img wicket:id="image"></img> 
-				</div>
-				<div style="display: inline-block;vertical-align: top;">
-					<b><span wicket:id="name"></span></b><br/>
-					<span wicket:id="description"></span>
-				</div>
+	<div wicket:id="policiesGroup">
+		<div wicket:id="policies" style="padding-top:4px;">
+			<div style="display: inline-block;vertical-align: top;">
+				<input type="radio" wicket:id="radio" />
+				<img wicket:id="image"></img> 
 			</div>
-		</span>
+			<div style="display: inline-block;vertical-align: top;">
+				<b><span wicket:id="name"></span></b><br/>
+				<span class="help-inline" wicket:id="description"></span>
+			</div>
+		</div>
+	</div>
 	
+	<hr />
+	
+	<div wicket:id="allowForks"></div>
+	
+<wicket:fragment wicket:id="checkboxOption">
+	<div style="padding-top:4px;">
+		<div>
+			<label style="font-weight:bold;" class="checkbox"><input type="checkbox" wicket:id="checkbox" /> <span wicket:id="name"></span></label>
+		</div>
+		<label class="checkbox" style="color:#777;" wicket:id="description"></label>
+	</div>
+</wicket:fragment>
+
 </wicket:panel>
 </body>
 </html>
