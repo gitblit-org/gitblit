@@ -18,6 +18,7 @@ package com.gitblit.wicket.panels;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.model.IModel;
+import org.parboiled.common.StringUtils;
 
 /**
  * A re-usable checkbox option panel.
@@ -35,14 +36,14 @@ public class CheckboxOption extends BasePanel {
 	public CheckboxOption(String wicketId, String title, String description, IModel<Boolean> model) {
 		super(wicketId);
 		add(new Label("name", title));
-		add(new Label("description", description));
+		add(new Label("description", description).setVisible(!StringUtils.isEmpty(description)));
 		add(new CheckBox("checkbox", model));
 	}
 
 	public CheckboxOption(String wicketId, String title, String description, CheckBox checkbox) {
 		super(wicketId);
 		add(new Label("name", title));
-		add(new Label("description", description));
+		add(new Label("description", description).setVisible(!StringUtils.isEmpty(description)));
 		add(checkbox.setMarkupId("checkbox"));
 	}
 

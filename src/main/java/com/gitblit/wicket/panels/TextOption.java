@@ -43,7 +43,7 @@ public class TextOption extends BasePanel {
 	public TextOption(String wicketId, String title, String description, String css, IModel<String> model) {
 		super(wicketId);
 		add(new Label("name", title));
-		add(new Label("description", description));
+		add(new Label("description", description).setVisible(!StringUtils.isEmpty(description)));
 		TextField<String> tf = new TextField<String>("text", model);
 		if (!StringUtils.isEmpty(css)) {
 			WicketUtils.setCssClass(tf, css);
