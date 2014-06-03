@@ -43,9 +43,11 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 import org.eclipse.jgit.lib.Repository;
@@ -200,7 +202,7 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		}
 		final Palette<UserChoice> ownersPalette = new Palette<UserChoice>("owners", new ListModel<UserChoice>(owners), new CollectionModel<UserChoice>(
-		      persons), new ChoiceRenderer<UserChoice>(null, "userId"), 12, true);
+		      persons), new ChoiceRenderer<UserChoice>(null, "userId"), 12, false);
 
 		// indexed local branches palette
 		List<String> allLocalBranches = new ArrayList<String>();
@@ -387,21 +389,7 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		};
 
-		// do not let the browser pre-populate these fields
-		form.add(new SimpleAttributeModifier("autocomplete", "off"));
-
-		// field names reflective match RepositoryModel fields
-		namePanel = new RepositoryNamePanel("namePanel", repositoryModel);
-		namePanel.setEditable(allowEditName);
-		form.add(namePanel);
-
-		form.add(ownersPalette);
-		form.add(new CheckBox("allowForks").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
-		form.add(new CheckBox("isFrozen"));
-		// TODO enable origin definition
-		form.add(new TextField<String>("origin").setEnabled(false/* isCreate */));
-
-		// allow relinking HEAD to a branch or tag other than master on edit repository
+		// Determine available refs & branches
 		List<String> availableRefs = new ArrayList<String>();
 		List<String> availableBranches = new ArrayList<String>();
 		if (!ArrayUtils.isEmpty(repositoryModel.availableRefs)) {
@@ -414,53 +402,79 @@ public class EditRepositoryPage extends RootSubPage {
 				}
 			}
 		}
-		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
-		boolean gcEnabled = app().settings().getBoolean(Keys.git.enableGarbageCollection, false);
-		int defaultGcPeriod = app().settings().getInteger(Keys.git.defaultGarbageCollectionPeriod, 7);
-		if (repositoryModel.gcPeriod == 0) {
-			repositoryModel.gcPeriod = defaultGcPeriod;
-		}
-		List<Integer> gcPeriods = Arrays.asList(1, 2, 3, 4, 5, 7, 10, 14 );
-		form.add(new DropDownChoice<Integer>("gcPeriod", gcPeriods, new GCPeriodRenderer()).setEnabled(gcEnabled));
-		form.add(new TextField<String>("gcThreshold").setEnabled(gcEnabled));
+		// do not let the browser pre-populate these fields
+		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
-		// federation strategies - remove ORIGIN choice if this repository has
-		// no origin.
-		List<FederationStrategy> federationStrategies = new ArrayList<FederationStrategy>(
-				Arrays.asList(FederationStrategy.values()));
-		if (StringUtils.isEmpty(repositoryModel.origin)) {
-			federationStrategies.remove(FederationStrategy.FEDERATE_ORIGIN);
-		}
-		form.add(new DropDownChoice<FederationStrategy>("federationStrategy", federationStrategies,
-				new FederationTypeRenderer()));
-		form.add(new CheckBox("acceptNewPatchsets"));
-		form.add(new CheckBox("acceptNewTickets"));
-		form.add(new CheckBox("requireApproval"));
-		form.add(new DropDownChoice<String>("mergeTo", availableBranches).setEnabled(availableBranches.size() > 0));
-		form.add(new CheckBox("useIncrementalPushTags"));
-		form.add(new CheckBox("showRemoteBranches"));
-		form.add(new CheckBox("skipSizeCalculation"));
-		form.add(new CheckBox("skipSummaryMetrics"));
-		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500);
-		form.add(new DropDownChoice<Integer>("maxActivityCommits", maxActivityCommits, new MaxActivityCommitsRenderer()));
 
-		metricAuthorExclusions = new Model<String>(ArrayUtils.isEmpty(repositoryModel.metricAuthorExclusions) ? ""
-				: StringUtils.flattenStrings(repositoryModel.metricAuthorExclusions, " "));
-		form.add(new TextField<String>("metricAuthorExclusions", metricAuthorExclusions));
+		//
+		//
+		// GENERAL
+		//
+		namePanel = new RepositoryNamePanel("namePanel", repositoryModel);
+		namePanel.setEditable(allowEditName);
+		form.add(namePanel);
 
-		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
-				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
-		form.add(new TextField<String>("mailingLists", mailingLists));
-		form.add(indexedBranchesPalette);
+		// XXX AccessPolicyPanel is defined later.
 
-		final CheckBox verifyCommitter = new CheckBox("verifyCommitter");
-		verifyCommitter.setOutputMarkupId(true);
-		form.add(verifyCommitter);
+		form.add(newChoice("head",
+				getString("gb.headRef"),
+				getString("gb.headRefDescription"),
+				new PropertyModel<String>(repositoryModel, "HEAD"),
+				availableRefs));
 
+
+		//
+		// PERMISSIONS
+		//
+		form.add(ownersPalette);
 		form.add(usersPalette);
 		form.add(teamsPalette);
-		form.add(federationSetsPalette);
+
+		//
+		// TICKETS
+		//
+		form.add(newCheckbox("acceptNewPatchsets",
+				getString("gb.acceptNewPatchsets"),
+				getString("gb.acceptNewPatchsetsDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "acceptNewPatchsets")));
+
+		form.add(newCheckbox("acceptNewTickets",
+				getString("gb.acceptNewTickets"),
+				getString("gb.acceptNewTicketsDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "acceptNewPatchsets")));
+
+		form.add(newCheckbox("requireApproval",
+				getString("gb.requireApproval"),
+				getString("gb.requireApprovalDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "requireApproval")));
+
+		form.add(newChoice("mergeTo",
+				getString("gb.mergeTo"),
+				getString("gb.mergeToDescription"),
+				new PropertyModel<String>(repositoryModel, "mergeTo"),
+				availableBranches));
+
+		//
+		// RECEIVE
+		//
+		form.add(newCheckbox("isFrozen",
+				getString("gb.isFrozen"),
+				getString("gb.isFrozenDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "isFrozen")));
+
+		form.add(newCheckbox("incrementalPushTags",
+				getString("gb.enableIncrementalPushTags"),
+				getString("gb.useIncrementalPushTagsDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "useIncrementalPushTags")));
+
+		final CheckBox verifyCommitter = new CheckBox("checkbox", new PropertyModel<Boolean>(repositoryModel, "verifyCommitter"));
+		verifyCommitter.setOutputMarkupId(true);
+		form.add(newCheckbox("verifyCommitter",
+				getString("gb.verifyCommitter"),
+				getString("gb.verifyCommitterDescription"),
+				verifyCommitter));
+
 		form.add(preReceivePalette);
 		form.add(new BulletListPanel("inheritedPreReceive", getString("gb.inherited"), app().repositories()
 				.getPreReceiveScriptsInherited(repositoryModel)));
@@ -471,6 +485,116 @@ public class EditRepositoryPage extends RootSubPage {
 		WebMarkupContainer customFieldsSection = new WebMarkupContainer("customFieldsSection");
 		customFieldsSection.add(customFieldsListView);
 		form.add(customFieldsSection.setVisible(!app().settings().getString(Keys.groovy.customFields, "").isEmpty()));
+
+		//
+		// FEDERATION
+		//
+		List<FederationStrategy> federationStrategies = new ArrayList<FederationStrategy>(
+				Arrays.asList(FederationStrategy.values()));
+		// federation strategies - remove ORIGIN choice if this repository has no origin.
+		if (StringUtils.isEmpty(repositoryModel.origin)) {
+			federationStrategies.remove(FederationStrategy.FEDERATE_ORIGIN);
+		}
+
+		form.add(newChoice("federationStrategy",
+				getString("gb.federationStrategy"),
+				getString("gb.federationStrategyDescription"),
+				new DropDownChoice<FederationStrategy>(
+						"choice",
+						new PropertyModel<FederationStrategy>(repositoryModel, "federationStrategy"),
+						federationStrategies,
+						new FederationTypeRenderer())));
+
+		form.add(federationSetsPalette);
+
+		//
+		// SEARCH
+		//
+		form.add(indexedBranchesPalette);
+
+		//
+		// GARBAGE COLLECTION
+		//
+		boolean gcEnabled = app().settings().getBoolean(Keys.git.enableGarbageCollection, false);
+		int defaultGcPeriod = app().settings().getInteger(Keys.git.defaultGarbageCollectionPeriod, 7);
+		if (repositoryModel.gcPeriod == 0) {
+			repositoryModel.gcPeriod = defaultGcPeriod;
+		}
+		List<Integer> gcPeriods = Arrays.asList(1, 2, 3, 4, 5, 7, 10, 14 );
+		form.add(newChoice("gcPeriod",
+				getString("gb.gcPeriod"),
+				getString("gb.gcPeriodDescription"),
+				new DropDownChoice<Integer>("choice",
+						new PropertyModel<Integer>(repositoryModel, "gcPeriod"),
+						gcPeriods,
+						new GCPeriodRenderer())).setEnabled(gcEnabled));
+
+		form.add(newTextfield("gcThreshold",
+				getString("gb.gcThreshold"),
+				getString("gb.gcThresholdDescription"),
+				"span1",
+				new PropertyModel<String>(repositoryModel, "gcThreshold")).setEnabled(gcEnabled));
+
+		//
+		// MISCELLANEOUS
+		//
+
+		form.add(newTextfield("origin",
+				getString("gb.origin"),
+				getString("gb.originDescription"),
+				"span6",
+				new PropertyModel<String>(repositoryModel, "origin")).setEnabled(false));
+
+		form.add(newCheckbox("showRemoteBranches",
+				getString("gb.showRemoteBranches"),
+				getString("gb.showRemoteBranchesDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "showRemoteBranches")));
+
+		form.add(newCheckbox("skipSizeCalculation",
+				getString("gb.skipSizeCalculation"),
+				getString("gb.skipSizeCalculationDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "skipSizeCalculation")));
+
+		form.add(newCheckbox("skipSummaryMetrics",
+				getString("gb.skipSummaryMetrics"),
+				getString("gb.skipSummaryMetricsDescription"),
+				new PropertyModel<Boolean>(repositoryModel, "skipSummaryMetrics")));
+
+		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500);
+		form.add(newChoice("maxActivityCommits",
+				getString("gb.maxActivityCommits"),
+				getString("gb.maxActivityCommitsDescription"),
+				new DropDownChoice<Integer>("choice",
+						new PropertyModel<Integer>(repositoryModel, "maxActivityCommits"),
+						maxActivityCommits,
+						new MaxActivityCommitsRenderer())));
+
+		List<CommitMessageRenderer> renderers = Arrays.asList(CommitMessageRenderer.values());
+		form.add(newChoice("commitMessageRenderer",
+				getString("gb.commitMessageRenderer"),
+				getString("gb.commitMessageRendererDescription"),
+				new DropDownChoice<CommitMessageRenderer>("choice",
+						new PropertyModel<CommitMessageRenderer>(repositoryModel, "commitMessageRenderer"),
+						renderers)));
+
+		metricAuthorExclusions = new Model<String>(ArrayUtils.isEmpty(repositoryModel.metricAuthorExclusions) ? ""
+				: StringUtils.flattenStrings(repositoryModel.metricAuthorExclusions, " "));
+
+		form.add(newTextfield("metricAuthorExclusions",
+				getString("gb.metricAuthorExclusions"),
+				getString("gb.metricAuthorExclusions"),
+				"span6",
+				metricAuthorExclusions));
+
+		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
+				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
+
+		form.add(newTextfield("mailingLists",
+				getString("gb.mailingLists"),
+				getString("gb.mailingLists"),
+				"span6",
+				mailingLists));
+
 
 		// initial enable/disable of permission controls
 		if (repositoryModel.accessRestriction.equals(AccessRestrictionType.NONE)) {
@@ -488,6 +612,9 @@ public class EditRepositoryPage extends RootSubPage {
 			teamsPalette.setEnabled(allowFineGrainedControls);
 		}
 
+		//
+		// ACCESS POLICY PANEL (GENERAL)
+		//
 		AjaxFormChoiceComponentUpdatingBehavior callback = new AjaxFormChoiceComponentUpdatingBehavior() {
 
 			private static final long serialVersionUID = 1L;
@@ -516,10 +643,10 @@ public class EditRepositoryPage extends RootSubPage {
 		accessPolicyPanel = new AccessPolicyPanel("accessPolicyPanel", repositoryModel, callback);
 		form.add(accessPolicyPanel);
 
-		List<CommitMessageRenderer> renderers = Arrays.asList(CommitMessageRenderer.values());
-		DropDownChoice<CommitMessageRenderer> messageRendererChoice = new DropDownChoice<CommitMessageRenderer>("commitMessageRenderer", renderers);
-		form.add(messageRendererChoice);
 
+		//
+		// FORM CONTROLS
+		//
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
@@ -624,6 +751,51 @@ public class EditRepositoryPage extends RootSubPage {
 			error(getString("gb.errorAdministrationDisabled"), true);
 		}
 	}
+
+	private Fragment newCheckbox(String wicketId, String title, String description, IModel<Boolean> model) {
+		Fragment fragment = new Fragment(wicketId, "checkboxOption", this);
+		fragment.add(new Label("name", title));
+		fragment.add(new Label("description", description));
+		fragment.add(new CheckBox("checkbox", model));
+		return fragment;
+	}
+
+	private Fragment newCheckbox(String wicketId, String title, String description, CheckBox checkbox) {
+		Fragment fragment = new Fragment(wicketId, "checkboxOption", this);
+		fragment.add(new Label("name", title));
+		fragment.add(new Label("description", description));
+		fragment.add(checkbox);
+		return fragment;
+	}
+
+	private <T> Fragment newChoice(String wicketId, String title, String description, IModel<T> model, List<T> choices) {
+		Fragment fragment = new Fragment(wicketId, "choiceOption", this);
+		fragment.add(new Label("name", title));
+		fragment.add(new Label("description", description));
+		fragment.add(new DropDownChoice<>("choice", model, choices).setEnabled(choices.size() > 0));
+		return fragment;
+	}
+
+	private <T> Fragment newChoice(String wicketId, String title, String description, DropDownChoice<?> choice) {
+		Fragment fragment = new Fragment(wicketId, "choiceOption", this);
+		fragment.add(new Label("name", title));
+		fragment.add(new Label("description", description));
+		fragment.add(choice.setEnabled(choice.getChoices().size() > 0));
+		return fragment;
+	}
+
+	private Fragment newTextfield(String wicketId, String title, String description, String css, IModel<String> model) {
+		Fragment fragment = new Fragment(wicketId, "textfieldOption", this);
+		fragment.add(new Label("name", title));
+		fragment.add(new Label("description", description));
+		TextField<String> tf = new TextField<String>("text", model);
+		if (!StringUtils.isEmpty(css)) {
+			WicketUtils.setCssClass(tf, css);
+		}
+		fragment.add(tf);
+		return fragment;
+	}
+
 
 	private class FederationTypeRenderer implements IChoiceRenderer<FederationStrategy> {
 
