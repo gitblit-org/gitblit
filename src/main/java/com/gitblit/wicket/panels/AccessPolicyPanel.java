@@ -21,12 +21,10 @@ import java.util.List;
 
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -148,20 +146,12 @@ public class AccessPolicyPanel extends BasePanel {
 		add(policiesGroup);
 
 		allowForks = Model.of(true);
-		add(newCheckbox("allowForks",
+		add(new CheckboxOption("allowForks",
 				getString("gb.allowForks"),
 				getString("gb.allowForksDescription"),
 				allowForks).setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
 
 		setOutputMarkupId(true);
-	}
-
-	private Fragment newCheckbox(String wicketId, String title, String description, IModel<Boolean> model) {
-		Fragment fragment = new Fragment(wicketId, "checkboxOption", this);
-		fragment.add(new Label("name", title));
-		fragment.add(new Label("description", description));
-		fragment.add(new CheckBox("checkbox", model));
-		return fragment;
 	}
 
 	public void updateModel(RepositoryModel repository) {
