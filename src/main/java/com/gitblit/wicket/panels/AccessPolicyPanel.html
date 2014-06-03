@@ -12,14 +12,10 @@
 		
 	<div wicket:id="policiesGroup">
 		<div wicket:id="policies" style="padding-top:4px;">
-			<div style="display: inline-block;vertical-align: top;">
-				<input type="radio" wicket:id="radio" />
-				<img wicket:id="image"></img> 
+			<div>
+				<label style="font-weight:bold;"><input type="radio" wicket:id="radio" /> <img wicket:id="image"></img> <span wicket:id="name"></span></label>
 			</div>
-			<div style="display: inline-block;vertical-align: top;">
-				<b><span wicket:id="name"></span></b><br/>
-				<span class="help-inline" wicket:id="description"></span>
-			</div>
+			<label class="checkbox" style="color:#777;" wicket:id="description"></label>
 		</div>
 	</div>
 	
