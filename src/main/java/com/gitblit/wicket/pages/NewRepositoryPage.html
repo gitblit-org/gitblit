@@ -19,41 +19,13 @@
 		<hr/>
 		
 		<h4><wicket:message key="gb.initialCommit"></wicket:message></h4>
-		<div>
-			<p><wicket:message key="gb.initialCommitDescription"></wicket:message></p>
-		</div>
+		<p><wicket:message key="gb.initialCommitDescription"></wicket:message></p>
 		
-		<div style="clear:both;padding-top:10px;">
-			<div style="display: inline-block;vertical-align: top;">
-				<input type="checkbox" wicket:id="addReadme" />
-			</div>
-			<div style="display: inline-block;">
-				<b><wicket:message key="gb.initWithReadme"></wicket:message></b><br/>
-				<p><wicket:message key="gb.initWithReadmeDescription"></wicket:message></p>
-			</div>
-		</div>
+		<div wicket:id="addReadme"></div>
 		
-		<div style="clear:both;padding-top:10px;display:none;">
-			<!-- future GitFlow -->
-			<div style="display: inline-block;vertical-align: top;">
-				<input type="checkbox" wicket:id="addGitflow" />
-			</div>
-			<div style="display: inline-block;">
-				<b>Include a .gitflow file</b>
-				<p>This will generate a config file which guides Git clients in setting up Gitflow branches.</p>
-			</div>
-		</div>
+		<div wicket:id="addGitIgnore"></div>
 		
-		<div style="clear:both;padding-top:10px;">
-			<div style="display: inline-block;vertical-align: top;">
-				<input type="checkbox" wicket:id="addGitignore" />
-			</div>
-			<div style="display:inline-block;">
-				<b><wicket:message key="gb.initWithGitignore"></wicket:message></b><br/>
-				<p><wicket:message key="gb.initWithGitignoreDescription"></wicket:message></p>
-				<p style="padding-top:5px;"><select class="span2" wicket:id="gitignore" /></p>
-			</div>
-		</div>		
+		<div wicket:id="addGitFlow"></div>
 	</div>
 </div>
 

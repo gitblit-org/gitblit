@@ -22,12 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -60,6 +56,8 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
+import com.gitblit.wicket.panels.CheckboxOption;
+import com.gitblit.wicket.panels.ConditionalChoiceOption;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
 
 public class NewRepositoryPage extends RootSubPage {
@@ -183,7 +181,10 @@ public class NewRepositoryPage extends RootSubPage {
 
 		// add README
 		addReadmeModel = Model.of(false);
-		form.add(new CheckBox("addReadme", addReadmeModel));
+		form.add(new CheckboxOption("addReadme",
+				getString("gb.initWithReadme"),
+				getString("gb.initWithReadmeDescription"),
+				addReadmeModel));
 
 		// add .gitignore
 		File gitignoreDir = app().runtime().getFileOrFolder(Keys.git.gitignoreFolder, "${baseFolder}/gitignore");
@@ -198,29 +199,22 @@ public class NewRepositoryPage extends RootSubPage {
 			}
 		}
 		Collections.sort(gitignores);
+
 		gitignoreModel = Model.of("");
-		final DropDownChoice<String> gitignoreChoice = new DropDownChoice<String>("gitignore", gitignoreModel, gitignores);
-		gitignoreChoice.setOutputMarkupId(true);
-		form.add(gitignoreChoice.setEnabled(false));
-
 		addGitignoreModel = Model.of(false);
-		final CheckBox gitignoreCheckbox = new CheckBox("addGitignore", addGitignoreModel);
-		form.add(gitignoreCheckbox);
+		form.add(new ConditionalChoiceOption<String>("addGitIgnore",
+				getString("gb.initWithGitignore"),
+				getString("gb.initWithGitignoreDescription"),
+				addGitignoreModel,
+				gitignoreModel,
+				gitignores));
 
-		gitignoreCheckbox.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				gitignoreChoice.setEnabled(addGitignoreModel.getObject());
-				target.addComponent(gitignoreChoice);
-			}
-		});
-
-		// TODO add .gitflow
+		// TODO consider gitflow at creation (ticket-55)
 		addGitflowModel = Model.of(false);
-		form.add(new CheckBox("addGitflow", addGitflowModel));
+		form.add(new CheckboxOption("addGitFlow",
+				"Include a .gitflow file",
+				"This will generate a config file which guides Git clients in setting up Gitflow branches.",
+				addGitflowModel).setVisible(false));
 
 		form.add(new Button("create"));
 
