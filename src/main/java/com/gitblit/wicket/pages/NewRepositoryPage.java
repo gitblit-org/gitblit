@@ -130,7 +130,7 @@ public class NewRepositoryPage extends RootSubPage {
 					if (addGitignore) {
 						gitignore = gitignoreModel.getObject();
 						if (StringUtils.isEmpty(gitignore)) {
-							throw new GitBlitException("Please select a .gitignore file");
+							throw new GitBlitException(getString("gb.pleaseSelectGitIgnore"));
 						}
 					}
 
