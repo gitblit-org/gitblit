@@ -27,6 +27,7 @@ r24: {
     - Move repository deletion functions to the edit repository page AND allow deletion to be disabled (pr-180, ticket-67)
     - Update the Korean translation (pr-184, ticket-69)
     - Overhaul the EmptyRepositoryPage (ticket-73)
+    - Overhauled the edit repository page (ticket-76)
     - Process bugtraq links in the ticket description and comments (ticket-78)
     additions:
     - Add My Tickets page (issue-215, ticket-15)
