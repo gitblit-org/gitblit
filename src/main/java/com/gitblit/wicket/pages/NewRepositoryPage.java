@@ -207,7 +207,7 @@ public class NewRepositoryPage extends RootSubPage {
 				getString("gb.initWithGitignoreDescription"),
 				addGitignoreModel,
 				gitignoreModel,
-				gitignores));
+				gitignores).setVisible(gitignores.size() > 0));
 
 		// TODO consider gitflow at creation (ticket-55)
 		addGitflowModel = Model.of(false);
