@@ -51,7 +51,6 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
-import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -87,12 +86,12 @@ public class RepositoriesPanel extends BasePanel {
 					setResponsePage(RepositoriesPage.class);
 				}
 			}.setVisible(app().settings().getBoolean(Keys.git.cacheRepositoryList, true)));
-			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
+			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
 			add(managementLinks);
 		} else if (showManagement && user != null && user.canCreate()) {
 			// user can create personal repositories
 			managementLinks = new Fragment("managementPanel", "personalLinks", this);
-			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
+			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
 			add(managementLinks);
 		} else {
 			// user has no management permissions

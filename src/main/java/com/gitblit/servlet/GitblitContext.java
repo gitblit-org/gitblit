@@ -372,6 +372,22 @@ public class GitblitContext extends DaggerContext {
 			}
 		}
 
+		// Copy the included gitignore files to the configured gitignore folder
+		String gitignorePath = webxmlSettings.getString(Keys.git.gitignoreFolder, "gitignore");
+		File localGitignores = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, base, gitignorePath);
+		if (!localGitignores.exists()) {
+			File warGitignores = new File(contextFolder, "/WEB-INF/data/gitignore");
+			if (!warGitignores.equals(localGitignores)) {
+				try {
+					com.gitblit.utils.FileUtils.copy(localGitignores, warGitignores.listFiles());
+				} catch (IOException e) {
+					logger.error(MessageFormat.format(
+							"Failed to copy included .gitignore files from {0} to {1}",
+							warGitignores, localGitignores));
+				}
+			}
+		}
+
 		// merge the WebXmlSettings into the runtime settings (for backwards-compatibilty)
 		runtimeSettings.merge(webxmlSettings);
 

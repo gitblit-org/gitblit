@@ -1,0 +1,3 @@
+[submodule "src/main/distrib/data/gitignore"]
+	path = src/main/distrib/data/gitignore
+	url = https://github.com/github/gitignore.git

@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<table class="plain">
+		<tbody class="settings">
+			<tr>
+				<th><wicket:message key="gb.project"></wicket:message></th>
+				<th><wicket:message key="gb.name"></wicket:message></th>
+			</tr>
+			<tr>
+				<td><select class="span2" wicket:id="projectPath" /></td>
+				<td class="edit"><input class="span4" type="text" wicket:id="name" id="name" /> &nbsp;<span class="help-inline"><wicket:message key="gb.nameDescription"></wicket:message></span></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<div>
+		<b><wicket:message key="gb.description"></wicket:message></b><br/>
+		<input class="span5" type="text" wicket:id="description" />
+	</div>
+			
+</wicket:panel>
+</body>
+</html>

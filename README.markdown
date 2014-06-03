@@ -4,13 +4,18 @@ Gitblit
 Gitblit is an open source, pure Java Git solution for managing, viewing, and serving [Git](http://git-scm.com) repositories.
 More information about Gitblit can be found [here](http://gitblit.com).
 
-[ ![Download](https://api.bintray.com/packages/gitblit/releases/stable/images/download.png) ](https://bintray.com/gitblit/releases/stable/_latestVersion)
+<a href='https://bintray.com/gitblit/releases/gitblit/_latestVersion'><img src='https://api.bintray.com/packages/gitblit/releases/gitblit/images/download.png'></a>
 
 License
 -------
 
 Gitblit is distributed under the terms of the [Apache Software Foundation license, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 The text of the license is included in the file LICENSE in the root of the project.
+
+Contributing
+------------
+
+GitHub pull requests are preferred.  Any contributions must be distributed under the terms of the [Apache Software Foundation license, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 Java Runtime Requirement
 ------------------------------------
@@ -25,6 +30,10 @@ Issues, binaries, & sources @ [Google Code](http://code.google.com/p/gitblit)
 
 Building Gitblit
 ----------------
+
+Gitblit uses submodules.
+Make sure to clone using `--recursive` OR to execute `git submodule update --init --recursive`.
+
 [Eclipse](http://eclipse.org) is recommended for development as the project settings are preconfigured.
 
 1. Import the gitblit project into your Eclipse workspace.
