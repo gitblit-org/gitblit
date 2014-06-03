@@ -43,7 +43,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -72,8 +71,11 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
 import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 import com.gitblit.wicket.panels.BulletListPanel;
+import com.gitblit.wicket.panels.CheckboxOption;
+import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
+import com.gitblit.wicket.panels.TextOption;
 
 public class EditRepositoryPage extends RootSubPage {
 
@@ -417,7 +419,7 @@ public class EditRepositoryPage extends RootSubPage {
 
 		// XXX AccessPolicyPanel is defined later.
 
-		form.add(newChoice("head",
+		form.add(new ChoiceOption<String>("head",
 				getString("gb.headRef"),
 				getString("gb.headRefDescription"),
 				new PropertyModel<String>(repositoryModel, "HEAD"),
@@ -434,22 +436,22 @@ public class EditRepositoryPage extends RootSubPage {
 		//
 		// TICKETS
 		//
-		form.add(newCheckbox("acceptNewPatchsets",
+		form.add(new CheckboxOption("acceptNewPatchsets",
 				getString("gb.acceptNewPatchsets"),
 				getString("gb.acceptNewPatchsetsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "acceptNewPatchsets")));
 
-		form.add(newCheckbox("acceptNewTickets",
+		form.add(new CheckboxOption("acceptNewTickets",
 				getString("gb.acceptNewTickets"),
 				getString("gb.acceptNewTicketsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "acceptNewPatchsets")));
 
-		form.add(newCheckbox("requireApproval",
+		form.add(new CheckboxOption("requireApproval",
 				getString("gb.requireApproval"),
 				getString("gb.requireApprovalDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "requireApproval")));
 
-		form.add(newChoice("mergeTo",
+		form.add(new ChoiceOption<String>("mergeTo",
 				getString("gb.mergeTo"),
 				getString("gb.mergeToDescription"),
 				new PropertyModel<String>(repositoryModel, "mergeTo"),
@@ -458,22 +460,22 @@ public class EditRepositoryPage extends RootSubPage {
 		//
 		// RECEIVE
 		//
-		form.add(newCheckbox("isFrozen",
+		form.add(new CheckboxOption("isFrozen",
 				getString("gb.isFrozen"),
 				getString("gb.isFrozenDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "isFrozen")));
 
-		form.add(newCheckbox("incrementalPushTags",
+		form.add(new CheckboxOption("incrementalPushTags",
 				getString("gb.enableIncrementalPushTags"),
 				getString("gb.useIncrementalPushTagsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "useIncrementalPushTags")));
 
 		final CheckBox verifyCommitter = new CheckBox("checkbox", new PropertyModel<Boolean>(repositoryModel, "verifyCommitter"));
 		verifyCommitter.setOutputMarkupId(true);
-		form.add(newCheckbox("verifyCommitter",
+		form.add(new CheckboxOption("verifyCommitter",
 				getString("gb.verifyCommitter"),
-				getString("gb.verifyCommitterDescription"),
-				verifyCommitter));
+				getString("gb.verifyCommitterDescription") + "<br/>" + getString("gb.verifyCommitterNote"),
+				verifyCommitter).setIsHtmlDescription(true));
 
 		form.add(preReceivePalette);
 		form.add(new BulletListPanel("inheritedPreReceive", getString("gb.inherited"), app().repositories()
@@ -496,7 +498,7 @@ public class EditRepositoryPage extends RootSubPage {
 			federationStrategies.remove(FederationStrategy.FEDERATE_ORIGIN);
 		}
 
-		form.add(newChoice("federationStrategy",
+		form.add(new ChoiceOption<FederationStrategy>("federationStrategy",
 				getString("gb.federationStrategy"),
 				getString("gb.federationStrategyDescription"),
 				new DropDownChoice<FederationStrategy>(
@@ -521,7 +523,7 @@ public class EditRepositoryPage extends RootSubPage {
 			repositoryModel.gcPeriod = defaultGcPeriod;
 		}
 		List<Integer> gcPeriods = Arrays.asList(1, 2, 3, 4, 5, 7, 10, 14 );
-		form.add(newChoice("gcPeriod",
+		form.add(new ChoiceOption<Integer>("gcPeriod",
 				getString("gb.gcPeriod"),
 				getString("gb.gcPeriodDescription"),
 				new DropDownChoice<Integer>("choice",
@@ -529,7 +531,7 @@ public class EditRepositoryPage extends RootSubPage {
 						gcPeriods,
 						new GCPeriodRenderer())).setEnabled(gcEnabled));
 
-		form.add(newTextfield("gcThreshold",
+		form.add(new TextOption("gcThreshold",
 				getString("gb.gcThreshold"),
 				getString("gb.gcThresholdDescription"),
 				"span1",
@@ -539,29 +541,29 @@ public class EditRepositoryPage extends RootSubPage {
 		// MISCELLANEOUS
 		//
 
-		form.add(newTextfield("origin",
+		form.add(new TextOption("origin",
 				getString("gb.origin"),
 				getString("gb.originDescription"),
 				"span6",
 				new PropertyModel<String>(repositoryModel, "origin")).setEnabled(false));
 
-		form.add(newCheckbox("showRemoteBranches",
+		form.add(new CheckboxOption("showRemoteBranches",
 				getString("gb.showRemoteBranches"),
 				getString("gb.showRemoteBranchesDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "showRemoteBranches")));
 
-		form.add(newCheckbox("skipSizeCalculation",
+		form.add(new CheckboxOption("skipSizeCalculation",
 				getString("gb.skipSizeCalculation"),
 				getString("gb.skipSizeCalculationDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "skipSizeCalculation")));
 
-		form.add(newCheckbox("skipSummaryMetrics",
+		form.add(new CheckboxOption("skipSummaryMetrics",
 				getString("gb.skipSummaryMetrics"),
 				getString("gb.skipSummaryMetricsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "skipSummaryMetrics")));
 
 		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500);
-		form.add(newChoice("maxActivityCommits",
+		form.add(new ChoiceOption<Integer>("maxActivityCommits",
 				getString("gb.maxActivityCommits"),
 				getString("gb.maxActivityCommitsDescription"),
 				new DropDownChoice<Integer>("choice",
@@ -570,7 +572,7 @@ public class EditRepositoryPage extends RootSubPage {
 						new MaxActivityCommitsRenderer())));
 
 		List<CommitMessageRenderer> renderers = Arrays.asList(CommitMessageRenderer.values());
-		form.add(newChoice("commitMessageRenderer",
+		form.add(new ChoiceOption<CommitMessageRenderer>("commitMessageRenderer",
 				getString("gb.commitMessageRenderer"),
 				getString("gb.commitMessageRendererDescription"),
 				new DropDownChoice<CommitMessageRenderer>("choice",
@@ -580,7 +582,7 @@ public class EditRepositoryPage extends RootSubPage {
 		metricAuthorExclusions = new Model<String>(ArrayUtils.isEmpty(repositoryModel.metricAuthorExclusions) ? ""
 				: StringUtils.flattenStrings(repositoryModel.metricAuthorExclusions, " "));
 
-		form.add(newTextfield("metricAuthorExclusions",
+		form.add(new TextOption("metricAuthorExclusions",
 				getString("gb.metricAuthorExclusions"),
 				getString("gb.metricAuthorExclusions"),
 				"span6",
@@ -589,7 +591,7 @@ public class EditRepositoryPage extends RootSubPage {
 		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
 				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
 
-		form.add(newTextfield("mailingLists",
+		form.add(new TextOption("mailingLists",
 				getString("gb.mailingLists"),
 				getString("gb.mailingLists"),
 				"span6",
@@ -750,50 +752,6 @@ public class EditRepositoryPage extends RootSubPage {
 			// No Administration Permitted
 			error(getString("gb.errorAdministrationDisabled"), true);
 		}
-	}
-
-	private Fragment newCheckbox(String wicketId, String title, String description, IModel<Boolean> model) {
-		Fragment fragment = new Fragment(wicketId, "checkboxOption", this);
-		fragment.add(new Label("name", title));
-		fragment.add(new Label("description", description));
-		fragment.add(new CheckBox("checkbox", model));
-		return fragment;
-	}
-
-	private Fragment newCheckbox(String wicketId, String title, String description, CheckBox checkbox) {
-		Fragment fragment = new Fragment(wicketId, "checkboxOption", this);
-		fragment.add(new Label("name", title));
-		fragment.add(new Label("description", description));
-		fragment.add(checkbox);
-		return fragment;
-	}
-
-	private <T> Fragment newChoice(String wicketId, String title, String description, IModel<T> model, List<T> choices) {
-		Fragment fragment = new Fragment(wicketId, "choiceOption", this);
-		fragment.add(new Label("name", title));
-		fragment.add(new Label("description", description));
-		fragment.add(new DropDownChoice<>("choice", model, choices).setEnabled(choices.size() > 0));
-		return fragment;
-	}
-
-	private <T> Fragment newChoice(String wicketId, String title, String description, DropDownChoice<?> choice) {
-		Fragment fragment = new Fragment(wicketId, "choiceOption", this);
-		fragment.add(new Label("name", title));
-		fragment.add(new Label("description", description));
-		fragment.add(choice.setEnabled(choice.getChoices().size() > 0));
-		return fragment;
-	}
-
-	private Fragment newTextfield(String wicketId, String title, String description, String css, IModel<String> model) {
-		Fragment fragment = new Fragment(wicketId, "textfieldOption", this);
-		fragment.add(new Label("name", title));
-		fragment.add(new Label("description", description));
-		TextField<String> tf = new TextField<String>("text", model);
-		if (!StringUtils.isEmpty(css)) {
-			WicketUtils.setCssClass(tf, css);
-		}
-		fragment.add(tf);
-		return fragment;
 	}
 
 
