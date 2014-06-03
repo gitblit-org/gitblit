@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -145,11 +146,17 @@ public class AccessPolicyPanel extends BasePanel {
 		}
 		add(policiesGroup);
 
-		allowForks = Model.of(true);
-		add(new CheckboxOption("allowForks",
+		allowForks = Model.of(app().settings().getBoolean(Keys.web.allowForking, true));
+		if (allowForks.getObject()) {
+			Fragment fragment = new Fragment("allowForks", "allowForksFragment", this);
+			fragment.add(new CheckboxOption("allowForks",
 				getString("gb.allowForks"),
 				getString("gb.allowForksDescription"),
-				allowForks).setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
+				allowForks));
+			add(fragment);
+		} else {
+			add(new Label("allowForks").setVisible(false));
+		}
 
 		setOutputMarkupId(true);
 	}
