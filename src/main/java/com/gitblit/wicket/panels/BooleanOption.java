@@ -29,25 +29,25 @@ import org.parboiled.common.StringUtils;
  * @author James Moger
  *
  */
-public class CheckboxOption extends BasePanel {
+public class BooleanOption extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public CheckboxOption(String wicketId, String title, String description, IModel<Boolean> model) {
+	public BooleanOption(String wicketId, String title, String description, IModel<Boolean> model) {
 		super(wicketId);
 		add(new Label("name", title));
 		add(new Label("description", description).setVisible(!StringUtils.isEmpty(description)));
 		add(new CheckBox("checkbox", model));
 	}
 
-	public CheckboxOption(String wicketId, String title, String description, CheckBox checkbox) {
+	public BooleanOption(String wicketId, String title, String description, CheckBox checkbox) {
 		super(wicketId);
 		add(new Label("name", title));
 		add(new Label("description", description).setVisible(!StringUtils.isEmpty(description)));
 		add(checkbox.setMarkupId("checkbox"));
 	}
 
-	public CheckboxOption setIsHtmlDescription(boolean val) {
+	public BooleanOption setIsHtmlDescription(boolean val) {
 		((Label) get("description")).setEscapeModelStrings(!val);
 		return this;
 	}

@@ -56,8 +56,8 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
-import com.gitblit.wicket.panels.CheckboxOption;
-import com.gitblit.wicket.panels.ConditionalChoiceOption;
+import com.gitblit.wicket.panels.BooleanOption;
+import com.gitblit.wicket.panels.BooleanChoiceOption;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
 
 public class NewRepositoryPage extends RootSubPage {
@@ -181,7 +181,7 @@ public class NewRepositoryPage extends RootSubPage {
 
 		// add README
 		addReadmeModel = Model.of(false);
-		form.add(new CheckboxOption("addReadme",
+		form.add(new BooleanOption("addReadme",
 				getString("gb.initWithReadme"),
 				getString("gb.initWithReadmeDescription"),
 				addReadmeModel));
@@ -202,7 +202,7 @@ public class NewRepositoryPage extends RootSubPage {
 
 		gitignoreModel = Model.of("");
 		addGitignoreModel = Model.of(false);
-		form.add(new ConditionalChoiceOption<String>("addGitIgnore",
+		form.add(new BooleanChoiceOption<String>("addGitIgnore",
 				getString("gb.initWithGitignore"),
 				getString("gb.initWithGitignoreDescription"),
 				addGitignoreModel,
@@ -211,7 +211,7 @@ public class NewRepositoryPage extends RootSubPage {
 
 		// TODO consider gitflow at creation (ticket-55)
 		addGitflowModel = Model.of(false);
-		form.add(new CheckboxOption("addGitFlow",
+		form.add(new BooleanOption("addGitFlow",
 				"Include a .gitflow file",
 				"This will generate a config file which guides Git clients in setting up Gitflow branches.",
 				addGitflowModel).setVisible(false));

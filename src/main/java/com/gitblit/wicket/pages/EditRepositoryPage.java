@@ -71,7 +71,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
 import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 import com.gitblit.wicket.panels.BulletListPanel;
-import com.gitblit.wicket.panels.CheckboxOption;
+import com.gitblit.wicket.panels.BooleanOption;
 import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
@@ -436,17 +436,17 @@ public class EditRepositoryPage extends RootSubPage {
 		//
 		// TICKETS
 		//
-		form.add(new CheckboxOption("acceptNewPatchsets",
+		form.add(new BooleanOption("acceptNewPatchsets",
 				getString("gb.acceptNewPatchsets"),
 				getString("gb.acceptNewPatchsetsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "acceptNewPatchsets")));
 
-		form.add(new CheckboxOption("acceptNewTickets",
+		form.add(new BooleanOption("acceptNewTickets",
 				getString("gb.acceptNewTickets"),
 				getString("gb.acceptNewTicketsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "acceptNewPatchsets")));
 
-		form.add(new CheckboxOption("requireApproval",
+		form.add(new BooleanOption("requireApproval",
 				getString("gb.requireApproval"),
 				getString("gb.requireApprovalDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "requireApproval")));
@@ -460,19 +460,19 @@ public class EditRepositoryPage extends RootSubPage {
 		//
 		// RECEIVE
 		//
-		form.add(new CheckboxOption("isFrozen",
+		form.add(new BooleanOption("isFrozen",
 				getString("gb.isFrozen"),
 				getString("gb.isFrozenDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "isFrozen")));
 
-		form.add(new CheckboxOption("incrementalPushTags",
+		form.add(new BooleanOption("incrementalPushTags",
 				getString("gb.enableIncrementalPushTags"),
 				getString("gb.useIncrementalPushTagsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "useIncrementalPushTags")));
 
 		final CheckBox verifyCommitter = new CheckBox("checkbox", new PropertyModel<Boolean>(repositoryModel, "verifyCommitter"));
 		verifyCommitter.setOutputMarkupId(true);
-		form.add(new CheckboxOption("verifyCommitter",
+		form.add(new BooleanOption("verifyCommitter",
 				getString("gb.verifyCommitter"),
 				getString("gb.verifyCommitterDescription") + "<br/>" + getString("gb.verifyCommitterNote"),
 				verifyCommitter).setIsHtmlDescription(true));
@@ -547,17 +547,17 @@ public class EditRepositoryPage extends RootSubPage {
 				"span6",
 				new PropertyModel<String>(repositoryModel, "origin")).setEnabled(false));
 
-		form.add(new CheckboxOption("showRemoteBranches",
+		form.add(new BooleanOption("showRemoteBranches",
 				getString("gb.showRemoteBranches"),
 				getString("gb.showRemoteBranchesDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "showRemoteBranches")));
 
-		form.add(new CheckboxOption("skipSizeCalculation",
+		form.add(new BooleanOption("skipSizeCalculation",
 				getString("gb.skipSizeCalculation"),
 				getString("gb.skipSizeCalculationDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "skipSizeCalculation")));
 
-		form.add(new CheckboxOption("skipSummaryMetrics",
+		form.add(new BooleanOption("skipSummaryMetrics",
 				getString("gb.skipSummaryMetrics"),
 				getString("gb.skipSummaryMetricsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "skipSummaryMetrics")));

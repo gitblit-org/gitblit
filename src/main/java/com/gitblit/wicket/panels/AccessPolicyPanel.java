@@ -149,7 +149,7 @@ public class AccessPolicyPanel extends BasePanel {
 		allowForks = Model.of(app().settings().getBoolean(Keys.web.allowForking, true));
 		if (allowForks.getObject()) {
 			Fragment fragment = new Fragment("allowForks", "allowForksFragment", this);
-			fragment.add(new CheckboxOption("allowForks",
+			fragment.add(new BooleanOption("allowForks",
 				getString("gb.allowForks"),
 				getString("gb.allowForksDescription"),
 				allowForks));

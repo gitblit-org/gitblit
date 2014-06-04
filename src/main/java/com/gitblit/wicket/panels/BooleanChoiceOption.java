@@ -35,14 +35,14 @@ import org.parboiled.common.StringUtils;
  * @author James Moger
  *
  */
-public class ConditionalChoiceOption<T> extends BasePanel {
+public class BooleanChoiceOption<T> extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	final CheckBox checkbox;
 	final DropDownChoice<T> choice;
 
-	public ConditionalChoiceOption(String wicketId, String title, String description, IModel<Boolean> checkboxModel, IModel<T> choiceModel, List<T> choices) {
+	public BooleanChoiceOption(String wicketId, String title, String description, IModel<Boolean> checkboxModel, IModel<T> choiceModel, List<T> choices) {
 		super(wicketId);
 		add(new Label("name", title));
 		add(new Label("description", description).setVisible(!StringUtils.isEmpty(description)));
