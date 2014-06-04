@@ -15,19 +15,27 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.eclipse.jgit.lib.PersonIdent;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
+import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.Menu.ParameterMenuItem;
 import com.gitblit.models.NavLink;
@@ -40,9 +48,10 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.GravatarImage;
-import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.ProjectRepositoryPanel;
+import com.gitblit.wicket.panels.TextOption;
+import com.gitblit.wicket.panels.UserTitlePanel;
 
 public class UserPage extends RootPage {
 
@@ -83,21 +92,18 @@ public class UserPage extends RootPage {
 			user = new UserModel(userName);
 		}
 
-		add(new Label("userDisplayName", user.getDisplayName()));
-		add(new Label("userUsername", user.username));
-		LinkPanel email = new LinkPanel("userEmail", null, user.emailAddress, "mailto:#");
-		email.setRenderBodyOnly(true);
-		add(email.setVisible(app().settings().getBoolean(Keys.web.showEmailAddresses, true) && !StringUtils.isEmpty(user.emailAddress)));
 
-		PersonIdent person = new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.getDisplayName() : user.emailAddress);
-		add(new GravatarImage("gravatar", person, 210));
+		add(new UserTitlePanel("userTitlePanel", user, user.username));
 
 		UserModel sessionUser = GitBlitWebSession.get().getUser();
-		if (sessionUser != null && user.canCreate() && sessionUser.equals(user)) {
-			// user can create personal repositories
-			add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
+		boolean isMyProfile = sessionUser != null && sessionUser.equals(user);
+
+		if (isMyProfile) {
+			addPreferences(user);
 		} else {
-			add(new Label("newRepository").setVisible(false));
+			// visiting user
+			add(new Label("preferencesLink").setVisible(false));
+			add(new Label("preferencesTab").setVisible(false));
 		}
 
 		List<RepositoryModel> repositories = getRepositories(params);
@@ -144,5 +150,122 @@ public class UserPage extends RootPage {
 		}
 
 		navLinks.add(menu);
+	}
+
+	private void addPreferences(UserModel user) {
+		// add preferences
+		Form<Void> prefs = new Form<Void>("prefsForm");
+
+		List<Language> languages = Arrays.asList(
+				new Language("English","en"),
+				new Language("Español", "es"),
+				new Language("Français", "fr"),
+				new Language("日本語", "ja"),
+				new Language("한국말", "ko"),
+				new Language("Nederlands", "nl"),
+				new Language("Norsk", "no"),
+				new Language("Język Polski", "pl"),
+				new Language("Português", "pt_BR"),
+				new Language("中文", "zh_CN"));
+
+		String lc = user.getPreferences().locale;
+		if (StringUtils.isEmpty(lc)) {
+			// user has not specified language preference
+			// try server default preference
+			lc = app().settings().getString(Keys.web.forceDefaultLocale, null);
+			if (StringUtils.isEmpty(lc)) {
+				// server default language is not configured
+				// try browser preference
+				Locale sessionLocale = GitBlitWebSession.get().getLocale();
+				if (sessionLocale != null) {
+					lc = sessionLocale.getLanguage() + "_" + sessionLocale.getCountry();
+				}
+			}
+		}
+		Language preferredLanguage = null;
+		if (!StringUtils.isEmpty(lc)) {
+			for (Language language : languages) {
+				if (language.code.equals(lc)) {
+					// language_COUNTRY match
+					preferredLanguage = language;
+				} else if (preferredLanguage != null && lc.startsWith(language.code)) {
+					// language match, but not COUNTRY match
+					preferredLanguage = language;
+				}
+			}
+		}
+
+		final IModel<String> displayName = Model.of(user.getDisplayName());
+		final IModel<String> emailAddress = Model.of(user.emailAddress == null ? "" : user.emailAddress);
+		final IModel<Language> language = Model.of(preferredLanguage);
+
+		prefs.add(new TextOption("displayName",
+				getString("gb.displayName"),
+				getString("gb.displayNameDescription"),
+				displayName).setVisible(app().authentication().supportsDisplayNameChanges(user)));
+
+		prefs.add(new TextOption("emailAddress",
+				getString("gb.emailAddress"),
+				getString("gb.emailAddressDescription"),
+				emailAddress).setVisible(app().authentication().supportsEmailAddressChanges(user)));
+
+		prefs.add(new ChoiceOption<Language>("language",
+				getString("gb.languagePreference"),
+				getString("gb.languagePreferenceDescription"),
+				language,
+				languages));
+
+		prefs.add(new AjaxButton("save") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				UserModel user = GitBlitWebSession.get().getUser();
+
+				user.displayName = displayName.getObject();
+				user.emailAddress = emailAddress.getObject();
+
+				Language lang = language.getObject();
+				if (lang != null) {
+					user.getPreferences().locale = lang.code;
+				}
+
+				try {
+					app().gitblit().reviseUser(user.username, user);
+
+					setRedirect(true);
+					setResponsePage(UserPage.class, WicketUtils.newUsernameParameter(user.username));
+				} catch (GitBlitException e) {
+					// logger.error("Failed to update user " + user.username, e);
+					// error(getString("gb.failedToUpdateUser"), false);
+				}
+			}
+		});
+
+		// add the preferences tab
+		add(new Fragment("preferencesLink", "preferencesLinkFragment", this).setRenderBodyOnly(true));
+		Fragment fragment = new Fragment("preferencesTab", "preferencesTabFragment", this);
+		fragment.add(prefs);
+		add(fragment.setRenderBodyOnly(true));
+	}
+
+	private class Language implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		final String name;
+		final String code;
+
+		public Language(String name, String code) {
+			this.name = name;
+			this.code = code;
+		}
+
+		@Override
+		public String toString() {
+			return name + " (" + code +")";
+		}
 	}
 }
