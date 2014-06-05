@@ -15,16 +15,15 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -39,7 +38,7 @@ import com.gitblit.wicket.GitBlitWebSession;
 
 
 /**
- * A panel that enumerates and manages SSH public keys.
+ * A panel that enumerates and manages SSH public keys using AJAX.
  *
  * @author James Moger
  *
@@ -50,25 +49,21 @@ public class SshKeysPanel extends BasePanel {
 
 	private final UserModel user;
 
-	private final Class<? extends WebPage> pageClass;
-
-	private final PageParameters params;
-
-	public SshKeysPanel(String wicketId, UserModel user, Class<? extends WebPage> pageClass, PageParameters params) {
+	public SshKeysPanel(String wicketId, UserModel user) {
 		super(wicketId);
 
 		this.user = user;
-		this.pageClass = pageClass;
-		this.params = params;
 	}
 
 	@Override
 	protected void onInitialize() {
 		super.onInitialize();
-		List<SshKey> keys = app().keys().getKeys(user.username);
 
+		setOutputMarkupId(true);
+
+		final List<SshKey> keys = new ArrayList<SshKey>(app().keys().getKeys(user.username));
 		final ListDataProvider<SshKey> dp = new ListDataProvider<SshKey>(keys);
-		DataView<SshKey> keysView = new DataView<SshKey>("keys", dp) {
+		final DataView<SshKey> keysView = new DataView<SshKey>("keys", dp) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -79,15 +74,19 @@ public class SshKeysPanel extends BasePanel {
 				item.add(new Label("permission", key.getPermission().toString()));
 				item.add(new Label("algorithm", key.getAlgorithm()));
 
-				Link<Void> delete = new Link<Void>("delete") {
+				AjaxLink<Void> delete = new AjaxLink<Void>("delete") {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick() {
+					public void onClick(AjaxRequestTarget target) {
 						if (app().keys().removeKey(user.username, key)) {
-							setRedirect(true);
-							setResponsePage(pageClass, params);
+							// reset the keys list
+							keys.clear();
+							keys.addAll(app().keys().getKeys(user.username));
+
+							// update the panel
+							target.addComponent(SshKeysPanel.this);
 						}
 					}
 				};
@@ -150,8 +149,17 @@ public class SshKeysPanel extends BasePanel {
 				}
 
 				if (app().keys().addKey(user.username, key)) {
-					setRedirect(true);
-					setResponsePage(pageClass, params);
+					// reset add key fields
+					keyData.setObject("");
+					keyPermission.setObject(AccessPermission.PUSH);
+					keyComment.setObject("");
+
+					// reset the keys list
+					keys.clear();
+					keys.addAll(app().keys().getKeys(user.username));
+
+					// update the panel
+					target.addComponent(SshKeysPanel.this);
 				}
 			}
 		});

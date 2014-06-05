@@ -283,7 +283,7 @@ public class UserPage extends RootPage {
 
 	private void addSshKeys(final UserModel user) {
 		Fragment keysTab = new Fragment("sshKeysTab", "sshKeysTabFragment", this);
-		keysTab.add(new SshKeysPanel("sshKeysPanel", user, getClass(), getPageParameters()));
+		keysTab.add(new SshKeysPanel("sshKeysPanel", user));
 
 		// add the SSH keys tab
 		add(new Fragment("sshKeysLink", "sshKeysLinkFragment", this).setRenderBodyOnly(true));
