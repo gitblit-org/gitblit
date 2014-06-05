@@ -20,6 +20,7 @@
 				<ul class="nav nav-tabs">
 					<li class="active"><a href="#repositories" data-toggle="tab"><wicket:message key="gb.repositories"></wicket:message></a></li>
 					<div wicket:id="preferencesLink"></div>
+					<div wicket:id="sshKeysLink"></div>
 				</ul>
 	
 				<!-- tab content -->
@@ -37,6 +38,9 @@
 					<!-- preferences tab -->
 					<div wicket:id="preferencesTab"></div>
 					
+					<!-- ssh keys tab -->
+					<div wicket:id="sshKeysTab"></div>
+					
 				</div>
 			</div>
 		</div>
@@ -45,6 +49,10 @@
 
 <wicket:fragment wicket:id="preferencesLinkFragment">
 	<li><a href="#preferences" data-toggle="tab"><wicket:message key="gb.preferences"></wicket:message></a></li>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="sshKeysLinkFragment">
+	<li><a href="#ssh" data-toggle="tab"><wicket:message key="gb.sshKeys"></wicket:message></a></li>
 </wicket:fragment>
 
 <wicket:fragment wicket:id="preferencesTabFragment">
@@ -60,6 +68,12 @@
 			
 			<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" /></div>
 		</form>	
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="sshKeysTabFragment">
+	<div class="tab-pane" id="ssh">
+		<div wicket:id="sshKeysPanel"></div>		
 	</div>
 </wicket:fragment>
 

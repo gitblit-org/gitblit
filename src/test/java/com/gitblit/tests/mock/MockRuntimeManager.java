@@ -82,6 +82,21 @@ public class MockRuntimeManager implements IRuntimeManager {
 	}
 
 	@Override
+	public boolean isServingHTTP() {
+		return true;
+	}
+
+	@Override
+	public boolean isServingGIT() {
+		return true;
+	}
+
+	@Override
+	public boolean isServingSSH() {
+		return true;
+	}
+
+	@Override
 	public boolean isDebugMode() {
 		return true;
 	}

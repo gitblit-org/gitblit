@@ -112,9 +112,21 @@ public class ServicesManager implements IManager {
 	}
 
 	public boolean isServingRepositories() {
-		return settings.getBoolean(Keys.git.enableGitServlet, true)
-				|| (gitDaemon != null && gitDaemon.isRunning())
-				|| (sshDaemon != null && sshDaemon.isRunning());
+		return isServingHTTP()
+				|| isServingGIT()
+				|| isServingSSH();
+	}
+
+	public boolean isServingHTTP() {
+		return settings.getBoolean(Keys.git.enableGitServlet, true);
+	}
+
+	public boolean isServingGIT() {
+		return gitDaemon != null && gitDaemon.isRunning();
+	}
+
+	public boolean isServingSSH() {
+		return sshDaemon != null && sshDaemon.isRunning();
 	}
 
 	protected void configureFederation() {

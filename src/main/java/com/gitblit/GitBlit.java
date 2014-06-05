@@ -117,6 +117,21 @@ public class GitBlit extends GitblitManager {
 		return servicesManager.isServingRepositories();
 	}
 
+	@Override
+	public boolean isServingHTTP() {
+		return servicesManager.isServingHTTP();
+	}
+
+	@Override
+	public boolean isServingGIT() {
+		return servicesManager.isServingGIT();
+	}
+
+	@Override
+	public boolean isServingSSH() {
+		return servicesManager.isServingSSH();
+	}
+
 	protected Object [] getModules() {
 		return new Object [] { new GitBlitModule()};
 	}

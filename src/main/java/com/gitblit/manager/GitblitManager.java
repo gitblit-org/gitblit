@@ -602,6 +602,21 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public boolean isServingHTTP() {
+		return runtimeManager.isServingHTTP();
+	}
+
+	@Override
+	public boolean isServingGIT() {
+		return runtimeManager.isServingGIT();
+	}
+
+	@Override
+	public boolean isServingSSH() {
+		return runtimeManager.isServingSSH();
+	}
+
+	@Override
 	public TimeZone getTimezone() {
 		return runtimeManager.getTimezone();
 	}

@@ -50,6 +50,7 @@ import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.ProjectRepositoryPanel;
+import com.gitblit.wicket.panels.SshKeysPanel;
 import com.gitblit.wicket.panels.TextOption;
 import com.gitblit.wicket.panels.UserTitlePanel;
 
@@ -100,10 +101,22 @@ public class UserPage extends RootPage {
 
 		if (isMyProfile) {
 			addPreferences(user);
+
+			if (app().gitblit().isServingSSH()) {
+				// show the SSH key management tab
+				addSshKeys(user);
+			} else {
+				// SSH daemon is disabled, hide keys tab
+				add(new Label("sshKeysLink").setVisible(false));
+				add(new Label("sshKeysTab").setVisible(false));
+			}
 		} else {
 			// visiting user
 			add(new Label("preferencesLink").setVisible(false));
 			add(new Label("preferencesTab").setVisible(false));
+
+			add(new Label("sshKeysLink").setVisible(false));
+			add(new Label("sshKeysTab").setVisible(false));
 		}
 
 		List<RepositoryModel> repositories = getRepositories(params);
@@ -249,6 +262,15 @@ public class UserPage extends RootPage {
 		Fragment fragment = new Fragment("preferencesTab", "preferencesTabFragment", this);
 		fragment.add(prefs);
 		add(fragment.setRenderBodyOnly(true));
+	}
+
+	private void addSshKeys(final UserModel user) {
+		Fragment keysTab = new Fragment("sshKeysTab", "sshKeysTabFragment", this);
+		keysTab.add(new SshKeysPanel("sshKeysPanel", user, getClass(), getPageParameters()));
+
+		// add the SSH keys tab
+		add(new Fragment("sshKeysLink", "sshKeysLinkFragment", this).setRenderBodyOnly(true));
+		add(keysTab.setRenderBodyOnly(true));
 	}
 
 	private class Language implements Serializable {
