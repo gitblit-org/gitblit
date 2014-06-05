@@ -661,6 +661,11 @@ public class GitblitManager implements IGitblit {
 	 */
 
 	@Override
+	public boolean isSendingMail() {
+		return notificationManager.isSendingMail();
+	}
+
+	@Override
 	public void sendMailToAdministrators(String subject, String message) {
 		notificationManager.sendMailToAdministrators(subject, message);
 	}

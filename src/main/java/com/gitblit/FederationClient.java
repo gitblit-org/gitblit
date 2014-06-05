@@ -166,6 +166,11 @@ public class FederationClient {
 		}
 
 		@Override
+		public boolean isSendingMail() {
+			return false;
+		}
+
+		@Override
 		public void sendMailToAdministrators(String subject, String message) {
 		}
 
