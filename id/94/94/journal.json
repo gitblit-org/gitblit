@@ -1,0 +1,1 @@
+[{"date":"2014-06-05T15:52:23Z","author":"james","fields":{"title":"Add watch repository feature","body":"Would be useful to allow a user to subscribe to:\n\n1. repository ticket open/close state changes\n2. repository pushes","topic":"issue-425","type":"Enhancement","responsible":"james","mergeTo":"develop","watchers":"+james","status":"New"}}]
