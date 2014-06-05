@@ -707,8 +707,9 @@ public class ConfigUserService implements IUserService {
 				config.setBoolean(USER, model.username, DISABLED, true);
 			}
 			if (model.getPreferences() != null) {
-				if (!StringUtils.isEmpty(model.getPreferences().locale)) {
-					config.setString(USER, model.username, LOCALE, model.getPreferences().locale);
+				if (model.getPreferences().getLocale() != null) {
+					String val = model.getPreferences().getLocale().getLanguage() + "_" + model.getPreferences().getLocale().getCountry();
+					config.setString(USER, model.username, LOCALE, val);
 				}
 			}
 
@@ -880,10 +881,12 @@ public class ConfigUserService implements IUserService {
 					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
 					user.countryCode = config.getString(USER, username, COUNTRYCODE);
 					user.cookie = config.getString(USER, username, COOKIE);
-					user.getPreferences().locale = config.getString(USER, username, LOCALE);
 					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
 						user.cookie = StringUtils.getSHA1(user.username + user.password);
 					}
+
+					// preferences
+					user.getPreferences().setLocale(config.getString(USER, username, LOCALE));
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(

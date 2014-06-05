@@ -181,28 +181,36 @@ public class UserPage extends RootPage {
 				new Language("Português", "pt_BR"),
 				new Language("中文", "zh_CN"));
 
-		String lc = user.getPreferences().locale;
-		if (StringUtils.isEmpty(lc)) {
+		Locale locale = user.getPreferences().getLocale();
+		if (locale == null) {
 			// user has not specified language preference
 			// try server default preference
-			lc = app().settings().getString(Keys.web.forceDefaultLocale, null);
+			String lc = app().settings().getString(Keys.web.forceDefaultLocale, null);
 			if (StringUtils.isEmpty(lc)) {
 				// server default language is not configured
 				// try browser preference
 				Locale sessionLocale = GitBlitWebSession.get().getLocale();
 				if (sessionLocale != null) {
-					lc = sessionLocale.getLanguage() + "_" + sessionLocale.getCountry();
+					locale = sessionLocale;
 				}
+			} else {
+
 			}
 		}
+
 		Language preferredLanguage = null;
-		if (!StringUtils.isEmpty(lc)) {
+		if (locale != null) {
+			String localeCode = locale.getLanguage();
+			if (!StringUtils.isEmpty(locale.getCountry())) {
+				localeCode += "_" + locale.getCountry();
+			}
+
 			for (Language language : languages) {
-				if (language.code.equals(lc)) {
+				if (language.code.equals(localeCode)) {
 					// language_COUNTRY match
 					preferredLanguage = language;
-				} else if (preferredLanguage != null && lc.startsWith(language.code)) {
-					// language match, but not COUNTRY match
+				} else if (preferredLanguage != null && language.code.startsWith(locale.getLanguage())) {
+					// language match
 					preferredLanguage = language;
 				}
 			}
@@ -242,7 +250,7 @@ public class UserPage extends RootPage {
 
 				Language lang = language.getObject();
 				if (lang != null) {
-					user.getPreferences().locale = lang.code;
+					user.getPreferences().setLocale(lang.code);
 				}
 
 				try {
