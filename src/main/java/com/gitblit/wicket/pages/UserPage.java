@@ -15,19 +15,27 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.eclipse.jgit.lib.PersonIdent;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
+import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.Menu.ParameterMenuItem;
 import com.gitblit.models.NavLink;
@@ -40,9 +48,12 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.GravatarImage;
-import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.BooleanOption;
+import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.ProjectRepositoryPanel;
+import com.gitblit.wicket.panels.SshKeysPanel;
+import com.gitblit.wicket.panels.TextOption;
+import com.gitblit.wicket.panels.UserTitlePanel;
 
 public class UserPage extends RootPage {
 
@@ -83,21 +94,30 @@ public class UserPage extends RootPage {
 			user = new UserModel(userName);
 		}
 
-		add(new Label("userDisplayName", user.getDisplayName()));
-		add(new Label("userUsername", user.username));
-		LinkPanel email = new LinkPanel("userEmail", null, user.emailAddress, "mailto:#");
-		email.setRenderBodyOnly(true);
-		add(email.setVisible(app().settings().getBoolean(Keys.web.showEmailAddresses, true) && !StringUtils.isEmpty(user.emailAddress)));
 
-		PersonIdent person = new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.getDisplayName() : user.emailAddress);
-		add(new GravatarImage("gravatar", person, 210));
+		add(new UserTitlePanel("userTitlePanel", user, user.username));
 
 		UserModel sessionUser = GitBlitWebSession.get().getUser();
-		if (sessionUser != null && user.canCreate() && sessionUser.equals(user)) {
-			// user can create personal repositories
-			add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
+		boolean isMyProfile = sessionUser != null && sessionUser.equals(user);
+
+		if (isMyProfile) {
+			addPreferences(user);
+
+			if (app().gitblit().isServingSSH()) {
+				// show the SSH key management tab
+				addSshKeys(user);
+			} else {
+				// SSH daemon is disabled, hide keys tab
+				add(new Label("sshKeysLink").setVisible(false));
+				add(new Label("sshKeysTab").setVisible(false));
+			}
 		} else {
-			add(new Label("newRepository").setVisible(false));
+			// visiting user
+			add(new Label("preferencesLink").setVisible(false));
+			add(new Label("preferencesTab").setVisible(false));
+
+			add(new Label("sshKeysLink").setVisible(false));
+			add(new Label("sshKeysTab").setVisible(false));
 		}
 
 		List<RepositoryModel> repositories = getRepositories(params);
@@ -144,5 +164,147 @@ public class UserPage extends RootPage {
 		}
 
 		navLinks.add(menu);
+	}
+
+	private void addPreferences(UserModel user) {
+		// add preferences
+		Form<Void> prefs = new Form<Void>("prefsForm");
+
+		List<Language> languages = Arrays.asList(
+				new Language("English","en"),
+				new Language("Español", "es"),
+				new Language("Français", "fr"),
+				new Language("日本語", "ja"),
+				new Language("한국말", "ko"),
+				new Language("Nederlands", "nl"),
+				new Language("Norsk", "no"),
+				new Language("Język Polski", "pl"),
+				new Language("Português", "pt_BR"),
+				new Language("中文", "zh_CN"));
+
+		Locale locale = user.getPreferences().getLocale();
+		if (locale == null) {
+			// user has not specified language preference
+			// try server default preference
+			String lc = app().settings().getString(Keys.web.forceDefaultLocale, null);
+			if (StringUtils.isEmpty(lc)) {
+				// server default language is not configured
+				// try browser preference
+				Locale sessionLocale = GitBlitWebSession.get().getLocale();
+				if (sessionLocale != null) {
+					locale = sessionLocale;
+				}
+			} else {
+
+			}
+		}
+
+		Language preferredLanguage = null;
+		if (locale != null) {
+			String localeCode = locale.getLanguage();
+			if (!StringUtils.isEmpty(locale.getCountry())) {
+				localeCode += "_" + locale.getCountry();
+			}
+
+			for (Language language : languages) {
+				if (language.code.equals(localeCode)) {
+					// language_COUNTRY match
+					preferredLanguage = language;
+				} else if (preferredLanguage != null && language.code.startsWith(locale.getLanguage())) {
+					// language match
+					preferredLanguage = language;
+				}
+			}
+		}
+
+		final IModel<String> displayName = Model.of(user.getDisplayName());
+		final IModel<String> emailAddress = Model.of(user.emailAddress == null ? "" : user.emailAddress);
+		final IModel<Language> language = Model.of(preferredLanguage);
+		final IModel<Boolean> emailMeOnMyTicketChanges = Model.of(user.getPreferences().isEmailMeOnMyTicketChanges());
+
+		prefs.add(new TextOption("displayName",
+				getString("gb.displayName"),
+				getString("gb.displayNameDescription"),
+				displayName).setVisible(app().authentication().supportsDisplayNameChanges(user)));
+
+		prefs.add(new TextOption("emailAddress",
+				getString("gb.emailAddress"),
+				getString("gb.emailAddressDescription"),
+				emailAddress).setVisible(app().authentication().supportsEmailAddressChanges(user)));
+
+		prefs.add(new ChoiceOption<Language>("language",
+				getString("gb.languagePreference"),
+				getString("gb.languagePreferenceDescription"),
+				language,
+				languages));
+
+		prefs.add(new BooleanOption("emailMeOnMyTicketChanges",
+				getString("gb.emailMeOnMyTicketChanges"),
+				getString("gb.emailMeOnMyTicketChangesDescription"),
+				emailMeOnMyTicketChanges).setVisible(app().notifier().isSendingMail()));
+
+		prefs.add(new AjaxButton("save") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				UserModel user = GitBlitWebSession.get().getUser();
+
+				user.displayName = displayName.getObject();
+				user.emailAddress = emailAddress.getObject();
+
+				Language lang = language.getObject();
+				if (lang != null) {
+					user.getPreferences().setLocale(lang.code);
+				}
+
+				user.getPreferences().setEmailMeOnMyTicketChanges(emailMeOnMyTicketChanges.getObject());
+
+				try {
+					app().gitblit().reviseUser(user.username, user);
+
+					setRedirect(true);
+					setResponsePage(UserPage.class, WicketUtils.newUsernameParameter(user.username));
+				} catch (GitBlitException e) {
+					// logger.error("Failed to update user " + user.username, e);
+					// error(getString("gb.failedToUpdateUser"), false);
+				}
+			}
+		});
+
+		// add the preferences tab
+		add(new Fragment("preferencesLink", "preferencesLinkFragment", this).setRenderBodyOnly(true));
+		Fragment fragment = new Fragment("preferencesTab", "preferencesTabFragment", this);
+		fragment.add(prefs);
+		add(fragment.setRenderBodyOnly(true));
+	}
+
+	private void addSshKeys(final UserModel user) {
+		Fragment keysTab = new Fragment("sshKeysTab", "sshKeysTabFragment", this);
+		keysTab.add(new SshKeysPanel("sshKeysPanel", user));
+
+		// add the SSH keys tab
+		add(new Fragment("sshKeysLink", "sshKeysLinkFragment", this).setRenderBodyOnly(true));
+		add(keysTab.setRenderBodyOnly(true));
+	}
+
+	private class Language implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		final String name;
+		final String code;
+
+		public Language(String name, String code) {
+			this.name = name;
+			this.code = code;
+		}
+
+		@Override
+		public String toString() {
+			return name + " (" + code +")";
+		}
 	}
 }

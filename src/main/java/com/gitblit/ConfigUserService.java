@@ -96,6 +96,8 @@ public class ConfigUserService implements IUserService {
 
 	private static final String LOCALE = "locale";
 
+	private static final String EMAILONMYTICKETCHANGES = "emailMeOnMyTicketChanges";
+
 	private static final String ACCOUNTTYPE = "accountType";
 
 	private static final String DISABLED = "disabled";
@@ -707,9 +709,11 @@ public class ConfigUserService implements IUserService {
 				config.setBoolean(USER, model.username, DISABLED, true);
 			}
 			if (model.getPreferences() != null) {
-				if (!StringUtils.isEmpty(model.getPreferences().locale)) {
-					config.setString(USER, model.username, LOCALE, model.getPreferences().locale);
+				if (model.getPreferences().getLocale() != null) {
+					String val = model.getPreferences().getLocale().getLanguage() + "_" + model.getPreferences().getLocale().getCountry();
+					config.setString(USER, model.username, LOCALE, val);
 				}
+				config.setBoolean(USER, model.username, EMAILONMYTICKETCHANGES, model.getPreferences().isEmailMeOnMyTicketChanges());
 			}
 
 			// user roles
@@ -880,10 +884,13 @@ public class ConfigUserService implements IUserService {
 					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
 					user.countryCode = config.getString(USER, username, COUNTRYCODE);
 					user.cookie = config.getString(USER, username, COOKIE);
-					user.getPreferences().locale = config.getString(USER, username, LOCALE);
 					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
 						user.cookie = StringUtils.getSHA1(user.username + user.password);
 					}
+
+					// preferences
+					user.getPreferences().setLocale(config.getString(USER, username, LOCALE));
+					user.getPreferences().setEmailMeOnMyTicketChanges(config.getBoolean(USER, username, EMAILONMYTICKETCHANGES, true));
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(

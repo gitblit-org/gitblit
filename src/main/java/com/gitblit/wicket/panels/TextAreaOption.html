@@ -7,10 +7,13 @@
 <body>
 <wicket:panel>
 	<div style="padding-top:4px;">
-		<div>
-			<label style="font-weight:bold;margin-bottom:1px;" class="checkbox"><input type="checkbox" wicket:id="checkbox" /> <span wicket:id="name"></span></label>
+		<div style="margin-bottom:1px;">
+			<b><span wicket:id="name"></span></b>
 		</div>
-		<label class="checkbox" style="color:#777;" wicket:id="description"></label>
+		<label class="checkbox" style="color:#777;"> <span wicket:id="description"></span>
+		<p style="padding-top:5px;"><textarea rows="12" class="span5" wicket:id="text"></textarea></p>
+		</label>
+		
 	</div>
 </wicket:panel>
 </body>

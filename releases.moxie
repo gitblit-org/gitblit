@@ -34,6 +34,8 @@ r24: {
     - Added CRUD functionality for Ticket Milestones (ticket-17)
     - Implemented Ticket migration tool to move between backends (ticket-19)
     - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
+    - Added an editor panel in the user profile page to manipulate preferences (issue-108, issue-424, ticket-64)
+    - Added an editor panel in the user profile page to manipulate public SSH keys (ticket-64)
     - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
     - Add object type (ot) parameter for RSS queries to retrieve tag details (pr-165, ticket-66)
     - Add setting to allow STARTTLS without requiring SMTPS (pr-183)
