@@ -43,6 +43,7 @@ r24: {
     - Simplified repository creation, offer simple README generation, and insertion of a pre-defined .gitignore file (ticket-76)
     - Added an extension point for monitoring onStartup and onShutdown (ticket-79)
     - Tag server-side merges when incremental push tags are enabled (issue-432, ticket-85)
+    - Add a user preference for the clone transport (ticket-90)
     - Add setting to control default thread pool size for miscellaneous background tasks (ticket-92)
     dependencyChanges:
     - Update to javax.mail 1.5.1 (issue-417, ticket-58)

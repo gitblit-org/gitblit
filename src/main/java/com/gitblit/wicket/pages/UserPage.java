@@ -35,6 +35,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
+import com.gitblit.Constants.Transport;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.Menu.ParameterMenuItem;
@@ -221,6 +222,7 @@ public class UserPage extends RootPage {
 		final IModel<String> emailAddress = Model.of(user.emailAddress == null ? "" : user.emailAddress);
 		final IModel<Language> language = Model.of(preferredLanguage);
 		final IModel<Boolean> emailMeOnMyTicketChanges = Model.of(user.getPreferences().isEmailMeOnMyTicketChanges());
+		final IModel<Transport> transport = Model.of(user.getPreferences().getTransport());
 
 		prefs.add(new TextOption("displayName",
 				getString("gb.displayName"),
@@ -243,6 +245,24 @@ public class UserPage extends RootPage {
 				getString("gb.emailMeOnMyTicketChangesDescription"),
 				emailMeOnMyTicketChanges).setVisible(app().notifier().isSendingMail()));
 
+		List<Transport> availableTransports = new ArrayList<>();
+		if (app().gitblit().isServingSSH()) {
+			availableTransports.add(Transport.SSH);
+		}
+		if (app().gitblit().isServingHTTP()) {
+			availableTransports.add(Transport.HTTPS);
+			availableTransports.add(Transport.HTTP);
+		}
+		if (app().gitblit().isServingGIT()) {
+			availableTransports.add(Transport.GIT);
+		}
+
+		prefs.add(new ChoiceOption<Transport>("transport",
+				getString("gb.transportPreference"),
+				getString("gb.transportPreferenceDescription"),
+				transport,
+				availableTransports));
+
 		prefs.add(new AjaxButton("save") {
 
 			private static final long serialVersionUID = 1L;
@@ -261,6 +281,7 @@ public class UserPage extends RootPage {
 				}
 
 				user.getPreferences().setEmailMeOnMyTicketChanges(emailMeOnMyTicketChanges.getObject());
+				user.getPreferences().setTransport(transport.getObject());
 
 				try {
 					app().gitblit().reviseUser(user.username, user);
