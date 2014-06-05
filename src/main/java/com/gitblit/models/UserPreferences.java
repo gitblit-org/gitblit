@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.gitblit.Constants.Transport;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -40,6 +41,8 @@ public class UserPreferences implements Serializable {
 	private String locale;
 
 	private Boolean emailMeOnMyTicketChanges;
+
+	private Transport transport;
 
 	private final Map<String, UserRepositoryPreferences> repositoryPreferences = new TreeMap<String, UserRepositoryPreferences>();
 
@@ -112,5 +115,13 @@ public class UserPreferences implements Serializable {
 
 	public void setEmailMeOnMyTicketChanges(boolean value) {
 		this.emailMeOnMyTicketChanges = value;
+	}
+
+	public Transport getTransport() {
+		return transport;
+	}
+
+	public void setTransport(Transport transport) {
+		this.transport = transport;
 	}
 }

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Transport;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -97,6 +98,8 @@ public class ConfigUserService implements IUserService {
 	private static final String LOCALE = "locale";
 
 	private static final String EMAILONMYTICKETCHANGES = "emailMeOnMyTicketChanges";
+
+	private static final String TRANSPORT = "transport";
 
 	private static final String ACCOUNTTYPE = "accountType";
 
@@ -713,7 +716,12 @@ public class ConfigUserService implements IUserService {
 					String val = model.getPreferences().getLocale().getLanguage() + "_" + model.getPreferences().getLocale().getCountry();
 					config.setString(USER, model.username, LOCALE, val);
 				}
+
 				config.setBoolean(USER, model.username, EMAILONMYTICKETCHANGES, model.getPreferences().isEmailMeOnMyTicketChanges());
+
+				if (model.getPreferences().getTransport() != null) {
+					config.setString(USER, model.username, TRANSPORT, model.getPreferences().getTransport().name());
+				}
 			}
 
 			// user roles
@@ -891,6 +899,7 @@ public class ConfigUserService implements IUserService {
 					// preferences
 					user.getPreferences().setLocale(config.getString(USER, username, LOCALE));
 					user.getPreferences().setEmailMeOnMyTicketChanges(config.getBoolean(USER, username, EMAILONMYTICKETCHANGES, true));
+					user.getPreferences().setTransport(Transport.fromString(config.getString(USER, username, TRANSPORT)));
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
