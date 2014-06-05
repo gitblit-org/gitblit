@@ -29,6 +29,7 @@ r24: {
     - Overhaul the EmptyRepositoryPage (ticket-73)
     - Overhauled the edit repository page (ticket-76)
     - Process bugtraq links in the ticket description and comments (ticket-78)
+    - Exclude personal repositories from the repositories list, by default (issue-419, ticket-95)
     additions:
     - Add My Tickets page (issue-215, ticket-15)
     - Added CRUD functionality for Ticket Milestones (ticket-17)
@@ -55,8 +56,10 @@ r24: {
     - Marcus Hunger
     - Matthias Cullmann
     - Emmeran Seehuber
+    - Sascha Vogt
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
+    - { name: 'web.includePersonalRepositories', defaultValue: 'false' }
     - { name: 'mail.starttls', defaultValue: 'false' }
     - { name: 'execution.defaultThreadPoolSize', defaultValue: '1' }
     - { name: 'git.gitignoreFolder', defaultValue: '${baseFolder}/gitignore' }

@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.Component;
@@ -30,8 +31,8 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Keys;
 import com.gitblit.models.Menu.ParameterMenuItem;
-import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.models.NavLink;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -79,7 +80,17 @@ public class RepositoriesPage extends RootPage {
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
 		add(repositoriesMessage);
 
+		// conditionally include personal repositories in this page
 		List<RepositoryModel> repositories = getRepositories(params);
+		if (!app().settings().getBoolean(Keys.web.includePersonalRepositories, true)) {
+			Iterator<RepositoryModel> itr = repositories.iterator();
+			while (itr.hasNext()) {
+				RepositoryModel rm = itr.next();
+				if (rm.isPersonalRepository()) {
+					itr.remove();
+				}
+			}
+		}
 
 		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", showAdmin,
 				true, repositories, true, getAccessRestrictions());
