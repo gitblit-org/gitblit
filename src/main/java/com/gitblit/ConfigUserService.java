@@ -96,6 +96,8 @@ public class ConfigUserService implements IUserService {
 
 	private static final String LOCALE = "locale";
 
+	private static final String EMAILONMYTICKETCHANGES = "emailMeOnMyTicketChanges";
+
 	private static final String ACCOUNTTYPE = "accountType";
 
 	private static final String DISABLED = "disabled";
@@ -711,6 +713,7 @@ public class ConfigUserService implements IUserService {
 					String val = model.getPreferences().getLocale().getLanguage() + "_" + model.getPreferences().getLocale().getCountry();
 					config.setString(USER, model.username, LOCALE, val);
 				}
+				config.setBoolean(USER, model.username, EMAILONMYTICKETCHANGES, model.getPreferences().isEmailMeOnMyTicketChanges());
 			}
 
 			// user roles
@@ -887,6 +890,7 @@ public class ConfigUserService implements IUserService {
 
 					// preferences
 					user.getPreferences().setLocale(config.getString(USER, username, LOCALE));
+					user.getPreferences().setEmailMeOnMyTicketChanges(config.getBoolean(USER, username, EMAILONMYTICKETCHANGES, true));
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(

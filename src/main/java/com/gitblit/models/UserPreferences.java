@@ -39,6 +39,8 @@ public class UserPreferences implements Serializable {
 
 	private String locale;
 
+	private Boolean emailMeOnMyTicketChanges;
+
 	private final Map<String, UserRepositoryPreferences> repositoryPreferences = new TreeMap<String, UserRepositoryPreferences>();
 
 	public UserPreferences(String username) {
@@ -99,5 +101,16 @@ public class UserPreferences implements Serializable {
 		}
 		Collections.sort(list);
 		return list;
+	}
+
+	public boolean isEmailMeOnMyTicketChanges() {
+		if (emailMeOnMyTicketChanges == null) {
+			return true;
+		}
+		return emailMeOnMyTicketChanges;
+	}
+
+	public void setEmailMeOnMyTicketChanges(boolean value) {
+		this.emailMeOnMyTicketChanges = value;
 	}
 }

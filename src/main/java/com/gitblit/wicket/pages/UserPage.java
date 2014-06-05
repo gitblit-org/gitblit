@@ -48,6 +48,7 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.BooleanOption;
 import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.ProjectRepositoryPanel;
 import com.gitblit.wicket.panels.SshKeysPanel;
@@ -219,6 +220,7 @@ public class UserPage extends RootPage {
 		final IModel<String> displayName = Model.of(user.getDisplayName());
 		final IModel<String> emailAddress = Model.of(user.emailAddress == null ? "" : user.emailAddress);
 		final IModel<Language> language = Model.of(preferredLanguage);
+		final IModel<Boolean> emailMeOnMyTicketChanges = Model.of(user.getPreferences().isEmailMeOnMyTicketChanges());
 
 		prefs.add(new TextOption("displayName",
 				getString("gb.displayName"),
@@ -236,6 +238,11 @@ public class UserPage extends RootPage {
 				language,
 				languages));
 
+		prefs.add(new BooleanOption("emailMeOnMyTicketChanges",
+				getString("gb.emailMeOnMyTicketChanges"),
+				getString("gb.emailMeOnMyTicketChangesDescription"),
+				emailMeOnMyTicketChanges).setVisible(app().notifier().isSendingMail()));
+
 		prefs.add(new AjaxButton("save") {
 
 			private static final long serialVersionUID = 1L;
@@ -252,6 +259,8 @@ public class UserPage extends RootPage {
 				if (lang != null) {
 					user.getPreferences().setLocale(lang.code);
 				}
+
+				user.getPreferences().setEmailMeOnMyTicketChanges(emailMeOnMyTicketChanges.getObject());
 
 				try {
 					app().gitblit().reviseUser(user.username, user);

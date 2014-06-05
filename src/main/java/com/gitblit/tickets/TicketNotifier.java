@@ -545,7 +545,6 @@ public class TicketNotifier {
 				}
 			}
 		}
-		mailing.setRecipients(toAddresses);
 
 		//
 		// CC recipients
@@ -554,7 +553,7 @@ public class TicketNotifier {
 
 		// repository owners
 		if (!ArrayUtils.isEmpty(repository.owners)) {
-			tos.addAll(repository.owners);
+			ccs.addAll(repository.owners);
 		}
 
 		// cc users mentioned in last comment
@@ -595,6 +594,14 @@ public class TicketNotifier {
 		}
 		ccAddresses.addAll(settings.getStrings(Keys.mail.mailingLists));
 
+		// respect the author's email preference
+		UserModel lastAuthor = userManager.getUserModel(lastChange.author);
+		if (!lastAuthor.getPreferences().isEmailMeOnMyTicketChanges()) {
+			toAddresses.remove(lastAuthor.emailAddress);
+			ccAddresses.remove(lastAuthor.emailAddress);
+		}
+
+		mailing.setRecipients(toAddresses);
 		mailing.setCCs(ccAddresses);
 	}
 
