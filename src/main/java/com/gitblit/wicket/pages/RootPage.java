@@ -412,7 +412,7 @@ public abstract class RootPage extends BasePage {
 		String userName = WicketUtils.getUsername(params);
 		if (StringUtils.isEmpty(projectName)) {
 			if (!StringUtils.isEmpty(userName)) {
-				projectName = ModelUtils.getPersonalPath(userName);
+				projectName = ModelUtils.getPersonalProject(userName);
 			}
 		}
 		String repositoryName = WicketUtils.getRepositoryName(params);

@@ -177,7 +177,6 @@ public class RpcTests extends GitblitUnitTest {
 		RepositoryModel model = new RepositoryModel();
 		model.name = "garbagerepo.git";
 		model.description = "created by RpcUtils";
-		model.addOwner("garbage");
 		model.accessRestriction = AccessRestrictionType.VIEW;
 		model.authorizationControl = AuthorizationControl.AUTHENTICATED;
 

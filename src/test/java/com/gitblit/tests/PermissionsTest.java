@@ -43,7 +43,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		user.canAdmin = true;
 
 		for (AccessRestrictionType ar : AccessRestrictionType.values()) {
-			RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+			RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 			repository.authorizationControl = AuthorizationControl.NAMED;
 			repository.accessRestriction = ar;
 
@@ -69,7 +69,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testAnonymous_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -97,7 +97,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testAnonymous_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -121,7 +121,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testAnonymous_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -145,7 +145,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testAnonymous_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -172,7 +172,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testAuthenticated_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -203,7 +203,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testAuthenticated_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -230,7 +230,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testAuthenticated_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -257,7 +257,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testAuthenticated_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -287,7 +287,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_NONE_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -320,7 +320,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_PUSH_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -350,7 +350,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_CLONE_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -380,7 +380,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_VIEW_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -412,7 +412,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_NONE_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -443,7 +443,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_PUSH_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -474,7 +474,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_CLONE_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -505,7 +505,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_VIEW_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -537,7 +537,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_NONE_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -568,7 +568,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_PUSH_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -599,7 +599,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_CLONE_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -630,7 +630,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_VIEW_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -662,7 +662,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_NONE_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -693,7 +693,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_PUSH_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -724,7 +724,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_CLONE_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -755,7 +755,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_VIEW_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -787,7 +787,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_NONE_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -818,7 +818,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_PUSH_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -849,7 +849,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_CLONE_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -880,7 +880,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_VIEW_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -912,7 +912,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_NONE_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -943,7 +943,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_PUSH_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -974,7 +974,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_CLONE_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1005,7 +1005,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_VIEW_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1037,7 +1037,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_NONE_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1068,7 +1068,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_PUSH_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1099,7 +1099,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_CLONE_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1130,7 +1130,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testNamed_VIEW_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1161,7 +1161,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_NONE_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1184,7 +1184,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_PUSH_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1207,7 +1207,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_CLONE_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1229,7 +1229,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_VIEW_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1252,7 +1252,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_NONE_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1275,7 +1275,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_PUSH_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1298,7 +1298,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_CLONE_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1321,7 +1321,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_VIEW_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1345,7 +1345,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_NONE_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1368,7 +1368,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_PUSH_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1391,7 +1391,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_CLONE_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1414,7 +1414,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_VIEW_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1438,7 +1438,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_NONE_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1461,7 +1461,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_PUSH_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1484,7 +1484,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_CLONE_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1507,7 +1507,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_VIEW_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1531,7 +1531,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_NONE_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1554,7 +1554,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_PUSH_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1577,7 +1577,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_CLONE_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1600,7 +1600,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_VIEW_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1624,7 +1624,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_NONE_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1647,7 +1647,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_PUSH_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1670,7 +1670,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_CLONE_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1693,7 +1693,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_VIEW_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1717,7 +1717,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_NONE_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1740,7 +1740,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_PUSH_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1763,7 +1763,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_CLONE_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1786,7 +1786,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeam_VIEW_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1809,7 +1809,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_NONE_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1833,7 +1833,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_PUSH_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1857,7 +1857,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_CLONE_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1881,7 +1881,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_VIEW_NONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -1906,7 +1906,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_NONE_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -1931,7 +1931,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_PUSH_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -1956,7 +1956,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_CLONE_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -1981,7 +1981,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_VIEW_PUSH() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2007,7 +2007,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_NONE_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -2032,7 +2032,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_PUSH_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -2057,7 +2057,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_CLONE_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -2082,7 +2082,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_VIEW_CREATE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2108,7 +2108,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_NONE_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -2133,7 +2133,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_PUSH_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -2158,7 +2158,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_CLONE_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -2183,7 +2183,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_VIEW_DELETE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2209,7 +2209,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_NONE_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -2234,7 +2234,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_PUSH_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -2259,7 +2259,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_CLONE_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -2284,7 +2284,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_VIEW_REWIND() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2310,7 +2310,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_NONE_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -2335,7 +2335,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_PUSH_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -2360,7 +2360,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_CLONE_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -2385,7 +2385,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_VIEW_CLONE() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2411,7 +2411,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_NONE_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.NONE;
 
@@ -2436,7 +2436,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_PUSH_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.PUSH;
 
@@ -2461,7 +2461,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_CLONE_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.CLONE;
 
@@ -2486,7 +2486,7 @@ public class PermissionsTest extends GitblitUnitTest {
 	 */
 	@Test
 	public void testTeamMember_VIEW_VIEW() throws Exception {
-		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2508,12 +2508,12 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testOwner() throws Exception {
-		RepositoryModel repository = new RepositoryModel("~jj/myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("~jj/myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		repository.addOwner(user.username);
+		user.own(repository);
 
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("owner CAN NOT view!", user.canView(repository));
@@ -2528,7 +2528,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 		assertTrue("owner CAN NOT fork!", user.canFork(repository));
 
-		assertFalse("owner CAN NOT delete!", user.canDelete(repository));
+		assertFalse("owner CAN delete someone elses personal repo!", user.canDelete(repository));
 		assertTrue("owner CAN NOT edit!", user.canEdit(repository));
 
 		// test personal repo owner
@@ -2548,19 +2548,19 @@ public class PermissionsTest extends GitblitUnitTest {
 
 		assertTrue("jj CAN NOT delete!", jj.canDelete(repository));
 		assertTrue("jj CAN NOT edit!", jj.canEdit(repository));
-		assertTrue(repository.isOwner(jj.username));
+		assertTrue(jj.isOwner(repository));
 	}
 
 	@Test
 	public void testMultipleOwners() throws Exception {
-		RepositoryModel repository = new RepositoryModel("~jj/myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("~jj/myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		repository.addOwner(user.username);
+		user.own(repository);
 		UserModel user2 = new UserModel("test2");
-		repository.addOwner(user2.username);
+		user2.own(repository);
 
 		// first owner
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
@@ -2596,8 +2596,8 @@ public class PermissionsTest extends GitblitUnitTest {
 		assertFalse("owner CAN NOT delete!", user2.canDelete(repository));
 		assertTrue("owner CAN NOT edit!", user2.canEdit(repository));
 
-		assertTrue(repository.isOwner(user.username));
-		assertTrue(repository.isOwner(user2.username));
+		assertTrue(user.isOwner(repository));
+		assertTrue(user2.isOwner(repository));
 
 		// test personal repo owner
 		UserModel jj = new UserModel("jj");
@@ -2616,17 +2616,17 @@ public class PermissionsTest extends GitblitUnitTest {
 
 		assertTrue("jj CAN NOT delete!", jj.canDelete(repository));
 		assertTrue("jj CAN NOT edit!", jj.canEdit(repository));
-		assertTrue(repository.isOwner(jj.username));
+		assertTrue(jj.isOwner(repository));
 	}
 
 	@Test
 	public void testOwnerPersonalRepository() throws Exception {
-		RepositoryModel repository = new RepositoryModel("~test/myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("~test/myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		repository.addOwner(user.username);
+		user.own(repository);
 
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("user CAN NOT view!", user.canView(repository));
@@ -2647,12 +2647,11 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testVisitorPersonalRepository() throws Exception {
-		RepositoryModel repository = new RepositoryModel("~test/myrepo.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("~test/myrepo.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("visitor");
-		repository.addOwner("test");
 
 		assertFalse("user HAS a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertFalse("user CAN view!", user.canView(repository));
@@ -2673,7 +2672,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testRegexMatching() throws Exception {
-		RepositoryModel repository = new RepositoryModel("ubercool/_my-r/e~po.git", null, null, new Date());
+		RepositoryModel repository = new RepositoryModel("ubercool/_my-r/e~po.git", null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2704,7 +2703,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		user.setRepositoryPermission("[^~].*", AccessPermission.CLONE);
 
 		// common
-		RepositoryModel common = new RepositoryModel("ubercool/_my-r/e~po.git", null, null, new Date());
+		RepositoryModel common = new RepositoryModel("ubercool/_my-r/e~po.git", null, new Date());
 		common.authorizationControl = AuthorizationControl.NAMED;
 		common.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2725,7 +2724,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		assertFalse("user CAN edit!", user.canEdit(common));
 
 		// personal
-		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, new Date());
 		personal.authorizationControl = AuthorizationControl.NAMED;
 		personal.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2748,7 +2747,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testRegexMatching2() throws Exception {
-		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, new Date());
 		personal.authorizationControl = AuthorizationControl.NAMED;
 		personal.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2778,7 +2777,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testRegexOrder() throws Exception {
-		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, new Date());
 		personal.authorizationControl = AuthorizationControl.NAMED;
 		personal.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2827,7 +2826,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testExclusion() throws Exception {
-		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, new Date());
 		personal.authorizationControl = AuthorizationControl.NAMED;
 		personal.accessRestriction = AccessRestrictionType.VIEW;
 
@@ -2882,7 +2881,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testIsFrozen() throws Exception {
-		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
+		RepositoryModel repo = new RepositoryModel("somerepo.git", null, new Date());
 		repo.authorizationControl = AuthorizationControl.NAMED;
 		repo.accessRestriction = AccessRestrictionType.NONE;
 
@@ -2900,7 +2899,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testIsBare() throws Exception {
-		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
+		RepositoryModel repo = new RepositoryModel("somerepo.git", null, new Date());
 		repo.authorizationControl = AuthorizationControl.NAMED;
 		repo.accessRestriction = AccessRestrictionType.NONE;
 
@@ -2918,7 +2917,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 	@Test
 	public void testIsMirror() throws Exception {
-		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
+		RepositoryModel repo = new RepositoryModel("somerepo.git", null, new Date());
 		repo.authorizationControl = AuthorizationControl.NAMED;
 		repo.accessRestriction = AccessRestrictionType.NONE;
 

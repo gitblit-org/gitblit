@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jgit.lib.StoredConfig;
@@ -95,6 +96,8 @@ public class ConfigUserService implements IUserService {
 	private static final String POSTRECEIVE = "postReceiveScript";
 
 	private static final String STARRED = "starred";
+
+	private static final String OWNS = "owns";
 
 	private static final String LOCALE = "locale";
 
@@ -617,6 +620,11 @@ public class ConfigUserService implements IUserService {
 					AccessPermission permission = model.removeRepositoryPermission(oldRole);
 					model.setRepositoryPermission(newRole, permission);
 				}
+
+				if (model.isOwner(oldRole)) {
+					model.disown(oldRole);
+					model.own(newRole);
+				}
 			}
 
 			// identify teams which require role rename
@@ -762,6 +770,11 @@ public class ConfigUserService implements IUserService {
 					}
 				}
 				config.setStringList(USER, model.username, REPOSITORY, permissions);
+			}
+
+			// project and repository ownership
+			if (model.ownedPaths != null) {
+				config.setStringList(USER, model.username, OWNS, new ArrayList<String>(model.ownedPaths));
 			}
 
 			// user preferences
@@ -927,11 +940,17 @@ public class ConfigUserService implements IUserService {
 					}
 
 					// starred repositories
-					Set<String> starred = new HashSet<String>(Arrays.asList(config
+					Set<String> starred = new TreeSet<String>(Arrays.asList(config
 							.getStringList(USER, username, STARRED)));
 					for (String repository : starred) {
 						UserRepositoryPreferences prefs = user.getPreferences().getRepositoryPreferences(repository);
 						prefs.starred = true;
+					}
+
+					// repository ownership
+					Set<String> ownerOf = new TreeSet<String>(Arrays.asList(config.getStringList(USER, username, OWNS)));
+					for (String path : ownerOf) {
+						user.own(path);
 					}
 
 					// update cache

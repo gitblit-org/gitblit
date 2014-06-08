@@ -42,6 +42,7 @@ import org.apache.wicket.model.Model;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Keys;
+import com.gitblit.models.Owner;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -275,22 +276,17 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 				}
 
+				List<Owner> owners = app().users().getOwners(entry);
+				// display first owner
 				String owner = "";
-				if (!ArrayUtils.isEmpty(entry.owners)) {
-					// display first owner
-					for (String username : entry.owners) {
-						UserModel ownerModel = app().users().getUserModel(username);
-						if (ownerModel != null) {
-							owner = ownerModel.getDisplayName();
-							break;
-						}
-					}
-					if (entry.owners.size() > 1) {
+				if (!owners.isEmpty()) {
+					owner = owners.get(0).getDisplayName();
+					if (owners.size() > 1) {
 						owner += ", ...";
 					}
 				}
 				Label ownerLabel = new Label("repositoryOwner", owner);
-				WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(entry.owners));
+				WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(owners));
 				row.add(ownerLabel);
 
 				String lastChange;
@@ -336,7 +332,7 @@ public class RepositoriesPanel extends BasePanel {
 		String title;
 
 		GroupRepositoryModel(String name, int count) {
-			super(name, "", "", new Date(0));
+			super(name, "", new Date(0));
 			this.count = count;
 		}
 
@@ -410,18 +406,6 @@ public class RepositoriesPanel extends BasePanel {
 							return o1.name.compareTo(o2.name);
 						}
 						return o2.name.compareTo(o1.name);
-					}
-				});
-			} else if (prop.equals(SortBy.owner.name())) {
-				Collections.sort(list, new Comparator<RepositoryModel>() {
-					@Override
-					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						String own1 = ArrayUtils.toString(o1.owners);
-						String own2 = ArrayUtils.toString(o2.owners);
-						if (asc) {
-							return own1.compareTo(own2);
-						}
-						return own2.compareTo(own1);
 					}
 				});
 			} else if (prop.equals(SortBy.description.name())) {

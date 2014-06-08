@@ -38,7 +38,7 @@ import com.gitblit.tickets.ITicketService;
  */
 public class BranchTicketServiceTest extends TicketServiceTest {
 
-	final RepositoryModel repo = new RepositoryModel("tickets/branch.git", null, null, null);
+	final RepositoryModel repo = new RepositoryModel("tickets/branch.git", null, null);
 
 	@Override
 	protected RepositoryModel getRepository() {

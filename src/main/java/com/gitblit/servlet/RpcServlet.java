@@ -38,6 +38,7 @@ import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.Owner;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -300,6 +301,29 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.SET_REPOSITORY_MEMBERS.equals(reqType)) {
 			// rejected since 1.2.0
 			response.setStatus(failureCode);
+		} else if (RpcRequest.LIST_REPOSITORY_OWNERS.equals(reqType)) {
+			// get repository owners
+			RepositoryModel model = gitblit.getRepositoryModel(objectName);
+			List<Owner> owners = gitblit.getOwners(model);
+			List<String> names = new ArrayList<>();
+			for (Owner owner : owners) {
+				if (owner instanceof UserModel) {
+					names.add(((UserModel) owner).username);
+				}
+			}
+			result = names;
+		} else if (RpcRequest.SET_REPOSITORY_OWNERS.equals(reqType)) {
+			// set the owners for the specified repository
+			RepositoryModel model = gitblit.getRepositoryModel(objectName);
+			Collection<String> names = deserialize(request, response, RpcUtils.NAMES_TYPE);
+			List<Owner> owners = new ArrayList<>();
+			for (String name : names) {
+				UserModel owner = gitblit.getUserModel(name);
+				if (owner != null) {
+					owners.add(owner);
+				}
+			}
+			result = gitblit.setOwners(model, owners);
 		} else if (RpcRequest.LIST_REPOSITORY_MEMBER_PERMISSIONS.equals(reqType)) {
 			// get repository member permissions
 			RepositoryModel model = gitblit.getRepositoryModel(objectName);

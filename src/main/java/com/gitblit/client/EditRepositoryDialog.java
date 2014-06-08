@@ -579,8 +579,6 @@ public class EditRepositoryDialog extends JDialog {
 
 		repository.name = rname;
 		repository.description = descriptionField.getText();
-		repository.owners.clear();
-		repository.owners.addAll(ownersPalette.getSelections());
 		repository.HEAD = headRefField.getSelectedItem() == null ? null
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
@@ -720,6 +718,10 @@ public class EditRepositoryDialog extends JDialog {
 
 	public List<RegistrantAccessPermission> getTeamAccessPermissions() {
 		return teamsPalette.getPermissions();
+	}
+
+	public List<String> getOwners() {
+		return ownersPalette.getSelections();
 	}
 
 	public void setCustomFields(RepositoryModel repository, Map<String, String> customFields) {

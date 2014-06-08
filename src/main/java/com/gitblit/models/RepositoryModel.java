@@ -17,7 +17,6 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	// field names are reflectively mapped in EditRepository page
 	public String name;
 	public String description;
-	public List<String> owners;
 	public Date lastChange;
 	public String lastChangeAuthor;
 	public boolean hasCommits;
@@ -74,7 +72,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public List<String> postReceiveScripts;
 	public List<String> mailingLists;
 	public Map<String, String> customFields;
-	public String projectPath;
+	private String projectPath;
 	private String displayName;
 	public boolean allowForks;
 	public Set<String> forks;
@@ -95,11 +93,17 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String sparkleshareId;
 
 	public RepositoryModel() {
-		this("", "", "", new Date(0));
+		this("", "", new Date(0));
 	}
 
-	public RepositoryModel(String name, String description, String owner, Date lastchange) {
+	public RepositoryModel(String name ) {
 		this.name = name;
+		this.projectPath = StringUtils.getFirstPathElement(name);
+	}
+
+	public RepositoryModel(String name, String description, Date lastchange) {
+		this.name = name;
+		this.projectPath = StringUtils.getFirstPathElement(name);
 		this.description = description;
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
@@ -107,12 +111,9 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.federationSets = new ArrayList<String>();
 		this.federationStrategy = FederationStrategy.FEDERATE_THIS;
 		this.projectPath = StringUtils.getFirstPathElement(name);
-		this.owners = new ArrayList<String>();
 		this.isBare = true;
 		this.acceptNewTickets = true;
 		this.acceptNewPatchsets = true;
-
-		addOwner(owner);
 	}
 
 	public List<String> getLocalBranches() {
@@ -180,19 +181,31 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		return !StringUtils.isEmpty(originRepository);
 	}
 
-	public boolean isOwner(String username) {
-		if (StringUtils.isEmpty(username) || ArrayUtils.isEmpty(owners)) {
-			return isUsersPersonalRepository(username);
-		}
-		return owners.contains(username.toLowerCase()) || isUsersPersonalRepository(username);
-	}
-
 	public boolean isPersonalRepository() {
 		return !StringUtils.isEmpty(projectPath) && ModelUtils.isPersonalRepository(projectPath);
 	}
 
-	public boolean isUsersPersonalRepository(String username) {
-		return !StringUtils.isEmpty(projectPath) && ModelUtils.isUsersPersonalRepository(username, projectPath);
+	public String getPersonalRepositoryOwner() {
+		return ModelUtils.getUserNameFromRepoPath(projectPath);
+	}
+
+	/**
+	 * Returns the project name.
+	 *
+	 * @return project name
+	 */
+	public String getProject() {
+		return projectPath;
+	}
+
+	/**
+	 * Returns the first path element of the full repository path.  This path will always end with
+	 * a trailing '/'.
+	 *
+	 * @return the project path of the repository
+	 */
+	public String getProjectPath() {
+		return StringUtils.isEmpty(projectPath) ? "/" : (projectPath + "/");
 	}
 
 	public boolean allowAnonymousView() {
@@ -225,38 +238,5 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.skipSummaryMetrics = skipSummaryMetrics;
 		clone.sparkleshareId = sparkleshareId;
 		return clone;
-	}
-
-	public void addOwner(String username) {
-		if (!StringUtils.isEmpty(username)) {
-			String name = username.toLowerCase();
-			// a set would be more efficient, but this complicates JSON
-			// deserialization so we enforce uniqueness with an arraylist
-			if (!owners.contains(name)) {
-				owners.add(name);
-			}
-		}
-	}
-
-	public void removeOwner(String username) {
-		if (!StringUtils.isEmpty(username)) {
-			owners.remove(username.toLowerCase());
-		}
-	}
-
-	public void addOwners(Collection<String> usernames) {
-		if (!ArrayUtils.isEmpty(usernames)) {
-			for (String username : usernames) {
-				addOwner(username);
-			}
-		}
-	}
-
-	public void removeOwners(Collection<String> usernames) {
-		if (!ArrayUtils.isEmpty(owners)) {
-			for (String username : usernames) {
-				removeOwner(username);
-			}
-		}
 	}
 }

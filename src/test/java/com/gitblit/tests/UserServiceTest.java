@@ -106,9 +106,9 @@ public class UserServiceTest extends GitblitUnitTest {
 		assertEquals(1, service.getAllTeamNames().size());
 		assertEquals("admins", service.getAllTeamNames().get(0));
 
-		RepositoryModel newrepo1 = new RepositoryModel("newrepo1", null, null, null);
+		RepositoryModel newrepo1 = new RepositoryModel("newrepo1", null, null);
 		newrepo1.accessRestriction = AccessRestrictionType.VIEW;
-		RepositoryModel NEWREPO1 = new RepositoryModel("NEWREPO1", null, null, null);
+		RepositoryModel NEWREPO1 = new RepositoryModel("NEWREPO1", null, null);
 		NEWREPO1.accessRestriction = AccessRestrictionType.VIEW;
 
 		// remove newrepo1 from test user
@@ -144,9 +144,9 @@ public class UserServiceTest extends GitblitUnitTest {
 		assertTrue(user.canView(NEWREPO1));
 
 		// rename the team and add new repository
-		RepositoryModel newrepo2 = new RepositoryModel("newrepo2", null, null, null);
+		RepositoryModel newrepo2 = new RepositoryModel("newrepo2", null, null);
 		newrepo2.accessRestriction = AccessRestrictionType.VIEW;
-		RepositoryModel NEWREPO2 = new RepositoryModel("NEWREPO2", null, null, null);
+		RepositoryModel NEWREPO2 = new RepositoryModel("NEWREPO2", null, null);
 		NEWREPO2.accessRestriction = AccessRestrictionType.VIEW;
 
 		team.addRepositoryPermission(newrepo2.name);

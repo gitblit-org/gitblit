@@ -461,6 +461,41 @@ public class RpcUtils {
 	}
 
 	/**
+	 * Retrieves the list of owners for the specified repository.
+	 *
+	 * @param repository
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return list of owners
+	 * @throws IOException
+	 */
+	public static List<String> getRepositoryOwners(RepositoryModel repository,
+			String serverUrl, String account, char [] password) throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORY_OWNERS, repository.name);
+		Collection<String> list = JsonUtils.retrieveJson(url, NAMES_TYPE, account, password);
+		return new ArrayList<String>(list);
+	}
+
+	/**
+	 * Sets the repository owners
+	 *
+	 * @param repository
+	 * @param owners
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean setRepositoryOwners(RepositoryModel repository,
+			List<String> owners, String serverUrl, String account, char[] password)
+			throws IOException {
+		return doAction(RpcRequest.SET_REPOSITORY_OWNERS, repository.name, owners, serverUrl,
+				account, password);
+	}
+
+	/**
 	 * Retrieves the list of teams that can access the specified repository.
 	 *
 	 * @param repository
