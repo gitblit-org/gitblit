@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
@@ -27,6 +28,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Keys;
+import com.gitblit.models.Owner;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.servlet.SyndicationServlet;
@@ -64,7 +66,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 		swatch.setVisible(showSwatch);
 
 		PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-		add(new LinkPanel("repositoryName", "list", StringUtils.getRelativePath(entry.projectPath,
+		add(new LinkPanel("repositoryName", "list", StringUtils.getRelativePath(entry.getProject(),
 				StringUtils.stripDotGit(entry.name)), SummaryPage.class, pp));
 		add(new Label("repositoryDescription", entry.description).setVisible(!StringUtils
 				.isEmpty(entry.description)));
@@ -102,23 +104,17 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
 		}
 
-		if (ArrayUtils.isEmpty(entry.owners)) {
+		List<Owner> owners = app().users().getOwners(entry);
+		if (ArrayUtils.isEmpty(owners)) {
 			add(new Label("repositoryOwner").setVisible(false));
 		} else {
-			String owner = "";
-			for (String username : entry.owners) {
-				UserModel ownerModel = app().users().getUserModel(username);
-
-				if (ownerModel != null) {
-					owner = ownerModel.getDisplayName();
-				}
-			}
-			if (entry.owners.size() > 1) {
+			String owner = owners.get(0).getDisplayName();
+			if (owners.size() > 1) {
 				owner += ", ...";
 			}
 			Label ownerLabel = (new Label("repositoryOwner", owner + " (" +
 					localizer.getString("gb.owner", parent) + ")"));
-			WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(entry.owners));
+			WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(owners));
 			add(ownerLabel);
 		}
 

@@ -49,6 +49,7 @@ import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.Mailing;
+import com.gitblit.models.Owner;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
@@ -551,11 +552,6 @@ public class TicketNotifier {
 		//
 		Set<String> ccs = new TreeSet<String>();
 
-		// repository owners
-		if (!ArrayUtils.isEmpty(repository.owners)) {
-			ccs.addAll(repository.owners);
-		}
-
 		// cc users mentioned in last comment
 		Change lastChange = ticket.changes.get(ticket.changes.size() - 1);
 		if (lastChange.hasComment()) {
@@ -573,6 +569,7 @@ public class TicketNotifier {
 		// TODO cc users who are watching the repository
 
 		Set<String> ccAddresses = new TreeSet<String>();
+
 		for (String name : ccs) {
 			UserModel user = userManager.getUserModel(name);
 			if (user != null && !user.disabled) {
@@ -584,6 +581,16 @@ public class TicketNotifier {
 								MessageFormat.format("ticket {0}-{1,number,0}: {2} can not receive notification",
 										repository.name, ticket.number, user.username));
 					}
+				}
+			}
+		}
+
+		// repository owners
+		for (Owner owner : userManager.getOwners(repository)) {
+			if (owner instanceof UserModel) {
+				UserModel user = (UserModel) owner;
+				if (!StringUtils.isEmpty(user.emailAddress)) {
+					ccAddresses.add(user.emailAddress);
 				}
 			}
 		}

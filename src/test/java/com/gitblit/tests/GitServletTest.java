@@ -53,7 +53,6 @@ import com.gitblit.Keys;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;
 
@@ -879,7 +878,8 @@ public class GitServletTest extends GitblitUnitTest {
 
 			// confirm default personal repository permissions
 			RepositoryModel model = repositories().getRepositoryModel(MessageFormat.format("~{0}/ticgit.git", user.username));
-			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
+			user = gitblit().getUserModel(user.username);
+			assertTrue("Unexpected owner", user.isOwner(model));
 			assertEquals("Unexpected authorization control", AuthorizationControl.NAMED, model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.VIEW, model.accessRestriction);
 
@@ -903,7 +903,8 @@ public class GitServletTest extends GitblitUnitTest {
 
 			// confirm default project repository permissions
 			RepositoryModel model = repositories().getRepositoryModel("project/ticgit.git");
-			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
+			user = gitblit().getUserModel(user.username);
+			assertTrue("Unexpected owner", user.isOwner(model));
 			assertEquals("Unexpected authorization control", AuthorizationControl.fromName(settings().getString(Keys.git.defaultAuthorizationControl, "NAMED")), model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.fromName(settings().getString(Keys.git.defaultAccessRestriction, "NONE")), model.accessRestriction);
 

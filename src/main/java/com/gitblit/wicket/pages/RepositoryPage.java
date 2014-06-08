@@ -156,7 +156,7 @@ public abstract class RepositoryPage extends RootPage {
 			showAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
 		}
 		isOwner = GitBlitWebSession.get().isLoggedIn()
-				&& (getRepositoryModel().isOwner(GitBlitWebSession.get().getUsername()));
+				&& (GitBlitWebSession.get().getUser().isOwner(getRepositoryModel()));
 
 		// register the available navigation links for this page and user
 		List<NavLink> navLinks = registerNavLinks();

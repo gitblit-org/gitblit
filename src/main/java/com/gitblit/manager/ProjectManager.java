@@ -298,14 +298,14 @@ public class ProjectManager implements IProjectManager {
 				// exclude personal repositories
 				continue;
 			}
-			if (!projects.containsKey(repository.projectPath)) {
-				ProjectModel project = getProjectModel(repository.projectPath);
+			if (!projects.containsKey(repository.getProject())) {
+				ProjectModel project = getProjectModel(repository.getProject());
 				if (project == null) {
 					logger.warn(MessageFormat.format("excluding project \"{0}\" from project list because it is empty!",
-							repository.projectPath));
+							repository.getProject()));
 					continue;
 				}
-				projects.put(repository.projectPath, project);
+				projects.put(repository.getProject(), project);
 				// clear the repo list in the project because that is the system
 				// list, not the user-accessible list and start building the
 				// user-accessible list
@@ -315,7 +315,7 @@ public class ProjectManager implements IProjectManager {
 			} else {
 				// update the user-accessible list
 				// this is used for repository count
-				ProjectModel project = projects.get(repository.projectPath);
+				ProjectModel project = projects.get(repository.getProject());
 				project.repositories.add(repository.name);
 				if (project.lastChange.before(repository.lastChange)) {
 					project.lastChange = repository.lastChange;

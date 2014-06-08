@@ -277,10 +277,9 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 		}
 
-		// TODO reconsider ownership as a user property
 		// manually specify personal repository ownerships
 		for (RepositoryModel rm : repositoryListCache.values()) {
-			if (rm.isUsersPersonalRepository(user.username) || rm.isOwner(user.username)) {
+			if (user.isOwner(rm)) {
 				RegistrantAccessPermission rp = new RegistrantAccessPermission(rm.name, AccessPermission.REWIND,
 						PermissionType.OWNER, RegistrantType.REPOSITORY, null, false);
 				// user may be owner of a repository to which they've inherited
@@ -791,20 +790,23 @@ public class RepositoryManager implements IRepositoryManager {
 		if (r == null) {
 			return null;
 		}
-		RepositoryModel model = new RepositoryModel();
-		model.isBare = r.isBare();
+
+		String name;
 		File basePath = getRepositoriesFolder();
-		if (model.isBare) {
-			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory());
+		if (r.isBare()) {
+			name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory());
 		} else {
-			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory().getParentFile());
+			name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory().getParentFile());
 		}
-		if (StringUtils.isEmpty(model.name)) {
+
+		if (StringUtils.isEmpty(name)) {
 			// Repository is NOT located relative to the base folder because it
 			// is symlinked.  Use the provided repository name.
-			model.name = repositoryName;
+			name = repositoryName;
 		}
-		model.projectPath = StringUtils.getFirstPathElement(repositoryName);
+
+		RepositoryModel model = new RepositoryModel(name);
+		model.isBare = r.isBare();
 
 		StoredConfig config = r.getConfig();
 		boolean hasOrigin = false;
@@ -823,7 +825,7 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 			model.description = getConfig(config, "description", "");
 			model.originRepository = getConfig(config, "originRepository", null);
-			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
+//			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
 			model.acceptNewPatchsets = getConfig(config, "acceptNewPatchsets", true);
 			model.acceptNewTickets = getConfig(config, "acceptNewTickets", true);
 			model.requireApproval = getConfig(config, "requireApproval", settings.getBoolean(Keys.tickets.requireApproval, false));
@@ -968,10 +970,9 @@ public class RepositoryManager implements IRepositoryManager {
 		if (StringUtils.isEmpty(origin)) {
 			return null;
 		}
-		String userProject = ModelUtils.getPersonalPath(username);
+		String userPath = ModelUtils.getPersonalPath(username);
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			String originKey = origin.toLowerCase();
-			String userPath = userProject + "/";
 
 			// collect all origin nodes in fork network
 			Set<String> roots = new HashSet<String>();
@@ -1009,6 +1010,7 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 		} else {
 			// not caching
+			String userProject = ModelUtils.getPersonalProject(username);
 			File subfolder = new File(getRepositoriesFolder(), userProject);
 			List<String> repositories = JGitUtils.getRepositoryList(subfolder,
 					settings.getBoolean(Keys.git.onlyAccessBareRepositories, false),
@@ -1016,7 +1018,7 @@ public class RepositoryManager implements IRepositoryManager {
 					settings.getInteger(Keys.git.searchRecursionDepth, -1),
 					settings.getStrings(Keys.git.searchExclusions));
 			for (String repository : repositories) {
-				RepositoryModel model = getRepositoryModel(userProject + "/" + repository);
+				RepositoryModel model = getRepositoryModel(userPath + repository);
 				if (model.originRepository != null && model.originRepository.equalsIgnoreCase(origin)) {
 					// user has a fork
 					return model.name;
@@ -1450,7 +1452,7 @@ public class RepositoryManager implements IRepositoryManager {
 		StoredConfig config = r.getConfig();
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
 		config.setString(Constants.CONFIG_GITBLIT, null, "originRepository", repository.originRepository);
-		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
+//		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "acceptNewPatchsets", repository.acceptNewPatchsets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "acceptNewTickets", repository.acceptNewTickets);
 		if (settings.getBoolean(Keys.tickets.requireApproval, false) == repository.requireApproval) {

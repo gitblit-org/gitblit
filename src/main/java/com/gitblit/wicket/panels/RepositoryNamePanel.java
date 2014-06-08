@@ -62,6 +62,15 @@ public class RepositoryNamePanel extends BasePanel {
 		String defaultName = null;
 		Set<String> pathNames = new TreeSet<String>();
 
+//		// add all specified project paths
+//		if (user.ownerOf != null) {
+//			for (String path : user.ownerOf) {
+//				if (path.charAt(path.length() - 1) == '/') {
+//					projectNames.add(path);
+//				}
+//			}
+//		}
+//
 		// add the registered/known projects
 		for (ProjectModel project : app().projects().getProjectModels(user, false)) {
 			// TODO issue-351: user.canAdmin(project)
@@ -76,19 +85,14 @@ public class RepositoryNamePanel extends BasePanel {
 
 		// add the user's personal project namespace
 		if (user.canAdmin() || user.canCreate()) {
-			pathNames.add(user.getPersonalPath() + "/");
+			pathNames.add(user.getPersonalPath());
 		}
 
 		if (!StringUtils.isEmpty(repository.name)) {
 			// editing a repository name
 			// set the defaultProject to the current repository project
-			if (StringUtils.isEmpty(repository.projectPath)) {
-				defaultPath = "/";
-				defaultName = repository.name;
-			} else {
-				defaultPath = repository.projectPath + "/";
-				defaultName = repository.name.substring(defaultPath.length());
-			}
+			defaultPath = repository.getProjectPath();
+			defaultName = repository.name.substring(defaultPath.length());
 			pathNames.add(defaultPath);
 		}
 
@@ -97,7 +101,7 @@ public class RepositoryNamePanel extends BasePanel {
 			if (user.canAdmin()) {
 				defaultPath = "/";
 			} else if (user.canCreate()) {
-				defaultPath = user.getPersonalPath() + "/";
+				defaultPath = user.getPersonalPath();
 			}
 		}
 

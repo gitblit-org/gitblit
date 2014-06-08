@@ -31,6 +31,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -57,10 +58,11 @@ public class ForksPage extends RepositoryPage {
 				RepositoryModel repository = fork.repository;
 
 				if (repository.isPersonalRepository()) {
-					UserModel user = app().users().getUserModel(repository.projectPath.substring(1));
+					String name = ModelUtils.getUserNameFromRepoPath(repository.name);
+					UserModel user = app().users().getUserModel(name);
 					if (user == null) {
 						// user account no longer exists
-						user = new UserModel(repository.projectPath.substring(1));
+						user = new UserModel(name);
 					}
 					PersonIdent ident = new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.getDisplayName() : user.emailAddress);
 					item.add(new GravatarImage("anAvatar", ident, 20));
@@ -81,7 +83,7 @@ public class ForksPage extends RepositoryPage {
 					WicketUtils.setCssClass(swatch,  "repositorySwatch");
 					WicketUtils.setCssBackground(swatch, repository.toString());
 					item.add(swatch);
-					String projectName = repository.projectPath;
+					String projectName = repository.getProject();
 					if (StringUtils.isEmpty(projectName)) {
 						projectName = app().settings().getString(Keys.web.repositoryRootGroupName, "main");
 					}

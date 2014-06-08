@@ -23,7 +23,6 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.utils.ArrayUtils;
 
 /**
  * Table model of a list of repositories.
@@ -38,7 +37,7 @@ public class RepositoriesTableModel extends AbstractTableModel {
 	List<RepositoryModel> list;
 
 	enum Columns {
-		Name, Description, Owner, Indicators, Last_Change, Size;
+		Name, Description, Indicators, Last_Change, Size;
 
 		@Override
 		public String toString() {
@@ -73,8 +72,6 @@ public class RepositoriesTableModel extends AbstractTableModel {
 			return Translation.get("gb.name");
 		case Description:
 			return Translation.get("gb.description");
-		case Owner:
-			return Translation.get("gb.owner");
 		case Last_Change:
 			return Translation.get("gb.lastChange");
 		case Size:
@@ -112,8 +109,6 @@ public class RepositoriesTableModel extends AbstractTableModel {
 			return model;
 		case Description:
 			return model.description;
-		case Owner:
-			return ArrayUtils.toString(model.owners);
 		case Indicators:
 			return model;
 		case Last_Change:

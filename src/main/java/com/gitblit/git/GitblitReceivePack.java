@@ -286,7 +286,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			} else if (ref.equals(BranchTicketService.BRANCH)) {
 				// ensure pushing user is an administrator OR an owner
 				// i.e. prevent ticket tampering
-				boolean permitted = user.canAdmin() || repository.isOwner(user.username);
+				boolean permitted = user.canAdmin() || user.isOwner(repository);
 				if (!permitted) {
 					sendRejection(cmd, "{0} is not permitted to push to {1}", user.username, ref);
 				}

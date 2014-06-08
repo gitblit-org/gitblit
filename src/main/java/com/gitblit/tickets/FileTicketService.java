@@ -257,7 +257,7 @@ public class FileTicketService extends ITicketService {
 						continue;
 					}
 					TicketModel ticket = TicketModel.buildTicket(changes);
-					ticket.project = repository.projectPath;
+					ticket.project = repository.getProject();
 					ticket.repository = repository.name;
 					ticket.number = ticketId;
 
@@ -320,7 +320,7 @@ public class FileTicketService extends ITicketService {
 			}
 			TicketModel ticket = TicketModel.buildTicket(changes);
 			if (ticket != null) {
-				ticket.project = repository.projectPath;
+				ticket.project = repository.getProject();
 				ticket.repository = repository.name;
 				ticket.number = ticketId;
 			}

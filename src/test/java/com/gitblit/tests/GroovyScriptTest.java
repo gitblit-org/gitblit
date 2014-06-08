@@ -147,7 +147,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 	}
@@ -161,7 +161,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/tags/v1.0"));
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
@@ -177,7 +177,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
@@ -194,7 +194,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 				"refs/heads/master");
 		commands.add(command);
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(ReceiveCommand.Result.REJECTED_NODELETE, command.getResult());
@@ -211,7 +211,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
 				"refs/heads/other"));
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
@@ -228,7 +228,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 				"refs/tags/v1.0");
 		commands.add(command);
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(ReceiveCommand.Result.REJECTED_NODELETE, command.getResult());
@@ -245,7 +245,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		try {
 			test("blockpush.groovy", gitblit, logger, clientLogger, commands, repository);
@@ -265,7 +265,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
 
-		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", new Date());
 
 		File groovyDir = repositories().getHooksFolder();
 		File tempScript = File.createTempFile("testClientLogging", "groovy", groovyDir);
