@@ -194,7 +194,6 @@ public abstract class RepositoriesPanel extends JPanel {
 
 		setRepositoryRenderer(RepositoriesTableModel.Columns.Name, nameRenderer, -1);
 		setRepositoryRenderer(RepositoriesTableModel.Columns.Indicators, typeRenderer, 100);
-		setRepositoryRenderer(RepositoriesTableModel.Columns.Owner, ownerRenderer, -1);
 		setRepositoryRenderer(RepositoriesTableModel.Columns.Size, sizeRenderer, 60);
 
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -466,7 +465,8 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
 		List<String> usernames = gitblit.getUsernames();
 		List<RegistrantAccessPermission> members = gitblit.getUserAccessPermissions(repository);
-		dialog.setUsers(new ArrayList<String>(repository.owners), usernames, members);
+		List<String> owners = gitblit.getOwners(repository);
+		dialog.setUsers(owners, usernames, members);
 		dialog.setTeams(gitblit.getTeamnames(), gitblit.getTeamAccessPermissions(repository));
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
@@ -486,6 +486,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		final RepositoryModel revisedRepository = dialog.getRepository();
 		final List<RegistrantAccessPermission> permittedUsers = dialog.getUserAccessPermissions();
 		final List<RegistrantAccessPermission> permittedTeams = dialog.getTeamAccessPermissions();
+		final List<String> newOwners = dialog.getOwners();
 		if (revisedRepository == null) {
 			return;
 		}
@@ -494,7 +495,7 @@ public abstract class RepositoriesPanel extends JPanel {
 
 			@Override
 			protected Boolean doRequest() throws IOException {
-				boolean success = gitblit.updateRepository(repository.name, revisedRepository,
+				boolean success = gitblit.updateRepository(repository.name, revisedRepository, newOwners,
 						permittedUsers, permittedTeams);
 				if (success) {
 					gitblit.refreshRepositories();

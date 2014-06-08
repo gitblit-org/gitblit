@@ -276,7 +276,7 @@ public class RedisTicketService extends ITicketService {
 					continue;
 				}
 				TicketModel ticket = TicketModel.buildTicket(changes);
-				ticket.project = repository.projectPath;
+				ticket.project = repository.getProject();
 				ticket.repository = repository.name;
 				ticket.number = ticketId;
 
@@ -325,7 +325,7 @@ public class RedisTicketService extends ITicketService {
 				return null;
 			}
 			TicketModel ticket = TicketModel.buildTicket(changes);
-			ticket.project = repository.projectPath;
+			ticket.project = repository.getProject();
 			ticket.repository = repository.name;
 			ticket.number = ticketId;
 			log.debug("rebuilt ticket {} from Redis @ {}", ticketId, getUrl());

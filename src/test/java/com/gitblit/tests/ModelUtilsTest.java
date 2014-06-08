@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.gitblit.Constants;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.ModelUtils;
 
 public class ModelUtilsTest extends GitblitUnitTest {
@@ -49,17 +50,32 @@ public class ModelUtilsTest extends GitblitUnitTest {
 
 
 	@Test
-	public void testGetPersonalPath()
+	public void testGetPersonalProject()
 	{
 		String username = "rob";
-		assertEquals(Constants.DEFAULT_USER_REPOSITORY_PREFIX+username.toLowerCase(), ModelUtils.getPersonalPath(username));
+		assertEquals(Constants.DEFAULT_USER_REPOSITORY_PREFIX+username.toLowerCase(), ModelUtils.getPersonalProject(username));
 
 		username = "James";
-		assertEquals(Constants.DEFAULT_USER_REPOSITORY_PREFIX+username.toLowerCase(), ModelUtils.getPersonalPath(username));
+		assertEquals(Constants.DEFAULT_USER_REPOSITORY_PREFIX+username.toLowerCase(), ModelUtils.getPersonalProject(username));
 
 		ModelUtils.setUserRepoPrefix("usr/");
 		username = "noMan";
-		assertEquals("usr/"+username.toLowerCase(), ModelUtils.getPersonalPath(username));
+		assertEquals("usr/"+username.toLowerCase(), ModelUtils.getPersonalProject(username));
+	}
+
+
+	@Test
+	public void testGetPersonalPath()
+	{
+		String username = "rob";
+		assertEquals(Constants.DEFAULT_USER_REPOSITORY_PREFIX+username.toLowerCase() + "/", ModelUtils.getPersonalPath(username));
+
+		username = "James";
+		assertEquals(Constants.DEFAULT_USER_REPOSITORY_PREFIX+username.toLowerCase() + "/", ModelUtils.getPersonalPath(username));
+
+		ModelUtils.setUserRepoPrefix("usr/");
+		username = "noMan";
+		assertEquals("usr/"+username.toLowerCase() + "/", ModelUtils.getPersonalPath(username));
 	}
 
 
@@ -124,4 +140,19 @@ public class ModelUtilsTest extends GitblitUnitTest {
 		assertEquals("fee", ModelUtils.getUserNameFromRepoPath(reponame));
 	}
 
+	@Test
+	public void testUserOwnership() {
+		ModelUtils.setUserRepoPrefix(Constants.DEFAULT_USER_REPOSITORY_PREFIX);
+		UserModel user = new UserModel("james");
+		user.own("test.git");
+		user.own("newyork/.*");
+
+		assertFalse(user.isOwner("test"));
+		assertTrue(user.isOwner("test.git"));
+		assertFalse(user.isOwner("newyork"));
+		assertTrue(user.isOwner("newyork/"));
+		assertTrue(user.isOwner("newyork/abc"));
+		assertTrue(user.isOwner("~james/"));
+		assertTrue(user.isOwner("~james/abc/123"));
+	}
 }

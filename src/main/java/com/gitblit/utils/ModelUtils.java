@@ -56,6 +56,16 @@ public class ModelUtils
 		return userRepoPrefix;
 	}
 
+	/**
+	 * Get the user project name for a user.
+	 *
+	 * @param username name of user
+	 * @return the active user repository project prefix concatenated with the user name
+	 */
+	public static String getPersonalProject(String username)
+	{
+		return userRepoPrefix + username.toLowerCase();
+	}
 
 	/**
 	 * Get the user project name for a user.
@@ -65,7 +75,7 @@ public class ModelUtils
 	 */
 	public static String getPersonalPath(String username)
 	{
-		return userRepoPrefix + username.toLowerCase();
+		return userRepoPrefix + username.toLowerCase() + "/";
 	}
 
 

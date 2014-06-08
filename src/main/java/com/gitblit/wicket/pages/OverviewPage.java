@@ -16,7 +16,6 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
@@ -30,6 +29,7 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Keys;
 import com.gitblit.models.Metric;
+import com.gitblit.models.Owner;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
@@ -74,23 +74,18 @@ public class OverviewPage extends RepositoryPage {
 		add(new Label("repositoryDescription", getRepositoryModel().description));
 
 		// owner links
-		final List<String> owners = new ArrayList<String>(getRepositoryModel().owners);
-		ListDataProvider<String> ownersDp = new ListDataProvider<String>(owners);
-		DataView<String> ownersView = new DataView<String>("repositoryOwners", ownersDp) {
+		final List<Owner> owners = app().users().getOwners(getRepositoryModel());
+		ListDataProvider<Owner> ownersDp = new ListDataProvider<Owner>(owners);
+		DataView<Owner> ownersView = new DataView<Owner>("repositoryOwners", ownersDp) {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
 			@Override
-			public void populateItem(final Item<String> item) {
-				String ownername = item.getModelObject();
-				UserModel ownerModel = app().users().getUserModel(ownername);
-				if (ownerModel != null) {
-					item.add(new LinkPanel("owner", null, ownerModel.getDisplayName(), UserPage.class,
-							WicketUtils.newUsernameParameter(ownerModel.username)).setRenderBodyOnly(true));
-				} else {
-					Label owner = new Label("owner", ownername);
-					WicketUtils.setCssStyle(owner, "text-decoration: line-through;");
-					WicketUtils.setHtmlTooltip(owner,  MessageFormat.format(getString("gb.failedToFindAccount"), ownername));
-					item.add(owner);
+			public void populateItem(final Item<Owner> item) {
+				Owner owner = item.getModelObject();
+				if (owner instanceof UserModel) {
+					UserModel user = (UserModel) owner;
+					item.add(new LinkPanel("owner", null, user.getDisplayName(), UserPage.class,
+						WicketUtils.newUsernameParameter(user.username)).setRenderBodyOnly(true));
 				}
 				counter++;
 				item.add(new Label("comma", ",").setVisible(counter < owners.size()));
@@ -136,7 +131,7 @@ public class OverviewPage extends RepositoryPage {
 				&& app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 
 			Charts charts = new Flotr2Charts();
-			
+
 			// daily line chart
 			Chart chart = charts.createLineChart("chartDaily", "", "unit",
 					getString("gb.commits"));

@@ -68,7 +68,6 @@ public class FederationTests extends GitblitUnitTest {
 			model.accessRestriction = AccessRestrictionType.VIEW;
 			model.description = "cloneable repository " + i;
 			model.lastChange = new Date();
-			model.addOwner("adminuser");
 			model.name = "repo" + i + ".git";
 			model.size = "5 MB";
 			model.hasCommits = true;

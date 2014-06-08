@@ -494,7 +494,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 						continue;
 					}
 					TicketModel ticket = TicketModel.buildTicket(changes);
-					ticket.project = repository.projectPath;
+					ticket.project = repository.getProject();
 					ticket.repository = repository.name;
 					ticket.number = ticketId;
 
@@ -540,7 +540,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			}
 			TicketModel ticket = TicketModel.buildTicket(changes);
 			if (ticket != null) {
-				ticket.project = repository.projectPath;
+				ticket.project = repository.getProject();
 				ticket.repository = repository.name;
 				ticket.number = ticketId;
 			}

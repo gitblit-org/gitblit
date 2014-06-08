@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,6 +49,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.models.Owner;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -56,8 +58,8 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
-import com.gitblit.wicket.panels.BooleanOption;
 import com.gitblit.wicket.panels.BooleanChoiceOption;
+import com.gitblit.wicket.panels.BooleanOption;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
 
 public class NewRepositoryPage extends RootSubPage {
@@ -108,9 +110,6 @@ public class NewRepositoryPage extends RootSubPage {
 					}
 					accessPolicyPanel.updateModel(repositoryModel);
 
-					repositoryModel.owners = new ArrayList<String>();
-					repositoryModel.owners.add(GitBlitWebSession.get().getUsername());
-
 					// setup branch defaults
 					boolean useGitFlow = addGitflowModel.getObject();
 
@@ -137,12 +136,15 @@ public class NewRepositoryPage extends RootSubPage {
 					// init the repository
 					app().gitblit().updateRepositoryModel(repositoryModel.name, repositoryModel, true);
 
+					// save the owner change
+					List<Owner> owners = Arrays.asList((Owner) GitBlitWebSession.get().getUser());
+					app().gitblit().setOwners(repositoryModel, owners);
+
 					// optionally create an initial commit
 					initialCommit(repositoryModel, addReadme, gitignore, useGitFlow);
 
 				} catch (GitBlitException e) {
 					error(e.getMessage());
-					namePanel.resetModel(repositoryModel);
 					return;
 				}
 				setRedirect(true);

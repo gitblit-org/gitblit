@@ -26,6 +26,7 @@ import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -51,12 +52,15 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	private IStoredSettings settings;
 
+	private IUserManager userManager;
+
 	private IFederationManager federationManager;
 
 	@Override
 	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
 		super.inject(dagger, filterConfig);
 		this.settings = dagger.get(IStoredSettings.class);
+		this.userManager = dagger.get(IUserManager.class);
 		this.federationManager = dagger.get(IFederationManager.class);
 	}
 
@@ -241,11 +245,8 @@ public class GitFilter extends AccessRestrictionFilter {
 				}
 
 				// create repository
-				RepositoryModel model = new RepositoryModel();
-				model.name = repository;
-				model.addOwner(user.username);
-				model.projectPath = StringUtils.getFirstPathElement(repository);
-				if (model.isUsersPersonalRepository(user.username)) {
+				RepositoryModel model = new RepositoryModel(repository);
+				if (user.isMyPersonalRepository(model.name)) {
 					// personal repository, default to private for user
 					model.authorizationControl = AuthorizationControl.NAMED;
 					model.accessRestriction = AccessRestrictionType.VIEW;
@@ -258,6 +259,8 @@ public class GitFilter extends AccessRestrictionFilter {
 				// create the repository
 				try {
 					repositoryManager.updateRepositoryModel(model.name, model, true);
+					user.own(model);
+					userManager.updateUserModel(user.username, user);
 					logger.info(MessageFormat.format("{0} created {1} ON-PUSH", user.username, model.name));
 					return repositoryManager.getRepositoryModel(model.name);
 				} catch (GitBlitException e) {

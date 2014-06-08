@@ -162,7 +162,17 @@ public class GitblitClient implements Serializable {
 	}
 
 	public boolean isOwner(RepositoryModel model) {
-		return model.isOwner(account);
+		return getUser(account).isOwner(model);
+	}
+
+	public List<String> getOwners(RepositoryModel model) {
+		List<String> list = new ArrayList<String>();
+		for (UserModel user : allUsers) {
+			if (user.isOwner(model)) {
+				list.add(user.username);
+			}
+		}
+		return list;
 	}
 
 	public String getURL(String action, String repository, String objectId) {
@@ -529,10 +539,9 @@ public class GitblitClient implements Serializable {
 			}
 		}
 
-		// TODO reconsider ownership as a user property
 		// manually specify personal repository ownerships
 		for (RepositoryModel rm : allRepositories) {
-			if (rm.isUsersPersonalRepository(user.username) || rm.isOwner(user.username)) {
+			if (user.isOwner(rm)) {
 				RegistrantAccessPermission rp = new RegistrantAccessPermission(rm.name, AccessPermission.REWIND,
 						PermissionType.OWNER, RegistrantType.REPOSITORY, null, false);
 				// user may be owner of a repository to which they've inherited
@@ -660,13 +669,18 @@ public class GitblitClient implements Serializable {
 
 	public boolean updateRepository(String name, RepositoryModel repository,
 			List<RegistrantAccessPermission> userPermissions) throws IOException {
-		return updateRepository(name, repository, userPermissions, null);
+		return updateRepository(name, repository, null, userPermissions, null);
 	}
 
-	public boolean updateRepository(String name, RepositoryModel repository,
+	public boolean updateRepository(String name, RepositoryModel repository, List<String> owners,
 			List<RegistrantAccessPermission> userPermissions,	List<RegistrantAccessPermission> teamPermissions) throws IOException {
 		boolean success = true;
 		success &= RpcUtils.updateRepository(name, repository, url, account, password);
+		// set the repository owners
+		if (owners != null) {
+			success &= RpcUtils.setRepositoryOwners(repository, owners, url, account, password);
+		}
+
 		// set the repository members
 		if (userPermissions != null) {
 			success &= RpcUtils.setRepositoryMemberPermissions(repository, userPermissions, url, account,

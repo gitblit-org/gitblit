@@ -46,7 +46,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class UserModel implements Principal, Serializable, Comparable<UserModel> {
+public class UserModel extends Owner implements Principal, Serializable, Comparable<UserModel> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -92,6 +92,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		this.isAuthenticated = false;
 		this.accountType = AccountType.LOCAL;
 		this.userPreferences = new UserPreferences(this.username);
+	}
+
+	@Override
+	public String getId() {
+		return username;
 	}
 
 	public boolean isLocalAccount() {
@@ -279,7 +284,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 
 		// repository owner - either specified owner or personal repository
-		if (repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
+		if (isOwner(repository)) {
 			ap.permissionType = PermissionType.OWNER;
 			if (AccessPermission.REWIND.atMost(maxPermission)) {
 				ap.permission = AccessPermission.REWIND;
@@ -423,11 +428,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	public boolean canFork(RepositoryModel repository) {
-		if (repository.isUsersPersonalRepository(username)) {
+		if (isMyPersonalRepository(repository.name)) {
 			// can not fork your own repository
 			return false;
 		}
-		if (canAdmin() || repository.isOwner(username)) {
+		if (canAdmin() || isOwner(repository)) {
 			return true;
 		}
 		if (!repository.allowForks) {
@@ -440,11 +445,13 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	public boolean canDelete(RepositoryModel model) {
-		return canAdmin() || model.isUsersPersonalRepository(username);
+		return canAdmin()
+				|| isMyPersonalRepository(model.name)
+				|| (!model.isPersonalRepository() && isOwner(model));
 	}
 
 	public boolean canEdit(RepositoryModel model) {
-		return canAdmin() || model.isUsersPersonalRepository(username) || model.isOwner(username);
+		return canAdmin() || isOwner(model);
 	}
 
 	public boolean canEdit(TicketModel ticket, RepositoryModel repository) {
@@ -544,15 +551,22 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			return true;
 		}
 		if (canCreate()) {
-			String projectPath = StringUtils.getFirstPathElement(repository);
-			if (!StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath())) {
-				// personal repository
-				return true;
-			}
+			String projectPath = StringUtils.getFirstPathElement(repository) + "/";
+			return isOwner(projectPath);
 		}
 		return false;
 	}
 
+//	/**
+//	 * Returns true if the user is allowed to administer the specified project
+//	 *
+//	 * @param project
+//	 * @return true if the user can administer the project
+//	 */
+//	public boolean canAdmin(ProjectModel project) {
+//		return canAdmin() || isOwner(project);
+//	}
+//
 	/**
 	 * Returns true if the user is allowed to administer the specified repository
 	 *
@@ -560,7 +574,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 * @return true if the user can administer the repository
 	 */
 	public boolean canAdmin(RepositoryModel repo) {
-		return canAdmin() || repo.isOwner(username) || isMyPersonalRepository(repo.name);
+		return canAdmin() || isOwner(repo);
 	}
 
 	public boolean isAuthenticated() {
@@ -593,6 +607,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return username;
 	}
 
+	@Override
 	public String getDisplayName() {
 		if (StringUtils.isEmpty(displayName)) {
 			return username;
@@ -600,6 +615,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return displayName;
 	}
 
+	@Override
 	public String getPersonalPath() {
 		return ModelUtils.getPersonalPath(username);
 	}
@@ -657,7 +673,31 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	public boolean isMyPersonalRepository(String repository) {
-		String projectPath = StringUtils.getFirstPathElement(repository);
-		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath());
+		return repository.startsWith(getPersonalPath());
 	}
+
+	@Override
+	public boolean isOwner(RepositoryModel repository) {
+		return isMyPersonalRepository(repository.name)
+				|| isOwner(repository.name);
+	}
+//	public boolean isOwner(ProjectModel project) {
+//	return isOwner(project.name + "/");
+//}
+//
+//	public void own(ProjectModel project) {
+//		if (StringUtils.isEmpty(project.name)) {
+//			own("/");
+//		} else {
+//			own(project.name.toLowerCase() + "/");
+//		}
+//	}
+//
+//	public void disown(ProjectModel project) {
+//		if (StringUtils.isEmpty(project.name)) {
+//			disown("/");
+//		} else {
+//			disown(project.name.toLowerCase() + "/");
+//		}
+//	}
 }

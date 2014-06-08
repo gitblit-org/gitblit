@@ -89,17 +89,16 @@ public abstract class RootSubPage extends RootPage {
 			RepositoryModel repositoryModel = app().repositories().getRepositoryModel(repo);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)
 					&& repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED)) {
-				if (user != null &&
-						(repositoryModel.isOwner(user.username) || repositoryModel.isUsersPersonalRepository(user.username))) {
+				if (user != null && user.isOwner(repositoryModel)) {
 					// exclude Owner or personal repositories
 					continue;
 				}
 				if (includeWildcards) {
-					if (lastProject == null || !lastProject.equalsIgnoreCase(repositoryModel.projectPath)) {
-						lastProject = repositoryModel.projectPath.toLowerCase();
-						if (!StringUtils.isEmpty(repositoryModel.projectPath)) {
+					if (lastProject == null || !lastProject.equalsIgnoreCase(repositoryModel.getProject())) {
+						lastProject = repositoryModel.getProject().toLowerCase();
+						if (!StringUtils.isEmpty(repositoryModel.getProject())) {
 							// regex for all repositories within a project
-							repos.add(repositoryModel.projectPath + "/.*");
+							repos.add(repositoryModel.getProjectPath() + "/.*");
 						}
 					}
 				}

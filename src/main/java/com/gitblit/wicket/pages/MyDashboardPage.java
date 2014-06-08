@@ -112,7 +112,7 @@ public class MyDashboardPage extends DashboardPage {
 		List<RepositoryModel> active = new ArrayList<RepositoryModel>();
 
 		for (RepositoryModel model : getRepositoryModels()) {
-			if (model.isUsersPersonalRepository(user.username) || model.isOwner(user.username)) {
+			if (user.isOwner(model)) {
 				owned.add(model);
 			}
 

@@ -62,6 +62,7 @@ import com.gitblit.models.ForkModel;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.Mailing;
 import com.gitblit.models.Metric;
+import com.gitblit.models.Owner;
 import com.gitblit.models.PluginRegistry.InstallState;
 import com.gitblit.models.PluginRegistry.PluginRegistration;
 import com.gitblit.models.PluginRegistry.PluginRelease;
@@ -78,7 +79,6 @@ import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.SshKey;
-import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.ObjectCache;
@@ -176,7 +176,7 @@ public class GitblitManager implements IGitblit {
 	 */
 	@Override
 	public RepositoryModel fork(RepositoryModel repository, UserModel user) throws GitBlitException {
-		String cloneName = MessageFormat.format("{0}/{1}.git", user.getPersonalPath(), StringUtils.stripDotGit(StringUtils.getLastPathElement(repository.name)));
+		String cloneName = MessageFormat.format("{0}{1}.git", user.getPersonalPath(), StringUtils.stripDotGit(StringUtils.getLastPathElement(repository.name)));
 		String fromUrl = MessageFormat.format("file://{0}/{1}", repositoryManager.getRepositoriesFolder().getAbsolutePath(), repository.name);
 
 		// clone the repository
@@ -214,18 +214,20 @@ public class GitblitManager implements IGitblit {
 
 		// create a Gitblit repository model for the clone
 		RepositoryModel cloneModel = repository.cloneAs(cloneName);
-		// owner has REWIND/RW+ permissions
-		cloneModel.addOwner(user.username);
 		repositoryManager.updateRepositoryModel(cloneName, cloneModel, false);
 
-		// add the owner of the source repository to the clone's access list
-		if (!ArrayUtils.isEmpty(repository.owners)) {
-			for (String owner : repository.owners) {
-				UserModel originOwner = userManager.getUserModel(owner);
-				if (originOwner != null && !originOwner.canClone(cloneModel)) {
+		// owner has REWIND/RW+ permissions
+		user.own(cloneModel);
+		reviseUser(user.username, user);
+
+		// add the owners of the source repository to the clone's access list
+		for (Owner owner : getOwners(repository)) {
+			if (owner instanceof UserModel) {
+				UserModel userOwner = (UserModel) owner;
+				if (!userOwner.canClone(cloneModel)) {
 					// origin owner can't yet clone fork, grant explicit clone access
-					originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
-					reviseUser(originOwner.username, originOwner);
+					userOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
+					reviseUser(userOwner.username, userOwner);
 				}
 			}
 		}
@@ -323,22 +325,6 @@ public class GitblitManager implements IGitblit {
 				throw new GitBlitException(MessageFormat.format(
 						"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
 						user.username));
-			}
-
-			// rename repositories and owner fields for all repositories
-			for (RepositoryModel model : repositoryManager.getRepositoryModels(user)) {
-				if (model.isUsersPersonalRepository(username)) {
-					// personal repository
-					model.addOwner(user.username);
-					String oldRepositoryName = model.name;
-					model.name = user.getPersonalPath() + model.name.substring(model.projectPath.length());
-					model.projectPath = user.getPersonalPath();
-					repositoryManager.updateRepositoryModel(oldRepositoryName, model, false);
-				} else if (model.isOwner(username)) {
-					// common/shared repo
-					model.addOwner(user.username);
-					repositoryManager.updateRepositoryModel(model.name, model, false);
-				}
 			}
 
 			// rename the user's ssh public keystore
@@ -878,6 +864,16 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public boolean deleteTeam(String teamname) {
 		return userManager.deleteTeam(teamname);
+	}
+
+	@Override
+	public List<Owner> getOwners(RepositoryModel repository) {
+		return userManager.getOwners(repository);
+	}
+
+	@Override
+	public boolean setOwners(RepositoryModel repository, List<Owner> owners) {
+		return userManager.setOwners(repository, owners);
 	}
 
 	/*

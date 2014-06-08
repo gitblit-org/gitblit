@@ -59,6 +59,7 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.models.Owner;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserChoice;
@@ -70,8 +71,8 @@ import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
 import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
-import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.BooleanOption;
+import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
@@ -107,9 +108,8 @@ public class EditRepositoryPage extends RootSubPage {
 		UserModel user = session.getUser();
 		if (user != null && user.canCreate() && !user.canAdmin()) {
 			// personal create permissions, inject personal repository path
-			model.name = user.getPersonalPath() + "/";
-			model.projectPath = user.getPersonalPath();
-			model.addOwner(user.username);
+			model.name = user.getPersonalPath();
+
 			// personal repositories are private by default
 			model.accessRestriction = AccessRestrictionType.VIEW;
 			model.authorizationControl = AuthorizationControl.NAMED;
@@ -156,7 +156,6 @@ public class EditRepositoryPage extends RootSubPage {
 
 		GitBlitWebSession session = GitBlitWebSession.get();
 		final UserModel user = session.getUser() == null ? UserModel.ANONYMOUS : session.getUser();
-		final boolean allowEditName = isCreate || isAdmin || repositoryModel.isUsersPersonalRepository(user.username);
 
 		if (isCreate) {
 			if (user.canAdmin()) {
@@ -186,12 +185,10 @@ public class EditRepositoryPage extends RootSubPage {
 
 		// owners palette
 		List<UserChoice> owners = new ArrayList<UserChoice>();
-		for (String owner : repositoryModel.owners) {
-			UserModel o = app().users().getUserModel(owner);
-			if (o != null) {
-				owners.add(new UserChoice(o.getDisplayName(), o.username, o.emailAddress));
-			} else {
-				owners.add(new UserChoice(owner));
+		for (Owner owner : app().users().getOwners(repositoryModel)) {
+			if (owner instanceof UserModel) {
+				UserModel userOwner = (UserModel) owner;
+				owners.add(new UserChoice(userOwner.getDisplayName(), userOwner.username, userOwner.emailAddress));
 			}
 		}
 		List<UserChoice> persons = new ArrayList<UserChoice>();
@@ -338,13 +335,6 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 					repositoryModel.indexedBranches = indexedBranches;
 
-					// owners
-					repositoryModel.owners.clear();
-					Iterator<UserChoice> owners = ownersPalette.getSelectedChoices();
-					while (owners.hasNext()) {
-						repositoryModel.addOwner(owners.next().getUserId());
-					}
-
 					// pre-receive scripts
 					List<String> preReceiveScripts = new ArrayList<String>();
 					Iterator<String> pres = preReceivePalette.getSelectedChoices();
@@ -381,9 +371,23 @@ public class EditRepositoryPage extends RootSubPage {
 						app().gitblit().setUserAccessPermissions(repositoryModel, repositoryUsers);
 						app().gitblit().setTeamAccessPermissions(repositoryModel, repositoryTeams);
 					}
+
+					//
+					// handle ownership changes
+					//
+
+					List<Owner> newOwners = new ArrayList<>();
+					Iterator<UserChoice> owners = ownersPalette.getSelectedChoices();
+					while (owners.hasNext()) {
+						String username = owners.next().getUserId();
+						UserModel owner = app().users().getUserModel(username);
+						newOwners.add(owner);
+					}
+
+					app().users().setOwners(repositoryModel, newOwners);
+
 				} catch (GitBlitException e) {
 					error(e.getMessage());
-					namePanel.resetModel(repositoryModel);
 					return;
 				}
 				setRedirect(false);
@@ -414,7 +418,6 @@ public class EditRepositoryPage extends RootSubPage {
 		// GENERAL
 		//
 		namePanel = new RepositoryNamePanel("namePanel", repositoryModel);
-		namePanel.setEditable(allowEditName);
 		form.add(namePanel);
 
 		// XXX AccessPolicyPanel is defined later.
@@ -668,7 +671,7 @@ public class EditRepositoryPage extends RootSubPage {
 		// the user can delete if deletions are allowed AND the user is an admin or the personal owner
 		// assigned ownership is not sufficient to allow deletion
 		boolean canDelete = !isCreate && app().repositories().canDelete(repositoryModel)
-				&& (user.canAdmin() || user.isMyPersonalRepository(repositoryModel.name));
+				&& user.canDelete(repositoryModel);
 
 		Link<Void> delete = new Link<Void>("delete") {
 
@@ -683,8 +686,7 @@ public class EditRepositoryPage extends RootSubPage {
 						info(MessageFormat.format(getString("gb.repositoryDeleted"), latestModel));
 						if (latestModel.isPersonalRepository()) {
 							// redirect to user's profile page
-							String prefix = app().settings().getString(Keys.git.userRepositoryPrefix, "~");
-							String username = latestModel.projectPath.substring(prefix.length());
+							String username = latestModel.getPersonalRepositoryOwner();
 							setResponsePage(UserPage.class, WicketUtils.newUsernameParameter(username));
 						} else {
 							// redirect to server repositories page
@@ -741,7 +743,7 @@ public class EditRepositoryPage extends RootSubPage {
 						isAdmin = true;
 						return;
 					} else {
-						if (!model.isOwner(user.username)) {
+						if (!user.isOwner(model)) {
 							// User is not an Admin nor Owner
 							error(getString("gb.errorOnlyAdminOrOwnerMayEditRepository"), true);
 						}

@@ -15,7 +15,11 @@
  */
 package com.gitblit.manager;
 
+import java.util.List;
+
 import com.gitblit.IUserService;
+import com.gitblit.models.Owner;
+import com.gitblit.models.RepositoryModel;
 
 public interface IUserManager extends IManager, IUserService {
 
@@ -28,4 +32,32 @@ public interface IUserManager extends IManager, IUserService {
 	 */
 	boolean isInternalAccount(String username);
 
+	/**
+	 * Returns the list of repository owners.
+	 *
+	 * @param repository
+	 * @return a list of owners
+	 * @since 1.6.0
+	 */
+	List<Owner> getOwners(RepositoryModel repository);
+
+	/**
+	 * Sets the repository owners.
+	 *
+	 * @param repository
+	 * @param a list of owners
+	 * @return true if successful
+	 * @since 1.6.0
+	 */
+	boolean setOwners(RepositoryModel repository, List<Owner> owners);
+
+//	/**
+//	 * Returns the list of project owners.
+//	 *
+//	 * @param project
+//	 * @return a list of owners
+//	 * @since 1.6.0
+//	 */
+//	List<RepositoryOwner> getOwners(ProjectModel project);
+//
 }

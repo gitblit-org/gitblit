@@ -38,7 +38,7 @@ import com.gitblit.tickets.ITicketService;
  */
 public class FileTicketServiceTest extends TicketServiceTest {
 
-	final RepositoryModel repo = new RepositoryModel("tickets/file.git", null, null, null);
+	final RepositoryModel repo = new RepositoryModel("tickets/file.git", null, null);
 
 	@Override
 	protected RepositoryModel getRepository() {

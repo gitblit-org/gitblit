@@ -32,6 +32,8 @@ import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
+import com.gitblit.models.Owner;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -439,5 +441,59 @@ public class UserManager implements IUserManager {
 	@Override
 	public boolean deleteRepositoryRole(String role) {
 		return userService.deleteRepositoryRole(role);
+	}
+
+	/**
+	 * Returns the list of owners for the repository.
+	 *
+	 * @param repository
+	 * @return a list of owners
+	 */
+	@Override
+	public List<Owner> getOwners(RepositoryModel repository) {
+		List<Owner> list = new ArrayList<>();
+		for (UserModel user : getAllUsers()) {
+			if (user.isOwner(repository)) {
+				list.add(user);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * Set the repository owners.
+	 *
+	 * @param repository
+	 * @param a list of owners
+	 * @return true if successful
+	 */
+	@Override
+	public boolean setOwners(RepositoryModel repository, List<Owner> owners) {
+		List<Owner> oldOwners = getOwners(repository);
+		List<UserModel> users = new ArrayList<>();
+
+		// identify new owners and filter-out continued owners
+		for (Owner owner : owners) {
+			if (!oldOwners.remove(owner)) {
+				// new owner
+				owner.own(repository);
+				if (owner instanceof UserModel) {
+					users.add((UserModel) owner);
+				}
+			}
+		}
+
+		// the remaining oldOwners are now former owners
+		for (Owner formerOwner : oldOwners) {
+			formerOwner.disown(repository);
+
+			if (formerOwner instanceof UserModel) {
+				users.add((UserModel) formerOwner);
+			}
+		}
+
+		updateUserModels(users);
+
+		return true;
 	}
 }

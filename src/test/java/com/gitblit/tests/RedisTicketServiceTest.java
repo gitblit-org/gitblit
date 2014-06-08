@@ -39,7 +39,7 @@ import com.gitblit.tickets.RedisTicketService;
  */
 public class RedisTicketServiceTest extends TicketServiceTest {
 
-	final RepositoryModel repo = new RepositoryModel("tickets/redis.git", null, null, null);
+	final RepositoryModel repo = new RepositoryModel("tickets/redis.git", null, null);
 
 	@Override
 	protected RepositoryModel getRepository() {
