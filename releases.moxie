@@ -5,9 +5,26 @@ r24: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          The next major release (v1.7.0) will focus on:
+          * ticket-75: making projects more useful including the concept of project ownership
+          
+          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RpeositoryModel to the UserModel
+          
+          * ticket-55: facilitating usage of tickets & git-flow in the web ui
+          ''
     html: ~
-    text: ~
+    text: ''
+          Highlights:
+          
+          * My Tickets page
+          * User Preferences web ui
+          * SSH key management web ui
+          * Basic CRUD pages for ticket milestones
+          * Overhaul repository creation, editing, and empty repository pages
+          
+          The OpenShift Express build has been dropped. You can deploy GO or WAR on Express so this build is no longer necessary.
+          ''
     security: ~
     fixes:
     - Allow ticket responsible selection if anonymous push is enabled (issue-425, ticket-71)
