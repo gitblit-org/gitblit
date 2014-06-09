@@ -70,8 +70,8 @@ import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
 import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
-import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.BooleanOption;
+import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.ChoiceOption;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
@@ -383,7 +383,6 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
-					namePanel.resetModel(repositoryModel);
 					return;
 				}
 				setRedirect(false);
