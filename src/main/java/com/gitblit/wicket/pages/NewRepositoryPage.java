@@ -56,8 +56,8 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.AccessPolicyPanel;
-import com.gitblit.wicket.panels.BooleanOption;
 import com.gitblit.wicket.panels.BooleanChoiceOption;
+import com.gitblit.wicket.panels.BooleanOption;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
 
 public class NewRepositoryPage extends RootSubPage {
@@ -142,7 +142,6 @@ public class NewRepositoryPage extends RootSubPage {
 
 				} catch (GitBlitException e) {
 					error(e.getMessage());
-					namePanel.resetModel(repositoryModel);
 					return;
 				}
 				setRedirect(true);
