@@ -1,0 +1,1 @@
+[{"date":"2014-06-09T22:46:11Z","author":"james","fields":{"title":"Milestone link is incorrect","body":"The milestone link from the *Milestones* tab does not properly set the query statii.","type":"Bug","responsible":"james","milestone":"v1.6.0","mergeTo":"release-v1.6.0","watchers":"+james","status":"New"}}]
