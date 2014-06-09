@@ -250,8 +250,12 @@ public class TicketPage extends RepositoryPage {
 		} else {
 			// link to milestone query
 			TicketMilestone milestone = app().tickets().getMilestone(repository, ticket.milestone);
-			PageParameters milestoneParameters = new PageParameters();
-			milestoneParameters.put("r", repositoryName);
+			PageParameters milestoneParameters;
+			if (milestone.isOpen()) {
+				milestoneParameters = WicketUtils.newOpenTicketsParameter(repositoryName);
+			} else {
+				milestoneParameters = WicketUtils.newRepositoryParameter(repositoryName);
+			}
 			milestoneParameters.put(Lucene.milestone.name(), ticket.milestone);
 			int progress = 0;
 			int open = 0;
