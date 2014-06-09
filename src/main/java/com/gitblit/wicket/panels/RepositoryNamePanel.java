@@ -84,10 +84,11 @@ public class RepositoryNamePanel extends BasePanel {
 			// set the defaultProject to the current repository project
 			if (StringUtils.isEmpty(repository.projectPath)) {
 				defaultPath = "/";
+				defaultName = repository.name;
 			} else {
 				defaultPath = repository.projectPath + "/";
+				defaultName = repository.name.substring(defaultPath.length());
 			}
-			defaultName = repository.name.substring(defaultPath.length());
 			pathNames.add(defaultPath);
 		}
 
