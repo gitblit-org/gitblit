@@ -174,7 +174,18 @@
 		<property name="go.dir" value="${project.outputDirectory}/go" />	
 		<delete dir="${go.dir}" />
 
+		<local name="webinf" />
+		<property name="webinf" value="${project.compileOutputDirectory}/WEB-INF" />
+
 		<prepareDataDirectory toDir="${go.dir}/data" />
+		
+		<!-- Copy the web.xml from the prototype web.xml -->
+		<copy todir="${webinf}" overwrite="true">
+			<fileset file="${project.src.dir}/WEB-INF/web.xml" />
+			<filterset>
+				<filter token="gb.version" value="${project.version}" />
+			</filterset>
+		</copy>
 		
 		<!-- Build jar -->
 		<mx:jar destfile="${go.dir}/gitblit.jar" includeresources="true">
@@ -240,10 +251,13 @@
 		<!-- Prepare the data directory -->
 		<prepareDataDirectory toDir="${webinf}/data" />
 
-		<!-- Build the WAR web.xml from the prototype web.xml -->
-		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml">
-			<replace token="@gb.version@" value="${project.version}" />
-		</mx:webxml>
+		<!-- Copy the web.xml from the prototype web.xml -->
+		<copy todir="${webinf}" overwrite="true">
+			<fileset file="${project.src.dir}/WEB-INF/web.xml" />
+			<filterset>
+				<filter token="gb.version" value="${project.version}" />
+			</filterset>
+		</copy>
 
 		<!-- Gitblit jar -->
 		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />

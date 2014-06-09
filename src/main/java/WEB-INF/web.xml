@@ -30,12 +30,8 @@
 	</env-entry>
 	
 	<!-- Gitblit Displayname -->
-	<display-name>
-		Gitblit - @gb.version@
-	</display-name>
+	<display-name>Gitblit - @gb.version@</display-name>
 
-	<!-- PARAMS --> 
-	 
 	 
 <!-- Gitblit Context Listener --><!-- STRIP	 
 	<listener>
