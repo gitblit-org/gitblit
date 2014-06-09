@@ -49,8 +49,8 @@ public class LuceneExecutorTest extends GitblitUnitTest {
 		MemorySettings settings = new MemorySettings();
 		settings.put(Keys.git.repositoriesFolder, GitBlitSuite.REPOSITORIES);
 		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
-		UserManager users = new UserManager(runtime).start();
-		RepositoryManager repos = new RepositoryManager(runtime, users);
+		UserManager users = new UserManager(runtime, null).start();
+		RepositoryManager repos = new RepositoryManager(runtime, null, users);
 		return new LuceneService(settings, repos);
 	}
 

@@ -32,6 +32,7 @@ import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
+import com.gitblit.extensions.UserTeamLifeCycleListener;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -50,13 +51,16 @@ public class UserManager implements IUserManager {
 
 	private final IRuntimeManager runtimeManager;
 
+	private final IPluginManager pluginManager;
+
 	private final Map<String, String> legacyBackingServices;
 
 	private IUserService userService;
 
-	public UserManager(IRuntimeManager runtimeManager) {
+	public UserManager(IRuntimeManager runtimeManager, IPluginManager pluginManager) {
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
+		this.pluginManager = pluginManager;
 
 		// map of legacy realm backing user services
 		legacyBackingServices = new HashMap<String, String>();
@@ -209,7 +213,14 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean updateUserModel(UserModel model) {
-		return userService.updateUserModel(model);
+		final boolean isCreate = null == userService.getUserModel(model.username);
+		if (userService.updateUserModel(model)) {
+			if (isCreate) {
+				callCreateUserListeners(model);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -236,7 +247,14 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
-		return userService.updateUserModel(username, model);
+		final boolean isCreate = null == userService.getUserModel(username);
+		if (userService.updateUserModel(username, model)) {
+			if (isCreate) {
+				callCreateUserListeners(model);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -247,7 +265,11 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean deleteUserModel(UserModel model) {
-		return userService.deleteUserModel(model);
+		if (userService.deleteUserModel(model)) {
+			callDeleteUserListeners(model);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -262,7 +284,12 @@ public class UserManager implements IUserManager {
 			return false;
 		}
 		String usernameDecoded = StringUtils.decodeUsername(username);
-		return userService.deleteUser(usernameDecoded);
+		UserModel user = getUserModel(usernameDecoded);
+		if (userService.deleteUser(usernameDecoded)) {
+			callDeleteUserListeners(user);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -349,7 +376,14 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean updateTeamModel(TeamModel model) {
-		return userService.updateTeamModel(model);
+		final boolean isCreate = null == userService.getTeamModel(model.name);
+		if (userService.updateTeamModel(model)) {
+			if (isCreate) {
+				callCreateTeamListeners(model);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -377,7 +411,14 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean updateTeamModel(String teamname, TeamModel model) {
-		return userService.updateTeamModel(teamname, model);
+		final boolean isCreate = null == userService.getTeamModel(teamname);
+		if (userService.updateTeamModel(teamname, model)) {
+			if (isCreate) {
+				callCreateTeamListeners(model);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -389,7 +430,11 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean deleteTeamModel(TeamModel model) {
-		return userService.deleteTeamModel(model);
+		if (userService.deleteTeamModel(model)) {
+			callDeleteTeamListeners(model);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -401,7 +446,12 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean deleteTeam(String teamname) {
-		return userService.deleteTeam(teamname);
+		TeamModel team = userService.getTeamModel(teamname);
+		if (userService.deleteTeam(teamname)) {
+			callDeleteTeamListeners(team);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -439,5 +489,61 @@ public class UserManager implements IUserManager {
 	@Override
 	public boolean deleteRepositoryRole(String role) {
 		return userService.deleteRepositoryRole(role);
+	}
+
+	protected void callCreateUserListeners(UserModel user) {
+		if (pluginManager == null || user == null) {
+			return;
+		}
+
+		for (UserTeamLifeCycleListener listener : pluginManager.getExtensions(UserTeamLifeCycleListener.class)) {
+			try {
+				listener.onCreation(user);
+			} catch (Throwable t) {
+				logger.error(String.format("failed to call plugin.onCreation%s", user.username), t);
+			}
+		}
+	}
+
+	protected void callCreateTeamListeners(TeamModel team) {
+		if (pluginManager == null || team == null) {
+			return;
+		}
+
+		for (UserTeamLifeCycleListener listener : pluginManager.getExtensions(UserTeamLifeCycleListener.class)) {
+			try {
+				listener.onCreation(team);
+			} catch (Throwable t) {
+				logger.error(String.format("failed to call plugin.onCreation %s", team.name), t);
+			}
+		}
+	}
+
+	protected void callDeleteUserListeners(UserModel user) {
+		if (pluginManager == null || user == null) {
+			return;
+		}
+
+		for (UserTeamLifeCycleListener listener : pluginManager.getExtensions(UserTeamLifeCycleListener.class)) {
+			try {
+				listener.onDeletion(user);
+			} catch (Throwable t) {
+				logger.error(String.format("failed to call plugin.onDeletion %s", user.username), t);
+			}
+		}
+	}
+
+	protected void callDeleteTeamListeners(TeamModel team) {
+		if (pluginManager == null || team == null) {
+			return;
+		}
+
+		for (UserTeamLifeCycleListener listener : pluginManager.getExtensions(UserTeamLifeCycleListener.class)) {
+			try {
+				listener.onDeletion(team);
+			} catch (Throwable t) {
+				logger.error(String.format("failed to call plugin.onDeletion %s", team.name), t);
+			}
+		}
 	}
 }

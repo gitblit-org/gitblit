@@ -135,7 +135,7 @@ public class MigrateTickets {
 		settings.overrideSetting(ITicketService.SETTING_UPDATE_DIFFSTATS, false);
 
 		IRuntimeManager runtimeManager = new RuntimeManager(settings, baseFolder).start();
-		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null).start();
+		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null, null).start();
 
 		String inputServiceName = settings.getString(Keys.tickets.service, BranchTicketService.class.getSimpleName());
 		if (StringUtils.isEmpty(inputServiceName)) {

@@ -68,7 +68,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	private static InMemoryDirectoryServer ds;
 
 	private IUserManager userManager;
-	
+
 	private AuthenticationManager auth;
 
 	private MemorySettings settings;
@@ -97,12 +97,12 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	private LdapAuthProvider newLdapAuthentication(IStoredSettings settings) {
 		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
-		userManager = new UserManager(runtime).start();
+		userManager = new UserManager(runtime, null).start();
 		LdapAuthProvider ldap = new LdapAuthProvider();
 		ldap.setup(runtime, userManager);
 		return ldap;
 	}
-	
+
 	private AuthenticationManager newAuthenticationManager(IStoredSettings settings) {
 		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
 		AuthenticationManager auth = new AuthenticationManager(runtime, userManager);
@@ -258,7 +258,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNull(userThreeModel.getTeam("git_admins"));
 		assertTrue(userThreeModel.canAdmin);
 	}
-	
+
 	@Test
 	public void testBindWithUser() {
 		settings.put(Keys.realm.ldap.bindpattern, "CN=${username},OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain");
@@ -267,7 +267,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);
-		
+
 		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray());
 		assertNull(userOneModelFailedAuth);
 	}

@@ -91,8 +91,11 @@ public class DaggerModule {
 		return new NotificationManager(settings);
 	}
 
-	@Provides @Singleton IUserManager provideUserManager(IRuntimeManager runtimeManager) {
-		return new UserManager(runtimeManager);
+	@Provides @Singleton IUserManager provideUserManager(
+			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager) {
+
+		return new UserManager(runtimeManager, pluginManager);
 	}
 
 	@Provides @Singleton IAuthenticationManager provideAuthenticationManager(
@@ -131,10 +134,12 @@ public class DaggerModule {
 
 	@Provides @Singleton IRepositoryManager provideRepositoryManager(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			IUserManager userManager) {
 
 		return new RepositoryManager(
 				runtimeManager,
+				pluginManager,
 				userManager);
 	}
 

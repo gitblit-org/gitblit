@@ -286,7 +286,7 @@ public class MyNavLink extends NavLinkExtension {
 }
 ```
 
-### Lifecycle Listener
+### Server Lifecycle Listener
 
 *SINCE 1.6.0*
 
@@ -311,6 +311,77 @@ public class MyLifeCycleListener extends LifeCycleListener {
     @Override
     public void onShutdown() {
     	log.info("Gitblit is Going Down!!");
+    }
+}
+```
+
+### Repository Lifecycle Listener
+
+*SINCE 1.6.0*
+
+You can provide a lifecycle listener to be notified when Gitblit has created or deleted a repository.
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.RepositoryLifeCycleListener;
+import com.gitblit.models.RepositoryModel;
+
+@Extension
+public class MyRepoLifeCycleListener extends RepositoryLifeCycleListener {
+
+    final Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Override
+    public void onCreation(RepositoryModel repo) {
+    	log.info("Gitblit created {}", repo);
+    }
+
+    @Override
+    public void onDeletion(RepositoryModel repo) {
+    	log.info("Gitblit deleted {}", repo);
+    }
+}
+```
+
+### User/Team Lifecycle Listener
+
+*SINCE 1.6.0*
+
+You can provide a lifecycle listener to be notified when Gitblit has created or deleted a user or a team.
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.UserTeamLifeCycleListener;
+import com.gitblit.models.TeamModel;
+import com.gitblit.models.UserModel;
+
+@Extension
+public class MyUserTeamLifeCycleListener extends UserTeamLifeCycleListener {
+
+    final Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Override
+    public void onCreation(UserModel user) {
+    	log.info("Gitblit created user {}", user);
+    }
+
+    @Override
+    public void onDeletion(UserModel user) {
+    	log.info("Gitblit deleted user {}", user);
+    }
+
+    @Override
+    public void onCreation(TeamModel team) {
+    	log.info("Gitblit created team {}", team);
+    }
+
+    @Override
+    public void onDeletion(TeamModel team) {
+    	log.info("Gitblit deleted team {}", team);
     }
 }
 ```

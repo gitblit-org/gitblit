@@ -175,6 +175,9 @@ public class GitblitContext extends DaggerContext {
 		runtime.start();
 		managers.add(runtime);
 
+		// create the plugin manager instance but do not start it
+		loadManager(injector, IPluginManager.class);
+
 		// start all other managers
 		startManager(injector, INotificationManager.class);
 		startManager(injector, IUserManager.class);
@@ -215,9 +218,14 @@ public class GitblitContext extends DaggerContext {
 		return null;
 	}
 
-	protected <X extends IManager> X startManager(ObjectGraph injector, Class<X> clazz) {
-		logManager(clazz);
+	protected <X extends IManager> X loadManager(ObjectGraph injector, Class<X> clazz) {
 		X x = injector.get(clazz);
+		return x;
+	}
+
+	protected <X extends IManager> X startManager(ObjectGraph injector, Class<X> clazz) {
+		X x = loadManager(injector, clazz);
+		logManager(clazz);
 		x.start();
 		managers.add(x);
 		return x;
