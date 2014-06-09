@@ -558,6 +558,8 @@
 					<link name="Gitblit GO (Linux/OSX)" src="${gc.url}gitblit-${project.releaseVersion}.tar.gz" />
 					<link name="Gitblit WAR" src="${gc.url}gitblit-${project.releaseVersion}.war" />
 					<divider />
+					<link name="Gitblit GO (Docker)" src="https://registry.hub.docker.com/u/jmoger/gitblit/" />
+					<divider />
 					<link name="Gitblit Manager" src="${gc.url}manager-${project.releaseVersion}.zip" />
 					<link name="Federation Client" src="${gc.url}fedclient-${project.releaseVersion}.zip" />
 					<divider />
