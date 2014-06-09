@@ -142,7 +142,7 @@ public class SshDaemon {
 	public String formatUrl(String gituser, String servername, String repository) {
 		if (sshd.getPort() == DEFAULT_PORT) {
 			// standard port
-			return MessageFormat.format("{0}@{1}/{2}", gituser, servername,
+			return MessageFormat.format("ssh://{0}@{1}/{2}", gituser, servername,
 					repository);
 		} else {
 			// non-standard port
