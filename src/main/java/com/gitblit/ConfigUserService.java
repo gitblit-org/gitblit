@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -712,8 +713,14 @@ public class ConfigUserService implements IUserService {
 				config.setBoolean(USER, model.username, DISABLED, true);
 			}
 			if (model.getPreferences() != null) {
-				if (model.getPreferences().getLocale() != null) {
-					String val = model.getPreferences().getLocale().getLanguage() + "_" + model.getPreferences().getLocale().getCountry();
+				Locale locale = model.getPreferences().getLocale();
+				if (locale != null) {
+					String val;
+					if (StringUtils.isEmpty(locale.getCountry())) {
+						val = locale.getLanguage();
+					} else {
+						val = locale.getLanguage() + "_" + locale.getCountry();
+					}
 					config.setString(USER, model.username, LOCALE, val);
 				}
 
