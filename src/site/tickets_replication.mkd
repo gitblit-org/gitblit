@@ -145,9 +145,9 @@ For example, this would migrate tickets from the current ticket service configur
 
     migrate-tickets com.gitblit.tickets.RedisTicketService c:\gitblit-data
 
-##### Gitblit WAR/Express
+##### Gitblit WAR
 
-Gitblit WAR/Express does not ship with anything other than the WAR, but you can still migrate tickets offline with a little extra effort.
+Gitblit WAR does not ship with anything other than the WAR, but you can still migrate tickets offline with a little extra effort.
 
 *Windows*
 

@@ -23,14 +23,22 @@ First you'll need to create an SSH key pair, if you don't already have one or if
 
     ssh-keygen
 
+**NOTE:** It is important to note that *ssh-keygen* generates a public/private keypair (e.g. id_rsa and id_rsa.pub).  You want to upload the *public* key, which is denoted by the *.pub* file extension.
+
+#### Uploading your public key from the command-line
+
 Then you can upload your *public* key right from the command-line.
 
     cat ~/.ssh/id_rsa.pub | ssh -l <username> -p 29418 <hostname> keys add
     cat c:\<userfolder>\.ssh\id_rsa.pub | ssh -l <username> -p 29418 <hostname> keys add
 
-**NOTE:** It is important to note that *ssh-keygen* generates a public/private keypair (e.g. id_rsa and id_rsa.pub).  You want to upload the *public* key, which is denoted by the *.pub* file extension.
+#### Uploading your public key through the browser
 
-Once you've done both of those steps you should be able to execute the following command without a password prompt.
+1. Navigate to your *profile* page from the dropdown user menu.
+2. Click the *SSH Keys* tab and paste your public key into the *Add SSH Key* form.
+3. Click the *Save* button
+
+Once you ave uploaded your public key you should be able to execute the following command without a password prompt.
 
     ssh -l <username> -p 29418 <hostname>
 
