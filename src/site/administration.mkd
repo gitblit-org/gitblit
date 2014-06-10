@@ -20,7 +20,7 @@ All repository settings are stored within the repository `.git/config` file unde
 	    federationSets = 
 
 #### Repository Names
-Repository names must be case-insensitive-unique but are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - . ~`<br/>
+Repository names must be case-insensitive-unique but are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - . ~ +`<br/>
 Whitespace is illegal.
 
 Repositories can be grouped within subfolders.  e.g. *libraries/mycoollib.git* and *libraries/myotherlib.git*

@@ -129,6 +129,8 @@ public class StringUtils {
 				retStr.append("%20");
 			} else if (inStr.charAt(i) == '&') {
 				retStr.append("%26");
+			} else if (inStr.charAt(i) == '+') {
+				retStr.append("%2B");
 			} else {
 				retStr.append(inStr.charAt(i));
 			}
@@ -398,7 +400,7 @@ public class StringUtils {
 	 * @return the first invalid character found or null if string is acceptable
 	 */
 	public static Character findInvalidCharacter(String name) {
-		char[] validChars = { '/', '.', '_', '-', '~' };
+		char[] validChars = { '/', '.', '_', '-', '~', '+' };
 		for (char c : name.toCharArray()) {
 			if (!Character.isLetterOrDigit(c)) {
 				boolean ok = false;
