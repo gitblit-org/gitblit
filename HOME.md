@@ -18,11 +18,6 @@ This documentation is the source content from which the [Gitblit website](http:/
 [[src/site/setup_war.mkd]]
 [[src/site/upgrade_war.mkd]]
 
-### Gitblit Express for OpenShift
-
-[[src/site/setup_express.mkd]]
-[[src/site/upgrade_express.mkd]]
-
 ### General Configuration & Administration
 
 [[src/site/setup_authentication.mkd]]
