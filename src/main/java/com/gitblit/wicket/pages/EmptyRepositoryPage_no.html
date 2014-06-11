@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+	<div class="span10 offset1">	
+	<h3><center>Tomt Repository</center></h3>
+	<div class="alert alert-info">
+		<span wicket:id="repository" style="font-weight: bold;">[repository]</span> er et tomt repository som ikke kan vises av Gitblit.
+					<p></p>		
+					Vennligst push noen endringer inn til <span wicket:id="pushurl"></span>
+					<hr/>
+					Etter at du har pushet noen endringer, kan du <b>oppfriske</b> denne siden for \u00e5 se repositoriet. 
+		</div>
+		
+	<h3><center>Opprett et nytt repository fra kommandolinjen</center></h3>
+
+	<pre wicket:id="createSyntax"></pre>
+
+	<h3><center>Push et eksisternde repository fra kommandolinjen</center></h3>
+
+	<pre wicket:id="existingSyntax"></pre>
+
+	<div class="span8 offset1">
+		<h2><center>L\u00e6r Git</center></h2>
+		<p>Hvis du er usikker p\u00e5 hvordan du kan benytte denne informasjonen, vurder \u00e5 lese  <a href="http://book.git-scm.com">Git Community Book</a> eller <a href="http://progit.org/book" target="_blank">Pro Git</a> for \u00e5 f\u00e5 en bedre forst\u00e5else av hvordan du kan bruke Git. </p>
+
+		<h4>Open Source Git Clients</h4>
+		<table>
+		<tbody>
+			<tr><td>a href="http://git-scm.com">Git</a> - den offisielle, kommando-linje git</td></tr>
+			<tr><td>a href="http://tortoisegit.googlecode.com">TortoiseGit</a> - Windows filutforsker integrasjon (krever den offisielle kommando-linje git versjonen installert</td></tr>
+			<tr><td><a href="http://eclipse.org/egit">Eclipse/EGit</a> - Git for Eclipse IDE (basert p\u00e5 JGit, akkurat som Gitblit er)</tr>
+			<tr><td><a href="https://code.google.com/p/gitextensions/">Git Extensions</a> - En C# frontend for Git som integrerer med filutforskeren og Visual Studio.</td></tr>
+			<tr><td><a href="http://rowanj.github.io/gitx/">GitX-dev</a> - En  git klient for OS X</td></tr>
+		</tbody>			
+		</table>
+
+		<h4>Commercial/Closed-Source Git Clients</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://www.syntevo.com/smartgithg">SmartGit/Hg</a> - En Git og Mercurial klient for Windows, Mac, og Linux</td></tr>
+			<tr><td><a href="http://www.sourcetreeapp.com/">SourceTree</a> - En gratis Git og Mercurial klient for Windows og Mac</td></tr>
+			<tr><td>a href="http://www.git-tower.com/">Tower</a> - En git klient for Mac OS X </td></tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>	
+</body>
+</html>
