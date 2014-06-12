@@ -15,7 +15,7 @@
  */
 package com.gitblit.guice;
 
-import javax.inject.Singleton;
+import com.google.inject.Singleton;
 
 import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
