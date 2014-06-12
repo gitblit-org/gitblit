@@ -32,6 +32,7 @@ import com.gitblit.servlet.RawServlet;
 import com.gitblit.servlet.RobotsTxtServlet;
 import com.gitblit.servlet.RpcServlet;
 import com.gitblit.servlet.SparkleShareInviteServlet;
+import com.gitblit.servlet.SyndicationFilter;
 import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.wicket.GitblitWicketFilter;
 import com.google.common.base.Joiner;
@@ -74,7 +75,7 @@ public class WebModule extends ServletModule {
 //		filter(fuzzy(Constants.PAGES)).through(PagesFilter.class);
 //		filter(fuzzy(Constants.RPC_PATH)).through(RpcFilter.class);
 //		filter(fuzzy(Constants.ZIP_PATH)).through(DownloadZipFilter.class);
-//		filter(fuzzy(Constants.SYNDICATION_PATH)).through(SyndicationFilter.class);
+		filter(fuzzy(Constants.SYNDICATION_PATH)).through(SyndicationFilter.class);
 
 		// Wicket
 		String toIgnore = Joiner.on(",").join(Constants.R_PATH, Constants.GIT_PATH, Constants.RAW_PATH,
