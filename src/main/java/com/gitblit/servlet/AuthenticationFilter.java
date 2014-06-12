@@ -16,8 +16,6 @@
 package com.gitblit.servlet;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -102,12 +100,6 @@ public abstract class AuthenticationFilter extends DaggerFilter {
 			url = url.substring(1);
 		}
 		String fullUrl = url + (StringUtils.isEmpty(params) ? "" : ("?" + params));
-		try {
-			fullUrl = URLDecoder.decode(fullUrl, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.warn("UTF-8 decoding of URL failed: "+fullUrl, e);
-			e.printStackTrace();
-		}
 		return fullUrl;
 	}
 
