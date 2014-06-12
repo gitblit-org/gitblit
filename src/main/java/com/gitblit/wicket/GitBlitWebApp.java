@@ -21,8 +21,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Request;
