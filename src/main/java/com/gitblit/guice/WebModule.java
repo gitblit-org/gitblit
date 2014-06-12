@@ -20,16 +20,21 @@ import java.util.Map;
 
 import com.gitblit.Constants;
 import com.gitblit.servlet.BranchGraphServlet;
+import com.gitblit.servlet.DownloadZipFilter;
 import com.gitblit.servlet.DownloadZipServlet;
 import com.gitblit.servlet.EnforceAuthenticationFilter;
 import com.gitblit.servlet.FederationServlet;
+import com.gitblit.servlet.GitFilter;
 import com.gitblit.servlet.GitServlet;
 import com.gitblit.servlet.LogoServlet;
+import com.gitblit.servlet.PagesFilter;
 import com.gitblit.servlet.PagesServlet;
 import com.gitblit.servlet.ProxyFilter;
 import com.gitblit.servlet.PtServlet;
+import com.gitblit.servlet.RawFilter;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.servlet.RobotsTxtServlet;
+import com.gitblit.servlet.RpcFilter;
 import com.gitblit.servlet.RpcServlet;
 import com.gitblit.servlet.SparkleShareInviteServlet;
 import com.gitblit.servlet.SyndicationFilter;
@@ -70,11 +75,11 @@ public class WebModule extends ServletModule {
 		filter(ALL).through(EnforceAuthenticationFilter.class);
 
 		// security filters
-//		filter(fuzzy(Constants.R_PATH), fuzzy(Constants.GIT_PATH)).through(GitFilter.class);
-//		filter(fuzzy(Constants.RAW_PATH)).through(RawFilter.class);
-//		filter(fuzzy(Constants.PAGES)).through(PagesFilter.class);
-//		filter(fuzzy(Constants.RPC_PATH)).through(RpcFilter.class);
-//		filter(fuzzy(Constants.ZIP_PATH)).through(DownloadZipFilter.class);
+		filter(fuzzy(Constants.R_PATH), fuzzy(Constants.GIT_PATH)).through(GitFilter.class);
+		filter(fuzzy(Constants.RAW_PATH)).through(RawFilter.class);
+		filter(fuzzy(Constants.PAGES)).through(PagesFilter.class);
+		filter(fuzzy(Constants.RPC_PATH)).through(RpcFilter.class);
+		filter(fuzzy(Constants.ZIP_PATH)).through(DownloadZipFilter.class);
 		filter(fuzzy(Constants.SYNDICATION_PATH)).through(SyndicationFilter.class);
 
 		// Wicket
