@@ -15,8 +15,8 @@
  */
 package com.gitblit.servlet;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.manager.IAuthenticationManager;

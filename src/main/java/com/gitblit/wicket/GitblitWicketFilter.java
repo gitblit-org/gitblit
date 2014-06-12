@@ -17,8 +17,8 @@ package com.gitblit.wicket;
 
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.protocol.http.IWebApplicationFactory;
