@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
