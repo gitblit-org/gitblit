@@ -38,6 +38,7 @@ r24: {
     - Fixed Ticket responsible selections not considering the AUTHENTICATED authorization control (ticket-91)
     - Fixed invalid generated SSH url for port 22 (issue-444, ticket-98)
     - Fix cloning repositories with `+` in their names. (revert pr-136, issue-362, ticket-100)
+    - Fixed NPE in GitblitClient (ticket-102)
     changes:
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
     - Drop deprecated --set-upstream syntax for -u (ticket-59)
