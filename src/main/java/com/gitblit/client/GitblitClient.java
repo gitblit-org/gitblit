@@ -253,9 +253,11 @@ public class GitblitClient implements Serializable {
 
 		// create list of available scripts by excluding inherited scripts
 		List<String> scripts = new ArrayList<String>();
-		for (String script : settings.pushScripts) {
-			if (!inherited.contains(script)) {
-				scripts.add(script);
+		if (!ArrayUtils.isEmpty(settings.pushScripts)) {
+			for (String script : settings.pushScripts) {
+				if (!inherited.contains(script)) {
+					scripts.add(script);
+				}
 			}
 		}
 		return scripts;
