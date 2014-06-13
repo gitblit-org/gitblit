@@ -32,24 +32,30 @@ public class Flotr2Charts extends Charts {
 
 	@Override
 	public void renderHead(IHeaderResponse response) {
-		
+
 		// add Google Chart JS API reference
 		ServletContext servletContext = WebApplication.get().getServletContext();
 		String contextPath = servletContext.getContextPath();
-		
+
 		response.renderJavascriptReference(contextPath + "/bootstrap/js/jquery.js");
 		response.renderJavascriptReference(contextPath + "/flotr2/flotr2.min.js");
 		response.renderCSSReference(contextPath + "/flotr2/flotr2.custom.css");
-		
+
 		// prepare draw chart function
 		StringBuilder sb = new StringBuilder();
-		
+
 		line(sb, "$( document ).ready(function() {");
+		line(sb, "try {");
 		// add charts to header
 		for (Chart chart : charts) {
 			chart.appendChart(sb);
 		}
-
+		line(sb, "} catch (exception) {");
+		line(sb, "  if (window.console && window.console.log) {");
+		line(sb, "    window.console.log('flotr2 exception');");
+		line(sb, "    window.console.log(exception);");
+		line(sb, "  }");
+		line(sb, "}");
 		// end draw chart function
 		line(sb, "});");
 		response.renderJavascript(sb.toString(), null);
@@ -72,5 +78,5 @@ public class Flotr2Charts extends Charts {
 			String valueName) {
 		return new Flotr2BarChart(tagId, title, keyName, valueName);
 	}
-	
+
 }
