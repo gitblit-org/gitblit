@@ -23,6 +23,8 @@ r24: {
           * Basic CRUD pages for ticket milestones
           * Overhaul repository creation, editing, and empty repository pages
           
+          If you are upgrading, you might consider copying the data/gitignore folder to your ${baseFolder} to allow selection & injection of a .gitignore when creating a repository.
+          
           The OpenShift Express build has been dropped. You can deploy GO or WAR on Express so this build is no longer necessary.
           ''
     security: ~
@@ -46,6 +48,7 @@ r24: {
     - BARNUM: Create ticket/N instead of topic/N for pt start N (ticket-61)
     - Move repository deletion functions to the edit repository page AND allow deletion to be disabled (pr-180, ticket-67)
     - Update the Korean translation (pr-184, ticket-69)
+    - Update the Dutch translation (pr-191)
     - Overhaul the EmptyRepositoryPage (ticket-73)
     - Overhauled the edit repository page (ticket-76)
     - Process bugtraq links in the ticket description and comments (ticket-78)
@@ -65,6 +68,8 @@ r24: {
     - Tag server-side merges when incremental push tags are enabled (issue-432, ticket-85)
     - Add a user preference for the clone transport (ticket-90)
     - Add setting to control default thread pool size for miscellaneous background tasks (ticket-92)
+    - Add Norwegian transation (pr-186)
+    - Add German translation (pr-192)
     dependencyChanges:
     - Update to javax.mail 1.5.1 (issue-417, ticket-58)
     contributors:
@@ -78,6 +83,14 @@ r24: {
     - Matthias Cullmann
     - Emmeran Seehuber
     - Sascha Vogt
+    - Carsten Lenz
+    - Matthias Sohn
+    - Leif Jantzen
+    - Stardrad Yin
+    - Jeroen Baten
+    - Dongsu Kim
+    - Karanbir Singh
+    - Tamás Papp
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
     - { name: 'web.includePersonalRepositories', defaultValue: 'false' }
