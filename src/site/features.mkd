@@ -69,6 +69,8 @@
     - Dutch
     - Simplified Chinese (zh_CN)
     - French
+    - German
+    - Norwegian
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration
