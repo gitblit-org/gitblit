@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+<div class="span10 offset1">	
+	<h3><center>Leeres Repository</center></h3>
+	<div class="alert alert-info">
+		<span wicket:id="repository" style="font-weight: bold;">[repository]</span> ist ein leeres Repository und kann von Gitblit nicht angezeigt werden.
+		<p></p>		
+		Bitte pushen Sie einige Commits nach <span wicket:id="pushurl"></span>
+		<hr/>
+        Nachdem Sie Commits gepusht haben, können Sie diese Seite <b>aktualisieren</b>, um Ihr Repository anzuzeigen.
+	</div>
+		
+	<h3><center>Neues Respository auf der Kommandozeile erstellen</center></h3>
+
+	<pre wicket:id="createSyntax"></pre>
+
+	<h3><center>Ein existierendes Repository von der Kommandozeile pushen</center></h3>
+
+	<pre wicket:id="existingSyntax"></pre>
+	
+	<div class="span8 offset1">
+		<h2><center>Git lernen</center></h2>
+		<p>Falls Sie unsicher sind, was Sie mit diesen Informationen anfangen sollen, können Sie sich das <a href="http://git-scm.com/book/de">Git Community Buch</a> anschauen, um ein besseres Verständnis über die Verwendung von Git aufzubauen.</p>
+
+		<h4>Open Source Git Clients</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://git-scm.com">Git</a></td><td>der offizielle Kommandozeilen-Git-Client</td></tr>
+			<tr><td><a href="http://tortoisegit.googlecode.com">TortoiseGit</a></td><td>Windows Datei Explorer Integration (erfordert den offiziellen Kommandozeilen-Client)</td></tr>
+			<tr><td><a href="http://eclipse.org/egit">Eclipse/EGit</a></td><td>Git für die Eclipse IDE (basiert auf JGit, ebenso wie Gitblit)</td></tr>
+			<tr><td><a href="https://code.google.com/p/gitextensions/">Git Extensions</a></td><td>C# Frontend für Git mit Windows Explorer und Visual Studio Integration</td></tr>
+			<tr><td><a href="http://rowanj.github.io/gitx/">GitX-dev</a></td><td>ein Mac OS X Git Client</td></tr>
+		</tbody>			
+		</table>
+
+		<h4>Kommerzielle/Closed-Source Git Clients</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://www.syntevo.com/smartgithg">SmartGit/Hg</a></td><td>Ein Java Git und Mercurial Client für Windows, Mac und Linux</td></tr>
+			<tr><td><a href="http://www.sourcetreeapp.com/">SourceTree</a></td><td>Ein freier Git und Mercurial Client für Windows und Mac</td></tr>
+			<tr><td><a href="http://www.git-tower.com/">Tower</a></td><td>Ein Mac OS X Git Client</td></tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>	
+</body>
+</html>
