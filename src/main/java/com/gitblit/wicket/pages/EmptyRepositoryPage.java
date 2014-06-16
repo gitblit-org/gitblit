@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +31,7 @@ import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoryUrlPanel;
 
-public class EmptyRepositoryPage extends RootPage {
+public class EmptyRepositoryPage extends RepositoryPage {
 
 	public EmptyRepositoryPage(PageParameters params) {
 		super(params);
@@ -50,8 +49,6 @@ public class EmptyRepositoryPage extends RootPage {
 			throw new GitblitRedirectException(SummaryPage.class, params);
 		}
 
-		setupPage(repositoryName, getString("gb.emptyRepository"));
-
 		UserModel user = GitBlitWebSession.get().getUser();
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
@@ -62,15 +59,17 @@ public class EmptyRepositoryPage extends RootPage {
 		RepositoryUrl primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 		String url = primaryUrl != null ? primaryUrl.url : "";
 
+		String createSyntax = readResource("create_git.md").replace("${primaryUrl}", url);
+		String existingSyntax = readResource("existing_git.md").replace("${primaryUrl}", url);
+
 		add(new Label("repository", repositoryName));
 		add(new RepositoryUrlPanel("pushurl", false, user, repository));
-		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", url)));
-		add(new Label("remoteSyntax", MessageFormat.format("git remote add origin {0}\ngit push -u origin --all\ngit push -u origin --tags", url)));
-		add(new Label("upstreamSyntax", "git remote add upstream <upstream repository url>"));
+		add(new Label("createSyntax", createSyntax));
+		add(new Label("existingSyntax", existingSyntax));
 	}
 
 	@Override
-	protected Class<? extends BasePage> getRootNavPageClass() {
-		return RepositoriesPage.class;
+	protected String getPageName() {
+		return getString("gb.summary");
 	}
 }

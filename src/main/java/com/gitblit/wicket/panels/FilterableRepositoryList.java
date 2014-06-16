@@ -33,7 +33,6 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.freemarker.FreemarkerPanel;
 import com.gitblit.wicket.ng.NgController;
-import com.gitblit.wicket.pages.EditRepositoryPage;
 
 /**
  * A client-side filterable rich repository list which uses Freemarker, Wicket,
@@ -98,7 +97,7 @@ public class FilterableRepositoryList extends BasePanel {
 		}
 
 		if (allowCreate) {
-			panel.add(new LinkPanel(ngList + "Button", "btn btn-mini", getString("gb.newRepository"), EditRepositoryPage.class));
+			panel.add(new LinkPanel(ngList + "Button", "btn btn-mini", getString("gb.newRepository"), app().getNewRepositoryPage()));
 		} else {
 			panel.add(new Label(ngList + "Button").setVisible(false));
 		}

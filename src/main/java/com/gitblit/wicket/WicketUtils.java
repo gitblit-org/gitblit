@@ -300,7 +300,9 @@ public class WicketUtils {
 
 	public static PageParameters newRepositoryParameter(String repositoryName) {
 		Map<String, String> parameterMap = new HashMap<String, String>();
-		parameterMap.put("r", repositoryName);
+		if (!StringUtils.isEmpty(repositoryName)) {
+			parameterMap.put("r", repositoryName);
+		}
 		return new PageParameters(parameterMap);
 	}
 
@@ -441,6 +443,20 @@ public class WicketUtils {
 		parameterMap.put("f", path);
 		parameterMap.put("blametype", blameType);
 		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newTicketsParameters(String repositoryName, String... states) {
+		PageParameters tParams = newRepositoryParameter(repositoryName);
+		if (states != null) {
+			for (String state : states) {
+				tParams.add("status", state);
+			}
+		}
+		return tParams;
+	}
+
+	public static PageParameters newOpenTicketsParameter(String repositoryName) {
+		return newTicketsParameters(repositoryName, TicketsUI.openStatii);
 	}
 
 	public static String getProjectName(PageParameters params) {

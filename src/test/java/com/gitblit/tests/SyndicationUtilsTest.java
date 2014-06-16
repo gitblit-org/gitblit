@@ -21,7 +21,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.gitblit.Constants.SearchType;
@@ -29,6 +32,20 @@ import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.SyndicationUtils;
 
 public class SyndicationUtilsTest extends GitblitUnitTest {
+
+	private static final AtomicBoolean started = new AtomicBoolean(false);
+
+	@BeforeClass
+	public static void startGitblit() throws Exception {
+		started.set(GitBlitSuite.startGitblit());
+	}
+
+	@AfterClass
+	public static void stopGitblit() throws Exception {
+		if (started.get()) {
+			GitBlitSuite.stopGitblit();
+		}
+	}
 
 	@Test
 	public void testSyndication() throws Exception {
@@ -60,7 +77,7 @@ public class SyndicationUtilsTest extends GitblitUnitTest {
 	}
 
 	@Test
-	public void testFeedRead() throws Exception {
+	public void testFeedReadCommits() throws Exception {
 		Set<String> links = new HashSet<String>();
 		for (int i = 0; i < 2; i++) {
 			List<FeedEntryModel> feed = SyndicationUtils.readFeed(GitBlitSuite.url, "ticgit.git",
@@ -73,6 +90,23 @@ public class SyndicationUtilsTest extends GitblitUnitTest {
 			}
 		}
 		// confirm we have 10 unique commits
+		assertEquals("Feed pagination failed", 10, links.size());
+	}
+
+	@Test
+	public void testFeedReadTags() throws Exception {
+		Set<String> links = new HashSet<String>();
+		for (int i = 0; i < 2; i++) {
+			List<FeedEntryModel> feed = SyndicationUtils.readTags(GitBlitSuite.url, "test/gitective.git",
+					5, i, GitBlitSuite.account, GitBlitSuite.password.toCharArray());
+			assertTrue(feed != null);
+			assertTrue(feed.size() > 0);
+			assertEquals(5, feed.size());
+			for (FeedEntryModel entry : feed) {
+				links.add(entry.link);
+			}
+		}
+		// confirm we have 10 unique tags
 		assertEquals("Feed pagination failed", 10, links.size());
 	}
 

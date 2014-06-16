@@ -339,6 +339,15 @@ public interface IRepositoryManager extends IManager {
 	void updateConfiguration(Repository r, RepositoryModel repository);
 
 	/**
+	 * Returns true if the repository can be deleted.
+	 *
+	 * @param model
+	 * @return true if the repository can be deleted
+	 * @since 1.6.0
+	 */
+	boolean canDelete(RepositoryModel model);
+
+	/**
 	 * Deletes the repository from the file system and removes the repository
 	 * permission from all repository users.
 	 *

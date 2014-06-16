@@ -75,15 +75,15 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
 
     private HtpasswdAuthProvider newHtpasswdAuthentication(IStoredSettings settings) {
     	RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
-    	UserManager users = new UserManager(runtime).start();
+    	UserManager users = new UserManager(runtime, null).start();
     	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
     	htpasswd.setup(runtime, users);
     	return htpasswd;
     }
-    
+
     private AuthenticationManager newAuthenticationManager(IStoredSettings settings) {
     	RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
-    	UserManager users = new UserManager(runtime).start();
+    	UserManager users = new UserManager(runtime, null).start();
     	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
     	htpasswd.setup(runtime, users);
     	AuthenticationManager auth = new AuthenticationManager(runtime, users);
@@ -191,7 +191,7 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
         assertEquals("leading", user.username);
     }
 
-    
+
     @Test
     public void testAuthenticationManager()
     {

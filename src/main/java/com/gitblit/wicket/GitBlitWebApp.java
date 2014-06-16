@@ -25,11 +25,16 @@ import org.apache.wicket.Application;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
+import org.apache.wicket.application.IClassResolver;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 
+import ro.fortsoft.pf4j.PluginState;
+import ro.fortsoft.pf4j.PluginWrapper;
+
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.extensions.GitblitWicketPlugin;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
@@ -51,6 +56,8 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.EditMilestonePage;
+import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.EditTicketPage;
 import com.gitblit.wicket.pages.ExportTicketPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
@@ -63,26 +70,31 @@ import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.MyDashboardPage;
+import com.gitblit.wicket.pages.MyTicketsPage;
+import com.gitblit.wicket.pages.NewMilestonePage;
+import com.gitblit.wicket.pages.NewRepositoryPage;
 import com.gitblit.wicket.pages.NewTicketPage;
 import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.ProjectsPage;
-import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.ReflogPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
+import com.gitblit.wicket.pages.TeamsPage;
 import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
 
-public class GitBlitWebApp extends WebApplication {
+public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final Class<? extends WebPage> homePageClass = MyDashboardPage.class;
+
+	private final Class<? extends WebPage> newRepositoryPageClass = NewRepositoryPage.class;
 
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
 
@@ -170,7 +182,6 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/tag", TagPage.class, "r", "h");
 		mount("/tree", TreePage.class, "r", "h", "f");
 		mount("/blob", BlobPage.class, "r", "h", "f");
-		mount("/raw", RawPage.class, "r", "h", "f");
 		mount("/blobdiff", BlobDiffPage.class, "r", "h", "f");
 		mount("/commitdiff", CommitDiffPage.class, "r", "h");
 		mount("/compare", ComparePage.class, "r", "h");
@@ -180,6 +191,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/metrics", MetricsPage.class, "r");
 		mount("/blame", BlamePage.class, "r", "h", "f");
 		mount("/users", UsersPage.class);
+		mount("/teams", TeamsPage.class);
 		mount("/logout", LogoutPage.class);
 
 		// setup ticket urls
@@ -187,6 +199,9 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/tickets/new", NewTicketPage.class, "r");
 		mount("/tickets/edit", EditTicketPage.class, "r", "h");
 		mount("/tickets/export", ExportTicketPage.class, "r", "h");
+		mount("/milestones/new", NewMilestonePage.class, "r");
+		mount("/milestones/edit", EditMilestonePage.class, "r", "h");
+		mount("/mytickets", MyTicketsPage.class, "r", "h");
 
 		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r");
@@ -196,6 +211,8 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/proposal", ReviewProposalPage.class, "t");
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
 
+		mount("/new", NewRepositoryPage.class);
+		mount("/edit", EditRepositoryPage.class, "r");
 		mount("/activity", ActivityPage.class, "r", "h");
 		mount("/lucene", LuceneSearchPage.class);
 		mount("/project", ProjectPage.class, "p");
@@ -204,11 +221,30 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/forks", ForksPage.class, "r");
 		mount("/fork", ForkPage.class, "r");
 
+		// allow started Wicket plugins to initialize
+		for (PluginWrapper pluginWrapper : pluginManager.getPlugins()) {
+			if (PluginState.STARTED != pluginWrapper.getPluginState()) {
+				continue;
+			}
+			if (pluginWrapper.getPlugin() instanceof GitblitWicketPlugin) {
+				GitblitWicketPlugin wicketPlugin = (GitblitWicketPlugin) pluginWrapper.getPlugin();
+				wicketPlugin.init(this);
+			}
+		}
+
+		 // customize the Wicket class resolver to load from plugins
+		IClassResolver coreResolver = getApplicationSettings().getClassResolver();
+        PluginClassResolver classResolver = new PluginClassResolver(coreResolver, pluginManager);
+        getApplicationSettings().setClassResolver(classResolver);
+
 		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
-		super.init();
 	}
 
-	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#mount(java.lang.String, java.lang.Class, java.lang.String)
+	 */
+	@Override
+	public void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
 		if (parameters == null) {
 			parameters = new String[] {};
 		}
@@ -224,15 +260,30 @@ public class GitBlitWebApp extends WebApplication {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getHomePage()
+	 */
 	@Override
 	public Class<? extends WebPage> getHomePage() {
 		return homePageClass;
 	}
 
+	public Class<? extends WebPage> getNewRepositoryPage() {
+		return newRepositoryPageClass;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#isCacheablePage(java.lang.String)
+	 */
+	@Override
 	public boolean isCacheablePage(String mountPoint) {
 		return cacheablePages.containsKey(mountPoint);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getCacheControl(java.lang.String)
+	 */
+	@Override
 	public CacheControl getCacheControl(String mountPoint) {
 		return cacheablePages.get(mountPoint);
 	}
@@ -248,15 +299,18 @@ public class GitBlitWebApp extends WebApplication {
 		return gitBlitWebSession;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#settings()
+	 */
+	@Override
 	public IStoredSettings settings() {
 		return settings;
 	}
 
-	/**
-	 * Is Gitblit running in debug mode?
-	 *
-	 * @return true if Gitblit is running in debug mode
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#isDebugMode()
 	 */
+	@Override
 	public boolean isDebugMode() {
 		return runtimeManager.isDebugMode();
 	}
@@ -265,58 +319,114 @@ public class GitBlitWebApp extends WebApplication {
 	 * These methods look strange... and they are... but they are the first
 	 * step towards modularization across multiple commits.
 	 */
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getBootDate()
+	 */
+	@Override
 	public Date getBootDate() {
 		return runtimeManager.getBootDate();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getLastActivityDate()
+	 */
+	@Override
 	public Date getLastActivityDate() {
 		return repositoryManager.getLastActivityDate();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#runtime()
+	 */
+	@Override
 	public IRuntimeManager runtime() {
 		return runtimeManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#plugins()
+	 */
+	@Override
 	public IPluginManager plugins() {
 		return pluginManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#notifier()
+	 */
+	@Override
 	public INotificationManager notifier() {
 		return notificationManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#users()
+	 */
+	@Override
 	public IUserManager users() {
 		return userManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#authentication()
+	 */
+	@Override
 	public IAuthenticationManager authentication() {
 		return authenticationManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#keys()
+	 */
+	@Override
 	public IPublicKeyManager keys() {
 		return publicKeyManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#repositories()
+	 */
+	@Override
 	public IRepositoryManager repositories() {
 		return repositoryManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#projects()
+	 */
+	@Override
 	public IProjectManager projects() {
 		return projectManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#federation()
+	 */
+	@Override
 	public IFederationManager federation() {
 		return federationManager;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#gitblit()
+	 */
+	@Override
 	public IGitblit gitblit() {
 		return gitblit;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#tickets()
+	 */
+	@Override
 	public ITicketService tickets() {
 		return gitblit.getTicketService();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#getTimezone()
+	 */
+	@Override
 	public TimeZone getTimezone() {
 		return runtimeManager.getTimezone();
 	}

@@ -22,6 +22,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.StatelessForm;
+import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WicketURLDecoder;
 import org.apache.wicket.protocol.http.request.WebRequestCodingStrategy;
 import org.apache.wicket.util.string.AppendingStringBuffer;
@@ -53,9 +54,9 @@ public class SessionlessForm<T> extends StatelessForm<T> {
 
 	private static final String HIDDEN_DIV_START = "<div style=\"width:0px;height:0px;position:absolute;left:-100px;top:-100px;overflow:hidden\">";
 
-	private final Class<? extends BasePage> pageClass;
+	protected final Class<? extends BasePage> pageClass;
 
-	private final PageParameters pageParameters;
+	protected final PageParameters pageParameters;
 
 	private final Logger log = LoggerFactory.getLogger(SessionlessForm.class);
 
@@ -144,5 +145,15 @@ public class SessionlessForm<T> extends StatelessForm<T> {
 	private String recode(String s) {
 		String un = WicketURLDecoder.QUERY_INSTANCE.decode(s);
 		return Strings.escapeMarkup(un).toString();
+	}
+
+	protected String getAbsoluteUrl() {
+		return getAbsoluteUrl(pageClass, pageParameters);
+	}
+
+	protected String getAbsoluteUrl(Class<? extends BasePage> pageClass, PageParameters pageParameters) {
+		String relativeUrl = urlFor(pageClass, pageParameters).toString();
+		String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+		return absoluteUrl;
 	}
 }

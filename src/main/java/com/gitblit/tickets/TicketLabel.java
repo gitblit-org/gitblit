@@ -30,14 +30,17 @@ public class TicketLabel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final String name;
+	public String name;
 
 	public String color;
 
 	public List<QueryResult> tickets;
 
-
 	public TicketLabel(String name) {
+		setName(name);
+	}
+	
+	public void setName(String name) {
 		this.name = name;
 		this.color = StringUtils.getColor(name);
 	}

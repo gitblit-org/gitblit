@@ -127,7 +127,7 @@ public class ReindexTickets {
 		settings.overrideSetting(Keys.web.activityCacheDays, 0);
 
 		IRuntimeManager runtimeManager = new RuntimeManager(settings, baseFolder).start();
-		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null).start();
+		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null, null).start();
 
 		String serviceName = settings.getString(Keys.tickets.service, BranchTicketService.class.getSimpleName());
 		if (StringUtils.isEmpty(serviceName)) {

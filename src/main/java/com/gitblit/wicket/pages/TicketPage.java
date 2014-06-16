@@ -87,6 +87,7 @@ import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.TicketsUI;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BasePanel.JavascriptTextPrompt;
 import com.gitblit.wicket.panels.CommentPanel;
@@ -103,7 +104,7 @@ import com.gitblit.wicket.panels.SimpleAjaxLink;
  * @author James Moger
  *
  */
-public class TicketPage extends TicketBasePage {
+public class TicketPage extends RepositoryPage {
 
 	static final String NIL = "<nil>";
 
@@ -155,7 +156,7 @@ public class TicketPage extends TicketBasePage {
 		String href = urlFor(TicketsPage.class, params).toString();
 		add(new ExternalLink("ticketNumber", href, "#" + ticket.number));
 		Label headerStatus = new Label("headerStatus", ticket.status.toString());
-		WicketUtils.setCssClass(headerStatus, getLozengeClass(ticket.status, false));
+		WicketUtils.setCssClass(headerStatus, TicketsUI.getLozengeClass(ticket.status, false));
 		add(headerStatus);
 		add(new Label("ticketTitle", ticket.title));
 		if (currentPatchset == null) {
@@ -249,8 +250,12 @@ public class TicketPage extends TicketBasePage {
 		} else {
 			// link to milestone query
 			TicketMilestone milestone = app().tickets().getMilestone(repository, ticket.milestone);
-			PageParameters milestoneParameters = new PageParameters();
-			milestoneParameters.put("r", repositoryName);
+			PageParameters milestoneParameters;
+			if (milestone.isOpen()) {
+				milestoneParameters = WicketUtils.newOpenTicketsParameter(repositoryName);
+			} else {
+				milestoneParameters = WicketUtils.newRepositoryParameter(repositoryName);
+			}
 			milestoneParameters.put(Lucene.milestone.name(), ticket.milestone);
 			int progress = 0;
 			int open = 0;
@@ -278,7 +283,8 @@ public class TicketPage extends TicketBasePage {
 		if (StringUtils.isEmpty(ticket.body)) {
 			desc = getString("gb.noDescriptionGiven");
 		} else {
-			desc = MarkdownUtils.transformGFM(app().settings(), ticket.body, ticket.repository);
+			String bugtraq = bugtraqProcessor().processText(getRepository(), repositoryName, ticket.body);
+			desc = MarkdownUtils.transformGFM(app().settings(), bugtraq, ticket.repository);
 		}
 		add(new Label("ticketDescription", desc).setEscapeModelStrings(false));
 
@@ -318,10 +324,10 @@ public class TicketPage extends TicketBasePage {
 		 * LARGE STATUS INDICATOR WITH ICON (DISCUSSION TAB->SIDE BAR)
 		 */
 		Fragment ticketStatus = new Fragment("ticketStatus", "ticketStatusFragment", this);
-		Label ticketIcon = getStateIcon("ticketIcon", ticket);
+		Label ticketIcon = TicketsUI.getStateIcon("ticketIcon", ticket);
 		ticketStatus.add(ticketIcon);
 		ticketStatus.add(new Label("ticketStatus", ticket.status.toString()));
-		WicketUtils.setCssClass(ticketStatus, getLozengeClass(ticket.status, false));
+		WicketUtils.setCssClass(ticketStatus, TicketsUI.getLozengeClass(ticket.status, false));
 		add(ticketStatus);
 
 
@@ -371,7 +377,7 @@ public class TicketPage extends TicketBasePage {
 								setResponsePage(TicketsPage.class, getPageParameters());
 							}
 						};
-						String css = getStatusClass(item.getModel().getObject());
+						String css = TicketsUI.getStatusClass(item.getModel().getObject());
 						WicketUtils.setCssClass(link, css);
 						item.add(link);
 					}
@@ -513,7 +519,7 @@ public class TicketPage extends TicketBasePage {
 			add(new Label("ticketTopic").setVisible(false));
 		} else {
 			// process the topic using the bugtraq config to link things
-			String topic = bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, ticket.topic);
+			String topic = bugtraqProcessor().processText(getRepository(), repositoryName, ticket.topic);
 			add(new Label("ticketTopic", topic).setEscapeModelStrings(false));
 		}
 
@@ -673,7 +679,7 @@ public class TicketPage extends TicketBasePage {
 						 */
 						Fragment frag = new Fragment("entry", "statusFragment", this);
 						Label status = new Label("statusChange", entry.getStatus().toString());
-						String css = getLozengeClass(entry.getStatus(), false);
+						String css = TicketsUI.getLozengeClass(entry.getStatus(), false);
 						WicketUtils.setCssClass(status, css);
 						for (IBehavior b : status.getBehaviors()) {
 							if (b instanceof SimpleAttributeModifier) {
@@ -692,7 +698,8 @@ public class TicketPage extends TicketBasePage {
 						/*
 						 * COMMENT
 						 */
-						String comment = MarkdownUtils.transformGFM(app().settings(), entry.comment.text, repositoryName);
+						String bugtraq = bugtraqProcessor().processText(getRepository(), repositoryName, entry.comment.text);
+						String comment = MarkdownUtils.transformGFM(app().settings(), bugtraq, repositoryName);
 						Fragment frag = new Fragment("entry", "commentFragment", this);
 						Label commentIcon = new Label("commentIcon");
 						if (entry.comment.src == CommentSource.Email) {
@@ -944,7 +951,7 @@ public class TicketPage extends TicketBasePage {
 							case status:
 								// special handling for status
 								Status status = event.getStatus();
-								String css = getLozengeClass(status, true);
+								String css = TicketsUI.getLozengeClass(status, true);
 								value = String.format("<span class=\"%1$s\">%2$s</span>", css, status.toString());
 								break;
 							default:
@@ -1533,14 +1540,14 @@ public class TicketPage extends TicketBasePage {
 		switch (type) {
 			case Rebase:
 			case Rebase_Squash:
-				typeCss = getLozengeClass(Status.Declined, false);
+				typeCss = TicketsUI.getLozengeClass(Status.Declined, false);
 				break;
 			case Squash:
 			case Amend:
-				typeCss = getLozengeClass(Status.On_Hold, false);
+				typeCss = TicketsUI.getLozengeClass(Status.On_Hold, false);
 				break;
 			case Proposal:
-				typeCss = getLozengeClass(Status.New, false);
+				typeCss = TicketsUI.getLozengeClass(Status.New, false);
 				break;
 			case FastForward:
 			default:

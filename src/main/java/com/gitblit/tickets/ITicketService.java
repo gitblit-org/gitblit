@@ -49,6 +49,7 @@ import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.tickets.TicketIndexer.Lucene;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.StringUtils;
@@ -63,6 +64,8 @@ import com.google.common.cache.CacheBuilder;
  *
  */
 public abstract class ITicketService {
+
+	public static final String SETTING_UPDATE_DIFFSTATS = "migration.updateDiffstats";
 
 	private static final String LABEL = "label";
 
@@ -105,6 +108,8 @@ public abstract class ITicketService {
 	private final Map<String, List<TicketLabel>> labelsCache;
 
 	private final Map<String, List<TicketMilestone>> milestonesCache;
+
+	private final boolean updateDiffstats;
 
 	private static class TicketKey {
 		final String repository;
@@ -163,6 +168,8 @@ public abstract class ITicketService {
 
 		this.labelsCache = new ConcurrentHashMap<String, List<TicketLabel>>();
 		this.milestonesCache = new ConcurrentHashMap<String, List<TicketMilestone>>();
+
+		this.updateDiffstats = settings.getBoolean(SETTING_UPDATE_DIFFSTATS, true);
 	}
 
 	/**
@@ -244,6 +251,7 @@ public abstract class ITicketService {
 	 */
 	public boolean isAcceptingTicketUpdates(RepositoryModel repository) {
 		return isReady()
+				&& repository.hasCommits
 				&& repository.isBare
 				&& !repository.isFrozen
 				&& !repository.isMirror;
@@ -556,9 +564,10 @@ public abstract class ITicketService {
 	public TicketMilestone getMilestone(RepositoryModel repository, String milestone) {
 		for (TicketMilestone ms : getMilestones(repository)) {
 			if (ms.name.equalsIgnoreCase(milestone)) {
+				TicketMilestone tm = DeepCopier.copy(ms);
 				String q = QueryBuilder.q(Lucene.rid.matches(repository.getRID())).and(Lucene.milestone.matches(milestone)).build();
-				ms.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
-				return ms;
+				tm.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
+				return tm;
 			}
 		}
 		return null;
@@ -639,6 +648,22 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName, String newName, String createdBy) {
+		return renameMilestone(repository, oldName, newName, createdBy, true);
+	}
+
+	/**
+	 * Renames a milestone.
+	 *
+	 * @param repository
+	 * @param oldName
+	 * @param newName
+	 * @param createdBy
+	 * @param notifyOpenTickets
+	 * @return true if successful
+	 * @since 1.6.0
+	 */
+	public synchronized boolean renameMilestone(RepositoryModel repository, String oldName,
+			String newName, String createdBy, boolean notifyOpenTickets) {
 		if (StringUtils.isEmpty(newName)) {
 			throw new IllegalArgumentException("new milestone can not be empty!");
 		}
@@ -651,7 +676,7 @@ public abstract class ITicketService {
 			config.setString(MILESTONE, newName, STATUS, milestone.status.name());
 			config.setString(MILESTONE, newName, COLOR, milestone.color);
 			if (milestone.due != null) {
-				config.setString(MILESTONE, milestone.name, DUE,
+				config.setString(MILESTONE, newName, DUE,
 						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
 			}
 			config.save();
@@ -663,9 +688,13 @@ public abstract class ITicketService {
 				Change change = new Change(createdBy);
 				change.setField(Field.milestone, newName);
 				TicketModel ticket = updateTicket(repository, qr.number, change);
-				notifier.queueMailing(ticket);
+				if (notifyOpenTickets && ticket.isOpen()) {
+					notifier.queueMailing(ticket);
+				}
 			}
-			notifier.sendAll();
+			if (notifyOpenTickets) {
+				notifier.sendAll();
+			}
 
 			return true;
 		} catch (IOException e) {
@@ -688,11 +717,27 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	public synchronized boolean deleteMilestone(RepositoryModel repository, String milestone, String createdBy) {
+		return deleteMilestone(repository, milestone, createdBy, true);
+	}
+
+	/**
+	 * Deletes a milestone.
+	 *
+	 * @param repository
+	 * @param milestone
+	 * @param createdBy
+	 * @param notifyOpenTickets
+	 * @return true if successful
+	 * @since 1.6.0
+	 */
+	public synchronized boolean deleteMilestone(RepositoryModel repository, String milestone,
+			String createdBy, boolean notifyOpenTickets) {
 		if (StringUtils.isEmpty(milestone)) {
 			throw new IllegalArgumentException("milestone can not be empty!");
 		}
 		Repository db = null;
 		try {
+			TicketMilestone tm = getMilestone(repository, milestone);
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
 			config.unsetSection(MILESTONE, milestone);
@@ -700,6 +745,18 @@ public abstract class ITicketService {
 
 			milestonesCache.remove(repository.name);
 
+			TicketNotifier notifier = createNotifier();
+			for (QueryResult qr : tm.tickets) {
+				Change change = new Change(createdBy);
+				change.setField(Field.milestone, "");
+				TicketModel ticket = updateTicket(repository, qr.number, change);
+				if (notifyOpenTickets && ticket.isOpen()) {
+					notifier.queueMailing(ticket);
+				}
+			}
+			if (notifyOpenTickets) {
+				notifier.sendAll();
+			}
 			return true;
 		} catch (IOException e) {
 			log.error("failed to delete milestone " + milestone + " in " + repository, e);
@@ -710,6 +767,15 @@ public abstract class ITicketService {
 		}
 		return false;
 	}
+
+	/**
+	 * Returns the set of assigned ticket ids in the repository.
+	 *
+	 * @param repository
+	 * @return a set of assigned ticket ids in the repository
+	 * @since 1.6.0
+	 */
+	public abstract Set<Long> getIds(RepositoryModel repository);
 
 	/**
 	 * Assigns a new ticket id.
@@ -773,7 +839,7 @@ public abstract class ITicketService {
 			ticket = getTicketImpl(repository, ticketId);
 			// if ticket exists
 			if (ticket != null) {
-				if (ticket.hasPatchsets()) {
+				if (ticket.hasPatchsets() && updateDiffstats) {
 					Repository r = repositoryManager.getRepository(repository.name);
 					try {
 						Patchset patchset = ticket.getCurrentPatchset();
@@ -805,6 +871,33 @@ public abstract class ITicketService {
 	 * @since 1.4.0
 	 */
 	protected abstract TicketModel getTicketImpl(RepositoryModel repository, long ticketId);
+
+
+	/**
+	 * Returns the journal used to build a ticket.
+	 *
+	 * @param repository
+	 * @param ticketId
+	 * @return the journal for the ticket, if it exists, otherwise null
+	 * @since 1.6.0
+	 */
+	public final List<Change> getJournal(RepositoryModel repository, long ticketId) {
+		if (hasTicket(repository, ticketId)) {
+			List<Change> journal = getJournalImpl(repository, ticketId);
+			return journal;
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves the ticket journal.
+	 *
+	 * @param repository
+	 * @param ticketId
+	 * @return a ticket, if it exists, otherwise null
+	 * @since 1.6.0
+	 */
+	protected abstract List<Change> getJournalImpl(RepositoryModel repository, long ticketId);
 
 	/**
 	 * Get the ticket url

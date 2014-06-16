@@ -3,19 +3,19 @@
 #
 
 # Specify minimum Moxie version required to build
-requires: 0.9.1
+requires: 0.9.2
 
 # Project Metadata
 name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.5.2-SNAPSHOT
+version: 1.6.0
 inceptionYear: 2011
 
 # Current stable release
-releaseVersion: 1.5.1
-releaseDate: 2014-05-07
+releaseVersion: 1.6.0
+releaseDate: 2014-06-16
 
 # Project urls
 url: 'http://gitblit.com'
@@ -133,7 +133,7 @@ dependencies:
 - compile 'log4j:log4j:1.2.17' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-api:1.7.5' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-log4j12:1.7.5' :war :fedclient :authority
-- compile 'javax.mail:mail:1.4.3' :war :authority
+- compile 'com.sun.mail:javax.mail:1.5.1' :war :authority
 - compile 'javax.servlet:javax.servlet-api:3.1.0' :fedclient
 - compile 'org.eclipse.jetty.aggregate:jetty-all:${jetty.version}' @jar
 - compile 'org.apache.wicket:wicket:${wicket.version}' :war !org.mockito
@@ -174,6 +174,7 @@ dependencies:
 - compile 'commons-codec:commons-codec:1.7' :war
 - compile 'redis.clients:jedis:2.3.1' :war
 - compile 'ro.fortsoft.pf4j:pf4j:0.8.0' :war
+- compile 'org.apache.tika:tika-core:1.5' :war
 - test 'junit'
 # Dependencies for Selenium web page testing
 - test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar

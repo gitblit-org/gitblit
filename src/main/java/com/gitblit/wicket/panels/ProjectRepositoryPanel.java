@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.panels;
 
-import java.text.MessageFormat;
 import java.util.Map;
 
 import org.apache.wicket.Component;
@@ -24,7 +23,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -129,38 +127,10 @@ public class ProjectRepositoryPanel extends BasePanel {
 			user = UserModel.ANONYMOUS;
 		}
 		Fragment repositoryLinks;
-		boolean showOwner = entry.isOwner(user.username);
-		// owner of personal repository gets admin powers
-		boolean showAdmin = isAdmin || entry.isUsersPersonalRepository(user.username);
-
-		if (showAdmin || showOwner) {
-			repositoryLinks = new Fragment("repositoryLinks", showAdmin ? "repositoryAdminLinks"
-					: "repositoryOwnerLinks", this);
+		if (user.canAdmin(entry)) {
+			repositoryLinks = new Fragment("repositoryLinks", "repositoryOwnerLinks", this);
 			repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository", EditRepositoryPage.class,
 					WicketUtils.newRepositoryParameter(entry.name)));
-			if (showAdmin) {
-				Link<Void> deleteLink = new Link<Void>("deleteRepository") {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						if (app().repositories().deleteRepositoryModel(entry)) {
-							// redirect to the owning page
-							if (entry.isPersonalRepository()) {
-								setResponsePage(getPage().getClass(), WicketUtils.newUsernameParameter(entry.projectPath.substring(1)));
-							} else {
-								setResponsePage(getPage().getClass(), WicketUtils.newProjectParameter(entry.projectPath));
-							}
-						} else {
-							error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
-						}
-					}
-				};
-				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						localizer.getString("gb.deleteRepository", parent), entry)));
-				repositoryLinks.add(deleteLink);
-			}
 		} else {
 			repositoryLinks = new Fragment("repositoryLinks", "repositoryUserLinks", this);
 		}

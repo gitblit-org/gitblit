@@ -66,6 +66,7 @@ import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.extensions.RepositoryLifeCycleListener;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RefModel;
@@ -114,6 +115,8 @@ public class RepositoryManager implements IRepositoryManager {
 
 	private final IRuntimeManager runtimeManager;
 
+	private final IPluginManager pluginManager;
+
 	private final IUserManager userManager;
 
 	private final File repositoriesFolder;
@@ -126,10 +129,12 @@ public class RepositoryManager implements IRepositoryManager {
 
 	public RepositoryManager(
 			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager,
 			IUserManager userManager) {
 
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
+		this.pluginManager = pluginManager;
 		this.userManager = userManager;
 		this.repositoriesFolder = runtimeManager.getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 	}
@@ -1420,6 +1425,16 @@ public class RepositoryManager implements IRepositoryManager {
 		removeFromCachedRepositoryList(repositoryName);
 		// model will actually be replaced on next load because config is stale
 		addToCachedRepositoryList(repository);
+
+		if (isCreate && pluginManager != null) {
+			for (RepositoryLifeCycleListener listener : pluginManager.getExtensions(RepositoryLifeCycleListener.class)) {
+				try {
+					listener.onCreation(repository);
+				} catch (Throwable t) {
+					logger.error(String.format("failed to call plugin onCreation %s", repositoryName), t);
+				}
+			}
+		}
 	}
 
 	/**
@@ -1536,6 +1551,17 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	/**
+	 * Returns true if the repository can be deleted.
+	 *
+	 * @return true if the repository can be deleted
+	 */
+	@Override
+	public boolean canDelete(RepositoryModel repository) {
+		return settings.getBoolean(Keys.web.allowDeletingNonEmptyRepositories, true)
+					|| !repository.hasCommits;
+	}
+
+	/**
 	 * Deletes the repository from the file system and removes the repository
 	 * permission from all repository users.
 	 *
@@ -1556,6 +1582,12 @@ public class RepositoryManager implements IRepositoryManager {
 	 */
 	@Override
 	public boolean deleteRepository(String repositoryName) {
+		RepositoryModel repository = getRepositoryModel(repositoryName);
+		if (!canDelete(repository)) {
+			logger.warn("Attempt to delete {} rejected!", repositoryName);
+			return false;
+		}
+
 		try {
 			close(repositoryName);
 			// clear the repository cache
@@ -1571,6 +1603,16 @@ public class RepositoryManager implements IRepositoryManager {
 				FileUtils.delete(folder, FileUtils.RECURSIVE | FileUtils.RETRY);
 				if (userManager.deleteRepositoryRole(repositoryName)) {
 					logger.info(MessageFormat.format("Repository \"{0}\" deleted", repositoryName));
+
+					if (pluginManager != null) {
+						for (RepositoryLifeCycleListener listener : pluginManager.getExtensions(RepositoryLifeCycleListener.class)) {
+							try {
+								listener.onDeletion(repository);
+							} catch (Throwable t) {
+								logger.error(String.format("failed to call plugin onDeletion %s", repositoryName), t);
+							}
+						}
+					}
 					return true;
 				}
 			}

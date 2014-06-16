@@ -94,8 +94,8 @@ public class FederationClient {
 		// configure the Gitblit singleton for minimal, non-server operation
 		RuntimeManager runtime = new RuntimeManager(settings, baseFolder).start();
 		NoopNotificationManager notifications = new NoopNotificationManager().start();
-		UserManager users = new UserManager(runtime).start();
-		RepositoryManager repositories = new RepositoryManager(runtime, users).start();
+		UserManager users = new UserManager(runtime, null).start();
+		RepositoryManager repositories = new RepositoryManager(runtime, null, users).start();
 		FederationManager federation = new FederationManager(runtime, notifications, repositories).start();
 		IGitblit gitblit = new GitblitManager(runtime, null, notifications, users, null, null, repositories, null, federation);
 
@@ -163,6 +163,11 @@ public class FederationClient {
 		@Override
 		public NoopNotificationManager stop() {
 			return this;
+		}
+
+		@Override
+		public boolean isSendingMail() {
+			return false;
 		}
 
 		@Override

@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+	<h4><wicket:message key="gb.sshKeys"></wicket:message></h4>
+	<p><wicket:message key="gb.sshKeysDescription"></wicket:message></p>
+	<hr />
+		
+	<div wicket:id="keys">
+		<div style="display:inline-block;font-size:2em;padding:10px;">
+			<i class="fa fa-key"></i>
+		</div>
+		<div style="display:inline-block;">
+			<div wicket:id="comment" style="font-weight:bold;"></div>
+			<pre wicket:id="fingerprint"></pre>
+		</div>
+		
+		<div style="display:inline-block;padding: 0px 20px">
+			<div wicket:id="permission" style="font-weight:bold;"></div>
+			<div wicket:id="algorithm"></div>
+		</div>
+		
+		<div style="display:inline-block;vertical-align:text-bottom;">
+			<button class="btn btn-danger" wicket:id="delete"><wicket:message key="gb.delete"></wicket:message></button>
+		</div>
+		
+		<hr />
+	</div>
+	
+	<div class="well">
+		<form wicket:id="addKeyForm">
+			<h4><wicket:message key="gb.addSshKey"></wicket:message></h4>
+			<div wicket:id="addKeyData"></div>
+			<div wicket:id="addKeyPermission"></div>
+			<div wicket:id="addKeyComment"></div>
+		
+			<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Add" wicket:message="value:gb.add" wicket:id="addKeyButton" /></div>
+		</form>
+	</div>
+</wicket:panel>
+</body>
+</html>

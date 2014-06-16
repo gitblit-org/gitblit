@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -115,6 +116,21 @@ public class GitBlit extends GitblitManager {
 	@Override
 	public boolean isServingRepositories() {
 		return servicesManager.isServingRepositories();
+	}
+
+	@Override
+	public boolean isServingHTTP() {
+		return servicesManager.isServingHTTP();
+	}
+
+	@Override
+	public boolean isServingGIT() {
+		return servicesManager.isServingGIT();
+	}
+
+	@Override
+	public boolean isServingSSH() {
+		return servicesManager.isServingSSH();
 	}
 
 	protected Object [] getModules() {
@@ -248,6 +264,24 @@ public class GitBlit extends GitblitManager {
 				return o1.transport.compareTo(o2.transport);
 			}
 		});
+
+		// consider the user's transport preference
+		RepositoryUrl preferredUrl = null;
+		Transport preferredTransport = user.getPreferences().getTransport();
+		if (preferredTransport != null) {
+			Iterator<RepositoryUrl> itr = list.iterator();
+			while (itr.hasNext()) {
+				RepositoryUrl url = itr.next();
+				if (url.transport.equals(preferredTransport)) {
+					itr.remove();
+					preferredUrl = url;
+					break;
+				}
+			}
+		}
+		if (preferredUrl != null) {
+			list.add(0, preferredUrl);
+		}
 
 		return list;
 	}

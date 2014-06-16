@@ -20,10 +20,12 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -87,8 +89,8 @@ public class DocPage extends RepositoryPage {
 				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
 		fragment.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
-		fragment.add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
-				repositoryName, objectId, documentPath)));
+		String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, objectId, documentPath);
+		fragment.add(new ExternalLink("rawLink", rawUrl));
 
 		fragment.add(new Label("content", markupDoc.html).setEscapeModelStrings(false));
 		add(fragment);

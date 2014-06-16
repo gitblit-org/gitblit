@@ -68,6 +68,8 @@ public class Constants {
 
 	public static final String SPARKLESHARE_INVITE_PATH = "/sparkleshare/";
 
+	public static final String RAW_PATH = "/raw/";
+
 	public static final String BRANCH_GRAPH_PATH = "/graph/";
 
 	public static final String BORDER = "*****************************************************************";
@@ -119,6 +121,14 @@ public class Constants {
 	public static final String R_TICKET = "refs/heads/ticket/";
 
 	public static final String R_TICKETS_PATCHSETS = "refs/tickets/";
+
+	public static final String R_MASTER = "refs/heads/master";
+
+	public static final String MASTER = "master";
+
+	public static final String R_DEVELOP = "refs/heads/develop";
+
+	public static final String DEVELOP = "develop";
 
 	public static String getVersion() {
 		String v = Constants.class.getPackage().getImplementationVersion();
@@ -348,9 +358,10 @@ public class Constants {
 	 * a client.
 	 */
 	public static enum RpcRequest {
-		// Order is important here.  anything above LIST_SETTINGS requires
+		// Order is important here.  anything after LIST_SETTINGS requires
 		// administrator privileges and web.allowRpcManagement.
-		CLEAR_REPOSITORY_CACHE, REINDEX_TICKETS, GET_PROTOCOL, LIST_REPOSITORIES, LIST_BRANCHES, GET_USER, LIST_SETTINGS,
+		CLEAR_REPOSITORY_CACHE, REINDEX_TICKETS, GET_PROTOCOL, LIST_REPOSITORIES, LIST_BRANCHES, GET_USER,
+		FORK_REPOSITORY, LIST_SETTINGS,
 		CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY,
 		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER,
 		LIST_TEAMS, CREATE_TEAM, EDIT_TEAM, DELETE_TEAM,
@@ -386,6 +397,27 @@ public class Constants {
 
 		public static SearchType forName(String name) {
 			for (SearchType type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return COMMIT;
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+	}
+
+	/**
+	 * Enumeration of the feed content object types.
+	 */
+	public static enum FeedObjectType {
+		COMMIT, TAG;
+
+		public static FeedObjectType forName(String name) {
+			for (FeedObjectType type : values()) {
 				if (type.name().equalsIgnoreCase(name)) {
 					return type;
 				}

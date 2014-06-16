@@ -43,7 +43,7 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 
     IAuthenticationManager newAuthenticationManager() {
     	RuntimeManager runtime = new RuntimeManager(getSettings(), GitBlitSuite.BASEFOLDER).start();
-    	users = new UserManager(runtime).start();
+    	users = new UserManager(runtime, null).start();
     	AuthenticationManager auth = new AuthenticationManager(runtime, users).start();
     	return auth;
     }

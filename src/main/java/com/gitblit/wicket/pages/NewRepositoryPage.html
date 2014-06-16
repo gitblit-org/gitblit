@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:extend>
+<body onload="document.getElementById('name').focus();">
+	<form style="padding-top:5px;" wicket:id="editForm">
+<div class="row">
+	<div class="span12">
+
+		<div wicket:id="namePanel"></div>
+		
+		<hr/>
+		
+		<div wicket:id="accessPolicyPanel"></div>
+		
+		<hr/>
+		
+		<h4><wicket:message key="gb.initialCommit"></wicket:message></h4>
+		<p><wicket:message key="gb.initialCommitDescription"></wicket:message></p>
+		
+		<div wicket:id="addReadme"></div>
+		
+		<div wicket:id="addGitIgnore"></div>
+		
+		<div wicket:id="addGitFlow"></div>
+	</div>
+</div>
+
+<div class="row">
+<div class="span12">
+	<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Create" wicket:message="value:gb.create" wicket:id="create" /></div>
+</div>
+</div>
+
+</form>	
+</body>
+</wicket:extend>
+</html>

@@ -133,3 +133,27 @@ You can trigger a live reindex of tickets for any backend using Gitblit's RPC in
     curl --insecure --user admin:admin "https://localhost:8443/rpc?req=reindex_tickets"
     curl --insecure --user admin:admin "https://localhost:8443/rpc?req=reindex_tickets&name=gitblit.git"
 
+#### Migrating Tickets between Ticket Services
+
+##### Gitblit GO
+
+Gitblit GO ships with a script that executes the *com.gitblit.MigrateTickets* tool included in the Gitblit jar file.  This tool will migrate *all* tickets in *all* repositories **AND** must be run when Gitblit is offline.
+
+    migrate-tickets <outputservice> <baseFolder>
+
+For example, this would migrate tickets from the current ticket service configured in `c:\gitblit-data\gitblit.properties` to a Redis ticket service.  The Redis service is configured in the same config file so you must be sure to properly setup all appropriate Redis settings.
+
+    migrate-tickets com.gitblit.tickets.RedisTicketService c:\gitblit-data
+
+##### Gitblit WAR
+
+Gitblit WAR does not ship with anything other than the WAR, but you can still migrate tickets offline with a little extra effort.
+
+*Windows*
+
+    java -cp "C:/path/to/WEB-INF/lib/*" com.gitblit.MigrateTickets <outputservice> --baseFolder <baseFolder>
+
+*Linux/Unix/Mac OSX*
+
+    java -cp /path/to/WEB-INF/lib/* com.gitblit.MigrateTickets <outputservice> --baseFolder <baseFolder>
+

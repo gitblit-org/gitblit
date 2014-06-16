@@ -119,9 +119,42 @@ public class RuntimeManager implements IRuntimeManager {
 	 */
 	@Override
 	public boolean isServingRepositories() {
-		return settings.getBoolean(Keys.git.enableGitServlet, true)
-				|| (settings.getInteger(Keys.git.daemonPort, 0) > 0)
-				|| (settings.getInteger(Keys.git.sshPort, 0) > 0);
+		return isServingHTTP()
+				|| isServingGIT()
+				|| isServingSSH();
+	}
+
+	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * over the HTTP protocol.
+	 *
+	 * @return true if Gitblit is serving repositories over the HTTP protocol
+	 */
+	@Override
+	public boolean isServingHTTP() {
+		return settings.getBoolean(Keys.git.enableGitServlet, true);
+	}
+
+	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * over the Git Daemon protocol.
+	 *
+	 * @return true if Gitblit is serving repositories over the Git Daemon protocol
+	 */
+	@Override
+	public boolean isServingGIT() {
+		return settings.getInteger(Keys.git.daemonPort, 0) > 0;
+	}
+
+	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * over the SSH protocol.
+	 *
+	 * @return true if Gitblit is serving repositories over the SSH protocol
+	 */
+	@Override
+	public boolean isServingSSH() {
+		return settings.getInteger(Keys.git.sshPort, 0) > 0;
 	}
 
 	/**

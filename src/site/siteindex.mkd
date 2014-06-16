@@ -1,14 +1,23 @@
 <div class="well" style="margin-left:5px;float:right;width:275px;padding: 10px 10px;">
+<script>
+   (function(d, s, id) {
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) return;
+       js = d.createElement(s); js.id = id;
+       js.async = true;
+       js.src = "//go.jelastic.com/widgets.js";
+       fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'jelastic-jssdk'));
+</script>
 <div style="text-align:center">
 <b>Current Release ${project.releaseVersion} (${project.releaseDate})</b><br/><a href="releasenotes.html">release notes</a>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="%GCURL%gitblit-${project.releaseVersion}.zip">Download Gitblit GO (Windows)</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="%GCURL%gitblit-${project.releaseVersion}.tar.gz">Download Gitblit GO (Linux/OSX)</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="%GCURL%gitblit-${project.releaseVersion}.war">Download Gitblit WAR</a></div>
-<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="%GCURL%express-${project.releaseVersion}.zip">Download Gitblit Express</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="%GCURL%manager-${project.releaseVersion}.zip">Download Gitblit Manager</a></div>
 		<a href='https://bintray.com/gitblit/releases/gitblit/view?source=watch' alt='Get automatic notifications about new "stable" versions'><img src='https://www.bintray.com/docs/images/bintray_badge_color.png'></a>
 	</div>
-
+<div data-manifest="http://1c57d83a4c5f3a21ec25c050d4c5e37b.app.jelastic.com/xssu/cross/download/RDYYHABkAFJbUVlMMVU7RUtDARgATExFCEBuGS4jdQJKRUsEDwIBQmNTTEBI" data-width="280" data-theme="flat-blue" data-text="Get it hosted now!" data-tx-empty="Type your email and click the button" data-tx-invalid-email="Invalid email, please check the spelling" data-tx-error="An error has occurred, please try again later" data-tx-success="Check your email" class="je-app" ></div>
 	<div style="padding-top:5px;">
 	<table class="table condensed-table">
 		<tbody>
@@ -41,20 +50,25 @@ This is what you should download if you want to go from zero to Git in less than
 ### WAR: For Your Servlet Container
 *Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
 
-### Express: For the Cloud
-*Gitblit Express* is a prepared distribution for [RedHat's OpenShift][rhcloud] cloud service.
-
 ### You decide how to use Gitblit
 
 Gitblit can be used as a dumb repository viewer with no administrative controls or user accounts.  
 Gitblit can be used as a complete Git stack for cloning, pushing, and repository access control.  
 Gitblit can be used without any other Git tooling (including actual Git) or it can cooperate with your established tools.
 
+### All Transports
+
+The SSH, HTTP, & GIT protocols are supported and ready-to-go out of the box.
+
+### Issue tracking with branch-based pull requests
+
+Gitblit blends elements of GitHub, BitBucket, and Gerrit to provide a streamlined collaboration workflow based on branches within the primary repository.
+
 ### Easy Remote Management
 
 Administrators can create and manage all repositories, user accounts, and teams from the *Web UI*.  
 Administrators can create and manage all repositories, user accounts, and teams from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
-Administrators can create and manage all repositories, user accounts, and teams from the *command-line* using the [Powertools plugin](https://github.com/gitblit/gitblit-powertools-plugin).
+Administrators can create and manage all repositories, user accounts, and teams from the *command-line* using SSH & the [Powertools plugin](https://github.com/gitblit/gitblit-powertools-plugin).
 
 ### Integration with Your Infrastructure
 
@@ -81,4 +95,3 @@ Gitblit requires a Java 7 Runtime Environment (JRE) or a Java 7 Development Kit 
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
-[rhcloud]: https://openshift.redhat.com/app "RedHat OpenShift"

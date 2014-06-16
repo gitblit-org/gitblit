@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:extend>
+<body onload="document.getElementById('name').focus();">
+	
+<div class="container">
+	<!-- page header -->
+	<div class="title" style="font-size: 22px; color: rgb(0, 32, 96);padding: 3px 0px 7px;">
+		<span class="project"><wicket:message key="gb.editMilestone"></wicket:message></span>
+	</div>
+
+	<form style="padding-top:5px;" wicket:id="editForm">
+	<div class="row">
+	<div class="span12">
+		<!-- Edit Milestone Table -->
+		<table class="ticket">
+			<tr><th><wicket:message key="gb.milestone"></wicket:message></th><td class="edit"><input class="input-large" type="text" wicket:id="name" id="name"></input></td></tr>
+			<tr><th><wicket:message key="gb.due"></wicket:message></th><td class="edit"><input class="input-large" type="text" wicket:id="due"></input> &nbsp;<span class="help-inline" wicket:id="dueFormat"></span></td></tr>
+			<tr><th><wicket:message key="gb.status"></wicket:message><span style="color:red;">*</span></th><td class="edit"><select class="input-large" wicket:id="status"></select></td></tr>
+			<tr><th></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="notify" /> &nbsp;<span class="help-inline"><wicket:message key="gb.notifyChangedOpenTickets"></wicket:message></span></label></td></tr>
+		</table>
+	</div>
+	</div>	
+
+	<div class="row">
+	<div class="span12">
+		<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /> &nbsp; <input class="btn btn-danger" type="submit" value="Delete" wicket:message="value:gb.delete" wicket:id="delete" /></div>
+	</div>
+	</div>
+	</form>
+</div>
+</body>
+
+</wicket:extend>
+</html>

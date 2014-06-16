@@ -71,6 +71,11 @@ public class NotificationManager implements INotificationManager {
 		return this;
 	}
 
+	@Override
+	public boolean isSendingMail() {
+		return mailService.isReady();
+	}
+
 	/**
 	 * Notify the administrators by email.
 	 *

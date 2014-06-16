@@ -86,7 +86,7 @@ public class EditTeamPage extends RootSubPage {
 
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
-		return UsersPage.class;
+		return TeamsPage.class;
 	}
 
 	protected void setupPage(final TeamModel teamModel) {
@@ -214,7 +214,7 @@ public class EditTeamPage extends RootSubPage {
 							teamModel.name));
 				}
 				// back to users page
-				setResponsePage(UsersPage.class);
+				setResponsePage(TeamsPage.class);
 			}
 		};
 
@@ -249,7 +249,7 @@ public class EditTeamPage extends RootSubPage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(UsersPage.class);
+				setResponsePage(TeamsPage.class);
 			}
 		};
 		cancel.setDefaultFormProcessing(false);

@@ -31,6 +31,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.models.PathModel;
+import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -103,8 +104,8 @@ public class DocsPage extends RepositoryPage {
 							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath)));
 					item.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath)));
-					item.add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
-							repositoryName, commitId, doc.documentPath)));
+					String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, commitId, doc.documentPath);
+					item.add(new ExternalLink("rawLink", rawUrl));
 
 					// document content
 					String file = StringUtils.getLastPathElement(doc.documentPath);
@@ -145,8 +146,8 @@ public class DocsPage extends RepositoryPage {
 				// links
 				item.add(new BookmarkablePageLink<Void>("view", DocPage.class, WicketUtils
 						.newPathParameter(repositoryName, id, entry.path)));
-				item.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
-						.newPathParameter(repositoryName, id, entry.path)));
+				String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, id, entry.path);
+				item.add(new ExternalLink("raw", rawUrl));
 				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
 						.newPathParameter(repositoryName, id, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils

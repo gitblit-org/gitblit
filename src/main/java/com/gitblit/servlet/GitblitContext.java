@@ -38,6 +38,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.WebXmlSettings;
 import com.gitblit.dagger.DaggerContext;
+import com.gitblit.extensions.LifeCycleListener;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
@@ -174,6 +175,9 @@ public class GitblitContext extends DaggerContext {
 		runtime.start();
 		managers.add(runtime);
 
+		// create the plugin manager instance but do not start it
+		loadManager(injector, IPluginManager.class);
+
 		// start all other managers
 		startManager(injector, INotificationManager.class);
 		startManager(injector, IUserManager.class);
@@ -191,6 +195,15 @@ public class GitblitContext extends DaggerContext {
 		logger.info("");
 		logger.info("All managers started.");
 		logger.info("");
+
+		IPluginManager pluginManager = injector.get(IPluginManager.class);
+		for (LifeCycleListener listener : pluginManager.getExtensions(LifeCycleListener.class)) {
+			try {
+				listener.onStartup();
+			} catch (Throwable t) {
+				logger.error(null, t);
+			}
+		}
 	}
 
 	private String lookupBaseFolderFromJndi() {
@@ -205,9 +218,14 @@ public class GitblitContext extends DaggerContext {
 		return null;
 	}
 
-	protected <X extends IManager> X startManager(ObjectGraph injector, Class<X> clazz) {
-		logManager(clazz);
+	protected <X extends IManager> X loadManager(ObjectGraph injector, Class<X> clazz) {
 		X x = injector.get(clazz);
+		return x;
+	}
+
+	protected <X extends IManager> X startManager(ObjectGraph injector, Class<X> clazz) {
+		X x = loadManager(injector, clazz);
+		logManager(clazz);
 		x.start();
 		managers.add(x);
 		return x;
@@ -225,6 +243,16 @@ public class GitblitContext extends DaggerContext {
 	@Override
 	protected void destroyContext(ServletContext context) {
 		logger.info("Gitblit context destroyed by servlet container.");
+
+		IPluginManager pluginManager = getManager(IPluginManager.class);
+		for (LifeCycleListener listener : pluginManager.getExtensions(LifeCycleListener.class)) {
+			try {
+				listener.onShutdown();
+			} catch (Throwable t) {
+				logger.error(null, t);
+			}
+		}
+
 		for (IManager manager : managers) {
 			logger.debug("stopping {}", manager.getClass().getSimpleName());
 			manager.stop();
@@ -348,6 +376,22 @@ public class GitblitContext extends DaggerContext {
 					logger.error(MessageFormat.format(
 							"Failed to copy included Groovy scripts from {0} to {1}",
 							warScripts, localScripts));
+				}
+			}
+		}
+
+		// Copy the included gitignore files to the configured gitignore folder
+		String gitignorePath = webxmlSettings.getString(Keys.git.gitignoreFolder, "gitignore");
+		File localGitignores = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, base, gitignorePath);
+		if (!localGitignores.exists()) {
+			File warGitignores = new File(contextFolder, "/WEB-INF/data/gitignore");
+			if (!warGitignores.equals(localGitignores)) {
+				try {
+					com.gitblit.utils.FileUtils.copy(localGitignores, warGitignores.listFiles());
+				} catch (IOException e) {
+					logger.error(MessageFormat.format(
+							"Failed to copy included .gitignore files from {0} to {1}",
+							warGitignores, localGitignores));
 				}
 			}
 		}

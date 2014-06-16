@@ -54,9 +54,9 @@ def fetch(args):
         # fetch all current ticket patchsets
         print("Fetching ticket patchsets from the '{}' repository".format(args.remote))
         if args.quiet:
-            __call(['git', 'fetch', args.remote, '--quiet'])
+            __call(['git', 'fetch', '-p', args.remote, '--quiet'])
         else:
-            __call(['git', 'fetch', args.remote])
+            __call(['git', 'fetch', '-p', args.remote])
     else:
         # fetch specific patchset
         __resolve_patchset(args)
@@ -206,6 +206,12 @@ def start(args):
             branches.append(branch.strip())
 
     branch = 'topic/' + args.topic
+    try:
+        int(args.topic)
+        branch = 'ticket/' + args.topic
+    except ValueError:
+        pass
+
     illegals = set(branches) & {'topic', branch}
 
     # ensure there are no local branch names that will interfere with branch creation
@@ -241,6 +247,13 @@ def propose(args):
                 curr_branch = branch[1:].strip()
                 if curr_branch.startswith('topic/'):
                     topic = curr_branch[6:].strip()
+                    try:
+                        int(topic)
+                        push_ref = topic
+                    except ValueError:
+                        pass
+                if curr_branch.startswith('ticket/'):
+                    topic = curr_branch[7:].strip()
                     try:
                         int(topic)
                         push_ref = topic
@@ -288,8 +301,8 @@ def propose(args):
         if fields[0] == 'remote' and fields[1].strip().startswith('--> #'):
             # set the upstream branch configuration
             args.id = int(fields[1].strip()[len('--> #'):])
-            __call(['git', 'fetch', args.remote])
-            __call(['git', 'branch', '--set-upstream-to={}/ticket/{:d}'.format(args.remote, args.id)])
+            __call(['git', 'fetch', '-p', args.remote])
+            __call(['git', 'branch', '-u', '{}/ticket/{:d}'.format(args.remote, args.id)])
             break
 
     return

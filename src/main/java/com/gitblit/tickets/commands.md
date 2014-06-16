@@ -6,6 +6,6 @@ To review an updated patchset
 
 To review a rewritten patchset
 
-    git fetch origin && git checkout ${ticketBranch} && git reset --hard origin/${ticketBranch}
+    git fetch origin && git checkout -B ${ticketBranch}
 
 

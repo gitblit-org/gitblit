@@ -8,7 +8,7 @@
 		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.9.1" />
+	<property name="moxie.version" value="0.9.2" />
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
@@ -48,7 +48,6 @@
 		<property name="manager.zipfile" value="manager-${project.version}.zip" />
 		<property name="authority.zipfile" value="authority-${project.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${project.version}.zip" />
-		<property name="express.zipfile" value="express-${project.version}.zip" />
 		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
 
 		<!-- Download links -->
@@ -175,7 +174,18 @@
 		<property name="go.dir" value="${project.outputDirectory}/go" />	
 		<delete dir="${go.dir}" />
 
+		<local name="webinf" />
+		<property name="webinf" value="${project.compileOutputDirectory}/WEB-INF" />
+
 		<prepareDataDirectory toDir="${go.dir}/data" />
+		
+		<!-- Copy the web.xml from the prototype web.xml -->
+		<copy todir="${webinf}" overwrite="true">
+			<fileset file="${project.src.dir}/WEB-INF/web.xml" />
+			<filterset>
+				<filter token="gb.version" value="${project.version}" />
+			</filterset>
+		</copy>
 		
 		<!-- Build jar -->
 		<mx:jar destfile="${go.dir}/gitblit.jar" includeresources="true">
@@ -241,10 +251,13 @@
 		<!-- Prepare the data directory -->
 		<prepareDataDirectory toDir="${webinf}/data" />
 
-		<!-- Build the WAR web.xml from the prototype web.xml -->
-		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml">
-			<replace token="@gb.version@" value="${project.version}" />
-		</mx:webxml>
+		<!-- Copy the web.xml from the prototype web.xml -->
+		<copy todir="${webinf}" overwrite="true">
+			<fileset file="${project.src.dir}/WEB-INF/web.xml" />
+			<filterset>
+				<filter token="gb.version" value="${project.version}" />
+			</filterset>
+		</copy>
 
 		<!-- Gitblit jar -->
 		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
@@ -306,61 +319,6 @@
 		<!-- Cleanup -->
 		<delete file="${project.targetDirectory}/fedclient.jar" />
 		
-	</target>
-
-
-	<!-- 
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		Build a Gitblit filesystem for deployment to RedHat OpenShift Express
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	-->
-	<target name="buildExpress" depends="compile" description="Build exploded WAR file suitable for deployment to OpenShift Express">
-		<echo>Building Gitblit Express for RedHat OpenShift ${project.version}</echo>
-		
-		<local name="express.dir" />
-		<property name="express.dir" value="${project.outputDirectory}/express" />		
-		<delete dir="${express.dir}" />
-		
-		<!-- Create the OpenShift filesystem -->
-		<local name="deployments.root" />
-		<property name="deployments.root" value="${express.dir}/deployments/ROOT.war"/>
-		<mkdir dir="${deployments.root}" />
-		<touch file="${express.dir}/deployments/ROOT.war.dodeploy" />
-
-		<local name="webinf" />
-		<property name="webinf" value="${deployments.root}/WEB-INF" />
-
-		<!-- Prepare the data directory -->
-		<prepareDataDirectory toDir="${webinf}/data" />
-					
-		<!-- Build the Express web.xml from the prototype web.xml and gitblit.properties -->
-		<!-- THIS FILE IS NOT OVERRIDDEN ONCE IT IS BUILT!!! -->
-		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml"
-			propertiesFile="${project.distrib.dir}/data/gitblit.properties"
-			skip="server.*">
-			<replace token="@gb.version@" value="${project.version}" />
-		</mx:webxml>
-
-		<!-- Gitblit classes -->
-		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
-
-		<!-- Build Express Zip file -->
-		<mx:zip basedir="${express.dir}" destfile="${project.targetDirectory}/${express.zipfile}">
-			<fileset dir="${basedir}">
-				<include name="LICENSE" />
-				<include name="NOTICE" />
-			</fileset>
-			<!-- README -->
-			<zipfileset fullpath="README.gitblit" file="${project.siteSourceDirectory}/openshift.mkd" />
-			<!-- resources -->
-			<zipfileset prefix="deployments/ROOT.war" dir="${project.resources.dir}">
-				<exclude name="thumbs.db" />
-				<exclude name="*.mkd" />
-			</zipfileset>
-			<!-- include "war" tagged dependencies -->
-			<dependencies prefix="deployments/ROOT.war/WEB-INF/lib" tag="war" />
-		</mx:zip>
-
 	</target>
 
 
@@ -542,11 +500,6 @@
 						<page name="upgrade WAR" src="upgrade_war.mkd" />
 					</menu>
 					<divider />
-					<menu name="Gitblit Express" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-						<page name="setup Express" src="setup_express.mkd" />
-						<page name="upgrade Express" src="upgrade_express.mkd" />
-					</menu>
-					<divider />
 					<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 						<page name="administration" src="administration.mkd" />
 						<page name="authentication" src="setup_authentication.mkd" />
@@ -604,7 +557,10 @@
 					<link name="Gitblit GO (Windows)" src="${gc.url}gitblit-${project.releaseVersion}.zip" />
 					<link name="Gitblit GO (Linux/OSX)" src="${gc.url}gitblit-${project.releaseVersion}.tar.gz" />
 					<link name="Gitblit WAR" src="${gc.url}gitblit-${project.releaseVersion}.war" />
-					<link name="Gitblit Express" src="${gc.url}express-${project.releaseVersion}.zip" />
+					<divider />
+					<link name="Gitblit GO (Docker)" src="https://registry.hub.docker.com/u/jmoger/gitblit/" />
+					<divider />
+					<link name="Plugins Registry" src="http://plugins.gitblit.com" />
 					<divider />
 					<link name="Gitblit Manager" src="${gc.url}manager-${project.releaseVersion}.zip" />
 					<link name="Federation Client" src="${gc.url}fedclient-${project.releaseVersion}.zip" />
@@ -620,7 +576,7 @@
 				<menu name="links">
 					<link name="dev.gitblit.com (self-hosted)" src="https://dev.gitblit.com" />
 					<divider />
-					<link name="Plugin Registry" src="http://plugins.gitblit.com" />
+					<link name="Plugins Registry" src="http://plugins.gitblit.com" />
 					<divider />
 					<link name="Github" src="${project.scmUrl}" />
 					<link name="Issues" src="${project.issuesUrl}" />
@@ -704,7 +660,7 @@
 		Build all binaries and site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
+	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
 
 	
 	<!--
@@ -756,11 +712,6 @@
 		<bintrayUpload
 			source="${project.targetDirectory}/${gbapi.zipfile}" 
 			target="gbapi-${project.version}.zip" />
-
-		<!-- Upload Gitblit Express for RedHat OpenShift -->
-		<bintrayUpload
-			source="${project.targetDirectory}/${express.zipfile}" 
-			target="express-${project.version}.zip" />
 
 	</target>
 
@@ -829,16 +780,38 @@
 			</filterset>
 		</copy>
 		<chmod file="${recipe}" perm="ugo+rx" />
+	</target>
 
+ 
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Prepare for the next point release development cycle.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	-->
+	<target name="nextPointReleaseCycle" depends="prepare" description="prepare for the next point release development cycle">
 		<!-- next cycle -->
 		<mx:version stage="snapshot" incrementNumber="incremental" dryrun="${dryrun}" />
 		<mx:commit showtitle="no">
-		    <message>Reset build identifiers for next development cycle</message>
+		    <message>Reset build identifiers for next point release cycle</message>
 		</mx:commit>		
 	</target>
 
 		
 	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Prepare for the next minor release development cycle.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	-->
+	<target name="nextMinorReleaseCycle" depends="prepare" description="prepare for the next minor release development cycle">
+		<!-- next cycle -->
+		<mx:version stage="snapshot" incrementNumber="minor" dryrun="${dryrun}" />
+		<mx:commit showtitle="no">
+		    <message>Reset build identifiers for next minor release cycle</message>
+		</mx:commit>		
+	</target>
+
+	
+  <!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build Gitblit Docs
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -861,11 +834,6 @@
 						<menu name="Gitblit WAR" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 							<page name="setup WAR" src="setup_war.mkd" />
 							<page name="upgrade WAR" src="upgrade_war.mkd" />
-						</menu>
-						<divider />
-						<menu name="Gitblit Express" pager="true" pagerPlacement="bottom" pagerLayout="justified">
-							<page name="setup Express" src="setup_express.mkd" />
-							<page name="upgrade Express" src="upgrade_express.mkd" />
 						</menu>
 						<divider />
 						<menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
@@ -916,7 +884,7 @@
 					<menu name="links">
 						<link name="dev.gitblit.com (self-hosted)" src="https://dev.gitblit.com" />
 						<divider />
-						<link name="Plugin Registry" src="http://plugins.gitblit.com" />
+						<link name="Plugins Registry" src="http://plugins.gitblit.com" />
 						<divider />
 						<link name="Github" src="${project.scmUrl}" />
 						<link name="Issues" src="${project.issuesUrl}" />
@@ -989,6 +957,12 @@
 					<include name="fisheye.groovy" />
 					<include name="redmine-fetch.groovy" />
 					<include name="subgit.groovy" />
+				</fileset>
+			</copy>
+			<mkdir dir="@{toDir}/gitignore" />
+			<copy todir="@{toDir}/gitignore">
+				<fileset dir="${project.distrib.dir}/data/gitignore">					
+					<include name="*.gitignore" />
 				</fileset>
 			</copy>
       </sequential>

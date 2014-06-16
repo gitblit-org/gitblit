@@ -52,6 +52,37 @@ public class ExamplePlugin extends GitblitPlugin {
     public void onUninstall() {
     }
 }
+
+/**
+ * You can also create Webapp plugins that register pages.
+ */
+public class ExampleWicketPlugin extends GitblitWicketPlugin {
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public void onInstall() {
+    }
+
+    @Override
+    public void onUpgrade(Version oldVersion) {
+    }
+
+    @Override
+    public void onUninstall() {
+    }
+
+    @Override
+    protected void init(GitblitWicketApp app) {
+        app.mount("/logo", LogoPage.class);
+        app.mount("/hello", HelloWorldPage.class);
+    }
+}
 ```
 
 ### SSH Dispatch Command
@@ -65,7 +96,6 @@ import ro.fortsoft.pf4j.Extension;
 import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.UsageExample;
@@ -185,3 +215,172 @@ public class MyTicketHook extends TicketHook {
 }
 ```
 
+### Request Filter
+
+*SINCE 1.6.0*
+
+You can provide your own custom request filter by subclassing the *HttpRequestFilter* class.
+
+```java
+import com.gitblit.extensions.HttpRequestFilter;
+import ro.fortsoft.pf4j.Extension;
+
+@Extension
+public class MyRequestFilter extends HttpRequestFilter {
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response,
+            FilterChain chain) throws IOException, ServletException {
+    }
+}
+```
+
+### User Menu Items
+
+*SINCE 1.6.0*
+
+You can provide your own user menu items by subclassing the *UserMenuExtension* class.
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.UserMenuExtension;
+import com.gitblit.models.Menu.ExternalLinkMenuItem;
+import com.gitblit.models.Menu.MenuItem;
+import com.gitblit.models.UserModel;
+
+@Extension
+public class MyUserMenuContributor extends UserMenuExtension {
+
+    @Override
+    public List<MenuItem> getMenuItems(UserModel user) {
+        MenuItem item = new ExternalLinkMenuItem("Github", String.format("https://github.com/%s", user.username));
+        return Arrays.asList(item);
+    }
+}
+```
+
+### Navigation Links
+
+*SINCE 1.6.0*
+
+You can provide your own top-level navigation links by subclassing the *NavLinkExtension* class.
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.NavLinkExtension;
+import com.gitblit.models.UserModel;
+
+@Extension
+public class MyNavLink extends NavLinkExtension {
+
+    @Override
+    public List<NavLink> getNavLinks(UserModel user) {
+        NavLink link = new ExternalLinkMenuItem("Github", String.format("https://github.com/%s", user.username));
+        return Arrays.asList(link);
+    }
+}
+```
+
+### Server Lifecycle Listener
+
+*SINCE 1.6.0*
+
+You can provide a lifecycle listener to be notified when Gitblit has completely started and just before Gitblit is gracefully terminated.
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.LifeCycleListener;
+
+@Extension
+public class MyLifeCycleListener extends LifeCycleListener {
+
+    final Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Override
+    public void onStartup() {
+    	log.info("Gitblit is Ready!!");
+    }
+
+    @Override
+    public void onShutdown() {
+    	log.info("Gitblit is Going Down!!");
+    }
+}
+```
+
+### Repository Lifecycle Listener
+
+*SINCE 1.6.0*
+
+You can provide a lifecycle listener to be notified when Gitblit has created or deleted a repository.
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.RepositoryLifeCycleListener;
+import com.gitblit.models.RepositoryModel;
+
+@Extension
+public class MyRepoLifeCycleListener extends RepositoryLifeCycleListener {
+
+    final Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Override
+    public void onCreation(RepositoryModel repo) {
+    	log.info("Gitblit created {}", repo);
+    }
+
+    @Override
+    public void onDeletion(RepositoryModel repo) {
+    	log.info("Gitblit deleted {}", repo);
+    }
+}
+```
+
+### User/Team Lifecycle Listener
+
+*SINCE 1.6.0*
+
+You can provide a lifecycle listener to be notified when Gitblit has created or deleted a user or a team.
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ro.fortsoft.pf4j.Extension;
+import com.gitblit.extensions.UserTeamLifeCycleListener;
+import com.gitblit.models.TeamModel;
+import com.gitblit.models.UserModel;
+
+@Extension
+public class MyUserTeamLifeCycleListener extends UserTeamLifeCycleListener {
+
+    final Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Override
+    public void onCreation(UserModel user) {
+    	log.info("Gitblit created user {}", user);
+    }
+
+    @Override
+    public void onDeletion(UserModel user) {
+    	log.info("Gitblit deleted user {}", user);
+    }
+
+    @Override
+    public void onCreation(TeamModel team) {
+    	log.info("Gitblit created team {}", team);
+    }
+
+    @Override
+    public void onDeletion(TeamModel team) {
+    	log.info("Gitblit deleted team {}", team);
+    }
+}
+```

@@ -42,14 +42,6 @@
 		</div>	
 	</wicket:fragment>
 
-	<wicket:fragment wicket:id="repositoryAdminLinks">
-		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
-	</wicket:fragment>
-
-	<wicket:fragment wicket:id="repositoryOwnerLinks">
-		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a></span>
-	</wicket:fragment>
-
 	<wicket:fragment wicket:id="flatRepositoryHeader">
 		<tr>
 			<th class="left" wicket:id="orderByRepository">
@@ -60,8 +52,7 @@
 			<th class="hidden-tablet hidden-phone" wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
 			<th class="hidden-phone"></th>
 			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
-			<th class="hidden-phone"></th>
-			<th class="right"></th>
+			<th class="right hidden-phone"></th>
 		</tr>
 	</wicket:fragment>
 	
@@ -75,8 +66,7 @@
 			<th class="hidden-tablet hidden-phone"><span><wicket:message key="gb.owner">Owner</wicket:message></span></th>
 			<th class="hidden-phone"></th>
 			<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
-			<th class="hidden-phone"></th>
-			<th class="right"></th>
+			<th class="right hidden-phone"></th>
 		</tr>
 	</wicket:fragment>
 	
@@ -91,15 +81,7 @@
         <td class="hidden-tablet hidden-phone author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
         <td class="hidden-phone" style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="sparkleshareIcon" /><img class="inlineIcon" wicket:id="mirrorIcon" /><img class="inlineIcon" wicket:id="forkIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="federatedIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>
         <td><span wicket:id="repositoryLastChange">[last change]</span></td>
-        <td class="hidden-phone" style="text-align: right;padding-right:15px;"><span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span></td>
-        <td class="rightAlign">
-        	<span class="hidden-phone">
-        		<span wicket:id="repositoryLinks"></span>
-				<a style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
-					<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
-				</a>
-			</span>
-		</td>				
+        <td class="rightAlign hidden-phone" style="text-align: right;padding-right:15px;"><span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span></td>
 	</wicket:fragment>
 	
 </wicket:panel>

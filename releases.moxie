@@ -1,19 +1,104 @@
 #
-# ${project.version} release
+# 1.6.0 release
 #
 r24: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
-    note: ~
+    title: Gitblit 1.6.0 released
+    id: 1.6.0
+    date: 2014-06-16
+    note: ''
+          The next major release (v1.7.0) will focus on:
+          * ticket-75: making projects more useful including the concept of project ownership
+          
+          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RpeositoryModel to the UserModel
+          
+          * ticket-55: facilitating usage of tickets & git-flow in the web ui
+          ''
     html: ~
-    text: ~
+    text: ''
+          Highlights:
+          
+          * My Tickets page
+          * User Preferences web ui
+          * SSH key management web ui
+          * Basic CRUD pages for ticket milestones
+          * Overhaul repository creation, editing, and empty repository pages
+          
+          If you are upgrading, you might consider copying the data/gitignore folder to your ${baseFolder} to allow selection & injection of a .gitignore when creating a repository.
+          
+          The OpenShift Express build has been dropped. You can deploy GO or WAR on Express so this build is no longer necessary.
+          ''
     security: ~
-    fixes: ~
-    changes: ~
-    additions: ~
-    dependencyChanges: ~
-    contributors: ~
+    fixes:
+    - Allow ticket responsible selection if anonymous push is enabled (issue-425, ticket-71)
+    - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
+    - Fix flotr2 chart generation failure if a label contained a single-quote (ticket-77)
+    - Fix repository cache refresh after ref deletion/addition (issue-433, ticket-82)
+    - Fixed cache miss on repository model retrieval (pr-185, ticket-83)
+    - Fixed GitBlit static singleton reference in localclone.groovy (issue-436, ticket-84)
+    - Removed Ticket responsible team permission exclusion (ticket-87)
+    - Fixed SSH daemon thread exhaustion (ticket-89)
+    - Fixed Ticket responsible selections not considering the AUTHENTICATED authorization control (ticket-91)
+    - Fixed invalid generated SSH url for port 22 (issue-444, ticket-98)
+    - Fix cloning repositories with `+` in their names. (revert pr-136, issue-362, ticket-100)
+    - Fixed NPE in GitblitClient (ticket-102)
+    changes:
+    - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
+    - Drop deprecated --set-upstream syntax for -u (ticket-59)
+    - BARNUM: Prune deleted branches on fetch (git fetch -p) (ticket-60)
+    - BARNUM: Create ticket/N instead of topic/N for pt start N (ticket-61)
+    - Move repository deletion functions to the edit repository page AND allow deletion to be disabled (pr-180, ticket-67)
+    - Update the Korean translation (pr-184, ticket-69)
+    - Update the Dutch translation (pr-191)
+    - Overhaul the EmptyRepositoryPage (ticket-73)
+    - Overhauled the edit repository page (ticket-76)
+    - Process bugtraq links in the ticket description and comments (ticket-78)
+    - Exclude personal repositories from the repositories list, by default (issue-419, ticket-95)
+    additions:
+    - Add My Tickets page (issue-215, ticket-15)
+    - Added CRUD functionality for Ticket Milestones (ticket-17)
+    - Implemented Ticket migration tool to move between backends (ticket-19)
+    - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
+    - Added an editor panel in the user profile page to manipulate preferences (issue-108, issue-424, ticket-64)
+    - Added an editor panel in the user profile page to manipulate public SSH keys (ticket-64)
+    - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
+    - Add object type (ot) parameter for RSS queries to retrieve tag details (pr-165, ticket-66)
+    - Add setting to allow STARTTLS without requiring SMTPS (pr-183)
+    - Simplified repository creation, offer simple README generation, and insertion of a pre-defined .gitignore file (ticket-76)
+    - Added an extension point for monitoring onStartup and onShutdown (ticket-79)
+    - Tag server-side merges when incremental push tags are enabled (issue-432, ticket-85)
+    - Add a user preference for the clone transport (ticket-90)
+    - Add setting to control default thread pool size for miscellaneous background tasks (ticket-92)
+    - Add Norwegian transation (pr-186)
+    - Add German translation (pr-192)
+    - Add Italian translation (pr-196)
+    dependencyChanges:
+    - Update to javax.mail 1.5.1 (issue-417, ticket-58)
+    contributors:
+    - James Moger
+    - David Ostrovsky
+    - Manisha Gayathri
+    - Gerard Smyth
+    - Christian Buisson
+    - Berke Viktor
+    - Marcus Hunger
+    - Matthias Cullmann
+    - Emmeran Seehuber
+    - Sascha Vogt
+    - Carsten Lenz
+    - Matthias Sohn
+    - Leif Jantzen
+    - Stardrad Yin
+    - Jeroen Baten
+    - Dongsu Kim
+    - Karanbir Singh
+    - Tamás Papp
+    - GianMaria Romanato
+    settings:
+    - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
+    - { name: 'web.includePersonalRepositories', defaultValue: 'false' }
+    - { name: 'mail.starttls', defaultValue: 'false' }
+    - { name: 'execution.defaultThreadPoolSize', defaultValue: '1' }
+    - { name: 'git.gitignoreFolder', defaultValue: '${baseFolder}/gitignore' }
 }
 
 #
@@ -39,11 +124,12 @@ r23: {
     - Fix transport determination for SSH urls served on port 22 (issue-421, ticket-63)
     changes:
     - improve French translation (pr-176)
-    - simplify current plugin release detection and ignore the currentRelease registry field 
-    additions:
-    - added TortoiseGit client app menu (pr-182)
+    - simplify current plugin release detection and ignore the currentRelease registry field
+    - split pages servlet into two servlets (issue-413)
+    additions: ~
     dependencyChanges:
     - update to Apache MINA/SSHD 0.11.0 (issue-410)
+    - added Apache Tiki 1.5 (issue-413)
     contributors:
     - James Moger
     - Julien Kirch
@@ -1328,6 +1414,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r24
-release: &r23
-releases: &r[1..23]
+snapshot: ~
+release: &r24
+releases: &r[1..24]

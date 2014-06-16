@@ -57,6 +57,33 @@ public interface IRuntimeManager extends IManager {
 	boolean isServingRepositories();
 
 	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * over HTTP.
+	 *
+	 * @return true if Gitblit is serving repositories over HTTP
+ 	 * @since 1.6.0
+	 */
+	boolean isServingHTTP();
+
+	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * over the GIT Daemon protocol.
+	 *
+	 * @return true if Gitblit is serving repositories over the GIT Daemon protocol
+ 	 * @since 1.6.0
+	 */
+	boolean isServingGIT();
+
+	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * over the SSH protocol.
+	 *
+	 * @return true if Gitblit is serving repositories over the SSH protocol
+ 	 * @since 1.6.0
+	 */
+	boolean isServingSSH();
+
+	/**
 	 * Determine if this Gitblit instance is running in debug mode
 	 *
 	 * @return true if Gitblit is running in debug mode

@@ -602,6 +602,21 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public boolean isServingHTTP() {
+		return runtimeManager.isServingHTTP();
+	}
+
+	@Override
+	public boolean isServingGIT() {
+		return runtimeManager.isServingGIT();
+	}
+
+	@Override
+	public boolean isServingSSH() {
+		return runtimeManager.isServingSSH();
+	}
+
+	@Override
 	public TimeZone getTimezone() {
 		return runtimeManager.getTimezone();
 	}
@@ -644,6 +659,11 @@ public class GitblitManager implements IGitblit {
 	/*
 	 * NOTIFICATION MANAGER
 	 */
+
+	@Override
+	public boolean isSendingMail() {
+		return notificationManager.isSendingMail();
+	}
 
 	@Override
 	public void sendMailToAdministrators(String subject, String message) {
@@ -1012,6 +1032,11 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public void updateConfiguration(Repository r, RepositoryModel repository) {
 		repositoryManager.updateConfiguration(r, repository);
+	}
+
+	@Override
+	public boolean canDelete(RepositoryModel model) {
+		return repositoryManager.canDelete(model);
 	}
 
 	@Override

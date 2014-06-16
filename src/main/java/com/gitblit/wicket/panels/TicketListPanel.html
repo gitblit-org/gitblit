@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+<table class="table tickets">	
+	<tbody>
+		<tr wicket:id="row">
+       		<td class="ticket-list-icon">
+       			<i wicket:id="state"></i>
+       		</td>
+        	<td>
+        		<span wicket:id="title">[title]</span> <span wicket:id="labels" style="font-weight: normal;color:white;"><span class="label" wicket:id="label"></span></span>
+        		<div class="ticket-list-details">
+        			<span style="padding-right: 10px;" class="hidden-phone">
+        				<wicket:message key="gb.createdBy"></wicket:message>
+        				<span style="padding: 0px 2px" wicket:id="createdBy">[createdBy]</span> <span class="date" wicket:id="createDate">[create date]</span>
+        			</span>
+        			<span wicket:id="indicators" style="white-space:nowrap;"><i wicket:id="icon"></i> <span style="padding-right:10px;" wicket:id="count"></span></span>
+        		</div>
+        		<div class="hidden-phone" wicket:id="updated"></div>
+        		<div class="ticket-list-details"><span class="activitySwatch" wicket:id="ticketsLink">[tickets link]</span></div>
+        	</td>
+        	<td class="ticket-list-state">
+       			<span class="badge badge-info" wicket:id="votes"></span>
+        	</td>
+        	<td class="hidden-phone ticket-list-state">
+       			<i wicket:message="title:gb.watching" style="color:#888;" class="fa fa-eye" wicket:id="watching"></i>
+        	</td>
+        	<td class="ticket-list-state">
+       			<div wicket:id="status"></div>
+        	</td>
+        	<td class="indicators">
+        		<div>        	 		        	 		
+        				<b>#<span wicket:id="id">[id]</span></b>
+        			</div>
+        		<div wicket:id="responsible"></div>
+        	</td>
+       	</tr>
+    </tbody>
+</table>
+
+<wicket:fragment wicket:id="updatedFragment">
+	<div class="ticket-list-details">
+		<wicket:message key="gb.updatedBy"></wicket:message>
+		<span style="padding: 0px 2px" wicket:id="updatedBy">[updatedBy]</span> <span class="date" wicket:id="updateDate">[update date]</span>
+	</div>
+</wicket:fragment>
+
+</wicket:panel>
+</body>
+</html>

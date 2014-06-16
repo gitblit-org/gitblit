@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<h4><wicket:message key="gb.accessPolicy"></wicket:message></h4>
+	<p><wicket:message key="gb.accessPolicyDescription"></wicket:message></p>
+		
+	<div wicket:id="policiesGroup">
+		<div wicket:id="policies" style="padding-top:4px;">
+			<div>
+				<label style="font-weight:bold;margin-bottom:1px;"><input type="radio" wicket:id="radio" /> <img wicket:id="image"></img> <span wicket:id="name"></span></label>
+			</div>
+			<label class="checkbox" style="color:#777;" wicket:id="description"></label>
+		</div>
+	</div>
+	
+	<div wicket:id="allowForks"></div>
+	
+<wicket:fragment wicket:id="allowForksFragment">
+	<hr />
+	
+	<div wicket:id="allowForks"></div>
+</wicket:fragment>
+</wicket:panel>
+</body>
+</html>

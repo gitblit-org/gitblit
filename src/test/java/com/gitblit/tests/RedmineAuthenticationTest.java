@@ -26,7 +26,7 @@ public class RedmineAuthenticationTest extends GitblitUnitTest {
 
     RedmineAuthProvider newRedmineAuthentication(IStoredSettings settings) {
     	RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
-    	UserManager users = new UserManager(runtime).start();
+    	UserManager users = new UserManager(runtime, null).start();
     	RedmineAuthProvider redmine = new RedmineAuthProvider();
     	redmine.setup(runtime, users);
     	return redmine;
@@ -35,10 +35,10 @@ public class RedmineAuthenticationTest extends GitblitUnitTest {
     RedmineAuthProvider newRedmineAuthentication() {
     	return newRedmineAuthentication(getSettings());
     }
-    
+
     AuthenticationManager newAuthenticationManager() {
     	RuntimeManager runtime = new RuntimeManager(getSettings(), GitBlitSuite.BASEFOLDER).start();
-    	UserManager users = new UserManager(runtime).start();
+    	UserManager users = new UserManager(runtime, null).start();
     	RedmineAuthProvider redmine = new RedmineAuthProvider();
     	redmine.setup(runtime, users);
         redmine.setTestingCurrentUserAsJson(JSON);

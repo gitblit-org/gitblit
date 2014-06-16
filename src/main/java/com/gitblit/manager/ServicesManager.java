@@ -80,8 +80,9 @@ public class ServicesManager implements IManager {
 	public ServicesManager(IGitblit gitblit) {
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;
+		int defaultThreadPoolSize = settings.getInteger(Keys.execution.defaultThreadPoolSize, 1);
 		this.idGenerator = new IdGenerator();
-		this.workQueue = new WorkQueue(idGenerator, 1);
+		this.workQueue = new WorkQueue(idGenerator, defaultThreadPoolSize);
 	}
 
 	@Override
@@ -111,9 +112,21 @@ public class ServicesManager implements IManager {
 	}
 
 	public boolean isServingRepositories() {
-		return settings.getBoolean(Keys.git.enableGitServlet, true)
-				|| (gitDaemon != null && gitDaemon.isRunning())
-				|| (sshDaemon != null && sshDaemon.isRunning());
+		return isServingHTTP()
+				|| isServingGIT()
+				|| isServingSSH();
+	}
+
+	public boolean isServingHTTP() {
+		return settings.getBoolean(Keys.git.enableGitServlet, true);
+	}
+
+	public boolean isServingGIT() {
+		return gitDaemon != null && gitDaemon.isRunning();
+	}
+
+	public boolean isServingSSH() {
+		return sshDaemon != null && sshDaemon.isRunning();
 	}
 
 	protected void configureFederation() {

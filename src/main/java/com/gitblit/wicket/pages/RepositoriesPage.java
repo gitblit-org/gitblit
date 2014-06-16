@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.Component;
@@ -29,15 +30,15 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Keys;
+import com.gitblit.models.Menu.ParameterMenuItem;
+import com.gitblit.models.NavLink;
+import com.gitblit.models.NavLink.DropDownPageMenuNavLink;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
-import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
@@ -79,7 +80,17 @@ public class RepositoriesPage extends RootPage {
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
 		add(repositoriesMessage);
 
+		// conditionally include personal repositories in this page
 		List<RepositoryModel> repositories = getRepositories(params);
+		if (!app().settings().getBoolean(Keys.web.includePersonalRepositories, true)) {
+			Iterator<RepositoryModel> itr = repositories.iterator();
+			while (itr.hasNext()) {
+				RepositoryModel rm = itr.next();
+				if (rm.isPersonalRepository()) {
+					itr.remove();
+				}
+			}
+		}
 
 		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", showAdmin,
 				true, repositories, true, getAccessRestrictions());
@@ -92,10 +103,10 @@ public class RepositoriesPage extends RootPage {
 	}
 
 	@Override
-	protected void addDropDownMenus(List<PageRegistration> pages) {
+	protected void addDropDownMenus(List<NavLink> navLinks) {
 		PageParameters params = getPageParameters();
 
-		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
+		DropDownPageMenuNavLink menu = new DropDownPageMenuNavLink("gb.filters",
 				RepositoriesPage.class);
 		// preserve time filter option on repository choices
 		menu.menuItems.addAll(getRepositoryFilterItems(params));
@@ -105,10 +116,10 @@ public class RepositoriesPage extends RootPage {
 
 		if (menu.menuItems.size() > 0) {
 			// Reset Filter
-			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), null, null));
+			menu.menuItems.add(new ParameterMenuItem(getString("gb.reset")));
 		}
 
-		pages.add(menu);
+		navLinks.add(menu);
 	}
 
 	private String readMarkdown(String messageSource, String resource) {

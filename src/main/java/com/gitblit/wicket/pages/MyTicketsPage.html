@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+	<wicket:extend>
+		<div class="container">
+			<div class="row" style="padding-top:15px;min-height:500px;" >
+				<div class="tab-pane active" id="tickets">
+					<!-- query controls -->
+					<div class="span3">
+						<div class="hidden-phone">
+							<div wicket:id="userTitlePanel"></div>
+							
+							<!-- search tickets form -->
+							<form class="form-search" style="margin: 10px 0px;" wicket:id="ticketSearchForm">
+								<div class="input-append">
+									<input type="text" class="input-medium search-query" style="border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
+									<button class="btn" style="border-radius: 0 14px 14px 0px;margin-left:-5px;" type="submit"><i class="icon-search"></i></button>
+								</div>
+							</form>
+							
+							<!--  query list -->						
+							<ul class="nav nav-list">
+								<li class="nav-header"><wicket:message key="gb.queries"></wicket:message></li>
+								<li><a wicket:id="changesQuery"><i class="fa fa-code-fork"></i> <wicket:message key="gb.proposalTickets"></wicket:message></a></li>
+								<li><a wicket:id="bugsQuery"><i class="fa fa-bug"></i> <wicket:message key="gb.bugTickets"></wicket:message></a></li>
+								<li><a wicket:id="enhancementsQuery"><i class="fa fa-magic"></i> <wicket:message key="gb.enhancementTickets"></wicket:message></a></li>
+								<li><a wicket:id="tasksQuery"><i class="fa fa-ticket"></i> <wicket:message key="gb.taskTickets"></wicket:message></a></li>
+								<li><a wicket:id="questionsQuery"><i class="fa fa-question"></i> <wicket:message key="gb.questionTickets"></wicket:message></a></li>
+								<li wicket:id="userDivider" class="divider"></li>
+								<li><a wicket:id="createdQuery"><i class="fa fa-user"></i> <wicket:message key="gb.yourCreatedTickets"></wicket:message></a></li>
+								<li><a wicket:id="responsibleQuery"><i class="fa fa-user"></i> <wicket:message key="gb.yourAssignedTickets"></wicket:message></a></li>
+								<li><a wicket:id="watchedQuery"><i class="fa fa-eye"></i> <wicket:message key="gb.yourWatchedTickets"></wicket:message></a></li>
+								<li><a wicket:id="mentionsQuery"><i class="fa fa-comment"></i> <wicket:message key="gb.mentionsMeTickets"></wicket:message></a></li>
+								<li class="divider"></li>
+								<li><a wicket:id="resetQuery"><i class="fa fa-bolt"></i> <wicket:message key="gb.reset"></wicket:message></a></li>
+							</ul>
+
+						</div>
+					</div>
+					
+					<!-- tickets -->
+					<div class="span9">					
+						<div class="btn-toolbar" style="margin-top: 0px;">
+							<div class="btn-group">
+								<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.status"></wicket:message>: <span style="font-weight:bold;" wicket:id="selectedStatii"></span> <span class="caret"></span></a>
+								<ul class="dropdown-menu">
+									<li><a wicket:id="openTickets"><wicket:message key="gb.open"></wicket:message></a></li>
+									<li><a wicket:id="closedTickets"><wicket:message key="gb.closed"></wicket:message></a></li>
+									<li><a wicket:id="allTickets"><wicket:message key="gb.all"></wicket:message></a></li>
+									<li class="divider"></li>
+									<li wicket:id="statii"><span wicket:id="statusLink"></span></li>
+								</ul>
+							</div>
+							<div class="btn-group">
+								<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-sort"></i> <wicket:message key="gb.sort"></wicket:message>: <span style="font-weight:bold;" wicket:id="currentSort"></span> <span class="caret"></span></a>
+								<ul class="dropdown-menu">
+									<li wicket:id="sort"><span wicket:id="sortLink"></span></li>
+								</ul>
+							</div>
+							
+							<div class="btn-group pull-right">
+								<div class="pagination pagination-right pagination-small">
+									<ul>
+										<li><a wicket:id="prevLink"><i class="fa fa-angle-double-left"></i></a></li>
+										<li wicket:id="pageLink"><span wicket:id="page"></span></li>
+										<li><a wicket:id="nextLink"><i class="fa fa-angle-double-right"></i></a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						
+						<div wicket:id="ticketList"></div>					
+					</div>
+				</div>
+			</div>
+		</div>
+				
+</wicket:extend>
+</body>
+</html>

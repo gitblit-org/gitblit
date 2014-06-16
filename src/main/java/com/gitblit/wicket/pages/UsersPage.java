@@ -16,7 +16,6 @@
 package com.gitblit.wicket.pages;
 
 import com.gitblit.wicket.RequiresAdminRole;
-import com.gitblit.wicket.panels.TeamsPanel;
 import com.gitblit.wicket.panels.UsersPanel;
 
 @RequiresAdminRole
@@ -25,8 +24,6 @@ public class UsersPage extends RootPage {
 	public UsersPage() {
 		super();
 		setupPage("", "");
-
-		add(new TeamsPanel("teamsPanel", showAdmin).setVisible(showAdmin));
 
 		add(new UsersPanel("usersPanel", showAdmin).setVisible(showAdmin));
 	}

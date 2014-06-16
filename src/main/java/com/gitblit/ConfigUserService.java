@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Transport;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -95,6 +97,10 @@ public class ConfigUserService implements IUserService {
 	private static final String STARRED = "starred";
 
 	private static final String LOCALE = "locale";
+
+	private static final String EMAILONMYTICKETCHANGES = "emailMeOnMyTicketChanges";
+
+	private static final String TRANSPORT = "transport";
 
 	private static final String ACCOUNTTYPE = "accountType";
 
@@ -707,8 +713,21 @@ public class ConfigUserService implements IUserService {
 				config.setBoolean(USER, model.username, DISABLED, true);
 			}
 			if (model.getPreferences() != null) {
-				if (!StringUtils.isEmpty(model.getPreferences().locale)) {
-					config.setString(USER, model.username, LOCALE, model.getPreferences().locale);
+				Locale locale = model.getPreferences().getLocale();
+				if (locale != null) {
+					String val;
+					if (StringUtils.isEmpty(locale.getCountry())) {
+						val = locale.getLanguage();
+					} else {
+						val = locale.getLanguage() + "_" + locale.getCountry();
+					}
+					config.setString(USER, model.username, LOCALE, val);
+				}
+
+				config.setBoolean(USER, model.username, EMAILONMYTICKETCHANGES, model.getPreferences().isEmailMeOnMyTicketChanges());
+
+				if (model.getPreferences().getTransport() != null) {
+					config.setString(USER, model.username, TRANSPORT, model.getPreferences().getTransport().name());
 				}
 			}
 
@@ -880,10 +899,14 @@ public class ConfigUserService implements IUserService {
 					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
 					user.countryCode = config.getString(USER, username, COUNTRYCODE);
 					user.cookie = config.getString(USER, username, COOKIE);
-					user.getPreferences().locale = config.getString(USER, username, LOCALE);
 					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
 						user.cookie = StringUtils.getSHA1(user.username + user.password);
 					}
+
+					// preferences
+					user.getPreferences().setLocale(config.getString(USER, username, LOCALE));
+					user.getPreferences().setEmailMeOnMyTicketChanges(config.getBoolean(USER, username, EMAILONMYTICKETCHANGES, true));
+					user.getPreferences().setTransport(Transport.fromString(config.getString(USER, username, TRANSPORT)));
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(

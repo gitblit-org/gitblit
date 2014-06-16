@@ -7,27 +7,20 @@
 <body>
 <wicket:extend>
 <div class="container">
-	<div class="row" style="padding-top:10px;">
-		<div class="span4">
-			<div wicket:id="gravatar"></div>
-			<div style="text-align: left;">
-				<h2><span wicket:id="userDisplayName"></span></h2>
-				<div><i class="icon-user"></i> <span wicket:id="userUsername"></span></div>
-				<div><i class="icon-envelope"></i><span wicket:id="userEmail"></span></div>
-			</div>
+	<div class="row" style="padding-top:15px;">
+		<div class="span3">
+			<div wicket:id="userTitlePanel"></div>
 		</div>
-		
-		<div class="span8">
-			<div class="pull-right">
-				<a class="btn-small" wicket:id="newRepository" style="padding-right:0px;">
-					<i class="icon icon-plus-sign"></i>
-					<wicket:message key="gb.newRepository"></wicket:message>
-				</a>
-			</div>
-			<div class="tabbable">
+	</div>
+	
+	<div class="row" style="padding-top:10px;">	
+		<div class="span12">
+			<div class="tabbable tabs-left">
 				<!-- tab titles -->
 				<ul class="nav nav-tabs">
 					<li class="active"><a href="#repositories" data-toggle="tab"><wicket:message key="gb.repositories"></wicket:message></a></li>
+					<div wicket:id="preferencesLink"></div>
+					<div wicket:id="sshKeysLink"></div>
 				</ul>
 	
 				<!-- tab content -->
@@ -41,11 +34,51 @@
 							</tbody>
 						</table>
 					</div>
+					
+					<!-- preferences tab -->
+					<div wicket:id="preferencesTab"></div>
+					
+					<!-- ssh keys tab -->
+					<div wicket:id="sshKeysTab"></div>
+					
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+
+<wicket:fragment wicket:id="preferencesLinkFragment">
+	<li><a href="#preferences" data-toggle="tab"><wicket:message key="gb.preferences"></wicket:message></a></li>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="sshKeysLinkFragment">
+	<li><a href="#ssh" data-toggle="tab"><wicket:message key="gb.sshKeys"></wicket:message></a></li>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="preferencesTabFragment">
+	<div class="tab-pane" id="preferences">
+		<h4><wicket:message key="gb.accountPreferences"></wicket:message></h4>
+		<p><wicket:message key="gb.accountPreferencesDescription"></wicket:message></p>
+		<hr />
+		
+		<form wicket:id="prefsForm">
+			<div wicket:id="displayName"></div>
+			<div wicket:id="emailAddress"></div>
+			<div wicket:id="emailMeOnMyTicketChanges"></div>
+			<div wicket:id="language"></div>
+			<div wicket:id="transport"></div>
+			
+			<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" /></div>
+		</form>	
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="sshKeysTabFragment">
+	<div class="tab-pane" id="ssh">
+		<div wicket:id="sshKeysPanel"></div>		
+	</div>
+</wicket:fragment>
+
 </wicket:extend>
 </body>
 </html>

@@ -28,7 +28,7 @@ Any authenticated user who can clone your repository.
     ...add a single commit...
     git push origin HEAD:refs/for/new
     # read ticket id from server output
-    git branch --set-upstream-to=origin/ticket/{id}
+    git branch -u origin/ticket/{id}
 
 ### Creating the first Patchset for an Existing Ticket
 
@@ -42,7 +42,7 @@ Any authenticated user who can clone your repository.
     cd repo
     git checkout -b ticket/{id}
     ...add one or more commits...
-    git push --set-upstream origin ticket/{id}
+    git push -u origin ticket/{id}
 
 ### Safely adding commits to a Patchset for an Existing Ticket
 
@@ -58,6 +58,14 @@ Any authenticated user who can clone your repository.
     git pull --ff-only
     ...add one or more commits...
     git push
+
+### Checking-Out a Named Branch for an Existing Ticket with a Patchset
+
+If you prefer to name your local ticket branches rather than using the default integer ids, you can do this with a little more syntax.
+
+    git checkout -b my_fix --track origin/ticket/{id}
+
+This will create a local branch named *my_fix* which tracks the upstream ticket branch.
 
 ### Rewriting a Patchset (amend, rebase, squash)
 
@@ -76,21 +84,18 @@ OR if you have RW+ permissions, then you can push using *-f* flag.
 
 ### Updating your copy of a rewritten Patchset
 
-If a patchset has been rewritten you can no longer simply *pull* to update.  Let's assume your checkout **does not** have any unshared commits - i.e. it represents the previous patchset.  The simplest way to update your branch to the current patchset is to reset it.
+If a patchset has been rewritten you can no longer simply *pull* to update.  Let's assume your checkout **does not** have any unshared commits - i.e. it represents the previous patchset.  The simplest way to update your branch to the current patchset is to reset it using the `-B` checkout flag.
 
-    git fetch && git checkout ticket/{id}
-    git reset --hard origin/ticket/{id}
+    git fetch && git checkout -B ticket/{id}
 
 If you **do** have unshared commits then you'll could make a new temporary branch and then cherry-pick your changes onto the rewritten patchset.
 
     git branch oldticket ticket/{id}
-    git fetch && git checkout ticket/{id}
-    git reset --hard origin/ticket/{id}
+    git fetch && git checkout -B ticket/{id}
     git cherry-pick <commitid1> <commitid2>
     git branch -D oldticket
 
 Git is a very flexible tool, there are no doubt several other strategies you could use to resolve this situation.  The above solution is just one way.
-
 
 ### Ticket RefSpecs
 
@@ -148,7 +153,7 @@ Add some commits (fast-forward) to ticket *12*.  Set the milestone to *1.4.1*.
 
 ### Merging Patchsets
 
-The Gitblit web ui offers a merge button which *should work* but is not fully tested.  Gitblit does verify that you can cleanly merge a patchset to the integration branch.
+The Gitblit web ui offers a merge button which will work for clean merges of a patchset to the integration branch.
 
 There are complicated merge scenarios for which it may be best to merge using your Git client.  There are several ways to do this, here is a safe merge strategy which pulls into a new branch and then fast-forwards your integration branch, assuming you were happy with the pull (merge).
 

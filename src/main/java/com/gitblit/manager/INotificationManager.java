@@ -22,6 +22,14 @@ import com.gitblit.models.Mailing;
 public interface INotificationManager extends IManager {
 
 	/**
+	 * Returns true if the email service is configured and ready to send notifications.
+	 *
+	 * @return true if the email service is operational
+	 * @since 1.6.0
+	 */
+	boolean isSendingMail();
+
+	/**
 	 * Notify the administrators by email.
 	 *
 	 * @param subject

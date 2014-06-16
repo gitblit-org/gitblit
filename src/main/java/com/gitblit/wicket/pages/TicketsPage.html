@@ -11,7 +11,7 @@
 	<div class="hidden-phone pull-right">
 		<form class="form-search" style="margin: 0px;" wicket:id="ticketSearchForm">
 			<div class="input-append">
-				<input type="text" class="search-query" style="width: 170px;border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
+				<input type="text" class="input-medium search-query" style="border-radius: 14px 0 0 14px; padding-left: 14px;" id="ticketSearchBox" wicket:id="ticketSearchBox" value=""/>
 				<button class="btn" style="border-radius: 0 14px 14px 0px;margin-left:-5px;" type="submit"><i class="icon-search"></i></button>
 			</div>
 		</form>
@@ -88,42 +88,7 @@
 				</div>
 			</div>
 		
-		
-			<table class="table tickets">			
-			<tbody>
-       		<tr wicket:id="ticket">
-       			<td class="ticket-list-icon">
-       				<i wicket:id="state"></i>
-       			</td>
-        		<td>
-        			<span wicket:id="title">[title]</span> <span wicket:id="labels" style="font-weight: normal;color:white;"><span class="label" wicket:id="label"></span></span>
-        			<div class="ticket-list-details">
-        				<span style="padding-right: 10px;" class="hidden-phone">
-        					<wicket:message key="gb.createdBy"></wicket:message>
-        					<span style="padding: 0px 2px" wicket:id="createdBy">[createdBy]</span> <span class="date" wicket:id="createDate">[create date]</span>
-        				</span>
-        				<span wicket:id="indicators" style="white-space:nowrap;"><i wicket:id="icon"></i> <span style="padding-right:10px;" wicket:id="count"></span></span>
-        			</div>
-        			<div class="hidden-phone" wicket:id="updated"></div>
-        		</td>
-        		<td class="ticket-list-state">
-       				<span class="badge badge-info" wicket:id="votes"></span>
-        		</td>
-        		<td class="hidden-phone ticket-list-state">
-       				<i wicket:message="title:gb.watching" style="color:#888;" class="fa fa-eye" wicket:id="watching"></i>
-        		</td>
-        		<td class="ticket-list-state">
-       				<div wicket:id="status"></div>
-        		</td>
-        		<td class="indicators">
-        			<div>        	 		        	 		
-        	 			<b>#<span wicket:id="id">[id]</span></b>
-        	 		</div>
-        			<div wicket:id="responsible"></div>
-        		</td>
-       		</tr>
-    		</tbody>
-			</table>
+			<div wicket:id="ticketList"></div>
 		
 			<div class="btn-group pull-right">
 					<div class="pagination pagination-right pagination-small">
@@ -139,13 +104,50 @@
 	</div>
 	<div class="tab-pane" id="milestones">
 		<div class="row">
-			<div class="span9" wicket:id="milestoneList" style="padding-bottom: 10px;">
-				<h3><span wicket:id="milestoneName"></span> <small><span wicket:id="milestoneState"></span></small></h3>
-				<i style="color:#888;"class="fa fa-calendar"></i> <span wicket:id="milestoneDue"></span>
+			<span class="span12" style="padding-bottom:10px;" wicket:id="newMilestone"></span>
+		</div>
+
+		<div class="row">
+			<div class="span12"><h2><wicket:message key="gb.openMilestones"></wicket:message></h2></div>
+			<div class="span12"><hr/></div>
+		</div>		
+		<div class="row">
+			<div class="span4" wicket:id="openMilestonesList" style="padding-bottom: 20px;">
+				<div wicket:id="entryPanel"></div>
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="span12"><h2><wicket:message key="gb.closedMilestones"></wicket:message></h2></div>
+			<div class="span12"><hr/></div>
+		</div>		
+		<div class="row">
+			<div class="span3" wicket:id="closedMilestonesList" style="padding-bottom: 15px;">
+				<div wicket:id="entryPanel"></div>
+			</div>
+		</div>
+		
 	</div>
 </div>
+
+<wicket:fragment wicket:id="milestoneListFragment">
+	<h3><span wicket:id="milestoneName"></span> <small><span wicket:id="milestoneState"></span></small></h3>
+	<i style="color:#888;"class="fa fa-calendar"></i> <span wicket:id="milestoneDue"></span> <span wicket:id="editMilestone"></span>
+	<div wicket:id="milestonePanel"></div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="openMilestoneFragment">
+	<div style="clear:both;padding-bottom: 10px;">
+		<div style="margin-bottom: 5px;" class="progress progress-success">
+			<div class="bar" wicket:id="progress"></div>
+		</div>
+		<div class="milestoneOverview">
+			<span wicket:id="openTickets" />,
+			<span wicket:id="closedTickets" />,
+			<span wicket:id="totalTickets" />
+		</div>
+	</div>
+</wicket:fragment>
 
 <wicket:fragment wicket:id="noMilestoneFragment">
 <table style="width: 100%;padding-bottom: 5px;">
@@ -201,13 +203,6 @@
 		<li class="nav-header"><wicket:message key="gb.topicsAndLabels"></wicket:message></li>
 		<li class="dynamicQuery" wicket:id="dynamicQuery"><span><span wicket:id="swatch"></span> <span wicket:id="link"></span></span><span class="pull-right"><i style="font-size: 18px;" wicket:id="checked"></i></span></li>
 	</ul>
-</wicket:fragment>
-
-<wicket:fragment wicket:id="updatedFragment">
-	<div class="ticket-list-details">
-		<wicket:message key="gb.updatedBy"></wicket:message>
-		<span style="padding: 0px 2px" wicket:id="updatedBy">[updatedBy]</span> <span class="date" wicket:id="updateDate">[update date]</span>
-	</div>
 </wicket:fragment>
 
 </wicket:extend>

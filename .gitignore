@@ -24,4 +24,6 @@
 /*.sh
 /*.factorypath
 /src/main/dagger
-/src/main/java/.idea
+/**/.idea
+/**/init.lua
+/**/session
