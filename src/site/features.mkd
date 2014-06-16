@@ -60,15 +60,18 @@
 - Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
 - Single text file for users configuration
 - Translations
-    - English
-    - Japanese
-    - Spanish
-    - Polish
-    - Korean
-    - Brazilian Portuguese
-    - Dutch
+    - German (de)
+    - English (en)
+    - Spanish (es)
+    - French (fr)
+    - Italian (it)
+    - Japanese (ja)
+    - Korean (ko)
+    - Dutch (nl)
+    - Norwegian (no)
+    - Polish (pl)
+    - Brazilian Portuguese (pt_BR)
     - Simplified Chinese (zh_CN)
-    - French
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration

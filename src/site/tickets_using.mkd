@@ -59,6 +59,14 @@ Any authenticated user who can clone your repository.
     ...add one or more commits...
     git push
 
+### Checking-Out a Named Branch for an Existing Ticket with a Patchset
+
+If you prefer to name your local ticket branches rather than using the default integer ids, you can do this with a little more syntax.
+
+    git checkout -b my_fix --track origin/ticket/{id}
+
+This will create a local branch named *my_fix* which tracks the upstream ticket branch.
+
 ### Rewriting a Patchset (amend, rebase, squash)
 
 *Who can rewrite a patchset?*
@@ -76,21 +84,18 @@ OR if you have RW+ permissions, then you can push using *-f* flag.
 
 ### Updating your copy of a rewritten Patchset
 
-If a patchset has been rewritten you can no longer simply *pull* to update.  Let's assume your checkout **does not** have any unshared commits - i.e. it represents the previous patchset.  The simplest way to update your branch to the current patchset is to reset it.
+If a patchset has been rewritten you can no longer simply *pull* to update.  Let's assume your checkout **does not** have any unshared commits - i.e. it represents the previous patchset.  The simplest way to update your branch to the current patchset is to reset it using the `-B` checkout flag.
 
-    git fetch && git checkout ticket/{id}
-    git reset --hard origin/ticket/{id}
+    git fetch && git checkout -B ticket/{id}
 
 If you **do** have unshared commits then you'll could make a new temporary branch and then cherry-pick your changes onto the rewritten patchset.
 
     git branch oldticket ticket/{id}
-    git fetch && git checkout ticket/{id}
-    git reset --hard origin/ticket/{id}
+    git fetch && git checkout -B ticket/{id}
     git cherry-pick <commitid1> <commitid2>
     git branch -D oldticket
 
 Git is a very flexible tool, there are no doubt several other strategies you could use to resolve this situation.  The above solution is just one way.
-
 
 ### Ticket RefSpecs
 

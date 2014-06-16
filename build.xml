@@ -560,6 +560,8 @@
 					<divider />
 					<link name="Gitblit GO (Docker)" src="https://registry.hub.docker.com/u/jmoger/gitblit/" />
 					<divider />
+					<link name="Plugins Registry" src="http://plugins.gitblit.com" />
+					<divider />
 					<link name="Gitblit Manager" src="${gc.url}manager-${project.releaseVersion}.zip" />
 					<link name="Federation Client" src="${gc.url}fedclient-${project.releaseVersion}.zip" />
 					<divider />
@@ -574,7 +576,7 @@
 				<menu name="links">
 					<link name="dev.gitblit.com (self-hosted)" src="https://dev.gitblit.com" />
 					<divider />
-					<link name="Plugin Registry" src="http://plugins.gitblit.com" />
+					<link name="Plugins Registry" src="http://plugins.gitblit.com" />
 					<divider />
 					<link name="Github" src="${project.scmUrl}" />
 					<link name="Issues" src="${project.issuesUrl}" />
@@ -778,16 +780,38 @@
 			</filterset>
 		</copy>
 		<chmod file="${recipe}" perm="ugo+rx" />
+	</target>
 
+ 
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Prepare for the next point release development cycle.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	-->
+	<target name="nextPointReleaseCycle" depends="prepare" description="prepare for the next point release development cycle">
 		<!-- next cycle -->
 		<mx:version stage="snapshot" incrementNumber="incremental" dryrun="${dryrun}" />
 		<mx:commit showtitle="no">
-		    <message>Reset build identifiers for next development cycle</message>
+		    <message>Reset build identifiers for next point release cycle</message>
 		</mx:commit>		
 	</target>
 
 		
 	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Prepare for the next minor release development cycle.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	-->
+	<target name="nextMinorReleaseCycle" depends="prepare" description="prepare for the next minor release development cycle">
+		<!-- next cycle -->
+		<mx:version stage="snapshot" incrementNumber="minor" dryrun="${dryrun}" />
+		<mx:commit showtitle="no">
+		    <message>Reset build identifiers for next minor release cycle</message>
+		</mx:commit>		
+	</target>
+
+	
+  <!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build Gitblit Docs
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -860,7 +884,7 @@
 					<menu name="links">
 						<link name="dev.gitblit.com (self-hosted)" src="https://dev.gitblit.com" />
 						<divider />
-						<link name="Plugin Registry" src="http://plugins.gitblit.com" />
+						<link name="Plugins Registry" src="http://plugins.gitblit.com" />
 						<divider />
 						<link name="Github" src="${project.scmUrl}" />
 						<link name="Issues" src="${project.issuesUrl}" />

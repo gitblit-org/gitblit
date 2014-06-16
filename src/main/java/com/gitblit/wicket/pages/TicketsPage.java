@@ -536,7 +536,13 @@ public class TicketsPage extends RepositoryPage {
 				item.add(entryPanel);
 
 				final TicketMilestone tm = item.getModelObject();
-				PageParameters params = queryParameters(null, tm.name, null, null, null, true, 1);
+				String [] states;
+				if (tm.isOpen()) {
+					states = TicketsUI.openStatii;
+				} else {
+					states = TicketsUI.closedStatii;
+				}
+				PageParameters params = queryParameters(null, tm.name, states, null, null, true, 1);
 				entryPanel.add(new LinkPanel("milestoneName", null, tm.name, TicketsPage.class, params).setRenderBodyOnly(true));
 
 				String css;

@@ -109,7 +109,7 @@ Gitblit has a simple review scoring mechanism designed to indicate overall impre
 
 #### Milestones
 
-Milestones are a way to group tickets together.  Currently milestones are specified at the repository level and are stored in the repository git config file.  Gitblit's internal architecture has all the methods necessary to maintain milestones, but this functionality is not yet exposed through the web ui.  For now you will have to control milestones manually with a text editor.
+Milestones are a way to group tickets together.  Milestones are specified for each repository and are stored in the repository git config file.  Repository owners may create milestones through the web ui in the *Tickets* page on the *Milestones* tab.
 
     [milestone "v1.5.0"]
         status = Open

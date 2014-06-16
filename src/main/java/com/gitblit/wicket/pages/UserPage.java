@@ -172,9 +172,11 @@ public class UserPage extends RootPage {
 		Form<Void> prefs = new Form<Void>("prefsForm");
 
 		List<Language> languages = Arrays.asList(
+				new Language("Deutsch","de"),
 				new Language("English","en"),
 				new Language("Español", "es"),
 				new Language("Français", "fr"),
+				new Language("Italiano", "it"),
 				new Language("日本語", "ja"),
 				new Language("한국말", "ko"),
 				new Language("Nederlands", "nl"),

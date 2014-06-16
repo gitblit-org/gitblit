@@ -1,13 +1,32 @@
 #
-# ${project.version} release
+# 1.6.0 release
 #
 r24: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
-    note: ~
+    title: Gitblit 1.6.0 released
+    id: 1.6.0
+    date: 2014-06-16
+    note: ''
+          The next major release (v1.7.0) will focus on:
+          * ticket-75: making projects more useful including the concept of project ownership
+          
+          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RpeositoryModel to the UserModel
+          
+          * ticket-55: facilitating usage of tickets & git-flow in the web ui
+          ''
     html: ~
-    text: ~
+    text: ''
+          Highlights:
+          
+          * My Tickets page
+          * User Preferences web ui
+          * SSH key management web ui
+          * Basic CRUD pages for ticket milestones
+          * Overhaul repository creation, editing, and empty repository pages
+          
+          If you are upgrading, you might consider copying the data/gitignore folder to your ${baseFolder} to allow selection & injection of a .gitignore when creating a repository.
+          
+          The OpenShift Express build has been dropped. You can deploy GO or WAR on Express so this build is no longer necessary.
+          ''
     security: ~
     fixes:
     - Allow ticket responsible selection if anonymous push is enabled (issue-425, ticket-71)
@@ -19,6 +38,9 @@ r24: {
     - Removed Ticket responsible team permission exclusion (ticket-87)
     - Fixed SSH daemon thread exhaustion (ticket-89)
     - Fixed Ticket responsible selections not considering the AUTHENTICATED authorization control (ticket-91)
+    - Fixed invalid generated SSH url for port 22 (issue-444, ticket-98)
+    - Fix cloning repositories with `+` in their names. (revert pr-136, issue-362, ticket-100)
+    - Fixed NPE in GitblitClient (ticket-102)
     changes:
     - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
     - Drop deprecated --set-upstream syntax for -u (ticket-59)
@@ -26,6 +48,7 @@ r24: {
     - BARNUM: Create ticket/N instead of topic/N for pt start N (ticket-61)
     - Move repository deletion functions to the edit repository page AND allow deletion to be disabled (pr-180, ticket-67)
     - Update the Korean translation (pr-184, ticket-69)
+    - Update the Dutch translation (pr-191)
     - Overhaul the EmptyRepositoryPage (ticket-73)
     - Overhauled the edit repository page (ticket-76)
     - Process bugtraq links in the ticket description and comments (ticket-78)
@@ -45,6 +68,9 @@ r24: {
     - Tag server-side merges when incremental push tags are enabled (issue-432, ticket-85)
     - Add a user preference for the clone transport (ticket-90)
     - Add setting to control default thread pool size for miscellaneous background tasks (ticket-92)
+    - Add Norwegian transation (pr-186)
+    - Add German translation (pr-192)
+    - Add Italian translation (pr-196)
     dependencyChanges:
     - Update to javax.mail 1.5.1 (issue-417, ticket-58)
     contributors:
@@ -58,6 +84,15 @@ r24: {
     - Matthias Cullmann
     - Emmeran Seehuber
     - Sascha Vogt
+    - Carsten Lenz
+    - Matthias Sohn
+    - Leif Jantzen
+    - Stardrad Yin
+    - Jeroen Baten
+    - Dongsu Kim
+    - Karanbir Singh
+    - Tamás Papp
+    - GianMaria Romanato
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
     - { name: 'web.includePersonalRepositories', defaultValue: 'false' }
@@ -1379,6 +1414,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r24
-release: &r23
-releases: &r[1..23]
+snapshot: ~
+release: &r24
+releases: &r[1..24]

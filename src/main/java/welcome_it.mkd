@@ -1,0 +1,3 @@
+## Benvenuto su Gitblit
+
+Un modo facile e veloce per ospitare o visualizzare i tuoi repository [Git](http://www.git-scm.com).
