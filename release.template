@@ -57,13 +57,25 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
 ant publishSite
 
-# return to project master
+# merge to master
 echo ""
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "Checking out master"
+echo "Merging release ${project.version} to master"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
 git checkout master
+git merge -m "Merge release ${project.version}" ${project.commitId}
+ant nextPointReleaseCycle
+
+# merge to develop
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Merging release ${project.version} to develop"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
+git checkout develop
+git merge -m "Merge release ${project.version}" ${project.commitId}
+ant nextMinorReleaseCycle
 
 # push Maven repository to origin
 echo ""
@@ -78,7 +90,7 @@ cd ${project.directory}
 # push project branches
 echo ""
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "Pushing master, gh-pages, and tag ${project.tag}"
+echo "Pushing master, develop, gh-pages, and tag ${project.tag}"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
-git push origin master gh-pages tag ${project.tag}
+git push origin master develop gh-pages tag ${project.tag}
