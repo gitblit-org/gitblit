@@ -70,6 +70,7 @@ r24: {
     - Add setting to control default thread pool size for miscellaneous background tasks (ticket-92)
     - Add Norwegian transation (pr-186)
     - Add German translation (pr-192)
+    - Add Italian translation (pr-196)
     dependencyChanges:
     - Update to javax.mail 1.5.1 (issue-417, ticket-58)
     contributors:
@@ -91,6 +92,7 @@ r24: {
     - Dongsu Kim
     - Karanbir Singh
     - Tamás Papp
+    - GianMaria Romanato
     settings:
     - { name: 'web.allowDeletingNonEmptyRepositories', defaultValue: 'true' }
     - { name: 'web.includePersonalRepositories', defaultValue: 'false' }

@@ -176,6 +176,7 @@ public class UserPage extends RootPage {
 				new Language("English","en"),
 				new Language("Español", "es"),
 				new Language("Français", "fr"),
+				new Language("Italiano", "it"),
 				new Language("日本語", "ja"),
 				new Language("한국말", "ko"),
 				new Language("Nederlands", "nl"),
