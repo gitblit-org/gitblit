@@ -138,6 +138,7 @@ The Tickets feature is highly functional but there are several areas which need 
 
 #### TODO
 
+- Implement different Ticket submit actions: "Fast Forward Only", "Merge If Necessary", "Always Merge", "Cherry Pick", "Rebase If Necessary" and allow to configure them per repository base
 - Implement a My Tickets page (ticket-15)
 - Ticket Lifecycle Hooks (ticket-16)
 - CRUD pages for Milestones (ticket-17)
