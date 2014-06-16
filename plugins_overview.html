@@ -1,0 +1,207 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit Plugins</h2><p><em>SINCE 1.5.0</em></p><p>Gitblit supports extending and enhancing the core functionality through plugins. This mechanism is very young and incomplete with few extension points, but you can expect it to evolve rapidly in upcoming releases.</p>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>What is a plugin?</h3><p>A plugin is a collection of Java classes and required jar dependencies bundled together in a zip file. A plugin may optionally include <em>Extensions</em> which enhance Gitblit at specific Gitblit-specified <em>ExtensionPoints</em>.</p><p><em>Plugins</em> are singleton instances that are <em>STARTED</em> when Gitblit launches and <em>STOPPED</em> when Gitblit terminates. <em>Extensions</em> are dynamic instances that are created when Gitblit processes requests that trigger <em>ExtensionPoints</em>.</p>
+<h3 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Architecture</h3><p>The existing plugin mechanism is based on <a href="https://github.com/decebals/pf4j">pf4j</a>. Plugins are distributed as zip files and may include their runtime dependencies or may rely on the bundled dependencies of other plugins and/or Gitblit core.</p><p>The plugin zip files are stored in <code>${baseFolder}/plugins</code> and are unpacked on startup into folders of the same name.</p><p>A plugin defines it's metadata in the META-INF/MANIFEST.MF file:</p>
+<pre><code>Plugin-Id: powertools
+Plugin-Description: Command and control Gitblit over SSH
+Plugin-Class: com.gitblit.plugin.powertools.Plugin
+Plugin-Version: 1.2.0
+Plugin-Requires: 1.5.0
+Plugin-Provider: gitblit.com
+</code></pre><p>In addition to extending Gitblit core, plugins can also define extension points that may be implemented by other plugins. Therefore a plugin may depend on other plugins.</p>
+<pre><code>Plugin-Dependencies: foo, bar
+</code></pre><p><strong>NOTE:</strong><br/>The pf4j plugin framework relies on a javac apt processor to generate compile-time extension information, so be sure to enable apt processing in your build process.</p>
+<h4 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Limitations of Plugin Dependencies</h4><p>Plugins may specify plugin dependencies by their ID, but they may not specify dependency versions.</p>
+<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Managing Plugins</h3><p>Administrators may manage plugins through the <code>plugin</code> SSH dispatch command:</p>
+<pre><code>ssh host -l username -p 29418 plugin
+</code></pre><p>Through this command interface plugins can be started, stopped, disabled, enabled, installed, uninstalled, listed, etc. Each command is supports the <code>--help</code> argument which will guide you in understanding the options and usage of the command.</p><p>You may watch an Asciinema screencast of how to use the SSH transport and the plugin manager <a href="https://asciinema.org/a/9342">here</a>.</p>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Default Plugin Registry</h3><p>Gitblit provides a simple default registry of plugins. The registry is a JSON file and it lists plugin metadata and download locations.</p>
+<pre><code>plugins.registry = http://plugins.gitblit.com/plugins.json
+</code></pre><p>The <a href="http://plugins.gitblit.com">default plugins registry</a> is currently hosted in a <a href="https://github.com/gitblit/gitblit-registry">Git repository on Github</a>. You can view the default registry file <a href="http://plugins.gitblit.com/plugins.json">here</a>. The default plugin registry is also a Maven-2 compatible repository.</p>
+<h3 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Contributing Plugins to the Default Registry</h3><p>If you develop your own plugins that you want hosted by or linked in the default registry, open a pull request for the registry repository. Any contributed binaries hosted in this repository must have Maven metadata and the SHA-1 &amp; MD5 checksums. By default, Gitblit enforces checksum validation on all downloads.</p>
+<h3 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Hosting your Own Registry / Allowing Multiple Registries</h3><p>The <code>plugins.json</code> file is parameterized with the <code>${self}</code> placeholder. This parameter is substituted on download with with the source URL of the registry file. This allows you to clone and serve your own copy of this git repository or just serve your own <code>plugins.json</code> on your own network.</p><p>Gitblit also supports loading multiple plugin registries. Just place another <strong>properly formatted</strong> <code>.json</code> file in <code>${baseFolder}/plugins</code> and Gitblit will load that as an additional registry.
+<!-- End Markdown -->
+<div ><ul class="pager"> <li class="next"><a href="plugins_extensions.html">extension points &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

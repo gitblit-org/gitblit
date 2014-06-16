@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Setting up Tickets</h2><p><em>SINCE 1.4.0</em></p><p>By default, Gitblit is not configured for Tickets. There are several reasons for this, but the most important one is that you must choose the persistence backend that works best for you.</p>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>tickets.service</h3><p><em>RESTART REQUIRED</em></p><p>The hardest part of setting up Gitblit Tickets is deciding which backend to use. Three implementations are provided, each with different strengths and weaknesses.</p>
+<h4 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>File Ticket Service</h4>
+<pre><code>tickets.service = com.gitblit.tickets.FileTicketService
+</code></pre><p>Your ticket journals are persisted to <code>tickets/{shard}/{id}/journal.json</code>. These journals are stored on the filesystem within your .git directory.</p>
+<h4 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Branch Ticket Service</h4>
+<pre><code>tickets.service = com.gitblit.tickets.BranchTicketService
+</code></pre><p>Your ticket journals are persisted to <code>id/{shard}/{id}/journal.json</code>. These journals are stored on an orphan branch, <code>refs/meta/gitblit/tickets</code>, within your repository. This allows you to easily clone your entire ticket history to client working copies or to mirrors.</p>
+<h4 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Redis Ticket Service</h4>
+<pre><code>tickets.service = com.gitblit.tickets.RedisTicketService
+</code></pre><p>Your ticket journals are persisted to a Redis data store. <em>Make sure you configure your Redis instance for durability!!</em> This particular service is highly-scalable and very fast. Plus you can use all of the power of Redis replication, should you want.</p><p>The main drawback to this service is that Redis is primarily a Unix tool and works best on a Unix server. Microsoft is engaged with the Redis community and they do maintain a semi-active port of Redis for Windows servers.</p>
+<pre><code>tickets.redis.url = redis://(:{password}@){hostname}:{port}(/{databaseId})
+</code></pre><p><strong>examples</strong></p>
+<pre><code>tickets.redis.url = redis://localhost:6379
+tickets.redis.url = redis://:password@localhost:6379/2
+</code></pre>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Other Settings</h3><p>You should also review the following settings before using Gitblit Tickets to understand what controls are available.</p>
+<h4 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>web.canonicalUrl</h4>
+<pre><code>web.canonicalUrl = https://localhost:8443
+</code></pre><p>The Tickets feature sends rich email notifications to those who are participating or watching a ticket. In order for the links in those emails to work properly, you really should set the canonical web url of your Gitblit install. This url should be your public url used to browse and navigate the website.</p>
+<h4 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>tickets.acceptNewTickets</h4>
+<pre><code>tickets.acceptNewTickets = true
+</code></pre><p>This setting is used to globally disable manual creation of tickets through the web ui. You may still create proposal tickets by pushing patchsets.</p><p>You may decide to disable creation of new tickets at the repository level in the <em>Edit Repository</em> page, however if this global setting is false, it will trump the repository setting.</p>
+<h4 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>tickets.acceptNewPatchsets</h4>
+<pre><code>tickets.acceptNewPatchsets = true
+</code></pre><p>This setting is used to globally disable accepting new patchsets. If this set false, you can not create proposal tickets BUT you can still create tickets through the web ui, assuming <em>tickets.acceptNewTickets=true</em>.</p><p>You may decide to disable accepting new patchsets at the repository level in the <em>Edit Repository</em> page, however if this global setting is false it will trump the repository setting.</p>
+<h4 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>tickets.requireApproval</h4>
+<pre><code>tickets.requireApproval = false
+</code></pre><p>This setting is the default for requiring an approve review score (+2) before enabling the merge button in the web ui. This setting is not considered during the push process so an integrator may push a merged ticket disregarding this approval setting. The setting only affects the web ui and may be configured per-repository.</p>
+<h4 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>tickets.indexFolder</h4><p><em>RESTART REQUIRED</em></p>
+<pre><code>tickets.indexFolder = ${baseFolder}/tickets/lucene
+</code></pre><p>This is the destination for the unified Lucene ticket index. You probably won't need to change this, but it's configurable if the need arises.</p>
+<h3 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Setting up a Repository</h3>
+<h4 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Controlling Tickets</h4><p>Each repository can accept or reject tickets and/or patchsets by the repository settings.</p>
+<h5 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Issue-Tracker, no patchsets</h5>
+<pre><code>allow new tickets = true
+accept patchsets = false
+</code></pre>
+<h5 class="section" id='H15'><a href="#H15" class="sectionlink"><i class="icon-share-alt"> </i></a>Proposals only, no user-reported issues</h5>
+<pre><code>allow new tickets = false
+accept patchsets = true
+</code></pre>
+<h5 class="section" id='H16'><a href="#H16" class="sectionlink"><i class="icon-share-alt"> </i></a>Issue-tracker AND Proposals</h5>
+<pre><code>allow new tickets = true
+accept patchsets = true
+</code></pre>
+<h5 class="section" id='H17'><a href="#H17" class="sectionlink"><i class="icon-share-alt"> </i></a>No tickets whatsoever</h5>
+<pre><code>allow new tickets = false
+accept patchsets = false
+</code></pre>
+<h4 class="section" id='H18'><a href="#H18" class="sectionlink"><i class="icon-share-alt"> </i></a>Controlling Merges</h4><p>Gitblit has a simple review scoring mechanism designed to indicate overall impression of the patchset. You may optionally configure your repository to require an approval score for a patchset revision BEFORE the Merge button is displayed/enabled. This per-repository setting is not respected if an integrator pushes a merge. This setting is only used to control the web ui.</p>
+<h4 class="section" id='H19'><a href="#H19" class="sectionlink"><i class="icon-share-alt"> </i></a>Milestones</h4><p>Milestones are a way to group tickets together. Milestones are specified for each repository and are stored in the repository git config file. Repository owners may create milestones through the web ui in the <em>Tickets</em> page on the <em>Milestones</em> tab.</p>
+<pre><code>[milestone &quot;v1.5.0&quot;]
+    status = Open
+    due = 2014-06-01
+    color = &quot;#00f000&quot;
+</code></pre><p>Please note the date format for the <em>due</em> field: yyyy-MM-dd.
+<!-- End Markdown -->
+<div ><ul class="pager"><li class="previous"><a href="tickets_barnum.html">&larr; barnum</a></li> <li class="next"><a href="tickets_replication.html">replication & advanced administration &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

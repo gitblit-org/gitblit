@@ -1,0 +1,303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit Configuration</h2>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Administering Repositories</h3><p>Repositories can be created, edited, renamed, and deleted through the web UI. They may also be created, edited, and deleted from the command-line using real <a href="http://git-scm.com">Git</a> or your favorite file manager and text editor.</p><p>All repository settings are stored within the repository <code>.git/config</code> file under the <em>gitblit</em> section.</p>
+<pre><code>[gitblit]
+    description = master repository
+    owner = james
+    useTickets = false
+    useDocs = true
+    showRemoteBranches = false
+    accessRestriction = clone
+    isFrozen = false
+    showReadme = false
+    federationStrategy = FEDERATE_THIS
+    isFederated = false
+    skipSizeCalculation = false
+    federationSets = 
+</code></pre>
+<h4 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Repository Names</h4><p>Repository names must be case-insensitive-unique but are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS. The name must be composed of letters, digits, or <code>/ _ - . ~ +</code><br/><br/>Whitespace is illegal.</p><p>Repositories can be grouped within subfolders. e.g. <em>libraries/mycoollib.git</em> and <em>libraries/myotherlib.git</em></p><p>All repositories created with Gitblit are <em>bare</em> and will automatically have <em>.git</em> appended to the name at creation time, if not already specified. </p>
+<h4 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Repository Owner</h4><p>The <em>Repository Owner</em> has the special permission of being able to edit a repository through the web UI. The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.</p>
+<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Access Restrictions and Access Permissions</h3><p><img src="permissions_matrix.png"  alt="permissions matrix"/></p>
+<h4 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Discrete Permissions (Gitblit v1.2.0+)</h4><p>Since v1.2.0, Gitblit supports more discrete permissions. While Gitblit does not offer a built-in solution for branch-based permissions like Gitolite, it does allow for the following repository access permissions:</p>
+<ul>
+  <li><strong>V</strong> (view in web ui, RSS feeds, download zip)</li>
+  <li><strong>R</strong> (clone)</li>
+  <li><strong>RW</strong> (clone and push)</li>
+  <li><strong>RWC</strong> (clone and push with ref creation)</li>
+  <li><strong>RWD</strong> (clone and push with ref creation, deletion)</li>
+  <li><strong>RW+</strong> (clone and push with ref creation, deletion, rewind)</li>
+</ul><p>These permission codes are combined with the repository path to create a user permission:</p>
+<pre><code>RW:mygroup/myrepo.git
+</code></pre><p><strong>NOTE:</strong><br/>The following repository permissions are equivalent:</p>
+<ul>
+  <li>myrepo.git</li>
+  <li>RW+:myrepo.git</li>
+</ul><p>This is to preserve backwards-compatibility with Gitblit &lt;= 1.1.0 which granted rewind power to all access-permitted users.</p>
+<h4 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Discrete Permissions with Regex Matching (Gitblit v1.2.0+)</h4><p>Gitblit also supports <em>case-insensitive</em> regex matching for repository permissions. The following permission grants push privileges to all repositories in the <em>mygroup</em> folder.</p>
+<pre><code>RW:mygroup/.*
+</code></pre>
+<h5 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Exclusions</h5><p>When using regex matching it may also be useful to exclude specific repositories or to exclude regex repository matches. You may specify the <strong>X</strong> permission for exclusion. The following example grants clone permission to all repositories except the repositories in mygroup. The user/team will have no access whatsoever to these repositories.</p>
+<pre><code>X:mygroup/.*
+R:.*
+</code></pre>
+<h5 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>Order is Important</h5><p>The preceding example should suggest that order of permissions is important with regex matching. Here are the rules for determining the permission that is applied to a repository request:</p>
+<ol>
+  <li>If the user is an admin or repository owner, then RW+</li>
+  <li>Else if user has an explicit permission, use that</li>
+  <li>Else check for the first regex match in user permissions</li>
+  <li>Else check for the HIGHEST permission from team memberships
+  <ol>
+    <li>If the team is an admin team, then RW+</li>
+    <li>Else if a team has an explicit permission, use that</li>
+    <li>Else check for the first regex match in team permissions</li>
+  </ol></li>
+</ol>
+<h4 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>No-So-Discrete Permissions (Gitblit &lt;= v1.1.0)</h4><p>Prior to v1.2.0, Gitblit has two main access permission groupings: </p>
+<ol>
+  <li>what you are permitted to do as an anonymous user</li>
+  <li><strong>RW+</strong> for any permitted user</li>
+</ol>
+<h4 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Committer Verification</h4><p>You may optionally enable committer verification which requires that each commit be committed by the authenticated user pushing the commits. i.e. If Bob is pushing the commits, Bob <strong>must</strong> be the committer of those commits.</p><p><strong>How is this enforced?</strong></p><p>Bob must properly set his <em>user.name</em> and <em>user.email</em> values for the repository to match his Gitblit user account <strong>BEFORE</strong> committing to his repository.</p><p><pre>[user &quot;bob&quot;]
+    displayName = Bob Jones
+    emailAddress = bob@somewhere.com
+</pre></p>
+<pre><code>git config user.name &quot;Bob Jones&quot;
+git config user.email bob@somewhere.com 
+</code></pre><p>or</p>
+<pre><code>git config user.name bob
+git config user.email bob@somewhere.com 
+</code></pre><p>The committer email address is required to be identical. Display name or username can be used as the committer name.</p><p>All checks are case-insensitive.</p><p><strong>What about merges?</strong></p><p>You can not use fast-forward merges on your client when using committer verification. You must specify <em>--no-ff</em> to ensure that a merge commit is created with your identity as the committer. Only the first/left parent chain is traversed when verifying commits.</p>
+<h4 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Reflog</h4><p>Gitblit v1.2.1 introduced an incomplete reflog mechanism which was completed in 1.3.0. All pushes to Gitblit are automatically logged on an orphan branch, <code>refs/meta/gitblit/reflog</code>. If this ref exists, the reflog page link will be displayed on the repository pages.</p><p>This reflog is similar to, but not the same as, the normal Git reflog. The Gitblit reflog links Gitblit accounts to ref changes and because it is stored on an orphan branch, the reflog is portable by the federation mechanism or by a normal <code>git clone --mirror</code> command.</p>
+<h3 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Teams</h3><p>Teams have assigned users and assigned repositories. A user can be a member of multiple teams and a repository may belong to multiple teams. This allows the administrator to quickly add a user to a team without having to keep track of all the appropriate repositories. </p>
+<h3 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Administering Users</h3><p>All users and permissions are stored in the <code>users.conf</code> file. Your file extension must be <em>.conf</em> in order to use this user service.</p><p>The <code>users.conf</code> file uses a Git-style configuration format:</p>
+<pre><code>[user &quot;admin&quot;]
+    password = admin
+    role = &quot;#admin&quot;
+    role = &quot;#notfederated&quot;
+    repository = RW+:repo1.git
+    repository = RW+:repo2.git
+
+[user &quot;hannibal&quot;]
+    password = bossman
+    repository = RWD:topsecret.git
+    repository = RW+:ateam/[A-Za-z0-9-~_\\./]+
+
+[user &quot;faceman&quot;]
+    password = vanity
+
+[user &quot;murdock&quot;]
+    password = crazy     
+
+[user &quot;babaracus&quot;]
+    password = grrrr
+
+[team &quot;ateam&quot;]
+    user = hannibal
+    user = faceman
+    user = murdock
+    user = babaracus
+    repository = RW:topsecret.git
+    mailingList = list@ateam.org
+    postReceiveScript = sendmail
+</code></pre><p>The <code>users.conf</code> file allows flexibility for adding new fields to a UserModel object without imposing the complexity of relying on an embedded SQL database. </p>
+<h3 class="section" id='H15'><a href="#H15" class="sectionlink"><i class="icon-share-alt"> </i></a>Usernames</h3><p>Usernames must be unique and are case-insensitive.<br/>Whitespace is illegal.</p>
+<h3 class="section" id='H16'><a href="#H16" class="sectionlink"><i class="icon-share-alt"> </i></a>Passwords</h3><p>User passwords are CASE-SENSITIVE and may be <em>plain</em>, <em>md5</em>, or <em>combined-md5</em> formatted (see <code>gitblit.properties</code> -&gt; <em>realm.passwordStorage</em>).</p>
+<h3 class="section" id='H17'><a href="#H17" class="sectionlink"><i class="icon-share-alt"> </i></a>User Roles</h3><p>There are four actual <em>roles</em> in Gitblit:</p>
+<ul>
+  <li><em>#admin</em>, which grants administrative powers to that user for all repositories, users, and teams</li>
+  <li><em>#notfederated</em>, which prevents an account from being pulled by another Gitblit instance</li>
+  <li><em>#create</em>, which allows the user the power to create personal repositories</li>
+  <li><em>#fork</em>, which allows the user to create a personal fork of an existing Gitblit-hosted repository</li>
+</ul>
+<h3 class="section" id='H18'><a href="#H18" class="sectionlink"><i class="icon-share-alt"> </i></a>Personal Repositories & Forks</h3><p>Personal Repositories and Forks are related but are controlled individually.</p>
+<h4 class="section" id='H19'><a href="#H19" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating a Personal Repository</h4><p>A user may be granted the power to create personal repositories by specifying the <em>#create</em> role through the web ui or through the RPC mechanism via the Gitblit Manager. Personal repositories are exactly like common/shared repositories except that the owner has a few additional administrative powers for that repository, like rename and delete.</p>
+<h4 class="section" id='H20'><a href="#H20" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating a Fork</h4><p>A user may also be granted the power to fork an existing repository hosted on your Gitblit server to their own personal clone by specifying the <em>#fork</em> role through the web ui or via the Gitblit Manager.</p><p>Forks are mostly likely personal repositories or common/shared repositories except for two important differences:</p>
+<ol>
+  <li>Forks inherit a view/clone access list from the origin repository.<br/>i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork. This is to facilitate collaboration.</li>
+  <li>Forks are always listed in the fork network, regardless of any access restriction set on the fork.<br/>In other words, if you fork <em>RepoA.git</em> to <em>~me/RepoA.git</em> and then set the access restriction of <em>~me/RepoA.git</em> to <em>Authenticated View, Clone, &amp; Push</em> your fork will still be listed in the fork network for <em>RepoA.git</em>.</li>
+</ol><p>If you really must have an invisible fork, the clone it locally, create a new personal repository for your invisible fork, and push it back to that personal repository.
+<!-- End Markdown -->
+<div ><ul class="pager"> <li class="next"><a href="setup_authentication.html">authentication &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

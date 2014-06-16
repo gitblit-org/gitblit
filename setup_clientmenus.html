@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Client App Menus</h2><p><em>SINCE 1.3.0</em></p><p>Gitblit supports defining menus for native platform git client clone urls. By default, Gitblit ships with client definitions for Git, SmartGit/Hg, SourceTree, Tower, and Github for Mac &amp; Windows. Gitblit uses the browser's user-agent to help filter the list of available clients in addition to served transports and user access permissions.</p><p>You can define new client integrations and deactivate/remove the default integrations by creating a file <em>$(baseFolder}/clientapps.json</em>.</p>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Example definitions</h3><p><pre>[
+    {
+        &quot;name&quot;: &quot;SmartGit/Hg&quot;,
+        &quot;title&quot;: &quot;syntevo SmartGit/Hg\u2122&quot;,
+        &quot;description&quot;: &quot;a Git client for Windows, Mac, &amp; Linux&quot;,
+        &quot;legal&quot;: &quot;\u00a9 2013 syntevo GmbH. All rights reserved.&quot;,
+        &quot;cloneUrl&quot;: &quot;smartgit://cloneRepo/${repoUrl}&quot;,
+        &quot;productUrl&quot;: &quot;http://www.syntevo.com/smartgithg&quot;,
+        &quot;platforms&quot;: [ &quot;windows&quot;, &quot;macintosh&quot;, &quot;linux&quot; ],
+        &quot;icon&quot;: &quot;smartgithg_32x32.png&quot;,
+        &quot;isActive&quot;: true
+    },
+    {
+        &quot;name&quot;: &quot;GitHub&quot;,
+        &quot;title&quot;: &quot;GitHub\u2122 for Windows&quot;,
+        &quot;description&quot;: &quot;a free Git client for Windows&quot;,
+        &quot;legal&quot;: &quot;\u00a9 2013 GitHub. All rights reserved.&quot;,
+        &quot;cloneUrl&quot;: &quot;github-windows://openRepo/${repoUrl}&quot;,
+        &quot;productUrl&quot;: &quot;http://windows.github.com&quot;,
+        &quot;transports&quot;: [ &quot;http&quot;, &quot;https&quot; ],
+        &quot;platforms&quot;: [ &quot;windows&quot; ],
+        &quot;icon&quot;: &quot;github_32x32.png&quot;,
+        &quot;isActive&quot;: true
+    },
+    {
+        &quot;name&quot;: &quot;SparkleShare&quot;,
+        &quot;title&quot;: &quot;SparkleShare\u2122&quot;,
+        &quot;description&quot;: &quot;an open source collaboration and sharing tool&quot;,
+        &quot;legal&quot;: &quot;released under the GPLv3 open source license&quot;,
+        &quot;cloneUrl&quot;: &quot;sparkleshare://addProject/${baseUrl}/sparkleshare/${repoUrl}.xml&quot;,
+        &quot;productUrl&quot;: &quot;http://sparkleshare.org&quot;,
+        &quot;platforms&quot;: [ &quot;windows&quot;, &quot;macintosh&quot;, &quot;linux&quot; ],
+        &quot;icon&quot;: &quot;sparkleshare_32x32.png&quot;,
+        &quot;minimumPermission&quot; : &quot;RW+&quot;,
+        &quot;isActive&quot;: false
+    }
+]
+</pre>
+<!-- End Markdown -->
+<div ><ul class="pager"><li class="previous"><a href="setup_proxy.html">&larr; reverse proxies</a></li> <li class="next"><a href="setup_bugtraq.html">bugtraq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

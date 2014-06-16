@@ -1,0 +1,30 @@
+h1 > a.sectionlink, h2 > a.sectionlink, h3 > a.sectionlink,
+h4 > a.sectionlink, h5 > a.sectionlink, h6 > a.sectionlink {
+	margin-left:-20px;
+	padding-right: 3px;
+	color: inherit;
+	font-decoration: none;
+}
+h1 > a.sectionlink > i, h2 > a.sectionlink > i, h3 > a.sectionlink > i,
+h4 > a.sectionlink > i, h5 > a.sectionlink > i, h6 > a.sectionlink > i { 
+	visibility: hidden;
+	font-size: inherit;
+	vertical-align: middle;
+}
+h1.section:hover > a.sectionlink > i, h2.section:hover > a.sectionlink > i,
+h3.section:hover > a.sectionlink > i, h4.section:hover > a.sectionlink > i,
+h5.section:hover > a.sectionlink > i, h6.section:hover > a.sectionlink > i {
+	visibility: visible;
+	font-decoration: none;
+}
+pre.prettyprint { overflow: hidden; }
+a:focus { outline: none; }
+table {	font-size: inherit; }
+
+h1.section:before, h2.section:before, h3.section:before,
+h4.section:before, h5.section:before, h6.section:before {
+    display:block; 
+    content:""; 
+    height: (@navbarHeight + 15); 
+    margin: (@navbarHeight + 15)*-1 0 0; 
+}

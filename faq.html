@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Troubleshooting</h2>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>push failed for branch (n/a (unpacker error))</h3><p>This is a bug in JGit (<a href='http://code.google.com/p/gitblit/issues/detail?id=408'>issue 408</a>). TLDR: Newer git clients are optimized to send less data on the wire. JGit expects complete data to be sent, but there are scenarios where native git can optimize-out sending objects. By default, JGit requires everything sent be complete and referenceable.</p><p>If you experience this, the workaround is to temporarily disable the reachable check for the receive pack, push, and then re-enable the setting.</p>
+<pre><code>git.checkReferencedObjectsAreReachable = false
+</code></pre>
+<h3 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Eclipse/Egit/JGit complains that it "can't open upload pack"?</h3><p>There are a few ways this can occur:</p>
+<ol>
+  <li>Are you running Java 7?<br />Java 7 introduced SNI support for SSL connections and it is enabled by default.<br /><a href="http://docs.oracle.com/javase/7/docs/technotes/guides/security/enhancements-7.html">Java 7 Security Enhancements</a><br />To disable SNI alerts, add this line to your eclipse.ini file and restart Eclipse.<br /><pre>-Djsse.enableSNIExtension=false</pre></li>
+  <li>You are using https with a self-signed certificate and you <strong>did not</strong> configure <em>http.sslVerify=false</em>
+  <ol>
+    <li>Window-&gt;Preferences-&gt;Team-&gt;Git-&gt;Configuration</li>
+    <li>Click the <em>New Entry</em> button</li>
+    <li>
+    <pre>Key = <em>http.sslVerify</em>
+Value = <em>false</em></pre></li>
+  </ol></li>
+  <li>Gitblit GO's default self-signed certificate is bound to <em>localhost</em> and you are trying to clone/push from a client based on an old version of JGit with a known flaw.</li>
+  <li>The repository is clone-restricted and you don't have access.</li>
+  <li>The repository is clone-restricted and your password changed.</li>
+  <li>A regression in Gitblit. :(</li>
+</ol>
+<h3 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>I can not push using git:// protocol on Windows using native Git</h3><p>This is a long-standing, known bug in the native Git for Windows implementation.</p><p>Please see <a href="https://groups.google.com/d/topic/msysgit/at8D7J-h7mw/discussion">this thread</a> for details.</p>
+<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Why can't I access Gitblit GO from another machine?</h3>
+<ol>
+  <li>Please check <em>server.httpBindInterface</em> and <em>server.httpsBindInterface</em> in <code>gitblit.properties</code>, you may be only be serving on <em>localhost</em>.</li>
+  <li>Please see the above answer about "**can't open upload pack**".</li>
+  <li>Ensure that any firewall you may have running on the Gitblit server either has an exception for your specified ports or for the running process.</li>
+</ol>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>How do I run Gitblit GO on port 80 or 443 in Linux?</h3><p>Linux requires root permissions to serve on ports &lt; 1024.<br/><br/>Run the server as <em>root</em> (security concern) or change the ports you are serving to 8080 (http) and/or 8443 (https). </p>
+<h3 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit does not list my repositories?!</h3>
+<ol>
+  <li>Confirm that the value <em>git.repositoriesFolder</em> in <code>gitblit.properties</code> actually points to your repositories folder.</li>
+  <li>Confirm that the Gitblit process has full read-write-execute permissions to your <em>git.repositoriesFolder</em>.</li>
+</ol>
+<h3 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit won't open my grouped repository (/group/myrepo.git) or browse my log/branch/tag/ref?!</h3><p>This is likely an url encoding/decoding problem with forward slashes:</p><p><strong>bad</strong></p>
+<pre><code>http://192.168.1.2/log/myrepo.git/refs/heads/master
+</code></pre><p><strong>good</strong></p>
+<pre><code>http://192.168.1.2/log/myrepo.git/refs%2Fheads%2Fmaster
+</code></pre><p><strong>NOTE:</strong><br/>You can not trust the url in the address bar of your browser since your browser may decode it for presentation. When in doubt, <em>View Source</em> of the generated html to confirm the <em>href</em>.</p><p>There are two possible workarounds for this issue. In <code>gitblit.properties</code> or <code>web.xml</code>:</p>
+<ol>
+  <li>try setting <em>web.mountParameters</em> to <em>false</em>.<br/>This changes the url scheme from mounted (*/commit/myrepo.git/abcdef*) to parameterized (*/commit/?r=myrepo.git&amp;h=abcdef*).</li>
+  <li>try changing <em>web.forwardSlashCharacter</em> to an asterisk or a <strong>!</strong></li>
+</ol>
+<h3 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>Running Gitblit behind mod_proxy or some other proxy layer</h3><p>You must ensure that the proxy does not decode and then re-encode request urls with interpretation of forward-slashes (*%2F*). If your proxy layer does re-encode embedded forward-slashes then you may not be able to browse grouped repositories or logs, branches, and tags <strong>unless</strong> you set <em>web.mountParameters=false</em>.</p><p>If you are using Apache mod_proxy you may have luck with specifying <a href="http://httpd.apache.org/docs/2.2/mod/core.html#allowencodedslashes">AllowEncodedSlashes NoDecode</a>.</p>
+<h3 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>Running Gitblit on Tomcat</h3><p>Tomcat takes the extra precaution of <a href="http://tomcat.apache.org/security-6.html#Fixed_in_Apache_Tomcat_6.0.10">disallowing embedded slashes by default</a>. This breaks Gitblit urls.<br/>You have a few options on how to handle this scenario:</p>
+<ol>
+  <li><a href="http://tomcat.apache.org/security-6.html#Fixed_in_Apache_Tomcat_6.0.10">Tweak Tomcat</a><br/>Add <em>-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true</em> to <em>CATALINA_OPTS</em> or to your JVM launch parameters</li>
+  <li><em>web.mountParameters = false</em> and use non-pretty, parameterized urls</li>
+  <li><em>web.forwardSlashCharacter = !</em> which tells Gitblit to use <strong>!</strong> instead of <strong>/</strong></li>
+</ol>
+<h4 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>UTF-8 Filenames</h4><p>Tomcat also dislikes urls with non-ASCII characters. If your repositories have non-ASCII filenames you will have to modify your connector properties to allow UTF-8 encoded urls. </p><p><a href="http://wiki.apache.org/tomcat/FAQ/CharacterEncoding">Tomcat Character Encoding</a><br/><a href="http://tomcat.apache.org/tomcat-6.0-doc/config/http.html">Tomcat Connector Properties</a></p>
+<h2 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>General Interest Questions</h2>
+<h3 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit?  What kind of name is that?</h3><p>It's a phonetic play on <a href="http://en.wikipedia.org/wiki/Bit_blit" title="Wikipedia Bitblt">bitblt</a> which is an image processing operation meaning <em>bit-block transfer</em>.</p>
+<h3 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Why use Gitblit?</h3><p>It's a small tool that allows you to easily manage shared repositories and doesn't require alot of setup or git kung-foo.</p>
+<h3 class="section" id='H15'><a href="#H15" class="sectionlink"><i class="icon-share-alt"> </i></a>Who is the target user for Gitblit?</h3><p>Small workgroups that require centralized repositories.</p><p>Gitblit is not meant to be a social coding resource like <a href="http://github.com">Github</a> or <a href="http://bitbucket.com">Bitbucket</a> with 100s or 1000s of users. Gitblit is designed to fulfill the same function as your centralized Subversion or CVS server.</p>
+<h3 class="section" id='H16'><a href="#H16" class="sectionlink"><i class="icon-share-alt"> </i></a>Do I need real Git?</h3><p>No (mostly). Gitblit is based on <a href="http://eclipse.org/jgit" title="Eclipse JGit Site">JGit</a> which is a pure Java implementation of the <a href="http://git-scm.com" title="Official Git Site">Git version control system</a>.<br/>Everything you need for Gitblit (except Java) is bundled in the distribution file.</p>
+<h4 class="section" id='H17'><a href="#H17" class="sectionlink"><i class="icon-share-alt"> </i></a>mostly</h4><p>Gitblit has experimental support for Garbage Collection using JGit. I have not used it enough to feel comfortable removing the EXPERIMENTAL label. It may work really well, or it may not. One thing you might consider having native git for is periodic garbage collection - when Gitblit is offline.</p>
+<h3 class="section" id='H18'><a href="#H18" class="sectionlink"><i class="icon-share-alt"> </i></a>Can I run Gitblit in conjunction with my existing Git tooling?</h3><p>Yes.</p>
+<h3 class="section" id='H19'><a href="#H19" class="sectionlink"><i class="icon-share-alt"> </i></a>Do I need a JDK or can I use a JRE?</h3><p>Gitblit will run just fine with a JRE.</p>
+<h3 class="section" id='H20'><a href="#H20" class="sectionlink"><i class="icon-share-alt"> </i></a>Does Gitblit use a database to store its data?</h3><p>No. Gitblit stores its repository configuration information within the <code>.git/config</code> file and its user information in <code>users.conf</code> or whatever filename is configured in <code>gitblit.properties</code>.</p>
+<h3 class="section" id='H21'><a href="#H21" class="sectionlink"><i class="icon-share-alt"> </i></a>Can I manually edit users.conf, gitblit.properties, or .git/config?</h3><p>Yes. You can manually manipulate all of them and (most) changes will be immediately available to Gitblit.<br/>Exceptions to this are noted in <code>gitblit.properties</code>.</p><p><strong>NOTE:</strong><br/>Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the <em>User Roles</em> section of the <a href="/setup.html">setup</a> page for details.</p>
+<h3 class="section" id='H22'><a href="#H22" class="sectionlink"><i class="icon-share-alt"> </i></a>Can I restrict access to branches or paths within a repository?</h3><p>No, not yet. Access restrictions apply to the repository as a whole.</p><p>Gitblit's simple authentication and authorization mechanism can be used to facilitate one or more of the <a href="http://progit.org/book/ch5-1.html">workflows outlined here</a>.</p><p>Should you require more fine-grained access controls you might consider writing a Groovy <em>prereceive</em> script to block updating branch refs based on some permissions file. I would be interested in a generic, re-usable script to include with Gitblit, should someone want to implement it.</p><p>Alternatively, you could use <a href="https://github.com/sitaramc/gitolite">gitolite</a> and SSH for your repository access.</p>
+<h3 class="section" id='H23'><a href="#H23" class="sectionlink"><i class="icon-share-alt"> </i></a>Can I authenticate users against XYZ?</h3><p>Yes. The user service is pluggable. You may write your own complete user service by implementing the <em>com.gitblit.IUserService</em> interface. Or you may subclass <em>com.gitblit.GitblitUserService</em> and override just the authentication. Set the fully qualified classname as the <em>realm.userService</em> property.</p>
+<h3 class="section" id='H24'><a href="#H24" class="sectionlink"><i class="icon-share-alt"> </i></a>What types of Search does Gitblit support?</h3><p>As of 0.9.0, Gitblit supports Lucene-based searching.</p><p>If Lucene indexing is disabled, Gitblit falls back to brute-force commit-traversal search. Commit-traversal search supports case-insensitive searching of <em>commit message</em> (default), <em>author</em>, and <em>committer</em>.</p><p>To search by <em>author</em> or <em>committer</em> use the following syntax in the search box:</p>
+<pre><code>author: james
+committer: james
+</code></pre><p>Alternatively, you could enable the search type dropdown list in your <code>gitblit.properties</code> file.</p>
+<h3 class="section" id='H25'><a href="#H25" class="sectionlink"><i class="icon-share-alt"> </i></a>Why did you call the setting federation.N.frequency instead of federation.N.period?!</h3><p>Yes, yes I know that you are really specifying the period, but Frequency sounds better to me. :)</p>
+<h3 class="section" id='H26'><a href="#H26" class="sectionlink"><i class="icon-share-alt"> </i></a>Can Gitblit be translated?</h3><p>Yes. Most messages are localized to a standard Java properties file.
+<!-- End Markdown -->
+<div ><ul class="pager"><li class="previous"><a href="properties.html">&larr; settings</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

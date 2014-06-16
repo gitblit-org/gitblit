@@ -1,0 +1,357 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Using Tickets</h2><p><em>SINCE 1.4.0</em></p>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating Standard Tickets</h3><p>Standard tickets can be created using the web ui. These ticket types include <em>Bug</em>, <em>Enhancement</em>, <em>task</em>, and <em>Question</em>.</p>
+<h3 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating a Proposal Ticket</h3><p>Proposal tickets are created by pushing a <strong>single commit</strong> to the magic ref. They can not be created from the web ui.</p><p><em>Why is there a single commit limitation for creating a Proposal Ticket?</em></p><p>Because the ticket which will be created for your commit will use your commit's message to define the Ticket's <em>title</em> and <em>description</em>. After the ticket is created, you can add as many commits as you want to the ticket's branch.</p><p><em>Why would I create a proposal ticket?</em></p><p>Because you are too lazy to create a ticket in the web ui first. The proposal ticket is a convenience mechanism. It allows you to propose a change using Git, not your browser.</p><p><em>Who can create a proposal ticket?</em></p><p>Any authenticated user who can clone your repository.</p>
+<pre><code>git clone https://server/r/repo.git
+cd repo
+git checkout -b mytopic
+...add a single commit...
+git push origin HEAD:refs/for/new
+# read ticket id from server output
+git branch -u origin/ticket/{id}
+</code></pre>
+<h3 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating the first Patchset for an Existing Ticket</h3><p>If you have an existing ticket that does <strong>not</strong> yet have a proposed patchset you can push using the ticket branch ref.</p><p><em>Who can create the first patchset for an existing ticket?</em></p><p>Any authenticated user who can clone your repository.</p>
+<pre><code>git clone https://server/r/repo.git
+cd repo
+git checkout -b ticket/{id}
+...add one or more commits...
+git push -u origin ticket/{id}
+</code></pre>
+<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Safely adding commits to a Patchset for an Existing Ticket</h3><p><em>Who can add commits to an existing patchset?</em></p>
+<ol>
+  <li>The ticket author</li>
+  <li>The initial patchset author</li>
+  <li>The person set as <em>responsible</em></li>
+  <li>Any user with write (RW) permissions to the repository</li>
+</ol>
+<pre><code>git fetch &amp;&amp; git checkout ticket/{id}
+git pull --ff-only
+...add one or more commits...
+git push
+</code></pre>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Checking-Out a Named Branch for an Existing Ticket with a Patchset</h3><p>If you prefer to name your local ticket branches rather than using the default integer ids, you can do this with a little more syntax.</p>
+<pre><code>git checkout -b my_fix --track origin/ticket/{id}
+</code></pre><p>This will create a local branch named <em>my_fix</em> which tracks the upstream ticket branch.</p>
+<h3 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Rewriting a Patchset (amend, rebase, squash)</h3><p><em>Who can rewrite a patchset?</em></p><p>See the above rules for who can add commits to a patchset. You do <strong>not</strong> need rewind (RW+) to the repository to push a non-fast-forward patchset. Gitblit will detect the non-fast-forward update and create a new patchset ref. This preserves the previous patchset.</p>
+<pre><code>git fetch &amp;&amp; git checkout ticket/{id}
+git pull --ff-only
+...amend, rebase, squash...
+git push origin HEAD:refs/for/{id}
+</code></pre><p>OR if you have RW+ permissions, then you can push using <em>-f</em> flag.</p>
+<pre><code>git push -f
+</code></pre>
+<h3 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Updating your copy of a rewritten Patchset</h3><p>If a patchset has been rewritten you can no longer simply <em>pull</em> to update. Let's assume your checkout <strong>does not</strong> have any unshared commits - i.e. it represents the previous patchset. The simplest way to update your branch to the current patchset is to reset it using the <code>-B</code> checkout flag.</p>
+<pre><code>git fetch &amp;&amp; git checkout -B ticket/{id}
+</code></pre><p>If you <strong>do</strong> have unshared commits then you'll could make a new temporary branch and then cherry-pick your changes onto the rewritten patchset.</p>
+<pre><code>git branch oldticket ticket/{id}
+git fetch &amp;&amp; git checkout -B ticket/{id}
+git cherry-pick &lt;commitid1&gt; &lt;commitid2&gt;
+git branch -D oldticket
+</code></pre><p>Git is a very flexible tool, there are no doubt several other strategies you could use to resolve this situation. The above solution is just one way.</p>
+<h3 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>Ticket RefSpecs</h3><p>Gitblit supports two primary push ref specs: the magic ref and the patchset ref.</p>
+<h4 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>to create a new proposal ticket</h4>
+<table>
+  <thead>
+    <tr>
+      <th align="left">ref </th>
+      <th align="left">description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">refs/for/new </td>
+      <td align="left">new proposal for the default branch </td>
+    </tr>
+    <tr>
+      <td align="left">refs/for/default </td>
+      <td align="left">new proposal for the default branch </td>
+    </tr>
+    <tr>
+      <td align="left">refs/for/{branch} </td>
+      <td align="left">new proposal for the specified branch </td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>to add a proposal patchset (first patchset) to an existing ticket</h4>
+<table>
+  <thead>
+    <tr>
+      <th align="left">ref </th>
+      <th align="left">description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">refs/for/{id} </td>
+      <td align="left">add new patchset to an existing ticket </td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>to add commits to an existing patchset</h4>
+<table>
+  <thead>
+    <tr>
+      <th align="left">ref </th>
+      <th align="left">description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">refs/heads/ticket/{id} </td>
+      <td align="left">fast-forward an existing patchset </td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>to rewrite a patchset (amend, rebase, squash)</h4>
+<table>
+  <thead>
+    <tr>
+      <th align="left">magic ref </th>
+      <th align="left">description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">refs/for/{id} </td>
+      <td align="left">to rewrite a patchset </td>
+    </tr>
+  </tbody>
+</table>
+<h3 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Ticket RefSpec Tricks</h3><p>Gitblit supports setting some ticket fields from the push refspec.</p>
+<pre><code>refs/for/master%topic=bug/42,r=james,m=1.4.1,cc=dave,cc=mark
+</code></pre>
+<table>
+  <thead>
+    <tr>
+      <th align="left">parameter </th>
+      <th align="left">description </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">t </td>
+      <td align="left">assign a <em>topic</em> to the ticket (matched against bugtraq config) </td>
+    </tr>
+    <tr>
+      <td align="left">r </td>
+      <td align="left">set the <em>responsible</em> user </td>
+    </tr>
+    <tr>
+      <td align="left">m </td>
+      <td align="left">set the <em>milestone</em> for patchset integration </td>
+    </tr>
+    <tr>
+      <td align="left">cc </td>
+      <td align="left">add this account to the <em>watch</em> list (multiple ccs allowed) </td>
+    </tr>
+  </tbody>
+</table>
+<h4 class="section" id='H15'><a href="#H15" class="sectionlink"><i class="icon-share-alt"> </i></a>examples</h4><p>Create a new patchset for ticket <em>12</em>, add <em>james</em> and <em>mark</em> to the watch list, and set the topic to <em>JIRA-123</em> which will be regex-matched against the repository bugtraq configuration.</p>
+<pre><code>git push origin HEAD:refs/for/12%cc=james,cc=mark,t=JIRA-123
+</code></pre><p>Add some commits (fast-forward) to ticket <em>12</em>. Set the milestone to <em>1.4.1</em>.</p>
+<pre><code>git push origin HEAD:refs/heads/ticket/12%m=1.4.1
+</code></pre>
+<h3 class="section" id='H16'><a href="#H16" class="sectionlink"><i class="icon-share-alt"> </i></a>Merging Patchsets</h3><p>The Gitblit web ui offers a merge button which will work for clean merges of a patchset to the integration branch.</p><p>There are complicated merge scenarios for which it may be best to merge using your Git client. There are several ways to do this, here is a safe merge strategy which pulls into a new branch and then fast-forwards your integration branch, assuming you were happy with the pull (merge).</p>
+<pre><code>git pull origin master
+git checkout -b ticket-{id} master
+git pull origin ticket/{id}
+git checkout master
+git merge ticket-{id}
+git push origin master
+git branch -d ticket-{id}
+</code></pre>
+<h3 class="section" id='H17'><a href="#H17" class="sectionlink"><i class="icon-share-alt"> </i></a>Closing Tickets on Push with a Completely New Patchset</h3><p>Gitblit will look for patchset references on pushes to normal branches. If it finds a reference (like would be found in the previous merge instructions), the ticket is resolved as merged and everyone is notified.</p><p>If you do not need to create a patchset for review, you can just push a commit to the integration branch that contains <code>fixes #1</code> or <code>closes #1</code> in the commit message. Gitblit will identify the ticket, create a new patchset with that commit as the tip, and resolve the ticket as merged. (And if the integration branch is not specified in the ticket - this is the case for a ticket without any existing patchsets - Gitblit will resolve the ticket as merged to the pushed branch).</p>
+<h3 class="section" id='H18'><a href="#H18" class="sectionlink"><i class="icon-share-alt"> </i></a>Reopening Tickets with Patchsets</h3><p>Gitblit allows you to reopen a Ticket with a merged patchset. Since Gitblit allows patchset rewrites and versions patchsets, this seems like a logical capability. There is no need to create another ticket for a feature request or bug report if the merged commits did not actually resolve the ticket.</p><p>This allows you to continue the discussion and create a new patchset that hopefully resolves the need.</p><p><strong>NOTE:</strong> There is one caveat to this feature. You can not push patchsets to a closed ticket; Gitblit will reject the push. You must first reopen the ticket through the web ui before you may push your patchset update or new patchset.</p>
+<h3 class="section" id='H19'><a href="#H19" class="sectionlink"><i class="icon-share-alt"> </i></a>Reviews</h3><p>Gitblit includes a very simple patchset scoring mechanism. Gitblit is not code-review system, but for those who have simple needs, this may suffice.</p>
+<ul>
+  <li>+2, approved: patchset can be merged</li>
+  <li>+1, looks good: someone else must approve for merge</li>
+  <li>-1, needs improvement: please do not merge</li>
+  <li>-2, vetoed: patchset may not be merged</li>
+</ul><p>Only users with write (RW) permissions to the repository can give a +2 and -2 score. All other users are allowed to score +/-1. If the repository is configured to <em>require approval</em> then then +2 score has an important meaning. The merge button will only be shown if there is at least one +2 score and no -2 scores. If there is a -2 score, the merge is blocked by the web ui. Users with RW permissions, however, can still manually merge and push the patchset to the integration branch; Gitblit does not enforce vetoed patchsets on push.</p>
+<h4 class="section" id='H20'><a href="#H20" class="sectionlink"><i class="icon-share-alt"> </i></a>Reviews and Updated or Rewritten Patchsets</h4><p>If the patchset is updated or rewritten, all former review scores are ignored; review scores apply to specific revisions of patchsets - they are not blanket approvals/disapprovals.
+<!-- End Markdown -->
+<div ><ul class="pager"><li class="previous"><a href="tickets_overview.html">&larr; overview</a></li> <li class="next"><a href="tickets_barnum.html">barnum &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

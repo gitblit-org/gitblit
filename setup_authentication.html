@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Built-in Authentication</h2><p>By default, Gitblit stores and authenticates all users against <code>users.conf</code>. However, you may wish to integrate Gitblit into an existing user account infrastructure.</p><p>Gitblit supports additional authentication mechanisms aside from it's internal one.</p>
+<ul>
+  <li>LDAP authentication</li>
+  <li>Windows authentication</li>
+  <li>PAM authentication</li>
+  <li>Htpasswd authentication</li>
+  <li>Redmine auhentication</li>
+  <li>Salesforce.com authentication</li>
+  <li>Servlet container authentication</li>
+</ul>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>LDAP Authentication</h3><p><em>SINCE 1.0.0</em></p><p>LDAP can be used to authenticate Users and optionally control Team memberships. When properly configured, Gitblit will delegate authentication to your LDAP server and will cache some user information in the usual users.conf file.</p><p>When using the LDAP User Service, new user accounts can not be manually created from Gitblit. Gitblit user accounts are automatically created for new users on their first succesful authentication through Gitblit against the LDAP server. It is also important to note that the LDAP User Service does not retrieve or store user passwords nor does it implement any LDAP-write functionality.</p><p>To use the <em>LdapUserService</em> set <em>realm.authenticationProviders=ldap</em> in your <code>gitblit.properties</code> file and then configure the <em>realm.ldap</em> settings appropriately for your LDAP environment.</p>
+<h4 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Example LDAP Layout</h4><p><img src="ldapSample.png"  alt="block diagram"/></p><p>Please see <a href="https://github.com/gitblit/gitblit/blob/master/tests/com/gitblit/tests/resources/ldapUserServiceSampleData.ldif">ldapUserServiceSampleData.ldif</a> to see the data in LDAP that reflects the above picture.</p>
+<h4 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit Settings for Example LDAP Layout</h4><p>The following are the settings required to configure Gitblit to authenticate against the example LDAP server with LDAP-controlled team memberships.</p>
+<table class="table">
+<thead>
+<tr><th>parameter</th><th>value</th><th>description</th></tr>
+</thead>
+<tbody>
+<tr>
+  <th>realm.ldap.server</th><td>ldap://localhost:389</td>
+  <td>Tells Gitblit to connect to the LDAP server on localhost port 389.  The URL Must be of form ldap(s)://&lt;server&gt;:&lt;port&gt; with port being optional (389 for ldap, 636 for ldaps).</td>
+</tr>
+<tr>
+  <th>realm.ldap.username</th><td>cn=Directory Manager</td>
+  <td>The credentials that will log into the LDAP server</td>
+</tr>
+<tr>
+  <th>realm.ldap.password</th><td>password</td>
+  <td>The credentials that will log into the LDAP server</td>
+</tr>
+<tr>
+  <th>realm.ldap.maintainTeams</th><td>true</td>
+  <td>Are team memberships maintained in LDAP (<em>true</em>) or manually in Gitblit (<em>false</em>).</td>
+</tr>
+<tr>
+  <th>realm.ldap.accountBase</th><td>OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
+  <td>What is the root node for all users in this LDAP system.  Subtree searches will start from this node.</td>
+</tr>
+<tr>
+  <th>realm.ldap.accountPattern</th><td>(&(objectClass=person)(sAMAccountName=${username}))</td><td>The LDAP search filter that will match a particular user in LDAP.  ${username} will be replaced with whatever the user enters as their username in the Gitblit login panel.</td>
+</tr>
+<tr>
+  <th>realm.ldap.groupBase</th><td>OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
+  <td>What is the root node for all teams in this LDAP system.  Subtree searches will start from this node.</td>
+</tr>
+<tr>
+  <th>realm.ldap.groupMemberPattern</th><td>(&(objectClass=group)(member=${dn}))</td><td>The LDAP search filter that will match all teams for the authenticating user.  ${username} will be replaced with whatever the user enters as their username in the Gitblit login panel.  Anything else in ${} will be replaced by Attributes from the User node.</td>
+</tr>
+<tr>
+  <th>realm.ldap.admins</th><td>@Git_Admins</td><td>A space-delimited list of usernames and/or teams that indicate admin status in Gitblit.  Teams are referenced with a leading <em>@</em> character.</td>
+</tr>
+</tbody>
+</table>
+<h4 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>LDAP In-Memory Server</h4><p>You can start Gitblit GO with an in-memory LDAP server by specifying the <em>--ldapLdifFile</em> command-line argument. The LDAP server will listen on localhost of the port specified in <em>realm.ldap.url</em> of <code>gitblit.properties</code>. Additionally, a root user record is automatically created for <em>realm.ldap.username</em> and <em>realm.ldap.password</em>. Please note that the ldaps:// protocol is not supported for the in-memory server.</p>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Windows Authentication</h3><p>Windows authentication is based on the use of Waffle and JNA. It is known to work properly for authenticating against the local Windows machine, but it is unclear if it works properly with a domain controller and Active Directory. To use this service, your Gitblit server must be installed on a Windows machine.</p>
+<pre><code>realm.authenticationProviders = windows
+realm.windows.defaultDomain =
+</code></pre>
+<h3 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>PAM Authentication</h3><p>PAM authentication is based on the use of libpam4j and JNA. To use this service, your Gitblit server must be installed on a Linux/Unix/MacOSX machine and the user that Gitblit runs-as must have root permissions.</p>
+<pre><code>realm.authenticationProviders = pam
+realm.pam.serviceName = system-auth
+</code></pre>
+<h3 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Htpasswd Authentication</h3><p>Htpasswd authentication allows you to maintain your user credentials in an Apache htpasswd file thay may be shared with other htpasswd-capable servers.</p>
+<pre><code>realm.authenticationProviders = htpasswd
+realm.htpasswd.userFile = /path/to/htpasswd
+</code></pre>
+<h3 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>Redmine Authentication</h3><p>You may authenticate your users against a Redmine installation as long as your Redmine install has properly enabled <a href="http://www.redmine.org/projects/redmine/wiki/Rest_Api#Authentication">API authentication</a>. This user service only supports user authentication; it does not support team creation based on Redmine groups. Redmine administrators will also be Gitblit administrators.</p>
+<pre><code>realm.authenticationProviders = redmine
+realm.redmine.url = http://example.com/redmine
+</code></pre>
+<h3 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>Salesforce.com Authentication</h3><p>You may authenticate your users against Salesforce.com. You can require that user's belong to a particular organization by specifying a non-zero organization id.</p>
+<pre><code>realm.authenticationProviders = salesforce
+realm.salesforce.orgId = 0
+</code></pre>
+<h3 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Container Authentication</h3><p>If you are using the WAR variant and deploying into your own servlet container which has a pre-defined authentication mechanism protecting the Gitblit webapp, then you may instruct Gitblit to automatically create Gitblit accounts for container-authenticated user principals.</p>
+<pre><code>realm.container.autoCreateAccounts = true
+</code></pre>
+<h2 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Authentication</h2><p>This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations. This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.</p><p>Please subclass <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java">com.gitblit.auth.AuthenticationProvider</a>.</p><p>You may use your subclass by specifying its fully qualified classname in the <em>realm.authenticationProviders</em> setting.</p><p>Your subclass must be on Gitblit's classpath and must have a public default constructor. </p>
+<h3 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Everything</h3><p>Instead of maintaining a <code>users.conf</code> file, you may want to integrate Gitblit into an existing environment.</p><p>You may use your own custom <em>com.gitblit.IUserService</em> implementation by specifying its fully qualified classname in the <em>realm.userService</em> setting.</p><p>Your user service class must be on Gitblit's classpath and must have a public default constructor.<br/>Please see the following interface definition <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/IUserService.java">com.gitblit.IUserService</a>.
+<!-- End Markdown -->
+<div ><ul class="pager"><li class="previous"><a href="administration.html">&larr; administration</a></li> <li class="next"><a href="setup_hooks.html">push hooks &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

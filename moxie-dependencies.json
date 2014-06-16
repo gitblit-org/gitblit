@@ -1,0 +1,471 @@
+{
+    "ring" : "0",
+    "name" : "gitblit 1.6.0",
+    "children" : [
+    {
+        "ring" : "1",
+        "name" : "dagger 1.1.0",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "javax.inject 1"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "dagger-compiler 1.1.0",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "javawriter 2.1.1"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "annotations 12.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "log4j 1.2.17"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "slf4j-api 1.7.5"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "slf4j-log4j12 1.7.5"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "javax.mail 1.5.1"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "javax.servlet-api 3.1.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-all 9.1.4.v20140401"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "wicket 1.4.21"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "wicket-auth-roles 1.4.21"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "wicket-extensions 1.4.21"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "lucene-core 4.6.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "lucene-analyzers-common 4.6.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "lucene-highlighter 4.6.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "lucene-memory 4.6.0",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "lucene-queries 4.6.0"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "lucene-queryparser 4.6.0",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "lucene-sandbox 4.6.0",
+            "children" : [
+            {
+                "ring" : "3",
+                "name" : "jakarta-regexp 1.4"
+            }
+        
+            ]
+        
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "pegdown 1.4.2",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "parboiled-java 1.1.6",
+            "children" : [
+            {
+                "ring" : "3",
+                "name" : "parboiled-core 1.1.6"
+            }
+        ,
+            {
+                "ring" : "3",
+                "name" : "asm 4.1"
+            }
+        ,
+            {
+                "ring" : "3",
+                "name" : "asm-tree 4.1"
+            }
+        ,
+            {
+                "ring" : "3",
+                "name" : "asm-analysis 4.1"
+            }
+        ,
+            {
+                "ring" : "3",
+                "name" : "asm-util 4.1"
+            }
+        
+            ]
+        
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "wikitext-core 1.4"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "twiki-core 1.4"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "textile-core 1.4"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "tracwiki-core 1.4"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "mediawiki-core 1.4"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "confluence-core 1.4"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "org.eclipse.jgit 3.3.1.201403241930-r",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "jsch 0.1.50"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "JavaEWAH 0.7.9"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "httpclient 4.1.3",
+            "children" : [
+            {
+                "ring" : "3",
+                "name" : "httpcore 4.1.4"
+            }
+        ,
+            {
+                "ring" : "3",
+                "name" : "commons-logging 1.1.1"
+            }
+        
+            ]
+        
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "commons-codec 1.7"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "org.eclipse.jgit.http.server 3.3.1.201403241930-r"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "bcprov-jdk15on 1.49"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "bcmail-jdk15on 1.49"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "bcpkix-jdk15on 1.49"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "sshd-core 0.11.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "mina-core 2.0.7"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "rome 0.9",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "jdom 1.0"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "gson 1.7.2"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "groovy-all 1.8.8"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "unboundid-ldapsdk 2.3.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "ivy 2.2.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jcalendar 1.3.2"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "commons-compress 1.4.1",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "xz 1.0"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "commons-io 2.2"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "force-partner-api 24.0.0",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "force-wsc 24.0.0",
+            "children" : [
+            {
+                "ring" : "3",
+                "name" : "js 1.7R2"
+            }
+        
+            ]
+        
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "freemarker 2.3.19"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "waffle-jna 1.5",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "platform 3.5.0"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "jna 3.5.0"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "guava 13.0.1"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "libpam4j 1.7"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "args4j 2.0.26"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jedis 2.3.1",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "commons-pool2 2.0"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "pf4j 0.8.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "tika-core 1.5"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "junit 4.11",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "hamcrest-core 1.3"
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "selenium-java 2.28.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "selenium-support 2.28.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "selenium-firefox-driver 2.28.0",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "selenium-remote-driver 2.28.0",
+            "children" : [
+            {
+                "ring" : "3",
+                "name" : "cglib-nodep 2.1_3"
+            }
+        ,
+            {
+                "ring" : "3",
+                "name" : "json 20080701"
+            }
+        ,
+            {
+                "ring" : "3",
+                "name" : "selenium-api 2.28.0"
+            }
+        
+            ]
+        
+        }
+    
+        ]
+    
+    }
+,
+    {
+        "ring" : "2",
+        "name" : "commons-exec 1.1"
+    }
+
+    ]
+
+}

@@ -1,0 +1,258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Tickets</h2><p><em>SINCE 1.4.0</em></p><p>Gitblit's Tickets feature is analgous to GitHub/BitBucket Issues+Pull Requests. Gitblit does not make a hard distinction between what is an Issue and what is a Pull Request. In Gitblit, all tickets may have attached commits and there is no need to create a separate, new container to share &amp; discuss these commits. Additionally, there is no need to create multiple Tickets for different versions of the same code - a common practice in other systems.</p>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Screencast</h3><p>You can view a screencast of <a href="https://vimeo.com/86164723">Gitblit Tickets in action</a> on Vimeo.</p>
+<h3 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Design</h3><p>The Tickets feature of Gitblit is designed around a few principles:</p>
+<ol>
+  <li>Tickets should be simple enough to use quickly to track action items or user reports</li>
+  <li>Any ticket can contain commits shared by a contributor</li>
+  <li>The ticket should be the canonical source of commits related to the ticket (i.e. a fork repository should not be the canonical source of commits)</li>
+  <li>Additional contributors should be allowed to participate in developing the patchset for a ticket, not just the original patchset author. The ticket should be a container for collaborative branch development, not just for code-review/gating.</li>
+  <li>Contributors should be able to rewrite commits attached to a ticket without losing history. Contributors should be encouraged to polish, hone, and rewrite as needed to ensure that what eventually is merged is logical and concise.</li>
+  <li>Tickets should focus on contribution sharing and communication. The Gitblit Tickets feature is not an elaborate code-review system, although in the future it may evolve to be more competitive for that use.</li>
+</ol><p>Gitblit takes inspiration from GitHub, BitBucket, and Gerrit.</p>
+<h4 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Ticket Model</h4><p>Gitblit stores each ticket as a journal (list of changes). A ticket journal is retrieved from the chosen persistence engine and an effective ticket is built by applying the ordered changes from the journal. These changes are usually additive, but in some cases a change may represent a deletion. Tickets are indexed by Lucene against which all ticket queries are executed.</p>
+<h4 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Collaboration Workflow</h4><p>Gitblit uses a 3-repository workflow. This means that Gitblit cuts the <em>fork</em> repository out of the collaboration workflow: patchsets are pushed directly to a special branch of the canonical repository, not to a fork. You may also push to fork, if you want, but all collaboration occurs in the canonical repository, not your fork.</p>
+<h4 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Persistence Choices</h4><p>Gitblit's ticket data is based on a ridiculously simple concept: a ticket is the end result of applying a sequence of changes to an empty ticket. Each change is serialized as JSON and stored in a journal. The journal may be a simple text file (<code>journal.json</code>) or it may be a Redis LIST or some future persistence type.</p><p>All ticket services inherit from the same base class which handles most of the high level logic for ticket management including caching, milestones (stored in .git/config), indexing, queries, and searches.</p><p>You can find descriptions of the available persistence services in <a href="./tickets-setup.html">tickets setup</a>.</p>
+<h4 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Limitations</h4>
+<ul>
+  <li>Ticket data is non-relational to user accounts. If <em>james</em> comments on a ticket, <em>james</em> is preserved forever in the ticket data. This is similar to git commits which are also non-relational. This could be overcome by writing a tool to deserialize all the journals and rewrite the authors, so it is not impossible to change, but following KISS - ticket data is non-relational to user accounts.</li>
+  <li>The <em>Branch Ticket Service</em> does not currently permit ticket journal pushes from clones. This is an area of exploration and may be possible given that a ticket is constructed from an append-only journal of changes.</li>
+  <li>Gitblit does not currently offer commit comments nor line comments, only overall ticket comments .</li>
+</ul>
+<h4 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>How did GitHub influence the design of Tickets?</h4><p><strong>UI.</strong> GitHub has a very efficient, and clean UI for their Issues. It offers the basics and give you labels to fill in the gaps. It is not overly complex.</p><p>Gitblit's Ticket querying and discussion ui are modeled after GitHub's ui design.</p>
+<h4 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>How did BitBucket influence the design of Tickets?</h4><p><strong>UI.</strong> BitBucket has a more rigid issue tracker and a clean issue viewing ui. The rigidity makes it more like a traditional issue tracker with status, priority, kind, etc.</p><p>Gitblit's Ticket page ui is partially inspired by BitBucket. Gitblit Tickets have state and types, which makes it a more rigid/traditional tracker. Atlassian has also gifted the community with the AUI, a webapp toolkit of CSS &amp; JS. Gitblit has borrowed some of these Apache licensed CSS elements.</p><p><strong>Branch Pull Requests.</strong> BitBucket has a very cool feature of creating a pull request from a branch within the same repository. GitHub may also be able to do this. Gitblit does not currently allow you to create a ticket from an existing branch, but Gitblit tracks ticket commits using normal branches with the canonical repository.</p>
+<h4 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>How did Gerrit influence the design of Tickets?</h4><p><strong>Patchsets.</strong> Gerrit employs a clever patchset workflow that requires repeated use of <code>git commit --amend</code> to hone and polish a commit until it is ready for merging to the proposed integration branch. This technique is a much improved analog of patch revision.</p><p>After working with this design for many months and dogfooding dozens of tickets with hundreds of amends, rebases, and squashes, I have concluded that this workflow doesn't work like I wanted it to for active, in-development code. It is best suited for it's original intention: code-review. It also introduces many, many refs.</p><p>Gitblit has adopted Gerrit's three-repository workflow and <em>magic ref</em> design for pushes of new ticket patchsets or rewrites of existing ticket patchsets.</p>
+<h3 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Nomenclature</h3>
+<ol>
+  <li>The organizational unit of the Gitblit Tickets feature is the <em>ticket</em>.</li>
+  <li>A <em>ticket</em> can be used to report a bug, request an enhancement, ask a question, etc. A ticket can also be used to collaborate on a <em>patchset</em> that addresses the request.</li>
+  <li>A <em>patchset</em> is a series of commits from a merge base that exists in the target branch of your repository to the tip of the patchset. A patchset may only contain a single commit, or it may contain dozens. This is similar to the commits in a <em>Pull Request</em>. One important distinction here is that in Gitblit, each <em>Patchset</em> is developed on a separate branch and can be completely rewritten without losing the previous patchsets (this creates a new patchset).</li>
+  <li>A <em>ticket</em> monitors the development of <em>patchsets</em> by tracking <em>revisions</em> to <em>patchsets</em>. The ticket alslo monitors rewritten patchsets. Each <em>patchset</em> is developed on it's own Git branch.</li>
+</ol><p>Tracking <em>patchsets</em> is similar in concept to Gerrit, but there is a critical difference. In Gerrit, <em>every</em> commit in the <em>patchset</em> has it's own ticket <strong>AND</strong> Git branch. In Gerrit, <em>patchsets</em> can be easily rewritten and for each rewritten commit, a new branch ref is created. This leads to an explosion in refs for the repository over time. In Gitblit, only the tip of the <em>patchset</em> gets a branch ref and this branch ref is updated, like a regular branch, unless a rewrite is detected.</p><p>If you prefer the Gerrit-style workflow, you can achieve a fair approximation by only pushing single commit patchsets and always amending them. You will not be able to chain tickets together, like you can chain reviews in Gerrit.</p>
+<h3 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Types of Tickets</h3><p>Gitblit has two primary ticket types with a subtle distinction between them.</p>
+<ol>
+  <li><p><em>Proposal Ticket</em>. This ticket type is created when a contributor pushes a single commit to Gitblit using the <strong>for</strong> magic ref. The title and body of the commit message become the title and description of the ticket. If you want to adopt a Gerrit-style workflow then you may <em>--amend</em> this commit and push it again and again. Each <em>--amend</em> and push will update the Ticket's title and description from the commit message. However, if you push new commits that build on the initial commit then this title/description updating behavior will not apply.</p></li>
+  <li><p><em>Request Ticket</em>. This is a ticket that is manually created by a user using the web ui. These tickets have assignable types like <em>Bug</em>, <em>Enhancement</em>, <em>Task</em>, or <em>Question</em>.</p></li>
+</ol><p>The only difference between these two ticket types is how they are created (on-push or through the ui) and the aforementioned special behavior of amending the initial commit. Otherwise, both types are identical.</p>
+<h3 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Why not GitHub-style Pull/Merge Requests?</h3><p>GitHub-style Pull Requests require the following workflow:</p>
+<ol>
+  <li>Fork <em>RepoA</em> -&gt; <strong>MyRepoA</strong></li>
+  <li>Clone <strong>MyRepoA</strong></li>
+  <li>Create <strong>MyRepoA_Clone:topic_branch</strong> and hack on contribution</li>
+  <li>Push <strong>MyRepoA_Clone:topic_branch</strong> upstream to <strong>MyRepoA:topic_branch</strong></li>
+  <li>Open Pull Request from <strong>MyRepoA:topic_branch</strong> -&gt; <em>RepoA:integration_branch</em></li>
+  <li>RepoA owner pulls <strong>MyRepoA:topic_branch</strong> -&gt; <em>RepoA:integration_branch</em> and reviews</li>
+  <li>RepoA owner pushes merged contribution upstream to <em>RepoA:integration_branch</em></li>
+</ol><p>Gitblit's flow looks like this:</p>
+<ol>
+  <li>Clone <em>RepoA</em></li>
+  <li>Create <em>RepoA_Clone:topic_branch</em> and hack on contribution</li>
+  <li>Push <em>RepoA_Clone:topic_branch</em> upstream to <em>RepoA:refs/for/[new|id]</em></li>
+  <li>RepoA owner fetches &amp; merges branch <em>ticket/[id]</em></li>
+  <li>RepoA owner pushes merged contribution upstream to <em>RepoA:integration_branch</em></li>
+</ol><p>The Gitblit workflow eliminates the 4-repository design of a GitHub pull request (canonical, canonical working copy, fork, &amp; fork working copy) in favor of a 3-repository design (canonical, canonical working copy, clone working copy).</p><p><em>You might wonder:</em> Is it a good idea to allow users to push into the canonical repository?</p><p>The answer is, it's really not that different from a GitHub pull request. When you open a GitHub pull request from <em>MyRepoA</em> to <em>RepoA</em>, your code is already being pushed to a private branch in <em>RepoA</em> ( <em>refs/pull/{id}/head</em> and <em>refs/pull/{id}/merge</em>) so effectively you are already pushing into <em>RepoA</em> - you are just using an extra repository and the web ui to do it. By pushing directly to the canonical repository, you save server resources and eliminate the web ui step.</p><p>Additionally, because the patchset is not linked to a user's personal fork it is possible to allow others to collaborate on development.</p>
+<h4 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Features</h4>
+<ul>
+  <li>My Tickets page</li>
+  <li>Ticket creation and editing</li>
+  <li>Ticket creation on patchset push (proposal)</li>
+  <li>Branch-based pull-requests</li>
+  <li>Comments with Markdown syntax support</li>
+  <li>Rich email notifications</li>
+  <li>Fast-forward patchset updates and patchset rewrites</li>
+  <li>Voting</li>
+  <li>Watching</li>
+  <li>Mentions</li>
+  <li>Milestones</li>
+  <li>Querying</li>
+  <li>Searching</li>
+  <li>Is Mergeable test on view ticket page load</li>
+  <li>Server-side merge</li>
+  <li>Close-on-push of detected merge</li>
+  <li>Multiple backend choices</li>
+</ul>
+<!-- End Markdown -->
+<div ><ul class="pager"> <li class="next"><a href="tickets_using.html">using &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>

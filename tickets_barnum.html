@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<!-- Begin Header -->
+<title>Gitblit</title>
+<meta charset="utf-8">
+<meta name="ROBOTS" content="INDEX">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+<link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
+<link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
+<link rel="stylesheet" href="./prettify/prettify.css" />
+<!-- Google Plus Profile Page -->
+<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
+<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
+
+<!-- Google Plus One -->
+<link rel="canonical" href="http://gitblit.com" />
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<style type="text/css"> div.gplusone { margin-top:12px; } </style>
+
+<script src="./prettify/prettify.js"></script>
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body onload='prettyPrint()'>		<!-- Navigation Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+          			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+            			<span class="icon-bar"></span>
+          			</a>
+          			<a class="brand" href="./"><img src="./gitblt_25_white.png" alt="Gitblit"></img></a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>about<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='index.html'>overview</a></li>
+<li><a href='features.html'>features</a></li>
+<li><a href='screenshots.html'>screenshots</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>documentation<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit GO</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_go.html'>setup GO</a></li>
+<li><a href='upgrade_go.html'>upgrade GO</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Gitblit WAR</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_war.html'>setup WAR</a></li>
+<li><a href='upgrade_war.html'>upgrade WAR</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Server Configuration</a>
+<ul class='dropdown-menu'>
+<li><a href='administration.html'>administration</a></li>
+<li><a href='setup_authentication.html'>authentication</a></li>
+<li><a href='setup_hooks.html'>push hooks</a></li>
+<li><a href='setup_lucene.html'>lucene indexing</a></li>
+<li><a href='setup_proxy.html'>reverse proxies</a></li>
+<li><a href='setup_clientmenus.html'>client app menus</a></li>
+<li><a href='setup_bugtraq.html'>bugtraq</a></li>
+<li><a href='setup_mirrors.html'>mirrors</a></li>
+<li><a href='setup_scaling.html'>scaling</a></li>
+<li class='divider'></li>
+<li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Client Usage</a>
+<ul class='dropdown-menu'>
+<li><a href='setup_transport_http.html'>using HTTP/HTTPS</a></li>
+<li><a href='setup_transport_ssh.html'>using SSH</a></li>
+<li><a href='eclipse_plugin.html'>using the Eclipse plugin</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Tickets</a>
+<ul class='dropdown-menu'>
+<li><a href='tickets_overview.html'>overview</a></li>
+<li><a href='tickets_using.html'>using</a></li>
+<li><a href='tickets_barnum.html'>barnum</a></li>
+<li><a href='tickets_setup.html'>setup</a></li>
+<li><a href='tickets_replication.html'>replication & advanced administration</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li class='dropdown-submenu'> <!-- Submenu -->
+<a tabindex='-1' href='#'>Plugins</a>
+<ul class='dropdown-menu'>
+<li><a href='plugins_overview.html'>overview</a></li>
+<li><a href='plugins_extensions.html'>extension points</a></li>
+</ul></li> <!-- End Submenu -->
+<li class='divider'></li>
+<li><a href='federation.html'>federation</a></li>
+<li class='divider'></li>
+<li><a href='properties.html'>settings</a></li>
+<li><a href='faq.html'>faq</a></li>
+<li class='divider'></li>
+<li><a href='design.html'>design</a></li>
+<li><a href='rpc.html'>rpc</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>releases<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='releasenotes.html'>release notes</a></li>
+<li><a href='releases.html'>release history</a></li>
+<li class='divider'></li>
+<li><a href='roadmap.html'>roadmap</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li class='divider'></li>
+<li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li class='divider'></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li class='divider'></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
+<li class='divider'></li>
+<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+</ul></li> <!-- End Menu -->
+<li class='dropdown'> <!-- Menu -->
+<a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
+<ul class='dropdown-menu'>
+<li><a href='https://dev.gitblit.com'>dev.gitblit.com (self-hosted)</a></li>
+<li class='divider'></li>
+<li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
+<li class='divider'></li>
+<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
+<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
+<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
+<li><a href='https://twitter.com/gitblit'>Twitter</a></li>
+<li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
+<li class='divider'></li>
+<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
+<li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
+</ul></li> <!-- End Menu -->
+<li class='divider-vertical'></li>
+<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div><!-- end Navigation Bar -->
+<div class='container'>
+<!-- Begin Markdown -->
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Barnum</h2><p><em>SINCE 1.4.0</em></p><p>Barnum is a command-line companion for Git. It's purpose is to simplify the syntax and ceremony for working with Gitblit Tickets and Patchsets.</p><p>The current implementation is a Python script that wraps a native Git executable. It requires Python 3 and native Git. It works well on Windows, Linux, and Mac OS X.</p><p>Barnum is bundled with each Gitblit installation and linked on each ticket page in the propose, checkout, and merge instructions. You can download Barnum manually using the following url or using the <code>/pt</code> url on your own Gitblit server:</p>
+<pre><code>https://dev.gitblit.com/pt
+</code></pre><p>This url serves a <em>zip</em> or a <em>tar.gz</em> of the Python script and a readme file, as appropriate based on the user-agent of the requesting client.</p>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Fetch</h3>
+<pre><code>pt fetch &lt;id&gt; [-p,--patchset &lt;n&gt;]
+</code></pre><p>If <em>patchset</em> is specified, the <strong>fetch</strong> command will download the specified ticket patchset to the FETCH_HEAD ref. If <em>patchset</em> is <strong>not</strong> specified, the configured remote will be fetched to download all ticket branch updates - this is the same as <pre>git fetch {remote}</pre>.</p>
+<h3 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Checkout (co)</h3>
+<pre><code>pt checkout &lt;id&gt; [-p,--patchset &lt;n&gt;] [--force]
+</code></pre><p>The <strong>checkout</strong> command fetches and checks-out the patchset to a predetermined branch.</p><p>If <em>patchset</em> is not specified, the current patchset is checked-out to <code>ticket/{id}</code>. If <em>patchset</em> is specified, the patchset is checked-out to <code>patchset/{id}/{patchset}</code>.</p>
+<h3 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Pull</h3>
+<pre><code>pt pull &lt;id&gt; [-s,--squash]
+</code></pre><p>The <strong>pull</strong> command fetches and merges the ticket patchset into your current branch.</p><p>You may specify the <code>--squash</code> flag to squash the pulled patchset into one commit. This will leave your working directory dirty and you must stage and commit the pending changes yourself.</p>
+<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Push (up)</h3>
+<pre><code>pt push [&lt;id&gt;] [--force] [-r, --responsible &lt;user&gt;] [-m,--milestone &lt;milestone&gt;] [-t,--topic &lt;topic&gt;] [-cc &lt;user&gt; &lt;user&gt;]
+</code></pre><p>The <strong>push</strong> command allows you to upload a fast-forward update to an existing patchset or to upload a rewrite of an existing patchset (amend, rebase, or squash).</p><p>You may set several ticket fields during the push such as <em>milestone</em>, <em>topic</em>, and <em>responsible</em>. Use the <em>cc</em> argument to add users to the watch list for the ticket.</p><p>One thing to note about the <em>topic</em> field is that Gitblit will match the <em>topic</em> against the repository bugtraq configuration which allows you to link your ticket with an external issue tracker.</p>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Start</h3>
+<pre><code>pt start &lt;topic&gt;
+pt start &lt;id&gt;
+</code></pre><p>The <strong>start</strong> command is used to start development of a topic branch that will eventually be pushed to a Ticket. </p><p>You must specify what you are starting. If you specify a ticket id, the branch <code>topid/{id}</code> will be created. If you specify a topic string, the branch <code>topic/{topic}</code> will be created. The main difference will be how the <strong>propose</strong> command treats your branch name.</p>
+<h3 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Propose</h3>
+<pre><code>pt propose [new | &lt;branch&gt; | &lt;id&gt;] [-r, --responsible &lt;user&gt;] [-m,--milestone &lt;milestone&gt;] [-t,--topic &lt;topic&gt;] [-cc &lt;user&gt; &lt;user&gt;]
+</code></pre><p>The <strong>propose</strong> command pushes an initial patchset to an existing ticket OR allows you to create a new ticket from your patchset on push.</p><p>If you created your topic branch with the <strong>start</strong> command and you specified an existing ticket id as what you were starting, then Barnum will identify the id from the branch name and assume that is the target ticket for your patchset.</p><p>If you created your topic branch with the <strong>start</strong> command and you specified a topic string as what you were starting, Barnum will identify that and specify that as the <em>topic</em> push ref parameter, but will still require a proposal target: <em>new</em>, <em>branch</em>, or <em>id</em>.</p>
+<h4 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Create Ticket on Push</h4><p>In order to create a ticket from your patchset, your patchset <em>must</em> contain only a <em>single</em> commit. The first line of the commit message will specify the ticket title. The remainder of the commit message will define the ticket description.</p>
+<pre><code>Fix null pointer exception in StringUtils
+
+It is possible to throw a null pointer exception in the trim method.
+This can be triggered by yada, yada, yada.
+</code></pre><p>After the ticket is created from the single commit, you can push as many additional commits as you want. It is just the first push with one commit that is special.</p><p>One helpful tip to note about the <em>topic</em> field is that Gitblit will match the <em>topic</em> against the repository bugtraq configuration which allows you to link your ticket with an external issue tracker.</p>
+<h3 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>Cleanup (rm)</h3>
+<pre><code>pt cleanup &lt;id&gt; [--force]
+</code></pre><p>The <strong>cleanup</strong> command is used to delete ticket branches from your local repository.</p><p>The <em>force</em> argument is necessary for <strong>cleanup</strong> to actually remove the local branches. Running <strong>cleanup</strong> by itself will identify the branches that can be removed.
+<!-- End Markdown -->
+<div ><ul class="pager"><li class="previous"><a href="tickets_using.html">&larr; using</a></li> <li class="next"><a href="tickets_setup.html">setup &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
+</footer>
+</div>
+<!-- Google Analytics -->
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-24377072-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</body>
+</html>
