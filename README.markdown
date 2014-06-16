@@ -13,6 +13,22 @@ License
 Gitblit is distributed under the terms of the [Apache Software Foundation license, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 The text of the license is included in the file LICENSE in the root of the project.
 
+Java Runtime Requirement
+------------------------------------
+
+Gitblit requires at Java 7 Runtime Environment (JRE) or a Java 7 Development Kit (JDK).
+
+Getting help
+------------
+
+| Source        | Location                                               |
+| ------------- |--------------------------------------------------------|
+| Documentation | [Gitblit website](http://gitblit.com)                  |
+| Issues        | [Google Code](http://code.google.com/p/gitblit)        |
+| Forums        | [Google Groups](https://groups.google.com/forum/#!forum/gitblit) |
+| Twitter       | @gitblit or @jamesmoger                                |
+| Google+       | +gitblit or +jamesmoger                                |
+
 Contributing
 ------------
 
@@ -37,22 +53,6 @@ Release planning is mostly done using Gitblit Milestones and Gitblit Tickets hos
 **Releasing**
 
 When Gitblit is preparing for a release, a **release-{milestone}** branch will be created, tested, & fixed until it is ready to be merged to **master** and tagged as the next major release.  After the release is tagged, the **release-{milestone}** branch will also be merged back into **develop** and then the release branch will be removed.
-
-Java Runtime Requirement
-------------------------------------
-
-Gitblit requires at Java 7 Runtime Environment (JRE) or a Java 7 Development Kit (JDK).
-
-Getting help
-------------
-
-| Source        | Location                                               |
-| ------------- |--------------------------------------------------------|
-| Documentation | [Gitblit website](http://gitblit.com)                  |
-| Issues        | [Google Code](http://code.google.com/p/gitblit)        |
-| Forums        | [Google Groups](https://groups.google.com/forum/#!forum/gitblit) |
-| Twitter       | @gitblit or @jamesmoger                                |
-| Google+       | +gitblit or +jamesmoger                                |
 
 Building Gitblit
 ----------------
