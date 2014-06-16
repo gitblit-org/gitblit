@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+<div class="span10 offset1">	
+	<h3><center>Repository vuoto</center></h3>
+	<div class="alert alert-info">
+		<span wicket:id="repository" style="font-weight: bold;">[repository]</span> è vuoto e non può essere visualizzato con Gitblit.
+		<p></p>		
+		Per favore effettua il push di alcuni commit su <span wicket:id="pushurl"></span>
+		<hr/>
+		Dopo il push <b>ricarica</b> questa pagina per vedere il contenuto del repository.
+	</div>
+		
+	<h3><center>Crea un nuovo repository da riga di comando</center></h3>
+
+	<pre wicket:id="createSyntax"></pre>
+
+	<h3><center>Effettua il push da riga di comando</center></h3>
+
+	<pre wicket:id="existingSyntax"></pre>
+	
+	<div class="span8 offset1">
+		<h2><center>Impara a usare Git</center></h2>
+		<p>Se non sei sicuro di quello che stai facendo, prova a leggere <a href="http://book.git-scm.com/it">Git Community Book</a> in italiano per una miglior comprensione dell'utilizzo di Git.</p>
+
+		<h4>Applicazioni client Git open source</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://git-scm.com">Git</a></td><td>la versione ufficiale di Git, da riga di comando</td></tr>
+			<tr><td><a href="http://tortoisegit.googlecode.com">TortoiseGit</a></td><td>Integrazione per Windows Explorer (richiede la versione ufficiale di Git da riga di comando)</td></tr>
+			<tr><td><a href="http://eclipse.org/egit">Eclipse/EGit</a></td><td>Git per ambienti di sviluppo basati su Eclipse (basato su JGit, come Gitblit)</td></tr>
+			<tr><td><a href="https://code.google.com/p/gitextensions/">Git Extensions</a></td><td>applicazione C# che integra Git in Windows Explorer e Visual Studio</td></tr>
+			<tr><td><a href="http://rowanj.github.io/gitx/">GitX-dev</a></td><td>un client Git per Mac OS X</td></tr>
+		</tbody>			
+		</table>
+
+		<h4>Applicazioni client commerciali/non open source</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://www.syntevo.com/smartgithg">SmartGit/Hg</a></td><td>Un client Git e Mercurial scritto in Java per Windows, Mac, and Linux</td></tr>
+			<tr><td><a href="http://www.sourcetreeapp.com/">SourceTree</a></td><td>Un client Git e Mercurial gratuito per Windows & Mac</td></tr>
+			<tr><td><a href="http://www.git-tower.com/">Tower</a></td><td>Un client Git per Mac OS X</td></tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>	
+</body>
+</html>
