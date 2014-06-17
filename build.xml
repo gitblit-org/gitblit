@@ -8,7 +8,7 @@
 		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.9.2" />
+	<property name="moxie.version" value="0.9.3" />
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
@@ -251,13 +251,10 @@
 		<!-- Prepare the data directory -->
 		<prepareDataDirectory toDir="${webinf}/data" />
 
-		<!-- Copy the web.xml from the prototype web.xml -->
-		<copy todir="${webinf}" overwrite="true">
-			<fileset file="${project.src.dir}/WEB-INF/web.xml" />
-			<filterset>
-				<filter token="gb.version" value="${project.version}" />
-			</filterset>
-		</copy>
+		<!-- Build the WAR web.xml from the prototype web.xml -->
+		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml">
+			<replace token="@gb.version@" value="${project.version}" />
+		</mx:webxml>
 
 		<!-- Gitblit jar -->
 		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
