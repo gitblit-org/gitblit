@@ -103,7 +103,7 @@ repositories: central, eclipse-snapshots, eclipse
 properties: {
   jetty.version  : 9.2.1.v20140609
   wicket.version : 1.4.21
-  lucene.version : 4.6.0
+  lucene.version :  4.8.1
   jgit.version   : 3.4.0.201406110918-r
   groovy.version : 1.8.8
   bouncycastle.version : 1.49
