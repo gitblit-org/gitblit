@@ -124,13 +124,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-all-9.1.4.v20140401.jar">
+      <library name="jetty-all-9.2.1.v20140609.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.1.4.v20140401.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.2.1.v20140609.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.1.4.v20140401.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.2.1.v20140609.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -168,79 +168,79 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-core-4.6.0.jar">
+      <library name="lucene-core-4.8.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-core-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-core-4.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-core-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-core-4.8.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-analyzers-common-4.6.0.jar">
+      <library name="lucene-analyzers-common-4.8.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-analyzers-common-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-analyzers-common-4.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-analyzers-common-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-analyzers-common-4.8.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-highlighter-4.6.0.jar">
+      <library name="lucene-highlighter-4.8.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-highlighter-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-highlighter-4.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-highlighter-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-highlighter-4.8.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-memory-4.6.0.jar">
+      <library name="lucene-memory-4.8.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-memory-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-memory-4.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-memory-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-memory-4.8.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-queries-4.6.0.jar">
+      <library name="lucene-queries-4.8.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-queries-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-queries-4.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-queries-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-queries-4.8.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-queryparser-4.6.0.jar">
+      <library name="lucene-queryparser-4.8.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-queryparser-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-queryparser-4.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-queryparser-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-queryparser-4.8.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-sandbox-4.6.0.jar">
+      <library name="lucene-sandbox-4.8.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-sandbox-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-sandbox-4.8.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-sandbox-4.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-sandbox-4.8.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -397,13 +397,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-3.3.1.201403241930-r.jar">
+      <library name="org.eclipse.jgit-3.4.0.201406110918-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.3.1.201403241930-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.4.0.201406110918-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.3.1.201403241930-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.4.0.201406110918-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -474,13 +474,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-3.3.1.201403241930-r.jar">
+      <library name="org.eclipse.jgit.http.server-3.4.0.201406110918-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.3.1.201403241930-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.4.0.201406110918-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.3.1.201403241930-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.4.0.201406110918-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

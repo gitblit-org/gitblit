@@ -1,4 +1,27 @@
 #
+# ${project.version} release
+#
+r25: {
+    title: ${project.name} ${project.version} released
+    id: ${project.version}
+    date: ${project.buildDate}
+    note: ~
+    html: ~
+    text: ~
+    security: ~
+    fixes: ~
+    changes: ~
+    additions: ~
+    dependencyChanges:
+    - Jetty 9.2.1 (pr-202)
+    - Lucene 4.8.1 (pr-201)
+    - JGit 3.4.0 (pr-200)
+    contributors:
+    - James Moger
+    - David Ostrovsky
+}
+
+#
 # 1.6.0 release
 #
 r24: {
