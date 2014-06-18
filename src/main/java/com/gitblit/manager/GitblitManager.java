@@ -395,9 +395,13 @@ public class GitblitManager implements IGitblit {
 		if (StringUtils.isEmpty(gitblitUrl)) {
 			gitblitUrl = HttpUtils.getGitblitURL(request);
 		}
+		String gitServletUrl = settings.getString(Keys.web.gitServletUrl, Constants.R_PATH);
+		if (StringUtils.isEmpty(gitServletUrl)) {
+		    gitServletUrl = Constants.R_PATH;
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append(gitblitUrl);
-		sb.append(Constants.R_PATH);
+		sb.append(gitServletUrl);
 		sb.append(repository.name);
 
 		// inject username into repository url if authentication is required
