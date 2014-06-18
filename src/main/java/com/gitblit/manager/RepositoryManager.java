@@ -702,7 +702,7 @@ public class RepositoryManager implements IRepositoryManager {
 		// cached model
 		RepositoryModel model = repositoryListCache.get(repositoryKey);
 
-		if (gcExecutor.isCollectingGarbage(model.name)) {
+		if (isCollectingGarbage(model.name)) {
 			// Gitblit is busy collecting garbage, use our cached model
 			RepositoryModel rm = DeepCopier.copy(model);
 			rm.isCollectingGarbage = true;
@@ -1287,7 +1287,7 @@ public class RepositoryManager implements IRepositoryManager {
 	@Override
 	public void updateRepositoryModel(String repositoryName, RepositoryModel repository,
 			boolean isCreate) throws GitBlitException {
-		if (gcExecutor.isCollectingGarbage(repositoryName)) {
+		if (isCollectingGarbage(repositoryName)) {
 			throw new GitBlitException(MessageFormat.format("sorry, Gitblit is busy collecting garbage in {0}",
 					repositoryName));
 		}
