@@ -41,9 +41,10 @@
 		<mx:init verbose="no" mxroot="${moxie.dir}" />
 				
 		<!-- Set Ant project properties -->
-		<property name="distribution.zipfile" value="gitblit-${project.version}.zip" />
-		<property name="distribution.tgzfile" value="gitblit-${project.version}.tar.gz" />
-		<property name="distribution.warfile" value="gitblit-${project.version}.war" />
+		<property name="release.name" value="gitblit-${project.version}"/>
+		<property name="distribution.zipfile" value="${release.name}.zip" />
+		<property name="distribution.tgzfile" value="${release.name}.tar.gz" />
+		<property name="distribution.warfile" value="${release.name}.war" />
 		<property name="fedclient.zipfile" value="fedclient-${project.version}.zip" />
 		<property name="manager.zipfile" value="manager-${project.version}.zip" />
 		<property name="authority.zipfile" value="authority-${project.version}.zip" />
@@ -170,14 +171,17 @@
 		
 		<echo>Building Gitblit GO ${project.version}</echo>
 
-		<local name="go.dir" />
-		<property name="go.dir" value="${project.outputDirectory}/go" />	
+		<local name="go.dir"/>
+		<property name="go.dir" value="${project.outputDirectory}/go"/>
 		<delete dir="${go.dir}" />
+		
+		<local name="go.release.dir" />
+		<property name="go.release.dir" value="${go.dir}/${release.name}" />	
 
 		<local name="webinf" />
 		<property name="webinf" value="${project.compileOutputDirectory}/WEB-INF" />
 
-		<prepareDataDirectory toDir="${go.dir}/data" />
+		<prepareDataDirectory toDir="${go.release.dir}/data" />
 		
 		<!-- Copy the web.xml from the prototype web.xml -->
 		<copy todir="${webinf}" overwrite="true">
@@ -188,42 +192,43 @@
 		</copy>
 		
 		<!-- Build jar -->
-		<mx:jar destfile="${go.dir}/gitblit.jar" includeresources="true">
+		<mx:jar destfile="${go.release.dir}/gitblit.jar" includeresources="true">
 			<mainclass name="com.gitblit.GitBlitServer" />
 			<launcher paths="ext" />
 		</mx:jar>
 
 		<!-- Generate the docs for the GO build -->
-		<generateDocs toDir="${go.dir}/docs" />
-		
+		<generateDocs toDir="${go.release.dir}/docs" />
+
 		<!-- Create GO Windows Zip deployment -->
 		<mx:zip basedir="${go.dir}">
 			<!-- LICENSE and NOTICE -->
-			<fileset dir="${basedir}" >
+			<zipfileset dir="${basedir}" prefix="${release.name}">
 				<include name="LICENSE" />
 				<include name="NOTICE" />
-			</fileset>
+			</zipfileset>
 			<!-- Windows distrib files -->
-			<zipfileset dir="${project.distrib.dir}/win" />
+			<zipfileset dir="${project.distrib.dir}/win" prefix="${release.name}"/>
 			<!-- Gitblit Authority data -->
-			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
+			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="${release.name}/data/certs" />
+
 			<!-- include all dependencies -->
-			<dependencies prefix="ext" />
+			<dependencies prefix="${release.name}/ext" />
 		</mx:zip>
 
 		<!-- Create GO Linux/OSX tar.gz deployment -->
 		<mx:tar basedir="${go.dir}" longfile="gnu" compression="gzip">
 			<!-- LICENSE and NOTICE -->
-			<fileset dir="${basedir}" >
+			<zipfileset dir="${basedir}" prefix="${release.name}">
 				<include name="LICENSE" />
 				<include name="NOTICE" />
-			</fileset>
+			</zipfileset>
 			<!-- Linux/OSX distrib files -->
-			<tarfileset dir="${project.distrib.dir}/linux" filemode="755" />
+			<tarfileset dir="${project.distrib.dir}/linux" filemode="755" prefix="${release.name}"/>
 			<!-- Gitblit Authority data -->
-			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
+			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="${release.name}/data/certs" />
 			<!-- include all dependencies -->
-			<dependencies prefix="ext" />
+			<dependencies prefix="${release.name}/ext" />
 		</mx:tar>		
 
 	</target>
