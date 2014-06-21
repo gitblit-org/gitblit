@@ -599,7 +599,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		// ensure that the patchset can be cleanly merged right now
-		MergeStatus status = JGitUtils.canMerge(getRepository(), tipCommit.getName(), forBranch);
+		MergeStatus status = JGitUtils.canMerge(getRepository(), tipCommit.getName(), forBranch, repository.mergeType);
 		switch (status) {
 		case ALREADY_MERGED:
 			sendError("");
@@ -1279,6 +1279,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				getRepository(),
 				patchset.tip,
 				ticket.mergeTo,
+				getRepositoryModel().mergeType,
 				committer,
 				message);
 

@@ -28,6 +28,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.Constants.MergeType;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
@@ -89,6 +90,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean acceptNewTickets;
 	public boolean requireApproval;
 	public String mergeTo;
+	public MergeType mergeType;
 
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;
@@ -111,6 +113,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.isBare = true;
 		this.acceptNewTickets = true;
 		this.acceptNewPatchsets = true;
+		this.mergeType = MergeType.DEFAULT_MERGE_TYPE;
 
 		addOwner(owner);
 	}
