@@ -1349,14 +1349,14 @@ public class TicketPage extends RepositoryPage {
 
 		boolean allowMerge;
 		if (repository.requireApproval) {
-			// rpeository requires approval
+			// repository requires approval
 			allowMerge = ticket.isOpen() && ticket.isApproved(patchset);
 		} else {
-			// vetos are binding
+			// vetoes are binding
 			allowMerge = ticket.isOpen() && !ticket.isVetoed(patchset);
 		}
 
-		MergeStatus mergeStatus = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo);
+		MergeStatus mergeStatus = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo, repository.mergeType);
 		if (allowMerge) {
 			if (MergeStatus.MERGEABLE == mergeStatus) {
 				// patchset can be cleanly merged to integration branch OR has already been merged

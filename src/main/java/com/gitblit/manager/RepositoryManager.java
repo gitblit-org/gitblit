@@ -63,6 +63,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.Constants.MergeType;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException;
@@ -878,6 +879,7 @@ public class RepositoryManager implements IRepositoryManager {
 			model.acceptNewTickets = getConfig(config, "acceptNewTickets", true);
 			model.requireApproval = getConfig(config, "requireApproval", settings.getBoolean(Keys.tickets.requireApproval, false));
 			model.mergeTo = getConfig(config, "mergeTo", null);
+			model.mergeType = MergeType.fromName(getConfig(config, "mergeType", settings.getString(Keys.tickets.mergeType, null)));
 			model.useIncrementalPushTags = getConfig(config, "useIncrementalPushTags", false);
 			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -1518,6 +1520,13 @@ public class RepositoryManager implements IRepositoryManager {
 		}
 		if (!StringUtils.isEmpty(repository.mergeTo)) {
 			config.setString(Constants.CONFIG_GITBLIT, null, "mergeTo", repository.mergeTo);
+		}
+		if (repository.mergeType == null || repository.mergeType == MergeType.fromName(settings.getString(Keys.tickets.mergeType, null))) {
+			// use default
+			config.unset(Constants.CONFIG_GITBLIT, null, "mergeType");
+		} else {
+			// override default
+			config.setString(Constants.CONFIG_GITBLIT, null, "mergeType", repository.mergeType.name());
 		}
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalPushTags", repository.useIncrementalPushTags);
 		if (StringUtils.isEmpty(repository.incrementalPushTagPrefix) ||
