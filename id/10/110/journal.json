@@ -1,0 +1,1 @@
+[{"date":"2014-06-22T15:26:33Z","author":"james","fields":{"title":"Support multiple/chained config files","body":"There should be an option to create another config file for the install overrides.  This file should also allow including other config files.","type":"Enhancement","responsible":"james","milestone":"v1.7.0","mergeTo":"develop","watchers":"+james","status":"New"}}]
