@@ -111,6 +111,7 @@ properties: {
   wikitext.version : 1.4
   sshd.version: 0.11.0
   mina.version: 2.0.7
+  guava.version: 17.0
   }
 
 # Dependencies
@@ -126,9 +127,10 @@ properties: {
 
 dependencies:
 # Dagger dependency injection library (annotation processor)
-- compile 'com.squareup.dagger:dagger:1.1.0' :war apt
-- compile 'com.squareup.dagger:dagger-compiler:1.1.0' :war optional apt
+- compile 'com.squareup.dagger:dagger:1.2.1' :war apt
+- compile 'com.squareup.dagger:dagger-compiler:1.2.1' :war optional apt
 # Standard dependencies
+- compile 'com.google.guava:guava:${guava.version}' :war apt
 - compile 'com.intellij:annotations:12.0' :war
 - compile 'log4j:log4j:1.2.17' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-api:1.7.5' :war :fedclient :authority

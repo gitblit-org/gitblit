@@ -14,13 +14,13 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="dagger-1.1.0.jar">
+      <library name="dagger-1.2.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/dagger-1.1.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/dagger-1.2.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/dagger-1.1.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/dagger-1.2.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -36,24 +36,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="dagger-compiler-1.1.0.jar">
+      <library name="dagger-compiler-1.2.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/dagger-compiler-1.1.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/dagger-compiler-1.2.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/dagger-compiler-1.1.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/dagger-compiler-1.2.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="javawriter-2.1.1.jar">
+      <library name="javawriter-2.3.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/javawriter-2.1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/javawriter-2.3.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/javawriter-2.1.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/javawriter-2.3.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="guava-17.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/guava-17.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/guava-17.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -721,17 +732,6 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/jna-3.5.0.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="guava-13.0.1.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guava-13.0.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guava-13.0.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
