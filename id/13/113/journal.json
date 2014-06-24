@@ -1,0 +1,1 @@
+[{"date":"2014-06-24T17:47:57Z","author":"james","fields":{"title":"Internal error on entering the blob page url without specifying a path","body":"This should gracefully redirect to the root of the tree.","type":"Bug","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
