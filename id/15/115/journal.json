@@ -1,0 +1,1 @@
+[{"date":"2014-06-24T19:33:38Z","author":"james","fields":{"title":"Milestone names with hypens are trouble","body":"Not sure if it affects queries or indexing or both.\n\nhttps://groups.google.com/forum/#!topic/gitblit/zQq6h8TlItA","type":"Bug","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
