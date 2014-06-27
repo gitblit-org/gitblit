@@ -22,6 +22,8 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
@@ -36,12 +38,21 @@ public abstract class BasePanel extends Panel {
 
 	private transient TimeUtils timeUtils;
 
+	private transient Logger logger;
+
 	public BasePanel(String wicketId) {
 		super(wicketId);
 	}
 
 	protected GitBlitWebApp app() {
 		return GitBlitWebApp.get();
+	}
+
+	protected Logger logger() {
+		if (logger == null) {
+			logger = LoggerFactory.getLogger(getClass());
+		}
+		return logger;
 	}
 
 	protected String getContextUrl() {

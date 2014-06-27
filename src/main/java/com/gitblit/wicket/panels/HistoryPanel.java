@@ -38,8 +38,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
@@ -63,8 +61,6 @@ public class HistoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private boolean hasMore;
 
 	public HistoryPanel(String wicketId, final String repositoryName, final String objectId,
@@ -84,7 +80,7 @@ public class HistoryPanel extends BasePanel {
 			// commit missing
 			String msg = MessageFormat.format("Failed to find history of **{0}** *{1}*",
 					path, objectId);
-			log.error(msg + " " + repositoryName);
+			logger().error(msg + " " + repositoryName);
 			add(new Label("commitHeader", MarkdownUtils.transformMarkdown(msg)).setEscapeModelStrings(false));
 			add(new Label("breadcrumbs"));
 		} else {
