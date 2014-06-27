@@ -143,7 +143,7 @@ public class TicketIndexer {
 
 		private String escape(String value) {
 			if (value.charAt(0) != '"') {
-				if (value.indexOf('/') > -1) {
+				if (value.indexOf('/') > -1 || value.indexOf('-') > -1) {
 					return "\"" + value + "\"";
 				}
 			}
