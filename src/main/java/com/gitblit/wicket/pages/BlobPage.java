@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RedirectException;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -51,6 +52,10 @@ public class BlobPage extends RepositoryPage {
 		Repository r = getRepository();
 		final String blobPath = WicketUtils.getPath(params);
 		String [] encodings = getEncodings();
+
+		if (StringUtils.isEmpty(objectId) && StringUtils.isEmpty(blobPath)) {
+			throw new RedirectException(TreePage.class, WicketUtils.newRepositoryParameter(repositoryName));
+		}
 
 		if (StringUtils.isEmpty(blobPath)) {
 			// blob by objectid
