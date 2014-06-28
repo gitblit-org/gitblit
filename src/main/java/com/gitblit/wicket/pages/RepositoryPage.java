@@ -166,10 +166,10 @@ public abstract class RepositoryPage extends RootPage {
 		add(navigationPanel);
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
-				.getRelativePathPrefixToContextRoot(), repositoryName, null, 0)));
+				.getRelativePathPrefixToContextRoot(), getRepositoryName(), null, 0)));
 
 		// add floating search form
-		SearchForm searchForm = new SearchForm("searchForm", repositoryName);
+		SearchForm searchForm = new SearchForm("searchForm", getRepositoryName());
 		add(searchForm);
 		searchForm.setTranslatedAttributes();
 
@@ -193,7 +193,7 @@ public abstract class RepositoryPage extends RootPage {
 	private List<NavLink> registerNavLinks() {
 		PageParameters params = null;
 		if (!StringUtils.isEmpty(repositoryName)) {
-			params = WicketUtils.newRepositoryParameter(repositoryName);
+			params = WicketUtils.newRepositoryParameter(getRepositoryName());
 		}
 		List<NavLink> navLinks = new ArrayList<NavLink>();
 
@@ -216,7 +216,7 @@ public abstract class RepositoryPage extends RootPage {
 		navLinks.add(new PageNavLink("gb.commits", LogPage.class, params));
 		navLinks.add(new PageNavLink("gb.tree", TreePage.class, params));
 		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(model) || app().tickets().hasTickets(model))) {
-			PageParameters tParams = WicketUtils.newOpenTicketsParameter(repositoryName);
+			PageParameters tParams = WicketUtils.newOpenTicketsParameter(getRepositoryName());
 			navLinks.add(new PageNavLink("gb.tickets", TicketsPage.class, tParams));
 		}
 		navLinks.add(new PageNavLink("gb.docs", DocsPage.class, params, true));
@@ -229,7 +229,7 @@ public abstract class RepositoryPage extends RootPage {
 		// per-repository extra navlinks
 		if (JGitUtils.getPagesBranch(r) != null) {
 			ExternalNavLink pagesLink = new ExternalNavLink("gb.pages", PagesServlet.asLink(
-					getRequest().getRelativePathPrefixToContextRoot(), repositoryName, null), true);
+					getRequest().getRelativePathPrefixToContextRoot(), getRepositoryName(), null), true);
 			navLinks.add(pagesLink);
 		}
 
@@ -420,6 +420,10 @@ public abstract class RepositoryPage extends RootPage {
 			m = model;
 		}
 		return m;
+	}
+
+	protected String getRepositoryName() {
+		return getRepositoryModel().name;
 	}
 
 	protected RevCommit getCommit() {
@@ -630,7 +634,7 @@ public abstract class RepositoryPage extends RootPage {
 			r = null;
 		}
 		// setup page header and footer
-		setupPage(repositoryName, "/ " + getPageName());
+		setupPage(getRepositoryName(), "/ " + getPageName());
 		super.onBeforeRender();
 	}
 

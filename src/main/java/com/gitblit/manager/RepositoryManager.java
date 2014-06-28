@@ -422,11 +422,12 @@ public class RepositoryManager implements IRepositoryManager {
 	@Override
 	public void addToCachedRepositoryList(RepositoryModel model) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
-			repositoryListCache.put(model.name.toLowerCase(), model);
+			String key = getRepositoryKey(model.name);
+			repositoryListCache.put(key, model);
 
 			// update the fork origin repository with this repository clone
 			if (!StringUtils.isEmpty(model.originRepository)) {
-				String originKey = model.originRepository.toLowerCase();
+				String originKey = getRepositoryKey(model.originRepository);
 				if (repositoryListCache.containsKey(originKey)) {
 					RepositoryModel origin = repositoryListCache.get(originKey);
 					origin.addFork(model.name);
@@ -445,7 +446,8 @@ public class RepositoryManager implements IRepositoryManager {
 		if (StringUtils.isEmpty(name)) {
 			return null;
 		}
-		return repositoryListCache.remove(name.toLowerCase());
+		String key = getRepositoryKey(name);
+		return repositoryListCache.remove(key);
 	}
 
 	/**
@@ -554,7 +556,7 @@ public class RepositoryManager implements IRepositoryManager {
 				// rebuild fork networks
 				for (RepositoryModel model : repositoryListCache.values()) {
 					if (!StringUtils.isEmpty(model.originRepository)) {
-						String originKey = model.originRepository.toLowerCase();
+						String originKey = getRepositoryKey(model.originRepository);
 						if (repositoryListCache.containsKey(originKey)) {
 							RepositoryModel origin = repositoryListCache.get(originKey);
 							origin.addFork(model.name);
@@ -590,15 +592,13 @@ public class RepositoryManager implements IRepositoryManager {
 	/**
 	 * Returns the JGit repository for the specified name.
 	 *
-	 * @param repositoryName
+	 * @param name
 	 * @param logError
 	 * @return repository or null
 	 */
 	@Override
-	public Repository getRepository(String repositoryName, boolean logError) {
-		// Decode url-encoded repository name (issue-278)
-		// http://stackoverflow.com/questions/17183110
-		repositoryName = repositoryName.replace("%7E", "~").replace("%7e", "~");
+	public Repository getRepository(String name, boolean logError) {
+		String repositoryName = fixRepositoryName(name);
 
 		if (isCollectingGarbage(repositoryName)) {
 			logger.warn(MessageFormat.format("Rejecting request for {0}, busy collecting garbage!", repositoryName));
@@ -680,16 +680,14 @@ public class RepositoryManager implements IRepositoryManager {
 	 * Returns the repository model for the specified repository. This method
 	 * does not consider user access permissions.
 	 *
-	 * @param repositoryName
+	 * @param name
 	 * @return repository model or null
 	 */
 	@Override
-	public RepositoryModel getRepositoryModel(String repositoryName) {
-		// Decode url-encoded repository name (issue-278)
-		// http://stackoverflow.com/questions/17183110
-		repositoryName = repositoryName.replace("%7E", "~").replace("%7e", "~");
+	public RepositoryModel getRepositoryModel(String name) {
+		String repositoryName = fixRepositoryName(name);
 
-		String repositoryKey = repositoryName.toLowerCase();
+		String repositoryKey = getRepositoryKey(repositoryName);
 		if (!repositoryListCache.containsKey(repositoryKey)) {
 			RepositoryModel model = loadRepositoryModel(repositoryName);
 			if (model == null) {
@@ -755,6 +753,52 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 		}
 		return count;
+	}
+
+	/**
+	 * Replaces illegal character patterns in a repository name.
+	 *
+	 * @param repositoryName
+	 * @return a corrected name
+	 */
+	private String fixRepositoryName(String repositoryName) {
+		if (StringUtils.isEmpty(repositoryName)) {
+			return repositoryName;
+		}
+
+		// Decode url-encoded repository name (issue-278)
+		// http://stackoverflow.com/questions/17183110
+		String name  = repositoryName.replace("%7E", "~").replace("%7e", "~");
+		name = name.replace("%2F", "/").replace("%2f", "/");
+
+		if (name.charAt(name.length() - 1) == '/') {
+			name = name.substring(0, name.length() - 1);
+		}
+
+		// strip duplicate-slashes from requests for repositoryName (ticket-117, issue-454)
+		// specify first char as slash so we strip leading slashes
+		char lastChar = '/';
+		StringBuilder sb = new StringBuilder();
+		for (char c : name.toCharArray()) {
+			if (c == '/' && lastChar == c) {
+				continue;
+			}
+			sb.append(c);
+			lastChar = c;
+		}
+
+		return sb.toString();
+	}
+
+	/**
+	 * Returns the cache key for the repository name.
+	 *
+	 * @param repositoryName
+	 * @return the cache key for the repository
+	 */
+	private String getRepositoryKey(String repositoryName) {
+		String name = fixRepositoryName(repositoryName);
+		return StringUtils.stripDotGit(name).toLowerCase();
 	}
 
 	/**
@@ -932,7 +976,8 @@ public class RepositoryManager implements IRepositoryManager {
 		if (!caseSensitiveCheck && settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			// if we are caching use the cache to determine availability
 			// otherwise we end up adding a phantom repository to the cache
-			return repositoryListCache.containsKey(repositoryName.toLowerCase());
+			String key = getRepositoryKey(repositoryName);
+			return repositoryListCache.containsKey(key);
 		}
 		Repository r = getRepository(repositoryName, false);
 		if (r == null) {
@@ -970,7 +1015,7 @@ public class RepositoryManager implements IRepositoryManager {
 		}
 		String userProject = ModelUtils.getPersonalPath(username);
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
-			String originKey = origin.toLowerCase();
+			String originKey = getRepositoryKey(origin);
 			String userPath = userProject + "/";
 
 			// collect all origin nodes in fork network
@@ -987,7 +1032,7 @@ public class RepositoryManager implements IRepositoryManager {
 				}
 
 				if (originModel.originRepository != null) {
-					String ooKey = originModel.originRepository.toLowerCase();
+					String ooKey = getRepositoryKey(originModel.originRepository);
 					roots.add(ooKey);
 					originModel = repositoryListCache.get(ooKey);
 				} else {
@@ -1000,7 +1045,8 @@ public class RepositoryManager implements IRepositoryManager {
 				if (repository.startsWith(userPath)) {
 					RepositoryModel model = repositoryListCache.get(repository);
 					if (!StringUtils.isEmpty(model.originRepository)) {
-						if (roots.contains(model.originRepository.toLowerCase())) {
+						String ooKey = getRepositoryKey(model.originRepository);
+						if (roots.contains(ooKey)) {
 							// user has a fork in this graph
 							return model.name;
 						}
@@ -1038,9 +1084,11 @@ public class RepositoryManager implements IRepositoryManager {
 	public ForkModel getForkNetwork(String repository) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			// find the root, cached
-			RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
+			String key = getRepositoryKey(repository);
+			RepositoryModel model = repositoryListCache.get(key);
 			while (model.originRepository != null) {
-				model = repositoryListCache.get(model.originRepository.toLowerCase());
+				String originKey = getRepositoryKey(model.originRepository);
+				model = repositoryListCache.get(originKey);
 			}
 			ForkModel root = getForkModelFromCache(model.name);
 			return root;
@@ -1056,7 +1104,8 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	private ForkModel getForkModelFromCache(String repository) {
-		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
+		String key = getRepositoryKey(repository);
+		RepositoryModel model = repositoryListCache.get(key);
 		if (model == null) {
 			return null;
 		}
@@ -1371,7 +1420,8 @@ public class RepositoryManager implements IRepositoryManager {
 
 				// update this repository's origin's fork list
 				if (!StringUtils.isEmpty(repository.originRepository)) {
-					RepositoryModel origin = repositoryListCache.get(repository.originRepository.toLowerCase());
+					String originKey = getRepositoryKey(repository.originRepository);
+					RepositoryModel origin = repositoryListCache.get(originKey);
 					if (origin != null && !ArrayUtils.isEmpty(origin.forks)) {
 						origin.forks.remove(repositoryName);
 						origin.forks.add(repository.name);
