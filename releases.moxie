@@ -9,8 +9,16 @@ r25: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
-    changes: ~
+    fixes:
+    - Fixed NPE when there are two repositories which only differ in case (pr-204, ticket-108)
+    - Fixed api/manager download links in documentation (issue-449, ticket-111)
+    - Fixed stackoverflow on (de)serialization of the history page (ticket-114)
+    - Fixed queries for milestones with hyphentated names (ticket-115)
+    - Fixed duplicate repositories on the dashboard (issue-454, ticket-117)
+    - Fixed lower-case project selection (ticket-118)
+    changes:
+    - Update Korean translation (pr-206, ticket-120)
+    - Improve web.canonicalUrl documentation (pr-205, ticket-121, issue-453)
     additions: ~
     dependencyChanges:
     - Jetty 9.2.1 (pr-202)
@@ -19,6 +27,10 @@ r25: {
     contributors:
     - James Moger
     - David Ostrovsky
+    - Kyle Gottfried
+    - Yena Hong
+    - Eric Fairon
+    - Gareth Collins
 }
 
 #
