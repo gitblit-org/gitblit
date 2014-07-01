@@ -16,6 +16,7 @@ r25: {
     - Jetty 9.2.1 (pr-202)
     - Lucene 4.8.1 (pr-201)
     - JGit 3.4.0 (pr-200)
+    - Guice 4.0-beta4 (ticket-80)
     contributors:
     - James Moger
     - David Ostrovsky
