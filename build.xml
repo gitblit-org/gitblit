@@ -171,17 +171,17 @@
 		
 		<echo>Building Gitblit GO ${project.version}</echo>
 
-		<local name="go.root.dir"/>
-		<property name="go.root.dir" value="${project.outputDirectory}/go"/>
-
-		<local name="go.dir" />
-		<property name="go.dir" value="${go.root.dir}/${release.name}" />	
+		<local name="go.dir"/>
+		<property name="go.dir" value="${project.outputDirectory}/go"/>
 		<delete dir="${go.dir}" />
+		
+		<local name="go.release.dir" />
+		<property name="go.release.dir" value="${go.dir}/${release.name}" />	
 
 		<local name="webinf" />
 		<property name="webinf" value="${project.compileOutputDirectory}/WEB-INF" />
 
-		<prepareDataDirectory toDir="${go.dir}/data" />
+		<prepareDataDirectory toDir="${go.release.dir}/data" />
 		
 		<!-- Copy the web.xml from the prototype web.xml -->
 		<copy todir="${webinf}" overwrite="true">
@@ -192,16 +192,16 @@
 		</copy>
 		
 		<!-- Build jar -->
-		<mx:jar destfile="${go.dir}/gitblit.jar" includeresources="true">
+		<mx:jar destfile="${go.release.dir}/gitblit.jar" includeresources="true">
 			<mainclass name="com.gitblit.GitBlitServer" />
 			<launcher paths="ext" />
 		</mx:jar>
 
 		<!-- Generate the docs for the GO build -->
-		<generateDocs toDir="${go.dir}/docs" />
+		<generateDocs toDir="${go.release.dir}/docs" />
 
 		<!-- Create GO Windows Zip deployment -->
-		<mx:zip basedir="${go.root.dir}">
+		<mx:zip basedir="${go.dir}">
 			<!-- LICENSE and NOTICE -->
 			<zipfileset dir="${basedir}" prefix="${release.name}">
 				<include name="LICENSE" />
@@ -217,7 +217,7 @@
 		</mx:zip>
 
 		<!-- Create GO Linux/OSX tar.gz deployment -->
-		<mx:tar basedir="${go.root.dir}" longfile="gnu" compression="gzip">
+		<mx:tar basedir="${go.dir}" longfile="gnu" compression="gzip">
 			<!-- LICENSE and NOTICE -->
 			<zipfileset dir="${basedir}" prefix="${release.name}">
 				<include name="LICENSE" />
