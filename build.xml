@@ -290,7 +290,7 @@
 			 classes, exclude any classes in classpath jars -->
 		<mx:genjar tag="" includeresources="false" excludeClasspathJars="true"
 			destfile="${project.targetDirectory}/fedclient.jar"
-			excludes="**/.class,**/*.java, **/Thumbs.db, **/*.mkd, com/gitblit/wicket/**">
+			excludes="**/.class, **/*.java, **/Thumbs.db, **/*.mkd, **/*.md, **/*.css, com/gitblit/wicket/**">
 			<mainclass name="com.gitblit.FederationClient" />
 			<class name="com.gitblit.Keys" />
 			<launcher paths="ext" />
@@ -330,7 +330,8 @@
 		<!-- generate jar by traversing the class hierarchy of the specified
 			 classes, exclude any classes in classpath jars -->
 		<mx:genjar tag="" includeResources="false" excludeClasspathJars="true"
-			destfile="${project.targetDirectory}/manager.jar">
+			destfile="${project.targetDirectory}/manager.jar"
+			excludes="**/.class, **/*.java, **/Thumbs.db, **/*.mkd, **/*.md, **/*.css, com/gitblit/wicket/**">
 			<resource file="${project.src.dir}/com/gitblit/client/splash.png" />
 			<resource file="${project.resources.dir}/gitblt-favicon.png" />
 			<resource file="${project.resources.dir}/gitweb-favicon.png" />
@@ -406,9 +407,10 @@
 
 		<!-- Build API Library jar -->
 		<mx:genjar tag="" includeResources="false" excludeClasspathJars="true"
-			destfile="${project.targetDirectory}/gbapi-${project.version}.jar">
+			destfile="${project.targetDirectory}/gbapi-${project.version}.jar"
+			excludes="**/.class, **/*.java, **/Thumbs.db, **/*.mkd, **/*.md, **/*.css, com/gitblit/wicket/**">
+			<mainclass name="com.gitblit.client.GitblitClient" />
 			<class name="com.gitblit.Keys" />
-			<class name="com.gitblit.client.GitblitClient" />
 			<class name="com.gitblit.models.FederationModel" />
 			<class name="com.gitblit.models.FederationProposal" />
 			<class name="com.gitblit.models.FederationSet" />			
