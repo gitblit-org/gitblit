@@ -94,9 +94,10 @@ dependencyDirectory: ext
 registeredRepositories:
 - { id: eclipse, url: 'http://repo.eclipse.org/content/groups/releases' }
 - { id: eclipse-snapshots, url: 'http://repo.eclipse.org/content/groups/snapshots' }
+- { id: gitblit, url: 'http://gitblit.github.io/gitblit-maven' }
 
 # Source all dependencies from the following repositories in the specified order
-repositories: central, eclipse-snapshots, eclipse
+repositories: central, eclipse-snapshots, eclipse, gitblit
 
 # Convenience properties for dependencies
 properties: {
@@ -111,7 +112,8 @@ properties: {
   sshd.version: 0.11.0
   mina.version: 2.0.7
   guice.version : 4.0-beta4
-  guice-servlet.version : 4.0-SNAPSHOT
+  # Gitblit maintains a fork of guice-servlet
+  guice-servlet.version : 4.0-gb1
   }
 
 # Dependencies
