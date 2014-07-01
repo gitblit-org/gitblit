@@ -99,12 +99,8 @@ public abstract class AuthenticationFilter implements Filter {
 	 * @return url
 	 */
 	protected String getFullUrl(HttpServletRequest httpRequest) {
-		String contextPath = httpRequest.getContextPath();
-		String servletPath = httpRequest.getServletPath();
-		String pathInfo = httpRequest.getPathInfo();
-		String servletUrl = contextPath + servletPath;
-		String requestURI = httpRequest.getRequestURI();
-		String url = requestURI.substring(servletUrl.length());
+		String servletUrl = httpRequest.getContextPath() + httpRequest.getServletPath();
+		String url = httpRequest.getRequestURI().substring(servletUrl.length());
 		String params = httpRequest.getQueryString();
 		if (url.length() > 0 && url.charAt(0) == '/') {
 			url = url.substring(1);
