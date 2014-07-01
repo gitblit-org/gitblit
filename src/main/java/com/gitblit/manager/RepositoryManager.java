@@ -1902,7 +1902,6 @@ public class RepositoryManager implements IRepositoryManager {
 		cfg.setPackedGitLimit(settings.getFilesize(Keys.git.packedGitLimit, cfg.getPackedGitLimit()));
 		cfg.setDeltaBaseCacheLimit(settings.getFilesize(Keys.git.deltaBaseCacheLimit, cfg.getDeltaBaseCacheLimit()));
 		cfg.setPackedGitOpenFiles(settings.getFilesize(Keys.git.packedGitOpenFiles, cfg.getPackedGitOpenFiles()));
-		cfg.setStreamFileThreshold(settings.getFilesize(Keys.git.streamFileThreshold, cfg.getStreamFileThreshold()));
 		cfg.setPackedGitMMAP(settings.getBoolean(Keys.git.packedGitMmap, cfg.isPackedGitMMAP()));
 
 		try {
@@ -1911,7 +1910,6 @@ public class RepositoryManager implements IRepositoryManager {
 			logger.debug(MessageFormat.format("{0} = {1,number,0}", Keys.git.packedGitLimit, cfg.getPackedGitLimit()));
 			logger.debug(MessageFormat.format("{0} = {1,number,0}", Keys.git.deltaBaseCacheLimit, cfg.getDeltaBaseCacheLimit()));
 			logger.debug(MessageFormat.format("{0} = {1,number,0}", Keys.git.packedGitOpenFiles, cfg.getPackedGitOpenFiles()));
-			logger.debug(MessageFormat.format("{0} = {1,number,0}", Keys.git.streamFileThreshold, cfg.getStreamFileThreshold()));
 			logger.debug(MessageFormat.format("{0} = {1}", Keys.git.packedGitMmap, cfg.isPackedGitMMAP()));
 		} catch (IllegalArgumentException e) {
 			logger.error("Failed to configure JGit parameters!", e);
