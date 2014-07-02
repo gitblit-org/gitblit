@@ -146,6 +146,17 @@ public class Constants {
 		return getManifestValue("build-date", "PENDING");
 	}
 
+	public static String getASCIIArt() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("  _____  _  _    _      _  _  _").append('\n');
+		sb.append(" |  __ \\(_)| |  | |    | |(_)| |").append('\n');
+		sb.append(" | |  \\/ _ | |_ | |__  | | _ | |_").append('\n');
+		sb.append(" | | __ | || __|| '_ \\ | || || __|").append("  ").append("http://gitblit.com").append('\n');
+		sb.append(" | |_\\ \\| || |_ | |_) || || || |_").append("   ").append("@gitblit").append('\n');
+		sb.append("  \\____/|_| \\__||_.__/ |_||_| \\__|").append("  ").append(Constants.getVersion()).append('\n');
+		return sb.toString();
+	}
+
 	private static String getManifestValue(String attrib, String defaultValue) {
 		Class<?> clazz = Constants.class;
 		String className = clazz.getSimpleName() + ".class";
