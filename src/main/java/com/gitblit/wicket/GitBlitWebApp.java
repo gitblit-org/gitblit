@@ -21,9 +21,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import org.apache.wicket.Application;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
@@ -46,6 +43,7 @@ import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
@@ -92,6 +90,8 @@ import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Singleton
 public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
@@ -124,6 +124,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final IGitblit gitblit;
 
+	private final IServicesManager services;
+
 	@Inject
 	public GitBlitWebApp(
 			IRuntimeManager runtimeManager,
@@ -135,7 +137,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager,
-			IGitblit gitblit) {
+			IGitblit gitblit,
+			IServicesManager services) {
 
 		super();
 		this.settings = runtimeManager.getSettings();
@@ -149,6 +152,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
 		this.gitblit = gitblit;
+		this.services = services;
 	}
 
 	@Override
@@ -418,6 +422,14 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	@Override
 	public IGitblit gitblit() {
 		return gitblit;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#services()
+	 */
+	@Override
+	public IServicesManager services() {
+		return services;
 	}
 
 	/* (non-Javadoc)

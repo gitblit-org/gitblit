@@ -1505,7 +1505,7 @@ public class TicketPage extends RepositoryPage {
 	 */
 	protected RepositoryUrl getRepositoryUrl(UserModel user, RepositoryModel repository) {
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
-		List<RepositoryUrl> urls = app().gitblit().getRepositoryUrls(req, user, repository);
+		List<RepositoryUrl> urls = app().services().getRepositoryUrls(req, user, repository);
 		if (ArrayUtils.isEmpty(urls)) {
 			return null;
 		}

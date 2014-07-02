@@ -51,6 +51,7 @@ import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.ContainerUtils;
@@ -200,6 +201,7 @@ public class GitblitContext extends GuiceServletContextListener {
 		startManager(injector, IProjectManager.class);
 		startManager(injector, IFederationManager.class);
 		startManager(injector, IGitblit.class);
+		startManager(injector, IServicesManager.class);
 
 		// start the plugin manager last so that plugins can depend on
 		// deterministic access to all other managers in their start() methods

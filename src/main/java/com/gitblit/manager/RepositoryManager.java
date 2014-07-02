@@ -1937,21 +1937,19 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	protected void confirmWriteAccess() {
-		if (runtimeManager.isServingRepositories()) {
-			try {
-				if (!getRepositoriesFolder().exists()) {
-					getRepositoriesFolder().mkdirs();
-				}
-				File file = File.createTempFile(".test-", ".txt", getRepositoriesFolder());
-				file.delete();
-			} catch (Exception e) {
-				logger.error("");
-				logger.error(Constants.BORDER2);
-				logger.error("Please check filesystem permissions!");
-				logger.error("FAILED TO WRITE TO REPOSITORIES FOLDER!!", e);
-				logger.error(Constants.BORDER2);
-				logger.error("");
+		try {
+			if (!getRepositoriesFolder().exists()) {
+				getRepositoriesFolder().mkdirs();
 			}
+			File file = File.createTempFile(".test-", ".txt", getRepositoriesFolder());
+			file.delete();
+		} catch (Exception e) {
+			logger.error("");
+			logger.error(Constants.BORDER2);
+			logger.error("Please check filesystem permissions!");
+			logger.error("FAILED TO WRITE TO REPOSITORIES FOLDER!!", e);
+			logger.error(Constants.BORDER2);
+			logger.error("");
 		}
 	}
 }

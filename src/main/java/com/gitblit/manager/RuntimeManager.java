@@ -22,8 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.google.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +32,11 @@ import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
+@Singleton
 public class RuntimeManager implements IRuntimeManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -121,52 +122,6 @@ public class RuntimeManager implements IRuntimeManager {
 		}
 //		settingsModel.pushScripts = getAllScripts();
 		return settingsModel;
-	}
-
-	/**
-	 * Determine if this Gitblit instance is actively serving git repositories
-	 * or if it is merely a repository viewer.
-	 *
-	 * @return true if Gitblit is serving repositories
-	 */
-	@Override
-	public boolean isServingRepositories() {
-		return isServingHTTP()
-				|| isServingGIT()
-				|| isServingSSH();
-	}
-
-	/**
-	 * Determine if this Gitblit instance is actively serving git repositories
-	 * over the HTTP protocol.
-	 *
-	 * @return true if Gitblit is serving repositories over the HTTP protocol
-	 */
-	@Override
-	public boolean isServingHTTP() {
-		return settings.getBoolean(Keys.git.enableGitServlet, true);
-	}
-
-	/**
-	 * Determine if this Gitblit instance is actively serving git repositories
-	 * over the Git Daemon protocol.
-	 *
-	 * @return true if Gitblit is serving repositories over the Git Daemon protocol
-	 */
-	@Override
-	public boolean isServingGIT() {
-		return settings.getInteger(Keys.git.daemonPort, 0) > 0;
-	}
-
-	/**
-	 * Determine if this Gitblit instance is actively serving git repositories
-	 * over the SSH protocol.
-	 *
-	 * @return true if Gitblit is serving repositories over the SSH protocol
-	 */
-	@Override
-	public boolean isServingSSH() {
-		return settings.getInteger(Keys.git.sshPort, 0) > 0;
 	}
 
 	/**
