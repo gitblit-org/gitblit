@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.inject.Inject;
-
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
@@ -43,6 +41,8 @@ import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Project manager handles project-related functions.
@@ -50,6 +50,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class ProjectManager implements IProjectManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

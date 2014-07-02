@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.google.inject.Inject;
-
 import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
@@ -44,7 +42,9 @@ import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.StringUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 /**
  * GitBlit is the aggregate manager for the Gitblit webapp.  It provides all
@@ -53,6 +53,7 @@ import com.google.inject.Injector;
  * @author James Moger
  *
  */
+@Singleton
 public class GitBlit extends GitblitManager {
 
 	private final Injector injector;
