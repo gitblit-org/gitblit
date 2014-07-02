@@ -29,6 +29,7 @@ import com.gitblit.manager.IRuntimeManager;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
+import com.google.inject.Inject;
 
 /**
  * Manages public keys on the filesystem.
@@ -42,6 +43,7 @@ public class FileKeyManager extends IPublicKeyManager {
 
 	protected final Map<File, Long> lastModifieds;
 
+	@Inject
 	public FileKeyManager(IRuntimeManager runtimeManager) {
 		this.runtimeManager = runtimeManager;
 		this.lastModifieds = new ConcurrentHashMap<File, Long>();
