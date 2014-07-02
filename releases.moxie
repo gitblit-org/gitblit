@@ -24,6 +24,7 @@ r25: {
     - Jetty 9.2.1 (pr-202)
     - Lucene 4.8.1 (pr-201)
     - JGit 3.4.0 (pr-200)
+    - SLF4j 1.7.7
     contributors:
     - James Moger
     - David Ostrovsky
