@@ -26,6 +26,7 @@ r25: {
     - JGit 3.4.0 (pr-200)
     - SLF4j 1.7.7 (ticket-122)
     - gson 2.2.2 (ticket-123)
+    - Freemarker 2.3.20 (ticket-124)
     contributors:
     - James Moger
     - David Ostrovsky

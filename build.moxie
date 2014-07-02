@@ -131,8 +131,8 @@ dependencies:
 # Standard dependencies
 - compile 'com.intellij:annotations:12.0' :war
 - compile 'log4j:log4j:1.2.17' :war :fedclient :authority
-- compile 'org.slf4j:slf4j-api:1.7.7' :war :fedclient :authority
-- compile 'org.slf4j:slf4j-log4j12:1.7.7' :war :fedclient :authority
+- compile 'org.slf4j:slf4j-api:1.7.5' :war :fedclient :authority
+- compile 'org.slf4j:slf4j-log4j12:1.7.5' :war :fedclient :authority
 - compile 'com.sun.mail:javax.mail:1.5.1' :war :authority
 - compile 'javax.servlet:javax.servlet-api:3.1.0' :fedclient
 - compile 'org.eclipse.jetty.aggregate:jetty-all:${jetty.version}' @jar
@@ -167,7 +167,7 @@ dependencies:
 - compile 'org.apache.commons:commons-compress:1.4.1' :war
 - compile 'commons-io:commons-io:2.2' :war
 - compile 'com.force.api:force-partner-api:24.0.0' :war
-- compile 'org.freemarker:freemarker:2.3.19' :war
+- compile 'org.freemarker:freemarker:2.3.20' :war
 - compile 'com.github.dblock.waffle:waffle-jna:1.5' :war
 - compile 'org.kohsuke:libpam4j:1.7' :war
 - compile 'args4j:args4j:2.0.26' :war :fedclient :authority
