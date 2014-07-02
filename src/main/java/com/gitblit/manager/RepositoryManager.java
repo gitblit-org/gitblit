@@ -44,8 +44,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.inject.Inject;
-
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
@@ -91,6 +89,8 @@ import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Repository manager creates, updates, deletes and caches git repositories.  It
@@ -99,6 +99,7 @@ import com.gitblit.utils.TimeUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class RepositoryManager implements IRepositoryManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

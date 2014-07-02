@@ -15,8 +15,6 @@
  */
 package com.gitblit.guice;
 
-import com.google.inject.Singleton;
-
 import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
@@ -66,17 +64,17 @@ public class CoreModule extends AbstractModule {
 		bind(WorkQueue.class).toProvider(WorkQueueProvider.class);
 		
 		// core managers
-		bind(IRuntimeManager.class).to(RuntimeManager.class).in(Singleton.class);
-		bind(IPluginManager.class).to(PluginManager.class).in(Singleton.class);
-		bind(INotificationManager.class).to(NotificationManager.class).in(Singleton.class);
-		bind(IUserManager.class).to(UserManager.class).in(Singleton.class);
-		bind(IAuthenticationManager.class).to(AuthenticationManager.class).in(Singleton.class);
-		bind(IRepositoryManager.class).to(RepositoryManager.class).in(Singleton.class);
-		bind(IProjectManager.class).to(ProjectManager.class).in(Singleton.class);
-		bind(IFederationManager.class).to(FederationManager.class).in(Singleton.class);
+		bind(IRuntimeManager.class).to(RuntimeManager.class);
+		bind(IPluginManager.class).to(PluginManager.class);
+		bind(INotificationManager.class).to(NotificationManager.class);
+		bind(IUserManager.class).to(UserManager.class);
+		bind(IAuthenticationManager.class).to(AuthenticationManager.class);
+		bind(IRepositoryManager.class).to(RepositoryManager.class);
+		bind(IProjectManager.class).to(ProjectManager.class);
+		bind(IFederationManager.class).to(FederationManager.class);
 
 		// the monolithic manager
-		bind(IGitblit.class).to(GitBlit.class).in(Singleton.class);
+		bind(IGitblit.class).to(GitBlit.class);
 
 		// manager for long-running daemons and services
 		bind(IServicesManager.class).to(ServicesManager.class);

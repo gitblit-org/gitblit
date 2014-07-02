@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +58,8 @@ import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The plugin manager maintains the lifecycle of plugins. It is exposed as
@@ -70,6 +70,7 @@ import com.google.common.io.InputSupplier;
  * @author James Moger
  *
  */
+@Singleton
 public class PluginManager implements IPluginManager, PluginStateListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

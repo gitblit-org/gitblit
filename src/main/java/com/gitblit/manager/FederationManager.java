@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -46,6 +45,8 @@ import com.gitblit.utils.Base64;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Federation manager controls all aspects of handling federation sets, tokens,
@@ -54,6 +55,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class FederationManager implements IFederationManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
