@@ -75,9 +75,9 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final DefaultPluginManager pf4j;
-
 	private final IRuntimeManager runtimeManager;
+
+	private DefaultPluginManager pf4j;
 
 	// timeout defaults of Maven 3.0.4 in seconds
 	private int connectTimeout = 20;
@@ -86,18 +86,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	@Inject
 	public PluginManager(IRuntimeManager runtimeManager) {
-		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
-		dir.mkdirs();
 		this.runtimeManager = runtimeManager;
-
-		this.pf4j = new DefaultPluginManager(dir);
-
-		try {
-			Version systemVersion = Version.createVersion(Constants.getVersion());
-			pf4j.setSystemVersion(systemVersion);
-		} catch (Exception e) {
-			logger.error(null, e);
-		}
 	}
 
 	@Override
@@ -112,6 +101,16 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	@Override
 	public PluginManager start() {
+		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
+		dir.mkdirs();
+		pf4j = new DefaultPluginManager(dir);
+
+		try {
+			Version systemVersion = Version.createVersion(Constants.getVersion());
+			pf4j.setSystemVersion(systemVersion);
+		} catch (Exception e) {
+			logger.error(null, e);
+		}
 		pf4j.loadPlugins();
 		logger.debug("Starting plugins");
 		pf4j.startPlugins();
