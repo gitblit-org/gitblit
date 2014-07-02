@@ -44,6 +44,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 /**
@@ -62,22 +63,23 @@ public class GitBlit extends GitblitManager {
 
 	@Inject
 	public GitBlit(
+			Provider<IPublicKeyManager> publicKeyManagerProvider,
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
-			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager) {
 
-		super(runtimeManager,
+		super(
+				publicKeyManagerProvider,
+				runtimeManager,
 				pluginManager,
 				notificationManager,
 				userManager,
 				authenticationManager,
-				publicKeyManager,
 				repositoryManager,
 				projectManager,
 				federationManager);
@@ -120,24 +122,6 @@ public class GitBlit extends GitblitManager {
 		if (isRename && ticketService != null) {
 			ticketService.rename(oldModel, repository);
 		}
-	}
-
-	/**
-	 * Delete the user and all associated public ssh keys.
-	 */
-	@Override
-	public boolean deleteUser(String username) {
-		UserModel user = userManager.getUserModel(username);
-		return deleteUserModel(user);
-	}
-
-	@Override
-	public boolean deleteUserModel(UserModel model) {
-		boolean success = userManager.deleteUserModel(model);
-		if (success) {
-			getPublicKeyManager().removeAllKeys(model.username);
-		}
-		return success;
 	}
 
 	/**

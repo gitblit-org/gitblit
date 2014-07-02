@@ -17,6 +17,8 @@ package com.gitblit.transport.ssh;
 
 import java.util.List;
 
+import com.google.inject.Inject;
+
 /**
  * Rejects all public key management requests.
  *
@@ -25,6 +27,7 @@ import java.util.List;
  */
 public class NullKeyManager extends IPublicKeyManager {
 
+	@Inject
 	public NullKeyManager() {
 	}
 

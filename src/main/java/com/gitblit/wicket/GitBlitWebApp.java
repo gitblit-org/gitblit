@@ -91,6 +91,7 @@ import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -101,6 +102,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	private final Class<? extends WebPage> newRepositoryPageClass = NewRepositoryPage.class;
 
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
+
+	private final Provider<IPublicKeyManager> publicKeyManagerProvider;
 
 	private final IStoredSettings settings;
 
@@ -114,8 +117,6 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final IAuthenticationManager authenticationManager;
 
-	private final IPublicKeyManager publicKeyManager;
-
 	private final IRepositoryManager repositoryManager;
 
 	private final IProjectManager projectManager;
@@ -128,12 +129,12 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	@Inject
 	public GitBlitWebApp(
+			Provider<IPublicKeyManager> publicKeyManagerProvider,
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
-			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager,
@@ -141,13 +142,13 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 			IServicesManager services) {
 
 		super();
+		this.publicKeyManagerProvider = publicKeyManagerProvider;
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
 		this.pluginManager = pluginManager;
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.authenticationManager = authenticationManager;
-		this.publicKeyManager = publicKeyManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
@@ -389,7 +390,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	 */
 	@Override
 	public IPublicKeyManager keys() {
-		return publicKeyManager;
+		return publicKeyManagerProvider.get();
 	}
 
 	/* (non-Javadoc)
