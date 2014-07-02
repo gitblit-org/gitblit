@@ -30,9 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.dircache.DirCache;
@@ -75,6 +72,8 @@ import com.gitblit.models.TicketModel.Change;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Implementation of a ticket service based on an orphan branch.  All tickets
@@ -117,6 +116,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 
 	@Override
 	public BranchTicketService start() {
+		log.info("{} started", getClass().getSimpleName());
 		return this;
 	}
 

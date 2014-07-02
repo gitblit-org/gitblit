@@ -37,6 +37,7 @@ import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.ServicesManager;
 import com.gitblit.manager.UserManager;
+import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.WorkQueue;
 import com.google.inject.AbstractModule;
@@ -56,6 +57,7 @@ public class CoreModule extends AbstractModule {
 
 		// bind complex providers
 		bind(IPublicKeyManager.class).toProvider(IPublicKeyManagerProvider.class);
+		bind(ITicketService.class).toProvider(ITicketServiceProvider.class);
 		bind(WorkQueue.class).toProvider(WorkQueueProvider.class);
 
 		// core managers
