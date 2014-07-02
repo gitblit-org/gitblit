@@ -105,6 +105,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final Provider<IPublicKeyManager> publicKeyManagerProvider;
 
+	private final Provider<ITicketService> ticketServiceProvider;
+
 	private final IStoredSettings settings;
 
 	private final IRuntimeManager runtimeManager;
@@ -130,6 +132,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	@Inject
 	public GitBlitWebApp(
 			Provider<IPublicKeyManager> publicKeyManagerProvider,
+			Provider<ITicketService> ticketServiceProvider,
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
 			INotificationManager notificationManager,
@@ -143,6 +146,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 		super();
 		this.publicKeyManagerProvider = publicKeyManagerProvider;
+		this.ticketServiceProvider = ticketServiceProvider;
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
 		this.pluginManager = pluginManager;
@@ -438,7 +442,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	 */
 	@Override
 	public ITicketService tickets() {
-		return gitblit.getTicketService();
+		return ticketServiceProvider.get();
 	}
 
 	/* (non-Javadoc)
