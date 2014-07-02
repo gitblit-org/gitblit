@@ -19,9 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -31,6 +28,8 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Implementation of a ticket service that rejects everything.
@@ -63,6 +62,7 @@ public class NullTicketService extends ITicketService {
 
 	@Override
 	public NullTicketService start() {
+		log.info("{} started", getClass().getSimpleName());
 		return this;
 	}
 

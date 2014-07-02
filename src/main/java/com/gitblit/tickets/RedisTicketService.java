@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.Client;
@@ -46,6 +43,8 @@ import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Implementation of a ticket service based on a Redis key-value store.  All
@@ -85,6 +84,10 @@ public class RedisTicketService extends ITicketService {
 
 	@Override
 	public RedisTicketService start() {
+		log.info("{} started", getClass().getSimpleName());
+		if (!isReady()) {
+			log.warn("{} is not ready!", getClass().getSimpleName());
+		}
 		return this;
 	}
 

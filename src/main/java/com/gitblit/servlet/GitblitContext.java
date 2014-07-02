@@ -53,6 +53,7 @@ import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
+import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.StringUtils;
@@ -200,6 +201,7 @@ public class GitblitContext extends GuiceServletContextListener {
 		startManager(injector, IRepositoryManager.class);
 		startManager(injector, IProjectManager.class);
 		startManager(injector, IFederationManager.class);
+		startManager(injector, ITicketService.class);
 		startManager(injector, IGitblit.class);
 		startManager(injector, IServicesManager.class);
 

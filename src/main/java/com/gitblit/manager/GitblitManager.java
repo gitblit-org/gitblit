@@ -109,6 +109,8 @@ public class GitblitManager implements IGitblit {
 
 	protected final Provider<IPublicKeyManager> publicKeyManagerProvider;
 
+	protected final Provider<ITicketService> ticketServiceProvider;
+
 	protected final IStoredSettings settings;
 
 	protected final IRuntimeManager runtimeManager;
@@ -130,6 +132,7 @@ public class GitblitManager implements IGitblit {
 	@Inject
 	public GitblitManager(
 			Provider<IPublicKeyManager> publicKeyManagerProvider,
+			Provider<ITicketService> ticketServiceProvider,
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
 			INotificationManager notificationManager,
@@ -140,6 +143,7 @@ public class GitblitManager implements IGitblit {
 			IFederationManager federationManager) {
 
 		this.publicKeyManagerProvider = publicKeyManagerProvider;
+		this.ticketServiceProvider = ticketServiceProvider;
 
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
@@ -478,13 +482,9 @@ public class GitblitManager implements IGitblit {
 		}
 	}
 
-	/**
-	 * Throws an exception if trying to get a ticket service.
-	 *
-	 */
 	@Override
 	public ITicketService getTicketService() {
-		throw new RuntimeException("This class does not have a ticket service!");
+		return ticketServiceProvider.get();
 	}
 
 	@Override
@@ -960,10 +960,23 @@ public class GitblitManager implements IGitblit {
 		return repositoryManager.getRepositoryDefaultMetrics(model, repository);
 	}
 
+	/**
+	 * Detect renames and reindex as appropriate.
+	 */
 	@Override
 	public void updateRepositoryModel(String repositoryName, RepositoryModel repository,
 			boolean isCreate) throws GitBlitException {
+		RepositoryModel oldModel = null;
+		boolean isRename = !isCreate && !repositoryName.equalsIgnoreCase(repository.name);
+		if (isRename) {
+			oldModel = repositoryManager.getRepositoryModel(repositoryName);
+		}
+
 		repositoryManager.updateRepositoryModel(repositoryName, repository, isCreate);
+
+		if (isRename && ticketServiceProvider.get() != null) {
+			ticketServiceProvider.get().rename(oldModel, repository);
+		}
 	}
 
 	@Override
@@ -976,14 +989,23 @@ public class GitblitManager implements IGitblit {
 		return repositoryManager.canDelete(model);
 	}
 
+	/**
+	 * Delete the repository and all associated tickets.
+	 */
 	@Override
 	public boolean deleteRepositoryModel(RepositoryModel model) {
-		return repositoryManager.deleteRepositoryModel(model);
+		boolean success = repositoryManager.deleteRepositoryModel(model);
+		if (success && ticketServiceProvider.get() != null) {
+			ticketServiceProvider.get().deleteAll(model);
+		}
+		return success;
 	}
 
 	@Override
 	public boolean deleteRepository(String repositoryName) {
-		return repositoryManager.deleteRepository(repositoryName);
+		// delegate to deleteRepositoryModel() to destroy indexed tickets
+		RepositoryModel repository = repositoryManager.getRepositoryModel(repositoryName);
+		return deleteRepositoryModel(repository);
 	}
 
 	@Override
