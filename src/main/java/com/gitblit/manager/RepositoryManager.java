@@ -122,7 +122,7 @@ public class RepositoryManager implements IRepositoryManager {
 
 	private final IUserManager userManager;
 
-	private final File repositoriesFolder;
+	private File repositoriesFolder;
 
 	private LuceneService luceneExecutor;
 
@@ -140,11 +140,11 @@ public class RepositoryManager implements IRepositoryManager {
 		this.runtimeManager = runtimeManager;
 		this.pluginManager = pluginManager;
 		this.userManager = userManager;
-		this.repositoriesFolder = runtimeManager.getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 	}
 
 	@Override
 	public RepositoryManager start() {
+		repositoriesFolder = runtimeManager.getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 		logger.info("Repositories folder : {}", repositoriesFolder.getAbsolutePath());
 
 		// initialize utilities
