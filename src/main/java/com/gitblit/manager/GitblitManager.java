@@ -83,7 +83,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 /**
  * GitblitManager is an aggregate interface delegate.  It implements all the manager
@@ -97,6 +99,7 @@ import com.google.inject.Injector;
  * @author James Moger
  *
  */
+@Singleton
 public class GitblitManager implements IGitblit {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -123,6 +126,7 @@ public class GitblitManager implements IGitblit {
 
 	protected final IFederationManager federationManager;
 
+	@Inject
 	public GitblitManager(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,

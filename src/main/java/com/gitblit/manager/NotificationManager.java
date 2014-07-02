@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.google.inject.Inject;
 import javax.mail.Message;
 
 import org.slf4j.Logger;
@@ -30,6 +29,8 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.Mailing;
 import com.gitblit.service.MailService;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The notification manager dispatches notifications.  Currently, email is the
@@ -39,6 +40,7 @@ import com.gitblit.service.MailService;
  * @author James Moger
  *
  */
+@Singleton
 public class NotificationManager implements INotificationManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
