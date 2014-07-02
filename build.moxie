@@ -159,7 +159,7 @@ dependencies:
 - compile 'org.apache.sshd:sshd-core:${sshd.version}' :war !org.easymock
 - compile 'org.apache.mina:mina-core:${mina.version}' :war !org.easymock
 - compile 'rome:rome:0.9' :war :manager :api
-- compile 'com.google.code.gson:gson:1.7.2' :war :fedclient :manager :api
+- compile 'com.google.code.gson:gson:2.2.2' :war :fedclient :manager :api
 - compile 'org.codehaus.groovy:groovy-all:${groovy.version}' :war
 - compile 'com.unboundid:unboundid-ldapsdk:2.3.0' :war
 - compile 'org.apache.ivy:ivy:2.2.0' :war

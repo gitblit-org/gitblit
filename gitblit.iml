@@ -562,13 +562,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="gson-1.7.2.jar">
+      <library name="gson-2.2.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/gson-1.7.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/gson-2.2.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/gson-1.7.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/gson-2.2.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
