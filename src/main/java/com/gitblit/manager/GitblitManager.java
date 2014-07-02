@@ -49,12 +49,10 @@ import ro.fortsoft.pf4j.Version;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
-import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
-import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -68,7 +66,6 @@ import com.gitblit.models.PluginRegistry.PluginRelease;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
@@ -79,7 +76,6 @@ import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
@@ -351,66 +347,6 @@ public class GitblitManager implements IGitblit {
 	}
 
 	/**
-	 * Returns a list of repository URLs and the user access permission.
-	 *
-	 * @param request
-	 * @param user
-	 * @param repository
-	 * @return a list of repository urls
-	 */
-	@Override
-	public List<RepositoryUrl> getRepositoryUrls(HttpServletRequest request, UserModel user, RepositoryModel repository) {
-		if (user == null) {
-			user = UserModel.ANONYMOUS;
-		}
-		String username = StringUtils.encodeUsername(UserModel.ANONYMOUS.equals(user) ? "" : user.username);
-
-		List<RepositoryUrl> list = new ArrayList<RepositoryUrl>();
-		// http/https url
-		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
-			AccessPermission permission = user.getRepositoryPermission(repository).permission;
-			if (permission.exceeds(AccessPermission.NONE)) {
-				list.add(new RepositoryUrl(getRepositoryUrl(request, username, repository), permission));
-			}
-		}
-
-		// add all other urls
-		// {0} = repository
-		// {1} = username
-		for (String url : settings.getStrings(Keys.web.otherUrls)) {
-			if (url.contains("{1}")) {
-				// external url requires username, only add url IF we have one
-				if (!StringUtils.isEmpty(username)) {
-					list.add(new RepositoryUrl(MessageFormat.format(url, repository.name, username), null));
-				}
-			} else {
-				// external url does not require username
-				list.add(new RepositoryUrl(MessageFormat.format(url, repository.name), null));
-			}
-		}
-		return list;
-	}
-
-	protected String getRepositoryUrl(HttpServletRequest request, String username, RepositoryModel repository) {
-		String gitblitUrl = settings.getString(Keys.web.canonicalUrl, null);
-		if (StringUtils.isEmpty(gitblitUrl)) {
-			gitblitUrl = HttpUtils.getGitblitURL(request);
-		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(gitblitUrl);
-		sb.append(Constants.R_PATH);
-		sb.append(repository.name);
-
-		// inject username into repository url if authentication is required
-		if (repository.accessRestriction.exceeds(AccessRestrictionType.NONE)
-				&& !StringUtils.isEmpty(username)) {
-			sb.insert(sb.indexOf("://") + 3, username + "@");
-		}
-		return sb.toString();
-	}
-
-
-	/**
 	 * Returns the list of custom client applications to be used for the
 	 * repository url panel;
 	 *
@@ -595,26 +531,6 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public ServerSettings getSettingsModel() {
 		return runtimeManager.getSettingsModel();
-	}
-
-	@Override
-	public boolean isServingRepositories() {
-		return runtimeManager.isServingRepositories();
-	}
-
-	@Override
-	public boolean isServingHTTP() {
-		return runtimeManager.isServingHTTP();
-	}
-
-	@Override
-	public boolean isServingGIT() {
-		return runtimeManager.isServingGIT();
-	}
-
-	@Override
-	public boolean isServingSSH() {
-		return runtimeManager.isServingSSH();
 	}
 
 	@Override
