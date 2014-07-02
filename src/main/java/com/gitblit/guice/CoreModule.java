@@ -18,7 +18,6 @@ package com.gitblit.guice;
 import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
-import com.gitblit.Keys;
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
 import com.gitblit.manager.IAuthenticationManager;
@@ -38,14 +37,9 @@ import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.ServicesManager;
 import com.gitblit.manager.UserManager;
-import com.gitblit.transport.ssh.FileKeyManager;
 import com.gitblit.transport.ssh.IPublicKeyManager;
-import com.gitblit.transport.ssh.MemoryKeyManager;
-import com.gitblit.transport.ssh.NullKeyManager;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.WorkQueue;
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 
 /**
  * CoreModule references all the core business objects.
@@ -61,8 +55,9 @@ public class CoreModule extends AbstractModule {
 		bind(IStoredSettings.class).toInstance(new FileSettings());
 
 		// bind complex providers
+		bind(IPublicKeyManager.class).toProvider(IPublicKeyManagerProvider.class);
 		bind(WorkQueue.class).toProvider(WorkQueueProvider.class);
-		
+
 		// core managers
 		bind(IRuntimeManager.class).to(RuntimeManager.class);
 		bind(IPluginManager.class).to(PluginManager.class);
@@ -78,30 +73,5 @@ public class CoreModule extends AbstractModule {
 
 		// manager for long-running daemons and services
 		bind(IServicesManager.class).to(ServicesManager.class);
-	}
-
-	@Provides
-	@Singleton
-	IPublicKeyManager providePublicKeyManager(IStoredSettings settings, IRuntimeManager runtimeManager) {
-
-		String clazz = settings.getString(Keys.git.sshKeysManager, FileKeyManager.class.getName());
-		if (StringUtils.isEmpty(clazz)) {
-			clazz = FileKeyManager.class.getName();
-		}
-		if (FileKeyManager.class.getName().equals(clazz)) {
-			return new FileKeyManager(runtimeManager);
-		} else if (NullKeyManager.class.getName().equals(clazz)) {
-			return new NullKeyManager();
-		} else if (MemoryKeyManager.class.getName().equals(clazz)) {
-			return new MemoryKeyManager();
-		} else {
-			try {
-				Class<?> mgrClass = Class.forName(clazz);
-				return (IPublicKeyManager) mgrClass.newInstance();
-			} catch (Exception e) {
-
-			}
-			return null;
-		}
 	}
 }

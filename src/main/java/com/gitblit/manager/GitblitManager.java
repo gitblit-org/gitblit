@@ -86,6 +86,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.google.inject.Provider;
 
 /**
  * GitblitManager is an aggregate interface delegate.  It implements all the manager
@@ -106,6 +107,8 @@ public class GitblitManager implements IGitblit {
 
 	protected final ObjectCache<Collection<GitClientApplication>> clientApplications = new ObjectCache<Collection<GitClientApplication>>();
 
+	protected final Provider<IPublicKeyManager> publicKeyManagerProvider;
+
 	protected final IStoredSettings settings;
 
 	protected final IRuntimeManager runtimeManager;
@@ -118,8 +121,6 @@ public class GitblitManager implements IGitblit {
 
 	protected final IAuthenticationManager authenticationManager;
 
-	protected final IPublicKeyManager publicKeyManager;
-
 	protected final IRepositoryManager repositoryManager;
 
 	protected final IProjectManager projectManager;
@@ -128,15 +129,17 @@ public class GitblitManager implements IGitblit {
 
 	@Inject
 	public GitblitManager(
+			Provider<IPublicKeyManager> publicKeyManagerProvider,
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
-			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager) {
+
+		this.publicKeyManagerProvider = publicKeyManagerProvider;
 
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
@@ -144,7 +147,6 @@ public class GitblitManager implements IGitblit {
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.authenticationManager = authenticationManager;
-		this.publicKeyManager = publicKeyManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
@@ -487,7 +489,7 @@ public class GitblitManager implements IGitblit {
 
 	@Override
 	public IPublicKeyManager getPublicKeyManager() {
-		return publicKeyManager;
+		return publicKeyManagerProvider.get();
 	}
 
 	/*
@@ -707,11 +709,6 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public boolean deleteUser(String username) {
-		return userManager.deleteUser(username);
-	}
-
-	@Override
 	public UserModel getUserModel(String username) {
 		return userManager.getUserModel(username);
 	}
@@ -752,8 +749,22 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public boolean deleteUser(String username) {
+		// delegate to deleteUserModel() to delete public ssh keys
+		UserModel user = userManager.getUserModel(username);
+		return deleteUserModel(user);
+	}
+
+	/**
+	 * Delete the user and all associated public ssh keys.
+	 */
+	@Override
 	public boolean deleteUserModel(UserModel model) {
-		return userManager.deleteUserModel(model);
+		boolean success = userManager.deleteUserModel(model);
+		if (success) {
+			getPublicKeyManager().removeAllKeys(model.username);
+		}
+		return success;
 	}
 
 	@Override
