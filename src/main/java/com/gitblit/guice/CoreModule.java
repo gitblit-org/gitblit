@@ -31,18 +31,21 @@ import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
 import com.gitblit.manager.PluginManager;
 import com.gitblit.manager.ProjectManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
+import com.gitblit.manager.ServicesManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.transport.ssh.FileKeyManager;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.MemoryKeyManager;
 import com.gitblit.transport.ssh.NullKeyManager;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.WorkQueue;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
@@ -59,6 +62,9 @@ public class CoreModule extends AbstractModule {
 
 		bind(IStoredSettings.class).toInstance(new FileSettings());
 
+		// bind complex providers
+		bind(WorkQueue.class).toProvider(WorkQueueProvider.class);
+		
 		// core managers
 		bind(IRuntimeManager.class).to(RuntimeManager.class).in(Singleton.class);
 		bind(IPluginManager.class).to(PluginManager.class).in(Singleton.class);
@@ -71,6 +77,9 @@ public class CoreModule extends AbstractModule {
 
 		// the monolithic manager
 		bind(IGitblit.class).to(GitBlit.class).in(Singleton.class);
+
+		// manager for long-running daemons and services
+		bind(IServicesManager.class).to(ServicesManager.class);
 	}
 
 	@Provides
