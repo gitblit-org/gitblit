@@ -58,7 +58,7 @@ mainclass: com.gitblit.GitBlitServer
 sourceDirectories:
 - compile 'src/main/java'
 - compile 'src/main/bugtraq'
-- compile 'src/main/dagger' apt
+- compile 'src/main/gen' apt
 - test 'src/test/java'
 - test 'src/test/bugtraq'
 # Moxie supports one site-scoped directory for mx:doc
