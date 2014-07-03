@@ -37,7 +37,9 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.fortsoft.pf4j.DefaultExtensionFinder;
 import ro.fortsoft.pf4j.DefaultPluginManager;
+import ro.fortsoft.pf4j.ExtensionFinder;
 import ro.fortsoft.pf4j.PluginClassLoader;
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginStateEvent;
@@ -103,7 +105,33 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	public PluginManager start() {
 		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
 		dir.mkdirs();
-		pf4j = new DefaultPluginManager(dir);
+		pf4j = new DefaultPluginManager(dir) {
+			@Override
+		    protected ExtensionFinder createExtensionFinder() {
+		    	DefaultExtensionFinder extensionFinder = new DefaultExtensionFinder(this) {
+		    		@Override
+					protected ExtensionFactory createExtensionFactory() {
+		    			return new ExtensionFactory() {
+		    				@Override
+		    				public Object create(Class<?> extensionType) {
+		    					// instantiate && inject the extension
+		    					logger.debug("Create instance for extension '{}'", extensionType.getName());
+		    					try {
+		    						return runtimeManager.getInjector().getInstance(extensionType);
+		    					} catch (Exception e) {
+		    						logger.error(e.getMessage(), e);
+		    					}
+		    					return null;
+		    				}
+
+		    			};
+		    		}
+		    	};
+		        addPluginStateListener(extensionFinder);
+
+		        return extensionFinder;
+		    }
+		};
 
 		try {
 			Version systemVersion = Version.createVersion(Constants.getVersion());
