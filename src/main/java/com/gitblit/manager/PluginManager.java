@@ -37,7 +37,9 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.fortsoft.pf4j.DefaultExtensionFinder;
 import ro.fortsoft.pf4j.DefaultPluginManager;
+import ro.fortsoft.pf4j.ExtensionFinder;
 import ro.fortsoft.pf4j.PluginClassLoader;
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginStateEvent;
@@ -58,6 +60,8 @@ import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The plugin manager maintains the lifecycle of plugins. It is exposed as
@@ -68,32 +72,23 @@ import com.google.common.io.InputSupplier;
  * @author James Moger
  *
  */
+@Singleton
 public class PluginManager implements IPluginManager, PluginStateListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final DefaultPluginManager pf4j;
-
 	private final IRuntimeManager runtimeManager;
+
+	private DefaultPluginManager pf4j;
 
 	// timeout defaults of Maven 3.0.4 in seconds
 	private int connectTimeout = 20;
 
 	private int readTimeout = 12800;
 
+	@Inject
 	public PluginManager(IRuntimeManager runtimeManager) {
-		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
-		dir.mkdirs();
 		this.runtimeManager = runtimeManager;
-
-		this.pf4j = new DefaultPluginManager(dir);
-
-		try {
-			Version systemVersion = Version.createVersion(Constants.getVersion());
-			pf4j.setSystemVersion(systemVersion);
-		} catch (Exception e) {
-			logger.error(null, e);
-		}
 	}
 
 	@Override
@@ -108,6 +103,42 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	@Override
 	public PluginManager start() {
+		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
+		dir.mkdirs();
+		pf4j = new DefaultPluginManager(dir) {
+			@Override
+		    protected ExtensionFinder createExtensionFinder() {
+		    	DefaultExtensionFinder extensionFinder = new DefaultExtensionFinder(this) {
+		    		@Override
+					protected ExtensionFactory createExtensionFactory() {
+		    			return new ExtensionFactory() {
+		    				@Override
+		    				public Object create(Class<?> extensionType) {
+		    					// instantiate && inject the extension
+		    					logger.debug("Create instance for extension '{}'", extensionType.getName());
+		    					try {
+		    						return runtimeManager.getInjector().getInstance(extensionType);
+		    					} catch (Exception e) {
+		    						logger.error(e.getMessage(), e);
+		    					}
+		    					return null;
+		    				}
+
+		    			};
+		    		}
+		    	};
+		        addPluginStateListener(extensionFinder);
+
+		        return extensionFinder;
+		    }
+		};
+
+		try {
+			Version systemVersion = Version.createVersion(Constants.getVersion());
+			pf4j.setSystemVersion(systemVersion);
+		} catch (Exception e) {
+			logger.error(null, e);
+		}
 		pf4j.loadPlugins();
 		logger.debug("Starting plugins");
 		pf4j.startPlugins();

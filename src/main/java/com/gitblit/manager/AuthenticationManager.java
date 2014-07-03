@@ -53,6 +53,8 @@ import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The authentication manager handles user login & logout.
@@ -60,6 +62,7 @@ import com.gitblit.wicket.GitBlitWebSession;
  * @author James Moger
  *
  */
+@Singleton
 public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -76,6 +79,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Map<String, String> legacyRedirects;
 
+	@Inject
 	public AuthenticationManager(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager) {

@@ -80,7 +80,7 @@ public class RepositoryUrlPanel extends BasePanel {
 
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
 
-		List<RepositoryUrl> repositoryUrls = app().gitblit().getRepositoryUrls(req, user, repository);
+		List<RepositoryUrl> repositoryUrls = app().services().getRepositoryUrls(req, user, repository);
 		// grab primary url from the top of the list
 		primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 
@@ -165,7 +165,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		if (repository.isMirror) {
 			urlPanel.add(WicketUtils.newImage("accessRestrictionIcon", "mirror_16x16.png",
 					getString("gb.isMirror")));
-		} else if (app().gitblit().isServingRepositories()) {
+		} else if (app().services().isServingRepositories()) {
 			switch (repository.accessRestriction) {
 			case NONE:
 				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));

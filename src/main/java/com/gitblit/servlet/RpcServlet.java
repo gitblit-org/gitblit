@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,13 +49,12 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RpcUtils;
 import com.gitblit.utils.StringUtils;
 
-import dagger.ObjectGraph;
-
 /**
  * Handles remote procedure calls.
  *
  * @author James Moger
  */
+@Singleton
 public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -64,10 +65,10 @@ public class RpcServlet extends JsonServlet {
 
 	private IGitblit gitblit;
 
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.settings = dagger.get(IStoredSettings.class);
-		this.gitblit = dagger.get(IGitblit.class);
+	@Inject
+	public RpcServlet(IStoredSettings settings, IGitblit gitblit) {
+		this.settings = settings;
+		this.gitblit = gitblit;
 	}
 
 	/**

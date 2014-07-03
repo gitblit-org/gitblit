@@ -28,8 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,7 +51,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;
@@ -57,28 +59,30 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 
-import dagger.ObjectGraph;
-
 /**
  * Serves the content of a branch.
  *
  * @author James Moger
  *
  */
-public class RawServlet extends DaggerServlet {
+@Singleton
+public class RawServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(RawServlet.class);
 
-	private IRuntimeManager runtimeManager;
+	private final IRuntimeManager runtimeManager;
 
-	private IRepositoryManager repositoryManager;
+	private final IRepositoryManager repositoryManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.runtimeManager = dagger.get(IRuntimeManager.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	@Inject
+	public RawServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**

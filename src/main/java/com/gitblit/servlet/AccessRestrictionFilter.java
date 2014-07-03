@@ -19,20 +19,18 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
 
 /**
  * The AccessRestrictionFilter is an AuthenticationFilter that confirms that the
@@ -54,11 +52,15 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	protected IRepositoryManager repositoryManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
-		super.inject(dagger, filterConfig);
-		this.runtimeManager = dagger.get(IRuntimeManager.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	protected AccessRestrictionFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		super(authenticationManager);
+
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**

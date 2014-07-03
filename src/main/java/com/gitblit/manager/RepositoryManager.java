@@ -89,6 +89,8 @@ import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Repository manager creates, updates, deletes and caches git repositories.  It
@@ -97,6 +99,7 @@ import com.gitblit.utils.TimeUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class RepositoryManager implements IRepositoryManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -119,7 +122,7 @@ public class RepositoryManager implements IRepositoryManager {
 
 	private final IUserManager userManager;
 
-	private final File repositoriesFolder;
+	private File repositoriesFolder;
 
 	private LuceneService luceneExecutor;
 
@@ -127,6 +130,7 @@ public class RepositoryManager implements IRepositoryManager {
 
 	private MirrorService mirrorExecutor;
 
+	@Inject
 	public RepositoryManager(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
@@ -136,11 +140,11 @@ public class RepositoryManager implements IRepositoryManager {
 		this.runtimeManager = runtimeManager;
 		this.pluginManager = pluginManager;
 		this.userManager = userManager;
-		this.repositoriesFolder = runtimeManager.getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 	}
 
 	@Override
 	public RepositoryManager start() {
+		repositoriesFolder = runtimeManager.getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 		logger.info("Repositories folder : {}", repositoriesFolder.getAbsolutePath());
 
 		// initialize utilities
@@ -1934,21 +1938,19 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	protected void confirmWriteAccess() {
-		if (runtimeManager.isServingRepositories()) {
-			try {
-				if (!getRepositoriesFolder().exists()) {
-					getRepositoriesFolder().mkdirs();
-				}
-				File file = File.createTempFile(".test-", ".txt", getRepositoriesFolder());
-				file.delete();
-			} catch (Exception e) {
-				logger.error("");
-				logger.error(Constants.BORDER2);
-				logger.error("Please check filesystem permissions!");
-				logger.error("FAILED TO WRITE TO REPOSITORIES FOLDER!!", e);
-				logger.error(Constants.BORDER2);
-				logger.error("");
+		try {
+			if (!getRepositoriesFolder().exists()) {
+				getRepositoriesFolder().mkdirs();
 			}
+			File file = File.createTempFile(".test-", ".txt", getRepositoriesFolder());
+			file.delete();
+		} catch (Exception e) {
+			logger.error("");
+			logger.error(Constants.BORDER2);
+			logger.error("Please check filesystem permissions!");
+			logger.error("FAILED TO WRITE TO REPOSITORIES FOLDER!!", e);
+			logger.error(Constants.BORDER2);
+			logger.error("");
 		}
 	}
 }

@@ -20,7 +20,10 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jgit.lib.Repository;
@@ -31,14 +34,11 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.utils.CompressionUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
 
 /**
  * Streams out a zip file from the specified repository for any tree path at any
@@ -47,7 +47,8 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public class DownloadZipServlet extends DaggerServlet {
+@Singleton
+public class DownloadZipServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -76,10 +77,10 @@ public class DownloadZipServlet extends DaggerServlet {
 		}
 	}
 
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.settings = dagger.get(IStoredSettings.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	@Inject
+	public DownloadZipServlet(IStoredSettings settings, IRepositoryManager repositoryManager) {
+		this.settings = settings;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**

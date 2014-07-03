@@ -28,6 +28,7 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
+import com.google.inject.Injector;
 
 public class MockRuntimeManager implements IRuntimeManager {
 
@@ -57,6 +58,11 @@ public class MockRuntimeManager implements IRuntimeManager {
 	}
 
 	@Override
+	public Injector getInjector() {
+		return null;
+	}
+
+	@Override
 	public void setBaseFolder(File folder) {
 		this.baseFolder = folder;
 	}
@@ -74,26 +80,6 @@ public class MockRuntimeManager implements IRuntimeManager {
 	@Override
 	public Locale getLocale() {
 		return Locale.getDefault();
-	}
-
-	@Override
-	public boolean isServingRepositories() {
-		return true;
-	}
-
-	@Override
-	public boolean isServingHTTP() {
-		return true;
-	}
-
-	@Override
-	public boolean isServingGIT() {
-		return true;
-	}
-
-	@Override
-	public boolean isServingSSH() {
-		return true;
 	}
 
 	@Override

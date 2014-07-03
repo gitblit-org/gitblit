@@ -15,10 +15,14 @@
  */
 package com.gitblit.servlet;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 
 /**
  * Serves the content of a gh-pages branch.
@@ -26,6 +30,7 @@ import com.gitblit.Constants;
  * @author James Moger
  *
  */
+@Singleton
 public class PagesServlet extends RawServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -44,6 +49,14 @@ public class PagesServlet extends RawServlet {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
 		return baseURL + Constants.PAGES + repository + "/" + (path == null ? "" : ("/" + path));
+	}
+
+	@Inject
+	public PagesServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
+		super(runtimeManager, repositoryManager);
 	}
 
 	@Override

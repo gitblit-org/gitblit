@@ -18,8 +18,9 @@ package com.gitblit.servlet;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -27,14 +28,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-
-import dagger.ObjectGraph;
 
 /**
  * The SyndicationFilter is an AuthenticationFilter which ensures that feed
@@ -44,18 +44,24 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
+@Singleton
 public class SyndicationFilter extends AuthenticationFilter {
 
 	private IRuntimeManager runtimeManager;
 	private IRepositoryManager repositoryManager;
 	private IProjectManager projectManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
-		super.inject(dagger, filterConfig);
-		this.runtimeManager = dagger.get(IRuntimeManager.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
-		this.projectManager = dagger.get(IProjectManager.class);
+	@Inject
+	public SyndicationFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager) {
+		super(authenticationManager);
+
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
 	}
 
 	/**

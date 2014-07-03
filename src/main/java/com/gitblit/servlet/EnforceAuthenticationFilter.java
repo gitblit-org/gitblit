@@ -18,6 +18,9 @@
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -31,11 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerFilter;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
-
-import dagger.ObjectGraph;
 
 /**
  * This filter enforces authentication via HTTP Basic Authentication, if the settings indicate so.
@@ -45,7 +45,8 @@ import dagger.ObjectGraph;
  * @author Laurens Vrijnsen
  *
  */
-public class EnforceAuthenticationFilter extends DaggerFilter {
+@Singleton
+public class EnforceAuthenticationFilter implements Filter {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -53,10 +54,21 @@ public class EnforceAuthenticationFilter extends DaggerFilter {
 
 	private IAuthenticationManager authenticationManager;
 
+	@Inject
+	public EnforceAuthenticationFilter(
+			IStoredSettings settings,
+			IAuthenticationManager authenticationManager) {
+
+		this.settings = settings;
+		this.authenticationManager = authenticationManager;
+	}
+
 	@Override
-	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
-		this.settings = dagger.get(IStoredSettings.class);
-		this.authenticationManager = dagger.get(IAuthenticationManager.class);
+	public void init(FilterConfig config) {
+	}
+
+	@Override
+	public void destroy() {
 	}
 
 	/*
@@ -86,13 +98,5 @@ public class EnforceAuthenticationFilter extends DaggerFilter {
 			// user is authenticated, or don't care, continue handling
 			chain.doFilter(request, response);
 		}
-	}
-
-
-	/*
-	 * @see javax.servlet.Filter#destroy()
-	 */
-	@Override
-	public void destroy() {
 	}
 }
