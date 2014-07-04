@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gitblit.Constants;
+import com.gitblit.auth.github.HttpGitHubOAuthModule;
 import com.gitblit.servlet.BranchGraphServlet;
 import com.gitblit.servlet.DownloadZipFilter;
 import com.gitblit.servlet.DownloadZipServlet;
@@ -92,6 +93,11 @@ public class WebModule extends ServletModule {
 		params.put(GitblitWicketFilter.FILTER_MAPPING_PARAM, ALL);
 		params.put(GitblitWicketFilter.IGNORE_PATHS_PARAM, toIgnore);
 		filter(ALL).through(GitblitWicketFilter.class, params);
+
+		//if (AUTH_METHOD == GITHUB_OAUTH) {
+		if (true) {
+			install(new HttpGitHubOAuthModule());
+		}
 	}
 
 	private String fuzzy(String path) {
