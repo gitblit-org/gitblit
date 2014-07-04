@@ -1,0 +1,1 @@
+[{"date":"2014-07-04T15:40:01Z","author":"james","fields":{"title":"Increase ticket body height","body":"If the possible responsible list is taller than the ticket body height, Bootstrap shifts the grid. :(","type":"Bug","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
