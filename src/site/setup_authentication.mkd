@@ -4,6 +4,7 @@ By default, Gitblit stores and authenticates all users against `users.conf`.  Ho
 
 Gitblit supports additional authentication mechanisms aside from it's internal one.
 
+* GitHub OAuth
 * LDAP authentication
 * Windows authentication
 * PAM authentication
@@ -11,6 +12,43 @@ Gitblit supports additional authentication mechanisms aside from it's internal o
 * Redmine auhentication
 * Salesforce.com authentication
 * Servlet container authentication
+
+### GitHub OAuth
+*SINCE 1.7.0
+
+OAuth2 is a protocol that lets external apps request authorization to private
+details in a user’s GitHub account without getting their password. This is
+preferred over Basic Authentication because tokens can be limited to specific
+types of data, and can be revoked by users at any time.
++
+Site owners have to register their application before getting started.  For
+more information see
+https://github.com/settings/applications/new[github-register-application].
+A registered OAuth application is assigned a unique `Client ID` and `Client
+Secret`. The `Client Secret` should never be shared.
+
+[[github.url]]github.url::
+
+GitHub URL.
+
+Default is `https://github.com`.
+
+[[github.apiUrl]]github.apiUrl::
+
+GitHub API URL.
+
+Default is `https://api.github.com`.
+
+[[github.clientId]]github.clientId::
+
+The `Client ID`, that was received from GitHub when the application was
+registered. Required.
+
+[[github.clientSecret]]github.clientSecret::
+
+The `Client Secret`, that was received from GitHub when the application was
+registered. Required.
+
 
 ### LDAP Authentication
 *SINCE 1.0.0*

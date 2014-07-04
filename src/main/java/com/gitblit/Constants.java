@@ -548,7 +548,7 @@ public class Constants {
 	}
 
 	public static enum AuthenticationType {
-		PUBLIC_KEY, CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER;
+		PUBLIC_KEY, CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER, GITHUB_OAUTH;
 
 		public boolean isStandard() {
 			return ordinal() <= COOKIE.ordinal();
