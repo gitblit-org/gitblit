@@ -23,6 +23,8 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
+import com.gitblit.Constants;
+import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -51,6 +53,9 @@ public abstract class SessionPage extends WebPage {
 
 	private void login() {
 		GitBlitWebSession session = GitBlitWebSession.get();
+		HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
+		HttpServletResponse response = ((WebResponse) getResponse()).getHttpServletResponse();
+
 		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
 			// already have a session, refresh usermodel to pick up
 			// any changes to permissions or roles (issue-186)
@@ -58,10 +63,6 @@ public abstract class SessionPage extends WebPage {
 
 			if (user == null || user.disabled) {
 				// user was deleted/disabled during session
-				HttpServletRequest request = ((WebRequest) getRequestCycle().getRequest())
-						.getHttpServletRequest();
-				HttpServletResponse response = ((WebResponse) getRequestCycle().getResponse())
-						.getHttpServletResponse();
 				app().authentication().logout(request, response, user);
 				session.setUser(null);
 				session.invalidateNow();
@@ -70,14 +71,10 @@ public abstract class SessionPage extends WebPage {
 
 			// validate cookie during session (issue-361)
 			if (user != null && app().settings().getBoolean(Keys.web.allowCookieAuthentication, true)) {
-				HttpServletRequest request = ((WebRequest) getRequestCycle().getRequest())
-						.getHttpServletRequest();
 				String requestCookie = app().authentication().getCookie(request);
 				if (!StringUtils.isEmpty(requestCookie) && !StringUtils.isEmpty(user.cookie)) {
 					if (!requestCookie.equals(user.cookie)) {
 						// cookie was changed during our session
-						HttpServletResponse response = ((WebResponse) getRequestCycle().getResponse())
-								.getHttpServletResponse();
 						app().authentication().logout(request, response, user);
 						session.setUser(null);
 						session.invalidateNow();
@@ -90,21 +87,22 @@ public abstract class SessionPage extends WebPage {
 		}
 
 		// try to authenticate by servlet request
-		HttpServletRequest httpRequest = ((WebRequest) getRequestCycle().getRequest())
-				.getHttpServletRequest();
-		UserModel user = app().authentication().authenticate(httpRequest);
+		UserModel user = app().authentication().authenticate(request);
 
 		// Login the user
 		if (user != null) {
+			// preserve the authentication type across session replacement
+			AuthenticationType authenticationType = (AuthenticationType) request.getSession()
+					.getAttribute(Constants.AUTHENTICATION_TYPE);
+
 			// issue 62: fix session fixation vulnerability
 			session.replaceSession();
 			session.setUser(user);
 
+			request.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, authenticationType);
+
 			// Set Cookie
-			WebRequest request = (WebRequest) getRequestCycle().getRequest();
-			WebResponse response = (WebResponse) getRequestCycle().getResponse();
-			app().authentication().setCookie(request.getHttpServletRequest(),
-					response.getHttpServletResponse(), user);
+			app().authentication().setCookie(request, response, user);
 
 			session.continueRequest();
 		}

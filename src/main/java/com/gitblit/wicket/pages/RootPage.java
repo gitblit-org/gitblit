@@ -31,6 +31,9 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
@@ -50,6 +53,7 @@ import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.Keys;
 import com.gitblit.extensions.NavLinkExtension;
 import com.gitblit.extensions.UserMenuExtension;
@@ -262,19 +266,22 @@ public abstract class RootPage extends BasePage {
 
 	private void loginUser(UserModel user) {
 		if (user != null) {
+			HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
+			HttpServletResponse response = ((WebResponse) getResponse()).getHttpServletResponse();
+
 			// Set the user into the session
 			GitBlitWebSession session = GitBlitWebSession.get();
+
 			// issue 62: fix session fixation vulnerability
 			session.replaceSession();
 			session.setUser(user);
 
+			request = ((WebRequest) getRequest()).getHttpServletRequest();
+			response = ((WebResponse) getResponse()).getHttpServletResponse();
+			request.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, AuthenticationType.CREDENTIALS);
+
 			// Set Cookie
-			if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
-				WebRequest request = (WebRequest) getRequestCycle().getRequest();
-				WebResponse response = (WebResponse) getRequestCycle().getResponse();
-				app().authentication().setCookie(request.getHttpServletRequest(),
-						response.getHttpServletResponse(), user);
-			}
+			app().authentication().setCookie(request, response, user);
 
 			if (!session.continueRequest()) {
 				PageParameters params = getPageParameters();
@@ -599,7 +606,9 @@ public abstract class RootPage extends BasePage {
 			GitBlitWebSession session = GitBlitWebSession.get();
 			UserModel user = session.getUser();
 			boolean editCredentials = app().authentication().supportsCredentialChanges(user);
-			boolean standardLogin = session.authenticationType.isStandard();
+			HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
+			AuthenticationType authenticationType = (AuthenticationType) request.getSession().getAttribute(Constants.AUTHENTICATION_TYPE);
+			boolean standardLogin = authenticationType.isStandard();
 
 			if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {
 				add(new GravatarImage("username", user, "navbarGravatar", 20, false));

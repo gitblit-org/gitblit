@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import org.apache.wicket.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,6 @@ import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
-import com.gitblit.wicket.GitBlitWebSession;
 
 /**
  * The authentication manager handles user login & logout.
@@ -200,7 +199,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 					UserModel user = userManager.getUserModel(username);
 					if (user != null) {
 						// existing user
-						flagWicketSession(AuthenticationType.CONTAINER);
+						flagSession(httpRequest, AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
 						return validateAuthentication(user, AuthenticationType.CONTAINER);
@@ -212,7 +211,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 						user.password = Constants.EXTERNAL_ACCOUNT;
 						user.accountType = AccountType.CONTAINER;
 						userManager.updateUserModel(user);
-						flagWicketSession(AuthenticationType.CONTAINER);
+						flagSession(httpRequest, AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
 						return validateAuthentication(user, AuthenticationType.CONTAINER);
@@ -233,7 +232,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 			UserModel user = userManager.getUserModel(model.username);
 			X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
 			if (user != null) {
-				flagWicketSession(AuthenticationType.CERTIFICATE);
+				flagSession(httpRequest, AuthenticationType.CERTIFICATE);
 				logger.debug(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
 						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
 				return validateAuthentication(user, AuthenticationType.CERTIFICATE);
@@ -255,7 +254,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		if (!StringUtils.isEmpty(cookie)) {
 			user = userManager.getUserModel(cookie.toCharArray());
 			if (user != null) {
-				flagWicketSession(AuthenticationType.COOKIE);
+				flagSession(httpRequest, AuthenticationType.COOKIE);
 				logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
 					user.username, httpRequest.getRemoteAddr()));
 				return validateAuthentication(user, AuthenticationType.COOKIE);
@@ -277,7 +276,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 				char[] password = values[1].toCharArray();
 				user = authenticate(username, password);
 				if (user != null) {
-					flagWicketSession(AuthenticationType.CREDENTIALS);
+					flagSession(httpRequest, AuthenticationType.CREDENTIALS);
 					logger.debug(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return validateAuthentication(user, AuthenticationType.CREDENTIALS);
@@ -342,13 +341,8 @@ public class AuthenticationManager implements IAuthenticationManager {
 		return user;
 	}
 
-	protected void flagWicketSession(AuthenticationType authenticationType) {
-		RequestCycle requestCycle = RequestCycle.get();
-		if (requestCycle != null) {
-			// flag the Wicket session, if this is a Wicket request
-			GitBlitWebSession session = GitBlitWebSession.get();
-			session.authenticationType = authenticationType;
-		}
+	protected void flagSession(HttpServletRequest httpRequest, AuthenticationType authenticationType) {
+		httpRequest.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, authenticationType);
 	}
 
 	/**
@@ -469,8 +463,9 @@ public class AuthenticationManager implements IAuthenticationManager {
 	@Override
 	public void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user) {
 		if (settings.getBoolean(Keys.web.allowCookieAuthentication, true)) {
-			GitBlitWebSession session = GitBlitWebSession.get();
-			boolean standardLogin = session.authenticationType.isStandard();
+			HttpSession session = request.getSession();
+			AuthenticationType authenticationType = (AuthenticationType) session.getAttribute(Constants.AUTHENTICATION_TYPE);
+			boolean standardLogin = authenticationType.isStandard();
 
 			if (standardLogin) {
 				Cookie userCookie;
