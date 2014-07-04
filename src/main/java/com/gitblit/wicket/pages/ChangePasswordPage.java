@@ -17,12 +17,16 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.GitBlitException;
@@ -99,8 +103,9 @@ public class ChangePasswordPage extends RootSubPage {
 				try {
 					app().gitblit().reviseUser(user.username, user);
 					if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
-						WebResponse response = (WebResponse) getRequestCycle().getResponse();
-						app().authentication().setCookie(response.getHttpServletResponse(), user);
+						HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
+						HttpServletResponse response = ((WebResponse) getResponse()).getHttpServletResponse();
+						app().authentication().setCookie(request, response, user);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());

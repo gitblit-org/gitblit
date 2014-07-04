@@ -15,14 +15,13 @@
  */
 package com.gitblit.servlet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -34,10 +33,11 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.apache.wicket.util.io.ByteArrayOutputStream;
 import org.eclipse.jgit.lib.FileMode;
 
 import com.gitblit.manager.IRuntimeManager;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Handles requests for the Barnum pt (patchset tool).

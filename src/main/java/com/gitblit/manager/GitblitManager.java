@@ -85,8 +85,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 /**
  * GitblitManager is an aggregate interface delegate.  It implements all the manager
@@ -651,13 +651,13 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public void setCookie(HttpServletResponse response, UserModel user) {
-		authenticationManager.setCookie(response, user);
+	public void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+		authenticationManager.setCookie(request, response, user);
 	}
 
 	@Override
-	public void logout(HttpServletResponse response, UserModel user) {
-		authenticationManager.logout(response, user);
+	public void logout(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+		authenticationManager.logout(request, response, user);
 	}
 
 	@Override

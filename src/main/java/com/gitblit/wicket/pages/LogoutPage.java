@@ -15,6 +15,9 @@
  */
 package com.gitblit.wicket.pages;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
@@ -27,8 +30,11 @@ public class LogoutPage extends BasePage {
 		super();
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();
-		app().authentication().logout(((WebResponse) getResponse()).getHttpServletResponse(), user);
+		HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
+		HttpServletResponse response = ((WebResponse) getResponse()).getHttpServletResponse();
+		app().authentication().logout(request, response, user);
 		session.invalidate();
+		request.getSession().invalidate();
 
 		/*
 		 * Now check whether the authentication was realized via the Authorization in the header.

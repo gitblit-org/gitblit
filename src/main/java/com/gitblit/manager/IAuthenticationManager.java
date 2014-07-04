@@ -83,17 +83,17 @@ public interface IAuthenticationManager extends IManager {
 	 *
 	 * @param response
 	 * @param user
-	 * @since 1.4.0
+	 * @since 1.7.0
 	 */
-	void setCookie(HttpServletResponse response, UserModel user);
+	void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user);
 
 	/**
 	 * Logout a user.
 	 *
 	 * @param user
-	 * @since 1.4.0
+	 * @since 1.7.0
 	 */
-	void logout(HttpServletResponse response, UserModel user);
+	void logout(HttpServletRequest request, HttpServletResponse response, UserModel user);
 
 	/**
 	 * Does the user service support changes to credentials?
