@@ -110,10 +110,6 @@ public class RawServlet extends HttpServlet {
 
 		String encodedPath = path == null ? "" : path.replace(' ', '-');
 		encodedPath = encodedPath.replace('/', fsc);
-		try {
-			encodedPath = URLEncoder.encode(encodedPath, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-		}
 		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + (path == null ? "" : encodedPath)));
 	}
 
@@ -138,7 +134,8 @@ public class RawServlet extends HttpServlet {
 		if (path.endsWith("/")) {
 			path = path.substring(0, path.length() - 1);
 		}
-		return path;
+		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		return path.replace('!', '/').replace(c, '/');
 	}
 
 	protected boolean renderIndex() {
