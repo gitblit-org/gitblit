@@ -261,6 +261,15 @@ public class RawServlet extends HttpServlet {
 						// load, interpret, and serve text content as UTF-8
 						String [] encodings = runtimeManager.getSettings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
 						String content = JGitUtils.getStringContent(r, commit.getTree(), requestedPath, encodings);
+						if (content == null) {
+							logger.error("RawServlet Failed to load {} {} {}", repository, commit.getName(), path);
+							String str = MessageFormat.format(
+									"# Error\nSorry, the requested resource **{0}** was not found.",
+									requestedPath);
+							response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+							error(response, str);
+							return;
+						}
 
 						byte [] bytes = content.getBytes(Constants.ENCODING);
 						response.setContentLength(bytes.length);
