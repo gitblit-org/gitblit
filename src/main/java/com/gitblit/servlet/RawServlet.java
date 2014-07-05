@@ -95,16 +95,17 @@ public class RawServlet extends DaggerServlet {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
 
+		char fsc = '!';
+		char c = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		if (c != '/') {
+			fsc = c;
+		}
 		if (branch != null) {
-			char fsc = '!';
-			char c = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-			if (c != '/') {
-				fsc = c;
-			}
 			branch = branch.replace('/', fsc);
 		}
 
 		String encodedPath = path == null ? "" : path.replace(' ', '-');
+		encodedPath = encodedPath.replace('/', fsc);
 		try {
 			encodedPath = URLEncoder.encode(encodedPath, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
