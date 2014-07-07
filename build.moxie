@@ -134,6 +134,8 @@ dependencies:
 - compile 'com.google.inject.extensions:guice-servlet:${guice-servlet.version}' :war
 - compile 'com.google.guava:guava:17.0' :war :fedclient
 - compile 'com.intellij:annotations:12.0' :war
+- compile 'org.apache.httpcomponents:httpclient:4.3.4' :war
+- compile 'org.apache.httpcomponents:httpcore:4.3.2' :war
 - compile 'log4j:log4j:1.2.17' :war :fedclient
 - compile 'org.slf4j:slf4j-api:1.7.7' :war :fedclient
 - compile 'org.slf4j:slf4j-log4j12:1.7.7' :war :fedclient
