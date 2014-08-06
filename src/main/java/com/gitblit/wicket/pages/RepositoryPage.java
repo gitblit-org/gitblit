@@ -191,9 +191,15 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	private List<NavLink> registerNavLinks() {
-		PageParameters params = null;
+		PageParameters branchParam = null, repoParam = null;
+		if (!StringUtils.isEmpty(objectId)) {
+			branchParam = WicketUtils.newObjectParameter(getRepositoryName(), objectId);
+		}
 		if (!StringUtils.isEmpty(repositoryName)) {
-			params = WicketUtils.newRepositoryParameter(getRepositoryName());
+			repoParam = WicketUtils.newRepositoryParameter(getRepositoryName());
+			if (branchParam == null) {
+				branchParam = repoParam;
+			}
 		}
 		List<NavLink> navLinks = new ArrayList<NavLink>();
 
@@ -202,28 +208,28 @@ public abstract class RepositoryPage extends RootPage {
 
 		// standard links
 		if (RefLogUtils.getRefLogBranch(r) == null) {
-			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, params));
+			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, repoParam));
 		} else {
-			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, params));
+			navLinks.add(new PageNavLink("gb.summary", SummaryPage.class, repoParam));
 			//			pages.put("overview", new PageRegistration("gb.overview", OverviewPage.class, params));
-			navLinks.add(new PageNavLink("gb.reflog", ReflogPage.class, params));
+			navLinks.add(new PageNavLink("gb.reflog", ReflogPage.class, branchParam));
 		}
 
 		if (!model.hasCommits) {
 			return navLinks;
 		}
 
-		navLinks.add(new PageNavLink("gb.commits", LogPage.class, params));
-		navLinks.add(new PageNavLink("gb.tree", TreePage.class, params));
+		navLinks.add(new PageNavLink("gb.commits", LogPage.class, branchParam));
+		navLinks.add(new PageNavLink("gb.tree", TreePage.class, branchParam));
 		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(model) || app().tickets().hasTickets(model))) {
 			PageParameters tParams = WicketUtils.newOpenTicketsParameter(getRepositoryName());
 			navLinks.add(new PageNavLink("gb.tickets", TicketsPage.class, tParams));
 		}
-		navLinks.add(new PageNavLink("gb.docs", DocsPage.class, params, true));
+		navLinks.add(new PageNavLink("gb.docs", DocsPage.class, branchParam, true));
 		if (app().settings().getBoolean(Keys.web.allowForking, true)) {
-			navLinks.add(new PageNavLink("gb.forks", ForksPage.class, params, true));
+			navLinks.add(new PageNavLink("gb.forks", ForksPage.class, repoParam, true));
 		}
-		navLinks.add(new PageNavLink("gb.compare", ComparePage.class, params, true));
+		navLinks.add(new PageNavLink("gb.compare", ComparePage.class, repoParam, true));
 
 		// conditional links
 		// per-repository extra navlinks
