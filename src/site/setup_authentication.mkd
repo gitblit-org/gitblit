@@ -119,7 +119,7 @@ If you are using the WAR variant and deploying into your own servlet container w
 
 This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations.  This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.
 
-Please subclass [com.gitblit.auth.AuthenticationProvider](https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java).
+Please subclass [com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider](https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java).
 
 You may use your subclass by specifying its fully qualified classname in the *realm.authenticationProviders* setting.
 
