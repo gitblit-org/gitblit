@@ -20,9 +20,13 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
@@ -113,7 +117,7 @@ public class HttpUtils {
 	 * @param usernameOIDs if unspecified, CN is used as the username
 	 * @return a UserModel, if a valid certificate is in the request, null otherwise
 	 */
-	public static UserModel getUserModelFromCertificate(HttpServletRequest httpRequest, boolean checkValidity, String... usernameOIDs) {
+	public static UserModel getUserModelFromCertificate(HttpServletRequest httpRequest, boolean checkValidity, String regexPattern, boolean toUpperCase, String... usernameOIDs) {
 		if (httpRequest.getAttribute("javax.servlet.request.X509Certificate") != null) {
 			X509Certificate[] certChain = (X509Certificate[]) httpRequest
 					.getAttribute("javax.servlet.request.X509Certificate");
@@ -131,7 +135,7 @@ public class HttpUtils {
 						return null;
 					}
 				}
-				return getUserModelFromCertificate(cert, usernameOIDs);
+				return getUserModelFromCertificate(cert, regexPattern, toUpperCase, usernameOIDs);
 			}
 		}
 		return null;
@@ -143,7 +147,7 @@ public class HttpUtils {
 	 * @param usernameOids if unspecified CN is used as the username
 	 * @return
 	 */
-	public static UserModel getUserModelFromCertificate(X509Certificate cert, String... usernameOIDs) {
+	public static UserModel getUserModelFromCertificate(X509Certificate cert, String regexPattern, boolean toUpperCase, String... usernameOIDs) {
 		X509Metadata metadata = X509Utils.getMetadata(cert);
 
 		UserModel user = new UserModel(metadata.commonName);
@@ -163,8 +167,18 @@ public class HttpUtils {
 				an.append(val).append(' ');
 			}
 		}
-		user.username = an.toString().trim();
-		return user;
+
+		String username = extractWithRegexPattern(an.toString().trim(), regexPattern);
+    user.username =  (toUpperCase ? username.toUpperCase() : username);
+    return user;
+	}
+	
+	public static String extractWithRegexPattern(String username, String regex) {
+		Matcher matcher = Pattern.compile(regex).matcher(username);
+		if(matcher.find()) {
+			return matcher.group();
+		}
+		return null;
 	}
 
 	public static X509Metadata getCertificateMetadata(HttpServletRequest httpRequest) {
