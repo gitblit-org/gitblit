@@ -1,0 +1,1 @@
+[{"date":"2014-09-04T17:11:25Z","author":"james","fields":{"title":"Do not stamp raw servlet responses with cache-control headers","topic":"issue-489","type":"Bug","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
