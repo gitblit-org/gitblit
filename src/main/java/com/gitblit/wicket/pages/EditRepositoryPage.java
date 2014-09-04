@@ -186,15 +186,18 @@ public class EditRepositoryPage extends RootSubPage {
 
 		// owners palette
 		List<UserChoice> owners = new ArrayList<UserChoice>();
+		List<UserChoice> persons = new ArrayList<UserChoice>();
 		for (String owner : repositoryModel.owners) {
 			UserModel o = app().users().getUserModel(owner);
 			if (o != null) {
 				owners.add(new UserChoice(o.getDisplayName(), o.username, o.emailAddress));
 			} else {
-				owners.add(new UserChoice(owner));
+				UserChoice userChoice = new UserChoice(owner);
+				owners.add(userChoice);
+				persons.add(userChoice);
 			}
 		}
-		List<UserChoice> persons = new ArrayList<UserChoice>();
+
 		for (String person : app().users().getAllUsernames()) {
 			UserModel o = app().users().getUserModel(person);
 			if (o != null) {
