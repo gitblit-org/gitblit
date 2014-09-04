@@ -105,7 +105,7 @@ public class RawServlet extends HttpServlet {
 			fsc = c;
 		}
 		if (branch != null) {
-			branch = branch.replace('/', fsc);
+			branch = Repository.shortenRefName(branch).replace('/', fsc);
 		}
 
 		String encodedPath = path == null ? "" : path.replace(' ', '-');
@@ -252,8 +252,6 @@ public class RawServlet extends HttpServlet {
 						}
 					}
 
-					setContentType(response, contentType);
-
 					if (isTextType(contentType)) {
 
 						// load, interpret, and serve text content as UTF-8
@@ -261,41 +259,22 @@ public class RawServlet extends HttpServlet {
 						String content = JGitUtils.getStringContent(r, commit.getTree(), requestedPath, encodings);
 						if (content == null) {
 							logger.error("RawServlet Failed to load {} {} {}", repository, commit.getName(), path);
-							String str = MessageFormat.format(
-									"# Error\nSorry, the requested resource **{0}** was not found.",
-									requestedPath);
-							response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-							error(response, str);
+							notFound(response, requestedPath, branch);
 							return;
 						}
 
 						byte [] bytes = content.getBytes(Constants.ENCODING);
+						setContentType(response, contentType);
 						response.setContentLength(bytes.length);
 						ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 						sendContent(response, JGitUtils.getCommitDate(commit), is);
 
 					} else {
-						// serve binary content
-						String filename = StringUtils.getLastPathElement(requestedPath);
-						try {
-					    	String userAgent = request.getHeader("User-Agent");
-							if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
-							      response.setHeader("Content-Disposition", "filename=\""
-							    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
-							} else if (userAgent != null && userAgent.indexOf("MSIE") > -1) {
-							      response.setHeader("Content-Disposition", "attachment; filename=\""
-							    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
-							} else {
-									response.setHeader("Content-Disposition", "attachment; filename=\""
-									      + new String(filename.getBytes(Constants.ENCODING), "latin1") + "\"");
-							}
-						}
-						catch (UnsupportedEncodingException e) {
-							response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-						}
-
 						// stream binary content directly from the repository
-						streamFromRepo(response, r, commit, requestedPath);
+						if (!streamFromRepo(request, response, r, commit, requestedPath)) {
+							logger.error("RawServlet Failed to load {} {} {}", repository, commit.getName(), path);
+							notFound(response, requestedPath, branch);
+						}
 					}
 					return;
 				} catch (Exception e) {
@@ -355,11 +334,7 @@ public class RawServlet extends HttpServlet {
 			// no content, document list or 404 page
 			if (pathEntries.isEmpty()) {
 				// default 404 page
-				String str = MessageFormat.format(
-						"# Error\nSorry, the requested resource **{0}** was not found.",
-						requestedPath);
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				error(response, str);
+				notFound(response, requestedPath, branch);
 				return;
 			} else {
 				//
@@ -425,9 +400,10 @@ public class RawServlet extends HttpServlet {
 		}
 	}
 
-	protected void streamFromRepo(HttpServletResponse response, Repository repository,
+	protected boolean streamFromRepo(HttpServletRequest request, HttpServletResponse response, Repository repository,
 			RevCommit commit, String requestedPath) throws IOException {
 
+		boolean served = false;
 		RevWalk rw = new RevWalk(repository);
 		TreeWalk tw = new TreeWalk(repository);
 		try {
@@ -445,10 +421,30 @@ public class RawServlet extends HttpServlet {
 				}
 				tw.getObjectId(id, 0);
 
+				String filename = StringUtils.getLastPathElement(requestedPath);
+				try {
+			    	String userAgent = request.getHeader("User-Agent");
+					if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
+					      response.setHeader("Content-Disposition", "filename=\""
+					    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
+					} else if (userAgent != null && userAgent.indexOf("MSIE") > -1) {
+					      response.setHeader("Content-Disposition", "attachment; filename=\""
+					    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
+					} else {
+							response.setHeader("Content-Disposition", "attachment; filename=\""
+							      + new String(filename.getBytes(Constants.ENCODING), "latin1") + "\"");
+					}
+				}
+				catch (UnsupportedEncodingException e) {
+					response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+				}
+
 				long len = reader.getObjectSize(id, org.eclipse.jgit.lib.Constants.OBJ_BLOB);
+				setContentType(response, "application/octet-stream");
 				response.setIntHeader("Content-Length", (int) len);
 				ObjectLoader ldr = repository.open(id);
 				ldr.copyTo(response.getOutputStream());
+				served = true;
 			}
 		} finally {
 			tw.release();
@@ -456,6 +452,7 @@ public class RawServlet extends HttpServlet {
 		}
 
 		response.flushBuffer();
+		return served;
 	}
 
 	protected void sendContent(HttpServletResponse response, Date date, InputStream is) throws ServletException, IOException {
@@ -470,6 +467,15 @@ public class RawServlet extends HttpServlet {
 			is.close();
 		}
 		response.flushBuffer();
+	}
+
+	protected void notFound(HttpServletResponse response, String requestedPath, String branch)
+			throws ParseException, ServletException, IOException {
+		String str = MessageFormat.format(
+				"# Error\nSorry, the requested resource **{0}** was not found in **{1}**.",
+				requestedPath, branch);
+		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		error(response, str);
 	}
 
 	private void error(HttpServletResponse response, String mkd) throws ServletException,
