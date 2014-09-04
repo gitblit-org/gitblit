@@ -104,7 +104,7 @@ repositories: central, eclipse-snapshots, eclipse, gitblit
 properties: {
   jetty.version  : 9.2.1.v20140609
   wicket.version : 1.4.21
-  lucene.version : 4.8.1
+  lucene.version : 4.10.0
   jgit.version   : 3.4.1.201406201815-r
   groovy.version : 2.3.3
   bouncycastle.version : 1.49
