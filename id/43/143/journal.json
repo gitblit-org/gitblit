@@ -1,0 +1,1 @@
+[{"date":"2014-09-04T15:55:24Z","author":"james","fields":{"title":"Fix url-based password keaing in Redmine auth provider","topic":"pr-215 issue-466","type":"Bug","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
