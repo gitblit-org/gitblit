@@ -153,15 +153,16 @@ public class RedmineAuthProvider extends UsernamePasswordAuthenticationProvider 
         if (!url.endsWith("/")) {
         	url = url.concat("/");
         }
+        String apiUrl = url + "users/current.json";
+        
         HttpURLConnection http;
         if (username == null) {
         	// apikey authentication
         	String apiKey = String.valueOf(password);
-        	String apiUrl = url + "users/current.json?key=" + apiKey;
         	http = (HttpURLConnection) ConnectionUtils.openConnection(apiUrl, null, null);
+            http.addRequestProperty("X-Redmine-API-Key", apiKey);
         } else {
         	// username/password BASIC authentication
-        	String apiUrl = url + "users/current.json";
         	http = (HttpURLConnection) ConnectionUtils.openConnection(apiUrl, username, password);
         }
         http.setRequestMethod("GET");
