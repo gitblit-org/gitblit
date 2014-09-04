@@ -59,6 +59,7 @@ import com.gitblit.wicket.panels.AccessPolicyPanel;
 import com.gitblit.wicket.panels.BooleanChoiceOption;
 import com.gitblit.wicket.panels.BooleanOption;
 import com.gitblit.wicket.panels.RepositoryNamePanel;
+import com.google.common.base.Optional;
 
 public class NewRepositoryPage extends RootSubPage {
 
@@ -243,7 +244,8 @@ public class NewRepositoryPage extends RootSubPage {
 		try {
 
 			UserModel user = GitBlitWebSession.get().getUser();
-			PersonIdent author = new PersonIdent(user.getDisplayName(), user.emailAddress);
+			String email = Optional.fromNullable(user.emailAddress).or(user.username + "@" + "gitblit");
+			PersonIdent author = new PersonIdent(user.getDisplayName(), email);
 
 			DirCache newIndex = DirCache.newInCore();
 			DirCacheBuilder indexBuilder = newIndex.builder();
