@@ -1,0 +1,1 @@
+[{"date":"2014-09-04T20:10:46Z","author":"james","fields":{"title":"Raw servlet returns 0-length files instead of 404s","topic":"issue-489","type":"Bug","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
