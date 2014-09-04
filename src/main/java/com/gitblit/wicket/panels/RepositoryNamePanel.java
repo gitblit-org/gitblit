@@ -56,6 +56,9 @@ public class RepositoryNamePanel extends BasePanel {
 
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
 
 		// build project set for repository destination
 		String defaultPath = null;
