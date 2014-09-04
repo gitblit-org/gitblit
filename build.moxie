@@ -95,9 +95,10 @@ dependencyDirectory: ext
 registeredRepositories:
 - { id: eclipse, url: 'http://repo.eclipse.org/content/groups/releases' }
 - { id: eclipse-snapshots, url: 'http://repo.eclipse.org/content/groups/snapshots' }
+- { id: atlassian-contrib, url: 'https://maven.atlassian.com/content/repositories/atlassian-3rdparty' }
 
 # Source all dependencies from the following repositories in the specified order
-repositories: central, eclipse-snapshots, eclipse
+repositories: central, eclipse-snapshots, eclipse, atlassian-contrib
 
 # Convenience properties for dependencies
 properties: {
@@ -109,7 +110,7 @@ properties: {
   bouncycastle.version : 1.49
   selenium.version : 2.28.0
   wikitext.version : 1.4
-  sshd.version: 0.11.0
+  sshd.version: 0.11.1-atlassian-1
   mina.version: 2.0.7
   }
 
