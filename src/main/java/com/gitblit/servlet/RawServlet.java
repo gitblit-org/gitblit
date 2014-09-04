@@ -421,11 +421,8 @@ public class RawServlet extends DaggerServlet {
 		}
 	}
 
-	private void streamFromRepo(HttpServletResponse response, Repository repository,
+	protected void streamFromRepo(HttpServletResponse response, Repository repository,
 			RevCommit commit, String requestedPath) throws IOException {
-
-		response.setDateHeader("Last-Modified", JGitUtils.getCommitDate(commit).getTime());
-		response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
 
 		RevWalk rw = new RevWalk(repository);
 		TreeWalk tw = new TreeWalk(repository);
@@ -457,9 +454,8 @@ public class RawServlet extends DaggerServlet {
 		response.flushBuffer();
 	}
 
-	private void sendContent(HttpServletResponse response, Date date, InputStream is) throws ServletException, IOException {
-		response.setDateHeader("Last-Modified", date.getTime());
-		response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+	protected void sendContent(HttpServletResponse response, Date date, InputStream is) throws ServletException, IOException {
+
 		try {
 			byte[] tmp = new byte[8192];
 			int len = 0;
