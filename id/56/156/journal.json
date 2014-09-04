@@ -1,0 +1,1 @@
+[{"date":"2014-09-04T21:36:59Z","author":"james","fields":{"title":"Update stable 1.6.x SSHD to 0.11.1-atlassian-1","body":"This release solves the SSHD hanging issue.","topic":"issue-493","type":"Task","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
