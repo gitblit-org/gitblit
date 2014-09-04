@@ -153,7 +153,7 @@ public class GitblitContext extends DaggerContext {
 			// if the base folder dosen't match the default assume they don't want to use express,
 			// this allows for other containers to customise the basefolder per context.
 			String defaultBase = Constants.contextFolder$ + "/WEB-INF/data";
-			String base = lookupBaseFolderFromJndi();
+			String base = System.getProperty("GITBLIT_HOME",lookupBaseFolderFromJndi());
 			if (!StringUtils.isEmpty(System.getenv("OPENSHIFT_DATA_DIR")) && defaultBase.equals(base)) {
 				// RedHat OpenShift
 				baseFolder = configureExpress(context, webxmlSettings, contextFolder, runtimeSettings);
