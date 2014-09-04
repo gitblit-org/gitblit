@@ -84,13 +84,13 @@ public class PagesServlet extends RawServlet {
 	}
 
 	@Override
-	protected void streamFromRepo(HttpServletResponse response, Repository repository,
+	protected boolean streamFromRepo(HttpServletRequest request, HttpServletResponse response, Repository repository,
 			RevCommit commit, String requestedPath) throws IOException {
 
 		response.setDateHeader("Last-Modified", JGitUtils.getCommitDate(commit).getTime());
 		response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
 
-		super.streamFromRepo(response, repository, commit, requestedPath);
+		return super.streamFromRepo(request, response, repository, commit, requestedPath);
 	}
 
 	@Override
