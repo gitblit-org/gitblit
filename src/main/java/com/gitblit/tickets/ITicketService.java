@@ -673,21 +673,24 @@ public abstract class ITicketService implements IManager {
 		Repository db = null;
 		try {
 			db = repositoryManager.getRepository(repository.name);
-			TicketMilestone milestone = getMilestone(repository, oldName);
+			TicketMilestone tm = getMilestone(repository, oldName);
+			if (tm == null) {
+				return false;
+			}
 			StoredConfig config = db.getConfig();
 			config.unsetSection(MILESTONE, oldName);
-			config.setString(MILESTONE, newName, STATUS, milestone.status.name());
-			config.setString(MILESTONE, newName, COLOR, milestone.color);
-			if (milestone.due != null) {
+			config.setString(MILESTONE, newName, STATUS, tm.status.name());
+			config.setString(MILESTONE, newName, COLOR, tm.color);
+			if (tm.due != null) {
 				config.setString(MILESTONE, newName, DUE,
-						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
+						new SimpleDateFormat(DUE_DATE_PATTERN).format(tm.due));
 			}
 			config.save();
 
 			milestonesCache.remove(repository.name);
 
 			TicketNotifier notifier = createNotifier();
-			for (QueryResult qr : milestone.tickets) {
+			for (QueryResult qr : tm.tickets) {
 				Change change = new Change(createdBy);
 				change.setField(Field.milestone, newName);
 				TicketModel ticket = updateTicket(repository, qr.number, change);
@@ -741,6 +744,9 @@ public abstract class ITicketService implements IManager {
 		Repository db = null;
 		try {
 			TicketMilestone tm = getMilestone(repository, milestone);
+			if (tm == null) {
+				return false;
+			}
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
 			config.unsetSection(MILESTONE, milestone);

@@ -249,9 +249,12 @@ public class TicketPage extends RepositoryPage {
 			add(new Label("milestone"));
 		} else {
 			// link to milestone query
-			TicketMilestone milestone = app().tickets().getMilestone(repository, ticket.milestone);
+			TicketMilestone tm = app().tickets().getMilestone(repository, ticket.milestone);
+			if (tm == null) {
+				tm = new TicketMilestone(ticket.milestone);
+			}
 			PageParameters milestoneParameters;
-			if (milestone.isOpen()) {
+			if (tm.isOpen()) {
 				milestoneParameters = WicketUtils.newOpenTicketsParameter(repositoryName);
 			} else {
 				milestoneParameters = WicketUtils.newRepositoryParameter(repositoryName);
@@ -260,10 +263,10 @@ public class TicketPage extends RepositoryPage {
 			int progress = 0;
 			int open = 0;
 			int closed = 0;
-			if (milestone != null) {
-				progress = milestone.getProgress();
-				open = milestone.getOpenTickets();
-				closed = milestone.getClosedTickets();
+			if (tm != null) {
+				progress = tm.getProgress();
+				open = tm.getOpenTickets();
+				closed = tm.getClosedTickets();
 			}
 
 			Fragment milestoneProgress = new Fragment("milestone", "milestoneProgressFragment", this);
