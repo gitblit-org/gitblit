@@ -37,10 +37,12 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ro.fortsoft.pf4j.DefaultExtensionFinder;
+import ro.fortsoft.pf4j.DefaultPluginFactory;
 import ro.fortsoft.pf4j.DefaultPluginManager;
-import ro.fortsoft.pf4j.ExtensionFinder;
+import ro.fortsoft.pf4j.ExtensionFactory;
+import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginClassLoader;
+import ro.fortsoft.pf4j.PluginFactory;
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginStateEvent;
 import ro.fortsoft.pf4j.PluginStateListener;
@@ -105,32 +107,18 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	public PluginManager start() {
 		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
 		dir.mkdirs();
+
 		pf4j = new DefaultPluginManager(dir) {
+
 			@Override
-		    protected ExtensionFinder createExtensionFinder() {
-		    	DefaultExtensionFinder extensionFinder = new DefaultExtensionFinder(this) {
-		    		@Override
-					protected ExtensionFactory createExtensionFactory() {
-		    			return new ExtensionFactory() {
-		    				@Override
-		    				public Object create(Class<?> extensionType) {
-		    					// instantiate && inject the extension
-		    					logger.debug("Create instance for extension '{}'", extensionType.getName());
-		    					try {
-		    						return runtimeManager.getInjector().getInstance(extensionType);
-		    					} catch (Exception e) {
-		    						logger.error(e.getMessage(), e);
-		    					}
-		    					return null;
-		    				}
+			protected PluginFactory createPluginFactory() {
+				return new GuicePluginFactory();
+			}
 
-		    			};
-		    		}
-		    	};
-		        addPluginStateListener(extensionFinder);
-
-		        return extensionFinder;
-		    }
+			@Override
+			protected ExtensionFactory createExtensionFactory() {
+				return new GuiceExtensionFactory();
+			}
 		};
 
 		try {
@@ -599,5 +587,42 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	protected String getProxyAuthorization(URL url) {
 		return "";
+	}
+
+	/**
+	 * Instantiates a plugin using pf4j but injects member fields
+	 * with Guice.
+	 */
+	private class GuicePluginFactory extends DefaultPluginFactory {
+
+		@Override
+		public Plugin create(PluginWrapper pluginWrapper) {
+			// use pf4j to create the plugin
+			Plugin plugin = super.create(pluginWrapper);
+
+			if (plugin != null) {
+				// allow Guice to inject member fields
+				runtimeManager.getInjector().injectMembers(plugin);
+			}
+
+			return plugin;
+		}
+	}
+
+	/**
+	 * Instantiates an extension using Guice.
+	 */
+	private class GuiceExtensionFactory implements ExtensionFactory {
+		@Override
+		public Object create(Class<?> extensionClass) {
+			// instantiate && inject the extension
+			logger.debug("Create instance for extension '{}'", extensionClass.getName());
+			try {
+				return runtimeManager.getInjector().getInstance(extensionClass);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			return null;
+		}
 	}
 }
