@@ -166,6 +166,9 @@ public abstract class BasePage extends SessionPage {
 			// use default Wicket caching behavior
 			super.setHeaders(response);
 		}
+
+		// XRF vulnerability. issue-500 / ticket-166
+		response.setHeader("X-Frame-Options", "SAMEORIGIN");
 	}
 
 	/**
