@@ -135,13 +135,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-all-9.2.1.v20140609.jar">
+      <library name="jetty-all-9.2.2.v20140723.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.2.1.v20140609.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.2.2.v20140723.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.2.1.v20140609.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.2.2.v20140723.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -534,7 +534,9 @@
           <root url="jar://$MODULE_DIR$/ext/sshd-core-0.12.0.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-0.12.0.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
