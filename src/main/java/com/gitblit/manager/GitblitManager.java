@@ -223,6 +223,13 @@ public class GitblitManager implements IGitblit {
 		RepositoryModel cloneModel = repository.cloneAs(cloneName);
 		// owner has REWIND/RW+ permissions
 		cloneModel.addOwner(user.username);
+
+		// ensure initial access restriction of the fork
+		// is not lower than the source repository  (issue-495/ticket-167)
+		if (repository.accessRestriction.exceeds(cloneModel.accessRestriction)) {
+			cloneModel.accessRestriction = repository.accessRestriction;
+		}
+
 		repositoryManager.updateRepositoryModel(cloneName, cloneModel, false);
 
 		// add the owner of the source repository to the clone's access list
