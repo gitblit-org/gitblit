@@ -32,12 +32,15 @@ import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.XssFilter;
 
 public class RuntimeManager implements IRuntimeManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final IStoredSettings settings;
+
+	private final XssFilter xssFilter;
 
 	private final ServerStatus serverStatus;
 
@@ -47,14 +50,15 @@ public class RuntimeManager implements IRuntimeManager {
 
 	private TimeZone timezone;
 
-	public RuntimeManager(IStoredSettings settings) {
-		this(settings, null);
+	public RuntimeManager(IStoredSettings settings, XssFilter xssFilter) {
+		this(settings, xssFilter, null);
 	}
 
-	public RuntimeManager(IStoredSettings settings, File baseFolder) {
+	public RuntimeManager(IStoredSettings settings, XssFilter xssFilter, File baseFolder) {
 		this.settings = settings;
 		this.settingsModel = new ServerSettings();
 		this.serverStatus = new ServerStatus();
+		this.xssFilter = xssFilter;
 		this.baseFolder = baseFolder == null ? new File("") : baseFolder;
 	}
 
@@ -262,4 +266,15 @@ public class RuntimeManager implements IRuntimeManager {
 		serverStatus.heapFree = Runtime.getRuntime().freeMemory();
 		return serverStatus;
 	}
+
+	/**
+	 * Returns the XSS filter.
+	 *
+	 * @return the XSS filter
+	 */
+	@Override
+	public XssFilter getXssFilter() {
+		return xssFilter;
+	}
+
 }

@@ -34,6 +34,8 @@ import com.gitblit.service.LuceneService;
 import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 
 /**
  * Tests Lucene indexing and querying.
@@ -48,7 +50,8 @@ public class LuceneExecutorTest extends GitblitUnitTest {
 	private LuceneService newLuceneExecutor() {
 		MemorySettings settings = new MemorySettings();
 		settings.put(Keys.git.repositoriesFolder, GitBlitSuite.REPOSITORIES);
-		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+		XssFilter xssFilter = new AllowXssFilter();
+		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
 		UserManager users = new UserManager(runtime, null).start();
 		RepositoryManager repos = new RepositoryManager(runtime, null, users);
 		return new LuceneService(settings, repos);

@@ -13,6 +13,8 @@ import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 
 public class RedmineAuthenticationTest extends GitblitUnitTest {
 
@@ -25,7 +27,8 @@ public class RedmineAuthenticationTest extends GitblitUnitTest {
     }
 
     RedmineAuthProvider newRedmineAuthentication(IStoredSettings settings) {
-    	RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+    	XssFilter xssFilter = new AllowXssFilter();
+    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	RedmineAuthProvider redmine = new RedmineAuthProvider();
     	redmine.setup(runtime, users);
@@ -37,7 +40,8 @@ public class RedmineAuthenticationTest extends GitblitUnitTest {
     }
 
     AuthenticationManager newAuthenticationManager() {
-    	RuntimeManager runtime = new RuntimeManager(getSettings(), GitBlitSuite.BASEFOLDER).start();
+    	XssFilter xssFilter = new AllowXssFilter();
+    	RuntimeManager runtime = new RuntimeManager(getSettings(), xssFilter, GitBlitSuite.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	RedmineAuthProvider redmine = new RedmineAuthProvider();
     	redmine.setup(runtime, users);

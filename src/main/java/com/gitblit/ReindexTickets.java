@@ -33,6 +33,8 @@ import com.gitblit.tickets.FileTicketService;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.RedisTicketService;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 
 /**
  * A command-line tool to reindex all tickets in all repositories when the
@@ -126,7 +128,8 @@ public class ReindexTickets {
 		settings.overrideSetting(Keys.git.enableMirroring, false);
 		settings.overrideSetting(Keys.web.activityCacheDays, 0);
 
-		IRuntimeManager runtimeManager = new RuntimeManager(settings, baseFolder).start();
+		XssFilter xssFilter = new AllowXssFilter();
+		IRuntimeManager runtimeManager = new RuntimeManager(settings, xssFilter, baseFolder).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null, null).start();
 
 		String serviceName = settings.getString(Keys.tickets.service, BranchTicketService.class.getSimpleName());

@@ -26,6 +26,8 @@ import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 
 /**
  * Class for testing local authentication.
@@ -42,7 +44,8 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
     }
 
     IAuthenticationManager newAuthenticationManager() {
-    	RuntimeManager runtime = new RuntimeManager(getSettings(), GitBlitSuite.BASEFOLDER).start();
+    	XssFilter xssFilter = new AllowXssFilter();
+    	RuntimeManager runtime = new RuntimeManager(getSettings(), xssFilter, GitBlitSuite.BASEFOLDER).start();
     	users = new UserManager(runtime, null).start();
     	AuthenticationManager auth = new AuthenticationManager(runtime, users).start();
     	return auth;
