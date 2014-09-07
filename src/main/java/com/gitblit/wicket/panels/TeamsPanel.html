@@ -15,16 +15,18 @@
 				<img style="vertical-align: middle; border: 1px solid #888; background-color: white;" src="users_16x16.png"/>
 				<wicket:message key="gb.teams">[teams]</wicket:message>
 			</th>
+			<th class="hidden-phone" style="width:140px;"><wicket:message key="gb.type">[type]</wicket:message></th>
 			<th class="hidden-phone" style="width:140px;"><wicket:message key="gb.teamMembers">[team members]</wicket:message></th>
 			<th class="hidden-phone" style="width:100px;"><wicket:message key="gb.repositories">[repositories]</wicket:message></th>
 			<th style="width:80px;" class="right"></th>
 		</tr>
-		<tbody>		
+		<tbody>
        		<tr wicket:id="teamRow">
        			<td class="left" ><div class="list" wicket:id="teamname">[teamname]</div></td>
+       			<td class="hidden-phone left" ><span style="font-size: 0.8em;" wicket:id="accountType">[account type]</span></td>
        			<td class="hidden-phone left" ><div class="list" wicket:id="members">[members]</div></td>
        			<td class="hidden-phone left" ><div class="list" wicket:id="repositories">[repositories]</div></td>
-       			<td class="rightAlign"><span wicket:id="teamLinks"></span></td>      			
+       			<td class="rightAlign"><span wicket:id="teamLinks"></span></td>
        		</tr>
     	</tbody>
 	</table>

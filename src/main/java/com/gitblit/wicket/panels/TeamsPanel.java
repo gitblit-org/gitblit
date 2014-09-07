@@ -60,6 +60,7 @@ public class TeamsPanel extends BasePanel {
 						EditTeamPage.class, WicketUtils.newTeamnameParameter(entry.name));
 				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.name);
 				item.add(editLink);
+				item.add(new Label("accountType", entry.accountType.name()));
 				item.add(new Label("members", entry.users.size() > 0 ? ("" + entry.users.size())
 						: ""));
 				item.add(new Label("repositories",
