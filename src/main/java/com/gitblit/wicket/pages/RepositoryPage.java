@@ -550,7 +550,8 @@ public abstract class RepositoryPage extends RootPage {
 		String html;
 		switch (model.commitMessageRenderer) {
 		case MARKDOWN:
-			html = MessageFormat.format("<div class='commit_message'>{0}</div>", content);
+			String safeContent = app().xssFilter().relaxed(content);
+			html = MessageFormat.format("<div class='commit_message'>{0}</div>", safeContent);
 			break;
 		default:
 			html = MessageFormat.format("<pre class='commit_message'>{0}</pre>", content);
