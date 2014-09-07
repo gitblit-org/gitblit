@@ -227,7 +227,9 @@ public class AuthenticationManager implements IAuthenticationManager {
 		// try to authenticate by certificate
 		boolean checkValidity = settings.getBoolean(Keys.git.enforceCertificateValidity, true);
 		String [] oids = settings.getStrings(Keys.git.certificateUsernameOIDs).toArray(new String[0]);
-		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
+    String regexPattern = settings.getString(Keys.server.regexClientCert, ".*");
+    boolean isToUppercase = Boolean.getBoolean(settings.getString(Keys.server.clientCertUserToUppercase, "false"));
+		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, regexPattern, isToUppercase, oids);
 		if (model != null) {
 			// grab real user model and preserve certificate serial number
 			UserModel user = userManager.getUserModel(model.username);

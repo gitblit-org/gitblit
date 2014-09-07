@@ -91,14 +91,14 @@ public class X509UtilsTest extends GitblitUnitTest {
 		userMetadata.oids.put("C",  "US");
 
 		X509Certificate cert1 = X509Utils.newClientCertificate(userMetadata, caPrivateKey, caCert, storeFile.getParentFile());
-		UserModel userModel1 = HttpUtils.getUserModelFromCertificate(cert1);
+		UserModel userModel1 = HttpUtils.getUserModelFromCertificate(cert1, ".*", false);
 		assertEquals(userMetadata.commonName, userModel1.username);
 		assertEquals(userMetadata.emailAddress, userModel1.emailAddress);
 		assertEquals("C=US,O=Gitblit,OU=Gitblit,CN=james", cert1.getSubjectDN().getName());
 
 
 		X509Certificate cert2 = X509Utils.newClientCertificate(userMetadata, caPrivateKey, caCert, storeFile.getParentFile());
-		UserModel userModel2 = HttpUtils.getUserModelFromCertificate(cert2);
+		UserModel userModel2 = HttpUtils.getUserModelFromCertificate(cert1, ".*", false);
 		assertEquals(userMetadata.commonName, userModel2.username);
 		assertEquals(userMetadata.emailAddress, userModel2.emailAddress);
 		assertEquals("C=US,O=Gitblit,OU=Gitblit,CN=james", cert2.getSubjectDN().getName());
