@@ -49,7 +49,7 @@ public class DocsPage extends RepositoryPage {
 	public DocsPage(PageParameters params) {
 		super(params);
 
-		MarkupProcessor processor = new MarkupProcessor(app().settings());
+		MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
 
 		Repository r = getRepository();
 		RevCommit head = JGitUtils.getCommit(r, null);
