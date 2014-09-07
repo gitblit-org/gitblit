@@ -138,7 +138,7 @@ public class SummaryPage extends RepositoryPage {
 			MarkupDocument markupDoc = null;
 			RevCommit head = JGitUtils.getCommit(r, null);
 			if (head != null) {
-				MarkupProcessor processor = new MarkupProcessor(app().settings());
+				MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
 				markupDoc = processor.getReadme(r, repositoryName, getBestCommitId(head));
 			}
 			if (markupDoc == null || markupDoc.markup == null) {

@@ -32,6 +32,8 @@ import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 
 /**
  * Test the Htpasswd user service.
@@ -74,7 +76,8 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
     }
 
     private HtpasswdAuthProvider newHtpasswdAuthentication(IStoredSettings settings) {
-    	RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+    	XssFilter xssFilter = new AllowXssFilter();
+    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
     	htpasswd.setup(runtime, users);
@@ -82,7 +85,8 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
     }
 
     private AuthenticationManager newAuthenticationManager(IStoredSettings settings) {
-    	RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+    	XssFilter xssFilter = new AllowXssFilter();
+    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
     	htpasswd.setup(runtime, users);

@@ -39,7 +39,9 @@ import com.gitblit.manager.ServicesManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.utils.JSoupXssFilter;
 import com.gitblit.utils.WorkQueue;
+import com.gitblit.utils.XssFilter;
 import com.google.inject.AbstractModule;
 
 /**
@@ -54,6 +56,7 @@ public class CoreModule extends AbstractModule {
 	protected void configure() {
 
 		bind(IStoredSettings.class).toInstance(new FileSettings());
+		bind(XssFilter.class).to(JSoupXssFilter.class);
 
 		// bind complex providers
 		bind(IPublicKeyManager.class).toProvider(IPublicKeyManagerProvider.class);

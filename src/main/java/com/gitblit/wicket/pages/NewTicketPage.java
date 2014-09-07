@@ -46,6 +46,8 @@ import com.gitblit.tickets.TicketNotifier;
 import com.gitblit.tickets.TicketResponsible;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.SafeTextModel;
+import com.gitblit.wicket.SafeTextModel.Mode;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.MarkdownTextArea;
 
@@ -87,8 +89,8 @@ public class NewTicketPage extends RepositoryPage {
 		}
 
 		typeModel = Model.of(TicketModel.Type.defaultType);
-		titleModel = Model.of();
-		topicModel = Model.of();
+		titleModel = SafeTextModel.none();
+		topicModel = SafeTextModel.none();
 		mergeToModel = Model.of(Repository.shortenRefName(getRepositoryModel().mergeTo));
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
@@ -103,7 +105,7 @@ public class NewTicketPage extends RepositoryPage {
 		form.add(new TextField<String>("title", titleModel));
 		form.add(new TextField<String>("topic", topicModel));
 
-		final IModel<String> markdownPreviewModel = new Model<String>();
+		final SafeTextModel markdownPreviewModel = new SafeTextModel(Mode.none);
 		descriptionPreview = new Label("descriptionPreview", markdownPreviewModel);
 		descriptionPreview.setEscapeModelStrings(false);
 		descriptionPreview.setOutputMarkupId(true);

@@ -18,6 +18,7 @@ import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.utils.XssFilter;
 
 public interface GitblitWicketApp {
 
@@ -30,6 +31,8 @@ public interface GitblitWicketApp {
 	public abstract CacheControl getCacheControl(String mountPoint);
 
 	public abstract IStoredSettings settings();
+
+	public abstract XssFilter xssFilter();
 
 	/**
 	 * Is Gitblit running in debug mode?
