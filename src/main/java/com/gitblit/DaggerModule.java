@@ -38,7 +38,9 @@ import com.gitblit.transport.ssh.FileKeyManager;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.MemoryKeyManager;
 import com.gitblit.transport.ssh.NullKeyManager;
+import com.gitblit.utils.JSoupXssFilter;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.XssFilter;
 import com.gitblit.wicket.GitBlitWebApp;
 
 import dagger.Module;
@@ -54,6 +56,7 @@ import dagger.Provides;
 	library = true,
 	injects = {
 			IStoredSettings.class,
+			XssFilter.class,
 
 			// core managers
 			IRuntimeManager.class,
@@ -79,8 +82,12 @@ public class DaggerModule {
 		return new FileSettings();
 	}
 
-	@Provides @Singleton IRuntimeManager provideRuntimeManager(IStoredSettings settings) {
-		return new RuntimeManager(settings);
+	@Provides @Singleton XssFilter provideXssFilter() {
+		return new JSoupXssFilter();
+	}
+
+	@Provides @Singleton IRuntimeManager provideRuntimeManager(IStoredSettings settings, XssFilter xssFilter) {
+		return new RuntimeManager(settings, xssFilter);
 	}
 
 	@Provides @Singleton IPluginManager providePluginManager(IRuntimeManager runtimeManager) {

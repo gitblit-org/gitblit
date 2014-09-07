@@ -24,6 +24,7 @@ import java.util.TimeZone;
 import com.gitblit.IStoredSettings;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
+import com.gitblit.utils.XssFilter;
 
 public interface IRuntimeManager extends IManager {
 
@@ -151,4 +152,11 @@ public interface IRuntimeManager extends IManager {
  	 * @since 1.4.0
 	 */
 	boolean updateSettings(Map<String, String> updatedSettings);
+
+	/**
+	 * Returns the HTML sanitizer used to clean user content.
+	 *
+	 * @return the HTML sanitizer
+	 */
+	XssFilter getXssFilter();
 }

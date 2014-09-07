@@ -39,6 +39,8 @@ import com.gitblit.manager.UserManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -96,7 +98,8 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	}
 
 	private LdapAuthProvider newLdapAuthentication(IStoredSettings settings) {
-		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+		XssFilter xssFilter = new AllowXssFilter();
+		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
 		userManager = new UserManager(runtime, null).start();
 		LdapAuthProvider ldap = new LdapAuthProvider();
 		ldap.setup(runtime, userManager);
@@ -104,7 +107,8 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	}
 
 	private AuthenticationManager newAuthenticationManager(IStoredSettings settings) {
-		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+		XssFilter xssFilter = new AllowXssFilter();
+		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
 		AuthenticationManager auth = new AuthenticationManager(runtime, userManager);
 		auth.addAuthenticationProvider(newLdapAuthentication(settings));
 		return auth;

@@ -42,6 +42,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.Metric;
@@ -186,9 +187,9 @@ public class WicketUtils {
 			return newImage(wicketId, "file_settings_16x16.png");
 		}
 
-		MarkupProcessor processor = new MarkupProcessor(GitBlitWebApp.get().settings());
 		String ext = StringUtils.getFileExtension(filename).toLowerCase();
-		if (processor.getMarkupExtensions().contains(ext)) {
+		IStoredSettings settings = GitBlitWebApp.get().settings();
+		if (MarkupProcessor.getMarkupExtensions(settings).contains(ext)) {
 			return newImage(wicketId, "file_world_16x16.png");
 		}
 		return newImage(wicketId, "file_16x16.png");

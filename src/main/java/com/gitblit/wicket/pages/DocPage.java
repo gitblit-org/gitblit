@@ -43,7 +43,7 @@ public class DocPage extends RepositoryPage {
 		super(params);
 
 		final String path = WicketUtils.getPath(params).replace("%2f", "/").replace("%2F", "/");
-		MarkupProcessor processor = new MarkupProcessor(app().settings());
+		MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);

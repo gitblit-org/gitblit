@@ -28,6 +28,8 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 
 public class MockRuntimeManager implements IRuntimeManager {
 
@@ -145,6 +147,11 @@ public class MockRuntimeManager implements IRuntimeManager {
 	@Override
 	public IStoredSettings getSettings() {
 		return settings;
+	}
+
+	@Override
+	public XssFilter getXssFilter() {
+		return new AllowXssFilter();
 	}
 
 	@Override

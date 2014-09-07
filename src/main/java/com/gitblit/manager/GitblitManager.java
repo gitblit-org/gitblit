@@ -79,6 +79,7 @@ import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.XssFilter;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.ObjectCache;
@@ -661,6 +662,11 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public ServerStatus getStatus() {
 		return runtimeManager.getStatus();
+	}
+
+	@Override
+	public XssFilter getXssFilter() {
+		return runtimeManager.getXssFilter();
 	}
 
 	/*

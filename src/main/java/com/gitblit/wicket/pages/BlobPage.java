@@ -79,7 +79,7 @@ public class BlobPage extends RepositoryPage {
 			}
 
 			// see if we should redirect to the doc page
-			MarkupProcessor processor = new MarkupProcessor(app().settings());
+			MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
 			for (String ext : processor.getMarkupExtensions()) {
 				if (ext.equals(extension)) {
 					setResponsePage(DocPage.class, params);

@@ -60,6 +60,7 @@ import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.XssFilter;
 import com.gitblit.wicket.pages.DocPage;
 import com.google.common.base.Joiner;
 
@@ -80,11 +81,9 @@ public class MarkupProcessor {
 
 	private final IStoredSettings settings;
 
-	public MarkupProcessor(IStoredSettings settings) {
-		this.settings = settings;
-	}
+	private final XssFilter xssFilter;
 
-	public List<String> getMarkupExtensions() {
+	public static List<String> getMarkupExtensions(IStoredSettings settings) {
 		List<String> list = new ArrayList<String>();
 		list.addAll(settings.getStrings(Keys.web.confluenceExtensions));
 		list.addAll(settings.getStrings(Keys.web.markdownExtensions));
@@ -95,8 +94,17 @@ public class MarkupProcessor {
 		return list;
 	}
 
+	public MarkupProcessor(IStoredSettings settings, XssFilter xssFilter) {
+		this.settings = settings;
+		this.xssFilter = xssFilter;
+	}
+
+	public List<String> getMarkupExtensions() {
+		return getMarkupExtensions(settings);
+	}
+
 	public List<String> getAllExtensions() {
-		List<String> list = getMarkupExtensions();
+		List<String> list = getMarkupExtensions(settings);
 		list.add("txt");
 		list.add("TXT");
 		return list;
@@ -295,7 +303,11 @@ public class MarkupProcessor {
 		MarkupParser parser = new MarkupParser(lang);
 		parser.setBuilder(builder);
 		parser.parse(doc.markup);
-		doc.html = writer.toString();
+
+		final String content = writer.toString();
+		final String safeContent = xssFilter.relaxed(content);
+
+		doc.html = safeContent;
 	}
 
 	/**
@@ -345,7 +357,11 @@ public class MarkupProcessor {
 				return new Rendering(url, name);
 			}
 		};
-		doc.html = MarkdownUtils.transformMarkdown(doc.markup, renderer);
+
+		final String content = MarkdownUtils.transformMarkdown(doc.markup, renderer);
+		final String safeContent = xssFilter.relaxed(content);
+
+		doc.html = safeContent;
 	}
 
 	private String getWicketUrl(Class<? extends Page> pageClass, final String repositoryName, final String commitId, final String document) {

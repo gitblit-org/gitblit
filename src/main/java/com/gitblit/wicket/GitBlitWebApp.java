@@ -46,6 +46,7 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
+import com.gitblit.utils.XssFilter;
 import com.gitblit.wicket.pages.ActivityPage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
@@ -100,6 +101,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final IStoredSettings settings;
 
+	private final XssFilter xssFilter;
+
 	private final IRuntimeManager runtimeManager;
 
 	private final IPluginManager pluginManager;
@@ -134,6 +137,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 		super();
 		this.settings = runtimeManager.getSettings();
+		this.xssFilter = runtimeManager.getXssFilter();
 		this.runtimeManager = runtimeManager;
 		this.pluginManager = pluginManager;
 		this.notificationManager = notificationManager;
@@ -251,7 +255,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		if (!settings.getBoolean(Keys.web.mountParameters, true)) {
 			parameters = new String[] {};
 		}
-		mount(new GitblitParamUrlCodingStrategy(settings, location, clazz, parameters));
+		mount(new GitblitParamUrlCodingStrategy(settings, xssFilter, location, clazz, parameters));
 
 		// map the mount point to the cache control definition
 		if (clazz.isAnnotationPresent(CacheControl.class)) {
@@ -305,6 +309,14 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	@Override
 	public IStoredSettings settings() {
 		return settings;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#xssFilter()
+	 */
+	@Override
+	public XssFilter xssFilter() {
+		return xssFilter;
 	}
 
 	/* (non-Javadoc)

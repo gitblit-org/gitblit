@@ -29,6 +29,8 @@ import com.gitblit.manager.UserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.tickets.FileTicketService;
 import com.gitblit.tickets.ITicketService;
+import com.gitblit.utils.XssFilter;
+import com.gitblit.utils.XssFilter.AllowXssFilter;
 
 /**
  * Tests the file ticket service.
@@ -49,8 +51,8 @@ public class FileTicketServiceTest extends TicketServiceTest {
 	protected ITicketService getService(boolean deleteAll) throws Exception {
 
 		IStoredSettings settings = getSettings(deleteAll);
-
-		IRuntimeManager runtimeManager = new RuntimeManager(settings).start();
+		XssFilter xssFilter = new AllowXssFilter();
+		IRuntimeManager runtimeManager = new RuntimeManager(settings, xssFilter).start();
 		IPluginManager pluginManager = new PluginManager(runtimeManager).start();
 		INotificationManager notificationManager = new NotificationManager(settings).start();
 		IUserManager userManager = new UserManager(runtimeManager, pluginManager).start();
