@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revplot.AbstractPlotRenderer;
@@ -51,6 +52,8 @@ import org.eclipse.jgit.revplot.PlotCommitList;
 import org.eclipse.jgit.revplot.PlotLane;
 import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
@@ -76,6 +79,8 @@ public class BranchGraphServlet extends HttpServlet {
 	private static final int ROW_HEIGHT = 24;
 
 	private static final int RIGHT_PAD = 2;
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Stroke[] strokeCache;
 
@@ -118,6 +123,9 @@ public class BranchGraphServlet extends HttpServlet {
 	@Override
 	protected long getLastModified(HttpServletRequest req) {
 		String repository = req.getParameter("r");
+		if (StringUtils.isEmpty(repository)) {
+			return 0;
+		}
 		String objectId = req.getParameter("h");
 		Repository r = null;
 		try {
@@ -125,8 +133,15 @@ public class BranchGraphServlet extends HttpServlet {
 			if (StringUtils.isEmpty(objectId)) {
 				objectId = JGitUtils.getHEADRef(r);
 			}
+			ObjectId id = r.resolve(objectId);
+			if (id == null) {
+				return 0;
+			}
 			RevCommit commit = JGitUtils.getCommit(r, objectId);
 			return JGitUtils.getCommitDate(commit).getTime();
+		} catch (Exception e) {
+			log.error("Failed to determine last modified", e);
+			return 0;
 		} finally {
 			if (r != null) {
 				r.close();
@@ -142,17 +157,33 @@ public class BranchGraphServlet extends HttpServlet {
 		PlotWalk rw = null;
 		try {
 			String repository = request.getParameter("r");
+			if (StringUtils.isEmpty(repository)) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().append("Bad request");
+				return;
+			}
 			String objectId = request.getParameter("h");
 			String length = request.getParameter("l");
 
 			r = repositoryManager.getRepository(repository);
+			if (r == null) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().append("Bad request");
+				return;
+			}
 
 			rw = new PlotWalk(r);
 			if (StringUtils.isEmpty(objectId)) {
 				objectId = JGitUtils.getHEADRef(r);
 			}
 
-			rw.markStart(rw.lookupCommit(r.resolve(objectId)));
+			ObjectId id = r.resolve(objectId);
+			if (id ==  null) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().append("Bad request");
+				return;
+			}
+			rw.markStart(rw.lookupCommit(id));
 
 			// default to the items-per-page setting, unless specified
 			int maxCommits = settings.getInteger(Keys.web.itemsPerPage, 50);

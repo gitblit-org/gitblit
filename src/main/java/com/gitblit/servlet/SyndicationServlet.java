@@ -154,7 +154,7 @@ public class SyndicationServlet extends HttpServlet {
 
 		String servletUrl = request.getContextPath() + request.getServletPath();
 		String url = request.getRequestURI().substring(servletUrl.length());
-		if (url.charAt(0) == '/' && url.length() > 1) {
+		if (url.length() > 1 && url.charAt(0) == '/') {
 			url = url.substring(1);
 		}
 		String repositoryName = url;
@@ -199,7 +199,7 @@ public class SyndicationServlet extends HttpServlet {
 		response.setContentType("application/rss+xml; charset=UTF-8");
 
 		boolean isProjectFeed = false;
-		String feedName = null;
+		String feedName = "Gitblit";
 		String feedTitle = null;
 		String feedDescription = null;
 
@@ -243,7 +243,7 @@ public class SyndicationServlet extends HttpServlet {
 			RepositoryModel model = repositoryManager.getRepositoryModel(name);
 
 			if (repository == null) {
-				if (model.isCollectingGarbage) {
+				if (model != null && model.isCollectingGarbage) {
 					logger.warn(MessageFormat.format("Temporarily excluding {0} from feed, busy collecting garbage", name));
 				}
 				continue;
