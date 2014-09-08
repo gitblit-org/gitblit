@@ -100,9 +100,9 @@ public class TimeUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testFrequency() {
-		assertEquals(5, TimeUtils.convertFrequencyToMinutes("2 mins"));
-		assertEquals(10, TimeUtils.convertFrequencyToMinutes("10 mins"));
-		assertEquals(600, TimeUtils.convertFrequencyToMinutes("10 hours"));
-		assertEquals(14400, TimeUtils.convertFrequencyToMinutes(" 10 days "));
+		assertEquals(5, TimeUtils.convertFrequencyToMinutes("2 mins", 5));
+		assertEquals(10, TimeUtils.convertFrequencyToMinutes("10 mins", 5));
+		assertEquals(600, TimeUtils.convertFrequencyToMinutes("10 hours", 5));
+		assertEquals(14400, TimeUtils.convertFrequencyToMinutes(" 10 days ", 5));
 	}
 }
