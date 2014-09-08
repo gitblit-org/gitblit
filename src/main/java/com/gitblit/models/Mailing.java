@@ -61,7 +61,7 @@ public class Mailing {
 	}
 
 	public boolean hasRecipients() {
-		return toAddresses.size() > 0;
+		return (toAddresses.size() + ccAddresses.size()) > 0;
 	}
 
 	public void setRecipients(String... addrs) {
