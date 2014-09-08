@@ -195,6 +195,14 @@ public interface IRepositoryManager extends IManager {
 	Repository getRepository(String repositoryName, boolean logError);
 
 	/**
+	 * Returns the list of all repository models.
+	 *
+	 * @return list of all repository models
+ 	 * @since 1.6.1
+	 */
+	List<RepositoryModel> getRepositoryModels();
+
+	/**
 	 * Returns the list of repository models that are accessible to the user.
 	 *
 	 * @param user
