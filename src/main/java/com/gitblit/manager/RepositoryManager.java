@@ -625,6 +625,27 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	/**
+	 * Returns the list of all repository models.
+	 *
+	 * @return list of all repository models
+	 */
+	@Override
+	public List<RepositoryModel> getRepositoryModels() {
+		long methodStart = System.currentTimeMillis();
+		List<String> list = getRepositoryList();
+		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
+		for (String repo : list) {
+			RepositoryModel model = getRepositoryModel(repo);
+			if (model != null) {
+				repositories.add(model);
+			}
+		}
+		long duration = System.currentTimeMillis() - methodStart;
+		logger.info(MessageFormat.format("{0} repository models loaded in {1} msecs", duration));
+		return repositories;
+	}
+
+	/**
 	 * Returns the list of repository models that are accessible to the user.
 	 *
 	 * @param user

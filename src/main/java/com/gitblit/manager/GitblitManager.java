@@ -79,11 +79,11 @@ import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.XssFilter;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.XssFilter;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -979,6 +979,11 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public Repository getRepository(String repositoryName, boolean logError) {
 		return repositoryManager.getRepository(repositoryName, logError);
+	}
+
+	@Override
+	public List<RepositoryModel> getRepositoryModels() {
+		return repositoryManager.getRepositoryModels();
 	}
 
 	@Override
