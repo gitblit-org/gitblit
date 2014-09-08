@@ -71,7 +71,11 @@ public class SyndicationUtils {
 		feed.setEncoding("UTF-8");
 		feed.setTitle(title);
 		feed.setLink(feedLink);
-		feed.setDescription(description);
+		if (StringUtils.isEmpty(description)) {
+			feed.setDescription(title);
+		} else {
+			feed.setDescription(description);
+		}
 		SyndImageImpl image = new SyndImageImpl();
 		image.setTitle(Constants.NAME);
 		image.setUrl(hostUrl + "/gitblt_25.png");
