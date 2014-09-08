@@ -170,7 +170,7 @@ public class MigrateTickets {
 		long start = System.nanoTime();
 		long totalTickets = 0;
 		long totalChanges = 0;
-		for (RepositoryModel repository : repositoryManager.getRepositoryModels(null)) {
+		for (RepositoryModel repository : repositoryManager.getRepositoryModels()) {
 			Set<Long> ids = inputService.getIds(repository);
 			if (ids == null || ids.isEmpty()) {
 				// nothing to migrate
