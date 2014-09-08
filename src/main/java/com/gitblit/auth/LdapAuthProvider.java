@@ -427,6 +427,10 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				Attribute attribute = userEntry.getAttribute(email);
 				if (attribute != null && attribute.hasValue()) {
 					user.emailAddress = attribute.getValue();
+				} else {
+					// issue-456/ticket-134
+					// allow LDAP to delete an email address
+					user.emailAddress = null;
 				}
 			}
 		}
