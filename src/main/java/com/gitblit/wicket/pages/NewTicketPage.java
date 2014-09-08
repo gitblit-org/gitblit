@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -35,6 +37,7 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
@@ -117,23 +120,27 @@ public class NewTicketPage extends RepositoryPage {
 
 		if (currentUser.canAdmin(null, getRepositoryModel())) {
 			// responsible
-			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
-			if (UserModel.ANONYMOUS.canPush(getRepositoryModel())) {
-				// anonymous push allowed
-				for (UserModel user : app().users().getAllUsers()) {
-					if (!user.disabled) {
-						responsibles.add(new TicketResponsible(user));
+			Set<String> userlist = new TreeSet<String>();
+
+			if (UserModel.ANONYMOUS.canPush(getRepositoryModel())
+					|| AuthorizationControl.AUTHENTICATED == getRepositoryModel().authorizationControl) {
+				// 	authorization is ANONYMOUS or AUTHENTICATED (i.e. all users can be set responsible)
+				userlist.addAll(app().users().getAllUsernames());
+			} else {
+				// authorization is by NAMED users (users with PUSH permission can be set responsible)
+				for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
+					if (rp.permission.atLeast(AccessPermission.PUSH)) {
+						userlist.add(rp.registrant);
 					}
 				}
-			} else {
-				// authenticated push
-				for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
-					if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-						UserModel user = app().users().getUserModel(rp.registrant);
-						if (user != null && !user.disabled) {
-							responsibles.add(new TicketResponsible(user));
-						}
-					}
+			}
+
+			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+			for (String username : userlist) {
+				UserModel user = app().users().getUserModel(username);
+				if (user != null && !user.disabled) {
+					TicketResponsible responsible = new TicketResponsible(user);
+					responsibles.add(responsible);
 				}
 			}
 			Collections.sort(responsibles);
