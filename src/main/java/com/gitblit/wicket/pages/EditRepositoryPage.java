@@ -681,7 +681,7 @@ public class EditRepositoryPage extends RootSubPage {
 				RepositoryModel latestModel = app().repositories().getRepositoryModel(repositoryModel.name);
 				boolean canDelete = app().repositories().canDelete(latestModel);
 				if (canDelete) {
-					if (app().repositories().deleteRepositoryModel(latestModel)) {
+					if (app().gitblit().deleteRepositoryModel(latestModel)) {
 						info(MessageFormat.format(getString("gb.repositoryDeleted"), latestModel));
 						if (latestModel.isPersonalRepository()) {
 							// redirect to user's profile page
