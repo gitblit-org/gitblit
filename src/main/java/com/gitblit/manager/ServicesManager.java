@@ -312,7 +312,7 @@ public class ServicesManager implements IManager {
 		@Override
 		public void reschedule(FederationModel registration) {
 			// schedule the next pull
-			int mins = TimeUtils.convertFrequencyToMinutes(registration.frequency);
+			int mins = TimeUtils.convertFrequencyToMinutes(registration.frequency, 5);
 			registration.nextPull = new Date(System.currentTimeMillis() + (mins * 60 * 1000L));
 			scheduledExecutor.schedule(new FederationPuller(registration), mins, TimeUnit.MINUTES);
 			logger.info(MessageFormat.format(

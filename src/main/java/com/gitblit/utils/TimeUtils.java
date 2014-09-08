@@ -322,12 +322,13 @@ public class TimeUtils {
 	 * Convert a frequency string into minutes.
 	 *
 	 * @param frequency
+	 * @param minimumMins
 	 * @return minutes
 	 */
-	public static int convertFrequencyToMinutes(String frequency) {
+	public static int convertFrequencyToMinutes(String frequency, int minimumMins) {
 		// parse the frequency
 		frequency = frequency.toLowerCase();
-		int mins = 60;
+		int mins = minimumMins;
 		if (!StringUtils.isEmpty(frequency)) {
 			try {
 				String str = frequency.trim();
@@ -337,16 +338,16 @@ public class TimeUtils {
 				mins = (int) Float.parseFloat(str);
 			} catch (NumberFormatException e) {
 			}
-			if (mins < 5) {
-				mins = 5;
+			if (mins < minimumMins) {
+				mins = minimumMins;
 			}
-		}
-		if (frequency.indexOf("day") > -1) {
-			// convert to minutes
-			mins *= 1440;
-		} else if (frequency.indexOf("hour") > -1) {
-			// convert to minutes
-			mins *= 60;
+			if (frequency.indexOf("day") > -1) {
+				// convert to minutes
+				mins *= 1440;
+			} else if (frequency.indexOf("hour") > -1) {
+				// convert to minutes
+				mins *= 60;
+			}
 		}
 		return mins;
 	}

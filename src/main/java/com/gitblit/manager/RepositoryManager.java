@@ -1825,9 +1825,10 @@ public class RepositoryManager implements IRepositoryManager {
 
 	protected void configureLuceneIndexing() {
 		luceneExecutor = new LuceneService(settings, this);
-		int period = 2;
-		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, period,  TimeUnit.MINUTES);
-		logger.info("Lucene will process indexed branches every {} minutes.", period);
+		String frequency = settings.getString(Keys.web.luceneFrequency, "2 mins");
+		int mins = TimeUtils.convertFrequencyToMinutes(frequency, 2);
+		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, mins,  TimeUnit.MINUTES);
+		logger.info("Lucene will process indexed branches every {} minutes.", mins);
 	}
 
 	protected void configureGarbageCollector() {
@@ -1862,10 +1863,7 @@ public class RepositoryManager implements IRepositoryManager {
 	protected void configureMirrorExecutor() {
 		mirrorExecutor = new MirrorService(settings, this);
 		if (mirrorExecutor.isReady()) {
-			int mins = TimeUtils.convertFrequencyToMinutes(settings.getString(Keys.git.mirrorPeriod, "30 mins"));
-			if (mins < 5) {
-				mins = 5;
-			}
+			int mins = TimeUtils.convertFrequencyToMinutes(settings.getString(Keys.git.mirrorPeriod, "30 mins"), 5);
 			int delay = 1;
 			scheduledExecutor.scheduleAtFixedRate(mirrorExecutor, delay, mins,  TimeUnit.MINUTES);
 			logger.info("Mirror service will fetch updates every {} minutes.", mins);
