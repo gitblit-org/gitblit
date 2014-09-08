@@ -1,0 +1,1 @@
+[{"date":"2014-09-08T18:40:25Z","author":"james","fields":{"title":"Do not display stacktraces for bad requests in servlets","topic":"issue-497","type":"Task","responsible":"james","milestone":"v1.6.1","mergeTo":"master","watchers":"+james","status":"New"}}]
