@@ -170,7 +170,7 @@ public class FederationServlet extends JsonServlet {
 
 			// setup the last and netx pull dates
 			results.lastPull = new Date();
-			int mins = TimeUtils.convertFrequencyToMinutes(results.frequency);
+			int mins = TimeUtils.convertFrequencyToMinutes(results.frequency, 5);
 			results.nextPull = new Date(System.currentTimeMillis() + (mins * 60 * 1000L));
 
 			// acknowledge the receipt of status
