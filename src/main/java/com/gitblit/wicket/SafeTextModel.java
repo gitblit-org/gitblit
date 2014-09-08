@@ -23,7 +23,7 @@ public class SafeTextModel implements IModel<String> {
 	}
 
 	public static SafeTextModel none(String value) {
-		return new SafeTextModel(Mode.none);
+		return new SafeTextModel(value, Mode.none);
 	}
 
 	public static SafeTextModel relaxed() {
@@ -31,7 +31,7 @@ public class SafeTextModel implements IModel<String> {
 	}
 
 	public static SafeTextModel relaxed(String value) {
-		return new SafeTextModel(Mode.relaxed);
+		return new SafeTextModel(value, Mode.relaxed);
 	}
 
 	public SafeTextModel(Mode mode) {
