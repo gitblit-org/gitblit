@@ -141,6 +141,10 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 		String fullUrl = getFullUrl(httpRequest);
 		String repository = extractRepositoryName(fullUrl);
+		if (StringUtils.isEmpty(repository)) {
+			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
 
 		if (repositoryManager.isCollectingGarbage(repository)) {
 			logger.info(MessageFormat.format("ARF: Rejecting request for {0}, busy collecting garbage!", repository));

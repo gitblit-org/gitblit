@@ -38,11 +38,14 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 	@Override
 	protected String extractRepositoryName(String url) {
 		int a = url.indexOf("r=");
-		String repository = url.substring(a + 2);
-		if (repository.indexOf('&') > -1) {
-			repository = repository.substring(0, repository.indexOf('&'));
+		if (a > -1) {
+			String repository = url.substring(a + 2);
+			if (repository.indexOf('&') > -1) {
+				repository = repository.substring(0, repository.indexOf('&'));
+			}
+			return repository;
 		}
-		return repository;
+		return null;
 	}
 
 	/**
