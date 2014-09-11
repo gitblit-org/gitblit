@@ -469,6 +469,7 @@ public class LuceneService implements Runnable {
 			branches.add(0, defaultBranch);
 
 			// walk through each branch
+			String indexedPattern = ArrayUtils.wildcardArray(model.indexedBranches);
 			for (RefModel branch : branches) {
 
 				boolean indexBranch = false;
@@ -481,7 +482,7 @@ public class LuceneService implements Runnable {
 					indexBranch = false;
 				} else {
 					// normal explicit branch check
-					indexBranch = model.indexedBranches.contains(branch.getName());
+					indexBranch = branch.getName().matches(indexedPattern);
 				}
 
 				// if this branch is not specifically indexed then skip
