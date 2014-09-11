@@ -70,7 +70,7 @@ logger.info("jenkins hook triggered by ${user.username} for ${repository.name}")
 def jenkinsUrl = gitblit.getString('groovy.jenkinsServer', 'http://yourserver/jenkins')
 
 // define the trigger url
-def triggerUrl = jenkinsUrl + "/git/notifyCommit?url=$url/git/$repository.name"
+def triggerUrl = jenkinsUrl + "/git/notifyCommit?url=${url}/r/${repository.name}"
 
 // trigger the build
 new URL(triggerUrl).getContent()
