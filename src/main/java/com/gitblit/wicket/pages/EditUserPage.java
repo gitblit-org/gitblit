@@ -239,9 +239,32 @@ public class EditUserPage extends RootSubPage {
 		form.add(confirmPasswordField.setEnabled(editCredentials));
 		form.add(new TextField<String>("displayName").setEnabled(editDisplayName));
 		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));
-		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
-		form.add(new CheckBox("canCreate"));
+
+		if (userModel.canAdmin() && !userModel.canAdmin) {
+			// user inherits Admin permission
+			// display a disabled-yet-checked checkbox
+			form.add(new CheckBox("canAdmin", Model.of(true)).setEnabled(false));
+		} else {
+			form.add(new CheckBox("canAdmin"));
+		}
+
+		if (userModel.canFork() && !userModel.canFork) {
+			// user inherits Fork permission
+			// display a disabled-yet-checked checkbox
+			form.add(new CheckBox("canFork", Model.of(true)).setEnabled(false));
+		} else {
+			final boolean forkingAllowed = app().settings().getBoolean(Keys.web.allowForking, true);
+			form.add(new CheckBox("canFork").setEnabled(forkingAllowed));
+		}
+
+		if (userModel.canCreate() && !userModel.canCreate) {
+			// user inherits Create permission
+			// display a disabled-yet-checked checkbox
+			form.add(new CheckBox("canCreate", Model.of(true)).setEnabled(false));
+		} else {
+			form.add(new CheckBox("canCreate"));
+		}
+
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(new CheckBox("disabled"));
 
