@@ -208,7 +208,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		mount("/mytickets", MyTicketsPage.class, "r", "h");
 
 		// setup the markup document urls
-		mount("/docs", DocsPage.class, "r");
+		mount("/docs", DocsPage.class, "r", "h");
 		mount("/doc", DocPage.class, "r", "h", "f");
 
 		// federation urls

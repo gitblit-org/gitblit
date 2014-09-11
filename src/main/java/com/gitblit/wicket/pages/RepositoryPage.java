@@ -191,14 +191,26 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	private List<NavLink> registerNavLinks() {
+		Repository r = getRepository();
+		RepositoryModel model = getRepositoryModel();
+
 		PageParameters params = null;
+		PageParameters objectParams = null;
 		if (!StringUtils.isEmpty(repositoryName)) {
 			params = WicketUtils.newRepositoryParameter(getRepositoryName());
+			objectParams = params;
+
+			// preserve the objectid iff the objectid directly (or indirectly) refers to a ref
+			if (!StringUtils.isEmpty(objectId)) {
+				RevCommit commit = JGitUtils.getCommit(r, objectId);
+				String bestId = getBestCommitId(commit);
+				if (!commit.getName().equals(bestId)) {
+					objectParams = WicketUtils.newObjectParameter(getRepositoryName(), bestId);
+				}
+			}
 		}
 		List<NavLink> navLinks = new ArrayList<NavLink>();
 
-		Repository r = getRepository();
-		RepositoryModel model = getRepositoryModel();
 
 		// standard links
 		if (RefLogUtils.getRefLogBranch(r) == null) {
@@ -213,13 +225,13 @@ public abstract class RepositoryPage extends RootPage {
 			return navLinks;
 		}
 
-		navLinks.add(new PageNavLink("gb.commits", LogPage.class, params));
-		navLinks.add(new PageNavLink("gb.tree", TreePage.class, params));
+		navLinks.add(new PageNavLink("gb.commits", LogPage.class, objectParams));
+		navLinks.add(new PageNavLink("gb.tree", TreePage.class, objectParams));
 		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(model) || app().tickets().hasTickets(model))) {
 			PageParameters tParams = WicketUtils.newOpenTicketsParameter(getRepositoryName());
 			navLinks.add(new PageNavLink("gb.tickets", TicketsPage.class, tParams));
 		}
-		navLinks.add(new PageNavLink("gb.docs", DocsPage.class, params, true));
+		navLinks.add(new PageNavLink("gb.docs", DocsPage.class, objectParams, true));
 		if (app().settings().getBoolean(Keys.web.allowForking, true)) {
 			navLinks.add(new PageNavLink("gb.forks", ForksPage.class, params, true));
 		}
@@ -453,7 +465,7 @@ public abstract class RepositoryPage extends RootPage {
 		// find first branch match
 		for (RefModel ref : JGitUtils.getLocalBranches(r, false, -1)) {
 			if (ref.getObjectId().getName().equals(id)) {
-				return ref.getName();
+				return Repository.shortenRefName(ref.getName());
 			}
 		}
 
