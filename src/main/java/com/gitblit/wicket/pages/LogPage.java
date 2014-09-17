@@ -69,4 +69,10 @@ public class LogPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.log");
 	}
+
+	@Override
+	protected boolean isCommitPage() {
+		return true;
+	}
+
 }
