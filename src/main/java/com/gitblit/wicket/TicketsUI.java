@@ -93,6 +93,7 @@ public class TicketsUI {
 			css = "aui-lozenge-complete";
 			break;
 		case On_Hold:
+		case No_Change_Required:
 			css = "aui-lozenge-current";
 			break;
 		default:
@@ -122,6 +123,7 @@ public class TicketsUI {
 			css = "resolution-complete";
 			break;
 		case On_Hold:
+		case No_Change_Required:
 			css = "resolution-current";
 			break;
 		default:
