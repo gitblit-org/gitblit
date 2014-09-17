@@ -1226,13 +1226,13 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Status {
-		New, Open, Closed, Resolved, Fixed, Merged, Wontfix, Declined, Duplicate, Invalid, Abandoned, On_Hold;
+		New, Open, Closed, Resolved, Fixed, Merged, Wontfix, Declined, Duplicate, Invalid, Abandoned, On_Hold, No_Change_Required;
 
-		public static Status [] requestWorkflow = { Open, Resolved, Declined, Duplicate, Invalid, Abandoned, On_Hold };
+		public static Status [] requestWorkflow = { Open, Resolved, Declined, Duplicate, Invalid, Abandoned, On_Hold, No_Change_Required };
 
-		public static Status [] bugWorkflow = { Open, Fixed, Wontfix, Duplicate, Invalid, Abandoned, On_Hold };
+		public static Status [] bugWorkflow = { Open, Fixed, Wontfix, Duplicate, Invalid, Abandoned, On_Hold, No_Change_Required };
 
-		public static Status [] proposalWorkflow = { Open, Resolved, Declined, Abandoned, On_Hold };
+		public static Status [] proposalWorkflow = { Open, Resolved, Declined, Abandoned, On_Hold, No_Change_Required };
 
 		public static Status [] milestoneWorkflow = { Open, Closed, Abandoned, On_Hold };
 
