@@ -19,14 +19,13 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.UserModel;
-import com.gitblit.wicket.SafeTextModel;
-import com.gitblit.wicket.SafeTextModel.Mode;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 
@@ -90,7 +89,7 @@ public class CommentPanel extends BasePanel {
 			}
 		}.setVisible(ticket != null && ticket.number > 0));
 
-		final SafeTextModel markdownPreviewModel = new SafeTextModel(Mode.none);
+		final IModel<String> markdownPreviewModel = Model.of();
 		markdownPreview = new Label("markdownPreview", markdownPreviewModel);
 		markdownPreview.setEscapeModelStrings(false);
 		markdownPreview.setOutputMarkupId(true);

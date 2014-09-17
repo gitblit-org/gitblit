@@ -130,9 +130,10 @@ public class TicketListPanel extends BasePanel {
 							Repository db = app().repositories().getRepository(repository.name);
 							BugtraqProcessor btp  = new BugtraqProcessor(app().settings());
 							String content = btp.processText(db, repository.name, labelItem.getModelObject());
+							String safeContent = app().xssFilter().relaxed(content);
 							db.close();
 
-							label = new Label("label", content);
+							label = new Label("label", safeContent);
 							label.setEscapeModelStrings(false);
 
 							tLabel = app().tickets().getLabel(repository, labelItem.getModelObject());

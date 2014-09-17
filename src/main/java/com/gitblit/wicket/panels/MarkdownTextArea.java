@@ -20,12 +20,12 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.time.Duration;
 
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.wicket.GitBlitWebApp;
-import com.gitblit.wicket.SafeTextModel;
 
 public class MarkdownTextArea extends TextArea {
 
@@ -35,7 +35,7 @@ public class MarkdownTextArea extends TextArea {
 
 	protected String text = "";
 
-	public MarkdownTextArea(String id, final SafeTextModel previewModel, final Label previewLabel) {
+	public MarkdownTextArea(String id, final IModel<String> previewModel, final Label previewLabel) {
 		super(id);
 		setModel(new PropertyModel(this, "text"));
 		add(new AjaxFormComponentUpdatingBehavior("onblur") {
@@ -65,12 +65,13 @@ public class MarkdownTextArea extends TextArea {
 		setOutputMarkupId(true);
 	}
 
-	protected void renderPreview(SafeTextModel previewModel) {
+	protected void renderPreview(IModel<String> previewModel) {
 		if (text == null) {
 			return;
 		}
 		String html = MarkdownUtils.transformGFM(GitBlitWebApp.get().settings(), text, repositoryName);
-		previewModel.setObject(html);
+		String safeHtml = GitBlitWebApp.get().xssFilter().relaxed(html);
+		previewModel.setObject(safeHtml);
 	}
 
 	public String getText() {
