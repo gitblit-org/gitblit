@@ -637,7 +637,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		}
 
 		public boolean hasComment() {
-			return comment != null && !comment.isDeleted();
+			return comment != null && !comment.isDeleted() && comment.text != null;
 		}
 
 		public Comment comment(String text) {
