@@ -73,16 +73,18 @@ public class JSoupXssFilter implements XssFilter {
                 "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u",
                 "ul", "var")
 
-        .addAttributes("a", "href", "title")
+        .addAttributes("a", "class", "href", "style", "title")
         .addAttributes("blockquote", "cite")
         .addAttributes("col", "span", "width")
         .addAttributes("colgroup", "span", "width")
+        .addAttributes("div", "class", "style")
         .addAttributes("img", "align", "alt", "height", "src", "title", "width")
         .addAttributes("ol", "start", "type")
         .addAttributes("q", "cite")
-        .addAttributes("table", "summary", "width")
-        .addAttributes("td", "abbr", "axis", "colspan", "rowspan", "width")
-        .addAttributes("th", "abbr", "axis", "colspan", "rowspan", "scope", "width")
+        .addAttributes("span", "class", "style")
+        .addAttributes("table", "class", "style", "summary", "width")
+        .addAttributes("td", "abbr", "axis", "class", "colspan", "rowspan", "style", "width")
+        .addAttributes("th", "abbr", "axis", "class", "colspan", "rowspan", "scope", "style", "width")
         .addAttributes("ul", "type")
 
         .addEnforcedAttribute("a", "rel", "nofollow")
