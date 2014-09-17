@@ -828,8 +828,12 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 		List<DirCacheEntry> list = new ArrayList<DirCacheEntry>();
 		TreeWalk tw = null;
 		try {
-			tw = new TreeWalk(db);
 			ObjectId treeId = db.resolve(BRANCH + "^{tree}");
+			if (treeId == null) {
+				// branch does not exist yet, could be migrating tickets
+				return list;
+			}
+			tw = new TreeWalk(db);
 			int hIdx = tw.addTree(treeId);
 			tw.setRecursive(true);
 
