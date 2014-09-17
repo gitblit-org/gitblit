@@ -287,7 +287,9 @@ public class TicketPage extends RepositoryPage {
 			desc = getString("gb.noDescriptionGiven");
 		} else {
 			String bugtraq = bugtraqProcessor().processText(getRepository(), repositoryName, ticket.body);
-			desc = MarkdownUtils.transformGFM(app().settings(), bugtraq, ticket.repository);
+			String html = MarkdownUtils.transformGFM(app().settings(), bugtraq, ticket.repository);
+			String safeHtml = app().xssFilter().relaxed(html);
+			desc = safeHtml;
 		}
 		add(new Label("ticketDescription", desc).setEscapeModelStrings(false));
 
@@ -523,7 +525,8 @@ public class TicketPage extends RepositoryPage {
 		} else {
 			// process the topic using the bugtraq config to link things
 			String topic = bugtraqProcessor().processText(getRepository(), repositoryName, ticket.topic);
-			add(new Label("ticketTopic", topic).setEscapeModelStrings(false));
+			String safeTopic = app().xssFilter().relaxed(topic);
+			add(new Label("ticketTopic", safeTopic).setEscapeModelStrings(false));
 		}
 
 
@@ -703,6 +706,7 @@ public class TicketPage extends RepositoryPage {
 						 */
 						String bugtraq = bugtraqProcessor().processText(getRepository(), repositoryName, entry.comment.text);
 						String comment = MarkdownUtils.transformGFM(app().settings(), bugtraq, repositoryName);
+						String safeComment = app().xssFilter().relaxed(comment);
 						Fragment frag = new Fragment("entry", "commentFragment", this);
 						Label commentIcon = new Label("commentIcon");
 						if (entry.comment.src == CommentSource.Email) {
@@ -711,7 +715,7 @@ public class TicketPage extends RepositoryPage {
 							WicketUtils.setCssClass(commentIcon, "iconic-comment-alt2-stroke");
 						}
 						frag.add(commentIcon);
-						frag.add(new Label("comment", comment).setEscapeModelStrings(false));
+						frag.add(new Label("comment", safeComment).setEscapeModelStrings(false));
 						addUserAttributions(frag, entry, avatarWidth);
 						addDateAttributions(frag, entry);
 						item.add(frag);
@@ -972,7 +976,8 @@ public class TicketPage extends RepositoryPage {
 						sb.append("</td></tr>");
 					}
 					sb.append("</tbody></table>");
-					item.add(new Label("fields", sb.toString()).setEscapeModelStrings(false));
+					String safeHtml = app().xssFilter().relaxed(sb.toString());
+					item.add(new Label("fields", safeHtml).setEscapeModelStrings(false));
 				} else {
 					item.add(new Label("fields").setVisible(false));
 				}
