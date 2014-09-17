@@ -101,6 +101,11 @@ public class TagPage extends RepositoryPage {
 	}
 
 	@Override
+	protected boolean isCommitPage() {
+		return true;
+	}
+
+	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;
 	}
