@@ -201,11 +201,13 @@ public abstract class RepositoryPage extends RootPage {
 			objectParams = params;
 
 			// preserve the objectid iff the objectid directly (or indirectly) refers to a ref
-			if (!StringUtils.isEmpty(objectId)) {
+			if (isCommitPage() && !StringUtils.isEmpty(objectId)) {
 				RevCommit commit = JGitUtils.getCommit(r, objectId);
-				String bestId = getBestCommitId(commit);
-				if (!commit.getName().equals(bestId)) {
-					objectParams = WicketUtils.newObjectParameter(getRepositoryName(), bestId);
+				if (commit != null) {
+					String bestId = getBestCommitId(commit);
+					if (!commit.getName().equals(bestId)) {
+						objectParams = WicketUtils.newObjectParameter(getRepositoryName(), bestId);
+					}
 				}
 			}
 		}
@@ -573,6 +575,10 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	protected abstract String getPageName();
+
+	protected boolean isCommitPage() {
+		return false;
+	}
 
 	protected Component createPersonPanel(String wicketId, PersonIdent identity,
 			Constants.SearchType searchType) {

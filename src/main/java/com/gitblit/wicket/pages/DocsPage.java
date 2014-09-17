@@ -167,4 +167,10 @@ public class DocsPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.docs");
 	}
+
+	@Override
+	protected boolean isCommitPage() {
+		return true;
+	}
+
 }

@@ -175,9 +175,9 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 		// setup the standard gitweb-ish urls
 		mount("/repositories", RepositoriesPage.class);
-		mount("/overview", OverviewPage.class, "r", "h");
+		mount("/overview", OverviewPage.class, "r");
 		mount("/summary", SummaryPage.class, "r");
-		mount("/reflog", ReflogPage.class, "r", "h");
+		mount("/reflog", ReflogPage.class, "r");
 		mount("/commits", LogPage.class, "r", "h");
 		mount("/log", LogPage.class, "r", "h");
 		mount("/tags", TagsPage.class, "r");

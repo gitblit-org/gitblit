@@ -67,6 +67,11 @@ public class HistoryPage extends RepositoryPage {
 	}
 
 	@Override
+	protected boolean isCommitPage() {
+		return true;
+	}
+
+	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return TreePage.class;
 	}

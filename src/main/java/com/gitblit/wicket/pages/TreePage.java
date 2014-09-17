@@ -186,4 +186,10 @@ public class TreePage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.tree");
 	}
+
+	@Override
+	protected boolean isCommitPage() {
+		return true;
+	}
+
 }
