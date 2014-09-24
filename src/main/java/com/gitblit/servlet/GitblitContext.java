@@ -340,9 +340,9 @@ public class GitblitContext extends GuiceServletContextListener {
 			logger.error("");
 		}
 
-		String baseFromJndi = lookupBaseFolderFromJndi();
-		if (!StringUtils.isEmpty(baseFromJndi)) {
-			path = baseFromJndi;
+		String externalBase = System.getProperty("GITBLIT_HOME", lookupBaseFolderFromJndi());
+		if (!StringUtils.isEmpty(externalBase)) {
+			path = externalBase;
 		}
 
 		File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
