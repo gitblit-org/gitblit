@@ -179,6 +179,7 @@ dependencies:
 - compile 'ro.fortsoft.pf4j:pf4j:0.9.0' :war
 - compile 'org.apache.tika:tika-core:1.5' :war
 - compile 'org.jsoup:jsoup:1.7.3' :war
+- compile 'org.apache.commons:commons-lang3:3.3.2' :war
 - test 'junit'
 # Dependencies for Selenium web page testing
 - test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar

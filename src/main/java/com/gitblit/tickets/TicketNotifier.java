@@ -34,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
@@ -137,6 +138,7 @@ public class TicketNotifier {
 			html.append(readStyle());
 			html.append("</head>");
 			html.append("<body>");
+			html.append(readViewTicketAction(ticket));
 			html.append(MarkdownUtils.transformGFM(settings, markdown, ticket.repository));
 			html.append("</body>");
 
@@ -596,7 +598,7 @@ public class TicketNotifier {
 
 		// respect the author's email preference
 		UserModel lastAuthor = userManager.getUserModel(lastChange.author);
-		if (!lastAuthor.getPreferences().isEmailMeOnMyTicketChanges()) {
+		if (lastAuthor != null && !lastAuthor.getPreferences().isEmailMeOnMyTicketChanges()) {
 			toAddresses.remove(lastAuthor.emailAddress);
 			ccAddresses.remove(lastAuthor.emailAddress);
 		}
@@ -611,6 +613,13 @@ public class TicketNotifier {
 		sb.append(readResource("email.css"));
 		sb.append("</style>\n");
 		return sb.toString();
+	}
+
+	protected String readViewTicketAction(TicketModel ticket) {
+		String action = readResource("viewTicket.html");
+		action = action.replace("${url}", ticketService.getTicketUrl(ticket));
+		action = action.replace("${description}", StringEscapeUtils.escapeJson(ticket.title));
+		return action;
 	}
 
 	protected String readResource(String resource) {
