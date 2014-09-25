@@ -36,14 +36,19 @@ public class Constants {
 
 	public static final String FULL_NAME = "Gitblit - a pure Java Git solution";
 
+	@Deprecated
 	public static final String ADMIN_ROLE = "#admin";
 
+	@Deprecated
 	public static final String FORK_ROLE = "#fork";
 
+	@Deprecated
 	public static final String CREATE_ROLE = "#create";
 
+	@Deprecated
 	public static final String NOT_FEDERATED_ROLE = "#notfederated";
 
+	@Deprecated
 	public static final String NO_ROLE = "#none";
 
 	public static final String EXTERNAL_ACCOUNT = "#externalAccount";
@@ -176,6 +181,19 @@ public class Constants {
 		} catch (Exception e) {
 		}
 		return defaultValue;
+	}
+
+	public static enum Role {
+		NONE, ADMIN, CREATE, FORK, NOT_FEDERATED;
+
+		public String getRole() {
+			return "#" + name().replace("_", "").toLowerCase();
+		}
+
+		@Override
+		public String toString() {
+			return getRole();
+		}
 	}
 
 	/**

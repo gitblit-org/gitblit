@@ -23,8 +23,10 @@ import org.jvnet.libpam.impl.CLibrary;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
 /**
@@ -76,6 +78,16 @@ public class PAMAuthProvider extends UsernamePasswordAuthenticationProvider {
     public boolean supportsTeamMembershipChanges() {
         return true;
     }
+
+    @Override
+    public boolean supportsRoleChanges(UserModel user, Role role) {
+        return true;
+    }
+
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return true;
+	}
 
 	 @Override
 	public AccountType getAccountType() {

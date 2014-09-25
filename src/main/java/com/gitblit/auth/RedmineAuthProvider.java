@@ -23,8 +23,10 @@ import org.apache.wicket.util.io.IOUtils;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ConnectionUtils;
 import com.gitblit.utils.StringUtils;
@@ -76,6 +78,16 @@ public class RedmineAuthProvider extends UsernamePasswordAuthenticationProvider 
     public boolean supportsTeamMembershipChanges() {
         return false;
     }
+
+    @Override
+    public boolean supportsRoleChanges(UserModel user, Role role) {
+        return true;
+    }
+
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return true;
+	}
 
 	 @Override
 	public AccountType getAccountType() {
@@ -154,7 +166,7 @@ public class RedmineAuthProvider extends UsernamePasswordAuthenticationProvider 
         	url = url.concat("/");
         }
         String apiUrl = url + "users/current.json";
-        
+
         HttpURLConnection http;
         if (username == null) {
         	// apikey authentication

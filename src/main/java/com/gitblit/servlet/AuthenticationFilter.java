@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.Role;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
@@ -172,7 +173,7 @@ public abstract class AuthenticationFilter implements Filter {
 
 		@Override
 		public boolean isUserInRole(String role) {
-			if (role.equals(Constants.ADMIN_ROLE)) {
+			if (role.equals(Role.ADMIN.getRole())) {
 				return user.canAdmin();
 			}
 			// Gitblit does not currently use actual roles in the traditional
