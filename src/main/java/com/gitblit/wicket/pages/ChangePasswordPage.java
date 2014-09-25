@@ -23,6 +23,7 @@ import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.GitBlitException;
@@ -99,8 +100,10 @@ public class ChangePasswordPage extends RootSubPage {
 				try {
 					app().gitblit().reviseUser(user.username, user);
 					if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
+						WebRequest request = (WebRequest) getRequestCycle().getRequest();
 						WebResponse response = (WebResponse) getRequestCycle().getResponse();
-						app().authentication().setCookie(response.getHttpServletResponse(), user);
+						app().authentication().setCookie(request.getHttpServletRequest(),
+								response.getHttpServletResponse(), user);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());

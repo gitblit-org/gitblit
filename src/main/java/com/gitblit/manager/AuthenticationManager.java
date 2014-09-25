@@ -454,7 +454,20 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 * @param user
 	 */
 	@Override
+	@Deprecated
 	public void setCookie(HttpServletResponse response, UserModel user) {
+		setCookie(null, response, user);
+	}
+
+	/**
+	 * Sets a cookie for the specified user.
+	 *
+	 * @param request
+	 * @param response
+	 * @param user
+	 */
+	@Override
+	public void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user) {
 		if (settings.getBoolean(Keys.web.allowCookieAuthentication, true)) {
 			GitBlitWebSession session = GitBlitWebSession.get();
 			boolean standardLogin = session.authenticationType.isStandard();
@@ -477,7 +490,13 @@ public class AuthenticationManager implements IAuthenticationManager {
 						userCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(7));
 					}
 				}
-				userCookie.setPath("/");
+				String path = "/";
+				if (request != null) {
+					if (!StringUtils.isEmpty(request.getContextPath())) {
+						path = request.getContextPath();
+					}
+				}
+				userCookie.setPath(path);
 				response.addCookie(userCookie);
 			}
 		}
@@ -486,11 +505,25 @@ public class AuthenticationManager implements IAuthenticationManager {
 	/**
 	 * Logout a user.
 	 *
+	 * @param response
 	 * @param user
 	 */
 	@Override
+	@Deprecated
 	public void logout(HttpServletResponse response, UserModel user) {
-		setCookie(response,  null);
+		setCookie(null, response,  null);
+	}
+
+	/**
+	 * Logout a user.
+	 *
+	 * @param request
+	 * @param response
+	 * @param user
+	 */
+	@Override
+	public void logout(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+		setCookie(request, response,  null);
 	}
 
 	/**

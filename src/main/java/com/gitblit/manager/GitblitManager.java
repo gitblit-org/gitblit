@@ -736,13 +736,25 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	@Deprecated
 	public void setCookie(HttpServletResponse response, UserModel user) {
 		authenticationManager.setCookie(response, user);
 	}
 
 	@Override
+	public void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+		authenticationManager.setCookie(request, response, user);
+	}
+
+	@Override
+	@Deprecated
 	public void logout(HttpServletResponse response, UserModel user) {
 		authenticationManager.logout(response, user);
+	}
+
+	@Override
+	public void logout(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+		authenticationManager.logout(request, response, user);
 	}
 
 	@Override

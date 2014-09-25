@@ -85,7 +85,18 @@ public interface IAuthenticationManager extends IManager {
 	 * @param user
 	 * @since 1.4.0
 	 */
+	@Deprecated
 	void setCookie(HttpServletResponse response, UserModel user);
+
+	/**
+	 * Sets a cookie for the specified user.
+	 *
+	 * @param request
+	 * @param response
+	 * @param user
+	 * @since 1.6.1
+	 */
+	void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user);
 
 	/**
 	 * Logout a user.
@@ -93,7 +104,18 @@ public interface IAuthenticationManager extends IManager {
 	 * @param user
 	 * @since 1.4.0
 	 */
+	@Deprecated
 	void logout(HttpServletResponse response, UserModel user);
+
+	/**
+	 * Logout a user.
+	 *
+	 * @param request
+	 * @param response
+	 * @param user
+	 * @since 1.6.1
+	 */
+	void logout(HttpServletRequest request, HttpServletResponse response, UserModel user);
 
 	/**
 	 * Does the user service support changes to credentials?
