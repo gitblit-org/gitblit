@@ -46,6 +46,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
@@ -269,8 +270,10 @@ public abstract class RootPage extends BasePage {
 
 			// Set Cookie
 			if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
+				WebRequest request = (WebRequest) getRequestCycle().getRequest();
 				WebResponse response = (WebResponse) getRequestCycle().getResponse();
-				app().authentication().setCookie(response.getHttpServletResponse(), user);
+				app().authentication().setCookie(request.getHttpServletRequest(),
+						response.getHttpServletResponse(), user);
 			}
 
 			if (!session.continueRequest()) {

@@ -58,9 +58,11 @@ public abstract class SessionPage extends WebPage {
 
 			if (user == null || user.disabled) {
 				// user was deleted/disabled during session
+				HttpServletRequest request = ((WebRequest) getRequestCycle().getRequest())
+						.getHttpServletRequest();
 				HttpServletResponse response = ((WebResponse) getRequestCycle().getResponse())
 						.getHttpServletResponse();
-				app().authentication().logout(response, user);
+				app().authentication().logout(request, response, user);
 				session.setUser(null);
 				session.invalidateNow();
 				return;
@@ -76,7 +78,7 @@ public abstract class SessionPage extends WebPage {
 						// cookie was changed during our session
 						HttpServletResponse response = ((WebResponse) getRequestCycle().getResponse())
 								.getHttpServletResponse();
-						app().authentication().logout(response, user);
+						app().authentication().logout(request, response, user);
 						session.setUser(null);
 						session.invalidateNow();
 						return;
@@ -99,8 +101,10 @@ public abstract class SessionPage extends WebPage {
 			session.setUser(user);
 
 			// Set Cookie
+			WebRequest request = (WebRequest) getRequestCycle().getRequest();
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
-			app().authentication().setCookie(response.getHttpServletResponse(), user);
+			app().authentication().setCookie(request.getHttpServletRequest(),
+					response.getHttpServletResponse(), user);
 
 			session.continueRequest();
 		}
