@@ -52,6 +52,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.MarkdownTextArea;
+import com.google.common.base.Optional;
 
 /**
  * Page for editing a ticket.
@@ -268,7 +269,7 @@ public class EditTicketPage extends RepositoryPage {
 					change.setField(Field.title, title);
 				}
 
-				String description = descriptionEditor.getText();
+				String description = Optional.fromNullable(descriptionEditor.getText()).or("");
 				if ((StringUtils.isEmpty(ticket.body) && !StringUtils.isEmpty(description))
 						|| (!StringUtils.isEmpty(ticket.body) && !ticket.body.equals(description))) {
 					// description change
@@ -287,9 +288,9 @@ public class EditTicketPage extends RepositoryPage {
 					change.setField(Field.type, type);
 				}
 
-				String topic = topicModel.getObject();
+				String topic = Optional.fromNullable(topicModel.getObject()).or("");
 				if ((StringUtils.isEmpty(ticket.topic) && !StringUtils.isEmpty(topic))
-						|| (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic))) {
+					|| (!StringUtils.isEmpty(ticket.topic) && !ticket.topic.equals(topic))) {
 					// topic change
 					change.setField(Field.topic, topic);
 				}
