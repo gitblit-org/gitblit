@@ -16,14 +16,9 @@
 package com.gitblit.transport.ssh;
 
 import java.security.PublicKey;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.sshd.common.Session;
-import org.apache.sshd.common.SessionListener;
 import org.apache.sshd.server.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
@@ -37,7 +32,7 @@ import com.google.common.base.Preconditions;
  * Authenticates an SSH session against a public key.
  *
  */
-public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator, SessionListener {
+public class FileBasedPubKeyAuth implements PublickeyAuthenticator {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -45,30 +40,13 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator, Se
 
 	protected final IAuthenticationManager authManager;
 
-	private final Map<ServerSession, Map<PublicKey, Boolean>> cache = new ConcurrentHashMap<ServerSession, Map<PublicKey, Boolean>>();
-
-	public CachingPublicKeyAuthenticator(IPublicKeyManager keyManager, IAuthenticationManager authManager) {
+	public FileBasedPubKeyAuth(IPublicKeyManager keyManager, IAuthenticationManager authManager) {
 		this.keyManager = keyManager;
 		this.authManager = authManager;
 	}
 
 	@Override
-	public boolean authenticate(String username, PublicKey key, ServerSession session) {
-		Map<PublicKey, Boolean> map = cache.get(session);
-		if (map == null) {
-			map = new HashMap<PublicKey, Boolean>();
-			cache.put(session, map);
-			session.addListener(this);
-		}
-		if (map.containsKey(key)) {
-			return map.get(key);
-		}
-		boolean result = doAuthenticate(username, key, session);
-		map.put(key, result);
-		return result;
-	}
-
-	private boolean doAuthenticate(String username, PublicKey suppliedKey, ServerSession session) {
+	public boolean authenticate(String username, PublicKey suppliedKey, ServerSession session) {
 		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 		Preconditions.checkState(client.getUser() == null);
 		username = username.toLowerCase(Locale.US);
@@ -95,18 +73,5 @@ public class CachingPublicKeyAuthenticator implements PublickeyAuthenticator, Se
 
 		log.warn("could not authenticate {} for SSH using the supplied public key", username);
 		return false;
-	}
-
-	@Override
-	public void sessionCreated(Session session) {
-	}
-
-	@Override
-	public void sessionEvent(Session sesssion, Event event) {
-	}
-
-	@Override
-	public void sessionClosed(Session session) {
-		cache.remove(session);
 	}
 }

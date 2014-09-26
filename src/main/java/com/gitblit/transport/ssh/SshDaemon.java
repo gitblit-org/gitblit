@@ -31,6 +31,7 @@ import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.SecurityUtils;
+import org.apache.sshd.server.auth.CachingPublicKeyAuthenticator;
 import org.bouncycastle.openssl.PEMWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
@@ -96,7 +97,7 @@ public class SshDaemon {
 
 		// Client public key authenticator
 		CachingPublicKeyAuthenticator keyAuthenticator =
-				new CachingPublicKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
+				new CachingPublicKeyAuthenticator(new FileBasedPubKeyAuth(gitblit.getPublicKeyManager(), gitblit));
 
 		// Configure the preferred SSHD backend
 		String sshBackendStr = settings.getString(Keys.git.sshBackend,
