@@ -32,7 +32,7 @@ import com.google.common.base.Preconditions;
  * Authenticates an SSH session against a public key.
  *
  */
-public class FileBasedPubKeyAuth implements PublickeyAuthenticator {
+public class SshKeyAuthenticator implements PublickeyAuthenticator {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -40,7 +40,7 @@ public class FileBasedPubKeyAuth implements PublickeyAuthenticator {
 
 	protected final IAuthenticationManager authManager;
 
-	public FileBasedPubKeyAuth(IPublicKeyManager keyManager, IAuthenticationManager authManager) {
+	public SshKeyAuthenticator(IPublicKeyManager keyManager, IAuthenticationManager authManager) {
 		this.keyManager = keyManager;
 		this.authManager = authManager;
 	}

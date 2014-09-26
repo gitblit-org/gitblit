@@ -96,8 +96,8 @@ public class SshDaemon {
 		hostKeyPairProvider.setFiles(new String [] { rsaKeyStore.getPath(), dsaKeyStore.getPath(), dsaKeyStore.getPath() });
 
 		// Client public key authenticator
-		CachingPublicKeyAuthenticator keyAuthenticator =
-				new CachingPublicKeyAuthenticator(new FileBasedPubKeyAuth(gitblit.getPublicKeyManager(), gitblit));
+		SshKeyAuthenticator keyAuthenticator =
+				new SshKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
 
 		// Configure the preferred SSHD backend
 		String sshBackendStr = settings.getString(Keys.git.sshBackend,
@@ -123,7 +123,7 @@ public class SshDaemon {
 		sshd.setPort(addr.getPort());
 		sshd.setHost(addr.getHostName());
 		sshd.setKeyPairProvider(hostKeyPairProvider);
-		sshd.setPublickeyAuthenticator(keyAuthenticator);
+		sshd.setPublickeyAuthenticator(new CachingPublicKeyAuthenticator(keyAuthenticator));
 		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
