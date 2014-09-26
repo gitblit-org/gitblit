@@ -51,6 +51,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
+import com.gitblit.Constants.Role;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.models.FederationModel;
@@ -709,6 +710,16 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public boolean supportsTeamMembershipChanges(TeamModel team) {
 		return authenticationManager.supportsTeamMembershipChanges(team);
+	}
+
+	@Override
+	public boolean supportsRoleChanges(UserModel user, Role role) {
+		return authenticationManager.supportsRoleChanges(user, role);
+	}
+
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return authenticationManager.supportsRoleChanges(team, role);
 	}
 
 	/*

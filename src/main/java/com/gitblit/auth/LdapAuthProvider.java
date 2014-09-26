@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.TeamModel;
@@ -272,7 +273,6 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		return StringUtils.isEmpty(settings.getString(Keys.realm.ldap.email, ""));
 	}
 
-
 	/**
 	 * If the LDAP server will maintain team memberships then LdapUserService
 	 * will not allow team membership changes.  In this scenario all team
@@ -284,6 +284,32 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	@Override
 	public boolean supportsTeamMembershipChanges() {
 		return !settings.getBoolean(Keys.realm.ldap.maintainTeams, false);
+	}
+
+    @Override
+    public boolean supportsRoleChanges(UserModel user, Role role) {
+    	if (Role.ADMIN == role) {
+    		if (!supportsTeamMembershipChanges()) {
+    			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
+    			if (admins.contains(user.username)) {
+    				return false;
+    			}
+    		}
+    	}
+        return true;
+    }
+
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		if (Role.ADMIN == role) {
+    		if (!supportsTeamMembershipChanges()) {
+    			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
+    			if (admins.contains("@" + team.name)) {
+    				return false;
+    			}
+    		}
+    	}
+		return true;
 	}
 
 	@Override

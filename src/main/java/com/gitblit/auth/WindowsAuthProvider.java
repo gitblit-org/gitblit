@@ -26,8 +26,10 @@ import waffle.windows.auth.impl.WindowsAuthProviderImpl;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -89,6 +91,16 @@ public class WindowsAuthProvider extends UsernamePasswordAuthenticationProvider 
     public boolean supportsTeamMembershipChanges() {
         return true;
     }
+
+    @Override
+    public boolean supportsRoleChanges(UserModel user, Role role) {
+        return true;
+    }
+
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return true;
+	}
 
 	 @Override
 	public AccountType getAccountType() {
