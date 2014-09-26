@@ -151,6 +151,11 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			LOGGER.error("failed to determine default branch for " + repository.name, e);
 		}
 
+		if (!StringUtils.isEmpty(getRepositoryModel().mergeTo)) {
+			// repository settings specifies a default integration branch
+			defaultBranch = Repository.shortenRefName(getRepositoryModel().mergeTo);
+		}
+
 		long ticketId = 0L;
 		try {
 			ticketId = Long.parseLong(branch);
