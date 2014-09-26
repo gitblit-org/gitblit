@@ -73,6 +73,7 @@ import com.gitblit.utils.JGitUtils.MergeResult;
 import com.gitblit.utils.JGitUtils.MergeStatus;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.common.collect.Lists;
 
 
 /**
@@ -621,14 +622,102 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 			if (patchset.commits > 1) {
 				sendError("");
-				sendError("To create a proposal ticket, please squash your commits and");
-				sendError("provide a meaningful commit message with a short title &");
-				sendError("an optional description/body.");
+				sendError("You may not create a ''{0}'' branch proposal ticket from {1} commits!",
+						forBranch, patchset.commits);
 				sendError("");
-				sendError(minTitle);
-				sendError(maxTitle);
+				// display an ellipsized log of the commits being pushed
+				RevWalk walk = getRevWalk();
+				walk.reset();
+				walk.sort(RevSort.TOPO);
+				int boundary = 3;
+				int count = 0;
+				try {
+					walk.markStart(tipCommit);
+					walk.markUninteresting(mergeBase);
+
+					for (;;) {
+
+						RevCommit c = walk.next();
+						if (c == null) {
+							break;
+						}
+
+						if (count < boundary || count >= (patchset.commits - boundary)) {
+
+							walk.parseBody(c);
+							sendError("   {0}  {1}", c.getName().substring(0, shortCommitIdLen),
+								StringUtils.trimString(c.getShortMessage(), 60));
+
+						} else if (count == boundary) {
+
+							sendError("   ... more commits ...");
+
+						}
+
+						count++;
+					}
+
+				} catch (IOException e) {
+					// Should never happen, the core receive process would have
+					// identified the missing object earlier before we got control.
+					LOGGER.error("failed to get commit count", e);
+				} finally {
+					walk.release();
+				}
+
 				sendError("");
-				sendRejection(cmd, "please squash to one commit");
+				sendError("Possible Solutions:");
+				sendError("");
+				int solution = 1;
+				String forSpec = cmd.getRefName().substring(Constants.R_FOR.length());
+				if (forSpec.equals("default") || forSpec.equals("new")) {
+					try {
+						// determine other possible integration targets
+						List<String> bases = Lists.newArrayList();
+						for (Ref ref : getRepository().getRefDatabase().getRefs(Constants.R_HEADS).values()) {
+							if (!ref.getName().startsWith(Constants.R_TICKET)
+									&& !ref.getName().equals(forBranchRef.getName())) {
+								if (JGitUtils.isMergedInto(getRepository(), ref.getObjectId(), tipCommit)) {
+									bases.add(Repository.shortenRefName(ref.getName()));
+								}
+							}
+						}
+
+						if (!bases.isEmpty()) {
+
+							if (bases.size() == 1) {
+								// suggest possible integration targets
+								String base = bases.get(0);
+								sendError("{0}. Propose this change for the ''{1}'' branch.", solution++, base);
+								sendError("");
+								sendError("   git push origin HEAD:refs/for/{0}", base);
+								sendError("   pt propose {0}", base);
+								sendError("");
+							} else {
+								// suggest possible integration targets
+								sendError("{0}. Propose this change for a different branch.", solution++);
+								sendError("");
+								for (String base : bases) {
+									sendError("   git push origin HEAD:refs/for/{0}", base);
+									sendError("   pt propose {0}", base);
+									sendError("");
+								}
+							}
+
+						}
+					} catch (IOException e) {
+						LOGGER.error(null, e);
+					}
+				}
+				sendError("{0}. Squash your changes into a single commit with a meaningful message.", solution++);
+				sendError("");
+				sendError("{0}. Open a ticket for your changes and then push your {1} commits to the ticket.",
+						solution++, patchset.commits);
+				sendError("");
+				sendError("   git push origin HEAD:refs/for/{id}");
+				sendError("   pt propose {id}");
+				sendError("");
+				sendRejection(cmd, "too many commits");
 				return null;
 			}
 
