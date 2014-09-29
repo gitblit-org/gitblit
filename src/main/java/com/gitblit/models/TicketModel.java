@@ -91,6 +91,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public Integer deletions;
 
+	public Priority priority;
+	
+	public Severity severity;
+	
 	/**
 	 * Builds an effective ticket from the collection of changes.  A change may
 	 * Add or Subtract information from a ticket, but the collection of changes
@@ -141,6 +145,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		changes = new ArrayList<Change>();
 		status = Status.New;
 		type = Type.defaultType;
+		priority = Priority.defaultPriority;
+		severity = Severity.defaultSeverity;
 	}
 
 	public boolean isOpen() {
@@ -516,6 +522,12 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 					break;
 				case mergeSha:
 					mergeSha = toString(value);
+					break;
+				case priority:
+					priority = TicketModel.Priority.fromObject(value, priority);
+					break;
+				case severity:
+					severity = TicketModel.Severity.fromObject(value, severity);
 					break;
 				default:
 					// unknown
@@ -1183,7 +1195,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public static enum Field {
 		title, body, responsible, type, status, milestone, mergeSha, mergeTo,
-		topic, labels, watchers, reviewers, voters, mentions;
+		topic, labels, watchers, reviewers, voters, mentions, priority, severity;
 	}
 
 	public static enum Type {
@@ -1308,6 +1320,112 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 
 			return null;
+		}
+	}
+
+	public static enum Priority {
+		Low(-1), Normal(0), High(1), Urgent(2);
+
+		public static Priority defaultPriority = Normal;
+
+		final int value;
+
+		Priority(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+		
+		public static Priority [] choices() {
+			return new Priority [] { Urgent, High, Normal, Low };
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase().replace('_', ' ');
+		}
+
+		public static Priority fromObject(Object o, Priority defaultPriority) {
+			if (o instanceof Priority) {
+				// cast and return
+				return (Priority) o;
+			} else if (o instanceof String) {
+				// find by name
+				for (Priority priority : values()) {
+					String str = o.toString();
+					if (priority.name().equalsIgnoreCase(str)
+							|| priority.toString().equalsIgnoreCase(str)) {
+						return priority;
+					}
+				}
+			} else if (o instanceof Number) {
+
+				switch (((Number) o).intValue()) {
+					case -1: return Priority.Low;
+					case 0:  return Priority.Normal;
+					case 1:  return Priority.High;
+					case 2:  return Priority.Urgent;
+					default: return Priority.Normal;
+				}
+			}
+
+			return defaultPriority;
+		}
+	}
+	
+	public static enum Severity {
+		Unrated(-1), Negligible(1), Minor(2), Serious(3), Critical(4), Catastrophic(5);
+
+		public static Severity defaultSeverity = Unrated;
+		
+		final int value;
+		
+		Severity(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+		
+		public static Severity [] choices() {
+			return new Severity [] { Unrated, Negligible, Minor, Serious, Critical, Catastrophic };
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase().replace('_', ' ');
+		}
+		
+		public static Severity fromObject(Object o, Severity defaultSeverity) {
+			if (o instanceof Severity) {
+				// cast and return
+				return (Severity) o;
+			} else if (o instanceof String) {
+				// find by name
+				for (Severity severity : values()) {
+					String str = o.toString();
+					if (severity.name().equalsIgnoreCase(str)
+							|| severity.toString().equalsIgnoreCase(str)) {
+						return severity;
+					}
+				}
+			} else if (o instanceof Number) {
+				
+				switch (((Number) o).intValue()) {
+					case -1: return Severity.Unrated;
+					case 1:  return Severity.Negligible;
+					case 2:  return Severity.Minor;
+					case 3:  return Severity.Serious;
+					case 4:  return Severity.Critical;
+					case 5:  return Severity.Catastrophic;
+					default: return Severity.Unrated;
+				}
+			}
+
+			return defaultSeverity;
 		}
 	}
 }

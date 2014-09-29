@@ -83,6 +83,10 @@ public class EditTicketPage extends RepositoryPage {
 	private IModel<TicketMilestone> milestoneModel;
 
 	private Label descriptionPreview;
+	
+	private IModel<TicketModel.Priority> priorityModel;
+	
+	private IModel<TicketModel.Severity> severityModel;
 
 	public EditTicketPage(PageParameters params) {
 		super(params);
@@ -117,6 +121,8 @@ public class EditTicketPage extends RepositoryPage {
 		milestoneModel = Model.of();
 		mergeToModel = Model.of(ticket.mergeTo == null ? getRepositoryModel().mergeTo : ticket.mergeTo);
 		statusModel = Model.of(ticket.status);
+		priorityModel = Model.of(ticket.priority);
+		severityModel = Model.of(ticket.severity);
 
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -219,6 +225,14 @@ public class EditTicketPage extends RepositoryPage {
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 
+			// priority
+			List<TicketModel.Priority> priorityChoices = Arrays.asList(TicketModel.Priority.choices());
+			form.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, priorityChoices));
+			
+			// severity
+			List<TicketModel.Severity> severityChoices = Arrays.asList(TicketModel.Severity.choices());
+			form.add(new DropDownChoice<TicketModel.Severity>("severity", severityModel, severityChoices));
+						
 			// mergeTo (integration branch)
 			List<String> branches = new ArrayList<String>();
 			for (String branch : getRepositoryModel().getLocalBranches()) {
@@ -315,7 +329,19 @@ public class EditTicketPage extends RepositoryPage {
 						change.setField(Field.milestone, milestone.name);
 					}
 				}
+				
+				TicketModel.Priority priority = priorityModel.getObject();
+				if (!ticket.priority.equals(priority))
+				{
+					change.setField(Field.priority, priority);
+				}
 
+				TicketModel.Severity severity = severityModel.getObject();
+				if (!ticket.severity.equals(severity))
+				{
+					change.setField(Field.severity, severity);
+				}
+				
 				String mergeTo = mergeToModel.getObject();
 				if ((StringUtils.isEmpty(ticket.mergeTo) && !StringUtils.isEmpty(mergeTo))
 						|| (!StringUtils.isEmpty(mergeTo) && !mergeTo.equals(ticket.mergeTo))) {

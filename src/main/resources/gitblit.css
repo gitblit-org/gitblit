@@ -784,6 +784,10 @@ td.ticket-list-state {
 	vertical-align: middle;
 }
 
+td.ticket-list-priority {
+	vertical-align: middle;
+}
+
 .ticket-list-details {
 	font-size: 11px;
 	color: #888;
@@ -2079,4 +2083,72 @@ div.markdown table.text th, div.markdown table.text td {
     background-color: #fff;
     border-color: #ece7e2;
     color: #815b3a;
+}
+.severity-catastrophic {
+	color:#CC79A7;
+}
+.severity-catastrophic:after {
+	font-family: Helvetica,arial,freesans,clean,sans-serif ;
+	content: "Ca";
+	font-weight:900;
+	font-size:.6em;	
+	font-variant:small-caps;
+	display:flex;
+}
+.severity-critical {
+	color:#D55E00;
+}
+.severity-critical:after {
+	font-family: Helvetica,arial,freesans,clean,sans-serif ;
+	content: "c";
+	font-weight:900;
+	font-size:.6em;	
+	font-variant:small-caps;
+	display:flex;
+}
+.severity-serious {
+	color:#E69F00;
+}
+.severity-serious:after {
+	font-family: Helvetica,arial,freesans,clean,sans-serif ;
+	content: "s";
+	font-weight:900;
+	font-size:.6em;	
+	font-variant:small-caps;
+	display:flex;
+}
+.severity-minor {
+	color:#0072B2;
+}
+.severity-minor:after {
+	font-family: Helvetica,arial,freesans,clean,sans-serif ;
+	content: "m";
+	font-weight:900;
+	font-size:.6em;	
+	font-variant:small-caps;
+	display:flex;
+}
+.severity-negligible {
+	color:#009E73;
+}
+.severity-negligible:after {
+	font-family: Helvetica,arial,freesans,clean,sans-serif ;
+	content: "n";
+	font-weight:900;
+	font-size:.6em;	
+	font-variant:small-caps;
+	display:flex;
+}
+.severity-unrated {
+}
+.priority-urgent {
+	color:#CC79A7;
+}
+.priority-high {
+	color:#D55E00;
+}
+.priority-normal {
+}
+.priority-low {
+	color:#0072B2;
 }

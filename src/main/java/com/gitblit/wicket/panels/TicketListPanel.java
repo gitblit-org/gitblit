@@ -53,7 +53,7 @@ import com.gitblit.wicket.pages.UserPage;
 public class TicketListPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	public TicketListPanel(String wicketId, List<QueryResult> list, final boolean showSwatch, final boolean showRepository) {
 		super(wicketId);
 
@@ -83,7 +83,10 @@ public class TicketListPanel extends BasePanel {
 					item.add(new Label("ticketsLink").setVisible(false));
 				}
 
-				item.add(TicketsUI.getStateIcon("state", ticket.type, ticket.status));
+				Label icon = TicketsUI.getStateIcon("state", ticket.type, ticket.status);
+				WicketUtils.addCssClass(icon, TicketsUI.getSeverityClass(ticket.severity));
+				item.add(icon);
+				
 				item.add(new Label("id", "" + ticket.number));
 				UserModel creator = app().users().getUserModel(ticket.createdBy);
 				if (creator != null) {
@@ -167,6 +170,11 @@ public class TicketListPanel extends BasePanel {
 				// watching indicator
 				item.add(new Label("watching").setVisible(ticket.isWatching(GitBlitWebSession.get().getUsername())));
 
+				// priority indicator
+				Label priorityIcon = TicketsUI.getPriorityIcon("priority", ticket.priority);
+				WicketUtils.addCssClass(priorityIcon, TicketsUI.getPriorityClass(ticket.priority));
+				item.add(priorityIcon.setVisible(true));
+				
 				// status indicator
 				String css = TicketsUI.getLozengeClass(ticket.status, true);
 				Label l = new Label("status", ticket.status.toString());
