@@ -21,6 +21,8 @@ import java.text.MessageFormat;
 import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.models.TicketModel;
+import com.gitblit.models.TicketModel.Priority;
+import com.gitblit.models.TicketModel.Severity;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.TicketModel.Type;
 import com.gitblit.utils.StringUtils;
@@ -36,7 +38,7 @@ public class TicketsUI {
 	public static final String [] openStatii = new String [] { Status.New.name().toLowerCase(), Status.Open.name().toLowerCase() };
 
 	public static final String [] closedStatii = new String [] { "!" + Status.New.name().toLowerCase(), "!" + Status.Open.name().toLowerCase() };
-
+	
 	public static Label getStateIcon(String wicketId, TicketModel ticket) {
 		return getStateIcon(wicketId, ticket.type, ticket.status);
 	}
@@ -67,9 +69,41 @@ public class TicketsUI {
 			WicketUtils.setCssClass(label, "fa fa-ticket");
 		}
 		WicketUtils.setHtmlTooltip(label, getTypeState(type, state));
+		
 		return label;
 	}
+	
+	public static Label getPriorityIcon(String wicketId, Priority priority) {
+		Label label = new Label(wicketId);
+		if (priority == null) {
+			priority = Priority.defaultPriority;
+		}
+		switch (priority) {
+		case Urgent:
+			WicketUtils.setCssClass(label, "fa fa-step-forward fa-rotate-270");
+			break;
+		case High:
+			WicketUtils.setCssClass(label, "fa fa-caret-up fa-lg");
+			break;
+		case Low:
+			WicketUtils.setCssClass(label, "fa fa-caret-down fa-lg");
+			break;
+		default:
+			WicketUtils.setCssClass(label, "fa fa-caret-up fa-lg");
+		}
+		WicketUtils.setHtmlTooltip(label, priority.toString());
+		
+		return label;
+	}
+	
+	public static String getPriorityClass(Priority priority) {
+		return String.format("priority-%s", priority);
+	}
 
+	public static String getSeverityClass(Severity severity) {
+		return String.format("severity-%s", severity);	
+	}
+	
 	public static String getTypeState(Type type, Status state) {
 		return state.toString() + " " + type.toString();
 	}

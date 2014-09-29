@@ -75,6 +75,10 @@ public class NewTicketPage extends RepositoryPage {
 	private IModel<TicketMilestone> milestoneModel;
 
 	private Label descriptionPreview;
+	
+	private IModel<TicketModel.Priority> priorityModel;
+	
+	private IModel<TicketModel.Severity> severityModel;
 
 	public NewTicketPage(PageParameters params) {
 		super(params);
@@ -95,6 +99,8 @@ public class NewTicketPage extends RepositoryPage {
 		mergeToModel = Model.of(Repository.shortenRefName(getRepositoryModel().mergeTo));
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
+		severityModel = Model.of(TicketModel.Severity.defaultSeverity);
+		priorityModel = Model.of(TicketModel.Priority.defaultPriority);
 
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -152,6 +158,12 @@ public class NewTicketPage extends RepositoryPage {
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 
+			// priority
+			form.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, Arrays.asList(TicketModel.Priority.choices())));
+			
+			//severity
+			form.add(new DropDownChoice<TicketModel.Severity>("severity", severityModel, Arrays.asList(TicketModel.Severity.choices())));
+			
 			// integration branch
 			List<String> branches = new ArrayList<String>();
 			for (String branch : getRepositoryModel().getLocalBranches()) {
@@ -211,6 +223,20 @@ public class NewTicketPage extends RepositoryPage {
 				if (milestone != null) {
 					change.setField(Field.milestone, milestone.name);
 				}
+				
+				// severity
+				TicketModel.Severity severity = TicketModel.Severity.defaultSeverity;
+				if (severityModel.getObject() != null) {
+					severity = severityModel.getObject();
+				}
+				change.setField(Field.severity, severity);
+				
+				// priority
+				TicketModel.Priority priority = TicketModel.Priority.defaultPriority;
+				if (priorityModel.getObject() != null) {
+					priority = priorityModel.getObject();
+				}
+				change.setField(Field.priority, priority);
 
 				// integration branch
 				String mergeTo = mergeToModel.getObject();

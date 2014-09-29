@@ -784,6 +784,10 @@ td.ticket-list-state {
 	vertical-align: middle;
 }
 
+td.ticket-list-priority {
+	vertical-align: middle;
+}
+
 .ticket-list-details {
 	font-size: 11px;
 	color: #888;
@@ -2079,4 +2083,33 @@ div.markdown table.text th, div.markdown table.text td {
     background-color: #fff;
     border-color: #ece7e2;
     color: #815b3a;
+}
+.severity-catastrophic {
+	color:hsl(300, 100%, 45%);
+}
+.severity-critical {
+	color:hsl(10,  100%, 45%);
+}
+.severity-serious {
+	color:hsl(40,  100%, 45%);
+}
+.severity-minor {
+	color:hsl(60,  100%, 45%);
+}
+.severity-negligible {
+	color:hsl(120, 100%, 40%);
+}
+.severity-unrated {
+}
+.priority-urgent {
+	color:hsl(10,  100%, 45%);
+}
+.priority-high {
+	color:hsl(10,  100%, 45%);
+}
+.priority-normal {
+	color:hsl(40,  100%, 45%);
+}
+.priority-low {
+	color:hsl(120, 100%, 40%);
 }
