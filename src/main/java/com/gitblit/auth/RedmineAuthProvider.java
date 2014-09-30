@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 
-import org.apache.wicket.util.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;

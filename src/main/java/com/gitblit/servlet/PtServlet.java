@@ -15,6 +15,7 @@
  */
 package com.gitblit.servlet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,7 +35,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.apache.wicket.util.io.ByteArrayOutputStream;
 import org.eclipse.jgit.lib.FileMode;
 
 import com.gitblit.manager.IRuntimeManager;
