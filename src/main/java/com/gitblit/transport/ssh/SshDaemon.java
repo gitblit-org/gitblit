@@ -86,6 +86,9 @@ public class SshDaemon {
 
 		// Ensure that Bouncy Castle is our JCE provider
 		SecurityUtils.setRegisterBouncyCastle(true);
+		if (SecurityUtils.isBouncyCastleRegistered()) {
+			log.debug("BouncyCastle is registered as a JCE provider");
+		}
 
 		// Generate host RSA and DSA keypairs and create the host keypair provider
 		File rsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-rsa-hostkey.pem");
