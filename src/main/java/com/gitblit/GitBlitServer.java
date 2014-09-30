@@ -148,6 +148,15 @@ public class GitBlitServer {
 		System.exit(0);
 	}
 
+	protected File getBaseFolder(Params params) {
+		String path = System.getProperty("GITBLIT_HOME", Params.baseFolder);
+		if (!StringUtils.isEmpty(System.getenv("GITBLIT_HOME"))) {
+			path = System.getenv("GITBLIT_HOME");
+		}
+
+		return new File(path).getAbsoluteFile();
+	}
+
 	/**
 	 * Stop Gitblt GO.
 	 */
@@ -170,7 +179,7 @@ public class GitBlitServer {
 	 * Start Gitblit GO.
 	 */
 	protected final void start(Params params) {
-		final File baseFolder = new File(Params.baseFolder).getAbsoluteFile();
+		final File baseFolder = getBaseFolder(params);
 		FileSettings settings = params.FILESETTINGS;
 		if (!StringUtils.isEmpty(params.settingsfile)) {
 			if (new File(params.settingsfile).exists()) {
