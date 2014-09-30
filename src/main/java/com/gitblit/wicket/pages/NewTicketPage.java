@@ -222,7 +222,8 @@ public class NewTicketPage extends RepositoryPage {
 				if (ticket != null) {
 					TicketNotifier notifier = app().tickets().createNotifier();
 					notifier.sendMailing(ticket);
-					setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+
+					redirect(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
 				} else {
 					// TODO error
 				}
