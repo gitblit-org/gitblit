@@ -153,7 +153,7 @@ public class GitblitContext extends DaggerContext {
 			// if the base folder dosen't match the default assume they don't want to use express,
 			// this allows for other containers to customise the basefolder per context.
 			String defaultBase = Constants.contextFolder$ + "/WEB-INF/data";
-			String base = System.getProperty("GITBLIT_HOME",lookupBaseFolderFromJndi());
+			String base = getBaseFolderPath(defaultBase);
 			if (!StringUtils.isEmpty(System.getenv("OPENSHIFT_DATA_DIR")) && defaultBase.equals(base)) {
 				// RedHat OpenShift
 				baseFolder = configureExpress(context, webxmlSettings, contextFolder, runtimeSettings);
@@ -216,6 +216,24 @@ public class GitblitContext extends DaggerContext {
 			logger.error("Failed to get JNDI env-entry: " + n.getExplanation());
 		}
 		return null;
+	}
+
+	protected String getBaseFolderPath(String defaultBaseFolder) {
+		// try a system property or a JNDI property
+		String specifiedBaseFolder = System.getProperty("GITBLIT_HOME", lookupBaseFolderFromJndi());
+
+		if (!StringUtils.isEmpty(System.getenv("GITBLIT_HOME"))) {
+			// try an environment variable
+			specifiedBaseFolder = System.getenv("GITBLIT_HOME");
+		}
+
+		if (!StringUtils.isEmpty(specifiedBaseFolder)) {
+			// use specified base folder path
+			return specifiedBaseFolder;
+		}
+
+		// use default base folder path
+		return defaultBaseFolder;
 	}
 
 	protected <X extends IManager> X loadManager(ObjectGraph injector, Class<X> clazz) {
@@ -305,9 +323,9 @@ public class GitblitContext extends DaggerContext {
 		logger.debug("configuring Gitblit WAR");
 		logger.info("WAR contextFolder is " + ((contextFolder != null) ? contextFolder.getAbsolutePath() : "<empty>"));
 
-		String path = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
+		String webXmlPath = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
 
-		if (path.contains(Constants.contextFolder$) && contextFolder == null) {
+		if (webXmlPath.contains(Constants.contextFolder$) && contextFolder == null) {
 			// warn about null contextFolder (issue-199)
 			logger.error("");
 			logger.error(MessageFormat.format("\"{0}\" depends on \"{1}\" but \"{2}\" is returning NULL for \"{1}\"!",
@@ -317,18 +335,15 @@ public class GitblitContext extends DaggerContext {
 			logger.error("");
 		}
 
-		String externalBase = System.getProperty("GITBLIT_HOME", lookupBaseFolderFromJndi());
-		if (!StringUtils.isEmpty(externalBase)) {
-			path = externalBase;
-		}
+		String baseFolderPath = getBaseFolderPath(webXmlPath);
 
-		File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
-		base.mkdirs();
+		File baseFolder = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, baseFolderPath);
+		baseFolder.mkdirs();
 
 		// try to extract the data folder resource to the baseFolder
-		File localSettings = new File(base, "gitblit.properties");
+		File localSettings = new File(baseFolder, "gitblit.properties");
 		if (!localSettings.exists()) {
-			extractResources(context, "/WEB-INF/data/", base);
+			extractResources(context, "/WEB-INF/data/", baseFolder);
 		}
 
 		// delegate all config to baseFolder/gitblit.properties file
@@ -340,7 +355,7 @@ public class GitblitContext extends DaggerContext {
 		// the target file for runtimeSettings is set to "localSettings".
 		runtimeSettings.merge(fileSettings);
 
-		return base;
+		return baseFolder;
 	}
 
 	/**
