@@ -4,8 +4,7 @@
 2. You may have to manually extract the WAR (zip file) to a folder within your webapps folder.
 3. By default, the Gitblit webapp is configured through `WEB-INF/data/gitblit.properties`.
 Open `WEB-INF/data/gitblit.properties` in your favorite text editor and make sure to review and set:
-    - &lt;context-parameter&gt; *git.packedGitLimit* (set larger than the size of your largest repository)
-    - &lt;context-parameter&gt; *git.streamFileThreshold* (set larger than the size of your largest committed file)
+    - *git.packedGitLimit* (set larger than the size of your largest repository)
 4. You may have to restart your servlet container. 
 5. Open your browser to <http://localhost/gitblit> or whatever the url should be.
 6. Enter the default administrator credentials: **admin / admin** and click the *Login* button  
