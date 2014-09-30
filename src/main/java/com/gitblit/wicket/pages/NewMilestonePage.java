@@ -108,7 +108,7 @@ public class NewMilestonePage extends RepositoryPage {
 				if (milestone != null) {
 					milestone.due = due;
 					app().tickets().updateMilestone(getRepositoryModel(), milestone, createdBy);
-					redirect(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
+					redirectTo(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 				} else {
 					// TODO error
 				}
