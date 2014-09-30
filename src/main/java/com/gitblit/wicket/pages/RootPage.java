@@ -280,12 +280,12 @@ public abstract class RootPage extends BasePage {
 				PageParameters params = getPageParameters();
 				if (params == null) {
 					// redirect to this page
-					manualRedirect(getClass());
+					redirectTo(getClass());
 				} else {
 					// Strip username and password and redirect to this page
 					params.remove("username");
 					params.remove("password");
-					redirect(getClass(), params);
+					redirectTo(getClass(), params);
 				}
 			}
 		}

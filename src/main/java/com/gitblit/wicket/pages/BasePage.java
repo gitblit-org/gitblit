@@ -113,11 +113,11 @@ public abstract class BasePage extends SessionPage {
 		return canonicalUrl;
 	}
 
-	protected void manualRedirect(Class<? extends BasePage> pageClass) {
-		redirect(pageClass, null);
+	protected void redirectTo(Class<? extends BasePage> pageClass) {
+		redirectTo(pageClass, null);
 	}
 
-	protected void redirect(Class<? extends BasePage> pageClass, PageParameters parameters) {
+	protected void redirectTo(Class<? extends BasePage> pageClass, PageParameters parameters) {
 		String absoluteUrl = getCanonicalUrl(pageClass, parameters);
 		getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 	}
