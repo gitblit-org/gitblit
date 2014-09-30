@@ -143,7 +143,7 @@ public class EditMilestonePage extends RepositoryPage {
 				}
 
 				if (success && app().tickets().updateMilestone(getRepositoryModel(), tm, createdBy)) {
-					setResponsePage(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
+					redirect(TicketsPage.class, WicketUtils.newOpenTicketsParameter(repositoryName));
 				} else {
 					// TODO error
 				}
