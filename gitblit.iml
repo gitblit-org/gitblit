@@ -135,13 +135,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-all-9.2.2.v20140723.jar">
+      <library name="jetty-all-9.2.3.v20140905.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.2.2.v20140723.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.2.3.v20140905.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.2.2.v20140723.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.2.3.v20140905.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

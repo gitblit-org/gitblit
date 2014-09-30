@@ -102,7 +102,7 @@ repositories: central, eclipse-snapshots, eclipse, gitblit
 
 # Convenience properties for dependencies
 properties: {
-  jetty.version  : 9.2.2.v20140723
+  jetty.version  : 9.2.3.v20140905
   wicket.version : 1.4.21
   lucene.version : 4.10.0
   jgit.version   : 3.5.0.201409260305-r
