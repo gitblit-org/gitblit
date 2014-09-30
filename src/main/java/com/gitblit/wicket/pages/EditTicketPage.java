@@ -331,13 +331,13 @@ public class EditTicketPage extends RepositoryPage {
 					if (ticket != null) {
 						TicketNotifier notifier = app().tickets().createNotifier();
 						notifier.sendMailing(ticket);
-						redirect(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+						redirectTo(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
 					} else {
 						// TODO error
 					}
 				} else {
 					// nothing to change?!
-					redirect(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+					redirectTo(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
 				}
 			}
 		});
