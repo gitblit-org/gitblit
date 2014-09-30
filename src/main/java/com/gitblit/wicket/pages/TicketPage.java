@@ -37,7 +37,6 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
@@ -687,15 +686,6 @@ public class TicketPage extends RepositoryPage {
 						Label status = new Label("statusChange", entry.getStatus().toString());
 						String css = TicketsUI.getLozengeClass(entry.getStatus(), false);
 						WicketUtils.setCssClass(status, css);
-						for (IBehavior b : status.getBehaviors()) {
-							if (b instanceof SimpleAttributeModifier) {
-								SimpleAttributeModifier sam = (SimpleAttributeModifier) b;
-								if ("class".equals(sam.getAttribute())) {
-									status.add(new SimpleAttributeModifier("class", "status-change " + sam.getValue()));
-									break;
-								}
-							}
-						}
 						frag.add(status);
 						addUserAttributions(frag, entry, avatarWidth);
 						addDateAttributions(frag, entry);
