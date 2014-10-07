@@ -172,7 +172,7 @@ public class RawServlet extends DaggerServlet {
 			} else {
 				repository = path.substring(0, slash);
 			}
-			offset += ( slash + 1 );
+			offset = ( slash + 1 );
 			r = repositoryManager.getRepository(repository, false);
 			if (repository.equals(path)) {
 				// either only repository in url or no repository found
