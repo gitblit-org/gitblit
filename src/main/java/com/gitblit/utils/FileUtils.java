@@ -296,7 +296,7 @@ public class FileUtils {
 		Path exactBase = Paths.get(getExactFile(basePath).toURI());
 		Path exactPath = Paths.get(getExactFile(path).toURI());
 		if (exactPath.startsWith(exactBase)) {
-			return exactBase.relativize(exactPath).toString();
+			return exactBase.relativize(exactPath).toString().replace('\\', '/');
 		}
 		// no relative relationship
 		return null;
