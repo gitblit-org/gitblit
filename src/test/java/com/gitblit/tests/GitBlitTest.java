@@ -15,6 +15,7 @@
  */
 package com.gitblit.tests;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jgit.lib.Repository;
@@ -24,6 +25,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.FileSettings;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.FileUtils;
 
 public class GitBlitTest extends GitblitUnitTest {
 
@@ -156,7 +158,9 @@ public class GitBlitTest extends GitblitUnitTest {
 		assertEquals(5, settings().getInteger("realm.userService", 5));
 
 		assertTrue(settings().getBoolean("git.enableGitServlet", false));
-		assertEquals("src/test/config/test-users.conf", settings().getString("realm.userService", null));
+		File userDir = new File(System.getProperty("user.dir"));
+		File userService = new File(settings().getString("realm.userService", null));
+		assertEquals("src/test/config/test-users.conf", FileUtils.getRelativePath(userDir, userService));
 		assertEquals(5, settings().getInteger("realm.minPasswordLength", 0));
 		List<String> mdExtensions = settings().getStrings("web.markdownExtensions");
 		assertTrue(mdExtensions.size() > 0);
