@@ -596,7 +596,7 @@ public class TicketNotifier {
 
 		// respect the author's email preference
 		UserModel lastAuthor = userManager.getUserModel(lastChange.author);
-		if (!lastAuthor.getPreferences().isEmailMeOnMyTicketChanges()) {
+		if (lastAuthor != null && !lastAuthor.getPreferences().isEmailMeOnMyTicketChanges()) {
 			toAddresses.remove(lastAuthor.emailAddress);
 			ccAddresses.remove(lastAuthor.emailAddress);
 		}
