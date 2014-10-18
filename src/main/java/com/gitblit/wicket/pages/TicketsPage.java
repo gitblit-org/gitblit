@@ -272,6 +272,16 @@ public class TicketsPage extends RepositoryPage {
 						sortBy,
 						desc,
 						1)));
+		
+		add(new BookmarkablePageLink<Void>("maintenanceQuery", TicketsPage.class,
+				queryParameters(
+						Lucene.type.matches(TicketModel.Type.Maintenance.name()),
+						milestoneParam,
+						statiiParam,
+						assignedToParam,
+						sortBy,
+						desc,
+						1)));
 
 		add(new BookmarkablePageLink<Void>("resetQuery", TicketsPage.class,
 				queryParameters(
