@@ -120,18 +120,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.0.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.0.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.0.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.1.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.1.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.0.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.1.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -603,54 +603,6 @@
 <span style="color:#004000;"># RESTART REQUIRED</span><br/>
 <span style="color:#000080;">git.packedGitOpenFiles</span> = <span style="color:#800000;">128</span><br/>
 <br/>
-<span style="color:#004000;"># Largest object size, in bytes, that JGit will allocate as a contiguous byte</span><br/>
-<span style="color:#004000;"># array. Any file revision larger than this threshold will have to be streamed,</span><br/>
-<span style="color:#004000;"># typically requiring the use of temporary files under $GIT_DIR/objects to implement</span><br/>
-<span style="color:#004000;"># psuedo-random access during delta decompression.</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Servers with very high traffic should set this to be larger than the size of</span><br/>
-<span style="color:#004000;"># their common big files. For example a server managing the Android platform</span><br/>
-<span style="color:#004000;"># typically has to deal with ~10-12 MiB XML files, so 15 m would be a reasonable</span><br/>
-<span style="color:#004000;"># setting in that environment. Setting this too high may cause the JVM to run out</span><br/>
-<span style="color:#004000;"># of heap space when handling very big binary files, such as device firmware or</span><br/>
-<span style="color:#004000;"># CD-ROM ISO images. Make sure to adjust your JVM heap accordingly.</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Default is 50 MiB on all platforms.</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Common unit suffixes of k, m, or g are supported.</span><br/>
-<span style="color:#004000;"># Documentation courtesy of the Gerrit project.</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># NOTE: The importance of JGit's streamFileTreshold AND Git's bigFileThreshold</span><br/>
-<span style="color:#004000;"># ISSUE: <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=394078">https://bugs.eclipse.org/bugs/show_bug.cgi?id=394078</a></span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># "core.bigFileThreshold</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Files larger than this size are stored deflated, without</span><br/>
-<span style="color:#004000;"># attempting delta compression. Storing large files without</span><br/>
-<span style="color:#004000;"># delta compression avoids excessive memory usage, at the</span><br/>
-<span style="color:#004000;"># slight expense of increased disk usage.</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Default is 512 MiB on all platforms.</span><br/>
-<span style="color:#004000;"># This should be reasonable for most projects as source code and other</span><br/>
-<span style="color:#004000;"># text files can still be delta compressed,</span><br/>
-<span style="color:#004000;"># but larger binary media files won't be."</span><br/>
-<span style="color:#004000;"># -- Git documentation</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># If streamFileTreshold &lt; bigFileTreshold you <em>may</em> spend alot of time waiting</span><br/>
-<span style="color:#004000;"># for push and/or fetch to complete. It may even look hung.</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Until the issue is resolved gracefully, a workaround is to configure</span><br/>
-<span style="color:#004000;"># bigFileThreshold &lt; streamFileTreshold AND then repack the repository.</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># e.g. from the repository folder with Gitblit NOT running:</span><br/>
-<span style="color:#004000;"># git config core.bigFileTreshold 40m</span><br/>
-<span style="color:#004000;"># git gc --aggressive</span><br/>
-<span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># SINCE 1.0.0</span><br/>
-<span style="color:#004000;"># RESTART REQUIRED</span><br/>
-<span style="color:#000080;">git.streamFileThreshold</span> = <span style="color:#800000;">50m</span><br/>
-<br/>
 <span style="color:#004000;"># When true, JGit will use mmap() rather than malloc()+read() to load data from</span><br/>
 <span style="color:#004000;"># pack files. The use of mmap can be problematic on some JVMs as the garbage</span><br/>
 <span style="color:#004000;"># collector must deduce that a memory mapped segment is no longer in use before</span><br/>
@@ -1022,8 +974,18 @@
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
 <span style="color:#000080;">web.siteName</span> = <span style="color:#800000;"></span><br/>
 <br/>
-<span style="color:#004000;"># The canonical url of your Gitblit server to bs used in email notifications.</span><br/>
-<span style="color:#004000;"># e.g. web.canonicalUrl = <a href="https://demo-gitblit.rhcloud.com">https://demo-gitblit.rhcloud.com</a></span><br/>
+<span style="color:#004000;"># The canonical url of your Gitblit server to be used in repository url generation,</span><br/>
+<span style="color:#004000;"># RSS feeds, and all embedded links in email and plugin-based notifications.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># If you are running Gitblit on a non-standard http port (i.e. not 80 and not 443)</span><br/>
+<span style="color:#004000;"># then you must specify that port in this url otherwise your generated urls will be</span><br/>
+<span style="color:#004000;"># incorrect.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># The hostname of this url will be extracted for SSH and GIT protocol repository</span><br/>
+<span style="color:#004000;"># url generation.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># e.g. web.canonicalUrl = <a href="https://dev.gitblit.com">https://dev.gitblit.com</a></span><br/>
+<span style="color:#004000;"># web.canonicalUrl = <a href="https://dev.gitblit.com:8443">https://dev.gitblit.com:8443</a></span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.4.0</span><br/>
 <span style="color:#000080;">web.canonicalUrl</span> = <span style="color:#800000;"></span><br/>
@@ -1173,6 +1135,12 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 0.9.0</span><br/>
 <span style="color:#000080;">web.allowLuceneIndexing</span> = <span style="color:#800000;">true</span><br/>
+<br/>
+<span style="color:#004000;"># Control the frequency of Lucene repository indexing.</span><br/>
+<span style="color:#004000;"># The default setting is to check for updated refs every 2 mins.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.6.1</span><br/>
+<span style="color:#000080;">web.luceneFrequency</span> = <span style="color:#800000;">2 mins</span><br/>
 <br/>
 <span style="color:#004000;"># Allows an authenticated user to create forks of a repository</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1484,7 +1452,7 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SPACE-DELIMITED</span><br/>
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
-<span style="color:#000080;">web.prettyPrintExtensions</span> = <span style="color:#800000;">aea agc basic c cbm cl clj cpp cs css dart el erl erlang frm fs go groovy hs htm html java js latex lisp ll llvm lsp lua ml moxie mumps n nemerle pascal php pl prefs properties proto py r R rb rd Rd rkt s S scala scm sh Splus sql ss tcl tex vb vbs vhd vhdl wiki xml xq xquery yaml yml ymlapollo</span><br/>
+<span style="color:#000080;">web.prettyPrintExtensions</span> = <span style="color:#800000;">aea agc basic c cbm cl clj cpp cs css dart el erl erlang frm fs go groovy h hpp hs htm html java js latex lisp ll llvm lsp lua ml moxie mumps n nemerle pascal php pl pm prefs properties proto py r R rb rd Rd rkt s S scala scm sh Splus sql ss tcl tex vb vbs vhd vhdl wiki xml xq xquery yaml yml ymlapollo</span><br/>
 <br/>
 <span style="color:#004000;"># Registered extensions for markdown transformation</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1532,7 +1500,7 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SPACE-DELIMITED</span><br/>
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
-<span style="color:#000080;">web.imageExtensions</span> = <span style="color:#800000;">bmp jpg gif png</span><br/>
+<span style="color:#000080;">web.imageExtensions</span> = <span style="color:#800000;">bmp jpg jpeg gif png ico</span><br/>
 <br/>
 <span style="color:#004000;"># Registered extensions for binary blobs</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -2101,7 +2069,7 @@
 <span style="color:#000080;">server.shutdownPort</span> = <span style="color:#800000;">8081</span><br/>
 
 <!-- End Markdown -->
-<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-06-16</p>
+<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-10-20</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

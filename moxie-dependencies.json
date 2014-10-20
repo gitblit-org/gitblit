@@ -1,6 +1,6 @@
 {
     "ring" : "0",
-    "name" : "gitblit 1.6.0",
+    "name" : "gitblit 1.6.1",
     "children" : [
     {
         "ring" : "1",
@@ -60,7 +60,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "jetty-all 9.1.4.v20140401"
+        "name" : "jetty-all 9.2.3.v20140905"
     }
 ,
     {
@@ -200,7 +200,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "org.eclipse.jgit 3.3.1.201403241930-r",
+        "name" : "org.eclipse.jgit 3.5.1.201410131835-r",
         "children" : [
         {
             "ring" : "2",
@@ -241,7 +241,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "org.eclipse.jgit.http.server 3.3.1.201403241930-r"
+        "name" : "org.eclipse.jgit.http.server 3.5.1.201410131835-r"
     }
 ,
     {
@@ -261,7 +261,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "sshd-core 0.11.0"
+        "name" : "sshd-core 0.12.0"
     }
 ,
     {
@@ -405,6 +405,11 @@
     {
         "ring" : "1",
         "name" : "tika-core 1.5"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jsoup 1.7.3"
     }
 ,
     {
