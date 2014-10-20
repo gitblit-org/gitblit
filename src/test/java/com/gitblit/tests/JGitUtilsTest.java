@@ -520,7 +520,7 @@ public class JGitUtilsTest extends GitblitUnitTest {
 		// grab the commits since 2008-07-15
 		commits = JGitUtils.getRevLog(repository, null,
 				new SimpleDateFormat("yyyy-MM-dd").parse("2008-07-15"));
-		assertEquals(19, commits.size());
+		assertEquals(12, commits.size());
 		repository.close();
 	}
 
