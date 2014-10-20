@@ -33,6 +33,7 @@ r25: {
     - Fix internal error when specifying a blob url without a path (ticket-113)
     - Fix milestone queries for hyphentated names (ticket-115)
     - Fix duplicate repositories on dashboards (issue-454, ticket-117)
+    - Fix lower-case project names in RepositoryNamePanel (issue-509, ticket-118)
     - Fix ticket notifications not sent when author doesn't have an email address (issue-423, ticket-132)
     - Fix regression in create-ticket-on-push & clarify reported explanation (ticket-135)
     - Fix redirects after ajax form submissions with Tomcat (issue-455, ticket-136)
@@ -112,6 +113,7 @@ r25: {
     - ThanksForAllTheFish
     - Stephan Krull
     - jliedy
+    - Michael Glauche
 }
 
 #
