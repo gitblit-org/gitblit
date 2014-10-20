@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.6.1 release
 #
 r25: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.6.1 released
+    id: 1.6.1
+    date: 2014-10-20
     note: ''
           The next major release (v1.7.0) will focus on:
           * ticket-75: making projects more useful including the concept of project ownership
@@ -1532,6 +1532,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r25
-release: &r24
-releases: &r[1..24]
+snapshot: ~
+release: &r25
+releases: &r[1..25]
