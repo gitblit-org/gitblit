@@ -1,0 +1,1 @@
+[{"date":"2014-10-20T21:50:14Z","author":"james","fields":{"title":"Integrate SmartTicketBranches plugin","body":"The SmartTicketBranches plugin should be directly integrated into Gitblit rather than being a plugin.","type":"Task","responsible":"james","milestone":"v1.7.0","mergeTo":"develop","watchers":"+james","status":"New"}}]
