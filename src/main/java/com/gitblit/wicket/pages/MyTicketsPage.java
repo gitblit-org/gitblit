@@ -132,6 +132,16 @@ public class MyTicketsPage extends RootPage {
 						sortBy,
 						desc,
 						1)));
+		
+		add(new BookmarkablePageLink<Void>("maintenanceQuery", MyTicketsPage.class,
+				queryParameters(
+						Lucene.type.matches(TicketModel.Type.Maintenance.name()),
+						milestoneParam,
+						statiiParam,
+						assignedToParam,
+						sortBy,
+						desc,
+						1)));
 
 		add(new BookmarkablePageLink<Void>("resetQuery", MyTicketsPage.class,
 				queryParameters(

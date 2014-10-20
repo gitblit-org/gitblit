@@ -59,6 +59,9 @@ public class TicketsUI {
 		case Question:
 			WicketUtils.setCssClass(label, "fa fa-question");
 			break;
+		case Maintenance:
+			WicketUtils.setCssClass(label, "fa fa-cogs");
+			break;
 		default:
 			// standard ticket
 			WicketUtils.setCssClass(label, "fa fa-ticket");
