@@ -17,11 +17,15 @@ Choose a location that is writeable by your servlet container!
 
 After you configure baseFolder and restart your container, Gitblit will copy the contents of the `WEB-INF/data` folder to your specified *baseFolder* **IF** the file `${baseFolder}/gitblit.properties` does not already exist.  This allows you to get going with minimal fuss.
 
-#### Specifying baseFolder through web.xml
+#### Specifying baseFolder via GITBLIT_HOME
+
+You can specify `GITBLIT_HOME` either as an environment variable or as a `-DGITBLIT_HOME` JVM system property.
+
+#### Specifying baseFolder via web.xml
 
 You may specify an external location for your data by directly editing `WEB-INF/web.xml` and manipulating the *baseFolder* env-entry.  Your servlet container may be smart enough to recognize the change and to restart Gitblit.
 
-#### Specifying baseFolder through JNDI
+#### Specifying baseFolder via JNDI
 
 This is a better way to configure your *baseFolder* because it survives WAR redeploys or deployments of new versions.  These directions assume you are running Tomcat as your container, other containers may have different ways to specify global JNDI environment entries.
 

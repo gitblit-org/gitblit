@@ -26,6 +26,10 @@ By default, Gitblit GO stores all data (users, settings, repositories, etc) in t
 
 If you are deploying Gitblit to a *nix platform, you might consider moving the data folder out of the GO installation folder and then creating a symlink named "data" that points to your moved folder.
 
+#### Specifying baseFolder via GITBLIT_HOME
+
+You can specify `GITBLIT_HOME` either as an environment variable or as a `-DGITBLIT_HOME` JVM system property.
+
 ### Creating your own Self-Signed SSL Certificate
 Gitblit GO (and Gitblit Certificate Authority) automatically generates a Certificate Authority (CA) certificate and an ssl certificate signed by this CA certificate that is bound to *localhost*.
 

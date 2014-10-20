@@ -5,15 +5,113 @@ r25: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          The next major release (v1.7.0) will focus on:
+          * ticket-75: making projects more useful including the concept of project ownership
+          
+          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RpeositoryModel to the UserModel
+          
+          * ticket-55: facilitating usage of tickets & git-flow in the web ui
+          ''
     html: ~
-    text: ~
-    security: ~
-    fixes: ~
-    changes: ~
-    additions: ~
-    dependencyChanges: ~
-    contributors: ~
+    text: ''
+          Highlights:
+          
+          * Dependency updates
+          * Many bug fixes
+          * GITBLIT_HOME environment variable support
+          ''
+    security:
+    - Sanitize page parameters, form fields, and markup for XSS vulnerabilities (issue-496, ticket-164)
+    - Fix flash security risk (issue-498, ticket-165)
+    - Fix XRF vulnerability (issue-500, ticket-166)
+    - Prohibit new forks from inadvertently disclosing view-restricted contents (issue-495, ticket-167)
+    - Restrict Gitblit's cookie to the context path (issue-507, ticket-187)
+    fixes:
+    - Fix NPE when two repository names differ only in case (pr-204, ticket-108)
+    - Fix API documentation links (issue-449, ticket-111)
+    - Fix internal error when specifying a blob url without a path (ticket-113)
+    - Fix milestone queries for hyphentated names (ticket-115)
+    - Fix duplicate repositories on dashboards (issue-454, ticket-117)
+    - Fix ticket notifications not sent when author doesn't have an email address (issue-423, ticket-132)
+    - Fix regression in create-ticket-on-push & clarify reported explanation (ticket-135)
+    - Fix redirects after ajax form submissions with Tomcat (issue-455, ticket-136)
+    - Fix potential NPE in Raw servlet (ticket-137)
+    - Fix Raw link path generation that does not respect web.forwardSlashCharacter (ticket-139)
+    - Do not log query parameter passwords when Redmine authentication fails (pr-215, ticket-466)
+    - Fix NPE in RepositoryNamePanel for anonymous admins (issue-490, ticket-147)
+    - Fix repo creation with initial commit when the creator does not have an email address (issue-458, ticket-149)
+    - Fix Edit Repository page missing owners from owners list (issue-480, ticket-150)
+    - Fix NPEs when handling tickets with non-existent milestones (ticket-152)
+    - Quote all Lucene query args that have non-alphanumberic characters (issue-483, issue-469, ticket-153)
+    - Fix 0-length files from raw servlet when file does not exist (issue-489, ticket-154)
+    - Fix raw servlet failures with long project names (issue-478, ticket-163)
+    - New ticket responsible selections are missing users with RW access (issue-476, ticket-170)
+    - Fix NPE in TicketListPanel due to missing repository (issue-451, ticket-171)
+    - Fix MigrateTickets failure for view-restricted repositories (issue-475, ticket-173)
+    - Fix repository deletion bug where the Lucene ticket index was not purged (issue-468, ticket-174)
+    - Fix Jenkins post-receive script repository url (pr-219, ticket-175)
+    - Fix potential NPE in retrieving a ticket comment (issue-503, ticket-179)
+    - Fix bug in migrating tickets to the BranchTicketService (issue-474, ticket-183)
+    - Fix failure to clear/delete a ticket topic and description (issue-505, ticket-188)
+    - Fix cropped ticket status indicators (ticket-197)
+    - Fix bug in raw servlet extracting repository out of the path (pr-222, ticket-203)
+    - Improve relative path determiniation using Java 7 Paths (issue-511, ticket-204)
+    changes:
+    - Remove git.streamFileThreshold setting and documentation (ticket-119)    
+    - Update Korean translation (pr-206, ticket-120)
+    - Add additional documentation for web.canonicalUrl (pr-205, issue-453, ticket-121)
+    - Remove Wicket references from non-Wicket packages (ticket-129)
+    - LDAP user accounts now clear email address when unset in LDAP (issue-456, ticket-134)
+    - Update French translation (pr-210, ticket-140)
+    - Update authentication documentation (pr-213, ticket-142)
+    - Pretty print Perl modules (pr-216, ticket-144)
+    - Pretty print C/C++ headers (pr-207, ticket-145)
+    - Do not stamp raw servlet responses with cache-control headers (issue-489, ticket-148)
+    - Treat UTF-9 and UTF-18 (both fake encodings) as UTF-8 (issue-486, ticket-151)
+    - Allow Lucene indexing period to be configurable (ticket-161)
+    - Do not display stacktraces for bad requests in servlets (issue-497, ticket-169)
+    - Preserve branch ref in commits, tree, and docs navbar links (issue-501, ticket-176)
+    - Disable Edit User Page permission checkboxes if admin/fork/create permission is inherited (issue-196, ticket-177)
+    - Explicitly declare page subclasses that reference commits (issue-503, ticket-180)
+    - Explicitly attempt to register BouncyCastle as a JCE provider (ticket-194)
+    - Treat .ico and .jpeg files as images (pr-221, ticket-202)
+    additions:
+    - Add support for GITBLIT_HOME as a -D system property (pr-212, ticket-141, ticket-185)
+    - Add support for GITBLIT_HOME as an environment variable (ticket-193)
+    - Add install script for Fedora (pr-207, ticket-146)
+    - Add NO CHANGE REQUIRED ticket status (ticket-182)
+    dependencyChanges:
+    - JGit 3.5.1
+    - Jetty 9.2.3
+    - SSHD 0.12.0
+    contributors:
+    - Sascha Vogt
+    - Ron Smits
+    - Eric Fairon
+    - Johnny Hughes
+    - Revi
+    - Kyle Gottfried
+    - Berke Viktor
+    - David Ostrovsky
+    - Romain Gagnaire
+    - Koen Serry
+    - Anthony O.
+    - mereth
+    - Michael Legart
+    - Soeren Grunewald
+    - Simon Santoro
+    - fgeorges
+    - robindengen
+    - Robert M. Roberson Jr.
+    - 1988porsche944
+    - Steffen Gebert
+    - gibwar
+    - gato84b
+    - jakob@jboysen
+    - ThanksForAllTheFish
+    - Stephan Krull
+    - jliedy
 }
 
 #
