@@ -2085,67 +2085,72 @@ div.markdown table.text th, div.markdown table.text td {
     color: #815b3a;
 }
 .severity-catastrophic {
-	color:#CC79A7;
+	color:#D51900;
 }
 .severity-catastrophic:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "Ca";
+	content: "S5\a●●●●●";
 	font-weight:900;
-	font-size:.6em;	
+	font-size:.45em;	
 	font-variant:small-caps;
 	display:flex;
+	white-space: pre;
 }
 .severity-critical {
-	color:#D55E00;
+	color:#D55900;
 }
 .severity-critical:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "c";
+	content: "S4\a●●●●";
 	font-weight:900;
-	font-size:.6em;	
+	font-size:.45em;	
 	font-variant:small-caps;
 	display:flex;
+	white-space: pre;
 }
 .severity-serious {
 	color:#E69F00;
 }
 .severity-serious:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "s";
+	content: "  S3\a   ●●●";
 	font-weight:900;
-	font-size:.6em;	
+	font-size:.45em;	
 	font-variant:small-caps;
 	display:flex;
+	white-space: pre;
 }
 .severity-minor {
-	color:#0072B2;
+	color:#009E73;
 }
 .severity-minor:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "m";
+	content: "   S2\a    ●●";
 	font-weight:900;
-	font-size:.6em;	
+	font-size:.45em;	
 	font-variant:small-caps;
 	display:flex;
+	white-space: pre;
 }
 .severity-negligible {
-	color:#009E73;
+	color:#0072B2;
 }
 .severity-negligible:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "n";
+	content: "   S1\a    ●";
 	font-weight:900;
-	font-size:.6em;	
+	font-size:.45em;	
 	font-variant:small-caps;
 	display:flex;
+	white-space: pre;
 }
 .severity-unrated {
 }
 .priority-urgent {
-	color:#CC79A7;
+	color:#D51900;
 }
 .priority-high {
-	color:#D55E00;
+	color:#D55900;
 }
 .priority-normal {
 }
