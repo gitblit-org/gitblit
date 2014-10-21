@@ -2101,7 +2101,7 @@ div.markdown table.text th, div.markdown table.text td {
 }
 .severity-critical:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "●●●●";
+	content: " ●●●●";
 	font-weight:900;
 	font-size:.45em;	
 	font-variant:small-caps;
