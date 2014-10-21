@@ -38,12 +38,12 @@ public class TicketsUI {
 	public static final String [] openStatii = new String [] { Status.New.name().toLowerCase(), Status.Open.name().toLowerCase() };
 
 	public static final String [] closedStatii = new String [] { "!" + Status.New.name().toLowerCase(), "!" + Status.Open.name().toLowerCase() };
-	
+
 	public static Label getStateIcon(String wicketId, TicketModel ticket) {
-		return getStateIcon(wicketId, ticket.type, ticket.status);
+		return getStateIcon(wicketId, ticket.type, ticket.status, ticket.severity);
 	}
 
-	public static Label getStateIcon(String wicketId, Type type, Status state) {
+	public static Label getStateIcon(String wicketId, Type type, Status state, Severity severity) {
 		Label label = new Label(wicketId);
 		if (type == null) {
 			type = Type.defaultType;
@@ -68,11 +68,11 @@ public class TicketsUI {
 			// standard ticket
 			WicketUtils.setCssClass(label, "fa fa-ticket fa-fw");
 		}
-		WicketUtils.setHtmlTooltip(label, getTypeState(type, state));
-		
+		WicketUtils.setHtmlTooltip(label, getTypeState(type, state, severity));
+
 		return label;
 	}
-	
+
 	public static Label getPriorityIcon(String wicketId, Priority priority) {
 		Label label = new Label(wicketId);
 		if (priority == null) {
@@ -91,20 +91,23 @@ public class TicketsUI {
 		default:
 		}
 		WicketUtils.setHtmlTooltip(label, priority.toString());
-		
+
 		return label;
 	}
-	
+
 	public static String getPriorityClass(Priority priority) {
 		return String.format("priority-%s", priority);
 	}
 
 	public static String getSeverityClass(Severity severity) {
-		return String.format("severity-%s", severity);	
+		return String.format("severity-%s", severity);
 	}
-	
-	public static String getTypeState(Type type, Status state) {
-		return state.toString() + " " + type.toString();
+
+	public static String getTypeState(Type type, Status state, Severity severity) {
+		if (Severity.Unrated == severity) {
+			return state.toString() + " " + type.toString();
+		}
+		return state.toString() + " " + type.toString() + ", " + severity.toString();
 	}
 
 	public static String getLozengeClass(Status status, boolean subtle) {

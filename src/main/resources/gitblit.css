@@ -2089,7 +2089,7 @@ div.markdown table.text th, div.markdown table.text td {
 }
 .severity-catastrophic:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "S5\a●●●●●";
+	content: "●●●●●";
 	font-weight:900;
 	font-size:.45em;	
 	font-variant:small-caps;
@@ -2101,7 +2101,7 @@ div.markdown table.text th, div.markdown table.text td {
 }
 .severity-critical:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "S4\a●●●●";
+	content: "●●●●";
 	font-weight:900;
 	font-size:.45em;	
 	font-variant:small-caps;
@@ -2113,7 +2113,7 @@ div.markdown table.text th, div.markdown table.text td {
 }
 .severity-serious:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "  S3\a   ●●●";
+	content: "  ●●●";
 	font-weight:900;
 	font-size:.45em;	
 	font-variant:small-caps;
@@ -2125,7 +2125,7 @@ div.markdown table.text th, div.markdown table.text td {
 }
 .severity-minor:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "   S2\a    ●●";
+	content: "   ●●";
 	font-weight:900;
 	font-size:.45em;	
 	font-variant:small-caps;
@@ -2137,7 +2137,7 @@ div.markdown table.text th, div.markdown table.text td {
 }
 .severity-negligible:after {
 	font-family: Helvetica,arial,freesans,clean,sans-serif ;
-	content: "   S1\a    ●";
+	content: "    ●";
 	font-weight:900;
 	font-size:.45em;	
 	font-variant:small-caps;
