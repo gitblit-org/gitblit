@@ -1,0 +1,1 @@
+[{"date":"2014-10-21T15:59:18Z","author":"james","fields":{"title":"French translation file encoding bug","body":"The French translation was updated and the encoding was changed to utf-8? which is causing complications.","type":"Bug","responsible":"james","mergeTo":"develop","watchers":"+james","status":"New"}}]
