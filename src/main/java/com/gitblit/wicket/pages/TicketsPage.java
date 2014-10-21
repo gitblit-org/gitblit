@@ -464,7 +464,11 @@ public class TicketsPage extends RepositoryPage {
 		sortChoices.add(new TicketSort(getString("gb.sortLeastPatchsetRevisions"), Lucene.patchsets.name(), false));
 		sortChoices.add(new TicketSort(getString("gb.sortMostVotes"), Lucene.votes.name(), true));
 		sortChoices.add(new TicketSort(getString("gb.sortLeastVotes"), Lucene.votes.name(), false));
-
+		sortChoices.add(new TicketSort(getString("gb.sortHighestPriority"), Lucene.priority.name(), true));
+		sortChoices.add(new TicketSort(getString("gb.sortLowestPriority"), Lucene.priority.name(), false));
+		sortChoices.add(new TicketSort(getString("gb.sortHighestSeverity"), Lucene.severity.name(), true));
+		sortChoices.add(new TicketSort(getString("gb.sortLowestSeverity"), Lucene.severity.name(), false));
+		
 		TicketSort currentSort = sortChoices.get(0);
 		for (TicketSort ts : sortChoices) {
 			if (ts.sortBy.equals(sortBy) && desc == ts.desc) {

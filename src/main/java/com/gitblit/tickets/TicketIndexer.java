@@ -103,7 +103,10 @@ public class TicketIndexer {
 		mergesha(Type.STRING),
 		mergeto(Type.STRING),
 		patchsets(Type.INT),
-		votes(Type.INT);
+		votes(Type.INT),
+		//NOTE: Indexing on the underlying value to allow flexibility on naming
+		priority(Type.INT),
+		severity(Type.INT);
 
 		final Type fieldType;
 
@@ -519,6 +522,8 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.watchedby, StringUtils.flattenStrings(ticket.getWatchers(), ";").toLowerCase());
 		toDocField(doc, Lucene.mentions, StringUtils.flattenStrings(ticket.getMentions(), ";").toLowerCase());
 		toDocField(doc, Lucene.votes, ticket.getVoters().size());
+		toDocField(doc, Lucene.priority, ticket.priority.getValue());
+		toDocField(doc, Lucene.severity, ticket.severity.getValue());
 
 		List<String> attachments = new ArrayList<String>();
 		for (Attachment attachment : ticket.getAttachments()) {
@@ -600,6 +605,8 @@ public class TicketIndexer {
 		result.participants = unpackStrings(doc, Lucene.participants);
 		result.watchedby = unpackStrings(doc, Lucene.watchedby);
 		result.mentions = unpackStrings(doc, Lucene.mentions);
+		result.priority = TicketModel.Priority.fromObject(unpackInt(doc, Lucene.priority), TicketModel.Priority.defaultPriority);
+		result.severity = TicketModel.Severity.fromObject(unpackInt(doc, Lucene.severity), TicketModel.Severity.defaultSeverity);
 
 		if (!StringUtils.isEmpty(doc.get(Lucene.patchset.name()))) {
 			// unpack most recent patchset

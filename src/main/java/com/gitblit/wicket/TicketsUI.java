@@ -21,6 +21,8 @@ import java.text.MessageFormat;
 import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.models.TicketModel;
+import com.gitblit.models.TicketModel.Priority;
+import com.gitblit.models.TicketModel.Severity;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.TicketModel.Type;
 import com.gitblit.utils.StringUtils;
@@ -38,40 +40,74 @@ public class TicketsUI {
 	public static final String [] closedStatii = new String [] { "!" + Status.New.name().toLowerCase(), "!" + Status.Open.name().toLowerCase() };
 
 	public static Label getStateIcon(String wicketId, TicketModel ticket) {
-		return getStateIcon(wicketId, ticket.type, ticket.status);
+		return getStateIcon(wicketId, ticket.type, ticket.status, ticket.severity);
 	}
 
-	public static Label getStateIcon(String wicketId, Type type, Status state) {
+	public static Label getStateIcon(String wicketId, Type type, Status state, Severity severity) {
 		Label label = new Label(wicketId);
 		if (type == null) {
 			type = Type.defaultType;
 		}
 		switch (type) {
 		case Proposal:
-			WicketUtils.setCssClass(label, "fa fa-code-fork");
+			WicketUtils.setCssClass(label, "fa fa-code-fork fa-fw");
 			break;
 		case Bug:
-			WicketUtils.setCssClass(label, "fa fa-bug");
+			WicketUtils.setCssClass(label, "fa fa-bug fa-fw");
 			break;
 		case Enhancement:
-			WicketUtils.setCssClass(label, "fa fa-magic");
+			WicketUtils.setCssClass(label, "fa fa-magic fa-fw");
 			break;
 		case Question:
-			WicketUtils.setCssClass(label, "fa fa-question");
+			WicketUtils.setCssClass(label, "fa fa-question fa-fw");
 			break;
 		case Maintenance:
-			WicketUtils.setCssClass(label, "fa fa-cogs");
+			WicketUtils.setCssClass(label, "fa fa-cogs fa-fw");
 			break;
 		default:
 			// standard ticket
-			WicketUtils.setCssClass(label, "fa fa-ticket");
+			WicketUtils.setCssClass(label, "fa fa-ticket fa-fw");
 		}
-		WicketUtils.setHtmlTooltip(label, getTypeState(type, state));
+		WicketUtils.setHtmlTooltip(label, getTypeState(type, state, severity));
+
 		return label;
 	}
 
-	public static String getTypeState(Type type, Status state) {
-		return state.toString() + " " + type.toString();
+	public static Label getPriorityIcon(String wicketId, Priority priority) {
+		Label label = new Label(wicketId);
+		if (priority == null) {
+			priority = Priority.defaultPriority;
+		}
+		switch (priority) {
+		case Urgent:
+			WicketUtils.setCssClass(label, "fa fa-step-forward fa-rotate-270");
+			break;
+		case High:
+			WicketUtils.setCssClass(label, "fa fa-caret-up fa-lg");
+			break;
+		case Low:
+			WicketUtils.setCssClass(label, "fa fa-caret-down fa-lg");
+			break;
+		default:
+		}
+		WicketUtils.setHtmlTooltip(label, priority.toString());
+
+		return label;
+	}
+
+	public static String getPriorityClass(Priority priority) {
+		return String.format("priority-%s", priority);
+	}
+
+	public static String getSeverityClass(Severity severity) {
+		return String.format("severity-%s", severity);
+	}
+
+	public static String getTypeState(Type type, Status state, Severity severity) {
+		if (Severity.Unrated == severity) {
+			return state.toString() + " " + type.toString();
+		}
+		return state.toString() + " " + type.toString() + ", " + severity.toString();
 	}
 
 	public static String getLozengeClass(Status status, boolean subtle) {

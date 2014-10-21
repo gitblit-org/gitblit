@@ -519,6 +519,10 @@ public class TicketPage extends RepositoryPage {
 		 * TICKET METADATA
 		 */
 		add(new Label("ticketType", ticket.type.toString()));
+		
+		add(new Label("priority", ticket.priority.toString()));
+		add(new Label("severity", ticket.severity.toString()));
+		
 		if (StringUtils.isEmpty(ticket.topic)) {
 			add(new Label("ticketTopic").setVisible(false));
 		} else {
@@ -527,6 +531,8 @@ public class TicketPage extends RepositoryPage {
 			String safeTopic = app().xssFilter().relaxed(topic);
 			add(new Label("ticketTopic", safeTopic).setEscapeModelStrings(false));
 		}
+		
+		
 
 
 		/*

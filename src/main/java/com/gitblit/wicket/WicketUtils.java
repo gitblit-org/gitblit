@@ -29,12 +29,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Request;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.resource.ContextRelativeResource;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -56,6 +58,10 @@ public class WicketUtils {
 		container.add(new SimpleAttributeModifier("class", value));
 	}
 
+	public static void addCssClass(Component container, String value) {
+		container.add(new AttributeAppender("class", new Model<String>(value), " "));
+	}
+	
 	public static void setCssStyle(Component container, String value) {
 		container.add(new SimpleAttributeModifier("style", value));
 	}
