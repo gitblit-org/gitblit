@@ -1,1 +1,1 @@
-[{"date":"2014-09-22T15:20:05Z","author":"james","fields":{"title":"Projects do not preserve case of underlying filesystem","type":"Bug","mergeTo":"develop","watchers":"+james","status":"New"}}]
+[{"date":"2014-09-22T15:20:05Z","author":"james","fields":{"title":"Projects do not preserve case of underlying filesystem","type":"Bug","mergeTo":"develop","watchers":"+james","status":"New"}},{"date":"2014-10-21T18:07:54Z","author":"james","comment":{"text":"Duplicate of ticket 118","id":"14cb89047e2e5cd5600f440a2c2b6341001084d6"}}]
