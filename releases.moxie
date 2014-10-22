@@ -1565,6 +1565,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &26
+snapshot: &r26
 release: &r25
 releases: &r[1..25]
