@@ -9,11 +9,13 @@ r26: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+    - Fix French translation (pr-224, ticket-210)
     changes: ~
     additions: ~
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+    - Pierre Templier
 }
 
 #
