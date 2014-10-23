@@ -9,11 +9,11 @@
 	</div>
 	
 	<div ng-repeat="item in ${ngList} | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
-		<span class="octicon-centered" style="color:{{item.c}};padding-right:2px;">
-            <span ng-show="item.y == 0" class="octicon octicon-repo"></span>
-            <span ng-show="item.y == 1" class="octicon octicon-repo-forked"></span>
-            <span ng-show="item.y == 2" class="octicon octicon-mirror"></span>
-            <span ng-show="item.y == 3" class="octicon octicon-repo-push"></span>
+		<span style="color:{{item.c}};padding-right:2px;">
+            <span ng-show="item.y == 0" class="octicon octicon-centered octicon-repo"></span>
+            <span ng-show="item.y == 1" class="octicon octicon-centered octicon-repo-forked"></span>
+            <span ng-show="item.y == 2" class="octicon octicon-centered octicon-mirror"></span>
+            <span ng-show="item.y == 3" class="octicon octicon-centered octicon-repo-push"></span>
         </span>
     
 		<a href="summary/?r={{item.r}}" title="{{item.i}}">{{item.p}}<b>{{item.n}}</b></a>
