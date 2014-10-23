@@ -51,23 +51,26 @@ public class ProjectRepositoryPanel extends BasePanel {
 		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
 		final boolean showSize = app().settings().getBoolean(Keys.web.showRepositorySizes, true);
 
-		// repository swatch
-		Component swatch;
-		if (entry.isBare) {
-			swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
-		} else {
-			swatch = new Label("repositorySwatch", "!");
-			WicketUtils.setHtmlTooltip(swatch, localizer.getString("gb.workingCopyWarning", parent));
-		}
-		WicketUtils.setCssBackground(swatch, entry.toString());
-		add(swatch);
-		swatch.setVisible(showSwatch);
-
 		PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
 		add(new LinkPanel("repositoryName", "list", StringUtils.getRelativePath(entry.projectPath,
 				StringUtils.stripDotGit(entry.name)), SummaryPage.class, pp));
 		add(new Label("repositoryDescription", entry.description).setVisible(!StringUtils
 				.isEmpty(entry.description)));
+
+		Fragment iconFragment;
+		if (entry.isMirror) {
+			iconFragment = new Fragment("repoIcon", "mirrorIconFragment", this);
+		} else if (entry.isFork()) {
+			iconFragment = new Fragment("repoIcon", "forkIconFragment", this);
+		} else if (entry.isBare) {
+			iconFragment = new Fragment("repoIcon", "repoIconFragment", this);
+		} else {
+			iconFragment = new Fragment("repoIcon", "cloneIconFragment", this);
+		}
+		if (showSwatch) {
+			WicketUtils.setCssStyle(iconFragment, "color:" + StringUtils.getColor(entry.toString()));
+		}
+		add(iconFragment);
 
 		if (StringUtils.isEmpty(entry.originRepository)) {
 			add(new Label("originRepository").setVisible(false));
@@ -84,13 +87,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 		}
 
-		if (entry.isMirror) {
-			add(WicketUtils.newImage("mirrorIcon", "mirror_16x16.png", localizer.getString("gb.isMirror", parent)));
-		} else {
-			add(WicketUtils.newClearPixel("mirrorIcon").setVisible(false));
-		}
-
-		if (entry.isFrozen) {
+		if (!entry.isMirror && entry.isFrozen) {
 			add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", localizer.getString("gb.isFrozen", parent)));
 		} else {
 			add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
