@@ -15,8 +15,9 @@ r26: {
     - Use release name as root directory in Gitblit GO artifacts (ticket-109)
     - Show team type in teams page (pr-217, ticket-168)
     additions:
+    - Add GitHub Octicons (ticket-106)
     - Add Priority & Severity fields for tickets (pr-220, ticket-157)
-    - Add Maintenance ticket type (pr-223, ticket-206)
+    - Add Maintenance ticket type (pr-223, ticket-206)    
     dependencyChanges:
     - Guice 4.0-beta4 (ticket-80)
     - SLF4j 1.7.7 (ticket-122)
