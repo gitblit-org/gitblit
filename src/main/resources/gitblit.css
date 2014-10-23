@@ -38,6 +38,19 @@ a.bugtraq {
     font-weight: bold;
 }
 
+.gray {
+	color: #888;
+}
+
+.octicon-centered {
+    text-align: center;
+    width: 16px;
+}
+
+tr:hover .octicon-centered {
+	color:#eee;
+}
+
 .label a.bugtraq {
 	font-weight: normal;
 	color: white;
@@ -237,14 +250,13 @@ div.dashboardTitle small {
 }
 
 .repositorynavbar {
-	background-color: #fbfbfb;
+	background-color: #f8f8f8;
 	border-bottom: 1px solid #ccc;
 	margin-bottom: 10px;
 }
 
 .repositorynavbar .title {
-	line-height: 32px;
-	padding: 5px 0px;
+	padding: 10px 0px;
 }
 
 .repositorynavbar .repository {

@@ -24,13 +24,20 @@
 							</div>
 							
 							<div class="span7">
-								<div>
-									<span class="project" wicket:id="projectTitle">[project title]</span>/<span class="repository" wicket:id="repositoryName">[repository name]</span>
-									<a class="hidden-phone hidden-tablet" style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
-										<img style="border:0px;vertical-align:baseline;" src="feed_16x16.png"></img>
-									</a>
+                                <div style="display:inline-block;vertical-align:top;padding-right:5px;">
+                                    <span wicket:id="repoIcon"></span>
+                                </div>
+								<div style="display:inline-block;">
+                                    <div>
+									   <span class="project" wicket:id="projectTitle">[project title]</span>/<span class="repository" wicket:id="repositoryName">[repository name]</span>
+									   <a class="hidden-phone hidden-tablet" style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
+										  <img style="border:0px;vertical-align:baseline;" src="feed_16x16.png"></img>
+									   </a>
+                                    </div>
+                                    <div>
+                                        <span class="gray" wicket:id="originRepository">[origin repository]</span>   
+                                    </div>
 								</div>
-								<span wicket:id="originRepository">[origin repository]</span>								
 							</div>
 						</div>
 					</div>
@@ -60,6 +67,22 @@
 			<i wicket:id="icon" style="padding-right:3px;"></i><span wicket:id="label"></span>
 		</wicket:fragment>
 		
+        <wicket:fragment wicket:id="repoIconFragment">
+            <span class="gray mega-octicon octicon-repo"></span>
+        </wicket:fragment>
+
+        <wicket:fragment wicket:id="mirrorIconFragment">
+            <span class="gray mega-octicon octicon-mirror"></span>
+        </wicket:fragment>
+
+        <wicket:fragment wicket:id="forkIconFragment">
+            <span class="gray mega-octicon octicon-repo-forked"></span>
+        </wicket:fragment>
+
+        <wicket:fragment wicket:id="cloneIconFragment">
+            <span class="gray mega-octicon octicon-repo-push" wicket:message="title:gb.workingCopyWarning"></span>
+        </wicket:fragment>
+    
 		<wicket:fragment wicket:id="originFragment">
 			<p class="originRepository"><wicket:message key="gb.forkedFrom">[forked from]</wicket:message> <span wicket:id="originRepository">[origin repository]</span></p>
 		</wicket:fragment>
