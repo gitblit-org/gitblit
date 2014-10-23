@@ -440,6 +440,10 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	protected File download(String url, boolean verifyChecksum) throws IOException {
 		File file = downloadFile(url);
 
+		if (!verifyChecksum) {
+			return file;
+		}
+
 		File sha1File = null;
 		try {
 			sha1File = downloadFile(url + ".sha1");
@@ -453,7 +457,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 		}
 
-		if (sha1File == null && md5File == null && verifyChecksum) {
+		if (sha1File == null && md5File == null) {
 			throw new IOException("Missing SHA1 and MD5 checksums for " + url);
 		}
 
