@@ -11,11 +11,13 @@ r26: {
     security: ~
     fixes:
     - Fix French translation (pr-224, ticket-210)
+    - Fix raw servlet trashing paths with spaces (ticket-211)
     changes: ~
     additions: ~
     dependencyChanges: ~
     contributors:
     - Pierre Templier
+    - Barry Roberts 
 }
 
 #
