@@ -1350,19 +1350,6 @@ span.diff.unchanged {
 	font-family: inherit;
 }
 
-div.diff.hunk_header {
-	-moz-border-bottom-colors: none;
-    -moz-border-image: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    border-color: #FFE0FF;
-    border-style: dotted;
-    border-width: 1px 0 0;
-    margin-top: 2px;
-    font-family: inherit;
-}
-
 span.diff.hunk_info {
 	background-color: #FFEEFF;	
 	color: #990099;
@@ -1374,60 +1361,72 @@ span.diff.hunk_section {
 	font-family: inherit;
 }
 
-div.diff.add2 {
-	background-color: #DDFFDD;
-    font-family: inherit;
+.diff-cell {
+	margin: 0px;
+	padding: 0px;
+	border: 0;
+	border-left: 1px solid #bbb;
 }
 
-div.diff.remove2 {
+.add2 {
+    background-color: #DDFFDD;
+}
+
+.remove2 {
 	background-color: #FFDDDD;
-    font-family: inherit;
 }
 
-div.diff table {
+.context2 {
+	background-color: #fbfbfb;
+}
+
+div.diff > table {
 	border-radius: 0;
 	border-right: 1px solid #bbb;
 	border-bottom: 1px solid #bbb;
 	width: 100%;
 }
 
-div.diff table th, div.diff table td {
-	margin: 0px;
-	padding: 0px;
-	font-family: monospace;
-	border: 0;
-}
-
-div.diff table th {
+.diff-line {
 	background-color: #f0f0f0;
 	text-align: center;
 	color: #999;
-	padding-left: 5px;
-	padding-right: 5px;
-	width: 30px;
+	padding-left: 2px;
+	padding-right: 2px;
+	width: 3em; /* Font-size relative! */
 }
 
-div.diff table th.header {
-	background-color: #D2C3AF;
-	border-right: 0px;
-	border-bottom: 1px solid #808080;
-	font-family: inherit;
-	font-size:0.9em;
-	color: black;
-	padding: 2px;
-	text-align: left;
+.diff-line:before {
+	content: attr(data-lineno);
 }
 
-div.diff table td.hunk_header {
+.diff-state {
+	background-color: #f0f0f0;
+	text-align: center;
+	color: #999;
+	padding-left: 2px;
+	padding-right: 2px;
+	width: 0.5em; /* Font-size relative! */
+}
+
+.diff-state-add:before {
+	color: green;
+	font-weight: bold;
+	content: '+';
+}
+
+.diff-state-sub:before {
+	color: red;
+	font-weight: bold;
+	content: '-';
+}
+
+.hunk_header {
 	background-color: #dAe2e5 !important;
+	border-left: 1px solid #bbb;
 	border-top: 1px solid #bac2c5;	
 	border-bottom: 1px solid #bac2c5;
 	color: #555;
-}
-
-div.diff table td {
-	border-left: 1px solid #bbb;
-	background-color: #fbfbfb;
 }
 
 td.changeType {
