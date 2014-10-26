@@ -1,7 +1,7 @@
 #
 # ${project.version} release
 #
-r26: {
+r27: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
@@ -30,6 +30,28 @@ r26: {
     - Alex Lewis
     - Florian Zschocke
     - Paul Martin
+}
+
+#
+# 1.6.2 release
+#
+r26: {
+    title: Gitblit 1.6.2 released
+    id: 1.6.2
+    date: ${project.buildDate}
+    note: ~
+    html: ~
+    text: ~
+    security: ~
+    fixes:
+    - Fix French translation (pr-224, ticket-210)
+    - Fix raw servlet trashing paths with spaces (ticket-211)
+    changes: ~
+    additions: ~
+    dependencyChanges: ~
+    contributors:
+    - Pierre Templier
+    - Barry Roberts 
 }
 
 #
@@ -1566,6 +1588,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r26
-release: &r25
-releases: &r[1..25]
+snapshot: &r27
+release: &r26
+releases: &r[1..26]

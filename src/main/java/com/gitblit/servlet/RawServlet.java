@@ -108,9 +108,8 @@ public class RawServlet extends HttpServlet {
 			branch = Repository.shortenRefName(branch).replace('/', fsc);
 		}
 
-		String encodedPath = path == null ? "" : path.replace(' ', '-');
-		encodedPath = encodedPath.replace('/', fsc);
-		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + (path == null ? "" : encodedPath)));
+		String encodedPath = path == null ? "" : path.replace('/', fsc);
+		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + encodedPath));
 	}
 
 	protected String getBranch(String repository, HttpServletRequest request) {
