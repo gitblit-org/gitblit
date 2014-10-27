@@ -1,3 +1,17 @@
+## Upgrading Gitblit GO (1.7.0+)
+
+The default `gitblit.properties` file has been split into two files: `gitblit.properties`, which is the recommended file for setting your configuration, and `defaults.properties` which are Gitblit's default settings.
+
+    # Include Gitblit's 'defaults.properties' within your configuration.
+    #
+    # COMMA-DELIMITED
+    # SINCE 1.7.0
+    include = defaults.properties
+
+Notice that the default settings are *included* by your `gitblit.properties` file.  The disadvantage to this approach is you must flip between discovering/reading the settings in `defaults.properties` and setting them in `gitblit.properties`, but there are some clear advantages too.  This setup is not required.  You may continue to keep all your settings in `gitblit.properties` like before.
+
+Additionally you may find it useful if you are maintaining several Gitblit instances to share common properties files.
+
 ## Upgrading Gitblit GO (1.2.1+)
  
 1. Unzip Gitblit GO to a new folder

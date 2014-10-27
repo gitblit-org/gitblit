@@ -7,15 +7,22 @@ r27: {
     date: ${project.buildDate}
     note: ~
     html: ~
-    text: ~
+    text: ''
+          The new gitblit.properties file "includes" defaults.properties which is the original
+          gitblit.properties file. You may continue using your existing gitblit.properties file
+          as before, however, you might find future upgrades simpler by adopting the new "include"
+          design.
+          ''
     security: ~
     fixes: ~
     changes:
     - Replaced Dagger with Guice (ticket-80)
     - Use release name as root directory in Gitblit GO artifacts (ticket-109)
+    - Split gitblit.properties into gitblit.properties & defaults.properties (ticket-110)
     - Show team type in teams page (pr-217, ticket-168)
     additions:
     - Add GitHub Octicons (ticket-106)
+    - Support for chain-loading properties files (ticket-110) 
     - Add Priority & Severity fields for tickets (pr-220, ticket-157)
     - Add Maintenance ticket type (pr-223, ticket-206)    
     dependencyChanges:
