@@ -1,7 +1,7 @@
 ## Gitblit GO Installation & Setup
 
 1. Download and unzip Gitblit GO [${project.releaseVersion} (Windows)](%GCURL%gitblit-${project.releaseVersion}.zip) or [${project.releaseVersion} (Linux/OSX)](%GCURL%gitblit-${project.releaseVersion}.tar.gz).  
-*Its best to eliminate spaces in the path name.* 
+*It is best to eliminate spaces in the path name.* 
 2. The server itself is configured through a simple text file.
 Open `data/gitblit.properties` in your favorite text editor and make sure to review and set:
     - *server.httpPort* and *server.httpsPort*
@@ -9,7 +9,7 @@ Open `data/gitblit.properties` in your favorite text editor and make sure to rev
     **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!
     - *git.packedGitLimit* (set larger than the size of your largest repository)
 3. Execute `authority.cmd` or `java -cp gitblit.jar com.gitblit.authority.Launcher --baseFolder data` from a command-line
-**NOTE:** The Authority is a Swing GUI application.  Use of this tool is not required as Gitblit GO will startup and create SSL certificates itself, BUT use of this tool allows you to control the identification metadata used in the generated certificates.  Skipping this step will result in certificates with default metadata.
+**NOTE:** The Authority is a Swing GUI application.  Use of this tool is not required as Gitblit GO will startup and create SSL certificates itself, BUT use of this tool allows you to control the identification metadata used in the generated self-signed certificates.  Skipping this step will result in certificates with default metadata.
     1. fill out the fields in the *new certificate defaults* dialog
 	2. enter the store password used in *server.storePassword* when prompted.  This generates an SSL certificate for **localhost**.
 	3. you may want to generate an SSL certificate for the hostname or ip address hostnames you are serving from
@@ -29,6 +29,11 @@ If you are deploying Gitblit to a *nix platform, you might consider moving the d
 #### Specifying baseFolder via GITBLIT_HOME
 
 You can specify `GITBLIT_HOME` either as an environment variable or as a `-DGITBLIT_HOME` JVM system property.
+
+### Including Other Properties
+SINCE 1.7.0
+
+Gitblit supports loading it's settings from multiple properties files.  You can achieve this using the `include=filename` key.  This setting supports loading multiple files using a *comma* as the delimiter.  They are processed in the order defined and they may be nested (i.e. your included properties may include properties, etc, etc).
 
 ### Creating your own Self-Signed SSL Certificate
 Gitblit GO (and Gitblit Certificate Authority) automatically generates a Certificate Authority (CA) certificate and an ssl certificate signed by this CA certificate that is bound to *localhost*.

@@ -82,10 +82,9 @@
 			<fileset dir="${project.distrib.dir}/data" />
 		</copy>
 		
-		<!-- copy gitblit.properties to the source directory.
-		     this file is only used for parsing setting descriptions. -->
-		<copy tofile="${project.src.dir}/reference.properties" overwrite="true"
-			file="${project.distrib.dir}/data/gitblit.properties" />
+		<!-- copy defaults.properties to the source directory -->
+		<copy tofile="${project.src.dir}/defaults.properties" overwrite="true"
+			file="${project.distrib.dir}/data/defaults.properties" />
 
 		<!-- copy clientapps.json to the source directory.
 		     this file is only used if a local file is not provided. -->
@@ -102,8 +101,8 @@
 	-->
 	<target name="compile" depends="setup" description="compiles Gitblit from source">
 		
-		<!-- Generate the Keys class from the properties file -->
-		<mx:keys propertiesfile="${project.distrib.dir}/data/gitblit.properties"
+		<!-- Generate the Keys class from the defaults.properties file -->
+		<mx:keys propertiesfile="${project.distrib.dir}/data/defaults.properties"
 			 	outputclass="com.gitblit.Keys"
 			 	todir="${project.src.dir}" />
 
@@ -597,7 +596,7 @@
 			
 			<replace token="%GCURL%" value="${gc.url}" />
 			
-			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/gitblit.properties" />
+			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 			
 			<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
 			<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
@@ -898,7 +897,7 @@
 					</menu>
 				</structure>
 				
-				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/gitblit.properties" />
+				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 				
 				<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
 				<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
@@ -938,6 +937,7 @@
 				<fileset dir="${project.distrib.dir}/data">
 					<include name="users.conf" />
 					<include name="projects.conf" />
+					<include name="defaults.properties" />
 					<include name="gitblit.properties" />					
 				</fileset>
 			</copy>

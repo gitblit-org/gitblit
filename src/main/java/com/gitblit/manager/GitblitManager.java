@@ -77,7 +77,6 @@ import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
@@ -88,8 +87,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
 /**
  * GitblitManager is an aggregate interface delegate.  It implements all the manager
@@ -441,7 +440,7 @@ public class GitblitManager implements IGitblit {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting
 			// models map.
-			InputStream is = GitblitManager.class.getResourceAsStream("/reference.properties");
+			InputStream is = GitblitManager.class.getResourceAsStream("/defaults.properties");
 			BufferedReader propertiesReader = new BufferedReader(new InputStreamReader(is));
 			StringBuilder description = new StringBuilder();
 			SettingModel setting = new SettingModel();
@@ -486,9 +485,9 @@ public class GitblitManager implements IGitblit {
 			}
 			propertiesReader.close();
 		} catch (NullPointerException e) {
-			logger.error("Failed to find resource copy of gitblit.properties");
+			logger.error("Failed to find classpath resource 'defaults.properties'");
 		} catch (IOException e) {
-			logger.error("Failed to load resource copy of gitblit.properties");
+			logger.error("Failed to load classpath resource 'defaults.properties'");
 		}
 	}
 

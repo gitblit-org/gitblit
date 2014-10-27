@@ -80,6 +80,7 @@ public class FileSettings extends IStoredSettings {
 		if (propertiesFile != null && propertiesFile.exists() && (forceReload || (propertiesFile.lastModified() > lastModified))) {
 			FileInputStream is = null;
 			try {
+				logger.debug("loading {}", propertiesFile);
 				Properties props = new Properties();
 				is = new FileInputStream(propertiesFile);
 				props.load(is);
@@ -124,8 +125,12 @@ public class FileSettings extends IStoredSettings {
 		if (!StringUtils.isEmpty(include)) {
 
 			// allow for multiples
-			List<String> names = StringUtils.getStringsFromValue(include, " ");
+			List<String> names = StringUtils.getStringsFromValue(include, ",");
 			for (String name : names) {
+
+				if (StringUtils.isEmpty(name)) {
+					continue;
+				}
 
 				// try co-located
 				File file = new File(propertiesFile.getParentFile(), name.trim());
@@ -134,16 +139,19 @@ public class FileSettings extends IStoredSettings {
 					file = new File(name.trim());
 				}
 
-				if (file.exists()) {
-					// load properties
-					try (FileInputStream iis = new FileInputStream(file)) {
-						baseProperties.load(iis);
-					}
-
-					// read nested includes
-					baseProperties = readIncludes(baseProperties);
-
+				if (!file.exists()) {
+					logger.warn("failed to locate {}", file);
+					continue;
 				}
+
+				// load properties
+				logger.debug("loading {}", file);
+				try (FileInputStream iis = new FileInputStream(file)) {
+					baseProperties.load(iis);
+				}
+
+				// read nested includes
+				baseProperties = readIncludes(baseProperties);
 
 			}
 
@@ -163,7 +171,7 @@ public class FileSettings extends IStoredSettings {
 		String content = FileUtils.readContent(propertiesFile, "\n");
 		for (String key : removals) {
 			String regex = "(?m)^(" + regExEscape(key) + "\\s*+=\\s*+)"
-				    + "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";
+					+ "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";
 			content = content.replaceAll(regex, "");
 		}
 		removals.clear();
@@ -183,7 +191,7 @@ public class FileSettings extends IStoredSettings {
 		String content = FileUtils.readContent(propertiesFile, "\n");
 		for (Map.Entry<String, String> setting:settings.entrySet()) {
 			String regex = "(?m)^(" + regExEscape(setting.getKey()) + "\\s*+=\\s*+)"
-				    + "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";
+					+ "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";
 			String oldContent = content;
 			content = content.replaceAll(regex, setting.getKey() + " = " + setting.getValue());
 			if (content.equals(oldContent)) {
