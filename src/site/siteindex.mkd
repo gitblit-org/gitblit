@@ -22,7 +22,7 @@
 	<table class="table condensed-table">
 		<tbody>
 		<tr><th>License</th><td><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></td></tr>
-		<tr><th>Sources</th><td><a href="${project.scmUrl}">GitHub</a> &amp; <a href="http://code.google.com/p/gitblit/source/list">GoogleCode</a></td></tr>		
+		<tr><th>Sources</th><td><a href="${project.scmUrl}">GitHub</a></td></tr>		
 		<tr><th>Issues</th><td><a href="${project.issuesUrl}">GoogleCode</a></td></tr>
 		<tr><th>Discussion</th><td><a href="${project.forumUrl}">Gitblit Group</a></td></tr>
 		<tr><th>Google+</th><td><a href="${project.socialNetworkUrl}">Gitblit+</a></td></tr>
@@ -67,7 +67,7 @@ Gitblit blends elements of GitHub, BitBucket, and Gerrit to provide a streamline
 ### Easy Remote Management
 
 Administrators can create and manage all repositories, user accounts, and teams from the *Web UI*.  
-Administrators can create and manage all repositories, user accounts, and teams from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
+Administrators can create and manage all repositories, user accounts, and teams from the *JSON RPC interface* using the [Gitblit Manager](%GCURL%manager-${project.releaseVersion}.zip) or your own custom tooling. 
 Administrators can create and manage all repositories, user accounts, and teams from the *command-line* using SSH & the [Powertools plugin](https://github.com/gitblit/gitblit-powertools-plugin).
 
 ### Integration with Your Infrastructure
@@ -87,7 +87,7 @@ Administrators can create and manage all repositories, user accounts, and teams 
 
 ### Backup Strategy
 
-Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts, team definitions, server settings, & Groovy push hook scripts from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%).  Similarly, you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
+Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts, team definitions, server settings, & Groovy push hook scripts from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](%GCURL%fedclient-${project.releaseVersion}.zip).  Similarly, you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
 
 ### Java Runtime Requirement
 

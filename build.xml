@@ -581,6 +581,10 @@
 					<link name="Google+" src="${project.socialNetworkUrl}" />
 					<link name="Twitter" src="https://twitter.com/gitblit" />
 					<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+                    <divider />
+					<link name="Gitblit Tickets screencast" src="https://vimeo.com/86164723" />
+					<link name="Gitblit SSH and Plugin Management asciicast" src="https://asciinema.org/a/9342" />
+                    <link name="GitMinutes #29: James Moger on Gitblit" src="http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html" />
 					<divider />
 					<link name="+JamesMoger" src="https://plus.google.com/+JamesMoger" />
 					<link name="@JamesMoger" src="https://twitter.com/JamesMoger" />
