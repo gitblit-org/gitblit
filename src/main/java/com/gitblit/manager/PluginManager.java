@@ -421,6 +421,10 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	protected File download(String url, boolean verifyChecksum) throws IOException {
 		File file = downloadFile(url);
 
+		if (!verifyChecksum) {
+			return file;
+		}
+
 		File sha1File = null;
 		try {
 			sha1File = downloadFile(url + ".sha1");
