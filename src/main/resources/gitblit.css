@@ -1380,6 +1380,14 @@ span.diff.hunk_section {
 	background-color: #fbfbfb;
 }
 
+.trailingws-add {
+    background-color: #99FF99;	
+}
+
+.trailingws-sub {
+    background-color: #FF9999;	
+}
+
 div.diff > table {
 	border-radius: 0;
 	border-right: 1px solid #bbb;

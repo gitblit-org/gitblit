@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Localizer;
@@ -37,12 +39,15 @@ import com.gitblit.wicket.GitBlitWebApp;
 
 /**
  * Generates an html snippet of a diff in Gitblit's style, tracks changed paths, and calculates diff stats.
- * 
+ *
  * @author James Moger
  * @author Tom <tw201207@gmail.com>
- * 
+ *
  */
 public class GitBlitDiffFormatter extends DiffFormatter {
+
+	/** Regex pattern identifying trailing whitespace. */
+	private static final Pattern trailingWhitespace = Pattern.compile("(\\s+?)\r?\n?$");
 
 	/**
 	 * gitblit.properties key for the per-file limit on the number of diff lines.
@@ -129,7 +134,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 
 	/**
 	 * Determines a limit to use for HTML diff output.
-	 * 
+	 *
 	 * @param key
 	 *            to use to read the value from the GitBlit settings, if available.
 	 * @param minimum
@@ -156,7 +161,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 
 	/**
 	 * Returns a localized message string, if there is a localization; otherwise the given default value.
-	 * 
+	 *
 	 * @param key
 	 *            message key for the message
 	 * @param defaultValue
@@ -268,7 +273,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 
 	/**
 	 * Output a hunk header
-	 * 
+	 *
 	 * @param aStartLine
 	 *            within first source
 	 * @param aEndLine
@@ -369,16 +374,38 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 				os.write("<td class='diff-cell context2'>".getBytes());
 				break;
 			}
-			String line = text.getString(cur);
-			line = StringUtils.escapeForHtml(line, false);
-			os.write(encode(line));
+			os.write(encode(codeLineToHtml(prefix, text.getString(cur))));
 			os.write("</td></tr>\n".getBytes());
 		}
 	}
 
 	/**
+	 * Convert the given code line to HTML.
+	 *
+	 * @param prefix
+	 *            the diff prefix (+/-) indicating whether the line was added or removed.
+	 * @param line
+	 *            the line to format as HTML
+	 * @return the HTML-formatted line, safe for inserting as is into HTML.
+	 */
+	private String codeLineToHtml(final char prefix, final String line) {
+		if ((prefix == '+' || prefix == '-')) {
+			// Highlight trailing whitespace on deleted/added lines.
+			Matcher matcher = trailingWhitespace.matcher(line);
+			if (matcher.find()) {
+				StringBuilder result = new StringBuilder(StringUtils.escapeForHtml(line.substring(0, matcher.start()), false));
+				result.append("<span class='trailingws-").append(prefix == '+' ? "add" : "sub").append("'>");
+				result.append(StringUtils.escapeForHtml(matcher.group(1), false));
+				result.append("</span>");
+				return result.toString();
+			}
+		}
+		return StringUtils.escapeForHtml(line, false);
+	}
+
+	/**
 	 * Workaround function for complex private methods in DiffFormatter. This sets the html for the diff headers.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getHtml() {
@@ -420,7 +447,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 					sb.append("</tbody></table></div>\n");
 					inFile = false;
 				}
-
+				line = StringUtils.escapeForHtml(line, false);
 				sb.append(MessageFormat.format("<div class='header'><div class=\"diffHeader\" id=\"{0}\"><i class=\"icon-file\"></i> ", line)).append(line)
 						.append("</div></div>");
 				sb.append("<div class=\"diff\">");
@@ -435,6 +462,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 					} else {
 						sb.append("<th class='diff-state diff-state-sub'></th><td class=\"diff-cell remove2\">");
 					}
+					line = StringUtils.escapeForHtml(line.substring(1), false);
 				}
 				sb.append(line);
 				if (gitLinkDiff) {
@@ -456,9 +484,9 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 				String path = StringUtils.escapeForHtml(s.getKey(), false);
 				String comment = s.getValue();
 				if (comment != null) {
-					sb.append("<span id='" + path + "'>" + path + ' ' + StringUtils.escapeForHtml(comment, false) + "</span>");
+					sb.append("<span id=\"" + path + "\">" + path + ' ' + StringUtils.escapeForHtml(comment, false) + "</span>");
 				} else {
-					sb.append("<span id='" + path + "'>" + path + "</span>");
+					sb.append("<span id=\"" + path + "\">" + path + "</span>");
 				}
 				first = false;
 			}
