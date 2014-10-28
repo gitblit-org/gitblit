@@ -20,8 +20,8 @@ import static org.eclipse.jgit.lib.Constants.encodeASCII;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,8 +119,8 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	private int truncateTo;
 	/** Whether we decided to truncate the commitdiff. */
 	private boolean truncated;
-	/** If {@link #truncated}, contains all files skipped,possibly with a suffix message as value to be displayed. */
-	private final Map<String, String> skipped = new HashMap<String, String>();
+	/** If {@link #truncated}, contains all entries skipped. */
+	private final List<DiffEntry> skipped = new ArrayList<DiffEntry>();
 
 	public GitBlitDiffFormatter(String commitId, String path) {
 		super(new ResettableByteArrayOutputStream());
@@ -195,15 +195,30 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		} else {
 			isOff = true;
 		}
-		if (isOff) {
-			if (ent.getChangeType().equals(ChangeType.DELETE)) {
-				skipped.put(ent.getOldPath(), getMsg("gb.diffDeletedFileSkipped", "(deleted file)"));
+		if (truncated) {
+			skipped.add(ent);
+		} else {
+			// Produce a header here and now
+			String path;
+			String id;
+			if (ChangeType.DELETE.equals(ent.getChangeType())) {
+				path = ent.getOldPath();
+				id = ent.getOldId().name();
 			} else {
-				skipped.put(ent.getNewPath(), null);
+				path = ent.getNewPath();
+				id = ent.getNewId().name();
 			}
+			StringBuilder sb = new StringBuilder(MessageFormat.format("<div class='header'><div class=\"diffHeader\" id=\"n{0}\"><i class=\"icon-file\"></i> ", id));
+			sb.append(StringUtils.escapeForHtml(path, false)).append("</div></div>");
+			sb.append("<div class=\"diff\"><table><tbody>\n");
+			os.write(sb.toString().getBytes());
 		}
 		// Keep formatting, but if off, don't produce anything anymore. We just keep on counting.
 		super.format(ent);
+		if (!truncated) {
+			// Close the table
+			os.write("</tbody></table></div><br />\n".getBytes());
+		}
 	}
 
 	@Override
@@ -412,8 +427,6 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		String html = RawParseUtils.decode(os.toByteArray());
 		String[] lines = html.split("\n");
 		StringBuilder sb = new StringBuilder();
-		boolean inFile = false;
-		String oldnull = "a/dev/null";
 		for (String line : lines) {
 			if (line.startsWith("index")) {
 				// skip index lines
@@ -424,35 +437,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			} else if (line.startsWith("---") || line.startsWith("+++")) {
 				// skip --- +++ lines
 			} else if (line.startsWith("diff")) {
-				line = StringUtils.convertOctal(line);
-				if (line.indexOf(oldnull) > -1) {
-					// a is null, use b
-					line = line.substring(("diff --git " + oldnull).length()).trim();
-					// trim b/
-					line = line.substring(2).trim();
-				} else {
-					// use a
-					line = line.substring("diff --git ".length()).trim();
-					line = line.substring(line.startsWith("\"a/") ? 3 : 2);
-					line = line.substring(0, line.indexOf(" b/") > -1 ? line.indexOf(" b/") : line.indexOf("\"b/")).trim();
-				}
-
-				if (line.charAt(0) == '"') {
-					line = line.substring(1);
-				}
-				if (line.charAt(line.length() - 1) == '"') {
-					line = line.substring(0, line.length() - 1);
-				}
-				if (inFile) {
-					sb.append("</tbody></table></div>\n");
-					inFile = false;
-				}
-				line = StringUtils.escapeForHtml(line, false);
-				sb.append(MessageFormat.format("<div class='header'><div class=\"diffHeader\" id=\"{0}\"><i class=\"icon-file\"></i> ", line)).append(line)
-						.append("</div></div>");
-				sb.append("<div class=\"diff\">");
-				sb.append("<table><tbody>");
-				inFile = true;
+				// skip diff lines
 			} else {
 				boolean gitLinkDiff = line.length() > 0 && line.substring(1).startsWith("Subproject commit");
 				if (gitLinkDiff) {
@@ -470,26 +455,25 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 				}
 			}
 		}
-		sb.append("</tbody></table></div>");
 		if (truncated) {
 			sb.append(MessageFormat.format("<div class='header'><div class='diffHeader'>{0}</div></div>",
 					StringUtils.escapeForHtml(getMsg("gb.diffTruncated", "Diff truncated after the above file"), false)));
 			// List all files not shown. We can be sure we do have at least one path in skipped.
 			sb.append("<div class='diff'><table><tbody><tr><td class='diff-cell' colspan='4'>");
+			String deletedSuffix = StringUtils.escapeForHtml(getMsg("gb.diffDeletedFileSkipped", "(deleted)"), false);
 			boolean first = true;
-			for (Map.Entry<String, String> s : skipped.entrySet()) {
+			for (DiffEntry entry : skipped) {
 				if (!first) {
 					sb.append('\n');
 				}
-				String path = StringUtils.escapeForHtml(s.getKey(), false);
-				String comment = s.getValue();
-				if (comment != null) {
-					sb.append("<span id=\"" + path + "\">" + path + ' ' + StringUtils.escapeForHtml(comment, false) + "</span>");
+				if (ChangeType.DELETE.equals(entry.getChangeType())) {
+					sb.append("<span id=\"n" + entry.getOldId().name() + "\">" + StringUtils.escapeForHtml(entry.getOldPath(), false) + ' ' + deletedSuffix + "</span>");
 				} else {
-					sb.append("<span id=\"" + path + "\">" + path + "</span>");
+					sb.append("<span id=\"n" + entry.getNewId().name() + "\">" + StringUtils.escapeForHtml(entry.getNewPath(), false) + "</span>");
 				}
 				first = false;
 			}
+			skipped.clear();
 			sb.append("</td></tr></tbody></table></div>");
 		}
 		return sb.toString();
