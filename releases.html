@@ -120,18 +120,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.1.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.1.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.1.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -152,6 +152,10 @@
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
+<li><a href='https://vimeo.com/86164723'>Gitblit Tickets screencast</a></li>
+<li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
+<li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
+<li class='divider'></li>
 <li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
@@ -171,6 +175,30 @@
 	<table class="table">
 		<tbody>
 		<!-- RELEASE HISTORY -->
+		<tr id="1.6.2">
+			<td style="width:100px" id="1.6.2">
+				<b><a href="#1.6.2">1.6.2</a></b><br/>
+				2014-10-28
+			</td>
+			<td>		<p class="lead">Gitblit 1.6.2 released</p>		
+	
+	
+
+
+   	<h4>fixes</h4>
+	<ul>
+		<li>Fix French translation (<a href='https://github.com/gitblit/gitblit/pull/224'>pull request #224</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/210'>ticket 210</a>)</li>
+		<li>Fix raw servlet trashing paths with spaces (<a href='https://dev.gitblit.com/tickets/gitblit.git/211'>ticket 211</a>)</li>
+		<li>Fix PluginManager not properly respecting --noverify (<a href='https://dev.gitblit.com/tickets/gitblit.git/209'>ticket 209</a>)</li>
+	</ul>
+   	<h4>contributors</h4>
+	<ul>
+		<li>Barry Roberts</li>
+		<li>Jan Šmucr</li>
+		<li>Pierre Templier</li>
+	</ul>
+</td>
+		</tr>
 		<tr id="1.6.1">
 			<td style="width:100px" id="1.6.1">
 				<b><a href="#1.6.1">1.6.1</a></b><br/>
@@ -2105,7 +2133,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 	</table>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2014-10-20</p>
+<footer class="footer"><p class="pull-right">generated 2014-10-28</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

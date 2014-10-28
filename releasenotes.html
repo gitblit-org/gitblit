@@ -120,18 +120,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.1.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.1.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.1.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.1.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -152,6 +152,10 @@
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
+<li><a href='https://vimeo.com/86164723'>Gitblit Tickets screencast</a></li>
+<li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
+<li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
+<li class='divider'></li>
 <li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
@@ -166,124 +170,26 @@
 <!-- Begin Markdown -->
 
 <!-- CURRENT RELEASE -->
-	<h3 id="1.6.1" class="section"><a href="#1.6.1" class="sectionlink"><i class="icon-share-alt"> </i></a>Current Release (1.6.1) <small>this is the current stable release</small></h3>
+	<h3 id="1.6.2" class="section"><a href="#1.6.2" class="sectionlink"><i class="icon-share-alt"> </i></a>Current Release (1.6.2) <small>this is the current stable release</small></h3>
 	<table class="table">
 		<tbody>
 			<tr>
-				<td style="background-color:inherit;width:100px">2014-10-20</td>
+				<td style="background-color:inherit;width:100px">2014-10-28</td>
 				<td style="background-color:inherit;">	
 	
-		<blockquote><p>Highlights:<br /><br />* Dependency updates<br />* Many bug fixes<br />* GITBLIT_HOME environment variable support<br /></p></blockquote>		
 
-		<div class="alert alert-info">
-			<h4>Note</h4>
-			The next major release (v1.7.0) will focus on:<p />* <a href='https://dev.gitblit.com/tickets/gitblit.git/75'>ticket 75</a>: making projects more useful including the concept of project ownership<p /><p />This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RpeositoryModel to the UserModel<p /><p />* <a href='https://dev.gitblit.com/tickets/gitblit.git/55'>ticket 55</a>: facilitating usage of tickets &amp; git-flow in the web ui<p />
-		</div>
 
-   	<h4 style="color:red;">security</h4>
-	<ul>
-		<li>Sanitize page parameters, form fields, and markup for XSS vulnerabilities (<a href='http://code.google.com/p/gitblit/issues/detail?id=496'>issue 496</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/164'>ticket 164</a>)</li>
-		<li>Fix flash security risk (<a href='http://code.google.com/p/gitblit/issues/detail?id=498'>issue 498</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/165'>ticket 165</a>)</li>
-		<li>Fix XRF vulnerability (<a href='http://code.google.com/p/gitblit/issues/detail?id=500'>issue 500</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/166'>ticket 166</a>)</li>
-		<li>Prohibit new forks from inadvertently disclosing view-restricted contents (<a href='http://code.google.com/p/gitblit/issues/detail?id=495'>issue 495</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/167'>ticket 167</a>)</li>
-		<li>Restrict Gitblit's cookie to the context path (<a href='http://code.google.com/p/gitblit/issues/detail?id=507'>issue 507</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/187'>ticket 187</a>)</li>
-	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix NPE when two repository names differ only in case (<a href='https://github.com/gitblit/gitblit/pull/204'>pull request #204</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/108'>ticket 108</a>)</li>
-		<li>Fix API documentation links (<a href='http://code.google.com/p/gitblit/issues/detail?id=449'>issue 449</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/111'>ticket 111</a>)</li>
-		<li>Fix internal error when specifying a blob url without a path (<a href='https://dev.gitblit.com/tickets/gitblit.git/113'>ticket 113</a>)</li>
-		<li>Fix milestone queries for hyphentated names (<a href='https://dev.gitblit.com/tickets/gitblit.git/115'>ticket 115</a>)</li>
-		<li>Fix duplicate repositories on dashboards (<a href='http://code.google.com/p/gitblit/issues/detail?id=454'>issue 454</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/117'>ticket 117</a>)</li>
-		<li>Fix lower-case project names in RepositoryNamePanel (<a href='http://code.google.com/p/gitblit/issues/detail?id=509'>issue 509</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/118'>ticket 118</a>)</li>
-		<li>Fix ticket notifications not sent when author doesn't have an email address (<a href='http://code.google.com/p/gitblit/issues/detail?id=423'>issue 423</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/132'>ticket 132</a>)</li>
-		<li>Fix regression in create-ticket-on-push &amp; clarify reported explanation (<a href='https://dev.gitblit.com/tickets/gitblit.git/135'>ticket 135</a>)</li>
-		<li>Fix redirects after ajax form submissions with Tomcat (<a href='http://code.google.com/p/gitblit/issues/detail?id=455'>issue 455</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/136'>ticket 136</a>)</li>
-		<li>Fix potential NPE in Raw servlet (<a href='https://dev.gitblit.com/tickets/gitblit.git/137'>ticket 137</a>)</li>
-		<li>Fix Raw link path generation that does not respect web.forwardSlashCharacter (<a href='https://dev.gitblit.com/tickets/gitblit.git/139'>ticket 139</a>)</li>
-		<li>Do not log query parameter passwords when Redmine authentication fails (<a href='https://github.com/gitblit/gitblit/pull/215'>pull request #215</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/466'>ticket 466</a>)</li>
-		<li>Fix NPE in RepositoryNamePanel for anonymous admins (<a href='http://code.google.com/p/gitblit/issues/detail?id=490'>issue 490</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/147'>ticket 147</a>)</li>
-		<li>Fix repo creation with initial commit when the creator does not have an email address (<a href='http://code.google.com/p/gitblit/issues/detail?id=458'>issue 458</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/149'>ticket 149</a>)</li>
-		<li>Fix Edit Repository page missing owners from owners list (<a href='http://code.google.com/p/gitblit/issues/detail?id=480'>issue 480</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/150'>ticket 150</a>)</li>
-		<li>Fix NPEs when handling tickets with non-existent milestones (<a href='https://dev.gitblit.com/tickets/gitblit.git/152'>ticket 152</a>)</li>
-		<li>Quote all Lucene query args that have non-alphanumberic characters (<a href='http://code.google.com/p/gitblit/issues/detail?id=483'>issue 483</a>, <a href='http://code.google.com/p/gitblit/issues/detail?id=469'>issue 469</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/153'>ticket 153</a>)</li>
-		<li>Fix 0-length files from raw servlet when file does not exist (<a href='http://code.google.com/p/gitblit/issues/detail?id=489'>issue 489</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/154'>ticket 154</a>)</li>
-		<li>Fix raw servlet failures with long project names (<a href='http://code.google.com/p/gitblit/issues/detail?id=478'>issue 478</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/163'>ticket 163</a>)</li>
-		<li>New ticket responsible selections are missing users with RW access (<a href='http://code.google.com/p/gitblit/issues/detail?id=476'>issue 476</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/170'>ticket 170</a>)</li>
-		<li>Fix NPE in TicketListPanel due to missing repository (<a href='http://code.google.com/p/gitblit/issues/detail?id=451'>issue 451</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/171'>ticket 171</a>)</li>
-		<li>Fix MigrateTickets failure for view-restricted repositories (<a href='http://code.google.com/p/gitblit/issues/detail?id=475'>issue 475</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/173'>ticket 173</a>)</li>
-		<li>Fix repository deletion bug where the Lucene ticket index was not purged (<a href='http://code.google.com/p/gitblit/issues/detail?id=468'>issue 468</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/174'>ticket 174</a>)</li>
-		<li>Fix Jenkins post-receive script repository url (<a href='https://github.com/gitblit/gitblit/pull/219'>pull request #219</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/175'>ticket 175</a>)</li>
-		<li>Fix potential NPE in retrieving a ticket comment (<a href='http://code.google.com/p/gitblit/issues/detail?id=503'>issue 503</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/179'>ticket 179</a>)</li>
-		<li>Fix bug in migrating tickets to the BranchTicketService (<a href='http://code.google.com/p/gitblit/issues/detail?id=474'>issue 474</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/183'>ticket 183</a>)</li>
-		<li>Fix failure to clear/delete a ticket topic and description (<a href='http://code.google.com/p/gitblit/issues/detail?id=505'>issue 505</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/188'>ticket 188</a>)</li>
-		<li>Fix cropped ticket status indicators (<a href='https://dev.gitblit.com/tickets/gitblit.git/197'>ticket 197</a>)</li>
-		<li>Fix bug in raw servlet extracting repository out of the path (<a href='https://github.com/gitblit/gitblit/pull/222'>pull request #222</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/203'>ticket 203</a>)</li>
-		<li>Improve relative path determiniation using Java 7 Paths (<a href='http://code.google.com/p/gitblit/issues/detail?id=511'>issue 511</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/204'>ticket 204</a>)</li>
-	</ul>
-   	<h4>changes</h4>
-	<ul>
-		<li>Remove git.streamFileThreshold setting and documentation (<a href='https://dev.gitblit.com/tickets/gitblit.git/119'>ticket 119</a>)</li>
-		<li>Update Korean translation (<a href='https://github.com/gitblit/gitblit/pull/206'>pull request #206</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/120'>ticket 120</a>)</li>
-		<li>Add additional documentation for web.canonicalUrl (<a href='https://github.com/gitblit/gitblit/pull/205'>pull request #205</a>, <a href='http://code.google.com/p/gitblit/issues/detail?id=453'>issue 453</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/121'>ticket 121</a>)</li>
-		<li>Remove Wicket references from non-Wicket packages (<a href='https://dev.gitblit.com/tickets/gitblit.git/129'>ticket 129</a>)</li>
-		<li>LDAP user accounts now clear email address when unset in LDAP (<a href='http://code.google.com/p/gitblit/issues/detail?id=456'>issue 456</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/134'>ticket 134</a>)</li>
-		<li>Update French translation (<a href='https://github.com/gitblit/gitblit/pull/210'>pull request #210</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/140'>ticket 140</a>)</li>
-		<li>Update authentication documentation (<a href='https://github.com/gitblit/gitblit/pull/213'>pull request #213</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/142'>ticket 142</a>)</li>
-		<li>Pretty print Perl modules (<a href='https://github.com/gitblit/gitblit/pull/216'>pull request #216</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/144'>ticket 144</a>)</li>
-		<li>Pretty print C/C++ headers (<a href='https://github.com/gitblit/gitblit/pull/207'>pull request #207</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/145'>ticket 145</a>)</li>
-		<li>Do not stamp raw servlet responses with cache-control headers (<a href='http://code.google.com/p/gitblit/issues/detail?id=489'>issue 489</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/148'>ticket 148</a>)</li>
-		<li>Treat UTF-9 and UTF-18 (both fake encodings) as UTF-8 (<a href='http://code.google.com/p/gitblit/issues/detail?id=486'>issue 486</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/151'>ticket 151</a>)</li>
-		<li>Allow Lucene indexing period to be configurable (<a href='https://dev.gitblit.com/tickets/gitblit.git/161'>ticket 161</a>)</li>
-		<li>Do not display stacktraces for bad requests in servlets (<a href='http://code.google.com/p/gitblit/issues/detail?id=497'>issue 497</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/169'>ticket 169</a>)</li>
-		<li>Preserve branch ref in commits, tree, and docs navbar links (<a href='http://code.google.com/p/gitblit/issues/detail?id=501'>issue 501</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/176'>ticket 176</a>)</li>
-		<li>Disable Edit User Page permission checkboxes if admin/fork/create permission is inherited (<a href='http://code.google.com/p/gitblit/issues/detail?id=196'>issue 196</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/177'>ticket 177</a>)</li>
-		<li>Explicitly declare page subclasses that reference commits (<a href='http://code.google.com/p/gitblit/issues/detail?id=503'>issue 503</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/180'>ticket 180</a>)</li>
-		<li>Explicitly attempt to register BouncyCastle as a JCE provider (<a href='https://dev.gitblit.com/tickets/gitblit.git/194'>ticket 194</a>)</li>
-		<li>Treat .ico and .jpeg files as images (<a href='https://github.com/gitblit/gitblit/pull/221'>pull request #221</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/202'>ticket 202</a>)</li>
-	</ul>
-   	<h4>additions</h4>
-	<ul>
-		<li>Add support for GITBLIT_HOME as a -D system property (<a href='https://github.com/gitblit/gitblit/pull/212'>pull request #212</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/141'>ticket 141</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/185'>ticket 185</a>)</li>
-		<li>Add support for GITBLIT_HOME as an environment variable (<a href='https://dev.gitblit.com/tickets/gitblit.git/193'>ticket 193</a>)</li>
-		<li>Add install script for Fedora (<a href='https://github.com/gitblit/gitblit/pull/207'>pull request #207</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/146'>ticket 146</a>)</li>
-		<li>Add NO CHANGE REQUIRED ticket status (<a href='https://dev.gitblit.com/tickets/gitblit.git/182'>ticket 182</a>)</li>
-	</ul>
-   	<h4>dependency changes</h4>
-	<ul>
-		<li>JGit 3.5.1</li>
-		<li>Jetty 9.2.3</li>
-		<li>SSHD 0.12.0</li>
+		<li>Fix French translation (<a href='https://github.com/gitblit/gitblit/pull/224'>pull request #224</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/210'>ticket 210</a>)</li>
+		<li>Fix raw servlet trashing paths with spaces (<a href='https://dev.gitblit.com/tickets/gitblit.git/211'>ticket 211</a>)</li>
+		<li>Fix PluginManager not properly respecting --noverify (<a href='https://dev.gitblit.com/tickets/gitblit.git/209'>ticket 209</a>)</li>
 	</ul>
    	<h4>contributors</h4>
 	<ul>
-		<li>1988porsche944</li>
-		<li>Anthony O.</li>
-		<li>Berke Viktor</li>
-		<li>David Ostrovsky</li>
-		<li>Eric Fairon</li>
-		<li>fgeorges</li>
-		<li>gato84b</li>
-		<li>gibwar</li>
-		<li>jakob@jboysen</li>
-		<li>jliedy</li>
-		<li>Johnny Hughes</li>
-		<li>Koen Serry</li>
-		<li>Kyle Gottfried</li>
-		<li>mereth</li>
-		<li>Michael Glauche</li>
-		<li>Michael Legart</li>
-		<li>Revi</li>
-		<li>Robert M. Roberson Jr.</li>
-		<li>robindengen</li>
-		<li>Romain Gagnaire</li>
-		<li>Ron Smits</li>
-		<li>Sascha Vogt</li>
-		<li>Simon Santoro</li>
-		<li>Soeren Grunewald</li>
-		<li>Steffen Gebert</li>
-		<li>Stephan Krull</li>
-		<li>ThanksForAllTheFish</li>
+		<li>Barry Roberts</li>
+		<li>Jan Šmucr</li>
+		<li>Pierre Templier</li>
 	</ul>
 </td>
 			</tr>
@@ -299,7 +205,7 @@
 </div>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2014-10-20</p>
+<footer class="footer"><p class="pull-right">generated 2014-10-28</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
