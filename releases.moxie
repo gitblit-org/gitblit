@@ -45,7 +45,7 @@ r27: {
 r26: {
     title: Gitblit 1.6.2 released
     id: 1.6.2
-    date: ${project.buildDate}
+    date: 2014-10-28
     note: ~
     html: ~
     text: ~
@@ -53,12 +53,14 @@ r26: {
     fixes:
     - Fix French translation (pr-224, ticket-210)
     - Fix raw servlet trashing paths with spaces (ticket-211)
+    - Fix PluginManager not properly respecting --noverify (ticket-209)
     changes: ~
     additions: ~
     dependencyChanges: ~
     contributors:
     - Pierre Templier
     - Barry Roberts 
+    - Jan Šmucr
 }
 
 #
