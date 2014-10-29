@@ -210,7 +210,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			}
 			StringBuilder sb = new StringBuilder(MessageFormat.format("<div class='header'><div class=\"diffHeader\" id=\"n{0}\"><i class=\"icon-file\"></i> ", id));
 			sb.append(StringUtils.escapeForHtml(path, false)).append("</div></div>");
-			sb.append("<div class=\"diff\"><table><tbody>\n");
+			sb.append("<div class=\"diff\"><table cellpadding='0'><tbody>\n");
 			os.write(sb.toString().getBytes());
 		}
 		// Keep formatting, but if off, don't produce anything anymore. We just keep on counting.
@@ -459,7 +459,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			sb.append(MessageFormat.format("<div class='header'><div class='diffHeader'>{0}</div></div>",
 					StringUtils.escapeForHtml(getMsg("gb.diffTruncated", "Diff truncated after the above file"), false)));
 			// List all files not shown. We can be sure we do have at least one path in skipped.
-			sb.append("<div class='diff'><table><tbody><tr><td class='diff-cell' colspan='4'>");
+			sb.append("<div class='diff'><table cellpadding='0'><tbody><tr><td class='diff-cell' colspan='4'>");
 			String deletedSuffix = StringUtils.escapeForHtml(getMsg("gb.diffDeletedFileSkipped", "(deleted)"), false);
 			boolean first = true;
 			for (DiffEntry entry : skipped) {

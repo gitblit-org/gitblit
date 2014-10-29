@@ -1363,7 +1363,7 @@ span.diff.hunk_section {
 
 .diff-cell {
 	margin: 0px;
-	padding: 0px;
+	padding: 0 2px;
 	border: 0;
 	border-left: 1px solid #bbb;
 }
@@ -1377,7 +1377,7 @@ span.diff.hunk_section {
 }
 
 .context2 {
-	background-color: #fbfbfb;
+	background-color: #FEFEFE;
 }
 
 .trailingws-add {
@@ -1396,7 +1396,7 @@ div.diff > table {
 }
 
 .diff-line {
-	background-color: #f0f0f0;
+	background-color: #fbfbfb;
 	text-align: center;
 	color: #999;
 	padding-left: 2px;
@@ -1409,7 +1409,7 @@ div.diff > table {
 }
 
 .diff-state {
-	background-color: #f0f0f0;
+	background-color: #fbfbfb;
 	text-align: center;
 	color: #999;
 	padding-left: 2px;
