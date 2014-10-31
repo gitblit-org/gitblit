@@ -252,8 +252,10 @@ public class UserPage extends RootPage {
 			availableTransports.add(Transport.SSH);
 		}
 		if (app().services().isServingHTTP()) {
-			availableTransports.add(Transport.HTTPS);
 			availableTransports.add(Transport.HTTP);
+		}
+		if (app().services().isServingHTTPS()) {
+			availableTransports.add(Transport.HTTPS);
 		}
 		if (app().services().isServingGIT()) {
 			availableTransports.add(Transport.GIT);

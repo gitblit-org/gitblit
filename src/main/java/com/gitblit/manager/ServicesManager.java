@@ -166,7 +166,7 @@ public class ServicesManager implements IServicesManager {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
 				Transport transport = Transport.fromString(request.getScheme());
-				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(transport)) {
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptsPush(transport)) {
 					// downgrade the repo permission for this transport
 					// because it is not an acceptable PUSH transport
 					permission = AccessPermission.CLONE;
@@ -180,7 +180,7 @@ public class ServicesManager implements IServicesManager {
 		if (!StringUtils.isEmpty(sshDaemonUrl)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
-				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(Transport.SSH)) {
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptsPush(Transport.SSH)) {
 					// downgrade the repo permission for this transport
 					// because it is not an acceptable PUSH transport
 					permission = AccessPermission.CLONE;
@@ -195,7 +195,7 @@ public class ServicesManager implements IServicesManager {
 		if (!StringUtils.isEmpty(gitDaemonUrl)) {
 			AccessPermission permission = getGitDaemonAccessPermission(user, repository);
 			if (permission.exceeds(AccessPermission.NONE)) {
-				if (permission.atLeast(AccessPermission.PUSH) && !acceptPush(Transport.GIT)) {
+				if (permission.atLeast(AccessPermission.PUSH) && !acceptsPush(Transport.GIT)) {
 					// downgrade the repo permission for this transport
 					// because it is not an acceptable PUSH transport
 					permission = AccessPermission.CLONE;
@@ -272,7 +272,8 @@ public class ServicesManager implements IServicesManager {
 	 */
 	@Override
 	public boolean isServingRepositories() {
-		return isServingHTTP()
+		return isServingHTTPS()
+				|| isServingHTTP()
 				|| isServingGIT()
 				|| isServingSSH();
 	}
@@ -282,7 +283,19 @@ public class ServicesManager implements IServicesManager {
 	 */
 	@Override
 	public boolean isServingHTTP() {
-		return settings.getBoolean(Keys.git.enableGitServlet, true);
+		return settings.getBoolean(Keys.git.enableGitServlet, true)
+				&& ((gitblit.getStatus().isGO && settings.getInteger(Keys.server.httpPort, 0) > 0)
+						|| !gitblit.getStatus().isGO);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.gitblit.manager.IServicesManager#isServingHTTPS()
+	 */
+	@Override
+	public boolean isServingHTTPS() {
+		return settings.getBoolean(Keys.git.enableGitServlet, true)
+				&& ((gitblit.getStatus().isGO && settings.getInteger(Keys.server.httpsPort, 0) > 0)
+						|| !gitblit.getStatus().isGO);
 	}
 
 	/* (non-Javadoc)
@@ -330,7 +343,8 @@ public class ServicesManager implements IServicesManager {
 		}
 	}
 
-	protected boolean acceptPush(Transport byTransport) {
+	@Override
+	public boolean acceptsPush(Transport byTransport) {
 		if (byTransport == null) {
 			logger.info("Unknown transport, push rejected!");
 			return false;
