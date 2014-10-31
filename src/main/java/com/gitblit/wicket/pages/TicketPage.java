@@ -519,10 +519,10 @@ public class TicketPage extends RepositoryPage {
 		 * TICKET METADATA
 		 */
 		add(new Label("ticketType", ticket.type.toString()));
-		
+
 		add(new Label("priority", ticket.priority.toString()));
 		add(new Label("severity", ticket.severity.toString()));
-		
+
 		if (StringUtils.isEmpty(ticket.topic)) {
 			add(new Label("ticketTopic").setVisible(false));
 		} else {
@@ -531,8 +531,8 @@ public class TicketPage extends RepositoryPage {
 			String safeTopic = app().xssFilter().relaxed(topic);
 			add(new Label("ticketTopic", safeTopic).setEscapeModelStrings(false));
 		}
-		
-		
+
+
 
 
 		/*
@@ -1430,6 +1430,12 @@ public class TicketPage extends RepositoryPage {
 				// patchset already merged
 				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetAlreadyMerged"), ticket.mergeTo)));
+				return mergePanel;
+			} else if (MergeStatus.MISSING_INTEGRATION_BRANCH == mergeStatus) {
+				// target/integration branch is missing
+				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", this);
+				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
+				mergePanel.add(new Label("mergeMore", MessageFormat.format(getString("gb.missingIntegrationBranchMore"), ticket.mergeTo)));
 				return mergePanel;
 			} else {
 				// patchset can not be cleanly merged
