@@ -493,6 +493,10 @@ public class FileTicketService extends ITicketService {
 	@Override
 	protected boolean deleteAllImpl(RepositoryModel repository) {
 		Repository db = repositoryManager.getRepository(repository.name);
+		if (db == null) {
+			// the tickets no longer exist because the db no longer exists
+			return true;
+		}
 		try {
 			File dir = new File(db.getDirectory(), TICKETS_PATH);
 			return FileUtils.delete(dir);
