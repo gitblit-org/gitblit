@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.gitblit.Constants.Transport;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
@@ -42,6 +43,15 @@ public interface IServicesManager extends IManager {
  	 * @since 1.7.0
 	 */
 	boolean isServingHTTP();
+
+	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * over HTTP.
+	 *
+	 * @return true if Gitblit is serving repositories over HTTPS
+ 	 * @since 1.7.0
+	 */
+	boolean isServingHTTPS();
 
 	/**
 	 * Determine if this Gitblit instance is actively serving git repositories
@@ -71,5 +81,14 @@ public interface IServicesManager extends IManager {
 	 * @since 1.7.0
 	 */
 	List<RepositoryUrl> getRepositoryUrls(HttpServletRequest request, UserModel user, RepositoryModel repository);
+
+	/**
+	 * Returns true if the transport may be used for pushing.
+	 *
+	 * @param byTransport
+	 * @return true if the transport can be used for pushes.
+	 * @since 1.7.0
+	 */
+	boolean acceptsPush(Transport byTransport);
 
 }
