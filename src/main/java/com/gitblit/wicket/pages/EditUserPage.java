@@ -178,7 +178,9 @@ public class EditUserPage extends RootSubPage {
 
 				// update user permissions
 				for (RegistrantAccessPermission repositoryPermission : permissions) {
-					userModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
+					if (repositoryPermission.mutable) {
+						userModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
+					}
 				}
 
 				Iterator<String> selectedTeams = teams.getSelectedChoices();
