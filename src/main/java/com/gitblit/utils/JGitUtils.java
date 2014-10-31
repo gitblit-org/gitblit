@@ -2270,7 +2270,7 @@ public class JGitUtils {
 	}
 
 	public static enum MergeStatus {
-		NOT_MERGEABLE, FAILED, ALREADY_MERGED, MERGEABLE, MERGED;
+		MISSING_INTEGRATION_BRANCH, MISSING_SRC_BRANCH, NOT_MERGEABLE, FAILED, ALREADY_MERGED, MERGEABLE, MERGED;
 	}
 
 	/**
@@ -2286,8 +2286,16 @@ public class JGitUtils {
 		RevWalk revWalk = null;
 		try {
 			revWalk = new RevWalk(repository);
-			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
-			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
+			ObjectId branchId = repository.resolve(toBranch);
+			if (branchId == null) {
+				return MergeStatus.MISSING_INTEGRATION_BRANCH;
+			}
+			ObjectId srcId = repository.resolve(src);
+			if (srcId == null) {
+				return MergeStatus.MISSING_SRC_BRANCH;
+			}
+			RevCommit branchTip = revWalk.lookupCommit(branchId);
+			RevCommit srcTip = revWalk.lookupCommit(srcId);
 			if (revWalk.isMergedInto(srcTip, branchTip)) {
 				// already merged
 				return MergeStatus.ALREADY_MERGED;
@@ -2300,6 +2308,8 @@ public class JGitUtils {
 			if (canMerge) {
 				return MergeStatus.MERGEABLE;
 			}
+		} catch (NullPointerException e) {
+			LOGGER.error("Failed to determine canMerge", e);
 		} catch (IOException e) {
 			LOGGER.error("Failed to determine canMerge", e);
 		} finally {

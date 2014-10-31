@@ -14,7 +14,8 @@ r27: {
           design.
           ''
     security: ~
-    fixes: ~
+    fixes:
+    - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-521, ticket-212)
     changes:
     - Replaced Dagger with Guice (ticket-80)
     - Use release name as root directory in Gitblit GO artifacts (ticket-109)
@@ -37,6 +38,7 @@ r27: {
     - Alex Lewis
     - Florian Zschocke
     - Paul Martin
+    - razzard
 }
 
 #
