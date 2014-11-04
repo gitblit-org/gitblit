@@ -54,6 +54,7 @@ public class GitblitSslContextFactory extends SslContextFactory {
 		setKeyStorePassword(storePassword);
 		setTrustStorePath(clientTrustStore.getAbsolutePath());
 		setTrustStorePassword(storePassword);
+		addExcludeProtocols("SSLv3");
 
 		logger.info("   keyStorePath   = " + keyStore.getAbsolutePath());
 		logger.info("   trustStorePath = " + clientTrustStore.getAbsolutePath());
