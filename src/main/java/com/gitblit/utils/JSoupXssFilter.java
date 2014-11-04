@@ -68,7 +68,7 @@ public class JSoupXssFilter implements XssFilter {
                 "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u",
                 "ul", "var")
 
-        .addAttributes("a", "class", "href", "style", "title")
+        .addAttributes("a", "class", "href", "style", "target", "title")
         .addAttributes("blockquote", "cite")
         .addAttributes("col", "span", "width")
         .addAttributes("colgroup", "span", "width")
