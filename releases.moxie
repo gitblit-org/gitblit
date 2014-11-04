@@ -18,6 +18,7 @@ r27: {
     - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-521, ticket-212)
     - Fix exception when deleting a repository using the FileTicketService (issue-522, ticket-213)
     - Do not inject team repository permissions as explicit user permissoins when editing a user (issue-462, ticket-214)
+    - Whitelist the target link attribute in the XSS filter (ticket-216)
     changes:
     - Replaced Dagger with Guice (ticket-80)
     - Use release name as root directory in Gitblit GO artifacts (ticket-109)
@@ -41,6 +42,7 @@ r27: {
     - Florian Zschocke
     - Paul Martin
     - razzard
+    - Alexander Zabluda
 }
 
 #
