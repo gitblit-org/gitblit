@@ -35,6 +35,7 @@ r27: {
     - gson 2.2.2 (ticket-123)
     - Freemarker 2.3.20 (ticket-124)
     - Lucene 4.10.0 (ticket-159)
+    - SSHD 0.13.0 (ticket-218)
     contributors:
     - James Moger
     - David Ostrovsky
