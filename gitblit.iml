@@ -14,13 +14,13 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="guice-4.0-beta4.jar">
+      <library name="guice-4.0-beta5.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guice-4.0-beta4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/guice-4.0-beta5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guice-4.0-beta4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/guice-4.0-beta5.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
