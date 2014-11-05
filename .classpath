@@ -52,7 +52,7 @@
 	<classpathentry kind="lib" path="ext/bcprov-jdk15on-1.49.jar" sourcepath="ext/src/bcprov-jdk15on-1.49.jar" />
 	<classpathentry kind="lib" path="ext/bcmail-jdk15on-1.49.jar" sourcepath="ext/src/bcmail-jdk15on-1.49.jar" />
 	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.49.jar" sourcepath="ext/src/bcpkix-jdk15on-1.49.jar" />
-	<classpathentry kind="lib" path="ext/sshd-core-0.12.0.jar" sourcepath="ext/src/sshd-core-0.12.0.jar" />
+	<classpathentry kind="lib" path="ext/sshd-core-0.13.0.jar" sourcepath="ext/src/sshd-core-0.13.0.jar" />
 	<classpathentry kind="lib" path="ext/mina-core-2.0.7.jar" sourcepath="ext/src/mina-core-2.0.7.jar" />
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/src/rome-0.9.jar" />
 	<classpathentry kind="lib" path="ext/jdom-1.0.jar" sourcepath="ext/src/jdom-1.0.jar" />
