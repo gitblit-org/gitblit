@@ -1402,6 +1402,7 @@ div.diff > table {
 	padding-left: 2px;
 	padding-right: 2px;
 	width: 3em; /* Font-size relative! */
+	min-width: 3em;
 }
 
 .diff-line:before {
