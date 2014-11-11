@@ -228,15 +228,16 @@ public class DiffUtils {
 		DiffStat stat = null;
 		String diff = null;
 		try {
-			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			ByteArrayOutputStream os = null;
 			RawTextComparator cmp = RawTextComparator.DEFAULT;
 			DiffFormatter df;
 			switch (outputType) {
 			case HTML:
-				df = new GitBlitDiffFormatter(os, commit.getName());
+				df = new GitBlitDiffFormatter(commit.getName(), path);
 				break;
 			case PLAIN:
 			default:
+				os = new ByteArrayOutputStream();
 				df = new DiffFormatter(os);
 				break;
 			}
@@ -271,6 +272,7 @@ public class DiffUtils {
 			} else {
 				df.format(diffEntries);
 			}
+			df.flush();
 			if (df instanceof GitBlitDiffFormatter) {
 				// workaround for complex private methods in DiffFormatter
 				diff = ((GitBlitDiffFormatter) df).getHtml();
@@ -278,7 +280,6 @@ public class DiffUtils {
 			} else {
 				diff = os.toString();
 			}
-			df.flush();
 		} catch (Throwable t) {
 			LOGGER.error("failed to generate commit diff!", t);
 		}

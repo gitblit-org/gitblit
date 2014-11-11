@@ -145,10 +145,10 @@ public class CommitDiffPage extends RepositoryPage {
 					hasSubmodule = submodule.hasSubmodule;
 
 					// add relative link
-					item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#" + entry.path));
+					item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#n" + entry.objectId));
 				} else {
 					// add relative link
-					item.add(new LinkPanel("pathName", "list", entry.path, "#" + entry.path));
+					item.add(new LinkPanel("pathName", "list", entry.path, "#n" + entry.objectId));
 				}
 
 				// quick links
