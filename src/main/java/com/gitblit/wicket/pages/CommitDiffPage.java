@@ -31,6 +31,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
+import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
@@ -59,8 +60,6 @@ public class CommitDiffPage extends RepositoryPage {
 
 		RevCommit commit = getCommit();
 
-		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, DiffOutputType.HTML);
-
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {
 			for (RevCommit parent : commit.getParents()) {
@@ -81,6 +80,11 @@ public class CommitDiffPage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
+
+		final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
+		final ImageDiffHandler handler = new ImageDiffHandler(getContextUrl(), repositoryName,
+				parents.isEmpty() ? null : parents.get(0), commit.getName(), imageExtensions);
+		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, DiffOutputType.HTML, handler);
 
 		// add commit diffstat
 		int insertions = 0;

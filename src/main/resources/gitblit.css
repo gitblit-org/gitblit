@@ -1438,6 +1438,66 @@ div.diff > table {
 	color: #555;
 }
 
+/* Image diffs.
+   Kudos to Lea Verou: http://lea.verou.me/2014/07/image-comparison-slider-with-pure-css/ 
+   Slightly modified by Tom to allow moving the slider fully at the left edge of the images. */
+div.imgdiff {
+	margin: 5px 2px;
+	position: relative;
+	display: inline-block;
+	line-height: 0;
+	padding-left: 18px;
+}
+
+/* Note: width defines the initial position of the slider. Would have liked to have it
+   at 50% initially, but that fails on webkit, which refuses to go below the specified
+   width. (min-width won't help.) This is known behavior of webkit, see
+   https://codereview.chromium.org/239983004 and https://bugs.webkit.org/show_bug.cgi?id=72948
+   There is a hack (setting width to 1px in :hover) to work around this, but that causes
+   ugly screen flicker and makes for a dreadful UI. We're better off setting the slider
+   to the far left initially. */
+div.imgdiff-left {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 18px;
+	max-width: 100%;
+	overflow: hidden;
+	resize: horizontal;
+	/* Some border that should be visible on most images, combined of a dark color (red)
+	   and white in case the image was all red itself or used other colors that would make
+	   a thin red line hard to make out. */
+	border-right: 1px solid red;
+	box-shadow: 1px 0px 0px 0px white;
+}
+
+div.imgdiff-left:before {
+	content: '';
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 13px;
+	height: 13px;
+	background: linear-gradient(-45deg, red 50%, transparent 0);
+	background-clip: content-box;
+	cursor: ew-resize;
+}
+
+img.imgdiff-left {
+	margin-left: 18px; /* Compensate for padding on outer div. */
+}
+
+img.imagediff {
+	user-select: none;
+}
+
+.diff-img {
+	margin: 2px 2px;
+}
+
+/* End image diffs */
+
 td.changeType {
 	width: 15px;
 }

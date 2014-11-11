@@ -37,6 +37,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Keys;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -111,7 +112,11 @@ public class ComparePage extends RepositoryPage {
 			fromCommitId.setObject(startId);
 			toCommitId.setObject(endId);
 
-			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML);
+			final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
+			final ImageDiffHandler handler = new ImageDiffHandler(getContextUrl(), repositoryName,
+					fromCommit.getName(), toCommit.getName(), imageExtensions);
+
+			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML, handler);
 
 			// add compare diffstat
 			int insertions = 0;
