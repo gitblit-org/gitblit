@@ -150,7 +150,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			{
 				String binaryDiff = binaryDiffHandler.renderBinaryDiff(formatter.entry);
 				if (binaryDiff != null) {
-					byte[] bb = ("<tr><td colspan='4'>" + binaryDiff + "</td></tr>").getBytes(StandardCharsets.UTF_8);
+					byte[] bb = ("<tr><td colspan='4' align='center'>" + binaryDiff + "</td></tr>").getBytes(StandardCharsets.UTF_8);
 					super.write(bb, 0, bb.length);
 					return;
 				}

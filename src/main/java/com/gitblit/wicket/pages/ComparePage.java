@@ -117,6 +117,9 @@ public class ComparePage extends RepositoryPage {
 					fromCommit.getName(), toCommit.getName(), imageExtensions);
 
 			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML, handler);
+			if (handler.getImgDiffCount() > 0) {
+				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
+			}
 
 			// add compare diffstat
 			int insertions = 0;

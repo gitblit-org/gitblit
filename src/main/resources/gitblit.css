@@ -1486,14 +1486,43 @@ div.imgdiff-left:before {
 
 img.imgdiff-left {
 	margin-left: 18px; /* Compensate for padding on outer div. */
+	user-select: none;
 }
 
 img.imagediff {
 	user-select: none;
+	/* Checkerboard background */
+    background-color: white;
+    background-image: linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD), linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
 }
 
 .diff-img {
-	margin: 2px 2px;
+	margin: 2px;
+}
+
+div.imgdiff-slider {
+	display: inline-block;
+	position: relative;
+	margin: 0px 2px;
+	width: 420px;
+	max-width: 420px;
+	height: 24px;
+	min-height: 18px;
+	overflow-x: scroll;
+	background: linear-gradient(to right, #F00, #0F0);
+}
+
+div.imgdiff-slider-inner {
+	position: absolute;
+	bottom: 0;
+	margin: 0;
+	padding: 0;
+	width : 1000%;
+	height: 1px;
+	border: none;
+	background: transparent;
 }
 
 /* End image diffs */

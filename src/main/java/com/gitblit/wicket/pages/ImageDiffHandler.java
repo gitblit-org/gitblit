@@ -40,6 +40,8 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 	private final String baseUrl;
 	private final List<String> imageExtensions;
 
+	private int imgDiffCount = 0;
+
 	public ImageDiffHandler(final String baseUrl, final String repositoryName, final String oldCommitId,
 			final String newCommitId, final List<String> imageExtensions) {
 		this.baseUrl = baseUrl;
@@ -62,8 +64,10 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 			String oldUrl = getImageUrl(diffEntry, Side.OLD);
 			String newUrl = getImageUrl(diffEntry, Side.NEW);
 			if (oldUrl != null && newUrl != null) {
+				imgDiffCount++;
+				String id = "imgdiff" + imgDiffCount;
 				HtmlBuilder builder = new HtmlBuilder("div");
-				Element container = builder.root().appendElement("div").attr("class", "imgdiff");
+				Element container = builder.root().attr("align", "center").appendElement("div").attr("class", "imgdiff");
 				Element resizeable = container.appendElement("div").attr("class", "imgdiff-left");
 				// style='max-width:640px;' is necessary for ensuring that the browser limits large images
 				// to some reasonable width, and to override the "img { max-width: 100%; }" from bootstrap.css,
@@ -73,8 +77,11 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 				// is too wide.
 				// XXX: Maybe add a max-height, too, to limit portrait-oriented images to some reasonable height?
 				// (Like a 300x10000px image...)
-				resizeable.appendElement("img").attr("class", "imgdiff imgdiff-left").attr("style", "max-width:640px;").attr("src", oldUrl);
+				resizeable.appendElement("img").attr("class", "imgdiff-left").attr("id", id).attr("style", "max-width:640px;").attr("src", oldUrl);
 				container.appendElement("img").attr("class", "imgdiff").attr("style", "max-width:640px;").attr("src", newUrl);
+				builder.root().appendElement("br");
+				Element slider = builder.root().appendElement("div").attr("class", "imgdiff-slider").attr("id", "slider-" + id);
+				slider.appendElement("div").attr("class", "imgdiff-slider-inner");
 				return builder.toString();
 			}
 			break;
@@ -88,6 +95,11 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 			break;
 		}
 		return null;
+	}
+
+	/** Returns the number of image diffs generated so far by this {@link ImageDiffHandler}. */
+	public int getImgDiffCount() {
+		return imgDiffCount;
 	}
 
 	/**
