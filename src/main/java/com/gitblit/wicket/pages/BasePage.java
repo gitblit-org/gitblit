@@ -515,7 +515,7 @@ public abstract class BasePage extends SessionPage {
 	 * Adds a HTML script element loading the javascript designated by the given path.
 	 *
 	 * @param scriptPath
-	 *            page-relative path to the Javascript resource; normally starts with "script/"
+	 *            page-relative path to the Javascript resource; normally starts with "scripts/"
 	 */
 	protected void addBottomScript(String scriptPath) {
 		Component bottomScriptContainer = get("bottomScripts");

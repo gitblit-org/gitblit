@@ -19,5 +19,5 @@ jQuery(function () {
 		var w = 1.0 - (this.scrollLeft / (this.scrollWidth - (this.clientWidth || this.offsetWidth)));
 		// We encode the target img id in the slider's id: slider-imgdiffNNN.
 		jQuery('#' + this.id.substr(this.id.indexOf('-') + 1)).css("opacity", w);
-	})
+	});
 });
