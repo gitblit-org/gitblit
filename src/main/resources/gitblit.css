@@ -1492,10 +1492,10 @@ img.imgdiff-left {
 img.imagediff {
 	user-select: none;
 	/* Checkerboard background */
-    background-color: white;
-    background-image: linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD), linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD);
-    background-size: 16px 16px;
-    background-position: 0 0, 8px 8px;
+	background-color: white;
+	background-image: linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD), linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD);
+	background-size: 16px 16px;
+	background-position: 0 0, 8px 8px;
 }
 
 .diff-img {
@@ -1505,24 +1505,40 @@ img.imagediff {
 div.imgdiff-slider {
 	display: inline-block;
 	position: relative;
-	margin: 0px 2px;
-	width: 420px;
-	max-width: 420px;
-	height: 24px;
-	min-height: 18px;
-	overflow-x: scroll;
+	margin: 0px 5px;
+	width: 418px;
+	height: 18px;
 	background: linear-gradient(to right, #F00, #0F0);
+	border: 1px solid #888;
 }
 
-div.imgdiff-slider-inner {
+div.imgdiff-slider-resizeable {
 	position: absolute;
-	bottom: 0;
-	margin: 0;
-	padding: 0;
-	width : 1000%;
-	height: 1px;
-	border: none;
-	background: transparent;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	width: 18px;
+	min-width: 18px;
+	max-width: 100%;
+	overflow: hidden;
+	resize: horizontal;
+	border-right: 1px solid #888;
+	/* The "handle" */ 
+	background-image: linear-gradient(to right, white, white);
+	background-size: 18px 18px;
+	background-position: top right;
+	background-repeat: no-repeat;
+	cursor: ew-resize;
+}
+
+/* Provides the *left* border of the "handle" */
+div.imagediff-slider-left {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	margin-right:18px;
+	border-right: 1px solid #888;
 }
 
 /* End image diffs */

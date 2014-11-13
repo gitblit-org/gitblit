@@ -15,9 +15,16 @@
  */
 jQuery(function () {
 	// Runs on jQuery's document.ready and sets up the scroll event handlers for all image diffs.
-	jQuery(".imgdiff-slider").scroll(function() {
-		var w = 1.0 - (this.scrollLeft / (this.scrollWidth - (this.clientWidth || this.offsetWidth)));
-		// We encode the target img id in the slider's id: slider-imgdiffNNN.
-		jQuery('#' + this.id.substr(this.id.indexOf('-') + 1)).css("opacity", w);
+	jQuery(".imgdiff-slider-resizeable").each(function () {
+		var $el = jQuery(this);
+		var $img = jQuery('#' + this.id.substr(this.id.indexOf('-') + 1));
+		function fade() {
+			var w = Math.max(0, $el.width() - 18); // Must correspond to CSS: 18 px is handle width, 400 px is slider width
+			w = Math.max(0, 1.0 - w / 400.0);
+			$img.css("opacity", w);
+		}
+		// Unfortunately, not even jQuery triggers resize events for our resizeable... so let's track the mouse.
+		$el.on('mousedown', function() { $el.on('mousemove', fade); });
+		$el.on('mouseup', function() { $el.off('mousemove', fade); fade(); });
 	});
 });

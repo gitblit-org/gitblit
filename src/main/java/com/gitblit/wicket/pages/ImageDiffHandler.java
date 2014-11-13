@@ -80,8 +80,9 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 				resizeable.appendElement("img").attr("class", "imgdiff-left").attr("id", id).attr("style", "max-width:640px;").attr("src", oldUrl);
 				container.appendElement("img").attr("class", "imgdiff").attr("style", "max-width:640px;").attr("src", newUrl);
 				builder.root().appendElement("br");
-				Element slider = builder.root().appendElement("div").attr("class", "imgdiff-slider").attr("id", "slider-" + id);
-				slider.appendElement("div").attr("class", "imgdiff-slider-inner");
+				Element slider = builder.root().appendElement("div").attr("class", "imgdiff-slider");
+				slider.appendElement("div").attr("class", "imgdiff-slider-resizeable").attr("id", "slider-" + id)
+					.appendElement("div").attr("class", "imgdiff-slider-left");
 				return builder.toString();
 			}
 			break;
