@@ -67,8 +67,9 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 				imgDiffCount++;
 				String id = "imgdiff" + imgDiffCount;
 				HtmlBuilder builder = new HtmlBuilder("div");
-				Element container = builder.root().attr("align", "center").appendElement("div").attr("class", "imgdiff");
-				Element resizeable = container.appendElement("div").attr("class", "imgdiff-left");
+				Element wrapper = builder.root().attr("class", "imgdiff-container").attr("id", "imgdiff-" + id);
+				Element container = wrapper.appendElement("div").attr("class", "imgdiff-ovr-slider").appendElement("div").attr("class", "imgdiff");
+				Element old = container.appendElement("div").attr("class", "imgdiff-left");
 				// style='max-width:640px;' is necessary for ensuring that the browser limits large images
 				// to some reasonable width, and to override the "img { max-width: 100%; }" from bootstrap.css,
 				// which would scale the left image to the width of its resizeable container, which isn't what
@@ -77,12 +78,10 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 				// is too wide.
 				// XXX: Maybe add a max-height, too, to limit portrait-oriented images to some reasonable height?
 				// (Like a 300x10000px image...)
-				resizeable.appendElement("img").attr("class", "imgdiff-left").attr("id", id).attr("style", "max-width:640px;").attr("src", oldUrl);
+				old.appendElement("img").attr("class", "imgdiff-old").attr("id", id).attr("style", "max-width:640px;").attr("src", oldUrl);
 				container.appendElement("img").attr("class", "imgdiff").attr("style", "max-width:640px;").attr("src", newUrl);
-				builder.root().appendElement("br");
-				Element slider = builder.root().appendElement("div").attr("class", "imgdiff-slider");
-				slider.appendElement("div").attr("class", "imgdiff-slider-resizeable").attr("id", "slider-" + id)
-					.appendElement("div").attr("class", "imgdiff-slider-left");
+				wrapper.appendElement("br");
+				wrapper.appendElement("div").attr("class", "imgdiff-opa-container").appendElement("div").attr("class", "imgdiff-opa-slider");
 				return builder.toString();
 			}
 			break;
