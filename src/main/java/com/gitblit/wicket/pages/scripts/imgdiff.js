@@ -38,8 +38,8 @@ function rangeSlider(elem, options) {
 	/** Mousemove event handler to track the mouse and move the slider. Generates slider:pos events. */
 	function track(e) {
 		var pos = $elem.offset().left;
-		var width = $elem.width();
-		var handleWidth = $handle.width();
+		var width = $elem.innerWidth();
+		var handleWidth = $handle.outerWidth(false);
 		var range = width - handleWidth;
 		if (range <= 0) return;
 		var delta = Math.min(range, Math.max (0, e.pageX - pos - handleWidth / 2));
@@ -57,44 +57,64 @@ function rangeSlider(elem, options) {
 
     /** Snaps the slider to the given ratio and generates a slider:pos event with the new ratio. */
 	function setTo(ratio) {
-		var w = $elem.width();
+		var w = $elem.innerWidth();
 		if (w <= 0 || $elem.is(':hidden')) return;
 		lastRatio = Math.min( 1.0, Math.max(0, ratio));
-		$handle.css('left', "" + Math.max(0, 100 * (lastRatio * (w - $handle.width())) / w) + '%');
+		$handle.css('left', "" + Math.max(0, 100 * (lastRatio * (w - $handle.outerWidth(false))) / w) + '%');
 		$elem.trigger('slider:pos', { ratio: lastRatio, handle: $handle[0] });
 	}
 	
 	/**
 	 * Moves the slider to the given ratio, clipped to [0..1], in duration milliseconds.
-	 * Generates slider:pos events during the animation. If duration === 0, same as setTo.
-	 * Default duration is 500ms.
+	 * Generates slider:pos events during the animation. If duration <= 30, same as setTo.
+	 * Default duration is 500ms. If a callback is given, it's called once the animation
+	 * has completed.
 	 */
-	function moveTo(ratio, duration) {
+	function moveTo(ratio, duration, callback) {
 		ratio = Math.min(1.0, Math.max(0, ratio));
-		if (ratio === lastRatio) return;
+		if (ratio === lastRatio) {
+			if (typeof callback == 'function') callback();
+			return;
+		}
 		if (typeof duration == 'undefined') duration = 500;
-		if (duration === 0) {
+		if (duration <= 30) {
+			 // Cinema is 24 or 48 frames/sec, so 20-40ms per frame. Makes no sense to animate for such a short duration.
 			setTo(ratio);
+			if (typeof callback == 'function') callback();
 		} else {
-			var target = ratio * ($elem.width() - $handle.width());
+			var target = ratio * ($elem.innerWidth() - $handle.outerWidth(false));
 			if (ratio > lastRatio) target--; else target++;
 			$handle.stop().animate({left: target},
 				{ 'duration' : duration,
 				  'step' : function() {
-						lastRatio = Math.min(1.0, Math.max(0, $handle.position().left / ($elem.width() - $handle.width())));
+						lastRatio = Math.min(1.0, Math.max(0, $handle.position().left / ($elem.innerWidth() - $handle.outerWidth(false))));
 						$elem.trigger('slider:pos', { ratio : lastRatio, handle : $handle[0] });
 					},
-				  'complete' : function() { setTo(ratio); } // Last step gives us a % value again.
+				  'complete' : function() { setTo(ratio); if (typeof callback == 'function') callback(); } // Ensure we have again a % value
 				}
 			);
 		}
 	}
 	
+	/**
+	 * As moveTo, but determines an appropriate duration in the range [0..maxDuration] on its own,
+	 * depending on the distance the handle would move. If no maxDuration is given it defaults
+	 * to 1500ms.
+	 */
+	function moveAuto(ratio, maxDuration, callback) {
+		if (typeof maxDuration == 'undefined') maxDuration = 1500;
+		var delta = ratio - lastRatio;
+		if (delta < 0) delta = -delta;
+		var speed = $elem.innerWidth() * delta * 2;
+		if (speed > maxDuration) speed = maxDuration;
+		moveTo(ratio, speed, callback);
+	}
+
 	/** Returns the current ratio. */
 	function getValue() {
 		return lastRatio;
 	}
-		
+
 	$elem.append($handle);
 	if (options.handleClass) {
 		$handle.addClass(options.handleClass);
@@ -108,9 +128,11 @@ function rangeSlider(elem, options) {
 		$root.addClass('no-select');
 		$doc.on('mousemove', track);
 		$doc.on('mouseup', end);
+		e.stopPropagation();
+		e.preventDefault();
 	});
 
-	return { setRatio: setTo, moveRatio: moveTo, getRatio: getValue, handle: $handle[0] };
+	return { setRatio: setTo, moveRatio: moveTo, 'moveAuto': moveAuto, getRatio: getValue, handle: $handle[0] };
 }
 
 function setup() {
@@ -119,14 +141,14 @@ function setup() {
 		var $overlaySlider = $this.find('.imgdiff-ovr-slider').first();
 		var $opacitySlider = $this.find('.imgdiff-opa-slider').first();
 		var overlayAccess = rangeSlider($overlaySlider, {handleClass: 'imgdiff-ovr-handle'});
-		rangeSlider($opacitySlider, {handleClass: 'imgdiff-opa-handle'});
+		var opacityAccess = rangeSlider($opacitySlider, {handleClass: 'imgdiff-opa-handle'});
 		var $img = $('#' + this.id.substr(this.id.indexOf('-')+1)); // Here we change opacity
 		var $div = $img.parent(); // This controls visibility: here we change width.
 		
 		$overlaySlider.on('slider:pos', function(e, data) {
 			var pos = $(data.handle).offset().left;
 			var imgLeft = $img.offset().left; // Global
-			var imgW = $img.outerWidth();
+			var imgW = $img.outerWidth(true);
 			var imgOff = $img.position().left; // From left edge of $div
 			if (pos <= imgLeft) {
 				$div.width(0);
@@ -136,10 +158,32 @@ function setup() {
 				$div.width(imgW + imgOff);
 			}
 		});
+		$overlaySlider.css('cursor', 'pointer');
+		$overlaySlider.on('mousedown', function(e) {
+			var newRatio = (e.pageX - $overlaySlider.offset().left) / $overlaySlider.innerWidth();
+			var oldRatio = overlayAccess.getRatio();
+			if (newRatio !== oldRatio) {
+				overlayAccess.moveAuto(newRatio);
+			}
+		});
 		$opacitySlider.on('slider:pos', function(e, data) {
-			if ($div.width() <= 0) overlayAccess.moveRatio(1.0, 500); // Make old image visible in a nice way
+			if ($div.width() <= 0) overlayAccess.moveAuto(1.0); // Make old image visible in a nice way
 			$img.css('opacity', 1.0 - data.ratio);
 		});
+		$opacitySlider.css('cursor', 'pointer');
+		$opacitySlider.on('mousedown', function(e) {
+			var newRatio = (e.pageX - $opacitySlider.offset().left) / $opacitySlider.innerWidth();
+			var oldRatio = opacityAccess.getRatio();
+			if (newRatio !== oldRatio) {
+				if ($div.width() <= 0) {
+					overlayAccess.moveRatio(1.0, 500, function() {opacityAccess.moveAuto(newRatio);}); // Make old image visible in a nice way
+				} else {
+					opacityAccess.moveAuto(newRatio)
+				}
+			}
+			e.preventDefault();
+		});
+			
 	});
 }
 
