@@ -78,10 +78,10 @@ function rangeSlider(elem, options) {
 		} else {
 			var target = ratio * ($elem.width() - $handle.width());
 			if (ratio > lastRatio) target--; else target++;
-			$handle.animate({left: target},
+			$handle.stop().animate({left: target},
 				{ 'duration' : duration,
 				  'step' : function() {
-						lastRatio = Math.min(1.0, Math.max(0, $handle.offset().left / ($elem.width() - $handle.width())));
+						lastRatio = Math.min(1.0, Math.max(0, $handle.position().left / ($elem.width() - $handle.width())));
 						$elem.trigger('slider:pos', { ratio : lastRatio, handle : $handle[0] });
 					},
 				  'complete' : function() { setTo(ratio); } // Last step gives us a % value again.
@@ -126,13 +126,14 @@ function setup() {
 		$overlaySlider.on('slider:pos', function(e, data) {
 			var pos = $(data.handle).offset().left;
 			var imgLeft = $img.offset().left; // Global
-			var imgW = $img.width() + $img.position().left; // From left edge of $div
+			var imgW = $img.outerWidth();
+			var imgOff = $img.position().left; // From left edge of $div
 			if (pos <= imgLeft) {
 				$div.width(0);
 			} else if (pos <= imgLeft + imgW) {
-				$div.width(pos - imgLeft);
-			} else if ($div.width() < imgW) {
-				$div.width(imgW);
+				$div.width(pos - imgLeft + imgOff);
+			} else if ($div.width() < imgW + imgOff) {
+				$div.width(imgW + imgOff);
 			}
 		});
 		$opacitySlider.on('slider:pos', function(e, data) {
