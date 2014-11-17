@@ -19,8 +19,10 @@ import static org.eclipse.jgit.lib.Constants.encode;
 import static org.eclipse.jgit.lib.Constants.encodeASCII;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +36,7 @@ import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.util.RawParseUtils;
 
 import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.utils.DiffUtils.BinaryDiffHandler;
 import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.wicket.GitBlitWebApp;
 
@@ -71,7 +74,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	 */
 	private static final int GLOBAL_DIFF_LIMIT = 20000;
 
-	private final ResettableByteArrayOutputStream os;
+	private final DiffOutputStream os;
 
 	private final DiffStat diffStat;
 
@@ -122,9 +125,45 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	/** If {@link #truncated}, contains all entries skipped. */
 	private final List<DiffEntry> skipped = new ArrayList<DiffEntry>();
 
-	public GitBlitDiffFormatter(String commitId, String path) {
-		super(new ResettableByteArrayOutputStream());
-		this.os = (ResettableByteArrayOutputStream) getOutputStream();
+	/**
+	 * A {@link ResettableByteArrayOutputStream} that intercept the "Binary files differ" message produced
+	 * by the super implementation. Unfortunately the super implementation has far too many things private;
+	 * otherwise we'd just have re-implemented {@link GitBlitDiffFormatter#format(DiffEntry) format(DiffEntry)}
+	 * completely without ever calling the super implementation.
+	 */
+	private static class DiffOutputStream extends ResettableByteArrayOutputStream {
+
+		private static final String BINARY_DIFFERENCE = "Binary files differ\n";
+
+		private GitBlitDiffFormatter formatter;
+		private BinaryDiffHandler binaryDiffHandler;
+
+		public void setFormatter(GitBlitDiffFormatter formatter, BinaryDiffHandler handler) {
+			this.formatter = formatter;
+			this.binaryDiffHandler = handler;
+		}
+
+		@Override
+		public void write(byte[] b, int offset, int length) {
+			if (binaryDiffHandler != null
+					&& RawParseUtils.decode(Arrays.copyOfRange(b, offset, offset + length)).contains(BINARY_DIFFERENCE))
+			{
+				String binaryDiff = binaryDiffHandler.renderBinaryDiff(formatter.entry);
+				if (binaryDiff != null) {
+					byte[] bb = ("<tr><td colspan='4' align='center'>" + binaryDiff + "</td></tr>").getBytes(StandardCharsets.UTF_8);
+					super.write(bb, 0, bb.length);
+					return;
+				}
+			}
+			super.write(b, offset, length);
+		}
+
+	}
+
+	public GitBlitDiffFormatter(String commitId, String path, BinaryDiffHandler handler) {
+		super(new DiffOutputStream());
+		this.os = (DiffOutputStream) getOutputStream();
+		this.os.setFormatter(this, handler);
 		this.diffStat = new DiffStat(commitId);
 		// If we have a full commitdiff, install maxima to avoid generating a super-long diff listing that
 		// will only tax the browser too much.
@@ -217,7 +256,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		super.format(ent);
 		if (!truncated) {
 			// Close the table
-			os.write("</tbody></table></div><br />\n".getBytes());
+			os.write("</tbody></table></div>\n".getBytes());
 		}
 	}
 
@@ -235,13 +274,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	private void reset() {
 		if (!isOff) {
 			os.resetTo(startCurrent);
-			try {
-				os.write("<tr><td class='diff-cell' colspan='4'>".getBytes());
-				os.write(StringUtils.escapeForHtml(getMsg("gb.diffFileDiffTooLarge", "Diff too large"), false).getBytes());
-				os.write("</td></tr>\n".getBytes());
-			} catch (IOException ex) {
-				// Cannot happen with a ByteArrayOutputStream
-			}
+			writeFullWidthLine(getMsg("gb.diffFileDiffTooLarge", "Diff too large"));
 			totalNofLinesCurrent = totalNofLinesPrevious;
 			isOff = true;
 		}
@@ -277,13 +310,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		default:
 			return;
 		}
-		try {
-			os.write("<tr><td class='diff-cell' colspan='4'>".getBytes());
-			os.write(StringUtils.escapeForHtml(message, false).getBytes());
-			os.write("</td></tr>\n".getBytes());
-		} catch (IOException ex) {
-			// Cannot happen with a ByteArrayOutputStream
-		}
+		writeFullWidthLine(message);
 	}
 
 	/**
@@ -352,6 +379,22 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			os.write(',');
 			os.write(encodeASCII(cnt));
 			break;
+		}
+	}
+
+	/**
+	 * Writes a line spanning the full width of the code view, including the gutter.
+	 *
+	 * @param text
+	 *            to put on that line; will be HTML-escaped.
+	 */
+	private void writeFullWidthLine(String text) {
+		try {
+			os.write("<tr><td class='diff-cell' colspan='4'>".getBytes());
+			os.write(StringUtils.escapeForHtml(text, false).getBytes());
+			os.write("</td></tr>\n".getBytes());
+		} catch (IOException ex) {
+			// Cannot happen with a ByteArrayOutputStream
 		}
 	}
 
@@ -453,6 +496,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 				if (gitLinkDiff) {
 					sb.append("</td></tr>");
 				}
+				sb.append('\n');
 			}
 		}
 		if (truncated) {

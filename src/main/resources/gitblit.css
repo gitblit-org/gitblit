@@ -1438,6 +1438,138 @@ div.diff > table {
 	color: #555;
 }
 
+/* Image diffs. */
+
+/* Set on body during mouse tracking. */
+.no-select {
+	-webkit-touch-callout:none;
+	-webkit-user-select:none;
+	-khtml-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+}
+
+div.imgdiff-container {
+	padding: 10px;
+	background: #EEE;
+}
+
+div.imgdiff {
+	margin: 10px 20px;
+	position:relative;
+	display: inline-block;
+	/* Checkerboard background to reveal transparency. */
+    background-color: white;
+    background-image: linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD), linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD);
+    background-size:16px 16px;
+    background-position:0 0, 8px 8px;
+}
+
+div.imgdiff-left {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 0;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+img.imgdiff {
+	user-select: none;
+	border: 1px solid #0F0;
+}
+img.imgdiff-old {
+	user-select: none;
+	border: 1px solid #F00;
+}
+.imgdiff-opa-container {
+	width: 200px;
+	height: 4px;
+	margin: 12px 35px;
+	padding: 0;
+	position: relative;
+	border-left: 1px solid #888;
+	border-right: 1px solid #888;
+	background: linear-gradient(to bottom, #888, #EEE 50%, #888);
+}
+
+.imgdiff-opa-container:before {
+	content: '';
+	position: absolute;
+	left: -20px;
+	top: -4px;
+	width : 12px;
+	height: 12px;
+	background-image: radial-gradient(6px at 50% 50%, rgba(255, 255, 255, 255) 50%, rgba(255, 255, 255, 0) 6px);
+}
+
+.imgdiff-opa-container:after {
+	content: '';
+	position: absolute;
+	right: -20px;
+	top: -4px;
+	width : 12px;
+	height: 12px;
+	background-image: radial-gradient(6px at 50% 50%, #888, #888 1px, transparent 6px);
+}
+
+.imgdiff-opa-slider {
+	position:absolute;
+	top : 0;
+	left: -5px;
+	bottom: 0;
+	right: -5px;
+	text-align: left;
+}
+
+.imgdiff-opa-handle {
+	width: 10px;
+	height: 10px;
+	position: absolute;
+	top: -3px;
+	background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px);
+}
+
+.imgdiff-ovr-slider {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	text-align: left;
+}
+
+.imgdiff-ovr-handle {
+	width : 2px;
+	height: 100%;
+	top: 0px;
+	background: linear-gradient(to right, #444, #FFF);
+}
+
+.imgdiff-ovr-handle:before {
+	content: '';
+	position: absolute;
+	right: -4px;
+	bottom: -5px;
+	width : 10px;
+	height: 10px;
+	background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px);
+}
+
+.imgdiff-ovr-handle:after {
+	content: '';
+	position: absolute;
+	right: -4px;
+	top: -5px;
+	width : 10px;
+	height: 10px;
+	/* border: 1px solid red; */
+	background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px);
+}
+
+/* End image diffs */
+
 td.changeType {
 	width: 15px;
 }

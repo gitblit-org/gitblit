@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Application;
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
@@ -42,6 +43,8 @@ import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
+import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
@@ -75,11 +78,13 @@ public abstract class BasePage extends SessionPage {
 
 	public BasePage() {
 		super();
+		add(new RepeatingView("bottomScripts").setRenderBodyOnly(true));
 		customizeHeader();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
+		add(new RepeatingView("bottomScripts").setRenderBodyOnly(true));
 		customizeHeader();
 	}
 
@@ -504,6 +509,40 @@ public abstract class BasePage extends SessionPage {
 			}
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Adds a HTML script element loading the javascript designated by the given path.
+	 *
+	 * @param scriptPath
+	 *            page-relative path to the Javascript resource; normally starts with "scripts/"
+	 */
+	protected void addBottomScript(String scriptPath) {
+		Component bottomScriptContainer = get("bottomScripts");
+		if (bottomScriptContainer instanceof RepeatingView) {
+			// Always true.
+			RepeatingView bottomScripts = (RepeatingView) bottomScriptContainer;
+			Label script = new Label(bottomScripts.newChildId(), "<script type='text/javascript' src='"
+					+ urlFor(new JavascriptResourceReference(this.getClass(), scriptPath)) + "'></script>\n");
+			bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
+		}
+	}
+
+	/**
+	 * Adds a HTML script element containing the given code.
+	 *
+	 * @param code
+	 *            inline script code
+	 */
+	protected void addBottomScriptInline(String code) {
+		Component bottomScriptContainer = get("bottomScripts");
+		if (bottomScriptContainer instanceof RepeatingView) {
+			// Always true.
+			RepeatingView bottomScripts = (RepeatingView) bottomScriptContainer;
+			Label script = new Label(bottomScripts.newChildId(),
+					"<script type='text/javascript'>/*<![CDATA[*/\n" + code + "\n//]]>\n</script>\n");
+			bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
+		}
 	}
 
 }
