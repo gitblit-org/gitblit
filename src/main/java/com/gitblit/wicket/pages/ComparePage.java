@@ -113,7 +113,7 @@ public class ComparePage extends RepositoryPage {
 			toCommitId.setObject(endId);
 
 			final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
-			final ImageDiffHandler handler = new ImageDiffHandler(getContextUrl(), repositoryName,
+			final ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 					fromCommit.getName(), toCommit.getName(), imageExtensions);
 
 			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML, handler);

@@ -1490,10 +1490,12 @@ img.imgdiff-old {
 	user-select: none;
 	border: 1px solid #F00;
 }
+
 .imgdiff-opa-container {
+	display: inline-block;
 	width: 200px;
 	height: 4px;
-	margin: 12px 35px;
+	margin: 12px 35px 6px 35px;
 	padding: 0;
 	position: relative;
 	border: 1px solid #888;
@@ -1532,6 +1534,7 @@ img.imgdiff-old {
 }
 
 .imgdiff-opa-handle {
+	display: inline-block;
 	width: 10px;
 	height: 10px;
 	position: absolute;
@@ -1549,6 +1552,7 @@ img.imgdiff-old {
 }
 
 .imgdiff-ovr-handle {
+	display: inline-block;
 	width : 1px;
 	height: 100%;
 	top: 0px;
@@ -1576,6 +1580,19 @@ img.imgdiff-old {
 	height: 10px;
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAABMklEQVQY022OsU7CUBRA723fpTS0NcVBJuOoQUed0MSJhOiP0IHK6g84ShoM/2HE1TjZxeCA0UF3RW2tLQ73mesgLuiZT3IOwoww7FSLYrrDzHUAMInUbblsX0RR9NJsNgEBAIIg2EjT9DDP8y2ttSsiqEhlTsW58TzvaDAYxBiGB9XJ5PkkSZJdZvZFRAEAIKImUm+et3BVqy11VFHkjTzPN2cS/a6ICDHrxWlR1N+zjz2DmddnOQVziIjJWnuaedUAAENEEP4iPweIImIYRDQmogwR9T+SVkplpVLpzrBt+9KpVEaK6BUReU6a2LY9dl33zIzj+LOx3XgUkRUQsADwSylzalnWk+M4I9/3o36/f42t/RYMT4fQ7XaX0zRpMes1ADAU0b3nuee9495DO2ib37s7ktpA7ddzAAAAAElFTkSuQmCC);
 	/* With CSS: background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px); */
+}
+
+.imgdiff-link {
+	margin: 0px 4px;
+	text-decoration: none;
+	border: none;
+}
+
+.imgdiff-link > img {
+	border: 1px solid transparent; /* Avoid jumping when we change the border */
+	width: 20px;
+	height: 20px;
+	margin-bottom: 10px;
 }
 
 /* End image diffs */

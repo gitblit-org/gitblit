@@ -18,6 +18,7 @@ package com.gitblit.wicket.pages;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WicketURLEncoder;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.Side;
@@ -37,14 +38,14 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 	private final String oldCommitId;
 	private final String newCommitId;
 	private final String repositoryName;
-	private final String baseUrl;
+	private final BasePage page;
 	private final List<String> imageExtensions;
 
 	private int imgDiffCount = 0;
 
-	public ImageDiffHandler(final String baseUrl, final String repositoryName, final String oldCommitId,
-			final String newCommitId, final List<String> imageExtensions) {
-		this.baseUrl = baseUrl;
+	public ImageDiffHandler(final BasePage page, final String repositoryName, final String oldCommitId, final String newCommitId,
+			final List<String> imageExtensions) {
+		this.page = page;
 		this.repositoryName = repositoryName;
 		this.oldCommitId = oldCommitId;
 		this.newCommitId = newCommitId;
@@ -81,7 +82,19 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 				old.appendElement("img").attr("class", "imgdiff-old").attr("id", id).attr("style", "max-width:640px;").attr("src", oldUrl);
 				container.appendElement("img").attr("class", "imgdiff").attr("style", "max-width:640px;").attr("src", newUrl);
 				wrapper.appendElement("br");
-				wrapper.appendElement("div").attr("class", "imgdiff-opa-container").appendElement("div").attr("class", "imgdiff-opa-slider");
+				Element controls = wrapper.appendElement("div");
+				// Opacity slider
+				controls.appendElement("div").attr("class", "imgdiff-opa-container").appendElement("a").attr("class", "imgdiff-opa-slider")
+						.attr("href", "#").attr("title", page.getString("gb.opacityAdjust"));
+				// Blink comparator: find Pluto!
+				controls.appendElement("a").attr("class", "imgdiff-link imgdiff-blink").attr("href", "#")
+						.attr("title", page.getString("gb.blinkComparator"))
+						.appendElement("img").attr("src", getStaticResourceUrl("blink32.png")).attr("width", "20");
+				// Pixel subtraction, initially not displayed, will be shown by imgdiff.js depending on feature test.
+				// (Uses CSS mix-blend-mode, which isn't supported on all browsers yet).
+				controls.appendElement("a").attr("class", "imgdiff-link imgdiff-subtract").attr("href", "#")
+						.attr("title", page.getString("gb.imgdiffSubtract")).attr("style", "display:none;")
+						.appendElement("img").attr("src", getStaticResourceUrl("sub32.png")).attr("width", "20");
 				return builder.toString();
 			}
 			break;
@@ -118,7 +131,7 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 				if (ext.equalsIgnoreCase(extension)) {
 					String commitId = Side.NEW.equals(side) ? newCommitId : oldCommitId;
 					if (commitId != null) {
-						return RawServlet.asLink(baseUrl, urlencode(repositoryName), commitId, urlencode(path));
+						return RawServlet.asLink(page.getContextUrl(), urlencode(repositoryName), commitId, urlencode(path));
 					} else {
 						return null;
 					}
@@ -126,6 +139,13 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns a URL that will fetch the designated static resource from within GitBlit.
+	 */
+	protected String getStaticResourceUrl(String contextRelativePath) {
+		return WebApplication.get().getRequestCycleProcessor().getRequestCodingStrategy().rewriteStaticRelativeUrl(contextRelativePath);
 	}
 
 	/**
