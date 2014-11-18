@@ -1440,6 +1440,8 @@ div.diff > table {
 
 /* Image diffs. */
 
+/* Note: can't use gradients; IE < 10 doesn't support them. Use pre-created pngs with transparency instead. */
+
 /* Set on body during mouse tracking. */
 .no-select {
 	-webkit-touch-callout:none;
@@ -1460,10 +1462,14 @@ div.imgdiff {
 	position:relative;
 	display: inline-block;
 	/* Checkerboard background to reveal transparency. */
-    background-color: white;
-    background-image: linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD), linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD);
-    background-size:16px 16px;
-    background-position:0 0, 8px 8px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAK0lEQVQoz2O8e/cuAzagpKSEVZyJgUQwqoEYwPj//3+sEvfu3RsNJfppAACQZwizxs5QrAAAAABJRU5ErkJggg==);
+    background-repeat: repeat;
+	/* Same with CSS:
+	background-color: white;
+	background-image: linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD), linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD);
+	background-size:16px 16px;
+	background-position:0 0, 8px 8px;
+	*/
 }
 
 div.imgdiff-left {
@@ -1490,9 +1496,8 @@ img.imgdiff-old {
 	margin: 12px 35px;
 	padding: 0;
 	position: relative;
-	border-left: 1px solid #888;
-	border-right: 1px solid #888;
-	background: linear-gradient(to bottom, #888, #EEE 50%, #888);
+	border: 1px solid #888;
+	background-color: #DDD;
 }
 
 .imgdiff-opa-container:before {
@@ -1502,7 +1507,8 @@ img.imgdiff-old {
 	top: -4px;
 	width : 12px;
 	height: 12px;
-	background-image: radial-gradient(6px at 50% 50%, rgba(255, 255, 255, 255) 50%, rgba(255, 255, 255, 0) 6px);
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA7klEQVQoz13STUrDMRAF8N+02fQDhCpqNyJIvUEXXfYCXtlFsZeQLpRCpYJ01RakxM38IRgIQyZv3rx5SchVaw1c4xm36OEb7/jqcJHgPuZYYopx3h2xwwrriPgtyTzHCx5xg1ESnvJ8lR1fS8pYJvgBEwyywwlD9LGotX6W1DxNpknutkPgnGSzkgOOEzRoogY8zPx9L7VFa0Ku//lAlLTumO1PjYxuhnMT9yV93uUMw2Q+NwU/OGCL95KPskrr+o3mruCAD7xhU1LjOpkX6caoGXib4HVEXKLWKiK67/GEGe6SYJ+SNxFxqbX2/gBxKkhxx1tQIAAAAABJRU5ErkJggg==);
+	/* With CSS: background-image: radial-gradient(6px at 50% 50%, rgba(255, 255, 255, 255) 50%, rgba(255, 255, 255, 0) 6px); */
 }
 
 .imgdiff-opa-container:after {
@@ -1512,7 +1518,8 @@ img.imgdiff-old {
 	top: -4px;
 	width : 12px;
 	height: 12px;
-	background-image: radial-gradient(6px at 50% 50%, #888, #888 1px, transparent 6px);
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsTAAALEwEAmpwYAAABlklEQVQoz02Rr45TYRTE5/z7ynebYNBIFFuLXV2FQRIgWcUDkN3bBNnbR0CQJvsGGLCbIEFgSCrgGXCw7b3fOT2ILQm/ZJIRI2YyhBObzaZm5kVmvszMs8wkJtoR0ZZUr/vLyz/DMBCdwg+PcfzUvC3cHRGBTICZUYpBVb+KyPO+73/SZrOpEccv03hYHMbRp9bk6EEJQITTzFqttZjZ59ls9kwz88K9LQ7j6IfDXsdxgrcGEEFEqJRSAAQzn7fWXmtmvnJ3tNZkHCfc3t5iahOQgJWCBKCq1FqDiDzVzHwcEYgIcndMU8N+v0dmogNQzODufLcrzxiZhAQyEwBASGSedPL/wyDaMTNEJEUEpRi6rkPXdShWoKoQkWBmENGOmWhrxWBmrZSCe7ViPp9jPp+j1opSSpoZmxmY+YOS6rVmvqi1PgEQqkruzgAgImFmXGslVb1h5u2/4x65+/uIOG+tISLu+jLDzKCqN6r6pu/7bzIMA61Wq1/L5fIjgN8ict/MHphZmNl3VX1nJm+vrvof6/Xa/gJuQtCzTqj1dQAAAABJRU5ErkJggg==);
+	/* With CSS: background-image: radial-gradient(6px at 50% 50%, #888, #888 1px, transparent 6px); */
 }
 
 .imgdiff-opa-slider {
@@ -1529,7 +1536,8 @@ img.imgdiff-old {
 	height: 10px;
 	position: absolute;
 	top: -3px;
-	background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px);
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAABMklEQVQY022OsU7CUBRA723fpTS0NcVBJuOoQUed0MSJhOiP0IHK6g84ShoM/2HE1TjZxeCA0UF3RW2tLQ73mesgLuiZT3IOwoww7FSLYrrDzHUAMInUbblsX0RR9NJsNgEBAIIg2EjT9DDP8y2ttSsiqEhlTsW58TzvaDAYxBiGB9XJ5PkkSZJdZvZFRAEAIKImUm+et3BVqy11VFHkjTzPN2cS/a6ICDHrxWlR1N+zjz2DmddnOQVziIjJWnuaedUAAENEEP4iPweIImIYRDQmogwR9T+SVkplpVLpzrBt+9KpVEaK6BUReU6a2LY9dl33zIzj+LOx3XgUkRUQsADwSylzalnWk+M4I9/3o36/f42t/RYMT4fQ7XaX0zRpMes1ADAU0b3nuee9495DO2ib37s7ktpA7ddzAAAAAElFTkSuQmCC);
+	/* With CSS: background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px); */
 }
 
 .imgdiff-ovr-slider {
@@ -1541,10 +1549,11 @@ img.imgdiff-old {
 }
 
 .imgdiff-ovr-handle {
-	width : 2px;
+	width : 1px;
 	height: 100%;
 	top: 0px;
-	background: linear-gradient(to right, #444, #FFF);
+	background-color: #444;
+	border-right: 1px solid #FFF;
 }
 
 .imgdiff-ovr-handle:before {
@@ -1554,7 +1563,8 @@ img.imgdiff-old {
 	bottom: -5px;
 	width : 10px;
 	height: 10px;
-	background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px);
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAABMklEQVQY022OsU7CUBRA723fpTS0NcVBJuOoQUed0MSJhOiP0IHK6g84ShoM/2HE1TjZxeCA0UF3RW2tLQ73mesgLuiZT3IOwoww7FSLYrrDzHUAMInUbblsX0RR9NJsNgEBAIIg2EjT9DDP8y2ttSsiqEhlTsW58TzvaDAYxBiGB9XJ5PkkSZJdZvZFRAEAIKImUm+et3BVqy11VFHkjTzPN2cS/a6ICDHrxWlR1N+zjz2DmddnOQVziIjJWnuaedUAAENEEP4iPweIImIYRDQmogwR9T+SVkplpVLpzrBt+9KpVEaK6BUReU6a2LY9dl33zIzj+LOx3XgUkRUQsADwSylzalnWk+M4I9/3o36/f42t/RYMT4fQ7XaX0zRpMes1ADAU0b3nuee9495DO2ib37s7ktpA7ddzAAAAAElFTkSuQmCC);
+	/* With CSS: background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px); */
 }
 
 .imgdiff-ovr-handle:after {
@@ -1564,8 +1574,8 @@ img.imgdiff-old {
 	top: -5px;
 	width : 10px;
 	height: 10px;
-	/* border: 1px solid red; */
-	background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px);
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAABMklEQVQY022OsU7CUBRA723fpTS0NcVBJuOoQUed0MSJhOiP0IHK6g84ShoM/2HE1TjZxeCA0UF3RW2tLQ73mesgLuiZT3IOwoww7FSLYrrDzHUAMInUbblsX0RR9NJsNgEBAIIg2EjT9DDP8y2ttSsiqEhlTsW58TzvaDAYxBiGB9XJ5PkkSZJdZvZFRAEAIKImUm+et3BVqy11VFHkjTzPN2cS/a6ICDHrxWlR1N+zjz2DmddnOQVziIjJWnuaedUAAENEEP4iPweIImIYRDQmogwR9T+SVkplpVLpzrBt+9KpVEaK6BUReU6a2LY9dl33zIzj+LOx3XgUkRUQsADwSylzalnWk+M4I9/3o36/f42t/RYMT4fQ7XaX0zRpMes1ADAU0b3nuee9495DO2ib37s7ktpA7ddzAAAAAElFTkSuQmCC);
+	/* With CSS: background-image: radial-gradient(5px at 50% 50%, #444, #888, transparent 5px); */
 }
 
 /* End image diffs */
