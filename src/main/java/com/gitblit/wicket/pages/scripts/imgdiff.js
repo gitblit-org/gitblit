@@ -167,9 +167,27 @@ function setup() {
 				overlayAccess.moveAuto(newRatio);
 			}
 		});
+		
+		var autoShowing = false;
 		$opacitySlider.on('slider:pos', function(e, data) {
-			if ($div.width() <= 0 && !blinking) overlayAccess.moveAuto(1.0); // Make old image visible in a nice way
-			$img.css('opacity', 1.0 - data.ratio);
+			if ($div.width() <= 0 && !blinking) {
+				// Make old image visible in a nice way, *then* adjust opacity
+				autoShowing = true;
+				overlayAccess.moveAuto(1.0, 500, function() {
+					$img.stop().animate(
+						{opacity: 1.0 - opacityAccess.getRatio()},
+						{duration: 400,
+						 complete: function () {
+							// In case the opacity handle was moved while we were trying to catch up
+							$img.css('opacity', 1.0 - opacityAccess.getRatio());
+							autoShowing = false;
+						 }
+						}
+					);
+				});
+			} else if (!autoShowing) {
+				$img.css('opacity', 1.0 - data.ratio);
+			}
 		});
 		$opacitySlider.on('click', function(e) {
 			var newRatio = (e.pageX - $opacitySlider.offset().left) / $opacitySlider.innerWidth();
