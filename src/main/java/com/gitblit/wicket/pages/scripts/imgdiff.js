@@ -22,7 +22,7 @@
  *
  * The styling of the slider is to be done in CSS. Currently recognized options:
  * - initial: <float> clipped to [0..1], default 0
- * - handleClass: <string> to assign to the handle div element created.
+ * - handleClass: <string> to assign to the handle span element created.
  * If no handleClass is specified, a very plain default style is assigned.
  */
 function rangeSlider(elem, options) {
@@ -30,7 +30,7 @@ function rangeSlider(elem, options) {
 	options.initial = Math.min(1.0, Math.max(0, options.initial));
 	
 	var $elem = $(elem);
-	var $handle = $('<div></div>').css({ position: 'absolute', left: 0, cursor: 'ew-resize' });
+	var $handle = $('<span></span>').css({ position: 'absolute', left: 0, cursor: 'ew-resize' });
 	var $root = $(document.documentElement);
 	var $doc = $(document);	
 	var lastRatio = options.initial;
@@ -144,6 +144,7 @@ function setup() {
 		var opacityAccess = rangeSlider($opacitySlider, {handleClass: 'imgdiff-opa-handle'});
 		var $img = $('#' + this.id.substr(this.id.indexOf('-')+1)); // Here we change opacity
 		var $div = $img.parent(); // This controls visibility: here we change width.
+		var blinking = false;
 		
 		$overlaySlider.on('slider:pos', function(e, data) {
 			var pos = $(data.handle).offset().left;
@@ -167,11 +168,10 @@ function setup() {
 			}
 		});
 		$opacitySlider.on('slider:pos', function(e, data) {
-			if ($div.width() <= 0) overlayAccess.moveAuto(1.0); // Make old image visible in a nice way
+			if ($div.width() <= 0 && !blinking) overlayAccess.moveAuto(1.0); // Make old image visible in a nice way
 			$img.css('opacity', 1.0 - data.ratio);
 		});
-		$opacitySlider.css('cursor', 'pointer');
-		$opacitySlider.on('mousedown', function(e) {
+		$opacitySlider.on('click', function(e) {
 			var newRatio = (e.pageX - $opacitySlider.offset().left) / $opacitySlider.innerWidth();
 			var oldRatio = opacityAccess.getRatio();
 			if (newRatio !== oldRatio) {
@@ -184,6 +184,59 @@ function setup() {
 			e.preventDefault();
 		});
 			
+		// Blinking before and after images is a good way for the human eye to catch differences.
+		var $blinker = $this.find('.imgdiff-blink');
+		var initialOpacity = null;
+		$blinker.on('click', function(e) {
+			if (blinking) {
+				window.clearTimeout(blinking);
+				$blinker.children('img').first().css('border', '1px solid transparent');
+				opacityAccess.setRatio(initialOpacity);
+				blinking = null;
+			} else {
+				$blinker.children('img').first().css('border', '1px solid #AAA');
+				initialOpacity = opacityAccess.getRatio();
+				var currentOpacity = 1.0;
+				function blink() {
+					opacityAccess.setRatio(currentOpacity);
+					currentOpacity = 1.0 - currentOpacity;
+					// Keep frequeny below 2Hz (i.e., delay above 500ms)
+					blinking = window.setTimeout(blink, 600);
+				}
+				if ($div.width() <= 0) {
+					overlayAccess.moveRatio(1.0, 500, blink);
+				} else {
+					blink();
+				}
+			}
+			e.preventDefault();
+		});
+		
+		// Subtracting before and after images is another good way to detect differences. Result will be
+		// black where identical.		
+		if (typeof $img[0].style.mixBlendMode != 'undefined') {
+			// Feature test: does the browser support the mix-blend-mode CSS property from the Compositing 
+			// and Blending Level 1 spec (http://dev.w3.org/fxtf/compositing-1/#mix-blend-mode )?
+			// As of 2014-11, only Firefox >= 32 and Safari >= 7.1 support this. Other browsers will have to
+			// make do with the blink comparator only.
+			var $sub = $this.find('.imgdiff-subtract');
+			$sub.css('display', 'inline-block');
+			$sub.on('click', function (e) {
+				var curr = $img.css('mix-blend-mode');
+				if (curr != 'difference') {
+					curr = 'difference';
+					$sub.children('img').first().css('border', '1px solid #AAA');
+					if ($div.width() <= 0) overlayAccess.moveRatio(1.0, 500);
+					opacityAccess.setRatio(0);
+				} else {
+					curr = 'normal';
+					$sub.children('img').first().css('border', '1px solid transparent');
+					
+				}
+				$img.css('mix-blend-mode', curr);
+				e.preventDefault();
+			});
+		}
 	});
 }
 
