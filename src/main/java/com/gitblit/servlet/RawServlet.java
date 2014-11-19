@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -58,6 +56,8 @@ import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Serves the content of a branch.
@@ -248,7 +248,7 @@ public class RawServlet extends HttpServlet {
 						}
 					}
 
-					if (isTextType(contentType)) {
+					if (isTextType(contentType) || isTextDataType(contentType)) {
 
 						// load, interpret, and serve text content as UTF-8
 						String [] encodings = runtimeManager.getSettings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
@@ -377,6 +377,13 @@ public class RawServlet extends HttpServlet {
 		if (contentType.startsWith("text/")
 				|| "application/json".equals(contentType)
 				|| "application/xml".equals(contentType)) {
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean isTextDataType(String contentType) {
+		if ("image/svg+xml".equals(contentType)) {
 			return true;
 		}
 		return false;
