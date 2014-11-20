@@ -75,9 +75,9 @@ public class NewTicketPage extends RepositoryPage {
 	private IModel<TicketMilestone> milestoneModel;
 
 	private Label descriptionPreview;
-	
+
 	private IModel<TicketModel.Priority> priorityModel;
-	
+
 	private IModel<TicketModel.Severity> severityModel;
 
 	public NewTicketPage(PageParameters params) {
@@ -111,6 +111,7 @@ public class NewTicketPage extends RepositoryPage {
 		form.add(new DropDownChoice<TicketModel.Type>("type", typeModel, Arrays.asList(TicketModel.Type.choices())));
 		form.add(new TextField<String>("title", titleModel));
 		form.add(new TextField<String>("topic", topicModel));
+		form.add(new DropDownChoice<TicketModel.Severity>("severity", severityModel, Arrays.asList(TicketModel.Severity.choices())));
 
 		final IModel<String> markdownPreviewModel = Model.of();
 		descriptionPreview = new Label("descriptionPreview", markdownPreviewModel);
@@ -159,11 +160,10 @@ public class NewTicketPage extends RepositoryPage {
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 
 			// priority
-			form.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, Arrays.asList(TicketModel.Priority.choices())));
-			
-			//severity
-			form.add(new DropDownChoice<TicketModel.Severity>("severity", severityModel, Arrays.asList(TicketModel.Severity.choices())));
-			
+			Fragment priority = new Fragment("priority", "priorityFragment", this);
+			priority.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, Arrays.asList(TicketModel.Priority.choices())));
+			form.add(priority);
+
 			// integration branch
 			List<String> branches = new ArrayList<String>();
 			for (String branch : getRepositoryModel().getLocalBranches()) {
@@ -183,6 +183,7 @@ public class NewTicketPage extends RepositoryPage {
 			form.add(new Label("responsible").setVisible(false));
 			form.add(new Label("milestone").setVisible(false));
 			form.add(new Label("mergeto").setVisible(false));
+			form.add(new Label("priority").setVisible(false));
 		}
 
 		form.add(new AjaxButton("create") {
@@ -223,14 +224,14 @@ public class NewTicketPage extends RepositoryPage {
 				if (milestone != null) {
 					change.setField(Field.milestone, milestone.name);
 				}
-				
+
 				// severity
 				TicketModel.Severity severity = TicketModel.Severity.defaultSeverity;
 				if (severityModel.getObject() != null) {
 					severity = severityModel.getObject();
 				}
 				change.setField(Field.severity, severity);
-				
+
 				// priority
 				TicketModel.Priority priority = TicketModel.Priority.defaultPriority;
 				if (priorityModel.getObject() != null) {

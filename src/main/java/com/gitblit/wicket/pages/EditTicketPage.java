@@ -83,9 +83,9 @@ public class EditTicketPage extends RepositoryPage {
 	private IModel<TicketMilestone> milestoneModel;
 
 	private Label descriptionPreview;
-	
+
 	private IModel<TicketModel.Priority> priorityModel;
-	
+
 	private IModel<TicketModel.Severity> severityModel;
 
 	public EditTicketPage(PageParameters params) {
@@ -167,6 +167,9 @@ public class EditTicketPage extends RepositoryPage {
 		status.add(new DropDownChoice<TicketModel.Status>("status", statusModel, statusChoices));
 		form.add(status);
 
+		List<TicketModel.Severity> severityChoices = Arrays.asList(TicketModel.Severity.choices());
+		form.add(new DropDownChoice<TicketModel.Severity>("severity", severityModel, severityChoices));
+
 		if (currentUser.canAdmin(ticket, getRepositoryModel())) {
 			// responsible
 			Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
@@ -220,19 +223,17 @@ public class EditTicketPage extends RepositoryPage {
 				milestones.add(new TicketMilestone(NIL));
 			}
 
+			// milestone
 			Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
-
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 
 			// priority
+			Fragment priority = new Fragment("priority", "priorityFragment", this);
 			List<TicketModel.Priority> priorityChoices = Arrays.asList(TicketModel.Priority.choices());
-			form.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, priorityChoices));
-			
-			// severity
-			List<TicketModel.Severity> severityChoices = Arrays.asList(TicketModel.Severity.choices());
-			form.add(new DropDownChoice<TicketModel.Severity>("severity", severityModel, severityChoices));
-						
+			priority.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, priorityChoices));
+			form.add(priority);
+
 			// mergeTo (integration branch)
 			List<String> branches = new ArrayList<String>();
 			for (String branch : getRepositoryModel().getLocalBranches()) {
@@ -252,6 +253,7 @@ public class EditTicketPage extends RepositoryPage {
 			form.add(new Label("responsible").setVisible(false));
 			form.add(new Label("milestone").setVisible(false));
 			form.add(new Label("mergeto").setVisible(false));
+			form.add(new Label("priority").setVisible(false));
 		}
 
 		form.add(new AjaxButton("update") {
@@ -329,7 +331,7 @@ public class EditTicketPage extends RepositoryPage {
 						change.setField(Field.milestone, milestone.name);
 					}
 				}
-				
+
 				TicketModel.Priority priority = priorityModel.getObject();
 				if (!ticket.priority.equals(priority))
 				{
@@ -341,7 +343,7 @@ public class EditTicketPage extends RepositoryPage {
 				{
 					change.setField(Field.severity, severity);
 				}
-				
+
 				String mergeTo = mergeToModel.getObject();
 				if ((StringUtils.isEmpty(ticket.mergeTo) && !StringUtils.isEmpty(mergeTo))
 						|| (!StringUtils.isEmpty(mergeTo) && !mergeTo.equals(ticket.mergeTo))) {

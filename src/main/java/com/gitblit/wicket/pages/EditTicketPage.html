@@ -39,10 +39,10 @@
 				</div>
 			</td></tr>
 			<tr wicket:id="status"></tr>
+            <tr><th><wicket:message key="gb.severity"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="severity"></select></td></tr>
+            <tr wicket:id="priority"></tr>
 			<tr wicket:id="responsible"></tr>
 			<tr wicket:id="milestone"></tr>
-			<tr><th><wicket:message key="gb.priority"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="priority"></select></td></tr>
-			<tr><th><wicket:message key="gb.severity"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="severity"></select></td></tr>
 			<tr wicket:id="mergeto"></tr>
 		</table>
 	</div>
@@ -71,6 +71,10 @@
 
 <wicket:fragment wicket:id="mergeToFragment">
 	<th><wicket:message key="gb.mergeTo"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="mergeto"></select></td>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="priorityFragment">
+    <th><wicket:message key="gb.priority"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="priority"></select></td>
 </wicket:fragment>
 
 </wicket:extend>
