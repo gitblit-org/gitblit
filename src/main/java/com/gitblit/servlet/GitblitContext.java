@@ -364,12 +364,10 @@ public class GitblitContext extends GuiceServletContextListener {
 		baseFolder.mkdirs();
 
 		// try to extract the data folder resource to the baseFolder
-		File localSettings = new File(baseFolder, "gitblit.properties");
-		if (!localSettings.exists()) {
-			extractResources(context, "/WEB-INF/data/", baseFolder);
-		}
+		extractResources(context, "/WEB-INF/data/", baseFolder);
 
 		// delegate all config to baseFolder/gitblit.properties file
+		File localSettings = new File(baseFolder, "gitblit.properties");
 		FileSettings fileSettings = new FileSettings(localSettings.getAbsolutePath());
 
 		// merge the stored settings into the runtime settings
