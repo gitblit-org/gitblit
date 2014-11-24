@@ -234,9 +234,18 @@ public class RawServlet extends HttpServlet {
 				// requested a specific resource
 				String file = StringUtils.getLastPathElement(requestedPath);
 				try {
-					// query Tika for the content type
-					Tika tika = new Tika();
-					String contentType = tika.detect(file);
+					String contentType;
+
+					List<String> exts = runtimeManager.getSettings().getStrings(Keys.web.prettyPrintExtensions);
+					String ext = StringUtils.getFileExtension(file).toLowerCase();
+					if (exts.contains(ext)) {
+						// extension is a registered text type for pretty printing
+						contentType = "text/plain";
+					} else {
+						// query Tika for the content type
+						Tika tika = new Tika();
+						contentType = tika.detect(file);
+					}
 
 					if (contentType == null) {
 						// ask the container for the content type
