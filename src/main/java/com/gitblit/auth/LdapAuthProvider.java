@@ -617,7 +617,8 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		if (ldapSyncService.isReady()) {
 			long ldapSyncPeriod = getSynchronizationPeriodInMilliseconds();
 			int delay = 1;
-			logger.info("Ldap sync service will update users and groups every {} minutes.", ldapSyncPeriod);
+			logger.info("Ldap sync service will update users and groups every {} minutes.",
+					TimeUnit.MILLISECONDS.toMinutes(ldapSyncPeriod));
 			scheduledExecutorService.scheduleAtFixedRate(ldapSyncService, delay, ldapSyncPeriod,  TimeUnit.MILLISECONDS);
 		} else {
 			logger.info("Ldap sync service is disabled.");
