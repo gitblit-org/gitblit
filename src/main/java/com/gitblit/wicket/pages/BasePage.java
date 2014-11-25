@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Application;
-import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
@@ -78,13 +77,11 @@ public abstract class BasePage extends SessionPage {
 
 	public BasePage() {
 		super();
-		add(new RepeatingView("bottomScripts").setRenderBodyOnly(true));
 		customizeHeader();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
-		add(new RepeatingView("bottomScripts").setRenderBodyOnly(true));
 		customizeHeader();
 	}
 
@@ -247,7 +244,7 @@ public abstract class BasePage extends SessionPage {
 
 	protected void setupPage(String repositoryName, String pageName) {
 		add(new Label("title", getPageTitle(repositoryName)));
-
+		getBottomScriptContainer();
 		String rootLinkUrl = app().settings().getString(Keys.web.rootLink, urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
 		ExternalLink rootLink = new ExternalLink("rootLink", rootLinkUrl);
 		WicketUtils.setHtmlTooltip(rootLink, app().settings().getString(Keys.web.siteName, Constants.NAME));
@@ -511,6 +508,16 @@ public abstract class BasePage extends SessionPage {
 		return sb.toString();
 	}
 
+	private RepeatingView getBottomScriptContainer() {
+		RepeatingView bottomScriptContainer = (RepeatingView) get("bottomScripts");
+		if (bottomScriptContainer == null) {
+			bottomScriptContainer = new RepeatingView("bottomScripts");
+			bottomScriptContainer.setRenderBodyOnly(true);
+			add(bottomScriptContainer);
+		}
+		return bottomScriptContainer;
+	}
+
 	/**
 	 * Adds a HTML script element loading the javascript designated by the given path.
 	 *
@@ -518,14 +525,10 @@ public abstract class BasePage extends SessionPage {
 	 *            page-relative path to the Javascript resource; normally starts with "scripts/"
 	 */
 	protected void addBottomScript(String scriptPath) {
-		Component bottomScriptContainer = get("bottomScripts");
-		if (bottomScriptContainer instanceof RepeatingView) {
-			// Always true.
-			RepeatingView bottomScripts = (RepeatingView) bottomScriptContainer;
-			Label script = new Label(bottomScripts.newChildId(), "<script type='text/javascript' src='"
-					+ urlFor(new JavascriptResourceReference(this.getClass(), scriptPath)) + "'></script>\n");
-			bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
-		}
+		RepeatingView bottomScripts = getBottomScriptContainer();
+		Label script = new Label(bottomScripts.newChildId(), "<script type='text/javascript' src='"
+				+ urlFor(new JavascriptResourceReference(this.getClass(), scriptPath)) + "'></script>\n");
+		bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
 	}
 
 	/**
@@ -535,14 +538,10 @@ public abstract class BasePage extends SessionPage {
 	 *            inline script code
 	 */
 	protected void addBottomScriptInline(String code) {
-		Component bottomScriptContainer = get("bottomScripts");
-		if (bottomScriptContainer instanceof RepeatingView) {
-			// Always true.
-			RepeatingView bottomScripts = (RepeatingView) bottomScriptContainer;
-			Label script = new Label(bottomScripts.newChildId(),
-					"<script type='text/javascript'>/*<![CDATA[*/\n" + code + "\n//]]>\n</script>\n");
-			bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
-		}
+		RepeatingView bottomScripts = getBottomScriptContainer();
+		Label script = new Label(bottomScripts.newChildId(),
+				"<script type='text/javascript'>/*<![CDATA[*/\n" + code + "\n//]]>\n</script>\n");
+		bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
 	}
 
 }
