@@ -12,6 +12,8 @@ r27: {
     fixes: ~
     changes: ~
     additions: ~
+    settings:
+    - { name: web.displayUserPanel, defaultValue: 'true' }
     dependencyChanges: ~
     contributors: ~
 }
