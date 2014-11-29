@@ -266,6 +266,12 @@ public class GitblitContext extends GuiceServletContextListener {
 		return x;
 	}
 
+	protected <X extends IManager> X startManager(X x) {
+	    x.start();
+	    managers.add(x);
+	    return x;
+	}
+
 	protected void logManager(Class<? extends IManager> clazz) {
 		logger.info("");
 		logger.info("----[{}]----", clazz.getName());
