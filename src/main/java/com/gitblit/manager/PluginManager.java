@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -586,7 +587,14 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	}
 
 	protected Proxy getProxy(URL url) {
-		return java.net.Proxy.NO_PROXY;
+		String proxyHost = runtimeManager.getSettings().getString(Keys.plugins.httpProxyHost, "");
+		String proxyPort = runtimeManager.getSettings().getString(Keys.plugins.httpProxyPort, "");
+		
+		if (!StringUtils.isEmpty(proxyHost)  && !StringUtils.isEmpty(proxyPort)) {
+			return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
+		} else {
+			return java.net.Proxy.NO_PROXY;
+		}
 	}
 
 	protected String getProxyAuthorization(URL url) {
