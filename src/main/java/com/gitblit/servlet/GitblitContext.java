@@ -261,9 +261,13 @@ public class GitblitContext extends GuiceServletContextListener {
 	protected <X extends IManager> X startManager(Injector injector, Class<X> clazz) {
 		X x = loadManager(injector, clazz);
 		logManager(clazz);
-		x.start();
-		managers.add(x);
-		return x;
+		return startManager(x);
+	}
+
+	protected <X extends IManager> X startManager(X x) {
+	    x.start();
+	    managers.add(x);
+	    return x;
 	}
 
 	protected void logManager(Class<? extends IManager> clazz) {
