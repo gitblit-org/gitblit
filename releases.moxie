@@ -36,6 +36,8 @@ r27: {
     - Freemarker 2.3.20 (ticket-124)
     - Lucene 4.10.0 (ticket-159)
     - SSHD 0.13.0 (ticket-218)
+    settings:
+    - { name: web.displayUserPanel, defaultValue: 'true' }
     contributors:
     - James Moger
     - David Ostrovsky

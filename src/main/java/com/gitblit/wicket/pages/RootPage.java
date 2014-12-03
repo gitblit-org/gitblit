@@ -151,6 +151,7 @@ public abstract class RootPage extends BasePage {
 		boolean authenticateAdmin = app().settings().getBoolean(Keys.web.authenticateAdminPages, true);
 		boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, true);
 		boolean allowLucene = app().settings().getBoolean(Keys.web.allowLuceneIndexing, true);
+		boolean displayUserPanel = app().settings().getBoolean(Keys.web.displayUserPanel, true);
 		boolean isLoggedIn = GitBlitWebSession.get().isLoggedIn();
 
 		if (authenticateAdmin) {
@@ -168,7 +169,7 @@ public abstract class RootPage extends BasePage {
 			}
 		}
 
-		if (authenticateView || authenticateAdmin) {
+		if (displayUserPanel && (authenticateView || authenticateAdmin)) {
 			if (isLoggedIn) {
 				UserMenu userFragment = new UserMenu("userPanel", "userMenuFragment", RootPage.this);
 				add(userFragment);
