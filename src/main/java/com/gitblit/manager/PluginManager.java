@@ -589,7 +589,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	protected Proxy getProxy(URL url) {
 		String proxyHost = runtimeManager.getSettings().getString(Keys.plugins.httpProxyHost, "");
 		String proxyPort = runtimeManager.getSettings().getString(Keys.plugins.httpProxyPort, "");
-		
+
 		if (!StringUtils.isEmpty(proxyHost)  && !StringUtils.isEmpty(proxyPort)) {
 			return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
 		} else {
@@ -598,7 +598,8 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	}
 
 	protected String getProxyAuthorization(URL url) {
-		return "";
+		String proxyAuth = runtimeManager.getSettings().getString(Keys.plugins.httpProxyAuthorization, "");
+		return proxyAuth;
 	}
 
 	/**
