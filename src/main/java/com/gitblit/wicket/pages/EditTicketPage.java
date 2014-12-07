@@ -42,6 +42,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
@@ -146,7 +147,13 @@ public class EditTicketPage extends RepositoryPage {
 
 		form.setOutputMarkupId(true);
 
-		form.add(new TicketRelationEditorPanel("dependencies", dependenciesModel, getRepositoryModel()));
+		form.add(new TicketRelationEditorPanel("dependencies", dependenciesModel, ticket.number) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			protected RepositoryModel getRepositoryModel() {
+				return EditTicketPage.this.getRepositoryModel();
+			}
+		});
 
 		final IModel<String> markdownPreviewModel = Model.of(ticket.body == null ? "" : ticket.body);
 		descriptionPreview = new Label("descriptionPreview", markdownPreviewModel);
