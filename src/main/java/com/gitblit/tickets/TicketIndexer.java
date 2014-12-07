@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -103,7 +104,8 @@ public class TicketIndexer {
 		mergesha(Type.STRING),
 		mergeto(Type.STRING),
 		patchsets(Type.INT),
-		votes(Type.INT);
+		votes(Type.INT), 
+		dependencies(Type.STRING);
 
 		final Type fieldType;
 
@@ -518,6 +520,9 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.participants, StringUtils.flattenStrings(ticket.getParticipants(), ";").toLowerCase());
 		toDocField(doc, Lucene.watchedby, StringUtils.flattenStrings(ticket.getWatchers(), ";").toLowerCase());
 		toDocField(doc, Lucene.mentions, StringUtils.flattenStrings(ticket.getMentions(), ";").toLowerCase());
+		for (String dep : ticket.getDependencies()) {
+			toDocField(doc, Lucene.dependencies, dep);
+		}
 		toDocField(doc, Lucene.votes, ticket.getVoters().size());
 
 		List<String> attachments = new ArrayList<String>();
@@ -600,6 +605,7 @@ public class TicketIndexer {
 		result.participants = unpackStrings(doc, Lucene.participants);
 		result.watchedby = unpackStrings(doc, Lucene.watchedby);
 		result.mentions = unpackStrings(doc, Lucene.mentions);
+		result.dependencies = convertList(doc, Lucene.dependencies);
 
 		if (!StringUtils.isEmpty(doc.get(Lucene.patchset.name()))) {
 			// unpack most recent patchset
@@ -616,6 +622,10 @@ public class TicketIndexer {
 		}
 
 		return result;
+	}
+
+	private List<String> convertList(Document doc, Lucene lucene) {
+		return Arrays.asList(doc.getValues(lucene.name()));
 	}
 
 	private String unpackString(Document doc, Lucene lucene) {

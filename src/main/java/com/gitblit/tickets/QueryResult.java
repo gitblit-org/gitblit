@@ -58,6 +58,7 @@ public class QueryResult implements Serializable {
 	public List<String> participants;
 	public List<String> watchedby;
 	public List<String> mentions;
+	public List<String> dependencies;
 	public Patchset patchset;
 	public int commentsCount;
 	public int votesCount;
