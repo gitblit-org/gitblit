@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -106,7 +107,8 @@ public class TicketIndexer {
 		votes(Type.INT),
 		//NOTE: Indexing on the underlying value to allow flexibility on naming
 		priority(Type.INT),
-		severity(Type.INT);
+		severity(Type.INT),
+		dependencies(Type.STRING);
 
 		final Type fieldType;
 
@@ -521,6 +523,9 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.participants, StringUtils.flattenStrings(ticket.getParticipants(), ";").toLowerCase());
 		toDocField(doc, Lucene.watchedby, StringUtils.flattenStrings(ticket.getWatchers(), ";").toLowerCase());
 		toDocField(doc, Lucene.mentions, StringUtils.flattenStrings(ticket.getMentions(), ";").toLowerCase());
+		for (String dep : ticket.getDependencies()) {
+			toDocField(doc, Lucene.dependencies, dep);
+		}
 		toDocField(doc, Lucene.votes, ticket.getVoters().size());
 		toDocField(doc, Lucene.priority, ticket.priority.getValue());
 		toDocField(doc, Lucene.severity, ticket.severity.getValue());
@@ -607,6 +612,7 @@ public class TicketIndexer {
 		result.mentions = unpackStrings(doc, Lucene.mentions);
 		result.priority = TicketModel.Priority.fromObject(unpackInt(doc, Lucene.priority), TicketModel.Priority.defaultPriority);
 		result.severity = TicketModel.Severity.fromObject(unpackInt(doc, Lucene.severity), TicketModel.Severity.defaultSeverity);
+		result.dependencies = convertList(doc, Lucene.dependencies);
 
 		if (!StringUtils.isEmpty(doc.get(Lucene.patchset.name()))) {
 			// unpack most recent patchset
@@ -623,6 +629,10 @@ public class TicketIndexer {
 		}
 
 		return result;
+	}
+
+	private List<String> convertList(Document doc, Lucene lucene) {
+		return Arrays.asList(doc.getValues(lucene.name()));
 	}
 
 	private String unpackString(Document doc, Lucene lucene) {
