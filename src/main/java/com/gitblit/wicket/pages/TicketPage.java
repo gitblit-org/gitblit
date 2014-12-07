@@ -307,6 +307,8 @@ public class TicketPage extends RepositoryPage {
 			}
 		});
 
+		add(new BookmarkablePageLink<Void>("dependOnLink", TicketsPage.class, queryDependsOn(ticket.number)));
+
 		/*
 		 * PARTICIPANTS (DISCUSSION TAB)
 		 */
@@ -995,6 +997,12 @@ public class TicketPage extends RepositoryPage {
 		};
 		revisionHistory.add(eventsView);
 		add(revisionHistory);
+	}
+
+	private PageParameters queryDependsOn(long number) {
+		PageParameters params = WicketUtils.newRepositoryParameter(repositoryName);
+		params.add("q", Lucene.dependencies.name() + ':' + number);
+		return params;
 	}
 
 	protected void addUserAttributions(MarkupContainer container, Change entry, int avatarSize) {
