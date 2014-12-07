@@ -42,6 +42,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -292,6 +294,18 @@ public class TicketPage extends RepositoryPage {
 		}
 		add(new Label("ticketDescription", desc).setEscapeModelStrings(false));
 
+		/*
+		 * DEPENDENCY
+		 */
+		List<String> dependencies = ticket.getDependencies();
+		add(new ListView<String>("dependencies", dependencies) {
+			@Override
+			protected void populateItem(ListItem<String> item) {
+				String ticketId= item.getModelObject();
+				PageParameters tp = WicketUtils.newObjectParameter(ticket.repository, ticketId);
+				item.add(new LinkPanel("dependencyLink", "list subject", "#"+ticketId, TicketsPage.class, tp));
+			}
+		});
 
 		/*
 		 * PARTICIPANTS (DISCUSSION TAB)

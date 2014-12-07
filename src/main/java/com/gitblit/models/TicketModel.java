@@ -233,6 +233,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public List<String> getLabels() {
 		return getList(Field.labels);
 	}
+	
+	public List<String> getDependencies() {
+		return getList(Field.dependency);
+	}
 
 	public boolean isResponsible(String username) {
 		return username.equals(responsible);
@@ -746,6 +750,26 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				fields.put(field, value.toString());
 			}
 		}
+		
+		public void setDeltaField(Field field, List<String> base, List<String> newValues) {
+			List<String> result = new ArrayList<>();
+			for (String oldValue : base) {
+				if (!newValues.contains(oldValue)) {
+					result.add("-" + oldValue);
+				}
+			}
+			for (String newValue : newValues) {
+				if (!base.contains(newValue)) {
+					result.add("+" + newValue);
+				}
+			}
+			if (result.isEmpty()) {
+				// no change
+				remove(field);
+			} else {
+				setField(field, join(result, ","));
+			}
+		}
 
 		public void remove(Field field) {
 			if (fields != null) {
@@ -1195,7 +1219,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public static enum Field {
 		title, body, responsible, type, status, milestone, mergeSha, mergeTo,
-		topic, labels, watchers, reviewers, voters, mentions, priority, severity;
+		topic, labels, watchers, reviewers, voters, mentions, priority, severity, dependency;
 	}
 
 	public static enum Type {
