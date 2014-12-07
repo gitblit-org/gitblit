@@ -30,10 +30,13 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.eclipse.jgit.lib.Repository;
+import org.jsoup.helper.StringUtil;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
@@ -51,7 +54,10 @@ import com.gitblit.tickets.TicketResponsible;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.MarkdownTextArea;
+import com.gitblit.wicket.panels.SimpleAjaxLink;
+import com.gitblit.wicket.panels.TicketRelationEditorPanel;
 import com.google.common.base.Optional;
 
 /**
@@ -81,6 +87,8 @@ public class EditTicketPage extends RepositoryPage {
 	private IModel<TicketResponsible> responsibleModel;
 
 	private IModel<TicketMilestone> milestoneModel;
+	
+	private IModel<List<String>> dependenciesModel;
 
 	private Label descriptionPreview;
 
@@ -123,6 +131,7 @@ public class EditTicketPage extends RepositoryPage {
 		statusModel = Model.of(ticket.status);
 		priorityModel = Model.of(ticket.priority);
 		severityModel = Model.of(ticket.severity);
+		dependenciesModel = Model.ofList((List) editable(ticket.getDependencies()));
 
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -140,6 +149,10 @@ public class EditTicketPage extends RepositoryPage {
 
 		form.add(new TextField<String>("title", titleModel));
 		form.add(new TextField<String>("topic", topicModel));
+
+		form.setOutputMarkupId(true);
+
+		form.add(new TicketRelationEditorPanel("dependencies", dependenciesModel, getRepositoryModel()));
 
 		final IModel<String> markdownPreviewModel = Model.of(ticket.body == null ? "" : ticket.body);
 		descriptionPreview = new Label("descriptionPreview", markdownPreviewModel);
@@ -311,6 +324,10 @@ public class EditTicketPage extends RepositoryPage {
 					change.setField(Field.topic, topic);
 				}
 
+				List<String> newDependencies = (List<String>) dependenciesModel.getObject();
+				
+				change.setDeltaField(Field.dependency, ticket.getDependencies(), newDependencies);
+				
 				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
 				if (responsible != null && !responsible.username.equals(ticket.responsible)) {
 					// responsible change
@@ -380,6 +397,11 @@ public class EditTicketPage extends RepositoryPage {
 		};
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
+	}
+
+	private List<String> editable(List<String> list) {
+		// need to copy, if it's an Collection.emptyList 
+		return new ArrayList<String>(list);
 	}
 
 	@Override
