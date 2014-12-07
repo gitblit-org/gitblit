@@ -39,6 +39,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
@@ -127,7 +128,15 @@ public class NewTicketPage extends RepositoryPage {
 		descriptionEditor.setRepository(repositoryName);
 		form.add(descriptionEditor);
 		
-		form.add(new TicketRelationEditorPanel("dependencies", dependenciesModel, getRepositoryModel()));
+		form.add(new TicketRelationEditorPanel("dependencies", dependenciesModel,  null) {
+
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected RepositoryModel getRepositoryModel() {
+				return NewTicketPage.this.getRepositoryModel();
+			}
+		});
 
 		if (currentUser.canAdmin(null, getRepositoryModel())) {
 			// responsible
