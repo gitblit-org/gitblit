@@ -51,6 +51,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.MarkdownTextArea;
+import com.gitblit.wicket.panels.TicketRelationEditorPanel;
 
 /**
  * Page for creating a new ticket.
@@ -76,6 +77,8 @@ public class NewTicketPage extends RepositoryPage {
 
 	private Label descriptionPreview;
 
+	private IModel<List<String>> dependenciesModel;
+
 	public NewTicketPage(PageParameters params) {
 		super(params);
 
@@ -95,6 +98,7 @@ public class NewTicketPage extends RepositoryPage {
 		mergeToModel = Model.of(Repository.shortenRefName(getRepositoryModel().mergeTo));
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
+		dependenciesModel = (IModel) Model.ofList(new ArrayList<String>());
 
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -115,6 +119,8 @@ public class NewTicketPage extends RepositoryPage {
 		descriptionEditor = new MarkdownTextArea("description", markdownPreviewModel, descriptionPreview);
 		descriptionEditor.setRepository(repositoryName);
 		form.add(descriptionEditor);
+		
+		form.add(new TicketRelationEditorPanel("dependencies", dependenciesModel, getRepositoryModel()));
 
 		if (currentUser.canAdmin(null, getRepositoryModel())) {
 			// responsible
@@ -217,6 +223,8 @@ public class NewTicketPage extends RepositoryPage {
 				if (!StringUtils.isEmpty(mergeTo)) {
 					change.setField(Field.mergeTo, mergeTo);
 				}
+				
+				change.setDeltaField(Field.dependency, Collections.<String>emptyList(), dependenciesModel.getObject());
 
 				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), 0L, change);
 				if (ticket != null) {
