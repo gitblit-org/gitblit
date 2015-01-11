@@ -476,6 +476,15 @@ public class JGitUtilsTest extends GitblitUnitTest {
 	}
 
 	@Test
+	public void testFilesInPath2() throws Exception {
+		assertEquals(0, JGitUtils.getFilesInPath2(null, null, null).size());
+		Repository repository = GitBlitSuite.getHelloworldRepository();
+		List<PathModel> files = JGitUtils.getFilesInPath2(repository, null, null);
+		repository.close();
+		assertTrue(files.size() > 10);
+	}
+
+	@Test
 	public void testDocuments() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
 		List<String> extensions = Arrays.asList(new String[] { ".mkd", ".md" });

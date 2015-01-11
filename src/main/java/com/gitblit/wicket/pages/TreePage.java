@@ -52,7 +52,7 @@ public class TreePage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit commit = getCommit();
-		List<PathModel> paths = JGitUtils.getFilesInPath(r, path, commit);
+		List<PathModel> paths = JGitUtils.getFilesInPath2(r, path, commit);
 
 		// tree page links
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
