@@ -67,10 +67,17 @@ logger.info("jenkins hook triggered by ${user.username} for ${repository.name}")
 
 // define your jenkins url here or set groovy.jenkinsServer in 
 // gitblit.properties or web.xml
+// you can also set the GitBlit base url to use
+// it is needed if you push changes using SSH (url variable is not populated in that case)
 def jenkinsUrl = gitblit.getString('groovy.jenkinsServer', 'http://yourserver/jenkins')
+def gitblitUrl = gitblit.getString('groovy.jenkinsGitBlitHost', url)
 
-// define the trigger url
-def triggerUrl = jenkinsUrl + "/git/notifyCommit?url=${url}/r/${repository.name}"
+// the host and path must match for the Git plugin to trigger a pull
+// SSH has a different path than HTTP/HTTPS
+// we don't know which transport was used to configure Jenkins, so call both
+def httpTriggerUrl = jenkinsUrl + "/git/notifyCommit?url=${gitblitUrl}/r/${repository.name}"
+def sshTriggerUrl = jenkinsUrl + "/git/notifyCommit?url=${gitblitUrl}/${repository.name}"
 
 // trigger the build
-new URL(triggerUrl).getContent()
+new URL(httpTriggerUrl).getContent()
+new URL(sshTriggerUrl).getContent()
