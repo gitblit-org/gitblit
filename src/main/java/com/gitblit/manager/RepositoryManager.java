@@ -1917,12 +1917,14 @@ public class RepositoryManager implements IRepositoryManager {
 
 		try {
 			// issue-486/ticket-151: UTF-9 & UTF-18
+			// issue-560/ticket-237: 'UTF8'
 			Field field = RawParseUtils.class.getDeclaredField("encodingAliases");
 			field.setAccessible(true);
 			Map<String, Charset> encodingAliases = (Map<String, Charset>) field.get(null);
+			encodingAliases.put("'utf8'", RawParseUtils.UTF8_CHARSET);
 			encodingAliases.put("utf-9", RawParseUtils.UTF8_CHARSET);
 			encodingAliases.put("utf-18", RawParseUtils.UTF8_CHARSET);
-			logger.info("Alias UTF-9 & UTF-18 encodings as UTF-8 in JGit");
+			logger.info("Alias 'UTF8', UTF-9 & UTF-18 encodings as UTF-8 in JGit");
 		} catch (Throwable t) {
 			logger.error("Failed to inject UTF-9 & UTF-18 encoding aliases into JGit", t);
 		}
