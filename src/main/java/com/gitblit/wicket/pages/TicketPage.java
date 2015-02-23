@@ -378,7 +378,7 @@ public class TicketPage extends RepositoryPage {
 								}
 								TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
 								app().tickets().createNotifier().sendMailing(update);
-								setResponsePage(TicketsPage.class, getPageParameters());
+								redirectTo(TicketsPage.class, getPageParameters());
 							}
 						};
 						String css = TicketsUI.getStatusClass(item.getModel().getObject());
@@ -442,7 +442,7 @@ public class TicketPage extends RepositoryPage {
 								}
 								TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
 								app().tickets().createNotifier().sendMailing(update);
-								setResponsePage(TicketsPage.class, getPageParameters());
+								redirectTo(TicketsPage.class, getPageParameters());
 							}
 						};
 						item.add(link);
@@ -487,7 +487,7 @@ public class TicketPage extends RepositoryPage {
 								}
 								TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
 								app().tickets().createNotifier().sendMailing(update);
-								setResponsePage(TicketsPage.class, getPageParameters());
+								redirectTo(TicketsPage.class, getPageParameters());
 							}
 						};
 						item.add(link);
@@ -560,7 +560,7 @@ public class TicketPage extends RepositoryPage {
 						change.vote(user.username);
 					}
 					app().tickets().updateTicket(repository, ticket.number, change);
-					setResponsePage(TicketsPage.class, getPageParameters());
+					redirectTo(TicketsPage.class, getPageParameters());
 				}
 			};
 			add(link);
@@ -600,7 +600,7 @@ public class TicketPage extends RepositoryPage {
 						change.watch(user.username);
 					}
 					app().tickets().updateTicket(repository, ticket.number, change);
-					setResponsePage(TicketsPage.class, getPageParameters());
+					redirectTo(TicketsPage.class, getPageParameters());
 				}
 			};
 			add(link);
@@ -1297,7 +1297,7 @@ public class TicketPage extends RepositoryPage {
 		}
 		TicketModel updatedTicket = app().tickets().updateTicket(getRepositoryModel(), ticket.number, change);
 		app().tickets().createNotifier().sendMailing(updatedTicket);
-		setResponsePage(TicketsPage.class, getPageParameters());
+		redirectTo(TicketsPage.class, getPageParameters());
 	}
 
 	protected <X extends MarkupContainer> X setNewTarget(X x) {
@@ -1408,8 +1408,8 @@ public class TicketPage extends RepositoryPage {
 								GitBlitWebSession.get().cacheErrorMessage(msg);
 								logger.error(msg);
 							}
-
-							setResponsePage(TicketsPage.class, getPageParameters());
+							
+							redirectTo(TicketsPage.class, getPageParameters());
 						}
 					};
 					mergePanel.add(mergeButton);
