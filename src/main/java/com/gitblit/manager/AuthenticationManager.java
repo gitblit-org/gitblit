@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthenticationType;
+import com.gitblit.Constants.Role;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider;
@@ -52,6 +53,8 @@ import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The authentication manager handles user login & logout.
@@ -59,6 +62,7 @@ import com.gitblit.utils.X509Utils.X509Metadata;
  * @author James Moger
  *
  */
+@Singleton
 public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -75,6 +79,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Map<String, String> legacyRedirects;
 
+	@Inject
 	public AuthenticationManager(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager) {
@@ -574,6 +579,28 @@ public class AuthenticationManager implements IAuthenticationManager {
 	@Override
 	public boolean supportsTeamMembershipChanges(TeamModel team) {
 		return (team != null && team.isLocalTeam()) || findProvider(team).supportsTeamMembershipChanges();
+	}
+
+	/**
+	 * Returns true if the user's role can be changed.
+	 *
+	 * @param user
+	 * @return true if the user's role can be changed
+	 */
+	@Override
+	public boolean supportsRoleChanges(UserModel user, Role role) {
+		return (user != null && user.isLocalAccount()) || findProvider(user).supportsRoleChanges(user, role);
+	}
+
+	/**
+	 * Returns true if the team's role can be changed.
+	 *
+	 * @param user
+	 * @return true if the team's role can be changed
+	 */
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return (team != null && team.isLocalTeam()) || findProvider(team).supportsRoleChanges(team, role);
 	}
 
 	protected AuthenticationProvider findProvider(UserModel user) {

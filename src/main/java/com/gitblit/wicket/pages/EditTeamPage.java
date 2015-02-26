@@ -39,6 +39,7 @@ import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.Constants.Role;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -221,14 +222,23 @@ public class EditTeamPage extends RootSubPage {
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
-		// not all user services support manipulating team memberships
+		// not all user providers support manipulating team memberships
 		boolean editMemberships = app().authentication().supportsTeamMembershipChanges(teamModel);
+
+		// not all user providers support manipulating the admin role
+		boolean changeAdminRole = app().authentication().supportsRoleChanges(teamModel, Role.ADMIN);
+
+		// not all user providers support manipulating the create role
+		boolean changeCreateRole = app().authentication().supportsRoleChanges(teamModel, Role.CREATE);
+
+		// not all user providers support manipulating the fork role
+		boolean changeForkRole = app().authentication().supportsRoleChanges(teamModel, Role.FORK);
 
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
-		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
-		form.add(new CheckBox("canCreate"));
+		form.add(new CheckBox("canAdmin").setEnabled(changeAdminRole));
+		form.add(new CheckBox("canFork").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true) && changeForkRole));
+		form.add(new CheckBox("canCreate").setEnabled(changeCreateRole));
 		form.add(users.setEnabled(editMemberships));
 		mailingLists = new Model<String>(teamModel.mailingLists == null ? ""
 				: StringUtils.flattenStrings(teamModel.mailingLists, " "));

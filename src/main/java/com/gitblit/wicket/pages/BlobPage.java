@@ -137,6 +137,7 @@ public class BlobPage extends RepositoryPage {
 						table = missingBlob(blobPath, commit);
 					} else {
 						table = generateSourceView(source, extension, type == 1);
+						addBottomScriptInline("jQuery(prettyPrint);");
 					}
 					add(new Label("blobText", table).setEscapeModelStrings(false));
 					add(new Image("blobImage").setVisible(false));
@@ -150,6 +151,7 @@ public class BlobPage extends RepositoryPage {
 					table = missingBlob(blobPath, commit);
 				} else {
 					table = generateSourceView(source, null, false);
+					addBottomScriptInline("jQuery(prettyPrint);");
 				}
 				add(new Label("blobText", table).setEscapeModelStrings(false));
 				add(new Image("blobImage").setVisible(false));

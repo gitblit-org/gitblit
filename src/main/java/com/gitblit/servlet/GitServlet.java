@@ -20,6 +20,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletConfig;
@@ -33,13 +35,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jgit.http.server.GitFilter;
 
-import com.gitblit.dagger.DaggerContext;
 import com.gitblit.git.GitblitReceivePackFactory;
 import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
-
-import dagger.ObjectGraph;
 
 /**
  * The GitServlet provides http/https access to Git repositories.
@@ -48,24 +47,23 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
+@Singleton
 public class GitServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private final GitFilter gitFilter;
 
-	public GitServlet() {
+	@Inject
+	public GitServlet(IGitblit gitblit) {
 		gitFilter = new GitFilter();
+		gitFilter.setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(gitblit));
+		gitFilter.setUploadPackFactory(new GitblitUploadPackFactory<HttpServletRequest>(gitblit));
+		gitFilter.setReceivePackFactory(new GitblitReceivePackFactory<HttpServletRequest>(gitblit));
 	}
 
 	@Override
 	public void init(final ServletConfig config) throws ServletException {
-		ServletContext context = config.getServletContext();
-		ObjectGraph dagger = (ObjectGraph) context.getAttribute(DaggerContext.INJECTOR_NAME);
-		IGitblit gitblit = dagger.get(IGitblit.class);
-		gitFilter.setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(gitblit));
-		gitFilter.setUploadPackFactory(new GitblitUploadPackFactory<HttpServletRequest>(gitblit));
-		gitFilter.setReceivePackFactory(new GitblitReceivePackFactory<HttpServletRequest>(gitblit));
 
 		gitFilter.init(new FilterConfig() {
 			@Override

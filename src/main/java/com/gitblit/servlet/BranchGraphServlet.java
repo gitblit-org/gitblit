@@ -36,7 +36,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,12 +58,9 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
 
 /**
  * Handles requests for branch graphs
@@ -68,7 +68,8 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public class BranchGraphServlet extends DaggerServlet {
+@Singleton
+public class BranchGraphServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -87,18 +88,18 @@ public class BranchGraphServlet extends DaggerServlet {
 
 	private IRepositoryManager repositoryManager;
 
-	public BranchGraphServlet() {
-		super();
+	@Inject
+	public BranchGraphServlet(
+			IStoredSettings settings,
+			IRepositoryManager repositoryManager) {
+
+		this.settings = settings;
+		this.repositoryManager = repositoryManager;
+
 		strokeCache = new Stroke[4];
 		for (int i = 1; i < strokeCache.length; i++) {
 			strokeCache[i] = new BasicStroke(i);
 		}
-	}
-
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.settings = dagger.get(IStoredSettings.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
 	}
 
 	/**

@@ -37,6 +37,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Keys;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -111,7 +112,14 @@ public class ComparePage extends RepositoryPage {
 			fromCommitId.setObject(startId);
 			toCommitId.setObject(endId);
 
-			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML);
+			final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
+			final ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
+					fromCommit.getName(), toCommit.getName(), imageExtensions);
+
+			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML, handler);
+			if (handler.getImgDiffCount() > 0) {
+				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
+			}
 
 			// add compare diffstat
 			int insertions = 0;
@@ -160,10 +168,10 @@ public class ComparePage extends RepositoryPage {
 						hasSubmodule = submodule.hasSubmodule;
 
 						// add relative link
-						item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#" + entry.path));
+						item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#n" + entry.objectId));
 					} else {
 						// add relative link
-						item.add(new LinkPanel("pathName", "list", entry.path, "#" + entry.path));
+						item.add(new LinkPanel("pathName", "list", entry.path, "#n" + entry.objectId));
 					}
 
 					// quick links

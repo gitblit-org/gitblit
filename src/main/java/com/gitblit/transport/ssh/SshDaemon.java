@@ -31,6 +31,7 @@ import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.SecurityUtils;
+import org.apache.sshd.server.auth.CachingPublicKeyAuthenticator;
 import org.bouncycastle.openssl.PEMWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
@@ -98,8 +99,8 @@ public class SshDaemon {
 		hostKeyPairProvider.setFiles(new String [] { rsaKeyStore.getPath(), dsaKeyStore.getPath(), dsaKeyStore.getPath() });
 
 		// Client public key authenticator
-		CachingPublicKeyAuthenticator keyAuthenticator =
-				new CachingPublicKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
+		SshKeyAuthenticator keyAuthenticator =
+				new SshKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
 
 		// Configure the preferred SSHD backend
 		String sshBackendStr = settings.getString(Keys.git.sshBackend,
@@ -125,7 +126,7 @@ public class SshDaemon {
 		sshd.setPort(addr.getPort());
 		sshd.setHost(addr.getHostName());
 		sshd.setKeyPairProvider(hostKeyPairProvider);
-		sshd.setPublickeyAuthenticator(keyAuthenticator);
+		sshd.setPublickeyAuthenticator(new CachingPublicKeyAuthenticator(keyAuthenticator));
 		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());

@@ -16,14 +16,10 @@
 package com.gitblit.manager;
 
 import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.GitBlitException;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
@@ -38,17 +34,6 @@ public interface IGitblit extends IManager,
 									IRepositoryManager,
 									IProjectManager,
 									IFederationManager {
-
-	/**
-	 * Returns a list of repository URLs and the user access permission.
-	 *
-	 * @param request
-	 * @param user
-	 * @param repository
-	 * @return a list of repository urls
-	 * @since 1.4.0
-	 */
-	List<RepositoryUrl> getRepositoryUrls(HttpServletRequest request, UserModel user, RepositoryModel repository);
 
 	/**
 	 * Creates a complete user object.

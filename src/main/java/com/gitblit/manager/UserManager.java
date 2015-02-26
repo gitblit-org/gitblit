@@ -36,6 +36,8 @@ import com.gitblit.extensions.UserTeamLifeCycleListener;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The user manager manages persistence and retrieval of users and teams.
@@ -43,6 +45,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class UserManager implements IUserManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -57,6 +60,7 @@ public class UserManager implements IUserManager {
 
 	private IUserService userService;
 
+	@Inject
 	public UserManager(IRuntimeManager runtimeManager, IPluginManager pluginManager) {
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;

@@ -36,14 +36,19 @@ public class Constants {
 
 	public static final String FULL_NAME = "Gitblit - a pure Java Git solution";
 
+	@Deprecated
 	public static final String ADMIN_ROLE = "#admin";
 
+	@Deprecated
 	public static final String FORK_ROLE = "#fork";
 
+	@Deprecated
 	public static final String CREATE_ROLE = "#create";
 
+	@Deprecated
 	public static final String NOT_FEDERATED_ROLE = "#notfederated";
 
+	@Deprecated
 	public static final String NO_ROLE = "#none";
 
 	public static final String EXTERNAL_ACCOUNT = "#externalAccount";
@@ -69,6 +74,8 @@ public class Constants {
 	public static final String SPARKLESHARE_INVITE_PATH = "/sparkleshare/";
 
 	public static final String RAW_PATH = "/raw/";
+
+	public static final String PT_PATH = "/pt";
 
 	public static final String BRANCH_GRAPH_PATH = "/graph/";
 
@@ -148,6 +155,17 @@ public class Constants {
 		return getManifestValue("build-date", "PENDING");
 	}
 
+	public static String getASCIIArt() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("  _____  _  _    _      _  _  _").append('\n');
+		sb.append(" |  __ \\(_)| |  | |    | |(_)| |").append('\n');
+		sb.append(" | |  \\/ _ | |_ | |__  | | _ | |_").append('\n');
+		sb.append(" | | __ | || __|| '_ \\ | || || __|").append("  ").append("http://gitblit.com").append('\n');
+		sb.append(" | |_\\ \\| || |_ | |_) || || || |_").append("   ").append("@gitblit").append('\n');
+		sb.append("  \\____/|_| \\__||_.__/ |_||_| \\__|").append("  ").append(Constants.getVersion()).append('\n');
+		return sb.toString();
+	}
+
 	private static String getManifestValue(String attrib, String defaultValue) {
 		Class<?> clazz = Constants.class;
 		String className = clazz.getSimpleName() + ".class";
@@ -165,6 +183,19 @@ public class Constants {
 		} catch (Exception e) {
 		}
 		return defaultValue;
+	}
+
+	public static enum Role {
+		NONE, ADMIN, CREATE, FORK, NOT_FEDERATED;
+
+		public String getRole() {
+			return "#" + name().replace("_", "").toLowerCase();
+		}
+
+		@Override
+		public String toString() {
+			return getRole();
+		}
 	}
 
 	/**

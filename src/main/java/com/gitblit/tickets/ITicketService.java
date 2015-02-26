@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.extensions.TicketHook;
+import com.gitblit.manager.IManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -63,7 +64,7 @@ import com.google.common.cache.CacheBuilder;
  * @author James Moger
  *
  */
-public abstract class ITicketService {
+public abstract class ITicketService implements IManager {
 
 	public static final String SETTING_UPDATE_DIFFSTATS = "migration.updateDiffstats";
 
@@ -176,12 +177,14 @@ public abstract class ITicketService {
 	 * Start the service.
 	 * @since 1.4.0
 	 */
+	@Override
 	public abstract ITicketService start();
 
 	/**
 	 * Stop the service.
 	 * @since 1.4.0
 	 */
+	@Override
 	public final ITicketService stop() {
 		indexer.close();
 		ticketsCache.invalidateAll();

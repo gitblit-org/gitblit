@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;
@@ -56,8 +56,8 @@ import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Serves the content of a branch.
@@ -65,20 +65,24 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public class RawServlet extends DaggerServlet {
+@Singleton
+public class RawServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(RawServlet.class);
 
-	private IRuntimeManager runtimeManager;
+	private final IRuntimeManager runtimeManager;
 
-	private IRepositoryManager repositoryManager;
+	private final IRepositoryManager repositoryManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.runtimeManager = dagger.get(IRuntimeManager.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	@Inject
+	public RawServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**
@@ -230,9 +234,18 @@ public class RawServlet extends DaggerServlet {
 				// requested a specific resource
 				String file = StringUtils.getLastPathElement(requestedPath);
 				try {
-					// query Tika for the content type
-					Tika tika = new Tika();
-					String contentType = tika.detect(file);
+					String contentType;
+
+					List<String> exts = runtimeManager.getSettings().getStrings(Keys.web.prettyPrintExtensions);
+					String ext = StringUtils.getFileExtension(file).toLowerCase();
+					if (exts.contains(ext)) {
+						// extension is a registered text type for pretty printing
+						contentType = "text/plain";
+					} else {
+						// query Tika for the content type
+						Tika tika = new Tika();
+						contentType = tika.detect(file);
+					}
 
 					if (contentType == null) {
 						// ask the container for the content type
@@ -244,7 +257,7 @@ public class RawServlet extends DaggerServlet {
 						}
 					}
 
-					if (isTextType(contentType)) {
+					if (isTextType(contentType) || isTextDataType(contentType)) {
 
 						// load, interpret, and serve text content as UTF-8
 						String [] encodings = runtimeManager.getSettings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
@@ -373,6 +386,13 @@ public class RawServlet extends DaggerServlet {
 		if (contentType.startsWith("text/")
 				|| "application/json".equals(contentType)
 				|| "application/xml".equals(contentType)) {
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean isTextDataType(String contentType) {
+		if ("image/svg+xml".equals(contentType)) {
 			return true;
 		}
 		return false;

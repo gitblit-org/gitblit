@@ -31,3 +31,8 @@ This is a better way to configure your *baseFolder* because it survives WAR rede
 
 1. Open TOMCAT_HOME/conf/context.xml
 2. Insert an *Environment* node within the *Context* node.<pre>&lt;Environment name="baseFolder" type="java.lang.String" value="c:/projects/git/gitblit/data" override="false" /&gt;</pre>
+
+### Including Other Properties
+SINCE 1.7.0
+
+Gitblit supports loading it's settings from multiple properties files.  You can achieve this using the `include=filename` key.  This setting supports loading multiple files using a *comma* as the delimiter.  They are processed in the order defined and they may be nested (i.e. your included properties may include properties, etc, etc).

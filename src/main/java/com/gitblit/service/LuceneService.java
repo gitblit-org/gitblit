@@ -105,7 +105,7 @@ import com.gitblit.utils.StringUtils;
 public class LuceneService implements Runnable {
 
 
-	private static final int INDEX_VERSION = 5;
+	private static final int INDEX_VERSION = 6;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
 	private static final String FIELD_PATH = "path";
@@ -125,7 +125,7 @@ public class LuceneService implements Runnable {
 	private static final String CONF_ALIAS = "aliases";
 	private static final String CONF_BRANCH = "branches";
 
-	private static final Version LUCENE_VERSION = Version.LUCENE_46;
+	private static final Version LUCENE_VERSION = Version.LUCENE_4_10_0;
 
 	private final Logger logger = LoggerFactory.getLogger(LuceneService.class);
 

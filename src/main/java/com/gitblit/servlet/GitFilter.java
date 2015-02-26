@@ -17,7 +17,8 @@ package com.gitblit.servlet;
 
 import java.text.MessageFormat;
 
-import javax.servlet.FilterConfig;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -25,12 +26,13 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
 
 /**
  * The GitFilter is an AccessRestrictionFilter which ensures that Git client
@@ -40,6 +42,7 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
+@Singleton
 public class GitFilter extends AccessRestrictionFilter {
 
 	protected static final String gitReceivePack = "/git-receive-pack";
@@ -53,11 +56,18 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	private IFederationManager federationManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
-		super.inject(dagger, filterConfig);
-		this.settings = dagger.get(IStoredSettings.class);
-		this.federationManager = dagger.get(IFederationManager.class);
+	@Inject
+	public GitFilter(
+			IStoredSettings settings,
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager,
+			IFederationManager federationManager) {
+
+		super(runtimeManager, authenticationManager, repositoryManager);
+
+		this.settings = settings;
+		this.federationManager = federationManager;
 	}
 
 	/**

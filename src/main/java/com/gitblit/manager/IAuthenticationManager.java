@@ -18,6 +18,7 @@ package com.gitblit.manager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.Constants.Role;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshKey;
@@ -160,5 +161,23 @@ public interface IAuthenticationManager extends IManager {
 	 * @since 1.4.0
 	 */
 	boolean supportsTeamMembershipChanges(TeamModel team);
+
+	/**
+	 * Returns true if the specified role can be changed.
+	 *
+	 * @param user
+	 * @return true if the specified role can be changed
+	 * @since 1.6.1
+	 */
+	boolean supportsRoleChanges(UserModel user, Role role);
+
+	/**
+	 * Returns true if the specified role can be changed.
+	 *
+	 * @param team
+	 * @return true if the specified role can be changed
+	 * @since 1.6.1
+	 */
+	boolean supportsRoleChanges(TeamModel team, Role role);
 
 }
