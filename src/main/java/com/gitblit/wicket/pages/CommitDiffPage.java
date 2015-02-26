@@ -37,6 +37,7 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
@@ -84,7 +85,9 @@ public class CommitDiffPage extends RepositoryPage {
 		final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
 		final ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 				parents.isEmpty() ? null : parents.get(0), commit.getName(), imageExtensions);
-		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, DiffOutputType.HTML, handler);
+
+		final DiffComparator diffComparator = DiffComparator.WS_IGNORE_ALL;
+		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, diffComparator, DiffOutputType.HTML, handler);
 		if (handler.getImgDiffCount() > 0) {
 			addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
 		}
