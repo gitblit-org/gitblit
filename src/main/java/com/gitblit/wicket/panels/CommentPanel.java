@@ -15,12 +15,15 @@
  */
 package com.gitblit.wicket.panels;
 
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
@@ -79,7 +82,7 @@ public class CommentPanel extends BasePanel {
 					TicketModel updatedTicket = app().tickets().updateTicket(repository, ticket.number, newComment);
 					if (updatedTicket != null) {
 						app().tickets().createNotifier().sendMailing(updatedTicket);
-						setResponsePage(pageClass, WicketUtils.newObjectParameter(updatedTicket.repository, "" + ticket.number));
+						redirectTo(pageClass, WicketUtils.newObjectParameter(updatedTicket.repository, "" + ticket.number));
 					} else {
 						error("Failed to add comment!");
 					}
@@ -87,6 +90,24 @@ public class CommentPanel extends BasePanel {
 					// TODO update comment
 				}
 			}
+			
+            /**
+             * Steal from BasePage to realize redirection.
+             * 
+             * @see BasePage
+             * @author krulls@GitHub; ECG Leipzig GmbH, Germany, 2015
+             * 
+             * @param pageClass
+             * @param parameters
+             * @return
+             */
+            private void redirectTo(Class<? extends BasePage> pageClass, PageParameters parameters)
+            {
+                String relativeUrl = urlFor(pageClass, parameters).toString();
+                String canonicalUrl = RequestUtils.toAbsolutePath(relativeUrl);
+                getRequestCycle().setRequestTarget(new RedirectRequestTarget(canonicalUrl));
+            }
+			
 		}.setVisible(ticket != null && ticket.number > 0));
 
 		final IModel<String> markdownPreviewModel = Model.of();
