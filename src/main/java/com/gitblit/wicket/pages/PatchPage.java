@@ -20,6 +20,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -31,13 +33,12 @@ import com.gitblit.wicket.WicketUtils;
 @CacheControl(LastModified.BOOT)
 public class PatchPage extends SessionPage {
 
-	public PatchPage(PageParameters params) {
+	public PatchPage(final PageParameters params) {
 		super(params);
 
 		if (!params.containsKey("r")) {
-			GitBlitWebSession.get().cacheErrorMessage(getString("gb.repositoryNotSpecified"));
+			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
-			return;
 		}
 
 		final String repositoryName = WicketUtils.getRepositoryName(params);
@@ -45,9 +46,20 @@ public class PatchPage extends SessionPage {
 		final String objectId = WicketUtils.getObject(params);
 		final String blobPath = WicketUtils.getPath(params);
 
+		GitBlitWebSession session = GitBlitWebSession.get();
+		UserModel user = session.getUser();
+
+		RepositoryModel model = app().repositories().getRepositoryModel(user, repositoryName);
+		if (model == null) {
+			// user does not have permission
+			error(getString("gb.canNotLoadRepository") + " " + repositoryName);
+			redirectToInterceptPage(new RepositoriesPage());
+			return;
+		}
+
 		Repository r = app().repositories().getRepository(repositoryName);
 		if (r == null) {
-			GitBlitWebSession.get().cacheErrorMessage(getString("gb.canNotLoadRepository") + " " + repositoryName);
+			error(getString("gb.canNotLoadRepository") + " " + repositoryName);
 			redirectToInterceptPage(new RepositoriesPage());
 			return;
 		}
@@ -67,4 +79,5 @@ public class PatchPage extends SessionPage {
 		add(new Label("patchText", patch));
 		r.close();
 	}
+
 }
