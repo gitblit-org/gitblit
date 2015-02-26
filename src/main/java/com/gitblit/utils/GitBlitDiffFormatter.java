@@ -74,6 +74,8 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	 */
 	private static final int GLOBAL_DIFF_LIMIT = 20000;
 
+	private static final boolean CONVERT_TABS = true;
+
 	private final DiffOutputStream os;
 
 	private final DiffStat diffStat;
@@ -451,14 +453,14 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			// Highlight trailing whitespace on deleted/added lines.
 			Matcher matcher = trailingWhitespace.matcher(line);
 			if (matcher.find()) {
-				StringBuilder result = new StringBuilder(StringUtils.escapeForHtml(line.substring(0, matcher.start()), false));
+				StringBuilder result = new StringBuilder(StringUtils.escapeForHtml(line.substring(0, matcher.start()), CONVERT_TABS));
 				result.append("<span class='trailingws-").append(prefix == '+' ? "add" : "sub").append("'>");
 				result.append(StringUtils.escapeForHtml(matcher.group(1), false));
 				result.append("</span>");
 				return result.toString();
 			}
 		}
-		return StringUtils.escapeForHtml(line, false);
+		return StringUtils.escapeForHtml(line, CONVERT_TABS);
 	}
 
 	/**
@@ -490,7 +492,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 					} else {
 						sb.append("<th class='diff-state diff-state-sub'></th><td class=\"diff-cell remove2\">");
 					}
-					line = StringUtils.escapeForHtml(line.substring(1), false);
+					line = StringUtils.escapeForHtml(line.substring(1), CONVERT_TABS);
 				}
 				sb.append(line);
 				if (gitLinkDiff) {
