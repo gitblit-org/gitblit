@@ -29,16 +29,30 @@
  */
 package com.syntevo.bugtraq;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.eclipse.jgit.errors.*;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.*;
-import org.eclipse.jgit.storage.file.*;
-import org.eclipse.jgit.treewalk.*;
-import org.eclipse.jgit.treewalk.filter.*;
-import org.jetbrains.annotations.*;
+import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class BugtraqConfig {
 
@@ -66,7 +80,17 @@ public final class BugtraqConfig {
 		}
 
 		final Set<String> allNames = new HashSet<String>();
-		final Config config = repository.getConfig();
+		final Config config;
+		try {
+			config = repository.getConfig();
+		}
+		catch (RuntimeException ex) {
+			final Throwable cause = ex.getCause();
+			if (cause instanceof IOException) {
+				throw (IOException)cause;
+			}
+			throw ex;
+		}
 		if (getString(null, URL, config, baseConfig) != null) {
 			allNames.add(null);
 		}
@@ -166,7 +190,15 @@ public final class BugtraqConfig {
 			TreeWalk tw = new TreeWalk(repository);
 			tw.setFilter(PathFilterGroup.createFromStrings(configFileName));
 			try {
-				ObjectId headId = repository.getRef(Constants.HEAD).getTarget().getObjectId();
+				final Ref ref = repository.getRef(Constants.HEAD);
+				if (ref == null) {
+					return null;
+				}
+
+				ObjectId headId = ref.getTarget().getObjectId();
+				if (headId == null || ObjectId.zeroId().equals(headId)) {
+					return null;
+				}
 				RevCommit commit = rw.parseCommit(headId);
 				RevTree tree = commit.getTree();
 				tw.reset(tree);
