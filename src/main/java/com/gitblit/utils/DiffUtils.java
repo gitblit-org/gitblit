@@ -89,6 +89,32 @@ public class DiffUtils {
 	}
 
 	/**
+	 * Enumeration for the diff comparator types.
+	 */
+	public static enum DiffComparator {
+		DEFAULT(RawTextComparator.DEFAULT),
+		WS_IGNORE_ALL(RawTextComparator.WS_IGNORE_ALL),
+		WS_IGNORE_LEADING(RawTextComparator.WS_IGNORE_LEADING),
+		WS_IGNORE_TRAILING(RawTextComparator.WS_IGNORE_TRAILING),
+		WS_IGNORE_CHANGE(RawTextComparator.WS_IGNORE_CHANGE);
+
+		public final RawTextComparator textComparator;
+
+		DiffComparator(RawTextComparator textComparator) {
+			this.textComparator = textComparator;
+		}
+
+		public static DiffComparator forName(String name) {
+			for (DiffComparator type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return null;
+		}
+	}
+
+	/**
 	 * Encapsulates the output of a diff.
 	 */
 	public static class DiffOutput implements Serializable {
@@ -193,12 +219,13 @@ public class DiffUtils {
 	 *
 	 * @param repository
 	 * @param commit
+	 * @param comparator
 	 * @param outputType
 	 * @return the diff
 	 */
 	public static DiffOutput getCommitDiff(Repository repository, RevCommit commit,
-			DiffOutputType outputType) {
-		return getDiff(repository, null, commit, null, outputType);
+			DiffComparator comparator, DiffOutputType outputType) {
+		return getDiff(repository, null, commit, null, comparator, outputType);
 	}
 
 	/**
@@ -206,6 +233,7 @@ public class DiffUtils {
 	 *
 	 * @param repository
 	 * @param commit
+	 * @param comparator
 	 * @param outputType
 	 * @param handler
 	 *            to use for rendering binary diffs if {@code outputType} is {@link DiffOutputType#HTML HTML}.
@@ -213,8 +241,8 @@ public class DiffUtils {
 	 * @return the diff
 	 */
 	public static DiffOutput getCommitDiff(Repository repository, RevCommit commit,
-			DiffOutputType outputType, BinaryDiffHandler handler) {
-		return getDiff(repository, null, commit, null, outputType, handler);
+			DiffComparator comparator, DiffOutputType outputType, BinaryDiffHandler handler) {
+		return getDiff(repository, null, commit, null, comparator, outputType, handler);
 	}
 
 
@@ -225,12 +253,13 @@ public class DiffUtils {
 	 * @param repository
 	 * @param commit
 	 * @param path
+	 * @param comparator
 	 * @param outputType
 	 * @return the diff
 	 */
 	public static DiffOutput getDiff(Repository repository, RevCommit commit, String path,
-			DiffOutputType outputType) {
-		return getDiff(repository, null, commit, path, outputType);
+			DiffComparator comparator, DiffOutputType outputType) {
+		return getDiff(repository, null, commit, path, comparator, outputType);
 	}
 
 	/**
@@ -240,6 +269,7 @@ public class DiffUtils {
 	 * @param repository
 	 * @param commit
 	 * @param path
+	 * @param comparator
 	 * @param outputType
 	 * @param handler
 	 *            to use for rendering binary diffs if {@code outputType} is {@link DiffOutputType#HTML HTML}.
@@ -247,8 +277,8 @@ public class DiffUtils {
 	 * @return the diff
 	 */
 	public static DiffOutput getDiff(Repository repository, RevCommit commit, String path,
-			DiffOutputType outputType, BinaryDiffHandler handler) {
-		return getDiff(repository, null, commit, path, outputType, handler);
+			DiffComparator comparator, DiffOutputType outputType, BinaryDiffHandler handler) {
+		return getDiff(repository, null, commit, path, comparator, outputType, handler);
 	}
 
 	/**
@@ -257,12 +287,13 @@ public class DiffUtils {
 	 * @param repository
 	 * @param baseCommit
 	 * @param commit
+	 * @param comparator
 	 * @param outputType
 	 * @return the diff
 	 */
 	public static DiffOutput getDiff(Repository repository, RevCommit baseCommit, RevCommit commit,
-			DiffOutputType outputType) {
-		return getDiff(repository, baseCommit, commit, null, outputType);
+			DiffComparator comparator, DiffOutputType outputType) {
+		return getDiff(repository, baseCommit, commit, null, comparator, outputType);
 	}
 
 	/**
@@ -271,6 +302,7 @@ public class DiffUtils {
 	 * @param repository
 	 * @param baseCommit
 	 * @param commit
+	 * @param comparator
 	 * @param outputType
 	 * @param handler
 	 *            to use for rendering binary diffs if {@code outputType} is {@link DiffOutputType#HTML HTML}.
@@ -278,8 +310,8 @@ public class DiffUtils {
 	 * @return the diff
 	 */
 	public static DiffOutput getDiff(Repository repository, RevCommit baseCommit, RevCommit commit,
-			DiffOutputType outputType, BinaryDiffHandler handler) {
-		return getDiff(repository, baseCommit, commit, null, outputType, handler);
+			DiffComparator comparator, DiffOutputType outputType, BinaryDiffHandler handler) {
+		return getDiff(repository, baseCommit, commit, null, comparator, outputType, handler);
 	}
 
 	/**
@@ -294,11 +326,12 @@ public class DiffUtils {
 	 *            if the path is specified, the diff is restricted to that file
 	 *            or folder. if unspecified, the diff is for the entire commit.
 	 * @param outputType
+	 * @param diffComparator
 	 * @return the diff
 	 */
 	public static DiffOutput getDiff(Repository repository, RevCommit baseCommit, RevCommit commit,
-			String path, DiffOutputType outputType) {
-		return getDiff(repository, baseCommit, commit, path, outputType, null);
+			String path, DiffComparator diffComparator, DiffOutputType outputType) {
+		return getDiff(repository, baseCommit, commit, path, diffComparator, outputType, null);
 	}
 
 	/**
@@ -312,19 +345,20 @@ public class DiffUtils {
 	 * @param path
 	 *            if the path is specified, the diff is restricted to that file
 	 *            or folder. if unspecified, the diff is for the entire commit.
+	 * @param comparator
 	 * @param outputType
 	 * @param handler
 	 *            to use for rendering binary diffs if {@code outputType} is {@link DiffOutputType#HTML HTML}.
 	 *            May be {@code null}, resulting in the default behavior.
 	 * @return the diff
 	 */
-	public static DiffOutput getDiff(Repository repository, RevCommit baseCommit, RevCommit commit, String path, DiffOutputType outputType,
-			final BinaryDiffHandler handler) {
+	public static DiffOutput getDiff(Repository repository, RevCommit baseCommit, RevCommit commit, String path,
+			DiffComparator comparator, DiffOutputType outputType, final BinaryDiffHandler handler) {
 		DiffStat stat = null;
 		String diff = null;
 		try {
 			ByteArrayOutputStream os = null;
-			RawTextComparator cmp = RawTextComparator.DEFAULT;
+
 			DiffFormatter df;
 			switch (outputType) {
 			case HTML:
@@ -337,7 +371,7 @@ public class DiffUtils {
 				break;
 			}
 			df.setRepository(repository);
-			df.setDiffComparator(cmp);
+			df.setDiffComparator((comparator == null ? DiffComparator.DEFAULT : comparator).textComparator);
 			df.setDetectRenames(true);
 
 			RevTree commitTree = commit.getTree();
