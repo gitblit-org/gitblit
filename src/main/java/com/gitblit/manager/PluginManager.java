@@ -15,12 +15,13 @@
  */
 package com.gitblit.manager;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -61,8 +62,7 @@ import com.gitblit.utils.Base64;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
+import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -533,12 +533,9 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 		// try to get the server-specified last-modified date of this artifact
 		long lastModified = conn.getHeaderFieldDate("Last-Modified", System.currentTimeMillis());
 
-		Files.copy(new InputSupplier<InputStream>() {
-			@Override
-			public InputStream getInput() throws IOException {
-				return new BufferedInputStream(conn.getInputStream());
-			}
-		}, tmpFile);
+		try (InputStream is = conn.getInputStream(); OutputStream os = new FileOutputStream(tmpFile);) {
+			ByteStreams.copy(is, os);
+		}
 
 		File destFile = new File(pFolder, StringUtils.getLastPathElement(u.getPath()));
 		if (destFile.exists()) {

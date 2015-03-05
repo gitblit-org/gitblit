@@ -80,7 +80,10 @@ import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
+import org.bouncycastle.openssl.PEMEncryptor;
 import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -883,8 +886,11 @@ public class X509Utils {
 	        if (pemFile.exists()) {
 	        	pemFile.delete();
 	        }
-	        PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile));
-	        pemWriter.writeObject(pair.getPrivate(), "DES-EDE3-CBC", clientMetadata.password.toCharArray(), new SecureRandom());
+	        JcePEMEncryptorBuilder builder = new JcePEMEncryptorBuilder("DES-EDE3-CBC");
+	        builder.setSecureRandom(new SecureRandom());
+	        PEMEncryptor pemEncryptor = builder.build(clientMetadata.password.toCharArray());
+	        JcaPEMWriter pemWriter = new JcaPEMWriter(new FileWriter(pemFile));
+	        pemWriter.writeObject(pair.getPrivate(), pemEncryptor);
 	        pemWriter.writeObject(userCert);
 	        pemWriter.writeObject(caCert);
 	        pemWriter.flush();

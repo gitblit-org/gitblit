@@ -47,13 +47,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="guava-17.0.jar">
+      <library name="guava-18.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guava-17.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/guava-18.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guava-17.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/guava-18.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -91,24 +91,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-api-1.7.7.jar">
+      <library name="slf4j-api-1.7.10.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.10.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.10.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-log4j12-1.7.7.jar">
+      <library name="slf4j-log4j12-1.7.10.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.10.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.10.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -135,13 +135,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-all-9.2.3.v20140905.jar">
+      <library name="jetty-all-9.2.9.v20150224.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.2.3.v20140905.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-all-9.2.9.v20150224.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.2.3.v20140905.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-all-9.2.9.v20150224.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -408,13 +408,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-3.5.1.201410131835-r.jar">
+      <library name="org.eclipse.jgit-3.6.2.201501210735-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.5.1.201410131835-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.6.2.201501210735-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.5.1.201410131835-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.6.2.201501210735-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -485,46 +485,46 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-3.5.1.201410131835-r.jar">
+      <library name="org.eclipse.jgit.http.server-3.6.2.201501210735-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.5.1.201410131835-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.6.2.201501210735-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.5.1.201410131835-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.6.2.201501210735-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcprov-jdk15on-1.49.jar">
+      <library name="bcprov-jdk15on-1.51.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk15on-1.49.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk15on-1.51.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk15on-1.49.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk15on-1.51.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcmail-jdk15on-1.49.jar">
+      <library name="bcmail-jdk15on-1.51.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk15on-1.49.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk15on-1.51.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk15on-1.49.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk15on-1.51.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcpkix-jdk15on-1.49.jar">
+      <library name="bcpkix-jdk15on-1.51.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk15on-1.49.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk15on-1.51.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcpkix-jdk15on-1.49.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcpkix-jdk15on-1.51.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -540,13 +540,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="mina-core-2.0.7.jar">
+      <library name="mina-core-2.0.9.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.9.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -573,35 +573,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="gson-2.2.2.jar">
+      <library name="gson-2.3.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/gson-2.2.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/gson-2.3.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/gson-2.2.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/gson-2.3.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="groovy-all-2.3.3.jar">
+      <library name="groovy-all-2.4.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/groovy-all-2.3.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/groovy-all-2.4.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/groovy-all-2.3.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/groovy-all-2.4.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="unboundid-ldapsdk-2.3.0.jar">
+      <library name="unboundid-ldapsdk-2.3.8.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/unboundid-ldapsdk-2.3.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/unboundid-ldapsdk-2.3.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/unboundid-ldapsdk-2.3.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/unboundid-ldapsdk-2.3.8.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -692,79 +692,79 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="freemarker-2.3.20.jar">
+      <library name="freemarker-2.3.22.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/freemarker-2.3.20.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/freemarker-2.3.22.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/freemarker-2.3.20.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/freemarker-2.3.22.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="waffle-jna-1.5.jar">
+      <library name="waffle-jna-1.7.3.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/waffle-jna-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/waffle-jna-1.7.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/waffle-jna-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/waffle-jna-1.7.3.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="platform-3.5.0.jar">
+      <library name="jna-4.1.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/platform-3.5.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jna-4.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/platform-3.5.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jna-4.1.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jna-3.5.0.jar">
+      <library name="jna-platform-4.1.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jna-3.5.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jna-platform-4.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jna-3.5.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jna-platform-4.1.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="libpam4j-1.7.jar">
+      <library name="libpam4j-1.8.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/libpam4j-1.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/libpam4j-1.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/libpam4j-1.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/libpam4j-1.8.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="args4j-2.0.26.jar">
+      <library name="args4j-2.0.29.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/args4j-2.0.26.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/args4j-2.0.29.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/args4j-2.0.26.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/args4j-2.0.29.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jedis-2.3.1.jar">
+      <library name="jedis-2.6.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jedis-2.3.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jedis-2.6.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jedis-2.3.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jedis-2.6.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -919,6 +919,17 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/commons-exec-1.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library name="platform-3.4.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/platform-3.4.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/platform-3.4.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
