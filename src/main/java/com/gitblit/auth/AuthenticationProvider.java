@@ -15,7 +15,13 @@
  */
 package com.gitblit.auth;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,25 +83,70 @@ public abstract class AuthenticationProvider {
 		}
 	}
 
+	/**
+	 * Utility method to calculate the checksum of an object.
+	 * @param sourceObject The object from which to establish the checksum.
+	 * @return The checksum
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 */
+	private BigInteger checksum(Object sourceObject) throws IOException, NoSuchAlgorithmException {
+
+	    if (sourceObject == null) {
+	      return BigInteger.ZERO;   
+	    }
+
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    ObjectOutputStream oos = new ObjectOutputStream(baos);
+	    oos.writeObject(sourceObject);
+	    oos.close();
+
+	    MessageDigest m = MessageDigest.getInstance("SHA1");
+	    m.update(baos.toByteArray());
+
+	    return new BigInteger(1, m.digest());
+	}
+	
 	protected void updateUser(UserModel userModel) {
-		// TODO implement user model change detection
-		// account for new user and revised user
-
-		// username
-		// displayname
-		// email address
-		// cookie
-
-		userManager.updateUserModel(userModel);
+		final UserModel userLocalDB = userManager.getUserModel(userModel.getName());
+		try {
+			// Establish the checksum of the current version of the user
+			final BigInteger userCurrentCheck = checksum(userModel);
+			// Establish the checksum of the stored version of the user
+			final BigInteger userLocalDBcheck = checksum(userLocalDB);
+			// Compare the checksums
+			if (!userCurrentCheck.equals(userLocalDBcheck))
+			{
+				// If mismatch, save the new instance.
+				userManager.updateUserModel(userModel);
+			}
+		} catch (NoSuchAlgorithmException | IOException e) {
+			// Trace any potential error.
+			if (logger.isErrorEnabled()) {
+				logger.error(e.getMessage());
+			}
+		}
 	}
 
 	protected void updateTeam(TeamModel teamModel) {
-		// TODO implement team model change detection
-		// account for new team and revised team
-
-		// memberships
-
-		userManager.updateTeamModel(teamModel);
+		final TeamModel teamLocalDB = userManager.getTeamModel(teamModel.name);
+		try {
+			// Establish the checksum of the current version of the team
+			final BigInteger teamCurrentCheck = checksum(teamModel);
+			// Establish the checksum of the stored version of the team
+			final BigInteger teamLocalDBcheck = checksum(teamLocalDB);
+			// Compare the checksums
+			if (!teamCurrentCheck.equals(teamLocalDBcheck))
+			{
+				// If mismatch, save the new instance.
+				userManager.updateTeamModel(teamModel);
+			}
+		} catch (NoSuchAlgorithmException | IOException e) {
+			// Trace any potential error.
+			if (logger.isErrorEnabled()) {
+				logger.error(e.getMessage());
+			}
+		}
 	}
 
 	public abstract void setup();
