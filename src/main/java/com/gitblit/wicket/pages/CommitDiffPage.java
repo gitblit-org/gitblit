@@ -86,7 +86,7 @@ public class CommitDiffPage extends RepositoryPage {
 		final ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 				parents.isEmpty() ? null : parents.get(0), commit.getName(), imageExtensions);
 
-		final DiffComparator diffComparator = DiffComparator.WS_IGNORE_ALL;
+		final DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
 		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, diffComparator, DiffOutputType.HTML, handler);
 		if (handler.getImgDiffCount() > 0) {
 			addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
