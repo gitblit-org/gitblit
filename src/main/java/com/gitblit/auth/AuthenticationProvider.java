@@ -16,6 +16,7 @@
 package com.gitblit.auth;
 
 import java.io.File;
+import java.math.BigInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import com.gitblit.manager.IUserManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
 
 public abstract class AuthenticationProvider {
@@ -78,24 +80,35 @@ public abstract class AuthenticationProvider {
 	}
 
 	protected void updateUser(UserModel userModel) {
-		// TODO implement user model change detection
-		// account for new user and revised user
+		final UserModel userLocalDB = userManager.getUserModel(userModel.getName());
 
-		// username
-		// displayname
-		// email address
-		// cookie
+		// Establish the checksum of the current version of the user
+		final BigInteger userCurrentCheck = DeepCopier.checksum(userModel);
 
-		userManager.updateUserModel(userModel);
+		// Establish the checksum of the stored version of the user
+		final BigInteger userLocalDBcheck = DeepCopier.checksum(userLocalDB);
+
+		// Compare the checksums
+		if (!userCurrentCheck.equals(userLocalDBcheck)) {
+			// If mismatch, save the new instance.
+			userManager.updateUserModel(userModel);
+		}
 	}
 
 	protected void updateTeam(TeamModel teamModel) {
-		// TODO implement team model change detection
-		// account for new team and revised team
+		final TeamModel teamLocalDB = userManager.getTeamModel(teamModel.name);
 
-		// memberships
+		// Establish the checksum of the current version of the team
+		final BigInteger teamCurrentCheck = DeepCopier.checksum(teamModel);
 
-		userManager.updateTeamModel(teamModel);
+		// Establish the checksum of the stored version of the team
+		final BigInteger teamLocalDBcheck = DeepCopier.checksum(teamLocalDB);
+
+		// Compare the checksums
+		if (!teamCurrentCheck.equals(teamLocalDBcheck)) {
+			// If mismatch, save the new instance.
+			userManager.updateTeamModel(teamModel);
+		}
 	}
 
 	public abstract void setup();
