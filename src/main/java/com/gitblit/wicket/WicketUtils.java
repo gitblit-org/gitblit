@@ -48,6 +48,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.Metric;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -61,7 +62,7 @@ public class WicketUtils {
 	public static void addCssClass(Component container, String value) {
 		container.add(new AttributeAppender("class", new Model<String>(value), " "));
 	}
-	
+
 	public static void setCssStyle(Component container, String value) {
 		container.add(new SimpleAttributeModifier("style", value));
 	}
@@ -330,6 +331,31 @@ public class WicketUtils {
 		return new PageParameters(parameterMap);
 	}
 
+	public static PageParameters newDiffParameter(String repositoryName,
+			String objectId, DiffComparator diffComparator) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(objectId)) {
+			return newRepositoryParameter(repositoryName);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("w", "" + diffComparator.ordinal());
+		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newDiffParameter(String repositoryName,
+			String objectId, DiffComparator diffComparator, String blobPath) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(objectId)) {
+			return newRepositoryParameter(repositoryName);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("w", "" + diffComparator.ordinal());
+		parameterMap.put("f", blobPath);
+		return new PageParameters(parameterMap);
+	}
+
 	public static PageParameters newRangeParameter(String repositoryName,
 			String startRange, String endRange) {
 		Map<String, String> parameterMap = new HashMap<String, String>();
@@ -492,6 +518,11 @@ public class WicketUtils {
 
 	public static String getSearchType(PageParameters params) {
 		return params.getString("st", null);
+	}
+
+	public static DiffComparator getDiffComparator(PageParameters params) {
+		int ordinal = params.getInt("w", 0);
+		return DiffComparator.values()[ordinal];
 	}
 
 	public static int getPage(PageParameters params) {

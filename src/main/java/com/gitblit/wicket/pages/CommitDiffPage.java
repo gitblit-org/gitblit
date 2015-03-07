@@ -37,6 +37,7 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
@@ -56,9 +57,9 @@ public class CommitDiffPage extends RepositoryPage {
 	public CommitDiffPage(PageParameters params) {
 		super(params);
 
-		Repository r = getRepository();
-
-		RevCommit commit = getCommit();
+		final Repository r = getRepository();
+		final RevCommit commit = getCommit();
+		final DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {
@@ -78,13 +79,16 @@ public class CommitDiffPage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new LinkPanel("whitespaceLink", null, getString(diffComparator.getOpposite().getTranslationKey()),
+				CommitDiffPage.class, WicketUtils.newDiffParameter(repositoryName, objectId, diffComparator.getOpposite())));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
 		final ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 				parents.isEmpty() ? null : parents.get(0), commit.getName(), imageExtensions);
-		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, DiffOutputType.HTML, handler);
+
+		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, diffComparator, DiffOutputType.HTML, handler);
 		if (handler.getImgDiffCount() > 0) {
 			addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
 		}

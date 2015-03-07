@@ -25,6 +25,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Keys;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -32,6 +33,7 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 @CacheControl(LastModified.BOOT)
@@ -42,6 +44,7 @@ public class BlobDiffPage extends RepositoryPage {
 
 		final String blobPath = WicketUtils.getPath(params);
 		final String baseObjectId = WicketUtils.getBaseObjectId(params);
+		final DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
 
 		Repository r = getRepository();
 		RevCommit commit = getCommit();
@@ -54,7 +57,7 @@ public class BlobDiffPage extends RepositoryPage {
 			RevCommit parent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 			ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 					parent.getName(), commit.getName(), imageExtensions);
-			diff = DiffUtils.getDiff(r, commit, blobPath, DiffOutputType.HTML, handler).content;
+			diff = DiffUtils.getDiff(r, commit, blobPath, diffComparator, DiffOutputType.HTML, handler).content;
 			if (handler.getImgDiffCount() > 0) {
 				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
 			}
@@ -65,7 +68,7 @@ public class BlobDiffPage extends RepositoryPage {
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
 			ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 					baseCommit.getName(), commit.getName(), imageExtensions);
-			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, DiffOutputType.HTML, handler).content;
+			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, diffComparator, DiffOutputType.HTML, handler).content;
 			if (handler.getImgDiffCount() > 0) {
 				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
 			}
@@ -78,6 +81,8 @@ public class BlobDiffPage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new LinkPanel("whitespaceLink", null, getString(diffComparator.getOpposite().getTranslationKey()),
+				BlobDiffPage.class, WicketUtils.newDiffParameter(repositoryName, objectId, diffComparator.getOpposite(), blobPath)));
 
 		// diff page links
 		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
