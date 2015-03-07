@@ -23,8 +23,41 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class DeepCopier {
+
+	/**
+	 * Utility method to calculate the checksum of an object.
+	 * @param sourceObject The object from which to establish the checksum.
+	 * @return The checksum
+	 * @throws IOException
+	 */
+	public static BigInteger checksum(Object sourceObject) {
+
+	    if (sourceObject == null) {
+	      return BigInteger.ZERO;
+	    }
+
+	    try {
+		    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		    ObjectOutputStream oos = new ObjectOutputStream(baos);
+		    oos.writeObject(sourceObject);
+		    oos.close();
+
+	    	MessageDigest m = MessageDigest.getInstance("SHA-1");
+	    	m.update(baos.toByteArray());
+	    	return new BigInteger(1, m.digest());
+	    } catch (IOException e) {
+	    	throw new RuntimeException(e);
+	    } catch (NoSuchAlgorithmException e) {
+	    	// impossible
+	    }
+
+	    return BigInteger.ZERO;
+	}
 
 	/**
 	 * Produce a deep copy of the given object. Serializes the entire object to
