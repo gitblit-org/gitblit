@@ -92,16 +92,24 @@ public class DiffUtils {
 	 * Enumeration for the diff comparator types.
 	 */
 	public static enum DiffComparator {
-		DEFAULT(RawTextComparator.DEFAULT),
-		WS_IGNORE_ALL(RawTextComparator.WS_IGNORE_ALL),
-		WS_IGNORE_LEADING(RawTextComparator.WS_IGNORE_LEADING),
-		WS_IGNORE_TRAILING(RawTextComparator.WS_IGNORE_TRAILING),
-		WS_IGNORE_CHANGE(RawTextComparator.WS_IGNORE_CHANGE);
+		SHOW_WHITESPACE(RawTextComparator.DEFAULT),
+		IGNORE_WHITESPACE(RawTextComparator.WS_IGNORE_ALL),
+		IGNORE_LEADING(RawTextComparator.WS_IGNORE_LEADING),
+		IGNORE_TRAILING(RawTextComparator.WS_IGNORE_TRAILING),
+		IGNORE_CHANGES(RawTextComparator.WS_IGNORE_CHANGE);
 
 		public final RawTextComparator textComparator;
 
 		DiffComparator(RawTextComparator textComparator) {
 			this.textComparator = textComparator;
+		}
+
+		public DiffComparator getOpposite() {
+			return this == SHOW_WHITESPACE ? IGNORE_WHITESPACE : SHOW_WHITESPACE;
+		}
+
+		public String getTranslationKey() {
+			return "gb." + name().toLowerCase();
 		}
 
 		public static DiffComparator forName(String name) {
@@ -371,7 +379,7 @@ public class DiffUtils {
 				break;
 			}
 			df.setRepository(repository);
-			df.setDiffComparator((comparator == null ? DiffComparator.DEFAULT : comparator).textComparator);
+			df.setDiffComparator((comparator == null ? DiffComparator.SHOW_WHITESPACE : comparator).textComparator);
 			df.setDetectRenames(true);
 
 			RevTree commitTree = commit.getTree();

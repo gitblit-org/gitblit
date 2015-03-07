@@ -57,9 +57,9 @@ public class CommitDiffPage extends RepositoryPage {
 	public CommitDiffPage(PageParameters params) {
 		super(params);
 
-		Repository r = getRepository();
-
-		RevCommit commit = getCommit();
+		final Repository r = getRepository();
+		final RevCommit commit = getCommit();
+		final DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {
@@ -79,6 +79,8 @@ public class CommitDiffPage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new LinkPanel("whitespaceLink", null, getString(diffComparator.getOpposite().getTranslationKey()),
+				CommitDiffPage.class, WicketUtils.newDiffParameter(repositoryName, objectId, diffComparator.getOpposite())));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -86,7 +88,6 @@ public class CommitDiffPage extends RepositoryPage {
 		final ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 				parents.isEmpty() ? null : parents.get(0), commit.getName(), imageExtensions);
 
-		final DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
 		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, diffComparator, DiffOutputType.HTML, handler);
 		if (handler.getImgDiffCount() > 0) {
 			addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs

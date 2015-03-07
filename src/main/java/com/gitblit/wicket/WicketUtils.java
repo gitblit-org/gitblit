@@ -331,6 +331,31 @@ public class WicketUtils {
 		return new PageParameters(parameterMap);
 	}
 
+	public static PageParameters newDiffParameter(String repositoryName,
+			String objectId, DiffComparator diffComparator) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(objectId)) {
+			return newRepositoryParameter(repositoryName);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("w", "" + diffComparator.ordinal());
+		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newDiffParameter(String repositoryName,
+			String objectId, DiffComparator diffComparator, String blobPath) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(objectId)) {
+			return newRepositoryParameter(repositoryName);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("w", "" + diffComparator.ordinal());
+		parameterMap.put("f", blobPath);
+		return new PageParameters(parameterMap);
+	}
+
 	public static PageParameters newRangeParameter(String repositoryName,
 			String startRange, String endRange) {
 		Map<String, String> parameterMap = new HashMap<String, String>();

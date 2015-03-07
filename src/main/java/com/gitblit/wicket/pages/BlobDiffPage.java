@@ -33,6 +33,7 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 @CacheControl(LastModified.BOOT)
@@ -80,6 +81,8 @@ public class BlobDiffPage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new LinkPanel("whitespaceLink", null, getString(diffComparator.getOpposite().getTranslationKey()),
+				BlobDiffPage.class, WicketUtils.newDiffParameter(repositoryName, objectId, diffComparator.getOpposite(), blobPath)));
 
 		// diff page links
 		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
