@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -69,6 +70,8 @@ public class ComparePage extends RepositoryPage {
 
 	IModel<String> fromRefId = new Model<String>("");
 	IModel<String> toRefId = new Model<String>("");
+
+	IModel<Boolean> ignoreWhitespace = Model.of(true);
 
 	public ComparePage(PageParameters params) {
 		super(params);
@@ -214,6 +217,10 @@ public class ComparePage extends RepositoryPage {
 			comparison.add(new Label("diffText", diff.content).setEscapeModelStrings(false));
 		}
 
+		// set the default DiffComparator
+		DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
+		ignoreWhitespace.setObject(DiffComparator.IGNORE_WHITESPACE == diffComparator);
+
 		//
 		// ref selection form
 		//
@@ -225,8 +232,13 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromRefId.getObject();
 				String to = ComparePage.this.toRefId.getObject();
+				boolean ignoreWS = ignoreWhitespace.getObject();
 
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
+				if (ignoreWS) {
+					params.put("w", 1);
+				}
+
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
@@ -247,6 +259,8 @@ public class ComparePage extends RepositoryPage {
 		}
 		refsForm.add(new DropDownChoice<String>("fromRef", fromRefId, refs).setEnabled(refs.size() > 0));
 		refsForm.add(new DropDownChoice<String>("toRef", toRefId, refs).setEnabled(refs.size() > 0));
+		refsForm.add(new Label("ignoreWhitespaceLabel", getString(DiffComparator.IGNORE_WHITESPACE.getTranslationKey())));
+		refsForm.add(new CheckBox("ignoreWhitespaceCheckbox", ignoreWhitespace));
 		add(refsForm);
 
 		//
@@ -260,8 +274,12 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromCommitId.getObject();
 				String to = ComparePage.this.toCommitId.getObject();
+				boolean ignoreWS = ignoreWhitespace.getObject();
 
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
+				if (ignoreWS) {
+					params.put("w", 1);
+				}
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
@@ -275,6 +293,8 @@ public class ComparePage extends RepositoryPage {
 		TextField<String> toIdField = new TextField<String>("toId", toCommitId);
 		WicketUtils.setInputPlaceholder(toIdField, getString("gb.to") + "...");
 		idsForm.add(toIdField);
+		idsForm.add(new Label("ignoreWhitespaceLabel", getString(DiffComparator.IGNORE_WHITESPACE.getTranslationKey())));
+		idsForm.add(new CheckBox("ignoreWhitespaceCheckbox", ignoreWhitespace));
 		add(idsForm);
 
 		r.close();
