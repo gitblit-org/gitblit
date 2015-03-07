@@ -27,6 +27,7 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.utils.StringUtils;
+import com.google.common.base.Joiner;
 
 /**
  * Class that encapsulates a public SSH key and it's metadata.
@@ -51,7 +52,8 @@ public class SshKey implements Serializable {
 	private AccessPermission permission;
 
 	public SshKey(String data) {
-		this.rawData = data;
+		// strip out line breaks (issue-571)
+		this.rawData = Joiner.on("").join(data.replace("\r\n", "\n").split("\n"));
 		this.permission = AccessPermission.PUSH;
 	}
 
