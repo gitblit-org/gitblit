@@ -529,13 +529,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="sshd-core-0.13.0.jar">
+      <library name="sshd-core-0.14.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/sshd-core-0.13.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/sshd-core-0.14.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-0.13.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-0.14.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

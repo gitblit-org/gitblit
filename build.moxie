@@ -111,7 +111,7 @@ properties: {
   bouncycastle.version : 1.51
   selenium.version : 2.28.0
   wikitext.version : 1.4
-  sshd.version: 0.13.0
+  sshd.version: 0.14.0
   mina.version: 2.0.9
   guice.version : 4.0-beta5
   # Gitblit maintains a fork of guice-servlet
