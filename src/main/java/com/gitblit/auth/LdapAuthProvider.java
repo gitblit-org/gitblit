@@ -533,13 +533,20 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	}
 
 	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
+	  LDAPConnection authldapConnection = getLdapConnection();
 		try {
-			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
-			ldapConnection.bind(userDn, password);
+		  if (settings.getBoolean(Keys.realm.ldap.username, false)) {
+		    authldapConnection.bind(userDn, password);
+		  } else {
+			  // Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
+		    ldapConnection.bind(userDn, password);
+		  }
 			return true;
 		} catch (LDAPException e) {
 			logger.error("Error authenticating user", e);
 			return false;
+		} finally {
+		  authldapConnection.close();
 		}
 	}
 
