@@ -357,5 +357,17 @@
         <filter-name>wicketFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+    <!-- Resource Guard filter -->
+    <filter>
+	<filter-name>resourceGuard</filter-name>
+	<filter-class>com.gitblit.servlet.ResourceGuardFilter</filter-class>
+	<init-param>
+		<param-name>deniedPaths</param-name>
+		<param-value>com/,org/</param-value>
+	</init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>resourceGuard</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 </web-app>
