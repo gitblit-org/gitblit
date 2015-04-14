@@ -129,7 +129,7 @@ public class GitblitContext extends GuiceServletContextListener {
 	 * Returns Gitblit's Guice injection modules.
 	 */
 	protected AbstractModule [] getModules() {
-		return new AbstractModule [] { new CoreModule(), new WebModule() };
+		return new AbstractModule [] { new CoreModule(), new WebModule(null!=goBaseFolder) };
 	}
 
 	/**
