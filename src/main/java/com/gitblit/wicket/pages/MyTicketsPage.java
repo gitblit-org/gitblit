@@ -27,6 +27,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.Keys;
+import com.gitblit.client.Translation;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Status;
@@ -72,11 +73,10 @@ public class MyTicketsPage extends RootPage {
 		final String[] statiiParam = (params == null) ? TicketsUI.openStatii : params.getStringArray(Lucene.status.name());
 		final String assignedToParam = (params == null) ? "" : params.getString(Lucene.responsible.name(), null);
 		final String milestoneParam = (params == null) ? "" : params.getString(Lucene.milestone.name(), null);
-		// todo jeyoung add repository to this filter
 		final String queryParam = (params == null || StringUtils.isEmpty(params.getString("q", null))) ? "watchedby:" + username : params.getString("q", null);
 		final String searchParam = (params == null) ? "" : params.getString("s", null);
 		final String sortBy = (params == null) ? "" : Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
-		final String repository = (params == null) ? "" : Lucene.fromString(params.getString("repository", Lucene.repository.name())).name();
+		final String repository = (params == null) ? "" : params.getString("repository", null);
 		final boolean desc = (params == null) ? true : !"asc".equals(params.getString("direction", "desc"));
 
 		// add the user title panel
@@ -259,6 +259,9 @@ public class MyTicketsPage extends RootPage {
 
         // by repository
 		List<RepositoryModel> repositoryChoices = getRepositoryModels();
+        RepositoryModel noneChoice = new RepositoryModel();
+        noneChoice.name = Translation.get("gb.all");
+        repositoryChoices.add(0, noneChoice);
 		RepositoryModel currentRepository = repositoryChoices.size() > 0 ? repositoryChoices.get(0) : null;
 		for (RepositoryModel r : repositoryChoices) {
 			if (r.name.equals(repository)) {
@@ -266,10 +269,8 @@ public class MyTicketsPage extends RootPage {
 				break;
 			}
 		}
-		add(new Label("currentRepository", currentRepository == null ? "none" : currentRepository.name));
+		add(new Label("currentRepository", currentRepository == null ? "none" : currentRepository.toString()));
 
-        // todo insert a "none" option that will show tickets for all
-        // repositories
 		ListDataProvider<RepositoryModel> repositoryChoicesDp = new ListDataProvider<RepositoryModel>(repositoryChoices);
 		DataView<RepositoryModel> repositoryMenu = new DataView<RepositoryModel>("repository", repositoryChoicesDp) {
 			private static final long serialVersionUID = 1L;
@@ -277,9 +278,8 @@ public class MyTicketsPage extends RootPage {
 			@Override
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel r = item.getModelObject();
-                // todo add repository parameter
 				PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, r.name, 1);
-				item.add(new LinkPanel("repositoryLink", null, r.name, MyTicketsPage.class, params).setRenderBodyOnly(true));
+				item.add(new LinkPanel("repositoryLink", null, r.toString(), MyTicketsPage.class, params).setRenderBodyOnly(true));
 			}
 		};
 		add(repositoryMenu);
@@ -305,7 +305,11 @@ public class MyTicketsPage extends RootPage {
 			}
 		}
 
-		// todo jeyoung specify repository name, similar to above
+        if (!qb.containsField(Lucene.repository.name()) && !StringUtils.isEmpty(repository)) {
+            QueryBuilder q1 = new QueryBuilder();
+            q1.and(Lucene.repository.matches(repository));
+            qb.and(q1.toSubquery().toString());
+        }
 
 		final String luceneQuery;
 		if (qb.containsField(Lucene.createdby.name())
@@ -341,7 +345,6 @@ public class MyTicketsPage extends RootPage {
 		add(new TicketListPanel("ticketList", results, showSwatch, true));
 	}
 
-    // todo add repository name here
 	protected PageParameters queryParameters(
 			String query,
 			String milestone,
