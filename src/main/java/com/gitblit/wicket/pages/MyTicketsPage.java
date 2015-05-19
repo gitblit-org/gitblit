@@ -27,6 +27,8 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.Keys;
+import com.gitblit.client.Translation;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
@@ -74,6 +76,7 @@ public class MyTicketsPage extends RootPage {
 		final String queryParam = (params == null || StringUtils.isEmpty(params.getString("q", null))) ? "watchedby:" + username : params.getString("q", null);
 		final String searchParam = (params == null) ? "" : params.getString("s", null);
 		final String sortBy = (params == null) ? "" : Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
+		final String repository = (params == null) ? "" : params.getString("repository", null);
 		final boolean desc = (params == null) ? true : !"asc".equals(params.getString("direction", "desc"));
 
 		// add the user title panel
@@ -91,6 +94,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 
 		add(new BookmarkablePageLink<Void>("bugsQuery", MyTicketsPage.class,
@@ -101,6 +105,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 
 		add(new BookmarkablePageLink<Void>("enhancementsQuery", MyTicketsPage.class,
@@ -111,6 +116,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 
 		add(new BookmarkablePageLink<Void>("tasksQuery", MyTicketsPage.class,
@@ -121,6 +127,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 
 		add(new BookmarkablePageLink<Void>("questionsQuery", MyTicketsPage.class,
@@ -131,6 +138,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 		
 		add(new BookmarkablePageLink<Void>("maintenanceQuery", MyTicketsPage.class,
@@ -141,6 +149,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 
 		add(new BookmarkablePageLink<Void>("resetQuery", MyTicketsPage.class,
@@ -151,6 +160,7 @@ public class MyTicketsPage extends RootPage {
 						null,
 						null,
 						true,
+                        null,
 						1)));
 
 		add(new Label("userDivider"));
@@ -162,6 +172,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 
 		add(new BookmarkablePageLink<Void>("watchedQuery", MyTicketsPage.class,
@@ -172,6 +183,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 		add(new BookmarkablePageLink<Void>("mentionsQuery", MyTicketsPage.class,
 				queryParameters(
@@ -181,6 +193,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 		add(new BookmarkablePageLink<Void>("responsibleQuery", MyTicketsPage.class,
 				queryParameters(
@@ -190,6 +203,7 @@ public class MyTicketsPage extends RootPage {
 						assignedToParam,
 						sortBy,
 						desc,
+                        repository,
 						1)));
 
 		// states
@@ -198,9 +212,9 @@ public class MyTicketsPage extends RootPage {
 		} else {
 			add(new Label("selectedStatii", StringUtils.flattenStrings(Arrays.asList(statiiParam), ",")));
 		}
-		add(new BookmarkablePageLink<Void>("openTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, TicketsUI.openStatii, assignedToParam, sortBy, desc, 1)));
-		add(new BookmarkablePageLink<Void>("closedTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, TicketsUI.closedStatii, assignedToParam, sortBy, desc, 1)));
-		add(new BookmarkablePageLink<Void>("allTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, null, assignedToParam, sortBy, desc, 1)));
+		add(new BookmarkablePageLink<Void>("openTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, TicketsUI.openStatii, assignedToParam, sortBy, desc, repository, 1)));
+		add(new BookmarkablePageLink<Void>("closedTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, TicketsUI.closedStatii, assignedToParam, sortBy, desc, repository, 1)));
+		add(new BookmarkablePageLink<Void>("allTickets", MyTicketsPage.class, queryParameters(queryParam, milestoneParam, null, assignedToParam, sortBy, desc, repository, 1)));
 
 		// by status
 		List<Status> statii = new ArrayList<Status>(Arrays.asList(Status.values()));
@@ -212,13 +226,14 @@ public class MyTicketsPage extends RootPage {
 			@Override
 			public void populateItem(final Item<Status> item) {
 				final Status status = item.getModelObject();
-				PageParameters p = queryParameters(queryParam, milestoneParam, new String [] { status.name().toLowerCase() }, assignedToParam, sortBy, desc, 1);
+				PageParameters p = queryParameters(queryParam, milestoneParam, new String [] { status.name().toLowerCase() }, assignedToParam, sortBy, desc, repository, 1);
 				String css = TicketsUI.getStatusClass(status);
 				item.add(new LinkPanel("statusLink", css, status.toString(), MyTicketsPage.class, p).setRenderBodyOnly(true));
 			}
 		};
 		add(statiiLinks);
 
+        // by sort
 		List<TicketSort> sortChoices = new ArrayList<TicketSort>();
 		sortChoices.add(new TicketSort(getString("gb.sortNewest"), Lucene.created.name(), true));
 		sortChoices.add(new TicketSort(getString("gb.sortOldest"), Lucene.created.name(), false));
@@ -251,11 +266,38 @@ public class MyTicketsPage extends RootPage {
 			@Override
 			public void populateItem(final Item<TicketSort> item) {
 				final TicketSort ts = item.getModelObject();
-				PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, assignedToParam, ts.sortBy, ts.desc, 1);
+				PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, assignedToParam, ts.sortBy, ts.desc, repository, 1);
 				item.add(new LinkPanel("sortLink", null, ts.name, MyTicketsPage.class, params).setRenderBodyOnly(true));
 			}
 		};
 		add(sortMenu);
+
+        // by repository
+		List<RepositoryModel> repositoryChoices = getRepositoryModels();
+        RepositoryModel noneChoice = new RepositoryModel();
+        noneChoice.name = Translation.get("gb.all");
+        repositoryChoices.add(0, noneChoice);
+		RepositoryModel currentRepository = repositoryChoices.size() > 0 ? repositoryChoices.get(0) : null;
+		for (RepositoryModel r : repositoryChoices) {
+			if (r.name.equals(repository)) {
+				currentRepository = r;
+				break;
+			}
+		}
+		add(new Label("currentRepository", currentRepository == null ? "none" : currentRepository.toString()));
+
+		ListDataProvider<RepositoryModel> repositoryChoicesDp = new ListDataProvider<RepositoryModel>(repositoryChoices);
+		DataView<RepositoryModel> repositoryMenu = new DataView<RepositoryModel>("repository", repositoryChoicesDp) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void populateItem(final Item<RepositoryModel> item) {
+				final RepositoryModel r = item.getModelObject();
+				PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, r.name, 1);
+				item.add(new LinkPanel("repositoryLink", null, r.toString(), MyTicketsPage.class, params).setRenderBodyOnly(true));
+			}
+		};
+		add(repositoryMenu);
 
 		// Build Query here
 		QueryBuilder qb = new QueryBuilder(queryParam);
@@ -277,6 +319,12 @@ public class MyTicketsPage extends RootPage {
 				qb.and(q.toSubquery().toString());
 			}
 		}
+
+        if (!qb.containsField(Lucene.repository.name()) && !StringUtils.isEmpty(repository)) {
+            QueryBuilder q1 = new QueryBuilder();
+            q1.and(Lucene.repository.matches(repository));
+            qb.and(q1.toSubquery().toString());
+        }
 
 		final String luceneQuery;
 		if (qb.containsField(Lucene.createdby.name())
@@ -306,7 +354,7 @@ public class MyTicketsPage extends RootPage {
 		}
 
 		int totalResults = results.size() == 0 ? 0 : results.get(0).totalResults;
-		buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, page, pageSize, results.size(), totalResults);
+		buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, repository, page, pageSize, results.size(), totalResults);
 
 		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
 		add(new TicketListPanel("ticketList", results, showSwatch, true));
@@ -319,6 +367,7 @@ public class MyTicketsPage extends RootPage {
 			String assignedTo,
 			String sort,
 			boolean descending,
+			String repository,
 			int page) {
 
 		PageParameters params = WicketUtils.newRepositoryParameter("");
@@ -342,6 +391,9 @@ public class MyTicketsPage extends RootPage {
 		if (!descending) {
 			params.add("direction", "asc");
 		}
+		if (!StringUtils.isEmpty(repository)) {
+			params.add(Lucene.repository.name(), repository);
+		}
 		if (page > 1) {
 			params.add("pg", "" + page);
 		}
@@ -355,6 +407,7 @@ public class MyTicketsPage extends RootPage {
 			final String assignedTo,
 			final String sort,
 			final boolean desc,
+			final String repository,
 			final int page,
 			int pageSize,
 			int count,
@@ -363,8 +416,8 @@ public class MyTicketsPage extends RootPage {
 		boolean showNav = total > (2 * pageSize);
 		boolean allowPrev = page > 1;
 		boolean allowNext = (pageSize * (page - 1) + count) < total;
-		add(new BookmarkablePageLink<Void>("prevLink", MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, page - 1)).setEnabled(allowPrev).setVisible(showNav));
-		add(new BookmarkablePageLink<Void>("nextLink", MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, page + 1)).setEnabled(allowNext).setVisible(showNav));
+		add(new BookmarkablePageLink<Void>("prevLink", MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, repository, page - 1)).setEnabled(allowPrev).setVisible(showNav));
+		add(new BookmarkablePageLink<Void>("nextLink", MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, repository, page + 1)).setEnabled(allowNext).setVisible(showNav));
 
 		if (total <= pageSize) {
 			add(new Label("pageLink").setVisible(false));
@@ -393,7 +446,7 @@ public class MyTicketsPage extends RootPage {
 			@Override
 			public void populateItem(final Item<Integer> item) {
 				final Integer i = item.getModelObject();
-				LinkPanel link = new LinkPanel("page", null, "" + i, MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, i));
+				LinkPanel link = new LinkPanel("page", null, "" + i, MyTicketsPage.class, queryParameters(query, milestone, states, assignedTo, sort, desc, repository, i));
 				link.setRenderBodyOnly(true);
 				if (i == page) {
 					WicketUtils.setCssClass(item, "active");
