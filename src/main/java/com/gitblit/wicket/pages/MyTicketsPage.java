@@ -72,6 +72,7 @@ public class MyTicketsPage extends RootPage {
 		final String[] statiiParam = (params == null) ? TicketsUI.openStatii : params.getStringArray(Lucene.status.name());
 		final String assignedToParam = (params == null) ? "" : params.getString(Lucene.responsible.name(), null);
 		final String milestoneParam = (params == null) ? "" : params.getString(Lucene.milestone.name(), null);
+		// todo jeyoung add repository to this filter
 		final String queryParam = (params == null || StringUtils.isEmpty(params.getString("q", null))) ? "watchedby:" + username : params.getString("q", null);
 		final String searchParam = (params == null) ? "" : params.getString("s", null);
 		final String sortBy = (params == null) ? "" : Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
@@ -257,9 +258,7 @@ public class MyTicketsPage extends RootPage {
 		add(sortMenu);
 
         // by repository
-		List<RepositoryModel> repositoryChoices = new ArrayList<RepositoryModel>();
-        // todo add repository choices here
-
+		List<RepositoryModel> repositoryChoices = getRepositoryModels();
 		RepositoryModel currentRepository = repositoryChoices.size() > 0 ? repositoryChoices.get(0) : null;
 		for (RepositoryModel r : repositoryChoices) {
 			if (r.name.equals(repository)) {
@@ -269,6 +268,8 @@ public class MyTicketsPage extends RootPage {
 		}
 		add(new Label("currentRepository", currentRepository == null ? "none" : currentRepository.name));
 
+        // todo insert a "none" option that will show tickets for all
+        // repositories
 		ListDataProvider<RepositoryModel> repositoryChoicesDp = new ListDataProvider<RepositoryModel>(repositoryChoices);
 		DataView<RepositoryModel> repositoryMenu = new DataView<RepositoryModel>("repository", repositoryChoicesDp) {
 			private static final long serialVersionUID = 1L;
@@ -303,6 +304,8 @@ public class MyTicketsPage extends RootPage {
 				qb.and(q.toSubquery().toString());
 			}
 		}
+
+		// todo jeyoung specify repository name, similar to above
 
 		final String luceneQuery;
 		if (qb.containsField(Lucene.createdby.name())
@@ -371,7 +374,7 @@ public class MyTicketsPage extends RootPage {
 			params.add("direction", "asc");
 		}
 		if (!StringUtils.isEmpty(repository)) {
-			params.add("repository", repository);
+			params.add(Lucene.repository.name(), repository);
 		}
 		if (page > 1) {
 			params.add("pg", "" + page);
