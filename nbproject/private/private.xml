@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/manager/PluginManager.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/manager/AuthenticationManager.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/bugtraq/com/syntevo/bugtraq/BugtraqConfig.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/auth/AuthenticationProvider.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/client/EditRepositoryDialog.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/models/Menu.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/authority/GitblitAuthority.java</file>
+            <file>file:/D:/Temp/gitblit/nbproject/project.xml</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/auth/HtpasswdAuthProvider.java</file>
+            <file>file:/D:/Temp/gitblit/src/test/bugtraq/com/syntevo/bugtraq/BugtraqFormatterTest.java</file>
+            <file>file:/D:/Temp/gitblit/src/test/java/com/gitblit/tests/FanoutServiceTest.java</file>
+            <file>file:/D:/Temp/gitblit/src/test/java/com/gitblit/tests/Base64Test.java</file>
+            <file>file:/D:/Temp/gitblit/src/test/java/de/akquinet/devops/GitBlitServer4UITests.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/utils/BugtraqProcessor.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/wicket/panels/DigestsPanel.html</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/wicket/panels/RefsPanel.html</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/wicket/panels/ReflogPanel.html</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/wicket/panels/RepositoriesPanel.java</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/wicket/panels/RepositoryNamePanel.html</file>
+            <file>file:/D:/Temp/gitblit/src/main/resources/bootstrap/css/bootstrap.css</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/wicket/panels/DiffStatPanel.html</file>
+            <file>file:/D:/Temp/gitblit/src/main/java/com/gitblit/wicket/panels/TicketListPanel.html</file>
+        </group>
+    </open-files>
+</project-private>
