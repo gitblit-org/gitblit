@@ -96,7 +96,9 @@ public abstract class SessionPage extends WebPage {
 					.getAttribute(Constants.AUTHENTICATION_TYPE);
 
 			// issue 62: fix session fixation vulnerability
-			session.replaceSession();
+			if(app().settings().getBoolean(Keys.web.rewriteSession, true)) {
+				session.replaceSession();				
+			}
 			session.setUser(user);
 
 			request.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, authenticationType);
