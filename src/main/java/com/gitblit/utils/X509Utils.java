@@ -61,6 +61,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.crypto.Cipher;
+import javax.naming.ldap.LdapName;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -1117,17 +1118,18 @@ public class X509Utils {
 	}
 
 	public static X509Metadata getMetadata(X509Certificate cert) {
-		// manually split DN into OID components
-		// this is instead of parsing with LdapName which:
-		// (1) I don't trust the order of values
-		// (2) it filters out values like EMAILADDRESS
-		String dn = cert.getSubjectDN().getName();
 		Map<String, String> oids = new HashMap<String, String>();
-		for (String kvp : dn.split(",")) {
-			String [] val = kvp.trim().split("=");
-			String oid = val[0].toUpperCase().trim();
-			String data = val[1].trim();
-			oids.put(oid, data);
+		try {
+			String dn = cert.getSubjectDN().getName();
+			LdapName ldapName = new LdapName(dn);
+			for (int i = 0; i < ldapName.size(); i++) {
+				String [] val = ldapName.get(i).trim().split("=", 2);
+				String oid = val[0].toUpperCase().trim();
+				String data = val[1].trim();
+				oids.put(oid, data);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 
 		X509Metadata metadata = new X509Metadata(oids.get("CN"), "whocares");
