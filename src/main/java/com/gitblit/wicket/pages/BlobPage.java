@@ -195,7 +195,8 @@ public class BlobPage extends RepositoryPage {
 		} else {
 			sb.append("<pre class=\"plainprint\">");
 		}
-		lines = StringUtils.escapeForHtml(source, true).split("\n");
+		final int tabLength = app().settings().getInteger(Keys.web.tabLength, 4);
+		lines = StringUtils.escapeForHtml(source, true, tabLength).split("\n");
 
 		sb.append("<table width=\"100%\"><tbody>");
 

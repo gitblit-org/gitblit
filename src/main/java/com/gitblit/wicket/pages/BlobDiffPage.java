@@ -57,7 +57,7 @@ public class BlobDiffPage extends RepositoryPage {
 			RevCommit parent = commit.getParentCount() == 0 ? null : commit.getParent(0);
 			ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 					parent.getName(), commit.getName(), imageExtensions);
-			diff = DiffUtils.getDiff(r, commit, blobPath, diffComparator, DiffOutputType.HTML, handler).content;
+			diff = DiffUtils.getDiff(r, commit, blobPath, diffComparator, DiffOutputType.HTML, handler, 3).content;
 			if (handler.getImgDiffCount() > 0) {
 				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
 			}
@@ -68,7 +68,7 @@ public class BlobDiffPage extends RepositoryPage {
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
 			ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
 					baseCommit.getName(), commit.getName(), imageExtensions);
-			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, diffComparator, DiffOutputType.HTML, handler).content;
+			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, diffComparator, DiffOutputType.HTML, handler, 3).content;
 			if (handler.getImgDiffCount() > 0) {
 				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
 			}

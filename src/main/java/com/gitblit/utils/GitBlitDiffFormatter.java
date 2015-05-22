@@ -127,6 +127,8 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	/** If {@link #truncated}, contains all entries skipped. */
 	private final List<DiffEntry> skipped = new ArrayList<DiffEntry>();
 
+	private int tabLength;
+
 	/**
 	 * A {@link ResettableByteArrayOutputStream} that intercept the "Binary files differ" message produced
 	 * by the super implementation. Unfortunately the super implementation has far too many things private;
@@ -162,11 +164,12 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 
 	}
 
-	public GitBlitDiffFormatter(String commitId, String path, BinaryDiffHandler handler) {
+	public GitBlitDiffFormatter(String commitId, String path, BinaryDiffHandler handler, int tabLength) {
 		super(new DiffOutputStream());
 		this.os = (DiffOutputStream) getOutputStream();
 		this.os.setFormatter(this, handler);
 		this.diffStat = new DiffStat(commitId);
+		this.tabLength = tabLength;
 		// If we have a full commitdiff, install maxima to avoid generating a super-long diff listing that
 		// will only tax the browser too much.
 		maxDiffLinesPerFile = path != null ? -1 : getLimit(DIFF_LIMIT_PER_FILE_KEY, 500, DIFF_LIMIT_PER_FILE);
@@ -453,14 +456,14 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			// Highlight trailing whitespace on deleted/added lines.
 			Matcher matcher = trailingWhitespace.matcher(line);
 			if (matcher.find()) {
-				StringBuilder result = new StringBuilder(StringUtils.escapeForHtml(line.substring(0, matcher.start()), CONVERT_TABS));
+				StringBuilder result = new StringBuilder(StringUtils.escapeForHtml(line.substring(0, matcher.start()), CONVERT_TABS, tabLength));
 				result.append("<span class='trailingws-").append(prefix == '+' ? "add" : "sub").append("'>");
 				result.append(StringUtils.escapeForHtml(matcher.group(1), false));
 				result.append("</span>");
 				return result.toString();
 			}
 		}
-		return StringUtils.escapeForHtml(line, CONVERT_TABS);
+		return StringUtils.escapeForHtml(line, CONVERT_TABS, tabLength);
 	}
 
 	/**
@@ -493,7 +496,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 					} else {
 						sb.append("<th class='diff-state diff-state-sub'></th><td class=\"diff-cell remove2\">");
 					}
-					line = StringUtils.escapeForHtml(line.substring(1), CONVERT_TABS);
+					line = StringUtils.escapeForHtml(line.substring(1), CONVERT_TABS, tabLength);
 				}
 				sb.append(line);
 				if (gitLinkDiff) {
