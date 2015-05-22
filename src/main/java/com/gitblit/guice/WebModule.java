@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gitblit.Constants;
+import com.gitblit.servlet.AccessDeniedServlet;
 import com.gitblit.servlet.BranchGraphServlet;
 import com.gitblit.servlet.DownloadZipFilter;
 import com.gitblit.servlet.DownloadZipServlet;
@@ -69,6 +70,17 @@ public class WebModule extends ServletModule {
 		serve(Constants.PT_PATH).with(PtServlet.class);
 		serve("/robots.txt").with(RobotsTxtServlet.class);
 		serve("/logo.png").with(LogoServlet.class);
+
+		/* Prevent accidental access to 'resources' such as GitBlit java classes
+		 *
+		 * In the GO setup the JAR containing the application and the WAR injected
+		 * into Jetty are the same file. However Jetty expects to serve the entire WAR
+		 * contents, except the WEB-INF folder. Thus, all java binary classes in the
+		 * JAR are served by default as is they were legitimate resources.
+		 *
+		 * The below servlet mappings prevent that behavior
+		 */
+		serve(fuzzy("/com/")).with(AccessDeniedServlet.class);
 
 		// global filters
 		filter(ALL).through(ProxyFilter.class);
