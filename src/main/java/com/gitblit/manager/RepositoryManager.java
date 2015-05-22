@@ -1375,6 +1375,7 @@ public class RepositoryManager implements IRepositoryManager {
 				repository.name = repository.name.substring(projectPath.length() + 1);
 			}
 		}
+		boolean isRename = false;
 		if (isCreate) {
 			// ensure created repository name ends with .git
 			if (!repository.name.toLowerCase().endsWith(org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
@@ -1391,7 +1392,8 @@ public class RepositoryManager implements IRepositoryManager {
 			r = JGitUtils.createRepository(repositoriesFolder, repository.name, shared);
 		} else {
 			// rename repository
-			if (!repositoryName.equalsIgnoreCase(repository.name)) {
+			isRename = !repositoryName.equalsIgnoreCase(repository.name);
+			if (isRename) {
 				if (!repository.name.toLowerCase().endsWith(
 						org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
 					repository.name += org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
@@ -1509,6 +1511,14 @@ public class RepositoryManager implements IRepositoryManager {
 					listener.onCreation(repository);
 				} catch (Throwable t) {
 					logger.error(String.format("failed to call plugin onCreation %s", repositoryName), t);
+				}
+			}
+		} else if (isRename && pluginManager != null) {
+			for (RepositoryLifeCycleListener listener : pluginManager.getExtensions(RepositoryLifeCycleListener.class)) {
+				try {
+					listener.onRename(repositoryName, repository);
+				} catch (Throwable t) {
+					logger.error(String.format("failed to call plugin onRename %s", repositoryName), t);
 				}
 			}
 		}

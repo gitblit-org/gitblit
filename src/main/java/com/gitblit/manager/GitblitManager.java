@@ -54,6 +54,7 @@ import com.gitblit.Constants.FederationToken;
 import com.gitblit.Constants.Role;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
+import com.gitblit.extensions.RepositoryLifeCycleListener;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -276,6 +277,16 @@ public class GitblitManager implements IGitblit {
 
 		// add this clone to the cached model
 		repositoryManager.addToCachedRepositoryList(cloneModel);
+
+		if (pluginManager != null) {
+			for (RepositoryLifeCycleListener listener : pluginManager.getExtensions(RepositoryLifeCycleListener.class)) {
+				try {
+					listener.onFork(repository, cloneModel);
+				} catch (Throwable t) {
+					logger.error(String.format("failed to call plugin onFork %s", repository.name), t);
+				}
+			}
+		}
 		return cloneModel;
 	}
 
