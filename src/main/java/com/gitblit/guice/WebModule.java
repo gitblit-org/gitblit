@@ -53,11 +53,6 @@ import com.google.inject.servlet.ServletModule;
 public class WebModule extends ServletModule {
 
 	final static String ALL = "/*";
-	private boolean isGO;
-
-	public WebModule(boolean isGO) {
-		this.isGO=isGO;
-	}
 
 	@Override
 	protected void configureServlets() {
@@ -75,20 +70,18 @@ public class WebModule extends ServletModule {
 		serve(Constants.PT_PATH).with(PtServlet.class);
 		serve("/robots.txt").with(RobotsTxtServlet.class);
 		serve("/logo.png").with(LogoServlet.class);
-		if(isGO)
-		{
-			/* Prevent accidental access to 'resources' such as GitBlit java classes
-			 *
-			 * In the GO setup the JAR containing the application and the WAR injected
-			 * into Jetty are the same file. However Jetty expects to serve the entire WAR
-			 * contents, except the WEB-INF folder. Thus, all java binary classes in the
-			 * JAR are served by default as is they were legitimate resources.
-			 *
-			 * The below servlet mappings prevent that behavior
-			 */
-			serve(fuzzy("/com/")).with(AccessDeniedServlet.class);
-			serve(fuzzy("/org/")).with(AccessDeniedServlet.class);
-		}
+
+		/* Prevent accidental access to 'resources' such as GitBlit java classes
+		 *
+		 * In the GO setup the JAR containing the application and the WAR injected
+		 * into Jetty are the same file. However Jetty expects to serve the entire WAR
+		 * contents, except the WEB-INF folder. Thus, all java binary classes in the
+		 * JAR are served by default as is they were legitimate resources.
+		 *
+		 * The below servlet mappings prevent that behavior
+		 */
+		serve(fuzzy("/com/")).with(AccessDeniedServlet.class);
+
 		// global filters
 		filter(ALL).through(ProxyFilter.class);
 		filter(ALL).through(EnforceAuthenticationFilter.class);
