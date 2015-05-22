@@ -1104,6 +1104,7 @@ public class LuceneService implements Runnable {
 			content = "";
 		}
 
+		int tabLength = storedSettings.getInteger(Keys.web.tabLength, 4);
 		int fragmentLength = SearchObjectType.commit == result.type ? 512 : 150;
 
 		QueryScorer scorer = new QueryScorer(query, "content");
@@ -1126,7 +1127,7 @@ public class LuceneService implements Runnable {
 			if (fragment.length() > fragmentLength) {
 				fragment = fragment.substring(0, fragmentLength) + "...";
 			}
-			return "<pre class=\"text\">" + StringUtils.escapeForHtml(fragment, true) + "</pre>";
+			return "<pre class=\"text\">" + StringUtils.escapeForHtml(fragment, true, tabLength) + "</pre>";
 		}
 
 		// make sure we have unique fragments
