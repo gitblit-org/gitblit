@@ -24,6 +24,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -228,23 +229,31 @@ public class RawServlet extends HttpServlet {
 				return;
 			}
 
+			Map<String, String> quickContentTypes = new HashMap<>();
+			quickContentTypes.put("html", "text/html");
+			quickContentTypes.put("htm", "text/html");
+			quickContentTypes.put("xml", "application/xml");
+			quickContentTypes.put("json", "application/json");
 
 			List<PathModel> pathEntries = JGitUtils.getFilesInPath(r, requestedPath, commit);
 			if (pathEntries.isEmpty()) {
 				// requested a specific resource
 				String file = StringUtils.getLastPathElement(requestedPath);
 				try {
-					String contentType;
 
-					List<String> exts = runtimeManager.getSettings().getStrings(Keys.web.prettyPrintExtensions);
 					String ext = StringUtils.getFileExtension(file).toLowerCase();
-					if (exts.contains(ext)) {
-						// extension is a registered text type for pretty printing
-						contentType = "text/plain";
-					} else {
-						// query Tika for the content type
-						Tika tika = new Tika();
-						contentType = tika.detect(file);
+					String contentType = quickContentTypes.get(ext);
+
+					if (contentType == null) {
+						List<String> exts = runtimeManager.getSettings().getStrings(Keys.web.prettyPrintExtensions);
+						if (exts.contains(ext)) {
+							// extension is a registered text type for pretty printing
+							contentType = "text/plain";
+						} else {
+							// query Tika for the content type
+							Tika tika = new Tika();
+							contentType = tika.detect(file);
+						}
 					}
 
 					if (contentType == null) {
