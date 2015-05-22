@@ -473,7 +473,8 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		String[] lines = html.split("\n");
 		StringBuilder sb = new StringBuilder();
 		for (String line : lines) {
-			if (line.startsWith("index")) {
+			if (line.startsWith("index") || line.startsWith("similarity")
+					|| line.startsWith("rename from ") || line.startsWith("rename to ")) {
 				// skip index lines
 			} else if (line.startsWith("new file") || line.startsWith("deleted file")) {
 				// skip new file lines
