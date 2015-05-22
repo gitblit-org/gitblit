@@ -215,6 +215,29 @@ public class AuthenticationManager implements IAuthenticationManager {
 						user.displayName = username;
 						user.password = Constants.EXTERNAL_ACCOUNT;
 						user.accountType = AccountType.CONTAINER;
+						
+						// Try to extract user's informations for the session
+						// it uses "realm.container.autoAccounts.*" as the attribute name to look for
+						HttpSession session = httpRequest.getSession();
+						String emailAddress = resolveAttribute(session, Keys.realm.container.autoAccounts.emailAddress);
+						if(emailAddress != null) {
+							user.emailAddress = emailAddress;
+						}
+						String displayName = resolveAttribute(session, Keys.realm.container.autoAccounts.displayName);
+						if(displayName != null) {
+							user.displayName = displayName;
+						}
+						String userLocale = resolveAttribute(session, Keys.realm.container.autoAccounts.locale);
+						if(userLocale != null) {
+							user.getPreferences().setLocale(userLocale);
+						}
+						String adminRole = settings.getString(Keys.realm.container.autoAccounts.adminRole, null);
+						if(adminRole != null && ! adminRole.isEmpty()) {
+							if(httpRequest.isUserInRole(adminRole)) {
+								user.canAdmin = true;
+							}
+						}
+						
 						userManager.updateUserModel(user);
 						flagSession(httpRequest, AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
@@ -292,6 +315,31 @@ public class AuthenticationManager implements IAuthenticationManager {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Extract given attribute from the session and return it's content
+	 * it return null if attributeMapping is empty, or if the value is
+	 * empty
+	 * 
+	 * @param session The user session
+	 * @param attributeMapping
+	 * @return
+	 */
+	private String resolveAttribute(HttpSession session, String attributeMapping) {
+		String attributeName = settings.getString(attributeMapping, null);
+		if(StringUtils.isEmpty(attributeName)) {
+			return null;
+		}
+		Object attributeValue = session.getAttribute(attributeName);
+		if(attributeValue == null) {
+			return null;
+		}
+		String value = attributeValue.toString();
+		if(value.isEmpty()) {
+			return null;
+		}
+		return value;
 	}
 
 	/**
