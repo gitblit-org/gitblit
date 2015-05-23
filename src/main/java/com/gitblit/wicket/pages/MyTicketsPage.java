@@ -73,12 +73,11 @@ public class MyTicketsPage extends RootPage {
         }
 
         final String username = currentUser.getName();
-        final String defaultQueryParam = "watchedby:"+username;
 
         final String[] statiiParam = (params == null) ? TicketsUI.openStatii : params.getStringArray(Lucene.status.name());
         final String assignedToParam = (params == null) ? "" : params.getString(Lucene.responsible.name(), null);
         final String milestoneParam = (params == null) ? "" : params.getString(Lucene.milestone.name(), null);
-        final String queryParam = (params == null || StringUtils.isEmpty(params.getString("q", null))) ? defaultQueryParam : params.getString("q", null);
+        final String queryParam = (params == null) ? null : params.getString("q", null);
         final String searchParam = (params == null) ? "" : params.getString("s", null);
         final String sortBy = (params == null) ? "" : Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
         final String repositoryId = (params == null) ? "" : params.getString(Lucene.rid.name(), null);
@@ -280,29 +279,22 @@ public class MyTicketsPage extends RootPage {
 
         // by repository
         final List<QueryResult> tickets =
-            query(initializeQueryBuilder(defaultQueryParam, username), 1, Integer.MAX_VALUE, sortBy, desc);
+            query(initializeQueryBuilder(null, username), 1, Integer.MAX_VALUE, sortBy, desc);
         final List<RepositoryModel> repositoryChoices = correspondingRepositories(tickets);
-        Collections.sort(repositoryChoices, new Comparator<RepositoryModel>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public int compare(RepositoryModel repository1, RepositoryModel repository2) {
-                return repository1.toString().compareTo(repository2.toString());
-            }
-        });
+        Collections.sort(repositoryChoices);
 
         final RepositoryModel noneChoice = new RepositoryModel();
         noneChoice.name = getString("gb.all");
         repositoryChoices.add(0, noneChoice);
 
-        RepositoryModel currentRepository = repositoryChoices.size() > 0 ? repositoryChoices.get(0) : null;
+        RepositoryModel currentRepository = repositoryChoices.get(0);
         for (RepositoryModel r : repositoryChoices) {
             if (r.getRID().equals(repositoryId)) {
                 currentRepository = r;
                 break;
             }
         }
-        add(new Label("currentRepository", currentRepository == null ? "none" : currentRepository.toString()));
+        add(new Label("currentRepository", currentRepository.toString()));
 
         ListDataProvider<RepositoryModel> repositoryChoicesDp = new ListDataProvider<RepositoryModel>(repositoryChoices);
         DataView<RepositoryModel> repositoryMenu = new DataView<RepositoryModel>("repository", repositoryChoicesDp) {
@@ -311,7 +303,8 @@ public class MyTicketsPage extends RootPage {
             @Override
             public void populateItem(final Item<RepositoryModel> item) {
                 final RepositoryModel r = item.getModelObject();
-                PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, r.getRID(), 1);
+                String rid = r == noneChoice ? null : r.getRID();
+                PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, rid, 1);
                 item.add(new LinkPanel("repositoryLink", null, r.toString(), MyTicketsPage.class, params).setRenderBodyOnly(true));
             }
         };
@@ -463,7 +456,8 @@ public class MyTicketsPage extends RootPage {
         // focused "my tickets"
         if (qb.containsField(Lucene.createdby.name())
                 || qb.containsField(Lucene.responsible.name())
-                || qb.containsField(Lucene.watchedby.name())) {
+                || qb.containsField(Lucene.watchedby.name())
+                || qb.containsField(Lucene.mentions.name())) {
 
             return qb;
         }
@@ -473,6 +467,7 @@ public class MyTicketsPage extends RootPage {
                  .or(Lucene.createdby.matches(username))
                  .or(Lucene.responsible.matches(username))
                  .or(Lucene.watchedby.matches(username))
+                 .or(Lucene.mentions.matches(username))
                  .endSubquery();
     }
 
