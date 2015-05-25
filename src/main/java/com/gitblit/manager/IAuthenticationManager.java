@@ -71,6 +71,16 @@ public interface IAuthenticationManager extends IManager {
 	UserModel authenticate(String username, char[] password);
 
 	/**
+	 * Return the UserModel for already authenticated user.
+	 *
+	 * @see IUserService.authenticate(String, char[])
+	 * @param username
+	 * @return a user object or null
+	 * @since 1.7.0
+	 */
+	UserModel authenticate(String username);
+
+	/**
 	 * Returns the Gitlbit cookie in the request.
 	 *
 	 * @param request

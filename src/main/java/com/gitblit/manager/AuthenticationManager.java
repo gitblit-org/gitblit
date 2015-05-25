@@ -374,6 +374,35 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 
 	/**
+	 * Return the UserModel for already authenticated user.
+	 *
+	 * This implementation assumes that the authentication has already take place
+	 * (e.g. SSHDaemon) and that this is a validation/verification of the user.
+	 *
+	 * @param username
+	 * @return a user object or null
+	 */
+	@Override
+	public UserModel authenticate(String username) {
+		if (username != null) {
+			if (!StringUtils.isEmpty(username)) {
+				UserModel user = userManager.getUserModel(username);
+				if (user != null) {
+					// existing user
+					logger.debug(MessageFormat.format("{0} authenticated externally", user.username));
+					return validateAuthentication(user, AuthenticationType.CONTAINER);
+				}
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0} during external authentication",
+							username));
+			}
+		} else {
+			logger.warn("Empty user passed to AuthenticationManager.authenticate!");
+		}
+		return null;
+	}
+
+
+	/**
 	 * This method allows the authentication manager to reject authentication
 	 * attempts.  It is called after the username/secret have been verified to
 	 * ensure that the authentication technique has been logged.
