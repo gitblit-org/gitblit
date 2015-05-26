@@ -83,9 +83,9 @@ public class UserManager implements IUserManager {
 	 * @param userService
 	 */
 	public void setUserService(IUserService userService) {
-		logger.info(userService.toString());
 		this.userService = userService;
 		this.userService.setup(runtimeManager);
+		logger.info(userService.toString());
 	}
 
 	@Override
@@ -115,10 +115,12 @@ public class UserManager implements IUserManager {
 					// check to see if this "file" is a custom user service class
 					Class<?> realmClass = Class.forName(realm);
 					service = (IUserService) realmClass.newInstance();
-				} catch (Throwable t) {
+				} catch (ClassNotFoundException t) {
 					// typical file path configuration
 					File realmFile = runtimeManager.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
 					service = createUserService(realmFile);
+				} catch (InstantiationException | IllegalAccessException  e) {
+					logger.error("failed to instanciate user service {}: {}", realm, e.getMessage());
 				}
 			}
 			setUserService(service);
