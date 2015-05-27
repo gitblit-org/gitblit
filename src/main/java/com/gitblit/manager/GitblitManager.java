@@ -662,6 +662,11 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public UserModel authenticate(String username) {
+		return authenticationManager.authenticate(username);
+	}
+
+	@Override
 	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {
 		UserModel user = authenticationManager.authenticate(httpRequest, requiresCertificate);
 		if (user == null) {
