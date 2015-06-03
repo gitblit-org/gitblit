@@ -257,7 +257,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		getApplicationSettings().setClassResolver(classResolver);
 
 		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
-		
+
 		buildAvatarGenerator();
 
 	}

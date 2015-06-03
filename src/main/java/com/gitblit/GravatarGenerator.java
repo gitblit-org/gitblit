@@ -26,7 +26,7 @@ public class GravatarGenerator extends AvatarGenerator {
 			return ActivityUtils.getGravatarIdenticonUrl(email, width);
 		} else {
 			return ActivityUtils.getGravatarThumbnailUrl(email, width);
-		}			
+		}
 	}
 
 }
