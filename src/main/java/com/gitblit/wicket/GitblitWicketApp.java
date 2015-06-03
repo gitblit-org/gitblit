@@ -74,5 +74,7 @@ public interface GitblitWicketApp {
 	public abstract ITicketService tickets();
 
 	public abstract TimeZone getTimezone();
+	
+	public String buildAvatarUrl(String username, String emailaddress, String cssClass, int width, boolean identicon);
 
 }

@@ -156,7 +156,7 @@ public class TicketListPanel extends BasePanel {
 					if (responsible == null) {
 						responsible = new UserModel(ticket.responsible);
 					}
-					GravatarImage avatar = new GravatarImage("responsible", responsible.getDisplayName(),
+					AvatarImage avatar = new AvatarImage("responsible", responsible.getDisplayName(),
 							responsible.emailAddress, null, 16, true);
 					avatar.setTooltip(getString("gb.responsible") + ": " + responsible.getDisplayName());
 					item.add(avatar);

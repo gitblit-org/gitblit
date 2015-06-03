@@ -91,7 +91,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BasePanel.JavascriptTextPrompt;
 import com.gitblit.wicket.panels.CommentPanel;
 import com.gitblit.wicket.panels.DiffStatPanel;
-import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.IconAjaxLink;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ShockWaveComponent;
@@ -312,7 +312,7 @@ public class TicketPage extends RepositoryPage {
 					if (user == null) {
 						user = new UserModel(username);
 					}
-					item.add(new GravatarImage("participant", user.getDisplayName(),
+					item.add(new AvatarImage("participant", user.getDisplayName(),
 							user.emailAddress, null, 25, true));
 				}
 			};
@@ -736,7 +736,7 @@ public class TicketPage extends RepositoryPage {
 		} else {
 			// permit user to comment
 			Fragment newComment = new Fragment("newComment", "newCommentFragment", this);
-			GravatarImage img = new GravatarImage("newCommentAvatar", user.username, user.emailAddress,
+			AvatarImage img = new AvatarImage("newCommentAvatar", user.username, user.emailAddress,
 					"gravatar-round", avatarWidth, true);
 			newComment.add(img);
 			CommentPanel commentPanel = new CommentPanel("commentPanel", user, ticket, null, TicketsPage.class);
@@ -816,7 +816,7 @@ public class TicketPage extends RepositoryPage {
 				public void populateItem(final Item<RevCommit> item) {
 					RevCommit commit = item.getModelObject();
 					PersonIdent author = commit.getAuthorIdent();
-					item.add(new GravatarImage("authorAvatar", author.getName(), author.getEmailAddress(), null, 16, false));
+					item.add(new AvatarImage("authorAvatar", author.getName(), author.getEmailAddress(), null, 16, false));
 					item.add(new Label("author", commit.getAuthorIdent().getName()));
 					item.add(new LinkPanel("commitId", null, getShortObjectId(commit.getName()),
 							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit.getName()), true));
@@ -987,12 +987,12 @@ public class TicketPage extends RepositoryPage {
 		UserModel commenter = app().users().getUserModel(entry.author);
 		if (commenter == null) {
 			// unknown user
-			container.add(new GravatarImage("changeAvatar", entry.author,
+			container.add(new AvatarImage("changeAvatar", entry.author,
 					entry.author, null, avatarSize, false).setVisible(avatarSize > 0));
 			container.add(new Label("changeAuthor", entry.author.toLowerCase()));
 		} else {
 			// known user
-			container.add(new GravatarImage("changeAvatar", commenter.getDisplayName(),
+			container.add(new AvatarImage("changeAvatar", commenter.getDisplayName(),
 					commenter.emailAddress, avatarSize > 24 ? "gravatar-round" : null,
 							avatarSize, true).setVisible(avatarSize > 0));
 			container.add(new LinkPanel("changeAuthor", null, commenter.getDisplayName(),
