@@ -201,7 +201,10 @@ public class WelcomeShell implements Factory<Command> {
 
 		private String formatUrl(String hostname, int port, String username) {
 			int displayPort = settings.getInteger(Keys.git.sshDisplayPort, port);
-			String displayHostname = settings.getString(Keys.git.sshDisplayHost, hostname);
+			String displayHostname = settings.getString(Keys.git.sshDisplayHost, "");
+			if(displayHostname.isEmpty()) {
+				displayHostname = hostname;
+			}
 			if (displayPort == 22) {
 				// standard port
 				return MessageFormat.format("{0}@{1}/REPOSITORY.git", username, displayHostname);

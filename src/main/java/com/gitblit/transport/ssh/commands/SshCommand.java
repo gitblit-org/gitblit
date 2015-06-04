@@ -74,9 +74,11 @@ public abstract class SshCommand extends BaseCommand {
 
 	protected String getRepositoryUrl(String repository) {
 		String username = getContext().getClient().getUsername();
-		String hostname = getHostname();
 		IStoredSettings settings = getContext().getGitblit().getSettings();
-		String displayHostname = settings.getString(Keys.git.sshDisplayHost, hostname);
+		String displayHostname = settings.getString(Keys.git.sshDisplayHost, "");
+		if(displayHostname.isEmpty()) {
+			displayHostname = getHostname();
+		}
 		int port = settings.getInteger(Keys.git.sshPort, 0);
 		int displayPort = settings.getInteger(Keys.git.sshDisplayPort, port);
 		if (displayPort == 22) {

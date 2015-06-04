@@ -108,7 +108,10 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 		if (!StringUtils.isEmpty(url) && url.indexOf("localhost") == -1) {
 			host = new URL(url).getHost();
 		}
-		String sshDisplayHost = settings.getString(Keys.git.sshDisplayHost, host);
+		String sshDisplayHost = settings.getString(Keys.git.sshDisplayHost, "");
+		if(sshDisplayHost.isEmpty()) {
+			sshDisplayHost = host;
+		}
 
 		UserModel user;
 		if (StringUtils.isEmpty(username)) {

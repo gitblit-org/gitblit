@@ -147,16 +147,18 @@ public class SshDaemon {
 
 		int port = sshd.getPort();
 		int displayPort = settings.getInteger(Keys.git.sshDisplayPort, port);
-		String displayServername = settings.getString(Keys.git.sshDisplayHost, servername);
-
+		String displayServername = settings.getString(Keys.git.sshDisplayHost, "");
+		if(displayServername.isEmpty()) {
+			displayServername = servername;
+		}
 		if (displayPort == DEFAULT_PORT) {
 			// standard port
 			return MessageFormat.format("ssh://{0}@{1}/{2}", gituser, displayServername,
-						    repository);
+					repository);
 		} else {
 			// non-standard port
 			return MessageFormat.format("ssh://{0}@{1}:{2,number,0}/{3}",
-						    gituser, displayServername, displayPort, repository);
+					gituser, displayServername, displayPort, repository);
 		}
 	}
 
