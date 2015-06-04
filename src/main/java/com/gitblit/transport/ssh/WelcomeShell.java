@@ -200,13 +200,18 @@ public class WelcomeShell implements Factory<Command> {
 		}
 
 		private String formatUrl(String hostname, int port, String username) {
-			if (port == 22) {
+			int displayPort = settings.getInteger(Keys.git.sshDisplayPort, port);
+			String displayHostname = settings.getString(Keys.git.sshDisplayHost, "");
+			if(displayHostname.isEmpty()) {
+				displayHostname = hostname;
+			}
+			if (displayPort == 22) {
 				// standard port
-				return MessageFormat.format("{0}@{1}/REPOSITORY.git", username, hostname);
+				return MessageFormat.format("{0}@{1}/REPOSITORY.git", username, displayHostname);
 			} else {
 				// non-standard port
 				return MessageFormat.format("ssh://{0}@{1}:{2,number,0}/REPOSITORY.git",
-						username, hostname, port);
+						username, displayHostname, displayPort);
 			}
 		}
 	}
