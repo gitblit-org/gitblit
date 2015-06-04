@@ -83,6 +83,8 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 			response.getWriter().append("SSH is not active on this server!");
 			return;
 		}
+		int sshDisplayPort = settings.getInteger(Keys.git.sshDisplayPort, sshPort);
+
 		// extract repo name from request
 		String repoUrl = request.getPathInfo().substring(1);
 
@@ -106,6 +108,7 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 		if (!StringUtils.isEmpty(url) && url.indexOf("localhost") == -1) {
 			host = new URL(url).getHost();
 		}
+		String sshDisplayHost = settings.getString(Keys.git.sshDisplayHost, host);
 
 		UserModel user;
 		if (StringUtils.isEmpty(username)) {
@@ -135,7 +138,7 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		sb.append("<sparkleshare><invite>\n");
-		sb.append(MessageFormat.format("<address>ssh://{0}@{1}:{2,number,0}/</address>\n", user.username, host, sshPort));
+		sb.append(MessageFormat.format("<address>ssh://{0}@{1}:{2,number,0}/</address>\n", user.username, sshDisplayHost, sshDisplayPort));
 		sb.append(MessageFormat.format("<remote_path>/{0}</remote_path>\n", model.name));
 		int fanoutPort = settings.getInteger(Keys.fanout.port, 0);
 		if (fanoutPort > 0) {

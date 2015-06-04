@@ -143,14 +143,20 @@ public class SshDaemon {
 	}
 
 	public String formatUrl(String gituser, String servername, String repository) {
-		if (sshd.getPort() == DEFAULT_PORT) {
+		IStoredSettings settings = gitblit.getSettings();
+
+		int port = sshd.getPort();
+		int displayPort = settings.getInteger(Keys.git.sshDisplayPort, port);
+		String displayServername = settings.getString(Keys.git.sshDisplayHost, servername);
+
+		if (displayPort == DEFAULT_PORT) {
 			// standard port
-			return MessageFormat.format("ssh://{0}@{1}/{2}", gituser, servername,
-					repository);
+			return MessageFormat.format("ssh://{0}@{1}/{2}", gituser, displayServername,
+						    repository);
 		} else {
 			// non-standard port
 			return MessageFormat.format("ssh://{0}@{1}:{2,number,0}/{3}",
-					gituser, servername, sshd.getPort(), repository);
+						    gituser, displayServername, displayPort, repository);
 		}
 	}
 
