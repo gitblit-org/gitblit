@@ -101,10 +101,10 @@ public class HistoryPanel extends BasePanel {
 			if (matchingPath == null) {
 				// path not in commit
 				// manually locate path in tree
-				TreeWalk tw = new TreeWalk(r);
-				tw.reset();
-				tw.setRecursive(true);
-				try {
+
+				try(TreeWalk tw = new TreeWalk(r)) {
+					tw.reset();
+					tw.setRecursive(true);
 					tw.addTree(commit.getTree());
 					tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
 					while (tw.next()) {
@@ -115,8 +115,6 @@ public class HistoryPanel extends BasePanel {
 						}
 					}
 				} catch (Exception e) {
-				} finally {
-					tw.release();
 				}
 			}
 		}

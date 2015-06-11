@@ -95,8 +95,7 @@ public class CompressionUtils {
 		}
 		boolean success = false;
 		RevWalk rw = new RevWalk(repository);
-		TreeWalk tw = new TreeWalk(repository);
-		try {
+		try(TreeWalk tw = new TreeWalk(repository)) {
 			tw.reset();
 			tw.addTree(commit.getTree());
 			ZipArchiveOutputStream zos = new ZipArchiveOutputStream(os);
@@ -132,7 +131,6 @@ public class CompressionUtils {
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to zip files from commit {1}", commit.getName());
 		} finally {
-			tw.release();
 			rw.dispose();
 		}
 		return success;
@@ -244,8 +242,7 @@ public class CompressionUtils {
 		}
 		boolean success = false;
 		RevWalk rw = new RevWalk(repository);
-		TreeWalk tw = new TreeWalk(repository);
-		try {
+		try(TreeWalk tw = new TreeWalk(repository)) {
 			tw.reset();
 			tw.addTree(commit.getTree());
 			TarArchiveOutputStream tos = new TarArchiveOutputStream(cos);
@@ -291,7 +288,6 @@ public class CompressionUtils {
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to {1} stream files from commit {2}", algorithm, commit.getName());
 		} finally {
-			tw.release();
 			rw.dispose();
 		}
 		return success;

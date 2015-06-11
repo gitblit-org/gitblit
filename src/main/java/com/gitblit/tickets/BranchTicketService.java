@@ -282,23 +282,19 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	 * @return the file content or null
 	 */
 	private String readTicketsFile(Repository db, String file) {
-		RevWalk rw = null;
 		try {
 			ObjectId treeId = db.resolve(BRANCH + "^{tree}");
 			if (treeId == null) {
 				return null;
 			}
-			rw = new RevWalk(db);
-			RevTree tree = rw.lookupTree(treeId);
-			if (tree != null) {
-				return JGitUtils.getStringContent(db, tree, file, Constants.ENCODING);
+			try (RevWalk rw = new RevWalk(db)) {
+				RevTree tree = rw.lookupTree(treeId);
+				if (tree != null) {
+					return JGitUtils.getStringContent(db, tree, file, Constants.ENCODING);
+				}
 			}
 		} catch (IOException e) {
 			log.error("failed to read " + file, e);
-		} finally {
-			if (rw != null) {
-				rw.release();
-			}
 		}
 		return null;
 	}
@@ -319,9 +315,8 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 
 		DirCache newIndex = DirCache.newInCore();
 		DirCacheBuilder builder = newIndex.builder();
-		ObjectInserter inserter = db.newObjectInserter();
 
-		try {
+		try(ObjectInserter inserter = db.newObjectInserter()) {
 			// create an index entry for the revised index
 			final DirCacheEntry idIndexEntry = new DirCacheEntry(file);
 			idIndexEntry.setLength(content.length());
@@ -352,8 +347,6 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			log.error("", e);
 		} catch (IOException e) {
 			log.error("", e);
-		} finally {
-			inserter.release();
 		}
 	}
 
@@ -667,7 +660,6 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			}
 			String ticketPath = toTicketPath(ticket.number);
 
-			TreeWalk treeWalk = null;
 			try {
 				ObjectId treeId = db.resolve(BRANCH + "^{tree}");
 
@@ -676,44 +668,39 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 				DirCacheBuilder builder = index.builder();
 
 				// Traverse HEAD to add all other paths
-				treeWalk = new TreeWalk(db);
-				int hIdx = -1;
-				if (treeId != null) {
-					hIdx = treeWalk.addTree(treeId);
-				}
-				treeWalk.setRecursive(true);
-				while (treeWalk.next()) {
-					String path = treeWalk.getPathString();
-					CanonicalTreeParser hTree = null;
-					if (hIdx != -1) {
-						hTree = treeWalk.getTree(hIdx, CanonicalTreeParser.class);
+				try (TreeWalk treeWalk = new TreeWalk(db)) {
+					int hIdx = -1;
+					if (treeId != null) {
+						hIdx = treeWalk.addTree(treeId);
 					}
-					if (!path.startsWith(ticketPath)) {
-						// add entries from HEAD for all other paths
-						if (hTree != null) {
-							final DirCacheEntry entry = new DirCacheEntry(path);
-							entry.setObjectId(hTree.getEntryObjectId());
-							entry.setFileMode(hTree.getEntryFileMode());
+					treeWalk.setRecursive(true);
+					while (treeWalk.next()) {
+						String path = treeWalk.getPathString();
+						CanonicalTreeParser hTree = null;
+						if (hIdx != -1) {
+							hTree = treeWalk.getTree(hIdx, CanonicalTreeParser.class);
+						}
+						if (!path.startsWith(ticketPath)) {
+							// add entries from HEAD for all other paths
+							if (hTree != null) {
+								final DirCacheEntry entry = new DirCacheEntry(path);
+								entry.setObjectId(hTree.getEntryObjectId());
+								entry.setFileMode(hTree.getEntryFileMode());
 
-							// add to temporary in-core index
-							builder.add(entry);
+								// add to temporary in-core index
+								builder.add(entry);
+							}
 						}
 					}
+
+					// finish temporary in-core index used for this commit
+					builder.finish();
+
+					success = commitIndex(db, index, deletedBy, "- " + ticket.number);
 				}
-
-				// finish temporary in-core index used for this commit
-				builder.finish();
-
-				success = commitIndex(db, index, deletedBy, "- " + ticket.number);
-
 			} catch (Throwable t) {
 				log.error(MessageFormat.format("Failed to delete ticket {0,number,0} from {1}",
 						ticket.number, db.getDirectory()), t);
-			} finally {
-				// release the treewalk
-				if (treeWalk != null) {
-					treeWalk.release();
-				}
 			}
 		} finally {
 			db.close();
@@ -761,10 +748,10 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 		String ticketPath = toTicketPath(ticketId);
 		DirCache newIndex = DirCache.newInCore();
 		DirCacheBuilder builder = newIndex.builder();
-		ObjectInserter inserter = db.newObjectInserter();
 
 		Set<String> ignorePaths = new TreeSet<String>();
-		try {
+
+		try(ObjectInserter inserter = db.newObjectInserter()) {
 			// create/update the journal
 			// exclude the attachment content
 			List<Change> changes = getJournal(db, ticketId);
@@ -810,8 +797,6 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 
 			// finish the index
 			builder.finish();
-		} finally {
-			inserter.release();
 		}
 		return newIndex;
 	}
@@ -826,14 +811,13 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	 */
 	private List<DirCacheEntry> getTreeEntries(Repository db, Collection<String> ignorePaths) throws IOException {
 		List<DirCacheEntry> list = new ArrayList<DirCacheEntry>();
-		TreeWalk tw = null;
-		try {
-			ObjectId treeId = db.resolve(BRANCH + "^{tree}");
-			if (treeId == null) {
-				// branch does not exist yet, could be migrating tickets
-				return list;
-			}
-			tw = new TreeWalk(db);
+
+		ObjectId treeId = db.resolve(BRANCH + "^{tree}");
+		if (treeId == null) {
+			// branch does not exist yet, could be migrating tickets
+			return list;
+		}
+		try (final TreeWalk tw = new TreeWalk(db)) {
 			int hIdx = tw.addTree(treeId);
 			tw.setRecursive(true);
 
@@ -853,10 +837,6 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 					}
 				}
 			}
-		} finally {
-			if (tw != null) {
-				tw.release();
-			}
 		}
 		return list;
 	}
@@ -870,8 +850,8 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			createTicketsBranch(db);
 			headId = db.resolve(BRANCH + "^{commit}");
 		}
-		ObjectInserter odi = db.newObjectInserter();
-		try {
+
+		try (final ObjectInserter odi = db.newObjectInserter()){
 			// Create the in-memory index of the new/updated ticket
 			ObjectId indexTreeId = index.writeTree(odi);
 
@@ -889,8 +869,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			ObjectId commitId = odi.insert(commit);
 			odi.flush();
 
-			RevWalk revWalk = new RevWalk(db);
-			try {
+			try (final RevWalk revWalk = new RevWalk(db)){
 				RevCommit revCommit = revWalk.parseCommit(commitId);
 				RefUpdate ru = db.updateRef(BRANCH);
 				ru.setNewObjectId(commitId);
@@ -912,11 +891,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 							JGitText.get().updatingRefFailed, BRANCH, commitId.toString(),
 							rc));
 				}
-			} finally {
-				revWalk.release();
 			}
-		} finally {
-			odi.release();
 		}
 		return success;
 	}

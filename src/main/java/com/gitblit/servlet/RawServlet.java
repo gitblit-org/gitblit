@@ -425,9 +425,10 @@ public class RawServlet extends HttpServlet {
 			RevCommit commit, String requestedPath) throws IOException {
 
 		boolean served = false;
-		RevWalk rw = new RevWalk(repository);
-		TreeWalk tw = new TreeWalk(repository);
-		try {
+
+
+		try(final RevWalk rw = new RevWalk(repository);
+				final TreeWalk tw = new TreeWalk(repository)) {
 			tw.reset();
 			tw.addTree(commit.getTree());
 			PathFilter f = PathFilter.create(requestedPath);
@@ -467,9 +468,6 @@ public class RawServlet extends HttpServlet {
 				ldr.copyTo(response.getOutputStream());
 				served = true;
 			}
-		} finally {
-			tw.release();
-			rw.dispose();
 		}
 
 		response.flushBuffer();

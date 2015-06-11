@@ -615,7 +615,7 @@ public class LuceneService implements Runnable {
 			}
 
 			// finished
-			reader.release();
+			reader.close();
 
 			// commit all changes and reset the searcher
 			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);

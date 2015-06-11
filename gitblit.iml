@@ -408,24 +408,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-3.7.0.201502260915-r.jar">
+      <library name="org.eclipse.jgit-4.0.0.201506090130-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.7.0.201502260915-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-4.0.0.201506090130-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.7.0.201502260915-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-4.0.0.201506090130-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jsch-0.1.50.jar">
+      <library name="jsch-0.1.51.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jsch-0.1.50.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jsch-0.1.51.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jsch-0.1.50.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jsch-0.1.51.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -485,13 +485,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-3.7.0.201502260915-r.jar">
+      <library name="org.eclipse.jgit.http.server-4.0.0.201506090130-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.7.0.201502260915-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-4.0.0.201506090130-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.7.0.201502260915-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-4.0.0.201506090130-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -930,6 +930,28 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/platform-3.4.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library name="mockito-core-1.10.19.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/mockito-core-1.10.19.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/mockito-core-1.10.19.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library name="objenesis-2.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/objenesis-2.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/objenesis-2.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
