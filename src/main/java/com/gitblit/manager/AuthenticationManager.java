@@ -41,6 +41,7 @@ import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.auth.HtpasswdAuthProvider;
+import com.gitblit.auth.HttpHeaderAuthProvider;
 import com.gitblit.auth.LdapAuthProvider;
 import com.gitblit.auth.PAMAuthProvider;
 import com.gitblit.auth.RedmineAuthProvider;
@@ -92,6 +93,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		// map of shortcut provider names
 		providerNames = new HashMap<String, Class<? extends AuthenticationProvider>>();
 		providerNames.put("htpasswd", HtpasswdAuthProvider.class);
+		providerNames.put("httpheader", HttpHeaderAuthProvider.class);
 		providerNames.put("ldap", LdapAuthProvider.class);
 		providerNames.put("pam", PAMAuthProvider.class);
 		providerNames.put("redmine", RedmineAuthProvider.class);
@@ -170,7 +172,11 @@ public class AuthenticationManager implements IAuthenticationManager {
 	}
 
 	/**
-	 * Authenticate a user based on HTTP request parameters.
+	 * Used to handle authentication for page requests.
+	 *
+	 * This allows authentication to occur based on the contents of the request
+	 * itself. If no configured @{AuthenticationProvider}s authenticate succesffully,
+	 * a request for login will be shown.
 	 *
 	 * Authentication by X509Certificate is tried first and then by cookie.
 	 *
@@ -185,7 +191,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 	/**
 	 * Authenticate a user based on HTTP request parameters.
 	 *
-	 * Authentication by servlet container principal, X509Certificate, cookie,
+	 * Authentication by custom HTTP header, servlet container principal, X509Certificate, cookie,
 	 * and finally BASIC header.
 	 *
 	 * @param httpRequest
@@ -317,6 +323,18 @@ public class AuthenticationManager implements IAuthenticationManager {
 							user.username, httpRequest.getRemoteAddr()));
 					return validateAuthentication(user, AuthenticationType.CREDENTIALS);
 				}
+			}
+		}
+
+		// Check each configured AuthenticationProvider
+		for (AuthenticationProvider ap : authenticationProviders) {
+			UserModel authedUser = ap.authenticate(httpRequest);
+			if (null != authedUser) {
+				flagRequest(httpRequest, ap.getAuthenticationType(), authedUser.username);
+				logger.debug(MessageFormat.format("{0} authenticated by {1} from {2} for {3}",
+						authedUser.username, ap.getServiceName(), httpRequest.getRemoteAddr(),
+						httpRequest.getPathInfo()));
+				return validateAuthentication(authedUser, ap.getAuthenticationType());
 			}
 		}
 		return null;
