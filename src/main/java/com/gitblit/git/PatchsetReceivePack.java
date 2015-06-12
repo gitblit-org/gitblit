@@ -667,7 +667,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					// identified the missing object earlier before we got control.
 					LOGGER.error("failed to get commit count", e);
 				} finally {
-					walk.release();
+					walk.close();
 				}
 
 				sendError("");
@@ -1078,7 +1078,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			LOGGER.error("failed to get commit count", e);
 			return 0;
 		} finally {
-			walk.release();
+			walk.close();
 		}
 		return count;
 	}

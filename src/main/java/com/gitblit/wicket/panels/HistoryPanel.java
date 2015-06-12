@@ -116,7 +116,7 @@ public class HistoryPanel extends BasePanel {
 					}
 				} catch (Exception e) {
 				} finally {
-					tw.release();
+					tw.close();
 				}
 			}
 		}
