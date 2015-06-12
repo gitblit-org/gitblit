@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthenticationType;
+import com.gitblit.Constants.Role;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider;
@@ -52,6 +53,8 @@ import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The authentication manager handles user login & logout.
@@ -59,6 +62,7 @@ import com.gitblit.utils.X509Utils.X509Metadata;
  * @author James Moger
  *
  */
+@Singleton
 public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -75,6 +79,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Map<String, String> legacyRedirects;
 
+	@Inject
 	public AuthenticationManager(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager) {
@@ -210,6 +215,29 @@ public class AuthenticationManager implements IAuthenticationManager {
 						user.displayName = username;
 						user.password = Constants.EXTERNAL_ACCOUNT;
 						user.accountType = AccountType.CONTAINER;
+						
+						// Try to extract user's informations for the session
+						// it uses "realm.container.autoAccounts.*" as the attribute name to look for
+						HttpSession session = httpRequest.getSession();
+						String emailAddress = resolveAttribute(session, Keys.realm.container.autoAccounts.emailAddress);
+						if(emailAddress != null) {
+							user.emailAddress = emailAddress;
+						}
+						String displayName = resolveAttribute(session, Keys.realm.container.autoAccounts.displayName);
+						if(displayName != null) {
+							user.displayName = displayName;
+						}
+						String userLocale = resolveAttribute(session, Keys.realm.container.autoAccounts.locale);
+						if(userLocale != null) {
+							user.getPreferences().setLocale(userLocale);
+						}
+						String adminRole = settings.getString(Keys.realm.container.autoAccounts.adminRole, null);
+						if(adminRole != null && ! adminRole.isEmpty()) {
+							if(httpRequest.isUserInRole(adminRole)) {
+								user.canAdmin = true;
+							}
+						}
+						
 						userManager.updateUserModel(user);
 						flagSession(httpRequest, AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
@@ -288,6 +316,31 @@ public class AuthenticationManager implements IAuthenticationManager {
 		}
 		return null;
 	}
+	
+	/**
+	 * Extract given attribute from the session and return it's content
+	 * it return null if attributeMapping is empty, or if the value is
+	 * empty
+	 * 
+	 * @param session The user session
+	 * @param attributeMapping
+	 * @return
+	 */
+	private String resolveAttribute(HttpSession session, String attributeMapping) {
+		String attributeName = settings.getString(attributeMapping, null);
+		if(StringUtils.isEmpty(attributeName)) {
+			return null;
+		}
+		Object attributeValue = session.getAttribute(attributeName);
+		if(attributeValue == null) {
+			return null;
+		}
+		String value = attributeValue.toString();
+		if(value.isEmpty()) {
+			return null;
+		}
+		return value;
+	}
 
 	/**
 	 * Authenticate a user based on a public key.
@@ -311,6 +364,35 @@ public class AuthenticationManager implements IAuthenticationManager {
 					return validateAuthentication(user, AuthenticationType.PUBLIC_KEY);
 				}
 				logger.warn(MessageFormat.format("Failed to find UserModel for {0} during public key authentication",
+							username));
+			}
+		} else {
+			logger.warn("Empty user passed to AuthenticationManager.authenticate!");
+		}
+		return null;
+	}
+
+
+	/**
+	 * Return the UserModel for already authenticated user.
+	 *
+	 * This implementation assumes that the authentication has already take place
+	 * (e.g. SSHDaemon) and that this is a validation/verification of the user.
+	 *
+	 * @param username
+	 * @return a user object or null
+	 */
+	@Override
+	public UserModel authenticate(String username) {
+		if (username != null) {
+			if (!StringUtils.isEmpty(username)) {
+				UserModel user = userManager.getUserModel(username);
+				if (user != null) {
+					// existing user
+					logger.debug(MessageFormat.format("{0} authenticated externally", user.username));
+					return validateAuthentication(user, AuthenticationType.CONTAINER);
+				}
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0} during external authentication",
 							username));
 			}
 		} else {
@@ -574,6 +656,28 @@ public class AuthenticationManager implements IAuthenticationManager {
 	@Override
 	public boolean supportsTeamMembershipChanges(TeamModel team) {
 		return (team != null && team.isLocalTeam()) || findProvider(team).supportsTeamMembershipChanges();
+	}
+
+	/**
+	 * Returns true if the user's role can be changed.
+	 *
+	 * @param user
+	 * @return true if the user's role can be changed
+	 */
+	@Override
+	public boolean supportsRoleChanges(UserModel user, Role role) {
+		return (user != null && user.isLocalAccount()) || findProvider(user).supportsRoleChanges(user, role);
+	}
+
+	/**
+	 * Returns true if the team's role can be changed.
+	 *
+	 * @param user
+	 * @return true if the team's role can be changed
+	 */
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return (team != null && team.isLocalTeam()) || findProvider(team).supportsRoleChanges(team, role);
 	}
 
 	protected AuthenticationProvider findProvider(UserModel user) {

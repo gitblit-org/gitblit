@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.Constants.Transport;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
@@ -734,22 +735,22 @@ public class ConfigUserService implements IUserService {
 			// user roles
 			List<String> roles = new ArrayList<String>();
 			if (model.canAdmin) {
-				roles.add(Constants.ADMIN_ROLE);
+				roles.add(Role.ADMIN.getRole());
 			}
 			if (model.canFork) {
-				roles.add(Constants.FORK_ROLE);
+				roles.add(Role.FORK.getRole());
 			}
 			if (model.canCreate) {
-				roles.add(Constants.CREATE_ROLE);
+				roles.add(Role.CREATE.getRole());
 			}
 			if (model.excludeFromFederation) {
-				roles.add(Constants.NOT_FEDERATED_ROLE);
+				roles.add(Role.NOT_FEDERATED.getRole());
 			}
 			if (roles.size() == 0) {
 				// we do this to ensure that user record with no password
 				// is written.  otherwise, StoredConfig optimizes that account
 				// away. :(
-				roles.add(Constants.NO_ROLE);
+				roles.add(Role.NONE.getRole());
 			}
 			config.setStringList(USER, model.username, ROLE, roles);
 
@@ -778,18 +779,18 @@ public class ConfigUserService implements IUserService {
 			// team roles
 			List<String> roles = new ArrayList<String>();
 			if (model.canAdmin) {
-				roles.add(Constants.ADMIN_ROLE);
+				roles.add(Role.ADMIN.getRole());
 			}
 			if (model.canFork) {
-				roles.add(Constants.FORK_ROLE);
+				roles.add(Role.FORK.getRole());
 			}
 			if (model.canCreate) {
-				roles.add(Constants.CREATE_ROLE);
+				roles.add(Role.CREATE.getRole());
 			}
 			if (roles.size() == 0) {
 				// we do this to ensure that team record is written.
 				// Otherwise, StoredConfig might optimizes that record away.
-				roles.add(Constants.NO_ROLE);
+				roles.add(Role.NONE.getRole());
 			}
 			config.setStringList(TEAM, model.name, ROLE, roles);
 			if (model.accountType != null) {
@@ -911,10 +912,10 @@ public class ConfigUserService implements IUserService {
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
 							USER, username, ROLE)));
-					user.canAdmin = roles.contains(Constants.ADMIN_ROLE);
-					user.canFork = roles.contains(Constants.FORK_ROLE);
-					user.canCreate = roles.contains(Constants.CREATE_ROLE);
-					user.excludeFromFederation = roles.contains(Constants.NOT_FEDERATED_ROLE);
+					user.canAdmin = roles.contains(Role.ADMIN.getRole());
+					user.canFork = roles.contains(Role.FORK.getRole());
+					user.canCreate = roles.contains(Role.CREATE.getRole());
+					user.excludeFromFederation = roles.contains(Role.NOT_FEDERATED.getRole());
 
 					// repository memberships
 					if (!user.canAdmin) {
@@ -947,9 +948,9 @@ public class ConfigUserService implements IUserService {
 					TeamModel team = new TeamModel(teamname);
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
 							TEAM, teamname, ROLE)));
-					team.canAdmin = roles.contains(Constants.ADMIN_ROLE);
-					team.canFork = roles.contains(Constants.FORK_ROLE);
-					team.canCreate = roles.contains(Constants.CREATE_ROLE);
+					team.canAdmin = roles.contains(Role.ADMIN.getRole());
+					team.canFork = roles.contains(Role.FORK.getRole());
+					team.canCreate = roles.contains(Role.CREATE.getRole());
 					team.accountType = AccountType.fromString(config.getString(TEAM, teamname, ACCOUNTTYPE));
 
 					if (!team.canAdmin) {

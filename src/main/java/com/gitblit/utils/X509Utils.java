@@ -61,6 +61,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.crypto.Cipher;
+import javax.naming.ldap.LdapName;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -80,7 +81,10 @@ import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
+import org.bouncycastle.openssl.PEMEncryptor;
 import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -883,8 +887,11 @@ public class X509Utils {
 	        if (pemFile.exists()) {
 	        	pemFile.delete();
 	        }
-	        PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile));
-	        pemWriter.writeObject(pair.getPrivate(), "DES-EDE3-CBC", clientMetadata.password.toCharArray(), new SecureRandom());
+	        JcePEMEncryptorBuilder builder = new JcePEMEncryptorBuilder("DES-EDE3-CBC");
+	        builder.setSecureRandom(new SecureRandom());
+	        PEMEncryptor pemEncryptor = builder.build(clientMetadata.password.toCharArray());
+	        JcaPEMWriter pemWriter = new JcaPEMWriter(new FileWriter(pemFile));
+	        pemWriter.writeObject(pair.getPrivate(), pemEncryptor);
 	        pemWriter.writeObject(userCert);
 	        pemWriter.writeObject(caCert);
 	        pemWriter.flush();
@@ -1111,17 +1118,18 @@ public class X509Utils {
 	}
 
 	public static X509Metadata getMetadata(X509Certificate cert) {
-		// manually split DN into OID components
-		// this is instead of parsing with LdapName which:
-		// (1) I don't trust the order of values
-		// (2) it filters out values like EMAILADDRESS
-		String dn = cert.getSubjectDN().getName();
 		Map<String, String> oids = new HashMap<String, String>();
-		for (String kvp : dn.split(",")) {
-			String [] val = kvp.trim().split("=");
-			String oid = val[0].toUpperCase().trim();
-			String data = val[1].trim();
-			oids.put(oid, data);
+		try {
+			String dn = cert.getSubjectDN().getName();
+			LdapName ldapName = new LdapName(dn);
+			for (int i = 0; i < ldapName.size(); i++) {
+				String [] val = ldapName.get(i).trim().split("=", 2);
+				String oid = val[0].toUpperCase().trim();
+				String data = val[1].trim();
+				oids.put(oid, data);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 
 		X509Metadata metadata = new X509Metadata(oids.get("CN"), "whocares");

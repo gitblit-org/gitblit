@@ -26,8 +26,8 @@ import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
@@ -50,8 +50,6 @@ public class AccessPolicyPanel extends BasePanel {
 	private final AjaxFormChoiceComponentUpdatingBehavior callback;
 
 	private RadioGroup<AccessPolicy> policiesGroup;
-
-	private IModel<Boolean> allowForks;
 
 	public AccessPolicyPanel(String wicketId, RepositoryModel repository) {
 		this(wicketId, repository, null);
@@ -146,13 +144,12 @@ public class AccessPolicyPanel extends BasePanel {
 		}
 		add(policiesGroup);
 
-		allowForks = Model.of(app().settings().getBoolean(Keys.web.allowForking, true));
-		if (allowForks.getObject()) {
+		if (app().settings().getBoolean(Keys.web.allowForking, true)) {
 			Fragment fragment = new Fragment("allowForks", "allowForksFragment", this);
 			fragment.add(new BooleanOption("allowForks",
 				getString("gb.allowForks"),
 				getString("gb.allowForksDescription"),
-				allowForks));
+				new PropertyModel<Boolean>(repository, "allowForks")));
 			add(fragment);
 		} else {
 			add(new Label("allowForks").setVisible(false));
@@ -165,7 +162,6 @@ public class AccessPolicyPanel extends BasePanel {
 		AccessPolicy policy = policiesGroup.getModelObject();
 		repository.authorizationControl = policy.control;
 		repository.accessRestriction = policy.type;
-		repository.allowForks = allowForks.getObject();
 	}
 
 	@Override

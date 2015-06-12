@@ -429,5 +429,15 @@ public class CmdLineParser {
 		public boolean isMultiValued() {
 			return false;
 		}
+
+		@Override
+		public boolean help() {
+			return true;
+		}
+
+		@Override
+		public String[] forbids() {
+			return new String [0];
+		}
 	}
 }

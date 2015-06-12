@@ -1,3 +1,4 @@
+tags
 /temp
 /lib
 /ext
@@ -27,3 +28,4 @@
 /**/.idea
 /**/init.lua
 /**/session
+/nbproject/private

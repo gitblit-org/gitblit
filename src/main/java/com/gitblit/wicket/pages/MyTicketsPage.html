@@ -25,18 +25,19 @@
 							<!--  query list -->						
 							<ul class="nav nav-list">
 								<li class="nav-header"><wicket:message key="gb.queries"></wicket:message></li>
-								<li><a wicket:id="changesQuery"><i class="fa fa-code-fork"></i> <wicket:message key="gb.proposalTickets"></wicket:message></a></li>
-								<li><a wicket:id="bugsQuery"><i class="fa fa-bug"></i> <wicket:message key="gb.bugTickets"></wicket:message></a></li>
-								<li><a wicket:id="enhancementsQuery"><i class="fa fa-magic"></i> <wicket:message key="gb.enhancementTickets"></wicket:message></a></li>
-								<li><a wicket:id="tasksQuery"><i class="fa fa-ticket"></i> <wicket:message key="gb.taskTickets"></wicket:message></a></li>
-								<li><a wicket:id="questionsQuery"><i class="fa fa-question"></i> <wicket:message key="gb.questionTickets"></wicket:message></a></li>
+								<li><a wicket:id="changesQuery"><i class="fa fa-code-fork fa-fw"></i> <wicket:message key="gb.proposalTickets"></wicket:message></a></li>
+								<li><a wicket:id="bugsQuery"><i class="fa fa-bug fa-fw"></i> <wicket:message key="gb.bugTickets"></wicket:message></a></li>
+								<li><a wicket:id="enhancementsQuery"><i class="fa fa-magic fa-fw"></i> <wicket:message key="gb.enhancementTickets"></wicket:message></a></li>
+								<li><a wicket:id="tasksQuery"><i class="fa fa-ticket fa-fw"></i> <wicket:message key="gb.taskTickets"></wicket:message></a></li>
+								<li><a wicket:id="questionsQuery"><i class="fa fa-question fa-fw"></i> <wicket:message key="gb.questionTickets"></wicket:message></a></li>
+								<li><a wicket:id="maintenanceQuery"><i class="fa fa-cogs fa-fw"></i> <wicket:message key="gb.maintenanceTickets"></wicket:message></a></li>
 								<li wicket:id="userDivider" class="divider"></li>
-								<li><a wicket:id="createdQuery"><i class="fa fa-user"></i> <wicket:message key="gb.yourCreatedTickets"></wicket:message></a></li>
-								<li><a wicket:id="responsibleQuery"><i class="fa fa-user"></i> <wicket:message key="gb.yourAssignedTickets"></wicket:message></a></li>
-								<li><a wicket:id="watchedQuery"><i class="fa fa-eye"></i> <wicket:message key="gb.yourWatchedTickets"></wicket:message></a></li>
-								<li><a wicket:id="mentionsQuery"><i class="fa fa-comment"></i> <wicket:message key="gb.mentionsMeTickets"></wicket:message></a></li>
+								<li><a wicket:id="createdQuery"><i class="fa fa-user fa-fw"></i> <wicket:message key="gb.yourCreatedTickets"></wicket:message></a></li>
+								<li><a wicket:id="responsibleQuery"><i class="fa fa-user fa-fw"></i> <wicket:message key="gb.yourAssignedTickets"></wicket:message></a></li>
+								<li><a wicket:id="watchedQuery"><i class="fa fa-eye fa-fw"></i> <wicket:message key="gb.yourWatchedTickets"></wicket:message></a></li>
+								<li><a wicket:id="mentionsQuery"><i class="fa fa-comment fa-fw"></i> <wicket:message key="gb.mentionsMeTickets"></wicket:message></a></li>
 								<li class="divider"></li>
-								<li><a wicket:id="resetQuery"><i class="fa fa-bolt"></i> <wicket:message key="gb.reset"></wicket:message></a></li>
+								<li><a wicket:id="resetQuery"><i class="fa fa-bolt fa-fw"></i> <wicket:message key="gb.reset"></wicket:message></a></li>
 							</ul>
 
 						</div>
@@ -59,6 +60,13 @@
 								<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-sort"></i> <wicket:message key="gb.sort"></wicket:message>: <span style="font-weight:bold;" wicket:id="currentSort"></span> <span class="caret"></span></a>
 								<ul class="dropdown-menu">
 									<li wicket:id="sort"><span wicket:id="sortLink"></span></li>
+								</ul>
+							</div>
+							
+							<div class="btn-group">
+								<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> <wicket:message key="gb.repository"></wicket:message>: <span style="font-weight:bold;" wicket:id="currentRepository"></span> <span class="caret"></span></a>
+								<ul class="dropdown-menu">
+									<li wicket:id="repository"><span wicket:id="repositoryLink"></span></li>
 								</ul>
 							</div>
 							

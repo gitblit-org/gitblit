@@ -19,13 +19,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IUserManager;
@@ -33,15 +35,14 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
-import dagger.ObjectGraph;
-
 /**
  * Handles requests for Sparkleshare Invites
  *
  * @author James Moger
  *
  */
-public class SparkleShareInviteServlet extends DaggerServlet {
+@Singleton
+public class SparkleShareInviteServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -53,12 +54,17 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 
 	private IRepositoryManager repositoryManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.settings = dagger.get(IStoredSettings.class);
-		this.userManager = dagger.get(IUserManager.class);
-		this.authenticationManager = dagger.get(IAuthenticationManager.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	@Inject
+	public SparkleShareInviteServlet(
+			IStoredSettings settings,
+			IUserManager userManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		this.settings = settings;
+		this.userManager = userManager;
+		this.authenticationManager = authenticationManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	@Override

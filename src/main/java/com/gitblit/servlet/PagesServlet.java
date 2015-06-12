@@ -27,7 +27,11 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.JGitUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Serves the content of a gh-pages branch.
@@ -35,6 +39,7 @@ import com.gitblit.utils.JGitUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class PagesServlet extends RawServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -53,6 +58,14 @@ public class PagesServlet extends RawServlet {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
 		return baseURL + Constants.PAGES + repository + "/" + (path == null ? "" : ("/" + path));
+	}
+
+	@Inject
+	public PagesServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
+		super(runtimeManager, repositoryManager);
 	}
 
 	@Override

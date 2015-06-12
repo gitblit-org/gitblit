@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.inject.Inject;
+
 /**
  * Memory public key manager.
  *
@@ -30,6 +32,7 @@ public class MemoryKeyManager extends IPublicKeyManager {
 
 	final Map<String, List<SshKey>> keys;
 
+	@Inject
 	public MemoryKeyManager() {
 		keys = new HashMap<String, List<SshKey>>();
 	}

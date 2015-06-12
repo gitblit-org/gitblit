@@ -57,6 +57,7 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [jedis](https://github.com/xetorthio/jedis) (MIT)
 - [Mina SSHD](https://mina.apache.org) (Apache 2.0)
 - [pf4j](https://github.com/decebals/pf4j) (Apache 2.0)
+- [google-guice](https://code.google.com/p/google-guice) (Apache 2.0)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

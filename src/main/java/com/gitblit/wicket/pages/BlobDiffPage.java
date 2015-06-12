@@ -15,13 +15,17 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.util.List;
+
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Keys;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -29,6 +33,7 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 @CacheControl(LastModified.BOOT)
@@ -39,20 +44,34 @@ public class BlobDiffPage extends RepositoryPage {
 
 		final String blobPath = WicketUtils.getPath(params);
 		final String baseObjectId = WicketUtils.getBaseObjectId(params);
+		final DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
 
 		Repository r = getRepository();
 		RevCommit commit = getCommit();
 
+		final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
+
 		String diff;
 		if (StringUtils.isEmpty(baseObjectId)) {
 			// use first parent
-			diff = DiffUtils.getDiff(r, commit, blobPath, DiffOutputType.HTML).content;
+			RevCommit parent = commit.getParentCount() == 0 ? null : commit.getParent(0);
+			ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
+					parent.getName(), commit.getName(), imageExtensions);
+			diff = DiffUtils.getDiff(r, commit, blobPath, diffComparator, DiffOutputType.HTML, handler, 3).content;
+			if (handler.getImgDiffCount() > 0) {
+				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
+			}
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		} else {
 			// base commit specified
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
-			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, DiffOutputType.HTML).content;
+			ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
+					baseCommit.getName(), commit.getName(), imageExtensions);
+			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, diffComparator, DiffOutputType.HTML, handler, 3).content;
+			if (handler.getImgDiffCount() > 0) {
+				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
+			}
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 					WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId,
 							blobPath)));
@@ -62,6 +81,8 @@ public class BlobDiffPage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new LinkPanel("whitespaceLink", null, getString(diffComparator.getOpposite().getTranslationKey()),
+				BlobDiffPage.class, WicketUtils.newDiffParameter(repositoryName, objectId, diffComparator.getOpposite(), blobPath)));
 
 		// diff page links
 		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,

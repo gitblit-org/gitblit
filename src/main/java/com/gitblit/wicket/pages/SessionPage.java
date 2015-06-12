@@ -96,7 +96,12 @@ public abstract class SessionPage extends WebPage {
 					.getAttribute(Constants.AUTHENTICATION_TYPE);
 
 			// issue 62: fix session fixation vulnerability
-			session.replaceSession();
+			// but only if authentication was done in the container.
+			// It avoid double change of session, that some authentication method
+			// don't like
+			if (AuthenticationType.CONTAINER != authenticationType) {
+				session.replaceSession();
+			}			
 			session.setUser(user);
 
 			request.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, authenticationType);

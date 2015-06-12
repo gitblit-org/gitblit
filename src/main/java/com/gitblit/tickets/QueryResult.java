@@ -24,6 +24,8 @@ import java.util.List;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.TicketModel.Type;
+import com.gitblit.models.TicketModel.Priority;
+import com.gitblit.models.TicketModel.Severity;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -62,6 +64,8 @@ public class QueryResult implements Serializable {
 	public int commentsCount;
 	public int votesCount;
 	public int approvalsCount;
+	public Priority priority;
+	public Severity severity;
 
 	public int docId;
 	public int totalResults;

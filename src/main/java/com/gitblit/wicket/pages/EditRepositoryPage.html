@@ -20,6 +20,7 @@
 		<li><a href="#search" data-toggle="tab"><wicket:message key="gb.search"></wicket:message></a></li>
 		<li><a href="#gc" data-toggle="tab"><wicket:message key="gb.gc"></wicket:message></a></li>
 		<li><a href="#misc" data-toggle="tab"><wicket:message key="gb.miscellaneous"></wicket:message></a></li>
+        <li><a href="#admin" data-toggle="tab"><wicket:message key="gb.administration"></wicket:message></a></li>
 	</ul>
 
 	<!-- tab content -->
@@ -178,8 +179,16 @@
 			<div wicket:id="mailingLists"></div>
 		
 		</div>
-		
-		<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /> &nbsp; <input class="btn btn-danger" type="submit" value="Delete" wicket:message="value:gb.delete" wicket:id="delete" /></div>
+
+        <!-- administration -->
+        <div class="tab-pane" id="admin">
+        
+            <h4><wicket:message key="gb.deleteRepositoryHeader"></wicket:message></h4>
+            <p><wicket:message key="gb.deleteRepositoryDescription"></wicket:message></p>
+            <input class="btn btn-danger" type="submit" value="Delete" wicket:message="value:gb.delete" wicket:id="delete" />
+		</div>
+    
+		<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /></div>
 		
 		</div>
 	</div>

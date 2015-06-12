@@ -29,6 +29,8 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.Mailing;
 import com.gitblit.service.MailService;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The notification manager dispatches notifications.  Currently, email is the
@@ -38,6 +40,7 @@ import com.gitblit.service.MailService;
  * @author James Moger
  *
  */
+@Singleton
 public class NotificationManager implements INotificationManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -48,6 +51,7 @@ public class NotificationManager implements INotificationManager {
 
 	private final MailService mailService;
 
+	@Inject
 	public NotificationManager(IStoredSettings settings) {
 		this.settings = settings;
 		this.mailService = new MailService(settings);
