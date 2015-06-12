@@ -162,7 +162,8 @@ public class ServicesManager implements IServicesManager {
 		List<RepositoryUrl> list = new ArrayList<RepositoryUrl>();
 
 		// http/https url
-		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
+		if (settings.getBoolean(Keys.git.enableGitServlet, true) &&
+			settings.getBoolean(Keys.web.showHttpServletUrls, true)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
 				Transport transport = Transport.fromString(request.getScheme());
@@ -177,7 +178,8 @@ public class ServicesManager implements IServicesManager {
 
 		// ssh daemon url
 		String sshDaemonUrl = getSshDaemonUrl(request, user, repository);
-		if (!StringUtils.isEmpty(sshDaemonUrl)) {
+		if (!StringUtils.isEmpty(sshDaemonUrl) &&
+			settings.getBoolean(Keys.web.showSshDaemonUrls, true)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
 				if (permission.atLeast(AccessPermission.PUSH) && !acceptsPush(Transport.SSH)) {
@@ -192,7 +194,8 @@ public class ServicesManager implements IServicesManager {
 
 		// git daemon url
 		String gitDaemonUrl = getGitDaemonUrl(request, user, repository);
-		if (!StringUtils.isEmpty(gitDaemonUrl)) {
+		if (!StringUtils.isEmpty(gitDaemonUrl) &&
+				settings.getBoolean(Keys.web.showGitDaemonUrls, true)) {
 			AccessPermission permission = getGitDaemonAccessPermission(user, repository);
 			if (permission.exceeds(AccessPermission.NONE)) {
 				if (permission.atLeast(AccessPermission.PUSH) && !acceptsPush(Transport.GIT)) {
