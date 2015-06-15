@@ -239,9 +239,8 @@ public class NewRepositoryPage extends RootSubPage {
 
 		// build an initial commit
 		boolean success = false;
-		Repository db = app().repositories().getRepository(repositoryModel.name);
-		ObjectInserter odi = db.newObjectInserter();
-		try {
+		try(final Repository db = app().repositories().getRepository(repositoryModel.name);
+				final ObjectInserter odi = db.newObjectInserter()) {
 
 			UserModel user = GitBlitWebSession.get().getUser();
 			String email = Optional.fromNullable(user.emailAddress).or(user.username + "@" + "gitblit");
@@ -328,8 +327,7 @@ public class NewRepositoryPage extends RootSubPage {
 			odi.flush();
 
 			// set the branch refs
-			RevWalk revWalk = new RevWalk(db);
-			try {
+			try (final RevWalk revWalk = new RevWalk(db)){
 				// set the master branch
 				RevCommit revCommit = revWalk.parseCommit(commitId);
 				RefUpdate masterRef = db.updateRef(Constants.R_MASTER);
@@ -358,16 +356,11 @@ public class NewRepositoryPage extends RootSubPage {
 						success = false;
 					}
 				}
-			} finally {
-				revWalk.release();
 			}
 		} catch (UnsupportedEncodingException e) {
 			logger().error(null, e);
 		} catch (IOException e) {
 			logger().error(null, e);
-		} finally {
-			odi.release();
-			db.close();
 		}
 		return success;
 	}

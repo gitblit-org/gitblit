@@ -744,10 +744,9 @@ public class JGitUtils {
 	 */
 	public static byte[] getByteContent(Repository repository, RevTree tree, final String path, boolean throwError) {
 		RevWalk rw = new RevWalk(repository);
-		TreeWalk tw = new TreeWalk(repository);
-		tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
 		byte[] content = null;
-		try {
+		try(TreeWalk tw = new TreeWalk(repository)) {
+			tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
 			if (tree == null) {
 				ObjectId object = getDefaultBranch(repository);
 				if (object == null)
@@ -774,7 +773,6 @@ public class JGitUtils {
 			}
 		} finally {
 			rw.dispose();
-			tw.release();
 		}
 		return content;
 	}
@@ -805,16 +803,13 @@ public class JGitUtils {
 	 * @return byte [] blob content
 	 */
 	public static byte[] getByteContent(Repository repository, String objectId) {
-		RevWalk rw = new RevWalk(repository);
 		byte[] content = null;
-		try {
+		try(RevWalk rw = new RevWalk(repository)) {
 			RevBlob blob = rw.lookupBlob(ObjectId.fromString(objectId));
 			ObjectLoader ldr = repository.open(blob.getId(), Constants.OBJ_BLOB);
 			content = ldr.getCachedBytes();
 		} catch (Throwable t) {
 			error(t, repository, "{0} can't find blob {1}", objectId);
-		} finally {
-			rw.dispose();
 		}
 		return content;
 	}
@@ -856,8 +851,7 @@ public class JGitUtils {
 		if (commit == null) {
 			commit = getCommit(repository, null);
 		}
-		final TreeWalk tw = new TreeWalk(repository);
-		try {
+		try(final TreeWalk tw = new TreeWalk(repository)) {
 			tw.addTree(commit.getTree());
 			if (!StringUtils.isEmpty(path)) {
 				PathFilter f = PathFilter.create(path);
@@ -884,8 +878,6 @@ public class JGitUtils {
 			}
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to get files for commit {1}", commit.getName());
-		} finally {
-			tw.release();
 		}
 		Collections.sort(list);
 		return list;
@@ -914,8 +906,8 @@ public class JGitUtils {
 		if (commit == null) {
 			commit = getCommit(repository, null);
 		}
-		final TreeWalk tw = new TreeWalk(repository);
-		try {
+
+		try(final TreeWalk tw = new TreeWalk(repository)) {
 
 			tw.addTree(commit.getTree());
 			final boolean isPathEmpty = Strings.isNullOrEmpty(path);
@@ -941,8 +933,6 @@ public class JGitUtils {
 
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to get files for commit {1}", commit.getName());
-		} finally {
-			tw.release();
 		}
 		Collections.sort(list);
 		return list;
@@ -985,16 +975,16 @@ public class JGitUtils {
 			}
 
 			if (commit.getParentCount() == 0) {
-				TreeWalk tw = new TreeWalk(repository);
-				tw.reset();
-				tw.setRecursive(true);
-				tw.addTree(commit.getTree());
-				while (tw.next()) {
-					list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
-							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
-							ChangeType.ADD));
+				try(TreeWalk tw = new TreeWalk(repository)) {
+					tw.reset();
+					tw.setRecursive(true);
+					tw.addTree(commit.getTree());
+					while (tw.next()) {
+						list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
+								.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
+								ChangeType.ADD));
+					}
 				}
-				tw.release();
 			} else {
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
 				DiffStatFormatter df = new DiffStatFormatter(commit.getName());
@@ -1045,11 +1035,11 @@ public class JGitUtils {
 		try {
 			ObjectId startRange = repository.resolve(startCommit);
 			ObjectId endRange = repository.resolve(endCommit);
-			RevWalk rw = new RevWalk(repository);
-			RevCommit start = rw.parseCommit(startRange);
-			RevCommit end = rw.parseCommit(endRange);
-			list.addAll(getFilesInRange(repository, start, end));
-			rw.release();
+			try (RevWalk rw = new RevWalk(repository)) {
+				RevCommit start = rw.parseCommit(startRange);
+				RevCommit end = rw.parseCommit(endRange);
+				list.addAll(getFilesInRange(repository, start, end));
+			}
 		} catch (Throwable t) {
 			error(t, repository, "{0} failed to determine files in range {1}..{2}!", startCommit, endCommit);
 		}
@@ -1119,8 +1109,7 @@ public class JGitUtils {
 			return list;
 		}
 		RevCommit commit = getCommit(repository, objectId);
-		final TreeWalk tw = new TreeWalk(repository);
-		try {
+		try(final TreeWalk tw = new TreeWalk(repository)) {
 			tw.addTree(commit.getTree());
 			if (extensions != null && extensions.size() > 0) {
 				List<TreeFilter> suffixFilters = new ArrayList<TreeFilter>();
@@ -1146,8 +1135,6 @@ public class JGitUtils {
 			}
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to get documents for commit {1}", commit.getName());
-		} finally {
-			tw.release();
 		}
 		Collections.sort(list);
 		return list;
@@ -2026,9 +2013,8 @@ public class JGitUtils {
 	public static String getSubmoduleCommitId(Repository repository, String path, RevCommit commit) {
 		String commitId = null;
 		RevWalk rw = new RevWalk(repository);
-		TreeWalk tw = new TreeWalk(repository);
-		tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
-		try {
+		try(TreeWalk tw = new TreeWalk(repository)) {
+			tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
 			tw.reset(commit.getTree());
 			while (tw.next()) {
 				if (tw.isSubtree() && !path.equals(tw.getPathString())) {
@@ -2044,7 +2030,6 @@ public class JGitUtils {
 			error(t, repository, "{0} can't find {1} in commit {2}", path, commit.name());
 		} finally {
 			rw.dispose();
-			tw.release();
 		}
 		return commitId;
 	}
@@ -2175,8 +2160,7 @@ public class JGitUtils {
 			author = new PersonIdent("Gitblit", "gitblit@localhost");
 		}
 		try {
-			ObjectInserter odi = repository.newObjectInserter();
-			try {
+			try (ObjectInserter odi = repository.newObjectInserter()){
 				// Create a blob object to insert into a tree
 				ObjectId blobId = odi.insert(Constants.OBJ_BLOB,
 						message.getBytes(Constants.CHARACTER_ENCODING));
@@ -2198,8 +2182,7 @@ public class JGitUtils {
 				ObjectId commitId = odi.insert(commit);
 				odi.flush();
 
-				RevWalk revWalk = new RevWalk(repository);
-				try {
+				try(RevWalk revWalk = new RevWalk(repository)) {
 					RevCommit revCommit = revWalk.parseCommit(commitId);
 					if (!branchName.startsWith("refs/")) {
 						branchName = "refs/heads/" + branchName;
@@ -2217,11 +2200,7 @@ public class JGitUtils {
 					default:
 						success = false;
 					}
-				} finally {
-					revWalk.release();
 				}
-			} finally {
-				odi.release();
 			}
 		} catch (Throwable t) {
 			error(t, repository, "Failed to create orphan branch {1} in repository {0}", branchName);
@@ -2381,9 +2360,7 @@ public class JGitUtils {
 	 * @return true if we can merge without conflict
 	 */
 	public static MergeStatus canMerge(Repository repository, String src, String toBranch) {
-		RevWalk revWalk = null;
-		try {
-			revWalk = new RevWalk(repository);
+		try (final RevWalk revWalk = new RevWalk(repository)){
 			ObjectId branchId = repository.resolve(toBranch);
 			if (branchId == null) {
 				return MergeStatus.MISSING_INTEGRATION_BRANCH;
@@ -2410,10 +2387,6 @@ public class JGitUtils {
 			LOGGER.error("Failed to determine canMerge", e);
 		} catch (IOException e) {
 			LOGGER.error("Failed to determine canMerge", e);
-		} finally {
-			if (revWalk != null) {
-				revWalk.release();
-			}
 		}
 		return MergeStatus.NOT_MERGEABLE;
 	}
@@ -2448,9 +2421,7 @@ public class JGitUtils {
 			toBranch = Constants.R_HEADS + toBranch;
 		}
 
-		RevWalk revWalk = null;
-		try {
-			revWalk = new RevWalk(repository);
+		try(final RevWalk revWalk = new RevWalk(repository)) {
 			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
 			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
 			if (revWalk.isMergedInto(srcTip, branchTip)) {
@@ -2462,8 +2433,7 @@ public class JGitUtils {
 			if (merged) {
 				// create a merge commit and a reference to track the merge commit
 				ObjectId treeId = merger.getResultTreeId();
-				ObjectInserter odi = repository.newObjectInserter();
-				try {
+				try (final ObjectInserter odi = repository.newObjectInserter()) {
 					// Create a commit object
 					CommitBuilder commitBuilder = new CommitBuilder();
 					commitBuilder.setCommitter(committer);
@@ -2497,16 +2467,10 @@ public class JGitUtils {
 
 					// return the merge commit id
 					return new MergeResult(MergeStatus.MERGED, mergeCommitId.getName());
-				} finally {
-					odi.release();
 				}
 			}
 		} catch (IOException e) {
 			LOGGER.error("Failed to merge", e);
-		} finally {
-			if (revWalk != null) {
-				revWalk.release();
-			}
 		}
 		return new MergeResult(MergeStatus.FAILED, null);
 	}

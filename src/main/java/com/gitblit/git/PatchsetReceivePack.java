@@ -631,12 +631,11 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 						forBranch, patchset.commits);
 				sendError("");
 				// display an ellipsized log of the commits being pushed
-				RevWalk walk = getRevWalk();
-				walk.reset();
-				walk.sort(RevSort.TOPO);
 				int boundary = 3;
 				int count = 0;
-				try {
+				try (RevWalk walk = getRevWalk()){
+					walk.reset();
+					walk.sort(RevSort.TOPO);
 					walk.markStart(tipCommit);
 					walk.markUninteresting(mergeBase);
 
@@ -666,8 +665,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					// Should never happen, the core receive process would have
 					// identified the missing object earlier before we got control.
 					LOGGER.error("failed to get commit count", e);
-				} finally {
-					walk.release();
 				}
 
 				sendError("");
@@ -1056,11 +1053,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 	private int countCommits(String baseId, String tipId) {
 		int count = 0;
-		RevWalk walk = getRevWalk();
-		walk.reset();
-		walk.sort(RevSort.TOPO);
-		walk.sort(RevSort.REVERSE, true);
-		try {
+		try(RevWalk walk = getRevWalk()) {
+			walk.reset();
+			walk.sort(RevSort.TOPO);
+			walk.sort(RevSort.REVERSE, true);
 			RevCommit tip = walk.parseCommit(getRepository().resolve(tipId));
 			RevCommit base = walk.parseCommit(getRepository().resolve(baseId));
 			walk.markStart(tip);
@@ -1077,8 +1073,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			// identified the missing object earlier before we got control.
 			LOGGER.error("failed to get commit count", e);
 			return 0;
-		} finally {
-			walk.release();
 		}
 		return count;
 	}

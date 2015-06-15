@@ -186,10 +186,10 @@ public final class BugtraqConfig {
 		if (repository.isBare()) {
 			// read bugtraq config directly from the repository
 			String content = null;
-			RevWalk rw = new RevWalk(repository);
-			TreeWalk tw = new TreeWalk(repository);
-			tw.setFilter(PathFilterGroup.createFromStrings(configFileName));
-			try {
+
+			try(final RevWalk rw = new RevWalk(repository);
+					final TreeWalk tw = new TreeWalk(repository)) {
+				tw.setFilter(PathFilterGroup.createFromStrings(configFileName));
 				final Ref ref = repository.getRef(Constants.HEAD);
 				if (ref == null) {
 					return null;
@@ -211,10 +211,6 @@ public final class BugtraqConfig {
 						break;
 					}
 				}
-			}
-			finally {
-				rw.dispose();
-				tw.release();
 			}
 
 			if (content == null) {

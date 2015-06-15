@@ -241,8 +241,7 @@ public class RefLogUtils {
 
 		try {
 			ObjectId headId = repository.resolve(GB_REFLOG + "^{commit}");
-			ObjectInserter odi = repository.newObjectInserter();
-			try {
+			try (final ObjectInserter odi = repository.newObjectInserter()) {
 				// Create the in-memory index of the reflog log entry
 				DirCache index = createIndex(repository, headId, commands);
 				ObjectId indexTreeId = index.writeTree(odi);
@@ -270,8 +269,7 @@ public class RefLogUtils {
 				ObjectId commitId = odi.insert(commit);
 				odi.flush();
 
-				RevWalk revWalk = new RevWalk(repository);
-				try {
+				try (final RevWalk revWalk = new RevWalk(repository)){
 					RevCommit revCommit = revWalk.parseCommit(commitId);
 					RefUpdate ru = repository.updateRef(GB_REFLOG);
 					ru.setNewObjectId(commitId);
@@ -293,11 +291,7 @@ public class RefLogUtils {
 								JGitText.get().updatingRefFailed, GB_REFLOG, commitId.toString(),
 								rc));
 					}
-				} finally {
-					revWalk.release();
 				}
-			} finally {
-				odi.release();
 			}
 		} catch (Throwable t) {
 			error(t, repository, "Failed to commit reflog entry to {0}");
@@ -319,11 +313,10 @@ public class RefLogUtils {
 
 		DirCache inCoreIndex = DirCache.newInCore();
 		DirCacheBuilder dcBuilder = inCoreIndex.builder();
-		ObjectInserter inserter = repo.newObjectInserter();
 
 		long now = System.currentTimeMillis();
 		Set<String> ignorePaths = new TreeSet<String>();
-		try {
+		try(final ObjectInserter inserter = repo.newObjectInserter()) {
 			// add receive commands to the temporary index
 			for (ReceiveCommand command : commands) {
 				// use the ref names as the path names
@@ -368,39 +361,35 @@ public class RefLogUtils {
 			}
 
 			// Traverse HEAD to add all other paths
-			TreeWalk treeWalk = new TreeWalk(repo);
-			int hIdx = -1;
-			if (headId != null)
-				hIdx = treeWalk.addTree(new RevWalk(repo).parseTree(headId));
-			treeWalk.setRecursive(true);
+			try (final TreeWalk treeWalk = new TreeWalk(repo)) {
+				int hIdx = -1;
+				if (headId != null)
+					hIdx = treeWalk.addTree(new RevWalk(repo).parseTree(headId));
+				treeWalk.setRecursive(true);
 
-			while (treeWalk.next()) {
-				String path = treeWalk.getPathString();
-				CanonicalTreeParser hTree = null;
-				if (hIdx != -1)
-					hTree = treeWalk.getTree(hIdx, CanonicalTreeParser.class);
-				if (!ignorePaths.contains(path)) {
-					// add entries from HEAD for all other paths
-					if (hTree != null) {
-						// create a new DirCacheEntry with data retrieved from
-						// HEAD
-						final DirCacheEntry dcEntry = new DirCacheEntry(path);
-						dcEntry.setObjectId(hTree.getEntryObjectId());
-						dcEntry.setFileMode(hTree.getEntryFileMode());
+				while (treeWalk.next()) {
+					String path = treeWalk.getPathString();
+					CanonicalTreeParser hTree = null;
+					if (hIdx != -1)
+						hTree = treeWalk.getTree(hIdx, CanonicalTreeParser.class);
+					if (!ignorePaths.contains(path)) {
+						// add entries from HEAD for all other paths
+						if (hTree != null) {
+							// create a new DirCacheEntry with data retrieved from
+							// HEAD
+							final DirCacheEntry dcEntry = new DirCacheEntry(path);
+							dcEntry.setObjectId(hTree.getEntryObjectId());
+							dcEntry.setFileMode(hTree.getEntryFileMode());
 
-						// add to temporary in-core index
-						dcBuilder.add(dcEntry);
+							// add to temporary in-core index
+							dcBuilder.add(dcEntry);
+						}
 					}
 				}
 			}
 
-			// release the treewalk
-			treeWalk.release();
-
 			// finish temporary in-core index used for this commit
 			dcBuilder.finish();
-		} finally {
-			inserter.release();
 		}
 		return inCoreIndex;
 	}
