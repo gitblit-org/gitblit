@@ -468,7 +468,7 @@ public class RawServlet extends HttpServlet {
 				served = true;
 			}
 		} finally {
-			tw.release();
+			tw.close();
 			rw.dispose();
 		}
 

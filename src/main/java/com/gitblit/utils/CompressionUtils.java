@@ -132,7 +132,7 @@ public class CompressionUtils {
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to zip files from commit {1}", commit.getName());
 		} finally {
-			tw.release();
+			tw.close();
 			rw.dispose();
 		}
 		return success;
@@ -291,7 +291,7 @@ public class CompressionUtils {
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to {1} stream files from commit {2}", algorithm, commit.getName());
 		} finally {
-			tw.release();
+			tw.close();
 			rw.dispose();
 		}
 		return success;
