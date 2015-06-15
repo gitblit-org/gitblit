@@ -25,7 +25,7 @@ public class UserTitlePanel extends BasePanel {
 
 	public UserTitlePanel(String wicketId, UserModel user, String title) {
 		super(wicketId);
-		add(new GravatarImage("userGravatar", user, "gravatar", 36, false));
+		add(new AvatarImage("userGravatar", user, "gravatar", 36, false));
 		add(new Label("userDisplayName", user.getDisplayName()));
 		add(new Label("userTitle", title));
 	}

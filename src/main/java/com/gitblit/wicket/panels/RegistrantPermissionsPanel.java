@@ -145,7 +145,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					}
 
 					Fragment userFragment = new Fragment("registrant", "userRegistrant", RegistrantPermissionsPanel.this);
-					userFragment.add(new GravatarImage("userAvatar", ident, 20));
+					userFragment.add(new AvatarImage("userAvatar", ident, 20));
 					userFragment.add(new Label("userName", entry.registrant));
 					item.add(userFragment);
 				} else {

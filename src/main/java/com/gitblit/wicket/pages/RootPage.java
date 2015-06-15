@@ -73,7 +73,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
 
@@ -612,7 +612,7 @@ public abstract class RootPage extends BasePage {
 			boolean standardLogin = authenticationType.isStandard();
 
 			if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {
-				add(new GravatarImage("username", user, "navbarGravatar", 20, false));
+				add(new AvatarImage("username", user, "navbarGravatar", 20, false));
 			} else {
 				add(new Label("username", user.getDisplayName()));
 			}
