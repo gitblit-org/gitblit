@@ -18,6 +18,7 @@ package com.gitblit.guice;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gitblit.AvatarGenerator;
 import com.gitblit.Constants;
 import com.gitblit.servlet.AccessDeniedServlet;
 import com.gitblit.servlet.BranchGraphServlet;
@@ -56,6 +57,10 @@ public class WebModule extends ServletModule {
 
 	@Override
 	protected void configureServlets() {
+
+		// bind web component providers
+		bind(AvatarGenerator.class).toProvider(AvatarGeneratorProvider.class);
+
 		// servlets
 		serve(fuzzy(Constants.R_PATH), fuzzy(Constants.GIT_PATH)).with(GitServlet.class);
 		serve(fuzzy(Constants.RAW_PATH)).with(RawServlet.class);

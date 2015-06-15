@@ -17,6 +17,7 @@ package com.gitblit.wicket.panels;
 
 import org.eclipse.jgit.lib.PersonIdent;
 
+import com.gitblit.AvatarGenerator;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.ExternalImage;
@@ -51,7 +52,8 @@ public class AvatarImage extends BasePanel {
 	public AvatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean identicon) {
 		super(id);
 
-		String url = app().buildAvatarUrl(username, emailaddress, cssClass, width, identicon);
+		AvatarGenerator avatarGenerator = app().runtime().getInjector().getInstance(AvatarGenerator.class);
+		String url = avatarGenerator.getURL(username, emailaddress, identicon, width);
 		ExternalImage image = new ExternalImage("image", url);
 		if (cssClass != null) {
 			WicketUtils.setCssClass(image, cssClass);

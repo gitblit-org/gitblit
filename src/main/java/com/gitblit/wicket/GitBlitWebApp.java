@@ -32,7 +32,6 @@ import org.apache.wicket.protocol.http.WebApplication;
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginWrapper;
 
-import com.gitblit.AvatarGenerator;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.extensions.GitblitWicketPlugin;
@@ -251,15 +250,12 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 			}
 		}
 
-		// customize the Wicket class resolver to load from plugins
+		 // customize the Wicket class resolver to load from plugins
 		IClassResolver coreResolver = getApplicationSettings().getClassResolver();
-		PluginClassResolver classResolver = new PluginClassResolver(coreResolver, pluginManager);
-		getApplicationSettings().setClassResolver(classResolver);
+        PluginClassResolver classResolver = new PluginClassResolver(coreResolver, pluginManager);
+        getApplicationSettings().setClassResolver(classResolver);
 
 		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
-
-		buildAvatarGenerator();
-
 	}
 
 	/* (non-Javadoc)
@@ -480,30 +476,4 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	public static GitBlitWebApp get() {
 		return (GitBlitWebApp) WebApplication.get();
 	}
-
-	AvatarGenerator generator = null;
-	@SuppressWarnings("unchecked")
-	private void buildAvatarGenerator() {
-		Class<AvatarGenerator> clazz;
-		try {
-			clazz = (Class<AvatarGenerator>) getClass().getClassLoader().loadClass(settings.getString(Keys.web.avatarClass, "com.gitblit.GravatarGenerator"));
-			generator = clazz.newInstance();
-			generator.configure(settings);
-		} catch (ClassNotFoundException | SecurityException | InstantiationException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	public String buildAvatarUrl(String username, String emailaddress, String cssClass, int width, boolean identicon) {
-		if (width <= 0) {
-			width = 50;
-		}
-		if(generator != null) {
-			return (String) generator.getURL(username, emailaddress, identicon, width);
-		}
-		return null;
-	}
-
-
 }

@@ -16,12 +16,14 @@
 package com.gitblit;
 
 import com.gitblit.utils.ActivityUtils;
+import com.google.inject.Singleton;
 
-public class GravatarGenerator extends AvatarGenerator {
+@Singleton
+public class GravatarGenerator implements AvatarGenerator {
 
-	public String getURL(String username, String emailaddress,
-			boolean identicon, int width) {
-		String email = emailaddress == null ? username.toLowerCase() : emailaddress.toLowerCase();
+	@Override
+	public String getURL(String username, String emailaddress, boolean identicon, int width) {
+		String email = emailaddress == null ? username : emailaddress;
 		if (identicon) {
 			return ActivityUtils.getGravatarIdenticonUrl(email, width);
 		} else {
