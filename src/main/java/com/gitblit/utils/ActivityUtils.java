@@ -169,7 +169,7 @@ public class ActivityUtils {
 		if (width <= 0) {
 			width = 50;
 		}
-		String emailHash = StringUtils.getMD5(email);
+		String emailHash = StringUtils.getMD5(email.toLowerCase());
 		String url = MessageFormat.format(
 				"https://www.gravatar.com/avatar/{0}?s={1,number,0}&d=identicon", emailHash, width);
 		return url;
@@ -188,7 +188,7 @@ public class ActivityUtils {
 		if (width <= 0) {
 			width = 50;
 		}
-		String emailHash = StringUtils.getMD5(email);
+		String emailHash = StringUtils.getMD5(email.toLowerCase());
 		String url = MessageFormat.format(
 				"https://www.gravatar.com/avatar/{0}?s={1,number,0}&d=mm", emailHash, width);
 		return url;
