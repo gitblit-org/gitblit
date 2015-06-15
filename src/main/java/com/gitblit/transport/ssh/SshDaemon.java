@@ -35,8 +35,8 @@ import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.SecurityUtils;
-import org.apache.sshd.server.auth.CachingPublicKeyAuthenticator;
 import org.apache.sshd.server.UserAuth;
+import org.apache.sshd.server.auth.CachingPublicKeyAuthenticator;
 import org.apache.sshd.server.auth.UserAuthKeyboardInteractive;
 import org.apache.sshd.server.auth.UserAuthPassword;
 import org.apache.sshd.server.auth.UserAuthPublicKey;
@@ -130,7 +130,7 @@ public class SshDaemon {
 		} else {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
-		
+
 		//Will do GSS ?
 		GSSAuthenticator gssAuthenticator = null;
 		if(settings.getBoolean(Keys.git.sshWithKrb5, false)) {
@@ -144,9 +144,9 @@ public class SshDaemon {
 					"");
 			if(! servicePrincipalName.isEmpty()) {
 				gssAuthenticator.setServicePrincipalName(servicePrincipalName);
-			}			
+			}
 		}
-		
+
 		//Sort the authenticators for sshd
 		List<NamedFactory<UserAuth>> userAuthFactories = new ArrayList<>();
 		String sshAuthenticatorsOrderString = settings.getString(Keys.git.sshAuthenticatorsOrder,
@@ -156,7 +156,7 @@ public class SshDaemon {
 			switch (authenticatorName) {
 			case "gssapi-with-mic":
 				if(gssAuthenticator != null) {
-					userAuthFactories.add(new UserAuthGSS.Factory());					
+					userAuthFactories.add(new UserAuthGSS.Factory());
 				}
 				break;
 			case "publickey":
@@ -172,7 +172,7 @@ public class SshDaemon {
 				log.error("Unknown ssh authenticator: '{}'", authenticatorName);
 			}
 		}
-		
+
 		// Create the SSH server
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
@@ -200,14 +200,22 @@ public class SshDaemon {
 	}
 
 	public String formatUrl(String gituser, String servername, String repository) {
-		if (sshd.getPort() == DEFAULT_PORT) {
+		IStoredSettings settings = gitblit.getSettings();
+
+		int port = sshd.getPort();
+		int displayPort = settings.getInteger(Keys.git.sshAdvertisedPort, port);
+		String displayServername = settings.getString(Keys.git.sshAdvertisedHost, "");
+		if(displayServername.isEmpty()) {
+			displayServername = servername;
+		}
+		if (displayPort == DEFAULT_PORT) {
 			// standard port
-			return MessageFormat.format("ssh://{0}@{1}/{2}", gituser, servername,
+			return MessageFormat.format("ssh://{0}@{1}/{2}", gituser, displayServername,
 					repository);
 		} else {
 			// non-standard port
 			return MessageFormat.format("ssh://{0}@{1}:{2,number,0}/{3}",
-					gituser, servername, sshd.getPort(), repository);
+					gituser, displayServername, displayPort, repository);
 		}
 	}
 
