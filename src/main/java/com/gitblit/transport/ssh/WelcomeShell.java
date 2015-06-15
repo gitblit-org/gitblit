@@ -200,8 +200,8 @@ public class WelcomeShell implements Factory<Command> {
 		}
 
 		private String formatUrl(String hostname, int port, String username) {
-			int displayPort = settings.getInteger(Keys.git.sshDisplayPort, port);
-			String displayHostname = settings.getString(Keys.git.sshDisplayHost, "");
+			int displayPort = settings.getInteger(Keys.git.sshAdvertisedPort, port);
+			String displayHostname = settings.getString(Keys.git.sshAdvertisedHost, "");
 			if(displayHostname.isEmpty()) {
 				displayHostname = hostname;
 			}

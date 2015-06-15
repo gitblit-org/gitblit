@@ -16,7 +16,6 @@
  */
 package com.gitblit.transport.ssh.commands;
 
-import com.gitblit.IStoredSettings;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -28,6 +27,7 @@ import org.eclipse.jgit.util.SystemReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.utils.StringUtils;
@@ -75,12 +75,12 @@ public abstract class SshCommand extends BaseCommand {
 	protected String getRepositoryUrl(String repository) {
 		String username = getContext().getClient().getUsername();
 		IStoredSettings settings = getContext().getGitblit().getSettings();
-		String displayHostname = settings.getString(Keys.git.sshDisplayHost, "");
+		String displayHostname = settings.getString(Keys.git.sshAdvertisedHost, "");
 		if(displayHostname.isEmpty()) {
 			displayHostname = getHostname();
 		}
 		int port = settings.getInteger(Keys.git.sshPort, 0);
-		int displayPort = settings.getInteger(Keys.git.sshDisplayPort, port);
+		int displayPort = settings.getInteger(Keys.git.sshAdvertisedPort, port);
 		if (displayPort == 22) {
 			// standard port
 			return MessageFormat.format("{0}@{1}/{2}.git", username, displayHostname, repository);
