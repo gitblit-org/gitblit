@@ -261,7 +261,7 @@
 		</mx:webxml>
 
 		<!-- Gitblit jar -->
-		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
+		<mx:jar destfile="${webinf}/lib/gitblit-${project.version}.jar" includeresources="false" />
 
 		<!-- Build the WAR file -->
 		<mx:zip basedir="${war.dir}" destfile="${project.targetDirectory}/${distribution.warfile}" compress="true" >
