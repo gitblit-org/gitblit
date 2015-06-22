@@ -120,7 +120,7 @@ public class UserManager implements IUserManager {
 					File realmFile = runtimeManager.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
 					service = createUserService(realmFile);
 				} catch (InstantiationException | IllegalAccessException  e) {
-					logger.error("failed to instanciate user service {}: {}", realm, e.getMessage());
+					logger.error("failed to instantiate user service {}: {}", realm, e.getMessage());
 				}
 			}
 			setUserService(service);
