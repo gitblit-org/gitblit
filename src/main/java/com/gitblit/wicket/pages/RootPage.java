@@ -279,7 +279,7 @@ public abstract class RootPage extends BasePage {
 
 			request = ((WebRequest) getRequest()).getHttpServletRequest();
 			response = ((WebResponse) getResponse()).getHttpServletResponse();
-			request.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, AuthenticationType.CREDENTIALS);
+			request.getSession().setAttribute(Constants.ATTRIB_AUTHTYPE, AuthenticationType.CREDENTIALS);
 
 			// Set Cookie
 			app().authentication().setCookie(request, response, user);
@@ -608,8 +608,8 @@ public abstract class RootPage extends BasePage {
 			UserModel user = session.getUser();
 			boolean editCredentials = app().authentication().supportsCredentialChanges(user);
 			HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
-			AuthenticationType authenticationType = (AuthenticationType) request.getSession().getAttribute(Constants.AUTHENTICATION_TYPE);
-			boolean standardLogin = authenticationType.isStandard();
+			AuthenticationType authenticationType = (AuthenticationType) request.getAttribute(Constants.ATTRIB_AUTHTYPE);
+			boolean standardLogin = (null != authenticationType) ? authenticationType.isStandard() : true;
 
 			if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {
 				add(new AvatarImage("username", user, "navbarGravatar", 20, false));
