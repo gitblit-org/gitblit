@@ -509,22 +509,25 @@ public class GitBlitServer {
 
 		@Override
 		public void run() {
-			logger.info("Shutdown Monitor listening on port " + socket.getLocalPort());
-			Socket accept;
-			try {
-				accept = socket.accept();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(
-						accept.getInputStream()));
-				reader.readLine();
-				logger.info(Constants.BORDER);
-				logger.info("Stopping " + Constants.NAME);
-				logger.info(Constants.BORDER);
-				server.stop();
-				server.setStopAtShutdown(false);
-				accept.close();
-				socket.close();
-			} catch (Exception e) {
-				logger.warn("Failed to shutdown Jetty", e);
+			// Only run if the socket was able to be created (not already in use, failed to bind, etc.)
+			if (null != socket) {
+				logger.info("Shutdown Monitor listening on port " + socket.getLocalPort());
+				Socket accept;
+				try {
+					accept = socket.accept();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(
+							accept.getInputStream()));
+					reader.readLine();
+					logger.info(Constants.BORDER);
+					logger.info("Stopping " + Constants.NAME);
+					logger.info(Constants.BORDER);
+					server.stop();
+					server.setStopAtShutdown(false);
+					accept.close();
+					socket.close();
+				} catch (Exception e) {
+					logger.warn("Failed to shutdown Jetty", e);
+				}
 			}
 		}
 	}
