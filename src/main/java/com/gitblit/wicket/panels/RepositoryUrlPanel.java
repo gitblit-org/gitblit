@@ -84,7 +84,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		// grab primary url from the top of the list
 		primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 
-		boolean canClone = primaryUrl != null && ((primaryUrl.permission == null) || primaryUrl.permission.atLeast(AccessPermission.CLONE));
+		boolean canClone = primaryUrl != null && (!primaryUrl.isPermissionKnown() || primaryUrl.permission.atLeast(AccessPermission.CLONE));
 
 		if (repositoryUrls.size() == 0 || !canClone) {
 			// no urls, nothing to show.
@@ -145,7 +145,7 @@ public class RepositoryUrlPanel extends BasePanel {
 					fragment.add(content);
 					item.add(fragment);
 
-					Label permissionLabel = new Label("permission", repoUrl.isExternal() ? externalPermission : repoUrl.permission.toString());
+					Label permissionLabel = new Label("permission", repoUrl.isPermissionKnown() ? repoUrl.permission.toString() : externalPermission);
 					WicketUtils.setPermissionClass(permissionLabel, repoUrl.permission);
 					String tooltip = getProtocolPermissionDescription(repository, repoUrl);
 					WicketUtils.setHtmlTooltip(permissionLabel, tooltip);
@@ -201,7 +201,7 @@ public class RepositoryUrlPanel extends BasePanel {
 
 		urlPanel.add(new Label("primaryUrl", primaryUrl.url).setRenderBodyOnly(true));
 
-		Label permissionLabel = new Label("primaryUrlPermission", primaryUrl.isExternal() ? externalPermission : primaryUrl.permission.toString());
+		Label permissionLabel = new Label("primaryUrlPermission", primaryUrl.isPermissionKnown() ? primaryUrl.permission.toString() : externalPermission);
 		String tooltip = getProtocolPermissionDescription(repository, primaryUrl);
 		WicketUtils.setHtmlTooltip(permissionLabel, tooltip);
 		urlPanel.add(permissionLabel);
@@ -234,8 +234,8 @@ public class RepositoryUrlPanel extends BasePanel {
 				// filter the urls for the client app
 				List<RepositoryUrl> urls = new ArrayList<RepositoryUrl>();
 				for (RepositoryUrl repoUrl : repositoryUrls) {
-					if (clientApp.minimumPermission == null || repoUrl.permission == null) {
-						// no minimum permission or external permissions, assume it is satisfactory
+					if (clientApp.minimumPermission == null || !repoUrl.isPermissionKnown()) {
+						// no minimum permission or untracked permissions, assume it is satisfactory
 						if (clientApp.supportsTransport(repoUrl.url)) {
 							urls.add(repoUrl);
 						}
@@ -339,7 +339,7 @@ public class RepositoryUrlPanel extends BasePanel {
 	}
 
 	protected Label createPermissionBadge(String wicketId, RepositoryUrl repoUrl) {
-		Label permissionLabel = new Label(wicketId, repoUrl.isExternal() ? externalPermission : repoUrl.permission.toString());
+		Label permissionLabel = new Label(wicketId, repoUrl.isPermissionKnown() ? repoUrl.permission.toString() : externalPermission);
 		WicketUtils.setPermissionClass(permissionLabel, repoUrl.permission);
 		String tooltip = getProtocolPermissionDescription(repository, repoUrl);
 		WicketUtils.setHtmlTooltip(permissionLabel, tooltip);
@@ -369,18 +369,7 @@ public class RepositoryUrlPanel extends BasePanel {
 			RepositoryUrl repoUrl) {
 		if (!urlPermissionsMap.containsKey(repoUrl.url)) {
 			String note;
-			if (repoUrl.isExternal()) {
-				String protocol;
-				int protocolIndex = repoUrl.url.indexOf("://");
-				if (protocolIndex > -1) {
-					// explicit protocol specified
-					protocol = repoUrl.url.substring(0, protocolIndex);
-				} else {
-					// implicit SSH url
-					protocol = "ssh";
-				}
-				note = MessageFormat.format(getString("gb.externalPermissions"), protocol);
-			} else {
+			if (repoUrl.isPermissionKnown()) {
 				note = null;
 				String key;
 				switch (repoUrl.permission) {
@@ -411,6 +400,17 @@ public class RepositoryUrlPanel extends BasePanel {
 					String description = MessageFormat.format(pattern, repoUrl.permission.toString());
 					note = description;
 				}
+			} else {
+				String protocol;
+				int protocolIndex = repoUrl.url.indexOf("://");
+				if (protocolIndex > -1) {
+					// explicit protocol specified
+					protocol = repoUrl.url.substring(0, protocolIndex);
+				} else {
+					// implicit SSH url
+					protocol = "ssh";
+				}
+				note = MessageFormat.format(getString("gb.externalPermissions"), protocol);
 			}
 			urlPermissionsMap.put(repoUrl.url, note);
 		}

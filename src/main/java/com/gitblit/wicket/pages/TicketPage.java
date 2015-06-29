@@ -752,7 +752,7 @@ public class TicketPage extends RepositoryPage {
 		if (currentPatchset == null) {
 			// no patchset available
 			RepositoryUrl repoUrl = getRepositoryUrl(user, repository);
-			boolean canPropose = repoUrl != null && repoUrl.permission.atLeast(AccessPermission.CLONE) && !UserModel.ANONYMOUS.equals(user);
+			boolean canPropose = repoUrl != null && repoUrl.isPermissionKnown() && repoUrl.permission.atLeast(AccessPermission.CLONE) && !UserModel.ANONYMOUS.equals(user);
 			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository) && canPropose) {
 				// ticket & repo will accept a proposal patchset
 				// show the instructions for proposing a patchset

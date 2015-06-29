@@ -41,8 +41,8 @@ public class RepositoryUrl implements Serializable {
 		this.permission = permission;
 	}
 
-	public boolean isExternal() {
-		return permission == null;
+	public boolean isPermissionKnown() {
+		return permission != null;
 	}
 
 	@Override
