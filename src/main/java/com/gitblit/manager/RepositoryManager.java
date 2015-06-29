@@ -904,6 +904,9 @@ public class RepositoryManager implements IRepositoryManager {
 			model.allowForks = getConfig(config, "allowForks", true);
 			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config,
 					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, "PUSH")));
+			if (!settings.getBoolean(Keys.git.allowAnonymousClones, true) && !model.accessRestriction.exceeds(AccessRestrictionType.PUSH)) {
+				model.accessRestriction = AccessRestrictionType.CLONE;
+	    	}
 			model.authorizationControl = AuthorizationControl.fromName(getConfig(config,
 					"authorizationControl", settings.getString(Keys.git.defaultAuthorizationControl, null)));
 			model.verifyCommitter = getConfig(config, "verifyCommitter", false);
