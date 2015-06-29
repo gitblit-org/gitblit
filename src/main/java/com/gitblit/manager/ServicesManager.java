@@ -210,16 +210,36 @@ public class ServicesManager implements IServicesManager {
 		// add all other urls
 		// {0} = repository
 		// {1} = username
+		boolean useInternalPerms = settings.getBoolean(Keys.web.useInternalPermissionsForOtherUrls, false);
 		for (String url : settings.getStrings(Keys.web.otherUrls)) {
+			String externalUrl = null;
+
 			if (url.contains("{1}")) {
 				// external url requires username, only add url IF we have one
-				if (!StringUtils.isEmpty(username)) {
-					list.add(new RepositoryUrl(MessageFormat.format(url, repository.name, username), null));
+				if (StringUtils.isEmpty(username)) {
+					continue;
+				} else {
+					externalUrl = MessageFormat.format(url, repository.name, username);
 				}
 			} else {
-				// external url does not require username
-				list.add(new RepositoryUrl(MessageFormat.format(url, repository.name), null));
+				// external url does not require username, just do repo name formatting
+				externalUrl = MessageFormat.format(url, repository.name);
 			}
+
+			AccessPermission permission = null;
+			if (useInternalPerms) {
+				permission = user.getRepositoryPermission(repository).permission;
+
+				if (permission.exceeds(AccessPermission.NONE)) {
+					Transport transport = Transport.fromString(request.getScheme());
+					if (permission.atLeast(AccessPermission.PUSH) && !acceptsPush(transport)) {
+						// downgrade the repo permission for this transport
+						// because it is not an acceptable PUSH transport
+						permission = AccessPermission.CLONE;
+					}
+				}
+			}
+			list.add(new RepositoryUrl(externalUrl, permission));
 		}
 
 		// sort transports by highest permission and then by transport security
@@ -227,13 +247,13 @@ public class ServicesManager implements IServicesManager {
 
 			@Override
 			public int compare(RepositoryUrl o1, RepositoryUrl o2) {
-				if (!o1.isExternal() && o2.isExternal()) {
-					// prefer Gitblit over external
+				if (o1.isPermissionKnown() && !o2.isPermissionKnown()) {
+					// prefer known permission items over unknown
 					return -1;
-				} else if (o1.isExternal() && !o2.isExternal()) {
-					// prefer Gitblit over external
+				} else if (!o1.isPermissionKnown() && o2.isPermissionKnown()) {
+					// prefer known permission items over unknown
 					return 1;
-				} else if (o1.isExternal() && o2.isExternal()) {
+				} else if (o1.isPermissionKnown() && o2.isPermissionKnown()) {
 					// sort by Transport ordinal
 					return o1.transport.compareTo(o2.transport);
 				} else if (o1.permission.exceeds(o2.permission)) {
