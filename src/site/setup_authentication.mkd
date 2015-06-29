@@ -8,6 +8,7 @@ Gitblit supports additional authentication mechanisms aside from it's internal o
 * Windows authentication
 * PAM authentication
 * Htpasswd authentication
+* HTTP header authentication
 * Redmine auhentication
 * Salesforce.com authentication
 * Servlet container authentication
@@ -100,6 +101,17 @@ Htpasswd authentication allows you to maintain your user credentials in an Apach
 
     realm.authenticationProviders = htpasswd
     realm.htpasswd.userFile = /path/to/htpasswd
+
+### HTTP Header Authentication
+
+HTTP header authentication allows you to use existing authentication performed by a trusted frontend, such as a reverse proxy. Ensure that when used, gitblit is ONLY availabe via the trusted frontend, otherwise it is vulnerable to a user adding the header explicitly.
+
+By default, no user or team header is defined, which results in all authentication failing this mechanism. The user header can also be defined while leaving the team header undefined, which causes users to be authenticated from the headers, but team memberships to be maintained locally.
+
+    realm.httpheader.userheader = REMOTE_USER
+    realm.httpheader.teamheader = X-GitblitExample-GroupNames
+    realm.httpheader.teamseparator = ,
+    realm.httpheader.autoCreateAccounts = false
 
 ### Redmine Authentication
 
