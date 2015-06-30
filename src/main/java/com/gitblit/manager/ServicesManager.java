@@ -166,13 +166,14 @@ public class ServicesManager implements IServicesManager {
 			settings.getBoolean(Keys.web.showHttpServletUrls, true)) {
 			AccessPermission permission = user.getRepositoryPermission(repository).permission;
 			if (permission.exceeds(AccessPermission.NONE)) {
-				Transport transport = Transport.fromString(request.getScheme());
+				String repoUrl = getRepositoryUrl(request, username, repository);
+				Transport transport = Transport.fromUrl(repoUrl);
 				if (permission.atLeast(AccessPermission.PUSH) && !acceptsPush(transport)) {
 					// downgrade the repo permission for this transport
 					// because it is not an acceptable PUSH transport
 					permission = AccessPermission.CLONE;
 				}
-				list.add(new RepositoryUrl(getRepositoryUrl(request, username, repository), permission));
+				list.add(new RepositoryUrl(repoUrl, permission));
 			}
 		}
 
