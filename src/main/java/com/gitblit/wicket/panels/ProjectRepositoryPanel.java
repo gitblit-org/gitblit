@@ -158,6 +158,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(new Label("repositorySize", localizer.getString("gb.empty", parent)).setEscapeModelStrings(false));
 		}
 
-		add(new ExternalLink("syndication", SyndicationServlet.asLink("", entry.name, null, 0)));
+		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
+				.getRelativePathPrefixToContextRoot(), entry.name, null, 0)));
 	}
 }
