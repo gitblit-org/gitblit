@@ -70,7 +70,7 @@ Gitblit has adopted Gerrit's three-repository workflow and *magic ref* design fo
 1. The organizational unit of the Gitblit Tickets feature is the *ticket*.
 2. A *ticket* can be used to report a bug, request an enhancement, ask a question, etc.  A ticket can also be used to collaborate on a *patchset* that addresses the request.
 3. A *patchset* is a series of commits from a merge base that exists in the target branch of your repository to the tip of the patchset.  A patchset may only contain a single commit, or it may contain dozens.  This is similar to the commits in a *Pull Request*.  One important distinction here is that in Gitblit, each *Patchset* is developed on a separate branch and can be completely rewritten without losing the previous patchsets (this creates a new patchset).
-4. A *ticket* monitors the development of *patchsets* by tracking *revisions* to *patchsets*.  The ticket alslo monitors rewritten patchsets. Each *patchset* is developed on it's own Git branch.
+4. A *ticket* monitors the development of *patchsets* by tracking *revisions* to *patchsets*.  The ticket also monitors rewritten patchsets. Each *patchset* is developed on it's own Git branch.
  
 Tracking *patchsets* is similar in concept to Gerrit, but there is a critical difference.  In Gerrit, *every* commit in the *patchset* has it's own ticket  **AND** Git branch.  In Gerrit, *patchsets* can be easily rewritten and for each rewritten commit, a new branch ref is created.  This leads to an explosion in refs for the repository over time.  In Gitblit, only the tip of the *patchset* gets a branch ref and this branch ref is updated, like a regular branch, unless a rewrite is detected.
 
