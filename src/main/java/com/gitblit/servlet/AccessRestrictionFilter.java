@@ -69,7 +69,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	 * @param url
 	 * @return repository name
 	 */
-	protected abstract String extractRepositoryName(String url);
+	protected abstract String extractRepositoryName(HttpServletRequest request);
 
 	/**
 	 * Analyze the url and returns the action of the request.
@@ -141,8 +141,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		String fullUrl = getFullUrl(httpRequest);
-		String repository = extractRepositoryName(fullUrl);
+		String repository = extractRepositoryName(httpRequest);
 		if (StringUtils.isEmpty(repository)) {
 			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -155,6 +154,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		}
 
 		// Determine if the request URL is restricted
+		String fullUrl = getFullUrl(httpRequest);
 		String fullSuffix = fullUrl.substring(repository.length());
 		String urlRequestType = getUrlRequestAction(fullSuffix);
 

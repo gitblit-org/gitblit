@@ -15,11 +15,14 @@
  */
 package com.gitblit.servlet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.Keys;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -53,30 +56,37 @@ public class RawFilter extends AccessRestrictionFilter {
 	 * @return repository name
 	 */
 	@Override
-	protected String extractRepositoryName(String url) {
-		// get the repository name from the url by finding a known url suffix
-		String repository = "";
-		Repository r = null;
-		int offset = 0;
-		while (r == null) {
-			int slash = url.indexOf('/', offset);
-			if (slash == -1) {
-				repository = url;
-			} else {
-				repository = url.substring(0, slash);
+	protected String extractRepositoryName(HttpServletRequest httpRequest) {
+		String repository = null;
+		if (runtimeManager.getSettings().getBoolean(Keys.web.mountParameters, true)) {
+			// get the repository name from the url by finding a known url suffix
+			String url = httpRequest.getPathInfo().substring(1);
+			char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+			url = url.replace('!', '/').replace(c, '/');
+			Repository r = null;
+			int offset = 0;
+			while (r == null) {
+				int slash = url.indexOf('/', offset);
+				if (slash == -1) {
+					repository = url;
+				} else {
+					repository = url.substring(0, slash);
+				}
+				r = repositoryManager.getRepository(repository, false);
+				if (r == null) {
+					// try again
+					offset = slash + 1;
+				} else {
+					// close the repo
+					r.close();
+				}
+				if (repository.equals(url)) {
+					// either only repository in url or no repository found
+					break;
+				}
 			}
-			r = repositoryManager.getRepository(repository, false);
-			if (r == null) {
-				// try again
-				offset = slash + 1;
-			} else {
-				// close the repo
-				r.close();
-			}
-			if (repository.equals(url)) {
-				// either only repository in url or no repository found
-				break;
-			}
+		} else {
+			repository = httpRequest.getParameter("r");
 		}
 		return repository;
 	}

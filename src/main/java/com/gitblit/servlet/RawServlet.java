@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -100,42 +101,90 @@ public class RawServlet extends HttpServlet {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
 
-		char fsc = '!';
-		char c = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-		if (c != '/') {
-			fsc = c;
-		}
-		if (branch != null) {
-			branch = Repository.shortenRefName(branch).replace('/', fsc);
-		}
+		IStoredSettings settings = GitblitContext.getManager(IRuntimeManager.class).getSettings();
+		boolean firstParam = true;
+		StringBuilder referenceUrl = new StringBuilder(baseURL + Constants.RAW_PATH);
 
-		String encodedPath = path == null ? "" : path.replace('/', fsc);
-		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + encodedPath));
+		// Mimic the wicket page mount parameters, key off same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			char fsc = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+			repository = repository.replace('/', fsc);
+
+			referenceUrl.append(repository);
+
+			if (!StringUtils.isEmpty(branch)) {
+				branch = Repository.shortenRefName(branch).replace('/', fsc);
+				referenceUrl.append("/" + branch);
+			}
+
+			if (!StringUtils.isEmpty(path)) {
+				path = path.replace('/', fsc);
+				referenceUrl.append("/" + path);
+			}
+		} else {
+			if (!StringUtils.isEmpty(repository)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("r=" + repository);
+				firstParam = false;
+			}
+			if (!StringUtils.isEmpty(branch)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("h=" + branch);
+				firstParam = false;
+			}
+			if (!StringUtils.isEmpty(path)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("f=" + path);
+				firstParam = false;
+			}
+		}
+		return referenceUrl.toString();
 	}
 
 	protected String getBranch(String repository, HttpServletRequest request) {
-		String pi = request.getPathInfo();
-		String branch = pi.substring(pi.indexOf(repository) + repository.length() + 1);
-		int fs = branch.indexOf('/');
-		if (fs > -1) {
-			branch = branch.substring(0, fs);
+		IStoredSettings settings = GitblitContext.getManager(IRuntimeManager.class).getSettings();
+
+		// Mimic the wicket page mount parameters, key off same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			String pi = request.getPathInfo().substring(1);
+
+			char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+			pi = pi.replace('!', '/').replace(c, '/');
+
+			String branch = pi.substring(pi.indexOf(repository) + repository.length() + 1);
+			int fs = branch.indexOf('/');
+			if (fs > -1) {
+				branch = branch.substring(0, fs);
+			}
+			return branch;
+		} else {
+			return request.getParameter("h");
 		}
-		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-		return branch.replace('!', '/').replace(c, '/');
+
 	}
 
 	protected String getPath(String repository, String branch, HttpServletRequest request) {
-		String base = repository + "/" + branch;
-		String pi = request.getPathInfo().substring(1);
-		if (pi.equals(base)) {
-			return "";
+		IStoredSettings settings = GitblitContext.getManager(IRuntimeManager.class).getSettings();
+
+		// Mimic the wicket page mount parameters, key off same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			String base = repository + "/" + branch;
+			String pi = request.getPathInfo().substring(1);
+			char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+			pi = pi.replace('!', '/').replace(c, '/');
+			if (pi.equals(base)) {
+				return "";
+			}
+
+			// Need to add an additional character to strip the slash separator between ref and path
+			String path = pi.substring(pi.indexOf(base) + base.length() + 1);
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
+			}
+			return path;
+		} else {
+			return request.getParameter("f");
 		}
-		String path = pi.substring(pi.indexOf(base) + base.length() + 1);
-		if (path.endsWith("/")) {
-			path = path.substring(0, path.length() - 1);
-		}
-		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-		return path.replace('!', '/').replace(c, '/');
 	}
 
 	protected boolean renderIndex() {
@@ -154,34 +203,46 @@ public class RawServlet extends HttpServlet {
 	private void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String path = request.getPathInfo();
-		if (path.toLowerCase().endsWith(".git")) {
-			// forward to url with trailing /
-			// this is important for relative pages links
-			response.sendRedirect(request.getServletPath() + path + "/");
-			return;
-		}
-		if (path.charAt(0) == '/') {
-			// strip leading /
-			path = path.substring(1);
-		}
 
-		// determine repository and resource from url
+		// determine repository and resource
 		String repository = "";
 		Repository r = null;
-		int offset = 0;
-		while (r == null) {
-			int slash = path.indexOf('/', offset);
-			if (slash == -1) {
-				repository = path;
-			} else {
-				repository = path.substring(0, slash);
+		// Mimic the wicket page mount parameters, key off same config value
+		IStoredSettings settings = GitblitContext.getManager(IRuntimeManager.class).getSettings();
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			if (path.toLowerCase().endsWith(".git")) {
+				// forward to url with trailing /
+				// this is important for relative pages links
+				response.sendRedirect(request.getServletPath() + path + "/");
+				return;
 			}
-			offset = ( slash + 1 );
+			if (path.charAt(0) == '/') {
+				// strip leading /
+				path = path.substring(1);
+			}
+
+			char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+			path = path.replace('!', '/').replace(c, '/');
+
+			int offset = 0;
+			while (r == null) {
+				int slash = path.indexOf('/', offset);
+				if (slash == -1) {
+					repository = path;
+				} else {
+					repository = path.substring(0, slash);
+				}
+				offset = ( slash + 1 );
+				r = repositoryManager.getRepository(repository, false);
+				if (repository.equals(path)) {
+					// either only repository in url or no repository found
+					break;
+				}
+			}
+
+		} else {
+			repository = request.getParameter("r");
 			r = repositoryManager.getRepository(repository, false);
-			if (repository.equals(path)) {
-				// either only repository in url or no repository found
-				break;
-			}
 		}
 
 		ServletContext context = request.getSession().getServletContext();

@@ -84,7 +84,7 @@ public class BranchGraphServlet extends HttpServlet {
 
 	private final Stroke[] strokeCache;
 
-	private IStoredSettings settings;
+	private static IStoredSettings settings;
 
 	private IRepositoryManager repositoryManager;
 
@@ -93,7 +93,7 @@ public class BranchGraphServlet extends HttpServlet {
 			IStoredSettings settings,
 			IRepositoryManager repositoryManager) {
 
-		this.settings = settings;
+		BranchGraphServlet.settings = settings;
 		this.repositoryManager = repositoryManager;
 
 		strokeCache = new Stroke[4];
@@ -115,14 +115,59 @@ public class BranchGraphServlet extends HttpServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
-		return baseURL + Constants.BRANCH_GRAPH_PATH + "?r=" + repository
-				+ (objectId == null ? "" : ("&h=" + objectId))
-				+ (numberCommits > 0 ? ("&l=" + numberCommits) : "");
+
+		boolean firstParam = true;
+		StringBuilder referenceUrl = new StringBuilder(baseURL + Constants.BRANCH_GRAPH_PATH);
+
+		// Mimic the wicket page mount parameters, key off of same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			// Replace slashes with replacement character if configured
+			char c = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+			if (c != '/') {
+				repository = repository.replace('/', c);
+			}
+			referenceUrl.append(repository);
+		} else {
+			if (!StringUtils.isEmpty(repository)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("r=" + repository);
+				firstParam = false;
+			}
+		}
+
+		// TODO: convert additional attributes to path-based
+		if (objectId != null) {
+			referenceUrl.append(firstParam ? "?" : "&");
+			referenceUrl.append("h=" + objectId);
+			firstParam = false;
+		}
+		if (numberCommits > 0) {
+			referenceUrl.append(firstParam ? "?" : "&");
+			referenceUrl.append("l=" + numberCommits);
+			firstParam = false;
+		}
+		return referenceUrl.toString();
+	}
+
+	private String getRepositoryName(HttpServletRequest httpRequest) {
+		// Mimic the wicket page mount parameters, key off of same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			String repository = httpRequest.getPathInfo();
+			if (!StringUtils.isEmpty(repository)) {
+				// Remove leading slash
+				repository = repository.substring(1);
+				char c = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+				repository = repository.replace('!', '/').replace(c, '/');
+			}
+			return repository;
+		} else {
+			return httpRequest.getParameter("r");
+		}
 	}
 
 	@Override
 	protected long getLastModified(HttpServletRequest req) {
-		String repository = req.getParameter("r");
+		String repository = getRepositoryName(req);
 		if (StringUtils.isEmpty(repository)) {
 			return 0;
 		}
@@ -156,12 +201,15 @@ public class BranchGraphServlet extends HttpServlet {
 		Repository r = null;
 		PlotWalk rw = null;
 		try {
-			String repository = request.getParameter("r");
+			String repository = getRepositoryName(request);
+
 			if (StringUtils.isEmpty(repository)) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				response.getWriter().append("Bad request");
 				return;
 			}
+
+			// TODO: these should be converted to URL path properties
 			String objectId = request.getParameter("h");
 			String length = request.getParameter("l");
 
