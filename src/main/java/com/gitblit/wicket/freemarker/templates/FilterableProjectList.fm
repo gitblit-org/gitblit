@@ -6,7 +6,7 @@
 	</div>
 		
 	<div ng-repeat="item in ${ngList} | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
-		<a href="project/?p={{item.p}}" title="{{item.i}}"><b>{{item.n}}</b></a>
+		<a href="project/{{item.m}}" title="{{item.i}}"><b>{{item.n}}</b></a>
 		<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
 		<span class="pull-right">
 			<span style="padding: 0px 5px;color: #888;font-weight:bold;vertical-align:middle;" wicket:message="title:gb.repositories">{{item.c | number}}</span>
