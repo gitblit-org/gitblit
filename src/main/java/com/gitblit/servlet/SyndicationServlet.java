@@ -62,9 +62,9 @@ public class SyndicationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private transient Logger logger = LoggerFactory.getLogger(SyndicationServlet.class);
+	private transient Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private IStoredSettings settings;
+	private static IStoredSettings settings;
 
 	private IRepositoryManager repositoryManager;
 
@@ -76,7 +76,7 @@ public class SyndicationServlet extends HttpServlet {
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager) {
 
-		this.settings = settings;
+		SyndicationServlet.settings = settings;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 	}
@@ -97,26 +97,41 @@ public class SyndicationServlet extends HttpServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
-		StringBuilder url = new StringBuilder();
-		url.append(baseURL);
-		url.append(Constants.SYNDICATION_PATH);
-		url.append(repository);
-		if (!StringUtils.isEmpty(objectId) || length > 0) {
-			StringBuilder parameters = new StringBuilder("?");
-			if (StringUtils.isEmpty(objectId)) {
-				parameters.append("l=");
-				parameters.append(length);
-			} else {
-				parameters.append("h=");
-				parameters.append(objectId);
-				if (length > 0) {
-					parameters.append("&l=");
-					parameters.append(length);
-				}
+		boolean firstParam = true;
+		StringBuilder referenceUrl = new StringBuilder(baseURL + Constants.SYNDICATION_PATH);
+
+		// Mimic the wicket page mount parameters, key off same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			char fsc = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+			repository = repository.replace('/', fsc);
+
+			referenceUrl.append(repository);
+
+			if (!StringUtils.isEmpty(objectId)) {
+				objectId = objectId.replace('/', fsc);
+				referenceUrl.append("/" + objectId);
 			}
-			url.append(parameters);
+		} else {
+			if (!StringUtils.isEmpty(repository)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("r=" + repository);
+				firstParam = false;
+			}
+			if (!StringUtils.isEmpty(objectId)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("h=" + objectId);
+				firstParam = false;
+			}
 		}
-		return url.toString();
+
+		// Add items that are always parameters
+		if (length > 0) {
+			referenceUrl.append(firstParam ? "?" : "&");
+			referenceUrl.append("l=" + objectId);
+			firstParam = false;
+		}
+
+		return referenceUrl.toString();
 	}
 
 	/**
@@ -152,17 +167,56 @@ public class SyndicationServlet extends HttpServlet {
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
 
-		String servletUrl = request.getContextPath() + request.getServletPath();
-		String url = request.getRequestURI().substring(servletUrl.length());
-		if (url.length() > 1 && url.charAt(0) == '/') {
-			url = url.substring(1);
-		}
-		String repositoryName = url;
-		String objectId = request.getParameter("h");
-		String l = request.getParameter("l");
-		String page = request.getParameter("pg");
-		String searchString = request.getParameter("s");
+		String repositoryName = null;
+		String objectId = null;
+		String l = null;
+		String page = null;
+		String searchString = null;
 		Constants.SearchType searchType = Constants.SearchType.COMMIT;
+		Constants.FeedObjectType objectType = Constants.FeedObjectType.COMMIT;
+
+		// Mimic the wicket page mount parameters, key off same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			String path = request.getPathInfo();
+			if (!StringUtils.isEmpty(path)) {
+				path = path.substring(1);
+			}
+
+			char c = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+			path = path.replace('!', '/').replace(c, '/');
+
+			int offset = 0;
+			Repository r = null;
+			while (r == null) {
+				int slash = path.indexOf('/', offset);
+				if (slash == -1) {
+					repositoryName = path;
+				} else {
+					repositoryName = path.substring(0, slash);
+				}
+				offset = ( slash + 1 );
+				r = repositoryManager.getRepository(repositoryName, false);
+				if (repositoryName.equals(path)) {
+					// either only repository in url or no repository found
+					break;
+				}
+			}
+
+			if (path.length() > repositoryName.length()) {
+				objectId = path.substring(repositoryName.length() + 1);
+				if (objectId.endsWith("/"))
+					objectId = objectId.substring(0,  objectId.length() - 1);
+			}
+		} else {
+			repositoryName = request.getParameter("r");
+			objectId = request.getParameter("h");
+		}
+
+		// Get common parameter entries
+		l = request.getParameter("l");
+		page = request.getParameter("pg");
+		searchString = request.getParameter("s");
+
 		if (!StringUtils.isEmpty(request.getParameter("st"))) {
 			Constants.SearchType type = Constants.SearchType.forName(request.getParameter("st"));
 			if (type != null) {
@@ -170,7 +224,6 @@ public class SyndicationServlet extends HttpServlet {
 			}
 		}
 
-		Constants.FeedObjectType objectType = Constants.FeedObjectType.COMMIT;
 		if (!StringUtils.isEmpty(request.getParameter("ot"))) {
 			Constants.FeedObjectType type = Constants.FeedObjectType.forName(request.getParameter("ot"));
 			if (type != null) {

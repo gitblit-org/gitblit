@@ -74,9 +74,9 @@ public class RawServlet extends HttpServlet {
 
 	private transient Logger logger = LoggerFactory.getLogger(RawServlet.class);
 
-	private final IRuntimeManager runtimeManager;
+	protected final IRuntimeManager runtimeManager;
 
-	private final IRepositoryManager repositoryManager;
+	protected final IRepositoryManager repositoryManager;
 
 	@Inject
 	public RawServlet(
@@ -168,7 +168,7 @@ public class RawServlet extends HttpServlet {
 
 		// Mimic the wicket page mount parameters, key off same config value
 		if (settings.getBoolean(Keys.web.mountParameters, true)) {
-			String base = repository + "/" + branch;
+			String base = repository + ((branch != null) ? ("/" + branch) : "");
 			String pi = request.getPathInfo().substring(1);
 			char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
 			pi = pi.replace('!', '/').replace(c, '/');
@@ -202,7 +202,6 @@ public class RawServlet extends HttpServlet {
 	 */
 	private void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String path = request.getPathInfo();
 
 		// determine repository and resource
 		String repository = "";
@@ -210,6 +209,7 @@ public class RawServlet extends HttpServlet {
 		// Mimic the wicket page mount parameters, key off same config value
 		IStoredSettings settings = GitblitContext.getManager(IRuntimeManager.class).getSettings();
 		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			String path = request.getPathInfo();
 			if (path.toLowerCase().endsWith(".git")) {
 				// forward to url with trailing /
 				// this is important for relative pages links
@@ -250,10 +250,7 @@ public class RawServlet extends HttpServlet {
 		try {
 			if (r == null) {
 				// repository not found!
-				String mkd = MessageFormat.format(
-						"# Error\nSorry, no valid **repository** specified in this url: {0}!",
-						path);
-				error(response, mkd);
+				error(response, "# Error\nSorry, no valid **repository** specified!");
 				return;
 			}
 
@@ -263,10 +260,7 @@ public class RawServlet extends HttpServlet {
 				branch = r.getBranch();
 				if (branch == null) {
 					// no branches found!  empty?
-					String mkd = MessageFormat.format(
-							"# Error\nSorry, no valid **branch** specified in this url: {0}!",
-							path);
-					error(response, mkd);
+					error(response, "# Error\nSorry, no valid **branch** specified!");
 				} else {
 					// redirect to default branch
 					String base = request.getRequestURI();
@@ -333,7 +327,7 @@ public class RawServlet extends HttpServlet {
 						String [] encodings = runtimeManager.getSettings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
 						String content = JGitUtils.getStringContent(r, commit.getTree(), requestedPath, encodings);
 						if (content == null) {
-							logger.error("RawServlet Failed to load {} {} {}", repository, commit.getName(), path);
+							logger.error("RawServlet Failed to load {} {} {}", repository, commit.getName(), requestedPath);
 							notFound(response, requestedPath, branch);
 							return;
 						}
@@ -347,7 +341,7 @@ public class RawServlet extends HttpServlet {
 					} else {
 						// stream binary content directly from the repository
 						if (!streamFromRepo(request, response, r, commit, requestedPath)) {
-							logger.error("RawServlet Failed to load {} {} {}", repository, commit.getName(), path);
+							logger.error("RawServlet Failed to load {} {} {}", repository, commit.getName(), requestedPath);
 							notFound(response, requestedPath, branch);
 						}
 					}
@@ -381,7 +375,7 @@ public class RawServlet extends HttpServlet {
 						if (names.containsKey(key)) {
 							String fileName = names.get(key);
 							String fullPath = fileName;
-							if (!requestedPath.isEmpty()) {
+							if (!StringUtils.isEmpty(requestedPath)) {
 								fullPath = requestedPath + "/" + fileName;
 							}
 

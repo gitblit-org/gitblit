@@ -27,9 +27,13 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.RuntimeManager;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -57,7 +61,34 @@ public class PagesServlet extends RawServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
-		return baseURL + Constants.PAGES + repository + "/" + (path == null ? "" : ("/" + path));
+		IStoredSettings settings = GitblitContext.getManager(IRuntimeManager.class).getSettings();
+		boolean firstParam = true;
+		StringBuilder referenceUrl = new StringBuilder(baseURL + Constants.PAGES);
+
+		// Mimic the wicket page mount parameters, key off same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			char fsc = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+			repository = repository.replace('/', fsc);
+
+			referenceUrl.append(repository);
+
+			if (!StringUtils.isEmpty(path)) {
+				path = path.replace('/', fsc);
+				referenceUrl.append("/" + path);
+			}
+		} else {
+			if (!StringUtils.isEmpty(repository)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("r=" + repository);
+				firstParam = false;
+			}
+			if (!StringUtils.isEmpty(path)) {
+				referenceUrl.append(firstParam ? "?" : "&");
+				referenceUrl.append("f=" + path);
+				firstParam = false;
+			}
+		}
+		return referenceUrl.toString();
 	}
 
 	@Inject
@@ -75,15 +106,7 @@ public class PagesServlet extends RawServlet {
 
 	@Override
 	protected String getPath(String repository, String branch, HttpServletRequest request) {
-		String pi = request.getPathInfo().substring(1);
-		if (pi.equals(repository)) {
-			return "";
-		}
-		String path = pi.substring(pi.indexOf(repository) + repository.length() + 1);
-		if (path.endsWith("/")) {
-			path = path.substring(0, path.length() - 1);
-		}
-		return path;
+		return super.getPath(repository, null, request);
 	}
 
 	@Override
