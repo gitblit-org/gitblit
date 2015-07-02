@@ -78,7 +78,12 @@ public class ModelUtils
 	 */
 	public static boolean isPersonalRepository(String name)
 	{
-		if ( name.startsWith(userRepoPrefix) ) return true;
+		String testUserPrefix = userRepoPrefix;
+
+		if (testUserPrefix.endsWith("/"))
+			testUserPrefix = testUserPrefix.substring(0, testUserPrefix.length() - 1);
+
+		if ( name.startsWith(testUserPrefix) ) return true;
 		return false;
 	}
 

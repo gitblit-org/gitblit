@@ -79,6 +79,8 @@ public class ModelUtilsTest extends GitblitUnitTest {
 		ModelUtils.setUserRepoPrefix("users/");
 		reponame = "users/three";
 		assertTrue(ModelUtils.isPersonalRepository(reponame));
+		reponame = "users";
+		assertTrue(ModelUtils.isPersonalRepository(reponame));
 
 		reponame = "project/four";
 		assertFalse(ModelUtils.isPersonalRepository(reponame));
