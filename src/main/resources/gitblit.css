@@ -1734,7 +1734,11 @@ table.comments td {
 	line-height: 17px;
 }
 
-table.repositories {	
+table.projectlist {
+	margin-top: 10px;
+}
+
+table.repositories {
 	border:1px solid #ddd;
 	border-spacing: 0px;
 	width: 100%;
