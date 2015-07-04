@@ -1347,7 +1347,7 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	/**
-	 * Creates/updates the repository model keyed by reopsitoryName. Saves all
+	 * Creates/updates the repository model keyed by repositoryName. Saves all
 	 * repository settings in .git/config. This method allows for renaming
 	 * repositories and will update user access permissions accordingly.
 	 *
