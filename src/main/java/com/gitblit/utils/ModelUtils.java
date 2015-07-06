@@ -105,7 +105,7 @@ public class ModelUtils
 
 
 	/**
-	 * Exrtract a user's name from a personal repository path.
+	 * Extract a user's name from a personal repository path.
 	 *
 	 * @param path
 	 * 			A project name, a relative path to a repository.
@@ -114,9 +114,10 @@ public class ModelUtils
 	 */
 	public static String getUserNameFromRepoPath(String path)
 	{
-		if ( !isPersonalRepository(path) ) return "";
-
-		return path.substring(userRepoPrefix.length());
+		if (isPersonalRepository(path) && path.length() > userRepoPrefix.length())
+			return path.substring(userRepoPrefix.length());
+		else
+			return "";
 	}
 
 }
