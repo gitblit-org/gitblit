@@ -437,7 +437,7 @@ public class LuceneService implements Runnable {
 					// skip non-annotated tags
 					continue;
 				}
-				if (!tags.containsKey(tag.getObjectId().getName())) {
+				if (!tags.containsKey(tag.getReferencedObjectId().getName())) {
 					tags.put(tag.getReferencedObjectId().getName(), new ArrayList<String>());
 				}
 				tags.get(tag.getReferencedObjectId().getName()).add(tag.displayName);
