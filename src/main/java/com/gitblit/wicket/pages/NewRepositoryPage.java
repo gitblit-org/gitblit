@@ -359,14 +359,14 @@ public class NewRepositoryPage extends RootSubPage {
 					}
 				}
 			} finally {
-				revWalk.release();
+				revWalk.close();
 			}
 		} catch (UnsupportedEncodingException e) {
 			logger().error(null, e);
 		} catch (IOException e) {
 			logger().error(null, e);
 		} finally {
-			odi.release();
+			odi.close();
 			db.close();
 		}
 		return success;

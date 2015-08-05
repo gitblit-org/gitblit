@@ -1,5 +1,5 @@
 #!/bin/bash -x
-# This script installes gitblit on a system running under systemd.
+# This script installs Gitblit on a system running under systemd.
 # The script assumes the server is running as user giblit
 
 # First create a file with the default settings
@@ -8,7 +8,6 @@ GITBLIT_PATH=/opt/gitblit
 GITBLIT_BASE_FOLDER=/opt/gitblit/data
 GITBLIT_HTTP_PORT=0
 GITBLIT_HTTPS_PORT=8443
-GITBLIT_LOG=/var/log/gitblit.log
 EOF
 # Create a systemd service file
 cat > /tmp/gitblit.service << EOF
@@ -30,7 +29,5 @@ WantedBy=multi-user.target
 EOF
 
 # Finally copy the files to the destination and register the systemd unit.
-sudo su -c "cp /tmp/gitblit.defaults /etc/sysconfig/gitblit && cp /tmp/gitblit.service /usr/lib/systemd/system/"
+sudo su -c "cp /tmp/gitblit.defaults /etc/sysconfig/gitblit && cp /tmp/gitblit.service /etc/systemd/system/"
 sudo su -c "systemctl daemon-reload && systemctl enable gitblit.service && systemctl start gitblit.service"
-# Prepare the logfile
-sudo su -c "touch /var/log/gitblit.log && chown gitblit:gitblit /var/log/gitblit.log"

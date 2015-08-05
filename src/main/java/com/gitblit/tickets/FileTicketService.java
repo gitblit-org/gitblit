@@ -42,6 +42,8 @@ import com.gitblit.models.TicketModel.Change;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Implementation of a ticket service based on a directory within the repository.
@@ -51,6 +53,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class FileTicketService extends ITicketService {
 
 	private static final String JOURNAL = "journal.json";
@@ -59,6 +62,7 @@ public class FileTicketService extends ITicketService {
 
 	private final Map<String, AtomicLong> lastAssignedId;
 
+	@Inject
 	public FileTicketService(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
@@ -77,6 +81,7 @@ public class FileTicketService extends ITicketService {
 
 	@Override
 	public FileTicketService start() {
+		log.info("{} started", getClass().getSimpleName());
 		return this;
 	}
 
@@ -488,6 +493,10 @@ public class FileTicketService extends ITicketService {
 	@Override
 	protected boolean deleteAllImpl(RepositoryModel repository) {
 		Repository db = repositoryManager.getRepository(repository.name);
+		if (db == null) {
+			// the tickets no longer exist because the db no longer exists
+			return true;
+		}
 		try {
 			File dir = new File(db.getDirectory(), TICKETS_PATH);
 			return FileUtils.delete(dir);

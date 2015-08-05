@@ -83,10 +83,16 @@ Windows authentication is based on the use of Waffle and JNA.  It is known to wo
 
 ### PAM Authentication
 
-PAM authentication is based on the use of libpam4j and JNA.  To use this service, your Gitblit server must be installed on a Linux/Unix/MacOSX machine and the user that Gitblit runs-as must have root permissions.
+PAM authentication is based on the use of libpam4j and JNA.  To use this service, your Gitblit server must be installed on a Linux/Unix/MacOSX machine.
 
     realm.authenticationProviders = pam
-    realm.pam.serviceName = system-auth
+    realm.pam.serviceName = gitblit
+    
+Then define a gitblit authentication policy in `/etc/pam.d/gitblit`
+
+    # PAM configuration for the gitblit service
+    # Standard Un*x authentication.
+    @include common-auth
 
 ### Htpasswd Authentication
 

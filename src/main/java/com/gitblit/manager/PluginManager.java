@@ -15,13 +15,15 @@
  */
 package com.gitblit.manager;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -37,8 +39,12 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ro.fortsoft.pf4j.DefaultPluginFactory;
 import ro.fortsoft.pf4j.DefaultPluginManager;
+import ro.fortsoft.pf4j.ExtensionFactory;
+import ro.fortsoft.pf4j.Plugin;
 import ro.fortsoft.pf4j.PluginClassLoader;
+import ro.fortsoft.pf4j.PluginFactory;
 import ro.fortsoft.pf4j.PluginState;
 import ro.fortsoft.pf4j.PluginStateEvent;
 import ro.fortsoft.pf4j.PluginStateListener;
@@ -56,8 +62,9 @@ import com.gitblit.utils.Base64;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The plugin manager maintains the lifecycle of plugins. It is exposed as
@@ -68,32 +75,23 @@ import com.google.common.io.InputSupplier;
  * @author James Moger
  *
  */
+@Singleton
 public class PluginManager implements IPluginManager, PluginStateListener {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final DefaultPluginManager pf4j;
-
 	private final IRuntimeManager runtimeManager;
+
+	private DefaultPluginManager pf4j;
 
 	// timeout defaults of Maven 3.0.4 in seconds
 	private int connectTimeout = 20;
 
 	private int readTimeout = 12800;
 
+	@Inject
 	public PluginManager(IRuntimeManager runtimeManager) {
-		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
-		dir.mkdirs();
 		this.runtimeManager = runtimeManager;
-
-		this.pf4j = new DefaultPluginManager(dir);
-
-		try {
-			Version systemVersion = Version.createVersion(Constants.getVersion());
-			pf4j.setSystemVersion(systemVersion);
-		} catch (Exception e) {
-			logger.error(null, e);
-		}
 	}
 
 	@Override
@@ -108,6 +106,28 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	@Override
 	public PluginManager start() {
+		File dir = runtimeManager.getFileOrFolder(Keys.plugins.folder, "${baseFolder}/plugins");
+		dir.mkdirs();
+
+		pf4j = new DefaultPluginManager(dir) {
+
+			@Override
+			protected PluginFactory createPluginFactory() {
+				return new GuicePluginFactory();
+			}
+
+			@Override
+			protected ExtensionFactory createExtensionFactory() {
+				return new GuiceExtensionFactory();
+			}
+		};
+
+		try {
+			Version systemVersion = Version.createVersion(Constants.getVersion());
+			pf4j.setSystemVersion(systemVersion);
+		} catch (Exception e) {
+			logger.error(null, e);
+		}
 		pf4j.loadPlugins();
 		logger.debug("Starting plugins");
 		pf4j.startPlugins();
@@ -438,7 +458,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 		}
 
-		if (sha1File == null && md5File == null && verifyChecksum) {
+		if (sha1File == null && md5File == null) {
 			throw new IOException("Missing SHA1 and MD5 checksums for " + url);
 		}
 
@@ -513,12 +533,9 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 		// try to get the server-specified last-modified date of this artifact
 		long lastModified = conn.getHeaderFieldDate("Last-Modified", System.currentTimeMillis());
 
-		Files.copy(new InputSupplier<InputStream>() {
-			@Override
-			public InputStream getInput() throws IOException {
-				return new BufferedInputStream(conn.getInputStream());
-			}
-		}, tmpFile);
+		try (InputStream is = conn.getInputStream(); OutputStream os = new FileOutputStream(tmpFile);) {
+			ByteStreams.copy(is, os);
+		}
 
 		File destFile = new File(pFolder, StringUtils.getLastPathElement(u.getPath()));
 		if (destFile.exists()) {
@@ -567,10 +584,55 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 	}
 
 	protected Proxy getProxy(URL url) {
-		return java.net.Proxy.NO_PROXY;
+		String proxyHost = runtimeManager.getSettings().getString(Keys.plugins.httpProxyHost, "");
+		String proxyPort = runtimeManager.getSettings().getString(Keys.plugins.httpProxyPort, "");
+
+		if (!StringUtils.isEmpty(proxyHost)  && !StringUtils.isEmpty(proxyPort)) {
+			return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
+		} else {
+			return java.net.Proxy.NO_PROXY;
+		}
 	}
 
 	protected String getProxyAuthorization(URL url) {
-		return "";
+		String proxyAuth = runtimeManager.getSettings().getString(Keys.plugins.httpProxyAuthorization, "");
+		return proxyAuth;
+	}
+
+	/**
+	 * Instantiates a plugin using pf4j but injects member fields
+	 * with Guice.
+	 */
+	private class GuicePluginFactory extends DefaultPluginFactory {
+
+		@Override
+		public Plugin create(PluginWrapper pluginWrapper) {
+			// use pf4j to create the plugin
+			Plugin plugin = super.create(pluginWrapper);
+
+			if (plugin != null) {
+				// allow Guice to inject member fields
+				runtimeManager.getInjector().injectMembers(plugin);
+			}
+
+			return plugin;
+		}
+	}
+
+	/**
+	 * Instantiates an extension using Guice.
+	 */
+	private class GuiceExtensionFactory implements ExtensionFactory {
+		@Override
+		public Object create(Class<?> extensionClass) {
+			// instantiate && inject the extension
+			logger.debug("Create instance for extension '{}'", extensionClass.getName());
+			try {
+				return runtimeManager.getInjector().getInstance(extensionClass);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			return null;
+		}
 	}
 }

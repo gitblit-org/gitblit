@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import com.gitblit.models.AnnotatedLine;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 
@@ -40,7 +41,7 @@ public class DiffUtilsTest extends GitblitUnitTest {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = DiffUtils.getCommitDiff(repository, commit, DiffOutputType.PLAIN).content;
+		String diff = DiffUtils.getCommitDiff(repository, commit, DiffComparator.SHOW_WHITESPACE, DiffOutputType.PLAIN, 3).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";
@@ -54,7 +55,7 @@ public class DiffUtilsTest extends GitblitUnitTest {
 				"8baf6a833b5579384d9b9ceb8a16b5d0ea2ec4ca");
 		RevCommit commit = JGitUtils.getCommit(repository,
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = DiffUtils.getDiff(repository, baseCommit, commit, DiffOutputType.PLAIN).content;
+		String diff = DiffUtils.getDiff(repository, baseCommit, commit, DiffComparator.SHOW_WHITESPACE, DiffOutputType.PLAIN, 3).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";
@@ -66,7 +67,7 @@ public class DiffUtilsTest extends GitblitUnitTest {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = DiffUtils.getDiff(repository, commit, "java.java", DiffOutputType.PLAIN).content;
+		String diff = DiffUtils.getDiff(repository, commit, "java.java", DiffComparator.SHOW_WHITESPACE, DiffOutputType.PLAIN, 3).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";

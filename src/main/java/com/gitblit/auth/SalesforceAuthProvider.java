@@ -2,8 +2,10 @@ package com.gitblit.auth;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.GetUserInfoResult;
@@ -119,4 +121,15 @@ public class SalesforceAuthProvider extends UsernamePasswordAuthenticationProvid
 	public boolean supportsTeamMembershipChanges() {
 		return true;
 	}
+
+    @Override
+    public boolean supportsRoleChanges(UserModel user, Role role) {
+        return true;
+    }
+
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return true;
+	}
+
 }

@@ -338,6 +338,16 @@ public class MyRepoLifeCycleListener extends RepositoryLifeCycleListener {
     }
 
     @Override
+    public void onFork(RepositoryModel origin, RepositoryModel fork) {
+    	log.info("{} forked to {}", origin, fork);
+    }
+
+    @Override
+    public void onRename(String oldName, RepositoryModel repo) {
+    	log.info("{} renamed to {}", oldName, repo);
+    }
+
+    @Override
     public void onDeletion(RepositoryModel repo) {
     	log.info("Gitblit deleted {}", repo);
     }

@@ -5,27 +5,28 @@
 	<classpathentry kind="src" path="src/test/java" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/test/bugtraq" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/main/resources" />
-	<classpathentry kind="lib" path="ext/dagger-1.1.0.jar" sourcepath="ext/src/dagger-1.1.0.jar" />
+	<classpathentry kind="lib" path="ext/guice-4.0-beta5.jar" sourcepath="ext/src/guice-4.0-beta5.jar" />
 	<classpathentry kind="lib" path="ext/javax.inject-1.jar" sourcepath="ext/src/javax.inject-1.jar" />
-	<classpathentry kind="lib" path="ext/dagger-compiler-1.1.0.jar" sourcepath="ext/src/dagger-compiler-1.1.0.jar" />
-	<classpathentry kind="lib" path="ext/javawriter-2.1.1.jar" sourcepath="ext/src/javawriter-2.1.1.jar" />
+	<classpathentry kind="lib" path="ext/aopalliance-1.0.jar" sourcepath="ext/src/aopalliance-1.0.jar" />
+	<classpathentry kind="lib" path="ext/guava-18.0.jar" sourcepath="ext/src/guava-18.0.jar" />
+	<classpathentry kind="lib" path="ext/guice-servlet-4.0-gb1.jar" sourcepath="ext/src/guice-servlet-4.0-gb1.jar" />
 	<classpathentry kind="lib" path="ext/annotations-12.0.jar" sourcepath="ext/src/annotations-12.0.jar" />
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17.jar" />
-	<classpathentry kind="lib" path="ext/slf4j-api-1.7.5.jar" sourcepath="ext/src/slf4j-api-1.7.5.jar" />
-	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.7.5.jar" sourcepath="ext/src/slf4j-log4j12-1.7.5.jar" />
+	<classpathentry kind="lib" path="ext/slf4j-api-1.7.10.jar" sourcepath="ext/src/slf4j-api-1.7.10.jar" />
+	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.7.10.jar" sourcepath="ext/src/slf4j-log4j12-1.7.10.jar" />
 	<classpathentry kind="lib" path="ext/javax.mail-1.5.1.jar" sourcepath="ext/src/javax.mail-1.5.1.jar" />
 	<classpathentry kind="lib" path="ext/javax.servlet-api-3.1.0.jar" sourcepath="ext/src/javax.servlet-api-3.1.0.jar" />
-	<classpathentry kind="lib" path="ext/jetty-all-9.2.3.v20140905.jar" sourcepath="ext/src/jetty-all-9.2.3.v20140905.jar" />
+	<classpathentry kind="lib" path="ext/jetty-all-9.2.10.v20150310.jar" sourcepath="ext/src/jetty-all-9.2.10.v20150310.jar" />
 	<classpathentry kind="lib" path="ext/wicket-1.4.21.jar" sourcepath="ext/src/wicket-1.4.21.jar" />
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.21.jar" sourcepath="ext/src/wicket-auth-roles-1.4.21.jar" />
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.21.jar" sourcepath="ext/src/wicket-extensions-1.4.21.jar" />
-	<classpathentry kind="lib" path="ext/lucene-core-4.6.0.jar" sourcepath="ext/src/lucene-core-4.6.0.jar" />
-	<classpathentry kind="lib" path="ext/lucene-analyzers-common-4.6.0.jar" sourcepath="ext/src/lucene-analyzers-common-4.6.0.jar" />
-	<classpathentry kind="lib" path="ext/lucene-highlighter-4.6.0.jar" sourcepath="ext/src/lucene-highlighter-4.6.0.jar" />
-	<classpathentry kind="lib" path="ext/lucene-memory-4.6.0.jar" sourcepath="ext/src/lucene-memory-4.6.0.jar" />
-	<classpathentry kind="lib" path="ext/lucene-queries-4.6.0.jar" sourcepath="ext/src/lucene-queries-4.6.0.jar" />
-	<classpathentry kind="lib" path="ext/lucene-queryparser-4.6.0.jar" sourcepath="ext/src/lucene-queryparser-4.6.0.jar" />
-	<classpathentry kind="lib" path="ext/lucene-sandbox-4.6.0.jar" sourcepath="ext/src/lucene-sandbox-4.6.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-core-4.10.0.jar" sourcepath="ext/src/lucene-core-4.10.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-analyzers-common-4.10.0.jar" sourcepath="ext/src/lucene-analyzers-common-4.10.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-highlighter-4.10.0.jar" sourcepath="ext/src/lucene-highlighter-4.10.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-memory-4.10.0.jar" sourcepath="ext/src/lucene-memory-4.10.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-queries-4.10.0.jar" sourcepath="ext/src/lucene-queries-4.10.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-queryparser-4.10.0.jar" sourcepath="ext/src/lucene-queryparser-4.10.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-sandbox-4.10.0.jar" sourcepath="ext/src/lucene-sandbox-4.10.0.jar" />
 	<classpathentry kind="lib" path="ext/jakarta-regexp-1.4.jar" />
 	<classpathentry kind="lib" path="ext/pegdown-1.4.2.jar" sourcepath="ext/src/pegdown-1.4.2.jar" />
 	<classpathentry kind="lib" path="ext/parboiled-java-1.1.6.jar" sourcepath="ext/src/parboiled-java-1.1.6.jar" />
@@ -40,24 +41,24 @@
 	<classpathentry kind="lib" path="ext/tracwiki-core-1.4.jar" sourcepath="ext/src/tracwiki-core-1.4.jar" />
 	<classpathentry kind="lib" path="ext/mediawiki-core-1.4.jar" sourcepath="ext/src/mediawiki-core-1.4.jar" />
 	<classpathentry kind="lib" path="ext/confluence-core-1.4.jar" sourcepath="ext/src/confluence-core-1.4.jar" />
-	<classpathentry kind="lib" path="ext/org.eclipse.jgit-3.5.1.201410131835-r.jar" sourcepath="ext/src/org.eclipse.jgit-3.5.1.201410131835-r.jar" />
-	<classpathentry kind="lib" path="ext/jsch-0.1.50.jar" sourcepath="ext/src/jsch-0.1.50.jar" />
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit-4.0.0.201506090130-r.jar" sourcepath="ext/src/org.eclipse.jgit-4.0.0.201506090130-r.jar" />
+	<classpathentry kind="lib" path="ext/jsch-0.1.51.jar" sourcepath="ext/src/jsch-0.1.51.jar" />
 	<classpathentry kind="lib" path="ext/JavaEWAH-0.7.9.jar" sourcepath="ext/src/JavaEWAH-0.7.9.jar" />
 	<classpathentry kind="lib" path="ext/httpclient-4.1.3.jar" sourcepath="ext/src/httpclient-4.1.3.jar" />
 	<classpathentry kind="lib" path="ext/httpcore-4.1.4.jar" sourcepath="ext/src/httpcore-4.1.4.jar" />
 	<classpathentry kind="lib" path="ext/commons-logging-1.1.1.jar" sourcepath="ext/src/commons-logging-1.1.1.jar" />
 	<classpathentry kind="lib" path="ext/commons-codec-1.7.jar" sourcepath="ext/src/commons-codec-1.7.jar" />
-	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-3.5.1.201410131835-r.jar" sourcepath="ext/src/org.eclipse.jgit.http.server-3.5.1.201410131835-r.jar" />
-	<classpathentry kind="lib" path="ext/bcprov-jdk15on-1.49.jar" sourcepath="ext/src/bcprov-jdk15on-1.49.jar" />
-	<classpathentry kind="lib" path="ext/bcmail-jdk15on-1.49.jar" sourcepath="ext/src/bcmail-jdk15on-1.49.jar" />
-	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.49.jar" sourcepath="ext/src/bcpkix-jdk15on-1.49.jar" />
-	<classpathentry kind="lib" path="ext/sshd-core-0.12.0.jar" sourcepath="ext/src/sshd-core-0.12.0.jar" />
-	<classpathentry kind="lib" path="ext/mina-core-2.0.7.jar" sourcepath="ext/src/mina-core-2.0.7.jar" />
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-4.0.0.201506090130-r.jar" sourcepath="ext/src/org.eclipse.jgit.http.server-4.0.0.201506090130-r.jar" />
+	<classpathentry kind="lib" path="ext/bcprov-jdk15on-1.51.jar" sourcepath="ext/src/bcprov-jdk15on-1.51.jar" />
+	<classpathentry kind="lib" path="ext/bcmail-jdk15on-1.51.jar" sourcepath="ext/src/bcmail-jdk15on-1.51.jar" />
+	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.51.jar" sourcepath="ext/src/bcpkix-jdk15on-1.51.jar" />
+	<classpathentry kind="lib" path="ext/sshd-core-0.14.0.jar" sourcepath="ext/src/sshd-core-0.14.0.jar" />
+	<classpathentry kind="lib" path="ext/mina-core-2.0.9.jar" sourcepath="ext/src/mina-core-2.0.9.jar" />
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/src/rome-0.9.jar" />
 	<classpathentry kind="lib" path="ext/jdom-1.0.jar" sourcepath="ext/src/jdom-1.0.jar" />
-	<classpathentry kind="lib" path="ext/gson-1.7.2.jar" sourcepath="ext/src/gson-1.7.2.jar" />
-	<classpathentry kind="lib" path="ext/groovy-all-1.8.8.jar" sourcepath="ext/src/groovy-all-1.8.8.jar" />
-	<classpathentry kind="lib" path="ext/unboundid-ldapsdk-2.3.0.jar" sourcepath="ext/src/unboundid-ldapsdk-2.3.0.jar" />
+	<classpathentry kind="lib" path="ext/gson-2.3.1.jar" sourcepath="ext/src/gson-2.3.1.jar" />
+	<classpathentry kind="lib" path="ext/groovy-all-2.4.1.jar" sourcepath="ext/src/groovy-all-2.4.1.jar" />
+	<classpathentry kind="lib" path="ext/unboundid-ldapsdk-2.3.8.jar" sourcepath="ext/src/unboundid-ldapsdk-2.3.8.jar" />
 	<classpathentry kind="lib" path="ext/ivy-2.2.0.jar" sourcepath="ext/src/ivy-2.2.0.jar" />
 	<classpathentry kind="lib" path="ext/jcalendar-1.3.2.jar" />
 	<classpathentry kind="lib" path="ext/commons-compress-1.4.1.jar" sourcepath="ext/src/commons-compress-1.4.1.jar" />
@@ -66,16 +67,15 @@
 	<classpathentry kind="lib" path="ext/force-partner-api-24.0.0.jar" sourcepath="ext/src/force-partner-api-24.0.0.jar" />
 	<classpathentry kind="lib" path="ext/force-wsc-24.0.0.jar" sourcepath="ext/src/force-wsc-24.0.0.jar" />
 	<classpathentry kind="lib" path="ext/js-1.7R2.jar" sourcepath="ext/src/js-1.7R2.jar" />
-	<classpathentry kind="lib" path="ext/freemarker-2.3.19.jar" sourcepath="ext/src/freemarker-2.3.19.jar" />
-	<classpathentry kind="lib" path="ext/waffle-jna-1.5.jar" sourcepath="ext/src/waffle-jna-1.5.jar" />
-	<classpathentry kind="lib" path="ext/platform-3.5.0.jar" sourcepath="ext/src/platform-3.5.0.jar" />
-	<classpathentry kind="lib" path="ext/jna-3.5.0.jar" sourcepath="ext/src/jna-3.5.0.jar" />
-	<classpathentry kind="lib" path="ext/guava-13.0.1.jar" sourcepath="ext/src/guava-13.0.1.jar" />
-	<classpathentry kind="lib" path="ext/libpam4j-1.7.jar" sourcepath="ext/src/libpam4j-1.7.jar" />
-	<classpathentry kind="lib" path="ext/args4j-2.0.26.jar" sourcepath="ext/src/args4j-2.0.26.jar" />
-	<classpathentry kind="lib" path="ext/jedis-2.3.1.jar" sourcepath="ext/src/jedis-2.3.1.jar" />
+	<classpathentry kind="lib" path="ext/freemarker-2.3.22.jar" sourcepath="ext/src/freemarker-2.3.22.jar" />
+	<classpathentry kind="lib" path="ext/waffle-jna-1.7.3.jar" sourcepath="ext/src/waffle-jna-1.7.3.jar" />
+	<classpathentry kind="lib" path="ext/jna-4.1.0.jar" sourcepath="ext/src/jna-4.1.0.jar" />
+	<classpathentry kind="lib" path="ext/jna-platform-4.1.0.jar" sourcepath="ext/src/jna-platform-4.1.0.jar" />
+	<classpathentry kind="lib" path="ext/libpam4j-1.8.jar" sourcepath="ext/src/libpam4j-1.8.jar" />
+	<classpathentry kind="lib" path="ext/args4j-2.0.29.jar" sourcepath="ext/src/args4j-2.0.29.jar" />
+	<classpathentry kind="lib" path="ext/jedis-2.6.2.jar" sourcepath="ext/src/jedis-2.6.2.jar" />
 	<classpathentry kind="lib" path="ext/commons-pool2-2.0.jar" sourcepath="ext/src/commons-pool2-2.0.jar" />
-	<classpathentry kind="lib" path="ext/pf4j-0.8.0.jar" sourcepath="ext/src/pf4j-0.8.0.jar" />
+	<classpathentry kind="lib" path="ext/pf4j-0.9.0.jar" sourcepath="ext/src/pf4j-0.9.0.jar" />
 	<classpathentry kind="lib" path="ext/tika-core-1.5.jar" sourcepath="ext/src/tika-core-1.5.jar" />
 	<classpathentry kind="lib" path="ext/jsoup-1.7.3.jar" sourcepath="ext/src/jsoup-1.7.3.jar" />
 	<classpathentry kind="lib" path="ext/junit-4.11.jar" sourcepath="ext/src/junit-4.11.jar" />
@@ -88,6 +88,9 @@
 	<classpathentry kind="lib" path="ext/json-20080701.jar" sourcepath="ext/src/json-20080701.jar" />
 	<classpathentry kind="lib" path="ext/selenium-api-2.28.0.jar" sourcepath="ext/src/selenium-api-2.28.0.jar" />
 	<classpathentry kind="lib" path="ext/commons-exec-1.1.jar" sourcepath="ext/src/commons-exec-1.1.jar" />
+	<classpathentry kind="lib" path="ext/platform-3.4.0.jar" sourcepath="ext/src/platform-3.4.0.jar" />
+	<classpathentry kind="lib" path="ext/mockito-core-1.10.19.jar" sourcepath="ext/src/mockito-core-1.10.19.jar" />
+	<classpathentry kind="lib" path="ext/objenesis-2.1.jar" sourcepath="ext/src/objenesis-2.1.jar" />
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
 	<classpathentry kind="src" path="src/main/dagger">
 		<attributes>

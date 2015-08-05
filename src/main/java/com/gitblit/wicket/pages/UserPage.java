@@ -104,7 +104,7 @@ public class UserPage extends RootPage {
 		if (isMyProfile) {
 			addPreferences(user);
 
-			if (app().gitblit().isServingSSH()) {
+			if (app().services().isServingSSH()) {
 				// show the SSH key management tab
 				addSshKeys(user);
 			} else {
@@ -248,14 +248,16 @@ public class UserPage extends RootPage {
 				emailMeOnMyTicketChanges).setVisible(app().notifier().isSendingMail()));
 
 		List<Transport> availableTransports = new ArrayList<>();
-		if (app().gitblit().isServingSSH()) {
+		if (app().services().isServingSSH()) {
 			availableTransports.add(Transport.SSH);
 		}
-		if (app().gitblit().isServingHTTP()) {
-			availableTransports.add(Transport.HTTPS);
+		if (app().services().isServingHTTP()) {
 			availableTransports.add(Transport.HTTP);
 		}
-		if (app().gitblit().isServingGIT()) {
+		if (app().services().isServingHTTPS()) {
+			availableTransports.add(Transport.HTTPS);
+		}
+		if (app().services().isServingGIT()) {
 			availableTransports.add(Transport.GIT);
 		}
 

@@ -20,18 +20,23 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Cleaner;
 import org.jsoup.safety.Whitelist;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 /**
  * Implementation of an XSS filter based on JSoup.
  *
  * @author James Moger
  *
  */
+@Singleton
 public class JSoupXssFilter implements XssFilter {
 
 	 private final Cleaner none;
 
 	 private final Cleaner relaxed;
 
+	 @Inject
 	 public JSoupXssFilter() {
 		 none = new Cleaner(Whitelist.none());
 		 relaxed = new Cleaner(getRelaxedWhiteList());

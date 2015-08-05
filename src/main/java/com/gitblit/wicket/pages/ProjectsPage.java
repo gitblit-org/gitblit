@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
@@ -69,6 +70,7 @@ public class ProjectsPage extends RootPage {
 		}
 
 		List<ProjectModel> projects = getProjects(params);
+		Collections.sort(projects);
 
 		ListDataProvider<ProjectModel> dp = new ListDataProvider<ProjectModel>(projects);
 

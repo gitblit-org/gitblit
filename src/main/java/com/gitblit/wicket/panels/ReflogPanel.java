@@ -271,7 +271,7 @@ public class ReflogPanel extends BasePanel {
 						final RepositoryCommit commit = commitItem.getModelObject();
 
 						// author gravatar
-						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent(), null, 16, false));
+						commitItem.add(new AvatarImage("commitAuthor", commit.getAuthorIdent(), null, 16, false));
 
 						// merge icon
 						if (commit.getParentCount() > 1) {

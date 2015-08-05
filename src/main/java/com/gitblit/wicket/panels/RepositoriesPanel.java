@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -183,23 +182,27 @@ public class RepositoriesPanel extends BasePanel {
 				Fragment row = new Fragment("rowContent", "repositoryRow", this);
 				item.add(row);
 
+				// show colored repository type icon
+				Fragment iconFragment;
+				if (entry.isMirror) {
+					iconFragment = new Fragment("repoIcon", "mirrorIconFragment", this);
+				} else if (entry.isFork()) {
+					iconFragment = new Fragment("repoIcon", "forkIconFragment", this);
+				} else if (entry.isBare) {
+					iconFragment = new Fragment("repoIcon", "repoIconFragment", this);
+				} else {
+					iconFragment = new Fragment("repoIcon", "cloneIconFragment", this);
+				}
+				if (showSwatch) {
+					WicketUtils.setCssStyle(iconFragment, "color:" + StringUtils.getColor(entry.toString()));
+				}
+				row.add(iconFragment);
+
 				// try to strip group name for less cluttered list
 				String repoName = entry.toString();
 				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
 					repoName = repoName.substring(currGroupName.length() + 1);
 				}
-
-				// repository swatch
-				Component swatch;
-				if (entry.isBare){
-					swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
-				} else {
-					swatch = new Label("repositorySwatch", "!");
-					WicketUtils.setHtmlTooltip(swatch, getString("gb.workingCopyWarning"));
-				}
-				WicketUtils.setCssBackground(swatch, entry.toString());
-				row.add(swatch);
-				swatch.setVisible(showSwatch);
 
 				if (linksActive) {
 					Class<? extends BasePage> linkPage = SummaryPage.class;
@@ -228,21 +231,7 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 				}
 
-				if (entry.isMirror) {
-					row.add(WicketUtils.newImage("mirrorIcon", "mirror_16x16.png",
-							getString("gb.isMirror")));
-				} else {
-					row.add(WicketUtils.newClearPixel("mirrorIcon").setVisible(false));
-				}
-
-				if (entry.isFork()) {
-					row.add(WicketUtils.newImage("forkIcon", "commit_divide_16x16.png",
-							getString("gb.isFork")));
-				} else {
-					row.add(WicketUtils.newClearPixel("forkIcon").setVisible(false));
-				}
-
-				if (entry.isFrozen) {
+				if (!entry.isMirror && entry.isFrozen) {
 					row.add(WicketUtils.newImage("frozenIcon", "cold_16x16.png",
 							getString("gb.isFrozen")));
 				} else {
@@ -255,24 +244,30 @@ public class RepositoriesPanel extends BasePanel {
 				} else {
 					row.add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
 				}
-				switch (entry.accessRestriction) {
-				case NONE:
-					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
-					break;
-				case PUSH:
-					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png",
-							accessRestrictionTranslations.get(entry.accessRestriction)));
-					break;
-				case CLONE:
-					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png",
-							accessRestrictionTranslations.get(entry.accessRestriction)));
-					break;
-				case VIEW:
-					row.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png",
-							accessRestrictionTranslations.get(entry.accessRestriction)));
-					break;
-				default:
-					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+
+				if (entry.isMirror) {
+					row.add(WicketUtils.newImage("accessRestrictionIcon", "mirror_16x16.png",
+							getString("gb.isMirror")));
+				} else {
+					switch (entry.accessRestriction) {
+					case NONE:
+						row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+						break;
+					case PUSH:
+						row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png",
+								accessRestrictionTranslations.get(entry.accessRestriction)));
+						break;
+					case CLONE:
+						row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png",
+								accessRestrictionTranslations.get(entry.accessRestriction)));
+						break;
+					case VIEW:
+						row.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png",
+								accessRestrictionTranslations.get(entry.accessRestriction)));
+						break;
+					default:
+						row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+					}
 				}
 
 				String owner = "";

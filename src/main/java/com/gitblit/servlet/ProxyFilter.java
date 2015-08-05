@@ -16,9 +16,13 @@
 package com.gitblit.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -27,12 +31,9 @@ import javax.servlet.ServletResponse;
 
 import ro.fortsoft.pf4j.PluginWrapper;
 
-import com.gitblit.dagger.DaggerFilter;
 import com.gitblit.extensions.HttpRequestFilter;
 import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRuntimeManager;
-
-import dagger.ObjectGraph;
 
 /**
  * A request filter than allows registered extension request filters to access
@@ -41,15 +42,29 @@ import dagger.ObjectGraph;
  * @author David Ostrovsky
  * @since 1.6.0
  */
-public class ProxyFilter extends DaggerFilter {
-	private List<HttpRequestFilter> filters;
+@Singleton
+public class ProxyFilter implements Filter {
+	private final IRuntimeManager runtimeManager;
+
+	private final IPluginManager pluginManager;
+
+	private final List<HttpRequestFilter> filters;
+
+	@Inject
+	public ProxyFilter(
+			IRuntimeManager runtimeManager,
+			IPluginManager pluginManager) {
+
+		this.runtimeManager = runtimeManager;
+		this.pluginManager = pluginManager;
+		this.filters = new ArrayList<>();
+
+	}
 
 	@Override
-	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) throws ServletException {
-		IRuntimeManager runtimeManager = dagger.get(IRuntimeManager.class);
-		IPluginManager pluginManager = dagger.get(IPluginManager.class);
+	public void init(FilterConfig filterConfig) throws ServletException {
 
-		filters = pluginManager.getExtensions(HttpRequestFilter.class);
+		filters.addAll(pluginManager.getExtensions(HttpRequestFilter.class));
 		for (HttpRequestFilter f : filters) {
 			// wrap the filter config for Gitblit settings retrieval
 			PluginWrapper pluginWrapper = pluginManager.whichPlugin(f.getClass());
