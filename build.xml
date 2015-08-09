@@ -507,6 +507,7 @@
 						<page name="bugtraq" src="setup_bugtraq.mkd" />
 						<page name="mirrors" src="setup_mirrors.mkd" />
 						<page name="scaling" src="setup_scaling.mkd" />
+						<page name="fail2ban" src="setup_fail2ban.mkd" />
 						<divider />
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 					</menu>
