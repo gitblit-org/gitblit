@@ -57,7 +57,7 @@ public class UsernamePasswordAuthenticator implements PasswordAuthenticator {
 			return true;
 		}
 
-		log.warn("could not authenticate {} for SSH using the supplied password", username);
+		log.warn("could not authenticate {} ({}) for SSH using the supplied password", username, client.getRemoteAddress());
 		return false;
 	}
 }
