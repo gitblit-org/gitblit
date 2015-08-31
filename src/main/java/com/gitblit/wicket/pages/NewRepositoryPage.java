@@ -64,6 +64,7 @@ import com.google.common.base.Optional;
 public class NewRepositoryPage extends RootSubPage {
 
 	private final RepositoryModel repositoryModel;
+	private final boolean allowAnonymousClones;
 	private IModel<Boolean> addReadmeModel;
 	private Model<String> gitignoreModel;
 	private IModel<Boolean> addGitflowModel;
@@ -75,7 +76,7 @@ public class NewRepositoryPage extends RootSubPage {
 		// create constructor
 		super();
 		repositoryModel = new RepositoryModel();
-
+		allowAnonymousClones = app().settings().getBoolean(Keys.git.allowAnonymousClones, true);
 		setupPage(getString("gb.newRepository"), "");
 
 		setStatelessHint(false);
@@ -172,7 +173,7 @@ public class NewRepositoryPage extends RootSubPage {
 		repositoryModel.authorizationControl = defaultControl;
 		repositoryModel.accessRestriction = defaultRestriction;
 
-		accessPolicyPanel = new AccessPolicyPanel("accessPolicyPanel", repositoryModel);
+		accessPolicyPanel = new AccessPolicyPanel("accessPolicyPanel", repositoryModel, allowAnonymousClones);
 		form.add(accessPolicyPanel);
 
 		//

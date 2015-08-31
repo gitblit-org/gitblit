@@ -31,7 +31,9 @@ import org.apache.wicket.model.PropertyModel;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.wicket.WicketUtils;
 
@@ -48,17 +50,20 @@ public class AccessPolicyPanel extends BasePanel {
 	private final RepositoryModel repository;
 
 	private final AjaxFormChoiceComponentUpdatingBehavior callback;
+	
+	private final boolean allowAnonymousClones;
 
 	private RadioGroup<AccessPolicy> policiesGroup;
 
-	public AccessPolicyPanel(String wicketId, RepositoryModel repository) {
-		this(wicketId, repository, null);
+	public AccessPolicyPanel(String wicketId, RepositoryModel repository, boolean allowAnonymousClones) {
+		this(wicketId, repository, null, allowAnonymousClones);
 	}
 
-	public AccessPolicyPanel(String wicketId, RepositoryModel repository, AjaxFormChoiceComponentUpdatingBehavior callback) {
+	public AccessPolicyPanel(String wicketId, RepositoryModel repository, AjaxFormChoiceComponentUpdatingBehavior callback, boolean allowAnonymousClones) {
 		super(wicketId);
 		this.repository = repository;
 		this.callback = callback;
+		this.allowAnonymousClones = allowAnonymousClones;
 	}
 
 	@Override
@@ -99,8 +104,10 @@ public class AccessPolicyPanel extends BasePanel {
 		if (app().settings().getBoolean(Keys.git.allowAnonymousPushes, false)) {
 			policies.add(anonymousPolicy);
 		}
-		policies.add(authenticatedPushPolicy);
-		policies.add(namedPushPolicy);
+		if (!allowAnonymousClones) {
+		    policies.add(authenticatedPushPolicy);
+		    policies.add(namedPushPolicy);
+		}
 		policies.add(clonePolicy);
 		policies.add(viewPolicy);
 

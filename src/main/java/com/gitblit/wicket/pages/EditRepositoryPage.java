@@ -80,6 +80,8 @@ import com.gitblit.wicket.panels.TextOption;
 public class EditRepositoryPage extends RootSubPage {
 
 	private final boolean isCreate;
+	
+	private final boolean allowAnonymousClones;
 
 	RepositoryNamePanel namePanel;
 
@@ -99,6 +101,7 @@ public class EditRepositoryPage extends RootSubPage {
 		isCreate = true;
 		RepositoryModel model = new RepositoryModel();
 		String restriction = app().settings().getString(Keys.git.defaultAccessRestriction, "PUSH");
+		allowAnonymousClones = app().settings().getBoolean(Keys.git.allowAnonymousClones, true);
 		model.accessRestriction = AccessRestrictionType.fromName(restriction);
 		String authorization = app().settings().getString(Keys.git.defaultAuthorizationControl, null);
 		model.authorizationControl = AuthorizationControl.fromName(authorization);
@@ -126,6 +129,7 @@ public class EditRepositoryPage extends RootSubPage {
 		isCreate = false;
 		String name = WicketUtils.getRepositoryName(params);
 		RepositoryModel model = app().repositories().getRepositoryModel(name);
+		allowAnonymousClones = app().settings().getBoolean(Keys.git.allowAnonymousClones, true);
 		setupPage(model);
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -644,7 +648,7 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		};
 
-		accessPolicyPanel = new AccessPolicyPanel("accessPolicyPanel", repositoryModel, callback);
+		accessPolicyPanel = new AccessPolicyPanel("accessPolicyPanel", repositoryModel, callback, allowAnonymousClones);
 		form.add(accessPolicyPanel);
 
 
