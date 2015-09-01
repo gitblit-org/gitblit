@@ -5,6 +5,7 @@ tags
 /build
 /site
 /git
+/lucene
 /build.properties
 /federation.properties
 /mailtest.properties
