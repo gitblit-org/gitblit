@@ -105,7 +105,7 @@ properties: {
   jetty.version  : 9.2.10.v20150310
   slf4j.version  : 1.7.10
   wicket.version : 1.4.21
-  lucene.version : 4.10.0
+  lucene.version : 5.2.1
   jgit.version   : 4.0.1.201506240215-r
   groovy.version : 2.4.1
   bouncycastle.version : 1.51
