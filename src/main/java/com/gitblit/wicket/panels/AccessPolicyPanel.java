@@ -104,7 +104,7 @@ public class AccessPolicyPanel extends BasePanel {
 		if (app().settings().getBoolean(Keys.git.allowAnonymousPushes, false)) {
 			policies.add(anonymousPolicy);
 		}
-		if (!allowAnonymousClones) {
+		if (allowAnonymousClones) {
 		    policies.add(authenticatedPushPolicy);
 		    policies.add(namedPushPolicy);
 		}
