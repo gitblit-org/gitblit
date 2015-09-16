@@ -24,7 +24,6 @@ Getting help
 | Source        | Location                                               |
 | ------------- |--------------------------------------------------------|
 | Documentation | [Gitblit website](http://gitblit.com)                  |
-| Issues        | [Google Code](http://code.google.com/p/gitblit)        |
 | Forums        | [Google Groups](https://groups.google.com/forum/#!forum/gitblit) |
 | Twitter       | @gitblit or @jamesmoger                                |
 | Google+       | +gitblit or +jamesmoger                                |
