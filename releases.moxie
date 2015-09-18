@@ -31,11 +31,17 @@ r27: {
     - Add Maintenance ticket type (pr-223, ticket-206)    
     dependencyChanges:
     - Guice 4.0-beta5 (ticket-80, ticket-219)
-    - SLF4j 1.7.7 (ticket-122)
-    - gson 2.2.2 (ticket-123)
-    - Freemarker 2.3.20 (ticket-124)
+    - SLF4j 1.7.12
+    - gson 2.3.1
+    - Freemarker 2.3.22
     - Lucene 4.10.0 (ticket-159)
-    - SSHD 0.13.0 (ticket-218)
+    - SSHD 1.0.0
+    - JGit 4.0.2
+    - Groovy 2.4.4
+    - Wicket 1.4.22
+    - BouncyCastle 1.52
+    - Pegdown 1.5.0
+    - Jetty 9.2.13
     settings:
     - { name: web.displayUserPanel, defaultValue: 'true' }
     contributors:
