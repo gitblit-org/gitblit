@@ -19,10 +19,10 @@ import org.apache.sshd.common.future.CloseFuture;
 import org.apache.sshd.common.future.SshFutureListener;
 import org.apache.sshd.common.io.IoSession;
 import org.apache.sshd.server.ServerFactoryManager;
-import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.server.session.ServerSessionImpl;
 
 // Expose addition of close session listeners
-class SshServerSession extends ServerSession {
+class SshServerSession extends ServerSessionImpl {
 
 	SshServerSession(ServerFactoryManager server, IoSession ioSession) throws Exception {
 		super(server, ioSession);

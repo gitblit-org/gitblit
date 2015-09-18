@@ -28,20 +28,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.sshd.SshServer;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
 import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
-import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.SecurityUtils;
-import org.apache.sshd.server.UserAuth;
+import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.CachingPublicKeyAuthenticator;
-import org.apache.sshd.server.auth.UserAuthKeyboardInteractive;
-import org.apache.sshd.server.auth.UserAuthPassword;
-import org.apache.sshd.server.auth.UserAuthPublicKey;
+import org.apache.sshd.server.auth.UserAuth;
+import org.apache.sshd.server.auth.UserAuthKeyboardInteractiveFactory;
+import org.apache.sshd.server.auth.UserAuthPasswordFactory;
+import org.apache.sshd.server.auth.UserAuthPublicKeyFactory;
 import org.apache.sshd.server.auth.gss.GSSAuthenticator;
-import org.apache.sshd.server.auth.gss.UserAuthGSS;
+import org.apache.sshd.server.auth.gss.UserAuthGSSFactory;
 import org.bouncycastle.openssl.PEMWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
@@ -156,17 +155,17 @@ public class SshDaemon {
 			switch (authenticatorName) {
 			case "gssapi-with-mic":
 				if(gssAuthenticator != null) {
-					userAuthFactories.add(new UserAuthGSS.Factory());
+					userAuthFactories.add(new UserAuthGSSFactory());
 				}
 				break;
 			case "publickey":
-				userAuthFactories.add(new UserAuthPublicKey.Factory());
+				userAuthFactories.add(new UserAuthPublicKeyFactory());
 				break;
 			case "password":
-				userAuthFactories.add(new UserAuthPassword.Factory());
+				userAuthFactories.add(new UserAuthPasswordFactory());
 				break;
 			case "keyboard-interactive":
-				userAuthFactories.add(new UserAuthKeyboardInteractive.Factory());
+				userAuthFactories.add(new UserAuthKeyboardInteractiveFactory());
 				break;
 			default:
 				log.error("Unknown ssh authenticator: '{}'", authenticatorName);
@@ -257,7 +256,7 @@ public class SshDaemon {
 			try {
 				((SshCommandFactory) sshd.getCommandFactory()).stop();
 				sshd.stop();
-			} catch (InterruptedException e) {
+			} catch (IOException e) {
 				log.error("SSH Daemon stop interrupted", e);
 			}
 		}

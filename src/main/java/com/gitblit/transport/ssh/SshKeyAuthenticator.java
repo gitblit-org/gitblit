@@ -19,7 +19,7 @@ import java.security.PublicKey;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.sshd.server.PublickeyAuthenticator;
+import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
