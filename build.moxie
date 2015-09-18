@@ -107,7 +107,7 @@ properties: {
   wicket.version : 1.4.22
   lucene.version : 4.10.0
   jgit.version   : 4.0.1.201506240215-r
-  groovy.version : 2.4.1
+  groovy.version : 2.4.4
   bouncycastle.version : 1.51
   selenium.version : 2.28.0
   wikitext.version : 1.4

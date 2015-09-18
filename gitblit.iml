@@ -582,13 +582,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="groovy-all-2.4.1.jar">
+      <library name="groovy-all-2.4.4.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/groovy-all-2.4.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/groovy-all-2.4.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/groovy-all-2.4.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/groovy-all-2.4.4.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
