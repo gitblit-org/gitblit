@@ -79,6 +79,9 @@ public class ModelUtilsTest extends GitblitUnitTest {
 		ModelUtils.setUserRepoPrefix("users/");
 		reponame = "users/three";
 		assertTrue(ModelUtils.isPersonalRepository(reponame));
+		// Ensure that base project path matching path prefix element is marked as personal
+		reponame = "users";
+		assertTrue(ModelUtils.isPersonalRepository(reponame));
 
 		reponame = "project/four";
 		assertFalse(ModelUtils.isPersonalRepository(reponame));
@@ -122,6 +125,9 @@ public class ModelUtilsTest extends GitblitUnitTest {
 		ModelUtils.setUserRepoPrefix("users/");
 		reponame = "users/fee";
 		assertEquals("fee", ModelUtils.getUserNameFromRepoPath(reponame));
+		// Ensure that a base project path results in empty username
+		reponame = "users";
+		assertEquals("", ModelUtils.getUserNameFromRepoPath(reponame));
 	}
 
 }
