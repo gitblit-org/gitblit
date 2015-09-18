@@ -102,7 +102,7 @@ repositories: central, eclipse-snapshots, eclipse, gitblit
 
 # Convenience properties for dependencies
 properties: {
-  jetty.version  : 9.2.10.v20150310
+  jetty.version  : 9.2.13.v20150730
   slf4j.version  : 1.7.12
   wicket.version : 1.4.22
   lucene.version : 4.10.0

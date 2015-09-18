@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.7.12.jar" sourcepath="ext/src/slf4j-log4j12-1.7.12.jar" />
 	<classpathentry kind="lib" path="ext/javax.mail-1.5.1.jar" sourcepath="ext/src/javax.mail-1.5.1.jar" />
 	<classpathentry kind="lib" path="ext/javax.servlet-api-3.1.0.jar" sourcepath="ext/src/javax.servlet-api-3.1.0.jar" />
-	<classpathentry kind="lib" path="ext/jetty-all-9.2.10.v20150310.jar" sourcepath="ext/src/jetty-all-9.2.10.v20150310.jar" />
+	<classpathentry kind="lib" path="ext/jetty-all-9.2.13.v20150730.jar" sourcepath="ext/src/jetty-all-9.2.13.v20150730.jar" />
 	<classpathentry kind="lib" path="ext/wicket-1.4.22.jar" sourcepath="ext/src/wicket-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.22.jar" sourcepath="ext/src/wicket-auth-roles-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.22.jar" sourcepath="ext/src/wicket-extensions-1.4.22.jar" />
