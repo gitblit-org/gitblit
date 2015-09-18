@@ -31,7 +31,7 @@ r27: {
     - Add Priority & Severity fields for tickets (pr-220, ticket-157)
     - Add Maintenance ticket type (pr-223, ticket-206)    
     dependencyChanges:
-    - Guice 4.0-beta5 (ticket-80, ticket-219)
+    - Guice 4.0 (ticket-80, ticket-219)
     - SLF4j 1.7.12
     - gson 2.3.1
     - Freemarker 2.3.22

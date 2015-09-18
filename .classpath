@@ -5,11 +5,11 @@
 	<classpathentry kind="src" path="src/test/java" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/test/bugtraq" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/main/resources" />
-	<classpathentry kind="lib" path="ext/guice-4.0-beta5.jar" sourcepath="ext/src/guice-4.0-beta5.jar" />
+	<classpathentry kind="lib" path="ext/guice-4.0.jar" sourcepath="ext/src/guice-4.0.jar" />
 	<classpathentry kind="lib" path="ext/javax.inject-1.jar" sourcepath="ext/src/javax.inject-1.jar" />
 	<classpathentry kind="lib" path="ext/aopalliance-1.0.jar" sourcepath="ext/src/aopalliance-1.0.jar" />
 	<classpathentry kind="lib" path="ext/guava-18.0.jar" sourcepath="ext/src/guava-18.0.jar" />
-	<classpathentry kind="lib" path="ext/guice-servlet-4.0-gb1.jar" sourcepath="ext/src/guice-servlet-4.0-gb1.jar" />
+	<classpathentry kind="lib" path="ext/guice-servlet-4.0-gb2.jar" sourcepath="ext/src/guice-servlet-4.0-gb2.jar" />
 	<classpathentry kind="lib" path="ext/annotations-12.0.jar" sourcepath="ext/src/annotations-12.0.jar" />
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17.jar" />
 	<classpathentry kind="lib" path="ext/slf4j-api-1.7.12.jar" sourcepath="ext/src/slf4j-api-1.7.12.jar" />

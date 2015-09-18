@@ -113,9 +113,9 @@ properties: {
   wikitext.version : 1.4
   sshd.version: 1.0.0
   mina.version: 2.0.9
-  guice.version : 4.0-beta5
+  guice.version : 4.0
   # Gitblit maintains a fork of guice-servlet
-  guice-servlet.version : 4.0-gb1
+  guice-servlet.version : 4.0-gb2
   }
 
 # Dependencies
