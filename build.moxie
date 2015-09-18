@@ -148,7 +148,7 @@ dependencies:
 - compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-memory:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-queryparser:${lucene.version}' :war :fedclient
-- compile 'org.pegdown:pegdown:1.4.2' :war
+- compile 'org.pegdown:pegdown:1.5.0' :war
 - compile 'org.fusesource.wikitext:wikitext-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:twiki-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:textile-core:${wikitext.version}' :war

@@ -28,13 +28,13 @@
 	<classpathentry kind="lib" path="ext/lucene-queryparser-4.10.0.jar" sourcepath="ext/src/lucene-queryparser-4.10.0.jar" />
 	<classpathentry kind="lib" path="ext/lucene-sandbox-4.10.0.jar" sourcepath="ext/src/lucene-sandbox-4.10.0.jar" />
 	<classpathentry kind="lib" path="ext/jakarta-regexp-1.4.jar" />
-	<classpathentry kind="lib" path="ext/pegdown-1.4.2.jar" sourcepath="ext/src/pegdown-1.4.2.jar" />
-	<classpathentry kind="lib" path="ext/parboiled-java-1.1.6.jar" sourcepath="ext/src/parboiled-java-1.1.6.jar" />
-	<classpathentry kind="lib" path="ext/parboiled-core-1.1.6.jar" sourcepath="ext/src/parboiled-core-1.1.6.jar" />
-	<classpathentry kind="lib" path="ext/asm-4.1.jar" sourcepath="ext/src/asm-4.1.jar" />
-	<classpathentry kind="lib" path="ext/asm-tree-4.1.jar" sourcepath="ext/src/asm-tree-4.1.jar" />
-	<classpathentry kind="lib" path="ext/asm-analysis-4.1.jar" sourcepath="ext/src/asm-analysis-4.1.jar" />
-	<classpathentry kind="lib" path="ext/asm-util-4.1.jar" sourcepath="ext/src/asm-util-4.1.jar" />
+	<classpathentry kind="lib" path="ext/pegdown-1.5.0.jar" sourcepath="ext/src/pegdown-1.5.0.jar" />
+	<classpathentry kind="lib" path="ext/parboiled-java-1.1.7.jar" sourcepath="ext/src/parboiled-java-1.1.7.jar" />
+	<classpathentry kind="lib" path="ext/parboiled-core-1.1.7.jar" sourcepath="ext/src/parboiled-core-1.1.7.jar" />
+	<classpathentry kind="lib" path="ext/asm-5.0.3.jar" sourcepath="ext/src/asm-5.0.3.jar" />
+	<classpathentry kind="lib" path="ext/asm-tree-5.0.3.jar" sourcepath="ext/src/asm-tree-5.0.3.jar" />
+	<classpathentry kind="lib" path="ext/asm-analysis-5.0.3.jar" sourcepath="ext/src/asm-analysis-5.0.3.jar" />
+	<classpathentry kind="lib" path="ext/asm-util-5.0.3.jar" sourcepath="ext/src/asm-util-5.0.3.jar" />
 	<classpathentry kind="lib" path="ext/wikitext-core-1.4.jar" sourcepath="ext/src/wikitext-core-1.4.jar" />
 	<classpathentry kind="lib" path="ext/twiki-core-1.4.jar" sourcepath="ext/src/twiki-core-1.4.jar" />
 	<classpathentry kind="lib" path="ext/textile-core-1.4.jar" sourcepath="ext/src/textile-core-1.4.jar" />
