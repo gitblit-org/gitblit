@@ -146,35 +146,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-1.4.21.jar">
+      <library name="wicket-1.4.22.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-1.4.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-1.4.22.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-1.4.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-1.4.22.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-auth-roles-1.4.21.jar">
+      <library name="wicket-auth-roles-1.4.22.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-1.4.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-1.4.22.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-1.4.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-1.4.22.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-extensions-1.4.21.jar">
+      <library name="wicket-extensions-1.4.22.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-extensions-1.4.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-extensions-1.4.22.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-1.4.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-1.4.22.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
