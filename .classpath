@@ -49,9 +49,9 @@
 	<classpathentry kind="lib" path="ext/commons-logging-1.1.1.jar" sourcepath="ext/src/commons-logging-1.1.1.jar" />
 	<classpathentry kind="lib" path="ext/commons-codec-1.7.jar" sourcepath="ext/src/commons-codec-1.7.jar" />
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-4.0.1.201506240215-r.jar" />
-	<classpathentry kind="lib" path="ext/bcprov-jdk15on-1.51.jar" sourcepath="ext/src/bcprov-jdk15on-1.51.jar" />
-	<classpathentry kind="lib" path="ext/bcmail-jdk15on-1.51.jar" sourcepath="ext/src/bcmail-jdk15on-1.51.jar" />
-	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.51.jar" sourcepath="ext/src/bcpkix-jdk15on-1.51.jar" />
+	<classpathentry kind="lib" path="ext/bcprov-jdk15on-1.52.jar" sourcepath="ext/src/bcprov-jdk15on-1.52.jar" />
+	<classpathentry kind="lib" path="ext/bcmail-jdk15on-1.52.jar" sourcepath="ext/src/bcmail-jdk15on-1.52.jar" />
+	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.52.jar" sourcepath="ext/src/bcpkix-jdk15on-1.52.jar" />
 	<classpathentry kind="lib" path="ext/sshd-core-0.14.0.jar" sourcepath="ext/src/sshd-core-0.14.0.jar" />
 	<classpathentry kind="lib" path="ext/mina-core-2.0.9.jar" sourcepath="ext/src/mina-core-2.0.9.jar" />
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/src/rome-0.9.jar" />
