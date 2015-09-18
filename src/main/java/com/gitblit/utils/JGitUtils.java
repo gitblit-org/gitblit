@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Strings;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
@@ -91,6 +90,7 @@ import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SubmoduleModel;
+import com.google.common.base.Strings;
 
 /**
  * Collection of static methods for retrieving information from a repository.
@@ -691,7 +691,10 @@ public class JGitUtils {
 		if (commit == null) {
 			return new Date(0);
 		}
-		return commit.getAuthorIdent().getWhen();
+		if (commit.getAuthorIdent() != null) {
+			return commit.getAuthorIdent().getWhen();
+		}
+		return getCommitDate(commit);
 	}
 
 	/**

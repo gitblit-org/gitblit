@@ -24,6 +24,7 @@ r27: {
     - Use release name as root directory in Gitblit GO artifacts (ticket-109)
     - Split gitblit.properties into gitblit.properties & defaults.properties (ticket-110)
     - Show team type in teams page (pr-217, ticket-168)
+    - Use author date to be consistent with other tools (pr-919)
     additions:
     - Add GitHub Octicons (ticket-106)
     - Support for chain-loading properties files (ticket-110) 

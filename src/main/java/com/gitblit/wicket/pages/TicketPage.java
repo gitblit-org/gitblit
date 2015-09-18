@@ -88,10 +88,10 @@ import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.TicketsUI;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.BasePanel.JavascriptTextPrompt;
 import com.gitblit.wicket.panels.CommentPanel;
 import com.gitblit.wicket.panels.DiffStatPanel;
-import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.IconAjaxLink;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ShockWaveComponent;
@@ -823,7 +823,7 @@ public class TicketPage extends RepositoryPage {
 					item.add(new LinkPanel("diff", "link", getString("gb.diff"), CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, commit.getName()), true));
 					item.add(new Label("title", StringUtils.trimString(commit.getShortMessage(), Constants.LEN_SHORTLOG_REFS)));
-					item.add(WicketUtils.createDateLabel("commitDate", JGitUtils.getCommitDate(commit), GitBlitWebSession
+					item.add(WicketUtils.createDateLabel("commitDate", JGitUtils.getAuthorDate(commit), GitBlitWebSession
 							.get().getTimezone(), getTimeUtils(), false));
 					item.add(new DiffStatPanel("commitDiffStat", 0, 0, true));
 				}

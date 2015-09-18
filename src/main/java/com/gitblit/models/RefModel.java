@@ -58,9 +58,9 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 				}
 			} else if (referencedObject instanceof RevCommit) {
 				RevCommit commit = (RevCommit) referencedObject;
-				PersonIdent committer = commit.getCommitterIdent();
-				if (committer != null) {
-					date = committer.getWhen();
+				PersonIdent author = commit.getAuthorIdent();
+				if (author != null) {
+					date = author.getWhen();
 				} else {
 					date = JGitUtils.getCommitDate(commit);
 				}
