@@ -108,9 +108,18 @@ public class FilterableProjectList extends BasePanel {
 				// exclude user projects from list
 				continue;
 			}
+
+			String mountParamRepoTarget = null;
+			if (app().settings().getBoolean(Keys.web.mountParameters, true)) {
+				mountParamRepoTarget = proj.name;
+			} else {
+				mountParamRepoTarget = "?p=" + proj.name;
+			}
+
 			ProjectListItem item = new ProjectListItem();
 			item.p = proj.name;
 			item.n = StringUtils.isEmpty(proj.title) ? proj.name : proj.title;
+			item.m = mountParamRepoTarget;
 			item.i = proj.description;
 			item.t = getTimeUtils().timeAgo(proj.lastChange);
 			item.d = df.format(proj.lastChange);
@@ -130,6 +139,7 @@ public class FilterableProjectList extends BasePanel {
 
 		String p; // path
 		String n; // name
+		String m; // link snippet spec adapted for mountedParameter configuration
 		String t; // time ago
 		String d; // last updated
 		String i; // information/description

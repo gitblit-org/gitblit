@@ -16,7 +16,7 @@
             <span ng-show="item.y == 3" class="octicon octicon-centered octicon-repo-push"></span>
         </span>
     
-		<a href="summary/?r={{item.r}}" title="{{item.i}}">{{item.p}}<b>{{item.n}}</b></a>
+		<a href="summary/{{item.m}}" title="{{item.i}}">{{item.p}}<b>{{item.n}}</b></a>
 		<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
 		<span ng-show="item.s" class="pull-right">
 			<span style="padding: 0px 5px;color: #888;font-weight:bold;vertical-align:middle;">{{item.s | number}} <i style="vertical-align:baseline;" class="iconic-star"></i></span>

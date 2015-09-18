@@ -22,6 +22,7 @@ import java.util.Date;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
@@ -54,7 +55,7 @@ public class DownloadZipServlet extends HttpServlet {
 
 	private transient Logger logger = LoggerFactory.getLogger(DownloadZipServlet.class);
 
-	private IStoredSettings settings;
+	private static IStoredSettings settings;
 
 	private IRepositoryManager repositoryManager;
 
@@ -79,7 +80,7 @@ public class DownloadZipServlet extends HttpServlet {
 
 	@Inject
 	public DownloadZipServlet(IStoredSettings settings, IRepositoryManager repositoryManager) {
-		this.settings = settings;
+		DownloadZipServlet.settings = settings;
 		this.repositoryManager = repositoryManager;
 	}
 
@@ -97,10 +98,42 @@ public class DownloadZipServlet extends HttpServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
-		return baseURL + Constants.ZIP_PATH + "?r=" + repository
-				+ (path == null ? "" : ("&p=" + path))
-				+ (objectId == null ? "" : ("&h=" + objectId))
-				+ (format == null ? "" : ("&format=" + format.name()));
+		StringBuilder url = new StringBuilder(baseURL + Constants.ZIP_PATH);
+		boolean firstParam = true;
+
+		// Mimic the wicket page mount parameters, key off of same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			// Replace slashes with replacement character if configured
+			char c = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+			if (c != '/') {
+				repository = repository.replace('/', c);
+			}
+			url.append(repository);
+		} else {
+			if (!StringUtils.isEmpty(repository)) {
+				url.append(firstParam ? "?" : "&");
+				url.append("r=" + repository);
+				firstParam = false;
+			}
+		}
+
+		// TODO: support these as URL path parameters if mount option is enabled
+		if (!StringUtils.isEmpty(path)) {
+			url.append(firstParam ? "?" : "&");
+			url.append("p=" + path);
+			firstParam = false;
+		}
+		if (!StringUtils.isEmpty(objectId)) {
+			url.append(firstParam ? "?" : "&");
+			url.append("h=" + objectId);
+			firstParam = false;
+		}
+		if (format != null) {
+			url.append(firstParam ? "?" : "&");
+			url.append("format=" + format.name());
+			firstParam = false;
+		}
+		return url.toString();
 	}
 
 	/**
@@ -121,7 +154,27 @@ public class DownloadZipServlet extends HttpServlet {
 		}
 
 		Format format = Format.zip;
-		String repository = request.getParameter("r");
+		String repository = null;
+		// Mimic the wicket page mount parameters, key off of same config value
+		if (settings.getBoolean(Keys.web.mountParameters, true)) {
+			repository = request.getPathInfo();
+			if (!StringUtils.isEmpty(repository)) {
+				// Remove leading slash from path info
+				repository = repository.substring(1);
+				char c = settings.getChar(Keys.web.forwardSlashCharacter, '/');
+				repository = repository.replace('!', '/').replace(c, '/');
+			}
+		} else {
+			repository = request.getParameter("r");
+		}
+
+		if (StringUtils.isEmpty(repository)) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().append("Bad request");
+			return;
+		}
+
+		// TODO: convert these to support URL path parameters for mount option
 		String basePath = request.getParameter("p");
 		String objectId = request.getParameter("h");
 		String f = request.getParameter("format");

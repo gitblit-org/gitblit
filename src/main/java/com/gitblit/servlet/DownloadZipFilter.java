@@ -18,12 +18,16 @@ package com.gitblit.servlet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Keys;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.StringUtils;
 
 /**
  * The DownloadZipFilter is an AccessRestrictionFilter which ensures that zip
@@ -52,14 +56,19 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 	 * @return repository name
 	 */
 	@Override
-	protected String extractRepositoryName(String url) {
-		int a = url.indexOf("r=");
-		if (a > -1) {
-			String repository = url.substring(a + 2);
-			if (repository.indexOf('&') > -1) {
-				repository = repository.substring(0, repository.indexOf('&'));
+	protected String extractRepositoryName(HttpServletRequest request) {
+		// Mimic the wicket page mount parameters, key off of same config value
+		if (runtimeManager.getSettings().getBoolean(Keys.web.mountParameters, true)) {
+			String repository = request.getPathInfo();
+			if (!StringUtils.isEmpty(repository)) {
+				//Remove leading slash from path info
+				repository = repository.substring(1);
+				char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+				repository = repository.replace('!', '/').replace(c, '/');
+				return repository;
 			}
-			return repository;
+		} else {
+			return request.getParameter("r");
 		}
 		return null;
 	}

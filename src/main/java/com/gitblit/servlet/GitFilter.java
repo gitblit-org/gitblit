@@ -94,8 +94,8 @@ public class GitFilter extends AccessRestrictionFilter {
 	 * @return repository name
 	 */
 	@Override
-	protected String extractRepositoryName(String url) {
-		return GitFilter.getRepositoryName(url);
+	protected String extractRepositoryName(HttpServletRequest httpRequest) {
+		return GitFilter.getRepositoryName(httpRequest.getPathInfo());
 	}
 
 	/**

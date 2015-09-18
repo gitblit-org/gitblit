@@ -116,10 +116,19 @@ public class FilterableRepositoryList extends BasePanel {
 				name = name.substring(name.lastIndexOf('/') + 1);
 			}
 
+			String mountParamRepoTarget = null;
+			if (app().settings().getBoolean(Keys.web.mountParameters, true)) {
+				char c = app().settings().getChar(Keys.web.forwardSlashCharacter, '/');
+				mountParamRepoTarget = (path + name).replace('/',  c);
+			} else {
+				mountParamRepoTarget = "?r=" + path + name;
+			}
+
 			RepoListItem item = new RepoListItem();
 			item.n = name;
 			item.p = path;
 			item.r = repo.name;
+			item.m = mountParamRepoTarget;
 			item.i = repo.description;
 			item.s = app().repositories().getStarCount(repo);
 			item.t = getTimeUtils().timeAgo(repo.lastChange);
@@ -150,6 +159,7 @@ public class FilterableRepositoryList extends BasePanel {
 		String r; // repository
 		String n; // name
 		String p; // project/path
+		String m; // link snippet spec adapted for mountedParameter configuration
 		String t; // time ago
 		String d; // last updated
 		String i; // information/description
