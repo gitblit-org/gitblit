@@ -12,8 +12,8 @@
 	<classpathentry kind="lib" path="ext/guice-servlet-4.0-gb1.jar" sourcepath="ext/src/guice-servlet-4.0-gb1.jar" />
 	<classpathentry kind="lib" path="ext/annotations-12.0.jar" sourcepath="ext/src/annotations-12.0.jar" />
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17.jar" />
-	<classpathentry kind="lib" path="ext/slf4j-api-1.7.10.jar" sourcepath="ext/src/slf4j-api-1.7.10.jar" />
-	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.7.10.jar" sourcepath="ext/src/slf4j-log4j12-1.7.10.jar" />
+	<classpathentry kind="lib" path="ext/slf4j-api-1.7.12.jar" sourcepath="ext/src/slf4j-api-1.7.12.jar" />
+	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.7.12.jar" sourcepath="ext/src/slf4j-log4j12-1.7.12.jar" />
 	<classpathentry kind="lib" path="ext/javax.mail-1.5.1.jar" sourcepath="ext/src/javax.mail-1.5.1.jar" />
 	<classpathentry kind="lib" path="ext/javax.servlet-api-3.1.0.jar" sourcepath="ext/src/javax.servlet-api-3.1.0.jar" />
 	<classpathentry kind="lib" path="ext/jetty-all-9.2.10.v20150310.jar" sourcepath="ext/src/jetty-all-9.2.10.v20150310.jar" />
