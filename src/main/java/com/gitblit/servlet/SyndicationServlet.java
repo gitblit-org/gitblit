@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import javax.servlet.http.HttpServlet;
 
 import org.eclipse.jgit.lib.ObjectId;
@@ -48,6 +46,8 @@ import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * SyndicationServlet generates RSS 2.0 feeds and feed links.
@@ -368,7 +368,7 @@ public class SyndicationServlet extends HttpServlet {
 			if (mountParameters) {
 				// mounted url
 				feedLink = MessageFormat.format("{0}/summary/{1}", gitblitUrl,
-						StringUtils.encodeURL(feedName));
+						StringUtils.encodeURL(feedName.replace('/', fsc)));
 			} else {
 				// parameterized url
 				feedLink = MessageFormat.format("{0}/summary/?r={1}", gitblitUrl,
