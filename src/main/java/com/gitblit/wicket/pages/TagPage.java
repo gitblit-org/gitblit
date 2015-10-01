@@ -31,7 +31,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
@@ -77,7 +77,7 @@ public class TagPage extends RepositoryPage {
 			linkClass = CommitPage.class;
 			break;
 		}
-		add(new GravatarImage("taggerAvatar", tagRef.getAuthorIdent()));
+		add(new AvatarImage("taggerAvatar", tagRef.getAuthorIdent()));
 
 		add(new RefsPanel("tagName", repositoryName, Arrays.asList(tagRef)));
 		add(new Label("tagId", tagRef.getObjectId().getName()));

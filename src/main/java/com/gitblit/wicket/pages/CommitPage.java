@@ -44,7 +44,7 @@ import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
 import com.gitblit.wicket.panels.CompressedDownloadsPanel;
 import com.gitblit.wicket.panels.DiffStatPanel;
-import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
@@ -133,7 +133,7 @@ public class CommitPage extends RepositoryPage {
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
 				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(),
 						Constants.SearchType.AUTHOR));
-				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
+				item.add(new AvatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
 				item.add(new Label("noteContent", bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName,

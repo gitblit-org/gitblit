@@ -114,11 +114,13 @@ public class BranchesPanel extends BasePanel {
 			public void populateItem(final Item<RefModel> item) {
 				final RefModel entry = item.getModelObject();
 
+				PageParameters shortUniqRef = WicketUtils.newObjectParameter(model.name,
+						Repository.shortenRefName(entry.getName()));
+
 				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), getTimeZone(), getTimeUtils()));
 
 				item.add(new LinkPanel("branchName", "list name", StringUtils.trimString(
-						entry.displayName, 28), LogPage.class, WicketUtils.newObjectParameter(
-						model.name, entry.getName())));
+						entry.displayName, 28), LogPage.class, shortUniqRef));
 
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("branchAuthor", "list", author,
@@ -131,8 +133,7 @@ public class BranchesPanel extends BasePanel {
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG);
 				LinkPanel shortlog = new LinkPanel("branchLog", "list subject", trimmedMessage,
-						CommitPage.class, WicketUtils.newObjectParameter(model.name,
-								entry.getName()));
+						CommitPage.class, shortUniqRef);
 				if (!shortMessage.equals(trimmedMessage)) {
 					shortlog.setTooltip(shortMessage);
 				}
@@ -140,27 +141,22 @@ public class BranchesPanel extends BasePanel {
 
 				if (maxCount <= 0) {
 					Fragment fragment = new Fragment("branchLinks", showDelete? "branchPageAdminLinks" : "branchPageLinks", this);
-					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
-							.newObjectParameter(model.name, entry.getName())));
-					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
-							.newObjectParameter(model.name, entry.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, shortUniqRef));
+					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, shortUniqRef));
 					String rawUrl = RawServlet.asLink(getContextUrl(), model.name, Repository.shortenRefName(entry.getName()), null);
-					fragment.add(new ExternalLink("raw",  rawUrl));
-					fragment.add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
-							WicketUtils.newObjectParameter(model.name, entry.getName())));
+					fragment.add(new ExternalLink("raw", rawUrl));
+					fragment.add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class, shortUniqRef));
 					fragment.add(new ExternalLink("syndication", SyndicationServlet.asLink(
 							getRequest().getRelativePathPrefixToContextRoot(), model.name,
-							entry.getName(), 0)));
+							Repository.shortenRefName(entry.getName()), 0)));
 					if (showDelete) {
 						fragment.add(createDeleteBranchLink(model, entry));
 					}
 					item.add(fragment);
 				} else {
 					Fragment fragment = new Fragment("branchLinks", "branchPanelLinks", this);
-					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
-							.newObjectParameter(model.name, entry.getName())));
-					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
-							.newObjectParameter(model.name, entry.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, shortUniqRef));
+					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, shortUniqRef));
 					String rawUrl = RawServlet.asLink(getContextUrl(), model.name, Repository.shortenRefName(entry.getName()), null);
 					fragment.add(new ExternalLink("raw",  rawUrl));
 					item.add(fragment);

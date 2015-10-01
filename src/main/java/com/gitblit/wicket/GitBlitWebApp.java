@@ -43,6 +43,7 @@ import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
@@ -90,7 +91,11 @@ import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
+@Singleton
 public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final Class<? extends WebPage> homePageClass = MyDashboardPage.class;
@@ -98,6 +103,10 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	private final Class<? extends WebPage> newRepositoryPageClass = NewRepositoryPage.class;
 
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
+
+	private final Provider<IPublicKeyManager> publicKeyManagerProvider;
+
+	private final Provider<ITicketService> ticketServiceProvider;
 
 	private final IStoredSettings settings;
 
@@ -113,8 +122,6 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final IAuthenticationManager authenticationManager;
 
-	private final IPublicKeyManager publicKeyManager;
-
 	private final IRepositoryManager repositoryManager;
 
 	private final IProjectManager projectManager;
@@ -123,19 +130,26 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final IGitblit gitblit;
 
+	private final IServicesManager services;
+
+	@Inject
 	public GitBlitWebApp(
+			Provider<IPublicKeyManager> publicKeyManagerProvider,
+			Provider<ITicketService> ticketServiceProvider,
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
-			IPublicKeyManager publicKeyManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IFederationManager federationManager,
-			IGitblit gitblit) {
+			IGitblit gitblit,
+			IServicesManager services) {
 
 		super();
+		this.publicKeyManagerProvider = publicKeyManagerProvider;
+		this.ticketServiceProvider = ticketServiceProvider;
 		this.settings = runtimeManager.getSettings();
 		this.xssFilter = runtimeManager.getXssFilter();
 		this.runtimeManager = runtimeManager;
@@ -143,11 +157,11 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
 		this.authenticationManager = authenticationManager;
-		this.publicKeyManager = publicKeyManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
 		this.gitblit = gitblit;
+		this.services = services;
 	}
 
 	@Override
@@ -392,7 +406,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	 */
 	@Override
 	public IPublicKeyManager keys() {
-		return publicKeyManager;
+		return publicKeyManagerProvider.get();
 	}
 
 	/* (non-Javadoc)
@@ -428,11 +442,19 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	}
 
 	/* (non-Javadoc)
+	 * @see com.gitblit.wicket.Webapp#services()
+	 */
+	@Override
+	public IServicesManager services() {
+		return services;
+	}
+
+	/* (non-Javadoc)
 	 * @see com.gitblit.wicket.Webapp#tickets()
 	 */
 	@Override
 	public ITicketService tickets() {
-		return gitblit.getTicketService();
+		return ticketServiceProvider.get();
 	}
 
 	/* (non-Javadoc)

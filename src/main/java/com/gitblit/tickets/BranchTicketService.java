@@ -72,6 +72,8 @@ import com.gitblit.models.TicketModel.Change;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Implementation of a ticket service based on an orphan branch.  All tickets
@@ -81,6 +83,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class BranchTicketService extends ITicketService implements RefsChangedListener {
 
 	public static final String BRANCH = "refs/meta/gitblit/tickets";
@@ -91,6 +94,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 
 	private final Map<String, AtomicLong> lastAssignedId;
 
+	@Inject
 	public BranchTicketService(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
@@ -112,6 +116,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 
 	@Override
 	public BranchTicketService start() {
+		log.info("{} started", getClass().getSimpleName());
 		return this;
 	}
 
@@ -292,7 +297,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			log.error("failed to read " + file, e);
 		} finally {
 			if (rw != null) {
-				rw.release();
+				rw.close();
 			}
 		}
 		return null;
@@ -348,7 +353,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 		} catch (IOException e) {
 			log.error("", e);
 		} finally {
-			inserter.release();
+			inserter.close();
 		}
 	}
 
@@ -707,7 +712,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			} finally {
 				// release the treewalk
 				if (treeWalk != null) {
-					treeWalk.release();
+					treeWalk.close();
 				}
 			}
 		} finally {
@@ -806,7 +811,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			// finish the index
 			builder.finish();
 		} finally {
-			inserter.release();
+			inserter.close();
 		}
 		return newIndex;
 	}
@@ -850,7 +855,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			}
 		} finally {
 			if (tw != null) {
-				tw.release();
+				tw.close();
 			}
 		}
 		return list;
@@ -908,10 +913,10 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 							rc));
 				}
 			} finally {
-				revWalk.release();
+				revWalk.close();
 			}
 		} finally {
-			odi.release();
+			odi.close();
 		}
 		return success;
 	}

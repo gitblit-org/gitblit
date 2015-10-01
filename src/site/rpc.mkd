@@ -131,7 +131,7 @@ Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 
 ### Example: LIST_REPOSITORIES
 
-**url**: https://localhost/rpc?req=LIST_REPOSITORIES  
+**url**: https://localhost/rpc/?req=LIST_REPOSITORIES  
 **response body**: Map&lt;String, RepositoryModel&gt; where the map key is the clone url of the repository
 
 ```json
@@ -183,7 +183,7 @@ Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 
 The original repository name is specified in the *name* url parameter.  The new name is set within the JSON object.
 
-**url**: https://localhost/rpc?req=EDIT_REPOSITORY&name=libraries/xmlapache.git  
+**url**: https://localhost/rpc/?req=EDIT_REPOSITORY&name=libraries/xmlapache.git  
 **post body**: RepositoryModel
 
 ```json
@@ -211,7 +211,7 @@ The original repository name is specified in the *name* url parameter.  The new 
 ```
 
 ### Example: LIST_USERS
-**url**: https://localhost/rpc?req=LIST_USERS  
+**url**: https://localhost/rpc/?req=LIST_USERS  
 **response body**: List&lt;UserModel&gt;
 
 ```json
@@ -237,7 +237,7 @@ The original repository name is specified in the *name* url parameter.  The new 
 ```
 
 ### Example: LIST_SETTINGS
-**url**: https://localhost/rpc?req=LIST_SETTINGS  
+**url**: https://localhost/rpc/?req=LIST_SETTINGS  
 **response body**: ServerSettings
 
 ```json
@@ -268,7 +268,7 @@ The original repository name is specified in the *name* url parameter.  The new 
 ```
 
 ### Example: LIST_STATUS
-**url**: https://localhost/rpc?req=LIST_STATUS  
+**url**: https://localhost/rpc/?req=LIST_STATUS  
 **response body**: ServerStatus
 
 ```json

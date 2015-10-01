@@ -86,7 +86,7 @@ public class SearchPanel extends BasePanel {
 			@Override
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
-				final Date date = JGitUtils.getCommitDate(entry);
+				final Date date = JGitUtils.getAuthorDate(entry);
 
 				item.add(WicketUtils.createDateLabel("commitDate", date, getTimeZone(), getTimeUtils()));
 

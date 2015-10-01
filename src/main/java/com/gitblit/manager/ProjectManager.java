@@ -41,6 +41,8 @@ import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Project manager handles project-related functions.
@@ -48,6 +50,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class ProjectManager implements IProjectManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -68,6 +71,7 @@ public class ProjectManager implements IProjectManager {
 
 	private FileBasedConfig projectConfigs;
 
+	@Inject
 	public ProjectManager(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager,

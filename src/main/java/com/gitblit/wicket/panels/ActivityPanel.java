@@ -76,7 +76,7 @@ public class ActivityPanel extends BasePanel {
 								.getWhen(), getTimeZone(), getTimeUtils()));
 
 						// avatar
-						commitItem.add(new GravatarImage("avatar", commit.getAuthorIdent(), 40));
+						commitItem.add(new AvatarImage("avatar", commit.getAuthorIdent(), 40));
 
 						// merge icon
 						if (commit.getParentCount() > 1) {

@@ -7,13 +7,52 @@ r27: {
     date: ${project.buildDate}
     note: ~
     html: ~
-    text: ~
+    text: ''
+          The new gitblit.properties file "includes" defaults.properties which is the original
+          gitblit.properties file. You may continue using your existing gitblit.properties file
+          as before, however, you might find future upgrades simpler by adopting the new "include"
+          design.
+          ''
     security: ~
-    fixes: ~
-    changes: ~
-    additions: ~
-    dependencyChanges: ~
-    contributors: ~
+    fixes:
+    - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-521, ticket-212)
+    - Fix exception when deleting a repository using the FileTicketService (issue-522, ticket-213)
+    - Do not inject team repository permissions as explicit user permissoins when editing a user (issue-462, ticket-214)
+    - Whitelist the target link attribute in the XSS filter (ticket-216)
+    changes:
+    - Replaced Dagger with Guice (ticket-80)
+    - Use release name as root directory in Gitblit GO artifacts (ticket-109)
+    - Split gitblit.properties into gitblit.properties & defaults.properties (ticket-110)
+    - Show team type in teams page (pr-217, ticket-168)
+    - Use author date to be consistent with other tools (pr-919)
+    additions:
+    - Add GitHub Octicons (ticket-106)
+    - Support for chain-loading properties files (ticket-110) 
+    - Add Priority & Severity fields for tickets (pr-220, ticket-157)
+    - Add Maintenance ticket type (pr-223, ticket-206)    
+    dependencyChanges:
+    - Guice 4.0 (ticket-80, ticket-219)
+    - SLF4j 1.7.12
+    - gson 2.3.1
+    - Freemarker 2.3.22
+    - Lucene 4.10.0 (ticket-159)
+    - SSHD 1.0.0
+    - JGit 4.0.2
+    - Groovy 2.4.4
+    - Wicket 1.4.22
+    - BouncyCastle 1.52
+    - Pegdown 1.5.0
+    - Jetty 9.2.13
+    settings:
+    - { name: web.displayUserPanel, defaultValue: 'true' }
+    contributors:
+    - James Moger
+    - David Ostrovsky
+    - Alex Lewis
+    - Florian Zschocke
+    - Paul Martin
+    - razzard
+    - Alexander Zabluda
 }
 
 #

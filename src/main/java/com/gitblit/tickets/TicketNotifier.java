@@ -135,6 +135,7 @@ public class TicketNotifier {
 			StringBuilder html = new StringBuilder();
 			html.append("<head>");
 			html.append(readStyle());
+			html.append(readViewTicketAction(ticket));
 			html.append("</head>");
 			html.append("<body>");
 			html.append(MarkdownUtils.transformGFM(settings, markdown, ticket.repository));
@@ -611,6 +612,12 @@ public class TicketNotifier {
 		sb.append(readResource("email.css"));
 		sb.append("</style>\n");
 		return sb.toString();
+	}
+
+	protected String readViewTicketAction(TicketModel ticket) {
+		String action = readResource("viewTicket.html");
+		action = action.replace("${url}", ticketService.getTicketUrl(ticket));
+		return action;
 	}
 
 	protected String readResource(String resource) {

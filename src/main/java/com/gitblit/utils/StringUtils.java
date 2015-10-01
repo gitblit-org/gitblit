@@ -79,6 +79,19 @@ public class StringUtils {
 	 * @return plain text escaped for html
 	 */
 	public static String escapeForHtml(String inStr, boolean changeSpace) {
+		return escapeForHtml(inStr, changeSpace, 4);
+	}
+
+	/**
+	 * Prepare text for html presentation. Replace sensitive characters with
+	 * html entities.
+	 *
+	 * @param inStr
+	 * @param changeSpace
+	 * @param tabLength
+	 * @return plain text escaped for html
+	 */
+	public static String escapeForHtml(String inStr, boolean changeSpace, int tabLength) {
 		StringBuilder retStr = new StringBuilder();
 		int i = 0;
 		while (i < inStr.length()) {
@@ -93,7 +106,9 @@ public class StringUtils {
 			} else if (changeSpace && inStr.charAt(i) == ' ') {
 				retStr.append("&nbsp;");
 			} else if (changeSpace && inStr.charAt(i) == '\t') {
-				retStr.append(" &nbsp; &nbsp;");
+				for (int j = 0; j < tabLength; j++) {
+					retStr.append("&nbsp;");
+				}
 			} else {
 				retStr.append(inStr.charAt(i));
 			}

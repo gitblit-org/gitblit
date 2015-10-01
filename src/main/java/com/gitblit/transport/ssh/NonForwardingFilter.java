@@ -15,13 +15,14 @@
  */
 package com.gitblit.transport.ssh;
 
-import org.apache.sshd.common.ForwardingFilter;
-import org.apache.sshd.common.Session;
 import org.apache.sshd.common.SshdSocketAddress;
+import org.apache.sshd.common.session.Session;
+import org.apache.sshd.server.forward.ForwardingFilter;
 
 public class NonForwardingFilter implements ForwardingFilter {
+
 	@Override
-	public boolean canConnect(SshdSocketAddress address, Session session) {
+	public boolean canConnect(Type type, SshdSocketAddress address, Session session) {
 		return false;
 	}
 

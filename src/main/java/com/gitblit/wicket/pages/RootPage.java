@@ -73,7 +73,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
 
@@ -151,6 +151,7 @@ public abstract class RootPage extends BasePage {
 		boolean authenticateAdmin = app().settings().getBoolean(Keys.web.authenticateAdminPages, true);
 		boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, true);
 		boolean allowLucene = app().settings().getBoolean(Keys.web.allowLuceneIndexing, true);
+		boolean displayUserPanel = app().settings().getBoolean(Keys.web.displayUserPanel, true);
 		boolean isLoggedIn = GitBlitWebSession.get().isLoggedIn();
 
 		if (authenticateAdmin) {
@@ -168,7 +169,7 @@ public abstract class RootPage extends BasePage {
 			}
 		}
 
-		if (authenticateView || authenticateAdmin) {
+		if (displayUserPanel && (authenticateView || authenticateAdmin)) {
 			if (isLoggedIn) {
 				UserMenu userFragment = new UserMenu("userPanel", "userMenuFragment", RootPage.this);
 				add(userFragment);
@@ -278,7 +279,7 @@ public abstract class RootPage extends BasePage {
 
 			request = ((WebRequest) getRequest()).getHttpServletRequest();
 			response = ((WebResponse) getResponse()).getHttpServletResponse();
-			request.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, AuthenticationType.CREDENTIALS);
+			request.getSession().setAttribute(Constants.ATTRIB_AUTHTYPE, AuthenticationType.CREDENTIALS);
 
 			// Set Cookie
 			app().authentication().setCookie(request, response, user);
@@ -607,11 +608,11 @@ public abstract class RootPage extends BasePage {
 			UserModel user = session.getUser();
 			boolean editCredentials = app().authentication().supportsCredentialChanges(user);
 			HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
-			AuthenticationType authenticationType = (AuthenticationType) request.getSession().getAttribute(Constants.AUTHENTICATION_TYPE);
-			boolean standardLogin = authenticationType.isStandard();
+			AuthenticationType authenticationType = (AuthenticationType) request.getAttribute(Constants.ATTRIB_AUTHTYPE);
+			boolean standardLogin = (null != authenticationType) ? authenticationType.isStandard() : true;
 
 			if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {
-				add(new GravatarImage("username", user, "navbarGravatar", 20, false));
+				add(new AvatarImage("username", user, "navbarGravatar", 20, false));
 			} else {
 				add(new Label("username", user.getDisplayName()));
 			}

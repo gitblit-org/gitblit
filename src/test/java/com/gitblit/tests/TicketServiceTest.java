@@ -293,9 +293,47 @@ public abstract class TicketServiceTest extends GitblitUnitTest {
 			assertTrue("failed to delete label " + label.name, service.deleteLabel(getRepository(), label.name, "lucifer"));
 		}
 	}
-
-
-
+	
+	@Test
+	public void testPriorityAndSeverity() throws Exception {
+		// C1: create and insert a ticket
+		Change c1 = newChange("testPriorityAndSeverity() " + Long.toHexString(System.currentTimeMillis()));
+		TicketModel ticket = service.createTicket(getRepository(), c1);
+		assertTrue(ticket.number > 0);
+		assertEquals(TicketModel.Priority.Normal, ticket.priority);
+		assertEquals(TicketModel.Severity.Unrated, ticket.severity);
+		
+		TicketModel constructed = service.getTicket(getRepository(), ticket.number);
+		compare(ticket, constructed);
+		
+		// C2: Change Priority max
+		Change c2 = new Change("C2");
+		c2.setField(Field.priority, TicketModel.Priority.Urgent);
+		constructed = service.updateTicket(getRepository(), ticket.number, c2);
+		assertNotNull(constructed);
+		assertEquals(2, constructed.changes.size());
+		assertEquals(TicketModel.Priority.Urgent, constructed.priority);
+		assertEquals(TicketModel.Severity.Unrated, constructed.severity);
+		
+		// C3: Change Severity max
+		Change c3 = new Change("C3");
+		c3.setField(Field.severity, TicketModel.Severity.Catastrophic);
+		constructed = service.updateTicket(getRepository(), ticket.number, c3);
+		assertNotNull(constructed);
+		assertEquals(3, constructed.changes.size());
+		assertEquals(TicketModel.Priority.Urgent, constructed.priority);
+		assertEquals(TicketModel.Severity.Catastrophic, constructed.severity);
+		
+		// C4: Change Priority min
+		Change c4 = new Change("C3");
+		c4.setField(Field.priority, TicketModel.Priority.Low);
+		constructed = service.updateTicket(getRepository(), ticket.number, c4);
+		assertNotNull(constructed);
+		assertEquals(4, constructed.changes.size());
+		assertEquals(TicketModel.Priority.Low, constructed.priority);
+		assertEquals(TicketModel.Severity.Catastrophic, constructed.severity);
+	}
+	
 	private Change newChange(String summary) {
 		Change change = new Change("C1");
 		change.setField(Field.title, summary);

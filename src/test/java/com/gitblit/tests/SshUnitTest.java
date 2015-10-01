@@ -24,12 +24,17 @@ import java.net.SocketAddress;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.sshd.ClientChannel;
-import org.apache.sshd.ClientSession;
-import org.apache.sshd.SshClient;
 import org.apache.sshd.client.ServerKeyVerifier;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.auth.UserAuth;
+import org.apache.sshd.client.auth.UserAuthPublicKeyFactory;
+import org.apache.sshd.client.channel.ClientChannel;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.util.SecurityUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -102,6 +107,9 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 				return true;
 			}
 		});
+		List<NamedFactory<UserAuth>> userAuthFactories = new ArrayList<>();
+		userAuthFactories.add(new UserAuthPublicKeyFactory());
+		client.setUserAuthFactories(userAuthFactories);
 		client.start();
 		return client;
 	}

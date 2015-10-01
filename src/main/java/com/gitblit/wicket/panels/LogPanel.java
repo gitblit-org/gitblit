@@ -109,7 +109,7 @@ public class LogPanel extends BasePanel {
 			@Override
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
-				final Date date = JGitUtils.getCommitDate(entry);
+				final Date date = JGitUtils.getAuthorDate(entry);
 				final boolean isMerge = entry.getParentCount() > 1;
 
 				item.add(WicketUtils.createDateLabel("commitDate", date, getTimeZone(), getTimeUtils()));

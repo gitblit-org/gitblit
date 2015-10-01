@@ -37,6 +37,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,7 +197,8 @@ public class MailService implements Runnable {
 			}
 
 			message.setSentDate(new Date());
-			message.setSubject(mailing.subject);
+			// UTF-8 encode
+			message.setSubject(MimeUtility.encodeText(mailing.subject, "utf-8", "B"));
 
 			MimeBodyPart messagePart = new MimeBodyPart();
 			messagePart.setText(mailing.content, "utf-8");

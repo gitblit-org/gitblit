@@ -32,8 +32,10 @@ import org.apache.commons.codec.digest.Md5Crypt;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
 
@@ -123,6 +125,16 @@ public class HtpasswdAuthProvider extends UsernamePasswordAuthenticationProvider
     public boolean supportsTeamMembershipChanges() {
         return true;
     }
+
+    @Override
+    public boolean supportsRoleChanges(UserModel user, Role role) {
+        return true;
+    }
+
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return true;
+	}
 
     /**
      * Authenticate a user based on a username and password.

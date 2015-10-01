@@ -136,7 +136,7 @@ public class MetricUtils {
 
 				Iterable<RevCommit> revlog = revWalk;
 				for (RevCommit rev : revlog) {
-					Date d = JGitUtils.getCommitDate(rev);
+					Date d = JGitUtils.getAuthorDate(rev);
 					String p = df.format(d);
 					if (!metricMap.containsKey(p)) {
 						metricMap.put(p, new Metric(p));

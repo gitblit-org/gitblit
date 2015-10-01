@@ -31,14 +31,17 @@ import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gitblit.Constants;
-import com.gitblit.DaggerModule;
 import com.gitblit.FileSettings;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.WebXmlSettings;
-import com.gitblit.dagger.DaggerContext;
 import com.gitblit.extensions.LifeCycleListener;
+import com.gitblit.guice.CoreModule;
+import com.gitblit.guice.WebModule;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
@@ -48,27 +51,33 @@ import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
+import com.gitblit.tickets.ITicketService;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.servlet.GuiceServletContextListener;
 
 /**
  * This class is the main entry point for the entire webapp.  It is a singleton
  * created manually by Gitblit GO or dynamically by the WAR/Express servlet
- * container.  This class instantiates and starts all managers.  Servlets and
- * filters are instantiated defined in web.xml and instantiated by the servlet
- * container, but those servlets and filters use Dagger to manually inject their
- * dependencies.
+ * container.  This class instantiates and starts all managers.
+ *
+ * Servlets and filters are injected which allows Gitblit to be completely
+ * code-driven.
  *
  * @author James Moger
  *
  */
-public class GitblitContext extends DaggerContext {
+public class GitblitContext extends GuiceServletContextListener {
 
 	private static GitblitContext gitblit;
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final List<IManager> managers = new ArrayList<IManager>();
 
@@ -111,12 +120,16 @@ public class GitblitContext extends DaggerContext {
 		return null;
 	}
 
-	/**
-	 * Returns Gitblit's Dagger injection modules.
-	 */
 	@Override
-	protected Object [] getModules() {
-		return new Object [] { new DaggerModule() };
+	protected Injector getInjector() {
+		return Guice.createInjector(getModules());
+	}
+
+	/**
+	 * Returns Gitblit's Guice injection modules.
+	 */
+	protected AbstractModule [] getModules() {
+		return new AbstractModule [] { new CoreModule(), new WebModule() };
 	}
 
 	/**
@@ -127,18 +140,20 @@ public class GitblitContext extends DaggerContext {
 	 */
 	@Override
 	public final void contextInitialized(ServletContextEvent contextEvent) {
+		super.contextInitialized(contextEvent);
+
 		ServletContext context = contextEvent.getServletContext();
-		configureContext(context);
+		startCore(context);
 	}
 
 	/**
 	 * Prepare runtime settings and start all manager instances.
 	 */
-	protected void configureContext(ServletContext context) {
-		ObjectGraph injector = getInjector(context);
+	protected void startCore(ServletContext context) {
+		Injector injector = (Injector) context.getAttribute(Injector.class.getName());
 
 		// create the runtime settings object
-		IStoredSettings runtimeSettings = injector.get(IStoredSettings.class);
+		IStoredSettings runtimeSettings = injector.getInstance(IStoredSettings.class);
 		final File baseFolder;
 
 		if (goSettings != null) {
@@ -168,7 +183,7 @@ public class GitblitContext extends DaggerContext {
 
 		// Manually configure IRuntimeManager
 		logManager(IRuntimeManager.class);
-		IRuntimeManager runtime = injector.get(IRuntimeManager.class);
+		IRuntimeManager runtime = injector.getInstance(IRuntimeManager.class);
 		runtime.setBaseFolder(baseFolder);
 		runtime.getStatus().isGO = goSettings != null;
 		runtime.getStatus().servletContainer = context.getServerInfo();
@@ -186,7 +201,9 @@ public class GitblitContext extends DaggerContext {
 		startManager(injector, IRepositoryManager.class);
 		startManager(injector, IProjectManager.class);
 		startManager(injector, IFederationManager.class);
+		startManager(injector, ITicketService.class);
 		startManager(injector, IGitblit.class);
+		startManager(injector, IServicesManager.class);
 
 		// start the plugin manager last so that plugins can depend on
 		// deterministic access to all other managers in their start() methods
@@ -196,7 +213,7 @@ public class GitblitContext extends DaggerContext {
 		logger.info("All managers started.");
 		logger.info("");
 
-		IPluginManager pluginManager = injector.get(IPluginManager.class);
+		IPluginManager pluginManager = injector.getInstance(IPluginManager.class);
 		for (LifeCycleListener listener : pluginManager.getExtensions(LifeCycleListener.class)) {
 			try {
 				listener.onStartup();
@@ -236,17 +253,21 @@ public class GitblitContext extends DaggerContext {
 		return defaultBaseFolder;
 	}
 
-	protected <X extends IManager> X loadManager(ObjectGraph injector, Class<X> clazz) {
-		X x = injector.get(clazz);
+	protected <X extends IManager> X loadManager(Injector injector, Class<X> clazz) {
+		X x = injector.getInstance(clazz);
 		return x;
 	}
 
-	protected <X extends IManager> X startManager(ObjectGraph injector, Class<X> clazz) {
+	protected <X extends IManager> X startManager(Injector injector, Class<X> clazz) {
 		X x = loadManager(injector, clazz);
 		logManager(clazz);
-		x.start();
-		managers.add(x);
-		return x;
+		return startManager(x);
+	}
+
+	protected <X extends IManager> X startManager(X x) {
+	    x.start();
+	    managers.add(x);
+	    return x;
 	}
 
 	protected void logManager(Class<? extends IManager> clazz) {
@@ -254,11 +275,17 @@ public class GitblitContext extends DaggerContext {
 		logger.info("----[{}]----", clazz.getName());
 	}
 
+	@Override
+	public final void contextDestroyed(ServletContextEvent contextEvent) {
+		super.contextDestroyed(contextEvent);
+		ServletContext context = contextEvent.getServletContext();
+		destroyContext(context);
+	}
+
 	/**
 	 * Gitblit is being shutdown either because the servlet container is
 	 * shutting down or because the servlet container is re-deploying Gitblit.
 	 */
-	@Override
 	protected void destroyContext(ServletContext context) {
 		logger.info("Gitblit context destroyed by servlet container.");
 
@@ -341,12 +368,10 @@ public class GitblitContext extends DaggerContext {
 		baseFolder.mkdirs();
 
 		// try to extract the data folder resource to the baseFolder
-		File localSettings = new File(baseFolder, "gitblit.properties");
-		if (!localSettings.exists()) {
-			extractResources(context, "/WEB-INF/data/", baseFolder);
-		}
+		extractResources(context, "/WEB-INF/data/", baseFolder);
 
 		// delegate all config to baseFolder/gitblit.properties file
+		File localSettings = new File(baseFolder, "gitblit.properties");
 		FileSettings fileSettings = new FileSettings(localSettings.getAbsolutePath());
 
 		// merge the stored settings into the runtime settings

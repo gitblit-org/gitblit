@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -37,12 +38,14 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Keys;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
@@ -67,6 +70,8 @@ public class ComparePage extends RepositoryPage {
 
 	IModel<String> fromRefId = new Model<String>("");
 	IModel<String> toRefId = new Model<String>("");
+
+	IModel<Boolean> ignoreWhitespace = Model.of(true);
 
 	public ComparePage(PageParameters params) {
 		super(params);
@@ -111,7 +116,15 @@ public class ComparePage extends RepositoryPage {
 			fromCommitId.setObject(startId);
 			toCommitId.setObject(endId);
 
-			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML);
+			final List<String> imageExtensions = app().settings().getStrings(Keys.web.imageExtensions);
+			final ImageDiffHandler handler = new ImageDiffHandler(this, repositoryName,
+					fromCommit.getName(), toCommit.getName(), imageExtensions);
+			final DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
+			final int tabLength = app().settings().getInteger(Keys.web.tabLength, 4);
+			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, diffComparator, DiffOutputType.HTML, handler, tabLength);
+			if (handler.getImgDiffCount() > 0) {
+				addBottomScript("scripts/imgdiff.js"); // Tiny support script for image diffs
+			}
 
 			// add compare diffstat
 			int insertions = 0;
@@ -160,10 +173,10 @@ public class ComparePage extends RepositoryPage {
 						hasSubmodule = submodule.hasSubmodule;
 
 						// add relative link
-						item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#" + entry.path));
+						item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#n" + entry.objectId));
 					} else {
 						// add relative link
-						item.add(new LinkPanel("pathName", "list", entry.path, "#" + entry.path));
+						item.add(new LinkPanel("pathName", "list", entry.path, "#n" + entry.objectId));
 					}
 
 					// quick links
@@ -204,6 +217,10 @@ public class ComparePage extends RepositoryPage {
 			comparison.add(new Label("diffText", diff.content).setEscapeModelStrings(false));
 		}
 
+		// set the default DiffComparator
+		DiffComparator diffComparator = WicketUtils.getDiffComparator(params);
+		ignoreWhitespace.setObject(DiffComparator.IGNORE_WHITESPACE == diffComparator);
+
 		//
 		// ref selection form
 		//
@@ -215,8 +232,13 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromRefId.getObject();
 				String to = ComparePage.this.toRefId.getObject();
+				boolean ignoreWS = ignoreWhitespace.getObject();
 
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
+				if (ignoreWS) {
+					params.put("w", 1);
+				}
+
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
@@ -237,6 +259,8 @@ public class ComparePage extends RepositoryPage {
 		}
 		refsForm.add(new DropDownChoice<String>("fromRef", fromRefId, refs).setEnabled(refs.size() > 0));
 		refsForm.add(new DropDownChoice<String>("toRef", toRefId, refs).setEnabled(refs.size() > 0));
+		refsForm.add(new Label("ignoreWhitespaceLabel", getString(DiffComparator.IGNORE_WHITESPACE.getTranslationKey())));
+		refsForm.add(new CheckBox("ignoreWhitespaceCheckbox", ignoreWhitespace));
 		add(refsForm);
 
 		//
@@ -250,8 +274,12 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromCommitId.getObject();
 				String to = ComparePage.this.toCommitId.getObject();
+				boolean ignoreWS = ignoreWhitespace.getObject();
 
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
+				if (ignoreWS) {
+					params.put("w", 1);
+				}
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
@@ -265,6 +293,8 @@ public class ComparePage extends RepositoryPage {
 		TextField<String> toIdField = new TextField<String>("toId", toCommitId);
 		WicketUtils.setInputPlaceholder(toIdField, getString("gb.to") + "...");
 		idsForm.add(toIdField);
+		idsForm.add(new Label("ignoreWhitespaceLabel", getString(DiffComparator.IGNORE_WHITESPACE.getTranslationKey())));
+		idsForm.add(new CheckBox("ignoreWhitespaceCheckbox", ignoreWhitespace));
 		add(idsForm);
 
 		r.close();
