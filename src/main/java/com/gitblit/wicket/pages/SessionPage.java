@@ -56,50 +56,34 @@ public abstract class SessionPage extends WebPage {
 		HttpServletRequest request = ((WebRequest) getRequest()).getHttpServletRequest();
 		HttpServletResponse response = ((WebResponse) getResponse()).getHttpServletResponse();
 
-		// If using container/external servlet authentication, use request attribute
-		String authedUser = (String) request.getAttribute(Constants.ATTRIB_AUTHUSER);
+		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
+			// already have a session, refresh usermodel to pick up
+			// any changes to permissions or roles (issue-186)
+			UserModel user = app().users().getUserModel(session.getUser().username);
 
-		// Default to trusting session authentication if not set in request by external processing
-		if (StringUtils.isEmpty(authedUser) && session.isLoggedIn()) {
-			authedUser = session.getUsername();
-		}
-
-		if (!StringUtils.isEmpty(authedUser)) {
-			// Avoid session fixation for non-session authentication
-			// If the authenticated user is different from the session user, discard
-			// the old session entirely, without trusting any session values
-			if (!authedUser.equals(session.getUsername())) {
-				session.replaceSession();
-			}
-
-			if (!session.isSessionInvalidated()) {
-				// Refresh usermodel to pick up any changes to permissions or roles (issue-186)
-				UserModel user = app().users().getUserModel(authedUser);
-
-				if (user == null || user.disabled) {
-					// user was deleted/disabled during session
-					app().authentication().logout(request, response, user);
-					session.setUser(null);
-					session.invalidateNow();
-					return;
-				}
-
-				// validate cookie during session (issue-361)
-				if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, true)) {
-					String requestCookie = app().authentication().getCookie(request);
-					if (!StringUtils.isEmpty(requestCookie) && !StringUtils.isEmpty(user.cookie)) {
-						if (!requestCookie.equals(user.cookie)) {
-							// cookie was changed during our session
-							app().authentication().logout(request, response, user);
-							session.setUser(null);
-							session.invalidateNow();
-							return;
-						}
-					}
-				}
-				session.setUser(user);
+			if (user == null || user.disabled) {
+				// user was deleted/disabled during session
+				app().authentication().logout(request, response, user);
+				session.setUser(null);
+				session.invalidateNow();
 				return;
 			}
+
+			// validate cookie during session (issue-361)
+			if (user != null && app().settings().getBoolean(Keys.web.allowCookieAuthentication, true)) {
+				String requestCookie = app().authentication().getCookie(request);
+				if (!StringUtils.isEmpty(requestCookie) && !StringUtils.isEmpty(user.cookie)) {
+					if (!requestCookie.equals(user.cookie)) {
+						// cookie was changed during our session
+						app().authentication().logout(request, response, user);
+						session.setUser(null);
+						session.invalidateNow();
+						return;
+					}
+				}
+			}
+			session.setUser(user);
+			return;
 		}
 
 		// try to authenticate by servlet request
@@ -107,7 +91,9 @@ public abstract class SessionPage extends WebPage {
 
 		// Login the user
 		if (user != null) {
-			AuthenticationType authenticationType = (AuthenticationType) request.getAttribute(Constants.ATTRIB_AUTHTYPE);
+			// preserve the authentication type across session replacement
+			AuthenticationType authenticationType = (AuthenticationType) request.getSession()
+					.getAttribute(Constants.AUTHENTICATION_TYPE);
 
 			// issue 62: fix session fixation vulnerability
 			// but only if authentication was done in the container.
@@ -115,8 +101,10 @@ public abstract class SessionPage extends WebPage {
 			// don't like
 			if (AuthenticationType.CONTAINER != authenticationType) {
 				session.replaceSession();
-			}
+			}			
 			session.setUser(user);
+
+			request.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, authenticationType);
 
 			// Set Cookie
 			app().authentication().setCookie(request, response, user);

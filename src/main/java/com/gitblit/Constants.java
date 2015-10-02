@@ -137,9 +137,7 @@ public class Constants {
 
 	public static final String DEVELOP = "develop";
 
-	public static final String ATTRIB_AUTHTYPE = NAME + ":authentication-type";
-
-	public static final String ATTRIB_AUTHUSER = NAME + ":authenticated-user";
+	public static final String AUTHENTICATION_TYPE = "authentication-type";
 
 	public static String getVersion() {
 		String v = Constants.class.getPackage().getImplementationVersion();
