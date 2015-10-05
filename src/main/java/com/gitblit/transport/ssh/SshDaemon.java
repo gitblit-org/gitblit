@@ -133,7 +133,7 @@ public class SshDaemon {
 		//Will do GSS ?
 		GSSAuthenticator gssAuthenticator = null;
 		if(settings.getBoolean(Keys.git.sshWithKrb5, false)) {
-			gssAuthenticator = new SshKrbAuthenticator(gitblit, settings.getBoolean(Keys.git.sshKrb5StripDomain, false));
+			gssAuthenticator = new SshKrbAuthenticator(gitblit, settings);
 			String keytabString = settings.getString(Keys.git.sshKrb5Keytab,
 					"");
 			if(! keytabString.isEmpty()) {

@@ -15,29 +15,34 @@
  */
 package com.gitblit.transport.ssh;
 
-import com.gitblit.manager.IAuthenticationManager;
-import com.gitblit.models.UserModel;
 import java.util.Locale;
+
 import org.apache.sshd.server.auth.gss.GSSAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.manager.IAuthenticationManager;
+import com.gitblit.models.UserModel;
+
 public class SshKrbAuthenticator extends GSSAuthenticator {
-	
+
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 	protected final IAuthenticationManager authManager;
 	protected final boolean stripDomain;
 
-	public SshKrbAuthenticator(IAuthenticationManager authManager, boolean stripDomain) {
+	public SshKrbAuthenticator(IAuthenticationManager authManager, IStoredSettings settings) {
 		this.authManager = authManager;
-		this.stripDomain = stripDomain;
+		this.stripDomain = settings.getBoolean(Keys.git.sshKrb5StripDomain, false);
 		log.info("registry {}", authManager);
 	}
 
+	@Override
 	public boolean validateIdentity(ServerSession session, String identity) {
 		log.info("identify with kerberos {}", identity);
-		SshDaemonClient client = (SshDaemonClient)session.getAttribute(SshDaemonClient.KEY);
+		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
 		if (client.getUser() != null) {
 			log.info("{} has already authenticated!", identity);
 			return true;
@@ -45,8 +50,9 @@ public class SshKrbAuthenticator extends GSSAuthenticator {
 		String username = identity.toLowerCase(Locale.US);
 		if (stripDomain) {
 			int p = username.indexOf('@');
-			if (p > 0)
+			if (p > 0) {
 				username = username.substring(0, p);
+			}
 		}
 		UserModel user = authManager.authenticate(username);
 		if (user != null) {
