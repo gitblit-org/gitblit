@@ -17,11 +17,14 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -66,6 +69,15 @@ public class LuceneSearchPage extends RootPage {
 		int page = 1;
 		int pageSize = app().settings().getInteger(Keys.web.itemsPerPage, 50);
 
+		// display user-accessible selections
+		UserModel user = GitBlitWebSession.get().getUser();
+		List<String> availableRepositories = new ArrayList<String>();
+		for (RepositoryModel model : app().repositories().getRepositoryModels(user)) {
+			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
+				availableRepositories.add(model.name);
+			}
+		}
+
 		if (params != null) {
 			String repository = WicketUtils.getRepositoryName(params);
 			if (!StringUtils.isEmpty(repository)) {
@@ -78,6 +90,10 @@ public class LuceneSearchPage extends RootPage {
 				String value = params.getString("repositories", "");
 				List<String> list = StringUtils.getStringsFromValue(value);
 				repositories.addAll(list);
+			}
+
+			if (params.containsKey("allrepos")) {
+				repositories.addAll(availableRepositories);
 			}
 
 			if (params.containsKey("query")) {
@@ -96,14 +112,6 @@ public class LuceneSearchPage extends RootPage {
 			}
 		}
 
-		// display user-accessible selections
-		UserModel user = GitBlitWebSession.get().getUser();
-		List<String> availableRepositories = new ArrayList<String>();
-		for (RepositoryModel model : app().repositories().getRepositoryModels(user)) {
-			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
-				availableRepositories.add(model.name);
-			}
-		}
 		boolean luceneEnabled = app().settings().getBoolean(Keys.web.allowLuceneIndexing, true);
 		if (luceneEnabled) {
 			if (availableRepositories.size() == 0) {
@@ -114,16 +122,18 @@ public class LuceneSearchPage extends RootPage {
 		}
 
 		// enforce user-accessible repository selections
-		ArrayList<String> searchRepositories = new ArrayList<String>();
+		Set<String> uniqueRepositories = new LinkedHashSet<String>();
 		for (String selectedRepository : repositories) {
 			if (availableRepositories.contains(selectedRepository)) {
-				searchRepositories.add(selectedRepository);
+				uniqueRepositories.add(selectedRepository);
 			}
 		}
+		ArrayList<String> searchRepositories = new ArrayList<String>(uniqueRepositories);
 
 		// search form
 		final Model<String> queryModel = new Model<String>(query);
 		final Model<ArrayList<String>> repositoriesModel = new Model<ArrayList<String>>(searchRepositories);
+		final Model<Boolean> allreposModel = new Model<Boolean>(params != null && params.containsKey("allrepos"));
 		SessionlessForm<Void> form = new SessionlessForm<Void>("searchForm", getClass()) {
 
 			private static final long serialVersionUID = 1L;
@@ -135,13 +145,14 @@ public class LuceneSearchPage extends RootPage {
 					error(getString("gb.undefinedQueryWarning"));
 					return;
 				}
-				if (repositoriesModel.getObject().size() == 0) {
+				if (repositoriesModel.getObject().size() == 0 && !allreposModel.getObject()) {
 					error(getString("gb.noSelectedRepositoriesWarning"));
 					return;
 				}
 				PageParameters params = new PageParameters();
 				params.put("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
 				params.put("query", queryModel.getObject());
+				params.put("allrepos", allreposModel.getObject());
 				LuceneSearchPage page = new LuceneSearchPage(params);
 				setResponsePage(page);
 			}
@@ -152,6 +163,7 @@ public class LuceneSearchPage extends RootPage {
 		selections.setMaxRows(8);
 		form.add(selections.setEnabled(luceneEnabled));
 		form.add(new TextField<String>("query", queryModel).setEnabled(luceneEnabled));
+		form.add(new CheckBox("allrepos", allreposModel));
 		add(form.setEnabled(luceneEnabled));
 
 		// execute search
