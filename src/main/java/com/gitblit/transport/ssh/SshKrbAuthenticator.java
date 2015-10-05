@@ -31,6 +31,8 @@ public class SshKrbAuthenticator extends GSSAuthenticator {
 
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 	protected final IAuthenticationManager authManager;
+	protected final boolean stripDomain;
+
 
 	public SshKrbAuthenticator(IStoredSettings settings, IAuthenticationManager authManager) {
 		this.authManager = authManager;
@@ -44,6 +46,8 @@ public class SshKrbAuthenticator extends GSSAuthenticator {
 		if(! servicePrincipalName.isEmpty()) {
 			setServicePrincipalName(servicePrincipalName);
 		}
+
+		this.stripDomain = settings.getBoolean(Keys.git.sshKrb5StripDomain, false);
 	}
 
 	@Override
@@ -55,6 +59,12 @@ public class SshKrbAuthenticator extends GSSAuthenticator {
 			return true;
 		}
 		String username = identity.toLowerCase(Locale.US);
+		if (stripDomain) {
+			int p = username.indexOf('@');
+			if (p > 0) {
+				username = username.substring(0, p);
+			}
+		}
 		UserModel user = authManager.authenticate(username);
 		if (user != null) {
 			client.setUser(user);
