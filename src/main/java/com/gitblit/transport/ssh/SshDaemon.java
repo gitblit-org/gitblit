@@ -23,24 +23,14 @@ import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
 import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.common.util.SecurityUtils;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.CachingPublicKeyAuthenticator;
-import org.apache.sshd.server.auth.UserAuth;
-import org.apache.sshd.server.auth.UserAuthKeyboardInteractiveFactory;
-import org.apache.sshd.server.auth.UserAuthPasswordFactory;
-import org.apache.sshd.server.auth.UserAuthPublicKeyFactory;
-import org.apache.sshd.server.auth.gss.GSSAuthenticator;
-import org.apache.sshd.server.auth.gss.UserAuthGSSFactory;
 import org.bouncycastle.openssl.PEMWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
@@ -130,48 +120,6 @@ public class SshDaemon {
 			addr = new InetSocketAddress(bindInterface, port);
 		}
 
-		//Will do GSS ?
-		GSSAuthenticator gssAuthenticator = null;
-		if(settings.getBoolean(Keys.git.sshWithKrb5, false)) {
-			gssAuthenticator = new SshKrbAuthenticator(gitblit);
-			String keytabString = settings.getString(Keys.git.sshKrb5Keytab,
-					"");
-			if(! keytabString.isEmpty()) {
-				gssAuthenticator.setKeytabFile(keytabString);
-			}
-			String servicePrincipalName = settings.getString(Keys.git.sshKrb5ServicePrincipalName,
-					"");
-			if(! servicePrincipalName.isEmpty()) {
-				gssAuthenticator.setServicePrincipalName(servicePrincipalName);
-			}
-		}
-
-		//Sort the authenticators for sshd
-		List<NamedFactory<UserAuth>> userAuthFactories = new ArrayList<>();
-		String sshAuthenticatorsOrderString = settings.getString(Keys.git.sshAuthenticatorsOrder,
-				"password,keyboard-interactive,publickey");
-		for(String authenticator: sshAuthenticatorsOrderString.split(",")) {
-			String authenticatorName = authenticator.trim().toLowerCase(Locale.US);
-			switch (authenticatorName) {
-			case "gssapi-with-mic":
-				if(gssAuthenticator != null) {
-					userAuthFactories.add(new UserAuthGSSFactory());
-				}
-				break;
-			case "publickey":
-				userAuthFactories.add(new UserAuthPublicKeyFactory());
-				break;
-			case "password":
-				userAuthFactories.add(new UserAuthPasswordFactory());
-				break;
-			case "keyboard-interactive":
-				userAuthFactories.add(new UserAuthKeyboardInteractiveFactory());
-				break;
-			default:
-				log.error("Unknown ssh authenticator: '{}'", authenticatorName);
-			}
-		}
-
 		// Create the SSH server
 		sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(addr.getPort());
@@ -179,10 +127,9 @@ public class SshDaemon {
 		sshd.setKeyPairProvider(hostKeyPairProvider);
 		sshd.setPublickeyAuthenticator(new CachingPublicKeyAuthenticator(keyAuthenticator));
 		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
-		if(gssAuthenticator != null) {
-			sshd.setGSSAuthenticator(gssAuthenticator);
+		if (settings.getBoolean(Keys.git.sshWithKrb5, false)) {
+			sshd.setGSSAuthenticator(new SshKrbAuthenticator(settings, gitblit));
 		}
-		sshd.setUserAuthFactories(userAuthFactories);
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());

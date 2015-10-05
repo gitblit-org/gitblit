@@ -27,6 +27,7 @@ import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.UserModel;
+import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.SshKrbAuthenticator;
 
@@ -39,20 +40,21 @@ public class SshKerberosAuthenticationTest extends GitblitUnitTest {
 	@Test
 	public void testUserManager() {
 		IRuntimeManager rm = Mockito.mock(IRuntimeManager.class);
-		
+
 		//Build an UserManager that can build a UserModel
 		IUserManager im = Mockito.mock(IUserManager.class);
 		Mockito.doAnswer(new Answer<Object>() {
+			@Override
 			public Object answer(InvocationOnMock invocation) {
 				Object[] args = invocation.getArguments();
 				String user = (String) args[0];
 				return new UserModel(user);
-			}           
+			}
 		}).when(im).getUserModel(Mockito.anyString());
 
 		AuthenticationManager am = new AuthenticationManager(rm, im);
-				
-		GSSAuthenticator gssAuthenticator = new SshKrbAuthenticator(am);
+
+		GSSAuthenticator gssAuthenticator = new SshKrbAuthenticator(new MemorySettings(), am);
 
 		ServerSession session = Mockito.mock(ServerSession.class);
 
@@ -61,12 +63,13 @@ public class SshKerberosAuthenticationTest extends GitblitUnitTest {
 		SshDaemonClient client = Mockito.mock(SshDaemonClient.class);
 		Mockito.when(client.getUser()).thenReturn(umw.um);
 		Mockito.doAnswer(new Answer<Object>() {
+			@Override
 			public Object answer(InvocationOnMock invocation) {
 				Object[] args = invocation.getArguments();
 				UserModel um = (UserModel) args[0];
 				umw.um = um;
 				return null;
-			}           
+			}
 		}).when(client).setUser(Mockito.any(UserModel.class));
 
 		Mockito.when(session.getAttribute(SshDaemonClient.KEY)).thenReturn(client);

@@ -21,7 +21,6 @@ public class JschConfigTestSessionFactory extends JschConfigSessionFactory {
     @Override
     protected void configure(OpenSshConfig.Host host, Session session) {
         session.setConfig("StrictHostKeyChecking", "no");
-        session.setConfig("PreferredAuthentications", "password");
     }
 
     @Override
