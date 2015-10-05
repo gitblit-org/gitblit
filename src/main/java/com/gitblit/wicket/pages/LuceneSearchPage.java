@@ -17,14 +17,16 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -120,12 +122,13 @@ public class LuceneSearchPage extends RootPage {
 		}
 
 		// enforce user-accessible repository selections
-		ArrayList<String> searchRepositories = new ArrayList<String>();
+		Set<String> uniqueRepositories = new LinkedHashSet<String>();
 		for (String selectedRepository : repositories) {
 			if (availableRepositories.contains(selectedRepository)) {
-				searchRepositories.add(selectedRepository);
+				uniqueRepositories.add(selectedRepository);
 			}
 		}
+		ArrayList<String> searchRepositories = new ArrayList<String>(uniqueRepositories);
 
 		// search form
 		final Model<String> queryModel = new Model<String>(query);
