@@ -194,14 +194,6 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 */
 	@Override
 	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {
-
-		// Check if this request has already been authenticated, and trust that instead of re-processing
-		String reqAuthUser = (String) httpRequest.getAttribute(Constants.ATTRIB_AUTHUSER);
-		if (!StringUtils.isEmpty(reqAuthUser)) {
-			logger.warn("Called servlet authenticate when request is already authenticated.");
-			return userManager.getUserModel(reqAuthUser);
-		}
-
 		// try to authenticate by servlet container principal
 		if (!requiresCertificate) {
 			Principal principal = httpRequest.getUserPrincipal();
@@ -212,7 +204,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 					UserModel user = userManager.getUserModel(username);
 					if (user != null) {
 						// existing user
-						flagRequest(httpRequest, AuthenticationType.CONTAINER, user.username);
+						flagSession(httpRequest, AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
 						return validateAuthentication(user, AuthenticationType.CONTAINER);
@@ -247,7 +239,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 						}
 						
 						userManager.updateUserModel(user);
-						flagRequest(httpRequest, AuthenticationType.CONTAINER, user.username);
+						flagSession(httpRequest, AuthenticationType.CONTAINER);
 						logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
 						return validateAuthentication(user, AuthenticationType.CONTAINER);
@@ -268,7 +260,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 			UserModel user = userManager.getUserModel(model.username);
 			X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
 			if (user != null) {
-				flagRequest(httpRequest, AuthenticationType.CERTIFICATE, user.username);
+				flagSession(httpRequest, AuthenticationType.CERTIFICATE);
 				logger.debug(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
 						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
 				return validateAuthentication(user, AuthenticationType.CERTIFICATE);
@@ -290,7 +282,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		if (!StringUtils.isEmpty(cookie)) {
 			user = userManager.getUserModel(cookie.toCharArray());
 			if (user != null) {
-				flagRequest(httpRequest, AuthenticationType.COOKIE, user.username);
+				flagSession(httpRequest, AuthenticationType.COOKIE);
 				logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
 					user.username, httpRequest.getRemoteAddr()));
 				return validateAuthentication(user, AuthenticationType.COOKIE);
@@ -312,7 +304,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 				char[] password = values[1].toCharArray();
 				user = authenticate(username, password);
 				if (user != null) {
-					flagRequest(httpRequest, AuthenticationType.CREDENTIALS, user.username);
+					flagSession(httpRequest, AuthenticationType.CREDENTIALS);
 					logger.debug(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return validateAuthentication(user, AuthenticationType.CREDENTIALS);
@@ -431,9 +423,8 @@ public class AuthenticationManager implements IAuthenticationManager {
 		return user;
 	}
 
-	protected void flagRequest(HttpServletRequest httpRequest, AuthenticationType authenticationType, String authedUsername) {
-		httpRequest.setAttribute(Constants.ATTRIB_AUTHUSER,  authedUsername);
-		httpRequest.setAttribute(Constants.ATTRIB_AUTHTYPE,  authenticationType);
+	protected void flagSession(HttpServletRequest httpRequest, AuthenticationType authenticationType) {
+		httpRequest.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, authenticationType);
 	}
 
 	/**
@@ -554,15 +545,9 @@ public class AuthenticationManager implements IAuthenticationManager {
 	@Override
 	public void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user) {
 		if (settings.getBoolean(Keys.web.allowCookieAuthentication, true)) {
-			boolean standardLogin = true;
-
-			if (null != request) {
-				// Pull the auth type from the request, it is set there if container managed
-				AuthenticationType authenticationType = (AuthenticationType) request.getAttribute(Constants.ATTRIB_AUTHTYPE);
-
-				if (null != authenticationType)
-					standardLogin = authenticationType.isStandard();
-			}
+			HttpSession session = request.getSession();
+			AuthenticationType authenticationType = (AuthenticationType) session.getAttribute(Constants.AUTHENTICATION_TYPE);
+			boolean standardLogin = authenticationType.isStandard();
 
 			if (standardLogin) {
 				Cookie userCookie;
