@@ -27,7 +27,6 @@ import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
@@ -42,6 +41,7 @@ import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.NonTrimmedPasswordTextField;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
@@ -242,10 +242,10 @@ public class EditUserPage extends RootSubPage {
 
 		// field names reflective match UserModel fields
 		form.add(new TextField<String>("username").setEnabled(editCredentials));
-		PasswordTextField passwordField = new PasswordTextField("password");
+		NonTrimmedPasswordTextField passwordField = new NonTrimmedPasswordTextField("password");
 		passwordField.setResetPassword(false);
 		form.add(passwordField.setEnabled(editCredentials));
-		PasswordTextField confirmPasswordField = new PasswordTextField("confirmPassword",
+		NonTrimmedPasswordTextField confirmPasswordField = new NonTrimmedPasswordTextField("confirmPassword",
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField.setEnabled(editCredentials));
