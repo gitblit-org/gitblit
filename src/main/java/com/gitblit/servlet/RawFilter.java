@@ -98,7 +98,7 @@ public class RawFilter extends AccessRestrictionFilter {
 	 * @return true if the filter allows repository creation
 	 */
 	@Override
-	protected boolean isCreationAllowed() {
+	protected boolean isCreationAllowed(String action) {
 		return false;
 	}
 
@@ -107,10 +107,11 @@ public class RawFilter extends AccessRestrictionFilter {
 	 *
 	 * @param repository
 	 * @param action
+	 * @param method
 	 * @return true if the action may be performed
 	 */
 	@Override
-	protected boolean isActionAllowed(RepositoryModel repository, String action) {
+	protected boolean isActionAllowed(RepositoryModel repository, String action, String method) {
 		return true;
 	}
 
@@ -119,10 +120,11 @@ public class RawFilter extends AccessRestrictionFilter {
 	 *
 	 * @param repository
 	 * @param action
+	 * @param method
 	 * @return true if authentication required
 	 */
 	@Override
-	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
+	protected boolean requiresAuthentication(RepositoryModel repository, String action, String method) {
 		return repository.accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
 

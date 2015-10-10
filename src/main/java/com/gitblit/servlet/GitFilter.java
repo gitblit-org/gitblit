@@ -19,6 +19,7 @@ import java.text.MessageFormat;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -48,9 +49,11 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected static final String gitReceivePack = "/git-receive-pack";
 
 	protected static final String gitUploadPack = "/git-upload-pack";
-
+	
+	protected static final String gitLfs = "/info/lfs";
+	
 	protected static final String[] suffixes = { gitReceivePack, gitUploadPack, "/info/refs", "/HEAD",
-			"/objects" };
+			"/objects", gitLfs };
 
 	private IStoredSettings settings;
 
@@ -116,6 +119,8 @@ public class GitFilter extends AccessRestrictionFilter {
 				return gitReceivePack;
 			} else if (suffix.contains("?service=git-upload-pack")) {
 				return gitUploadPack;
+			} else if (suffix.startsWith(gitLfs)) {
+				return gitLfs;
 			} else {
 				return gitUploadPack;
 			}
@@ -144,7 +149,13 @@ public class GitFilter extends AccessRestrictionFilter {
 	 * @return true if the server allows repository creation on-push
 	 */
 	@Override
-	protected boolean isCreationAllowed() {
+	protected boolean isCreationAllowed(String action) {
+		
+		//Repository must already exist before large files can be deposited
+		if (action.equals(gitLfs)) {
+			return false;
+		}
+		
 		return settings.getBoolean(Keys.git.allowCreateOnPush, true);
 	}
 
@@ -156,9 +167,15 @@ public class GitFilter extends AccessRestrictionFilter {
 	 * @return true if the action may be performed
 	 */
 	@Override
-	protected boolean isActionAllowed(RepositoryModel repository, String action) {
+	protected boolean isActionAllowed(RepositoryModel repository, String action, String method) {
 		// the log here has been moved into ReceiveHook to provide clients with
 		// error messages
+		if (gitLfs.equals(action)) {
+			if (!method.matches("GET|POST|PUT|HEAD")) {
+				return false;
+			}
+		}
+		
 		return true;
 	}
 
@@ -172,16 +189,25 @@ public class GitFilter extends AccessRestrictionFilter {
 	 *
 	 * @param repository
 	 * @param action
+	 * @param method
 	 * @return true if authentication required
 	 */
 	@Override
-	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
+	protected boolean requiresAuthentication(RepositoryModel repository, String action, String method) {
 		if (gitUploadPack.equals(action)) {
 			// send to client
 			return repository.accessRestriction.atLeast(AccessRestrictionType.CLONE);
 		} else if (gitReceivePack.equals(action)) {
 			// receive from client
 			return repository.accessRestriction.atLeast(AccessRestrictionType.PUSH);
+		} else if (gitLfs.equals(action)) {
+			
+			if (method.matches("GET|HEAD")) {
+				return repository.accessRestriction.atLeast(AccessRestrictionType.CLONE);
+			} else {
+				//NOTE: Treat POST as PUT as as without reading message type cannot determine 
+				return repository.accessRestriction.atLeast(AccessRestrictionType.PUSH);
+			}
 		}
 		return false;
 	}
@@ -230,6 +256,12 @@ public class GitFilter extends AccessRestrictionFilter {
 	@Override
 	protected RepositoryModel createRepository(UserModel user, String repository, String action) {
 		boolean isPush = !StringUtils.isEmpty(action) && gitReceivePack.equals(action);
+		
+		if (action.equals(gitLfs)) {
+			//Repository must already exist for any filestore actions
+			return null;
+		}
+		
 		if (isPush) {
 			if (user.canCreate(repository)) {
 				// user is pushing to a new repository
@@ -280,5 +312,41 @@ public class GitFilter extends AccessRestrictionFilter {
 
 		// repository could not be created or action was not a push
 		return null;
+	}
+	
+	/**
+	 * Git lfs action uses an alternative authentication header, 
+	 * 
+	 * @param action
+	 * @return
+	 */
+	@Override
+	protected String getAuthenticationHeader(String action) {
+
+		if (action.equals(gitLfs)) {
+			return "LFS-Authenticate";
+		}
+		
+		return super.getAuthenticationHeader(action);
+	}
+	
+	/**
+	 * Interrogates the request headers based on the action
+	 * @param action
+	 * @param request
+	 * @return
+	 */
+	@Override
+	protected boolean hasValidRequestHeader(String action,
+			HttpServletRequest request) {
+
+		if (action.equals(gitLfs) && request.getMethod().equals("POST")) {
+			if ( 	!hasContentInRequestHeader(request, "Accept", FilestoreServlet.GIT_LFS_META_MIME)
+				 || !hasContentInRequestHeader(request, "Content-Type", FilestoreServlet.GIT_LFS_META_MIME)) {
+				return false;
+			}				
+		}
+			
+		return super.hasValidRequestHeader(action, request);
 	}
 }

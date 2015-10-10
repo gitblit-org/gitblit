@@ -37,6 +37,7 @@ import com.gitblit.Keys;
 import com.gitblit.extensions.GitblitWicketPlugin;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
@@ -63,6 +64,7 @@ import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.EditTicketPage;
 import com.gitblit.wicket.pages.ExportTicketPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
+import com.gitblit.wicket.pages.FilestorePage;
 import com.gitblit.wicket.pages.ForkPage;
 import com.gitblit.wicket.pages.ForksPage;
 import com.gitblit.wicket.pages.GitSearchPage;
@@ -131,6 +133,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	private final IGitblit gitblit;
 
 	private final IServicesManager services;
+	
+	private final IFilestoreManager filestoreManager;
 
 	@Inject
 	public GitBlitWebApp(
@@ -145,7 +149,8 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 			IProjectManager projectManager,
 			IFederationManager federationManager,
 			IGitblit gitblit,
-			IServicesManager services) {
+			IServicesManager services,
+			IFilestoreManager filestoreManager) {
 
 		super();
 		this.publicKeyManagerProvider = publicKeyManagerProvider;
@@ -162,6 +167,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		this.federationManager = federationManager;
 		this.gitblit = gitblit;
 		this.services = services;
+		this.filestoreManager = filestoreManager;
 	}
 
 	@Override
@@ -238,6 +244,9 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		mount("/user", UserPage.class, "user");
 		mount("/forks", ForksPage.class, "r");
 		mount("/fork", ForkPage.class, "r");
+		
+		// filestore URL
+		mount("/filestore", FilestorePage.class);
 
 		// allow started Wicket plugins to initialize
 		for (PluginWrapper pluginWrapper : pluginManager.getPlugins()) {
@@ -475,5 +484,10 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	public static GitBlitWebApp get() {
 		return (GitBlitWebApp) WebApplication.get();
+	}
+
+	@Override
+	public IFilestoreManager filestore() {
+		return filestoreManager;
 	}
 }

@@ -33,7 +33,8 @@ public interface IGitblit extends IManager,
 									IAuthenticationManager,
 									IRepositoryManager,
 									IProjectManager,
-									IFederationManager {
+									IFederationManager,
+									IFilestoreManager {
 
 	/**
 	 * Creates a complete user object.

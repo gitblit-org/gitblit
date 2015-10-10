@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+<div class="span10 offset1">	
+	
+	<div class="alert alert-danger">
+	<h3><center>Using the Filestore</center></h3>
+	<p>
+		<strong>All clients intending to use the filestore must first install the <a href="https://git-lfs.github.com/">Git-LFS Client</a> and then run <code>git lfs init</code> to register the hooks globally.</strong><br/>
+		<i>This version of GitBlit has been verified with Git-LFS client version 0.6.0 which requires Git v1.8.2 or higher.</i>
+	</p>
+	</div>
+		
+	<h3>Clone</h3>
+	<p>
+	Just <code>git clone</code> as usual, no further action is required as GitBlit is configured to use the default Git-LFS end point <code>{repository}/info/lfs/objects/</code>.<br/>
+	<i>If the repository uses a 3rd party Git-LFS server you will need to <a href="https://github.com/github/git-lfs/blob/master/docs/spec.md#the-server">manually configure the correct endpoints</a></i>.
+	</p>
+	
+	<h3>Add</h3>
+	<p>After configuring the file types or paths to be tracked using <code>git lfs track "*.bin"</code> just add files as usual with <code>git add</code> command.<br/>
+	<i>Tracked files can also be configured manually using the <code>.gitattributes</code> file</i>.</p>
+	
+	<h3>Remove</h3>
+	<p>When you remove a Git-LFS tracked file only the pointer file will be removed from your repository.<br/>
+	<i>All files remain on the server to allow previous versions to be checked out.</i>
+	</p>
+	
+	<h3>Learn more...</h3>
+	<p><a href="https://github.com/github/git-lfs/blob/master/docs/spec.md">See the current Git-LFS specification for further details</a>.</p>
+	<br />
+	
+	<div class="alert alert-warn">
+	<h3><center>Limitations & Warnings</center></h3>
+	<p>GitBlit currently provides a server-only implementation of the opensource Git-LFS API, <a href="https://github.com/github/git-lfs/wiki/Implementations">other implementations</a> are available.<br/>
+	However, until <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=470333">JGit provides Git-LFS client capabilities</a> some GitBlit features may not be fully supported when using the filestore.
+	Notably:
+		<ul>
+		<li>Mirroring a repository that uses Git-LFS - Only the pointer files, not the large files, are mirrored.</li>
+		<li>Federation -  Only the pointer files, not the large files, are transfered.</li>
+		</ul>
+	</p>
+	</div>
+	
+	<div class="alert alert-info">
+	<h3><center>GitBlit Configuration</center></h3>
+	<p>GitBlit provides the following configuration items when using the filestore:
+		<h4>filestore.storageFolder</h4>
+		<p>Defines the path on the server where filestore objects are to be saved. This defaults to <code>${baseFolder}/lfs</code></p>
+		<h4>filestore.maxUploadSize</h4>
+		<p>Defines the maximum allowable size that can be uploaded to the filestore.  Once a file is uploaded it will be unaffected by later changes in this property. This defaults to <code>-1</code> indicating no limits.</p>
+	</p>
+	</div>
+	
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>	
+</body>
+</html>

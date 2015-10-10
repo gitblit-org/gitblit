@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.WebPage;
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
@@ -74,5 +75,7 @@ public interface GitblitWicketApp {
 	public abstract ITicketService tickets();
 
 	public abstract TimeZone getTimezone();
+	
+	public abstract IFilestoreManager filestore();
 
 }

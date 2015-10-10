@@ -26,6 +26,7 @@ import com.gitblit.servlet.DownloadZipFilter;
 import com.gitblit.servlet.DownloadZipServlet;
 import com.gitblit.servlet.EnforceAuthenticationFilter;
 import com.gitblit.servlet.FederationServlet;
+import com.gitblit.servlet.FilestoreServlet;
 import com.gitblit.servlet.GitFilter;
 import com.gitblit.servlet.GitServlet;
 import com.gitblit.servlet.LogoServlet;
@@ -62,12 +63,14 @@ public class WebModule extends ServletModule {
 		bind(AvatarGenerator.class).toProvider(AvatarGeneratorProvider.class);
 
 		// servlets
+		serveRegex(FilestoreServlet.REGEX_PATH).with(FilestoreServlet.class);
 		serve(fuzzy(Constants.R_PATH), fuzzy(Constants.GIT_PATH)).with(GitServlet.class);
 		serve(fuzzy(Constants.RAW_PATH)).with(RawServlet.class);
 		serve(fuzzy(Constants.PAGES)).with(PagesServlet.class);
 		serve(fuzzy(Constants.RPC_PATH)).with(RpcServlet.class);
 		serve(fuzzy(Constants.ZIP_PATH)).with(DownloadZipServlet.class);
 		serve(fuzzy(Constants.SYNDICATION_PATH)).with(SyndicationServlet.class);
+		
 
 		serve(fuzzy(Constants.FEDERATION_PATH)).with(FederationServlet.class);
 		serve(fuzzy(Constants.SPARKLESHARE_INVITE_PATH)).with(SparkleShareInviteServlet.class);
@@ -98,7 +101,8 @@ public class WebModule extends ServletModule {
 		filter(fuzzy(Constants.RPC_PATH)).through(RpcFilter.class);
 		filter(fuzzy(Constants.ZIP_PATH)).through(DownloadZipFilter.class);
 		filter(fuzzy(Constants.SYNDICATION_PATH)).through(SyndicationFilter.class);
-
+		
+		
 		// Wicket
 		String toIgnore = Joiner.on(",").join(Constants.R_PATH, Constants.GIT_PATH, Constants.RAW_PATH,
 				Constants.PAGES, Constants.RPC_PATH, Constants.ZIP_PATH, Constants.SYNDICATION_PATH,

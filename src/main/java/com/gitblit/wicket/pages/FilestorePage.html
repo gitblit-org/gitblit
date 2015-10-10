@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+	
+	<div class="markdown" style="padding: 10px 0px 5px 0px;">
+		<span wicket:id="repositoriesMessage">[repositories message]</span>
+		<span style="float:right"><a href="#" wicket:id="filestoreHelp"><span wicket:id="helpMessage">[help message]</span></a></span>
+	</div>
+	
+	<table class="repositories">
+		<tr>
+			<th><wicket:message key="gb.status">[Object status]</wicket:message></th>
+			<th><wicket:message key="gb.statusChangedOn">[changedOn]</wicket:message></th>
+			<th><wicket:message key="gb.statusChangedBy">[changedBy]</wicket:message></th>
+			<th><wicket:message key="gb.oid">[Object ID]</wicket:message></th>
+			<th><wicket:message key="gb.size">[file size]</wicket:message></th>
+		</tr>
+		<tbody>		
+       		<tr wicket:id="fileRow">
+       			<td><center><span class="list" wicket:id="status">[Object state]</span></center></td>
+       			<td><span class="list" wicket:id="on">[changedOn]</span></td>
+       			<td><span class="list" wicket:id="by">[changedBy]</span></td>
+       			<td class="sha256"><span class="list" wicket:id="oid">[Object ID]</span></td>
+       			<td><span class="list" wicket:id="size">[file size]</span></td>
+       		</tr>
+    	</tbody>
+	</table>
+</div>
+</wicket:extend>
+</body>
+</html>
