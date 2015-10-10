@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ import com.gitblit.extensions.RepositoryLifeCycleListener;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
+import com.gitblit.models.FilestoreModel;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.Mailing;
@@ -132,6 +134,8 @@ public class GitblitManager implements IGitblit {
 
 	protected final IFederationManager federationManager;
 
+	protected final IFilestoreManager filestoreManager;
+
 	@Inject
 	public GitblitManager(
 			Provider<IPublicKeyManager> publicKeyManagerProvider,
@@ -143,7 +147,8 @@ public class GitblitManager implements IGitblit {
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager) {
+			IFederationManager federationManager,
+			IFilestoreManager filestoreManager) {
 
 		this.publicKeyManagerProvider = publicKeyManagerProvider;
 		this.ticketServiceProvider = ticketServiceProvider;
@@ -157,6 +162,7 @@ public class GitblitManager implements IGitblit {
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
+		this.filestoreManager = filestoreManager;
 	}
 
 	@Override
@@ -1239,6 +1245,70 @@ public class GitblitManager implements IGitblit {
 	}
 
 	/*
+	 * FILE STORAGE MANAGER
+	 */
+	
+	@Override
+	public boolean isValidOid(String oid) {
+		return filestoreManager.isValidOid(oid);
+	}
+	
+	@Override
+	public FilestoreModel.Status addObject(String oid, long size, UserModel user, RepositoryModel repo) {
+		return filestoreManager.addObject(oid, size, user, repo);
+	}
+	
+	@Override
+	public FilestoreModel getObject(String oid, UserModel user, RepositoryModel repo) {
+		return filestoreManager.getObject(oid, user, repo);
+	};
+	
+	@Override
+	public FilestoreModel.Status uploadBlob(String oid, long size, UserModel user, RepositoryModel repo, InputStream streamIn ) {
+		return filestoreManager.uploadBlob(oid, size, user, repo, streamIn);
+	}
+	
+	@Override
+	public FilestoreModel.Status downloadBlob(String oid, UserModel user, RepositoryModel repo, OutputStream streamOut ) {
+		return filestoreManager.downloadBlob(oid, user, repo, streamOut);
+	}
+	
+	@Override
+	public List<FilestoreModel> getAllObjects() {
+		return filestoreManager.getAllObjects();
+	}
+	
+	@Override
+	public File getStorageFolder() {
+		return filestoreManager.getStorageFolder();
+	}
+	
+	@Override
+	public File getStoragePath(String oid) {
+		return filestoreManager.getStoragePath(oid);
+	}
+	
+	@Override
+	public long getMaxUploadSize() {
+		return filestoreManager.getMaxUploadSize();
+	};
+	
+	@Override
+	public void clearFilestoreCache() {
+		filestoreManager.clearFilestoreCache();
+	};
+
+	@Override
+	public long getFilestoreUsedByteCount() {
+		return filestoreManager.getFilestoreUsedByteCount();
+	};
+	
+	@Override
+	public long getFilestoreAvailableByteCount() {
+		return filestoreManager.getFilestoreAvailableByteCount();
+	};
+	
+	/*
 	 * PLUGIN MANAGER
 	 */
 
@@ -1341,4 +1411,5 @@ public class GitblitManager implements IGitblit {
 	public PluginRelease lookupRelease(String pluginId, String version) {
 		return pluginManager.lookupRelease(pluginId, version);
 	}
+	
 }

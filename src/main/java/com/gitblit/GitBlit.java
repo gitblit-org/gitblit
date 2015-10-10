@@ -18,6 +18,7 @@ package com.gitblit;
 import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IProjectManager;
@@ -52,7 +53,8 @@ public class GitBlit extends GitblitManager {
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager) {
+			IFederationManager federationManager,
+			IFilestoreManager filestoreManager) {
 
 		super(
 				publicKeyManagerProvider,
@@ -64,6 +66,7 @@ public class GitBlit extends GitblitManager {
 				authenticationManager,
 				repositoryManager,
 				projectManager,
-				federationManager);
+				federationManager,
+				filestoreManager);
 	}
 }

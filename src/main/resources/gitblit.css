@@ -1729,6 +1729,12 @@ table.pretty tr.commit {
   }	
 }
 
+td.sha256 {
+	max-width: 20em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 table.comments td {
 	padding: 4px;
 	line-height: 17px;
@@ -1922,7 +1928,7 @@ td.date {
 	white-space: nowrap;
 }
 
-span.sha1, span.sha1 a, span.sha1 a span, .commit_message, span.shortsha1, td.sha1 {
+span.sha1, span.sha1 a, span.sha1 a span, .commit_message, span.shortsha1, td.sha1, td.sha256 {
 	font-family: consolas, monospace;
 	font-size: 13px;
 }
@@ -2339,4 +2345,12 @@ div.markdown table.text th, div.markdown table.text td {
 }
 .priority-low {
 	color:#0072B2;
+}
+
+.file-positive {
+	color:#009E73;
+}
+
+.file-negative {
+	color:#D51900;
 }

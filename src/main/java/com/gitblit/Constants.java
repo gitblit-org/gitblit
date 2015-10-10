@@ -60,6 +60,8 @@ public class Constants {
 	public static final String R_PATH = "/r/";
 
 	public static final String GIT_PATH = "/git/";
+	
+	public static final String REGEX_SHA256 = "[a-fA-F0-9]{64}";
 
 	public static final String ZIP_PATH = "/zip/";
 
@@ -140,6 +142,8 @@ public class Constants {
 	public static final String ATTRIB_AUTHTYPE = NAME + ":authentication-type";
 
 	public static final String ATTRIB_AUTHUSER = NAME + ":authenticated-user";
+	
+	public static final String R_LFS = "info/lfs/";
 
 	public static String getVersion() {
 		String v = Constants.class.getPackage().getImplementationVersion();

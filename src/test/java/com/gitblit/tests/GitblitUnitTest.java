@@ -18,6 +18,7 @@ package com.gitblit.tests;
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
@@ -63,5 +64,9 @@ public class GitblitUnitTest extends org.junit.Assert {
 
 	public static IGitblit gitblit() {
 		return GitblitContext.getManager(IGitblit.class);
+	}
+	
+	public static IFilestoreManager filestore() {
+		return GitblitContext.getManager(IFilestoreManager.class); 
 	}
 }

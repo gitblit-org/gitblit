@@ -46,6 +46,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -79,23 +80,29 @@ public class JsonUtils {
 
 	/**
 	 * Convert a json string to an object of the specified type.
-	 *
+	 * 
 	 * @param json
 	 * @param clazz
-	 * @return an object
+	 * @return the deserialized object
+	 * @throws JsonParseException
+	 * @throws JsonSyntaxException
 	 */
-	public static <X> X fromJsonString(String json, Class<X> clazz) {
+	public static <X> X fromJsonString(String json, Class<X> clazz) throws JsonParseException,
+			JsonSyntaxException {
 		return gson().fromJson(json, clazz);
 	}
 
 	/**
 	 * Convert a json string to an object of the specified type.
-	 *
+	 * 
 	 * @param json
-	 * @param clazz
-	 * @return an object
+	 * @param type
+	 * @return the deserialized object
+	 * @throws JsonParseException
+	 * @throws JsonSyntaxException
 	 */
-	public static <X> X fromJsonString(String json, Type type) {
+	public static <X> X fromJsonString(String json, Type type) throws JsonParseException,
+			JsonSyntaxException {
 		return gson().fromJson(json, type);
 	}
 

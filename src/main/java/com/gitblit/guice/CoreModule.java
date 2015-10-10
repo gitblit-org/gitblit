@@ -20,8 +20,10 @@ import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
+import com.gitblit.manager.FilestoreManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
@@ -72,6 +74,7 @@ public class CoreModule extends AbstractModule {
 		bind(IRepositoryManager.class).to(RepositoryManager.class);
 		bind(IProjectManager.class).to(ProjectManager.class);
 		bind(IFederationManager.class).to(FederationManager.class);
+		bind(IFilestoreManager.class).to(FilestoreManager.class);
 
 		// the monolithic manager
 		bind(IGitblit.class).to(GitBlit.class);
