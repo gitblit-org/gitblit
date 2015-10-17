@@ -140,9 +140,10 @@ public class FileUtils {
 	public static String readContent(File file, String lineEnding) {
 		StringBuilder sb = new StringBuilder();
 		InputStreamReader is = null;
+		BufferedReader reader = null;
 		try {
 			is = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
-			BufferedReader reader = new BufferedReader(is);
+			reader = new BufferedReader(is);
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				sb.append(line);
@@ -154,6 +155,14 @@ public class FileUtils {
 			System.err.println("Failed to read content of " + file.getAbsolutePath());
 			t.printStackTrace();
 		} finally {
+			if (reader != null){
+				try {
+					reader.close();
+				} catch (IOException ioe) {
+					System.err.println("Failed to close file " + file.getAbsolutePath());
+					ioe.printStackTrace();
+				}
+			}
 			if (is != null) {
 				try {
 					is.close();
