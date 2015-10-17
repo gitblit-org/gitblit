@@ -367,6 +367,10 @@ public class FederationManager implements IFederationManager {
 							&& file.getName().toLowerCase().endsWith(Constants.PROPOSAL_EXT);
 				}
 			});
+			if (files == null) {
+				return list;
+			}
+				
 			for (File file : files) {
 				String json = com.gitblit.utils.FileUtils.readContent(file, null);
 				FederationProposal proposal = JsonUtils.fromJsonString(json,
