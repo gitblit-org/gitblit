@@ -657,11 +657,11 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 		user.password = "password";
 		users.updateUserModel(user);
 
-		assertNotNull(auth.authenticate(user.username, user.password.toCharArray()));
+		assertNotNull(auth.authenticate(user.username, user.password.toCharArray(), null));
 		user.disabled = true;
 
 		users.updateUserModel(user);
-		assertNull(auth.authenticate(user.username, user.password.toCharArray()));
+		assertNull(auth.authenticate(user.username, user.password.toCharArray(), null));
 		users.deleteUserModel(user);
 	}
 

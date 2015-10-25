@@ -310,15 +310,12 @@ public class AuthenticationManager implements IAuthenticationManager {
 			if (values.length == 2) {
 				String username = values[0];
 				char[] password = values[1].toCharArray();
-				user = authenticate(username, password);
+				user = authenticate(username, password, httpRequest.getRemoteAddr());
 				if (user != null) {
 					flagRequest(httpRequest, AuthenticationType.CREDENTIALS, user.username);
 					logger.debug(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return validateAuthentication(user, AuthenticationType.CREDENTIALS);
-				} else {
-					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}",
-							username, httpRequest.getRemoteAddr()));
 				}
 			}
 		}
@@ -445,7 +442,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 * @return a user object or null
 	 */
 	@Override
-	public UserModel authenticate(String username, char[] password) {
+	public UserModel authenticate(String username, char[] password, String remoteIP) {
 		if (StringUtils.isEmpty(username)) {
 			// can not authenticate empty username
 			return null;
@@ -462,22 +459,29 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 		// try local authentication
 		if (user != null && user.isLocalAccount()) {
-			return authenticateLocal(user, password);
-		}
-
-		// try registered external authentication providers
-		for (AuthenticationProvider provider : authenticationProviders) {
-			if (provider instanceof UsernamePasswordAuthenticationProvider) {
-				UserModel returnedUser = provider.authenticate(usernameDecoded, password);
-				if (returnedUser != null) {
-					// user authenticated
-					returnedUser.accountType = provider.getAccountType();
-					return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+			UserModel returnedUser = authenticateLocal(user, password);
+			if (returnedUser != null) {
+				// user authenticated
+				return returnedUser;
+			}
+		} else {
+			// try registered external authentication providers
+			for (AuthenticationProvider provider : authenticationProviders) {
+				if (provider instanceof UsernamePasswordAuthenticationProvider) {
+					UserModel returnedUser = provider.authenticate(usernameDecoded, password);
+					if (returnedUser != null) {
+						// user authenticated
+						returnedUser.accountType = provider.getAccountType();
+						return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+					}
 				}
 			}
 		}
 
 		// could not authenticate locally or with a provider
+		logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}", username, 
+				remoteIP != null ? remoteIP : "unknown"));
+		
 		return null;
 	}
 

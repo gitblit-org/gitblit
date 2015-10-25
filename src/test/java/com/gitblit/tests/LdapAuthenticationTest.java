@@ -240,23 +240,23 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	@Test
 	public void testAuthenticationManager() {
-		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray());
+		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray(), null);
 		assertNotNull(userOneModel);
 		assertNotNull(userOneModel.getTeam("git_admins"));
 		assertNotNull(userOneModel.getTeam("git_users"));
 		assertTrue(userOneModel.canAdmin);
 
-		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray());
+		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray(), null);
 		assertNull(userOneModelFailedAuth);
 
-		UserModel userTwoModel = auth.authenticate("UserTwo", "userTwoPassword".toCharArray());
+		UserModel userTwoModel = auth.authenticate("UserTwo", "userTwoPassword".toCharArray(), null);
 		assertNotNull(userTwoModel);
 		assertNotNull(userTwoModel.getTeam("git_users"));
 		assertNull(userTwoModel.getTeam("git_admins"));
 		assertNotNull(userTwoModel.getTeam("git admins"));
 		assertTrue(userTwoModel.canAdmin);
 
-		UserModel userThreeModel = auth.authenticate("UserThree", "userThreePassword".toCharArray());
+		UserModel userThreeModel = auth.authenticate("UserThree", "userThreePassword".toCharArray(), null);
 		assertNotNull(userThreeModel);
 		assertNotNull(userThreeModel.getTeam("git_users"));
 		assertNull(userThreeModel.getTeam("git_admins"));
@@ -269,10 +269,10 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		settings.put(Keys.realm.ldap.username, "");
 		settings.put(Keys.realm.ldap.password, "");
 
-		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray());
+		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray(), null);
 		assertNotNull(userOneModel);
 
-		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray());
+		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray(), null);
 		assertNull(userOneModelFailedAuth);
 	}
 

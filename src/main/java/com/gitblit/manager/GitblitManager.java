@@ -649,8 +649,8 @@ public class GitblitManager implements IGitblit {
 	 */
 
 	@Override
-	public UserModel authenticate(String username, char[] password) {
-		return authenticationManager.authenticate(username, password);
+	public UserModel authenticate(String username, char[] password, String remoteIP) {
+		return authenticationManager.authenticate(username, password, remoteIP);
 	}
 
 	@Override

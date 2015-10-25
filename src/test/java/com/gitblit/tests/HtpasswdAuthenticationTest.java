@@ -200,43 +200,43 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
     public void testAuthenticationManager()
     {
         MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
-        UserModel user = auth.authenticate("user1", "pass1".toCharArray());
+        UserModel user = auth.authenticate("user1", "pass1".toCharArray(), null);
         assertNotNull(user);
         assertEquals("user1", user.username);
 
-        user = auth.authenticate("user2", "pass2".toCharArray());
+        user = auth.authenticate("user2", "pass2".toCharArray(), null);
         assertNotNull(user);
         assertEquals("user2", user.username);
 
         // Test different encryptions
-        user = auth.authenticate("plain", "passWord".toCharArray());
+        user = auth.authenticate("plain", "passWord".toCharArray(), null);
         assertNotNull(user);
         assertEquals("plain", user.username);
 
         MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
-        user = auth.authenticate("crypt", "password".toCharArray());
+        user = auth.authenticate("crypt", "password".toCharArray(), null);
         assertNotNull(user);
         assertEquals("crypt", user.username);
 
-        user = auth.authenticate("md5", "password".toCharArray());
+        user = auth.authenticate("md5", "password".toCharArray(), null);
         assertNotNull(user);
         assertEquals("md5", user.username);
 
-        user = auth.authenticate("sha", "password".toCharArray());
+        user = auth.authenticate("sha", "password".toCharArray(), null);
         assertNotNull(user);
         assertEquals("sha", user.username);
 
 
         // Test leading and trailing whitespace
-        user = auth.authenticate("trailing", "whitespace".toCharArray());
+        user = auth.authenticate("trailing", "whitespace".toCharArray(), null);
         assertNotNull(user);
         assertEquals("trailing", user.username);
 
-        user = auth.authenticate("tabbed", "frontAndBack".toCharArray());
+        user = auth.authenticate("tabbed", "frontAndBack".toCharArray(), null);
         assertNotNull(user);
         assertEquals("tabbed", user.username);
 
-        user = auth.authenticate("leading", "whitespace".toCharArray());
+        user = auth.authenticate("leading", "whitespace".toCharArray(), null);
         assertNotNull(user);
         assertEquals("leading", user.username);
     }
@@ -323,55 +323,55 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
     {
         UserModel user = null;
         MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
-        user = auth.authenticate("user1", "".toCharArray());
+        user = auth.authenticate("user1", "".toCharArray(), null);
         assertNull("User 'user1' falsely authenticated.", user);
 
-        user = auth.authenticate("user1", "pass2".toCharArray());
+        user = auth.authenticate("user1", "pass2".toCharArray(), null);
         assertNull("User 'user1' falsely authenticated.", user);
 
-        user = auth.authenticate("user2", "lalala".toCharArray());
+        user = auth.authenticate("user2", "lalala".toCharArray(), null);
         assertNull("User 'user2' falsely authenticated.", user);
 
 
-        user = auth.authenticate("user3", "disabled".toCharArray());
+        user = auth.authenticate("user3", "disabled".toCharArray(), null);
         assertNull("User 'user3' falsely authenticated.", user);
 
-        user = auth.authenticate("user4", "disabled".toCharArray());
+        user = auth.authenticate("user4", "disabled".toCharArray(), null);
         assertNull("User 'user4' falsely authenticated.", user);
 
 
-        user = auth.authenticate("plain", "text".toCharArray());
+        user = auth.authenticate("plain", "text".toCharArray(), null);
         assertNull("User 'plain' falsely authenticated.", user);
 
-        user = auth.authenticate("plain", "password".toCharArray());
+        user = auth.authenticate("plain", "password".toCharArray(), null);
         assertNull("User 'plain' falsely authenticated.", user);
 
 
         MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
 
-        user = auth.authenticate("crypt", "".toCharArray());
+        user = auth.authenticate("crypt", "".toCharArray(), null);
         assertNull("User 'cyrpt' falsely authenticated.", user);
 
-        user = auth.authenticate("crypt", "passwd".toCharArray());
+        user = auth.authenticate("crypt", "passwd".toCharArray(), null);
         assertNull("User 'crypt' falsely authenticated.", user);
 
-        user = auth.authenticate("md5", "".toCharArray());
+        user = auth.authenticate("md5", "".toCharArray(), null);
         assertNull("User 'md5' falsely authenticated.", user);
 
-        user = auth.authenticate("md5", "pwd".toCharArray());
+        user = auth.authenticate("md5", "pwd".toCharArray(), null);
         assertNull("User 'md5' falsely authenticated.", user);
 
-        user = auth.authenticate("sha", "".toCharArray());
+        user = auth.authenticate("sha", "".toCharArray(), null);
         assertNull("User 'sha' falsely authenticated.", user);
 
-        user = auth.authenticate("sha", "letmein".toCharArray());
+        user = auth.authenticate("sha", "letmein".toCharArray(), null);
         assertNull("User 'sha' falsely authenticated.", user);
 
 
-        user = auth.authenticate("  tabbed", "frontAndBack".toCharArray());
+        user = auth.authenticate("  tabbed", "frontAndBack".toCharArray(), null);
         assertNull("User 'tabbed' falsely authenticated.", user);
 
-        user = auth.authenticate("    leading", "whitespace".toCharArray());
+        user = auth.authenticate("    leading", "whitespace".toCharArray(), null);
         assertNull("User 'leading' falsely authenticated.", user);
     }
 

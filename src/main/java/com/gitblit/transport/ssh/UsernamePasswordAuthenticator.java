@@ -51,7 +51,7 @@ public class UsernamePasswordAuthenticator implements PasswordAuthenticator {
 		}
 
 		username = username.toLowerCase(Locale.US);
-		UserModel user = authManager.authenticate(username, password.toCharArray());
+		UserModel user = authManager.authenticate(username, password.toCharArray(), null);
 		if (user != null) {
 			client.setUser(user);
 			return true;
