@@ -176,7 +176,7 @@ public class GitBlitTest extends GitblitUnitTest {
 
 	@Test
 	public void testAuthentication() throws Exception {
-		assertTrue(authentication().authenticate("admin", "admin".toCharArray()) != null);
+		assertTrue(authentication().authenticate("admin", "admin".toCharArray(), null) != null);
 	}
 
 	@Test

@@ -65,7 +65,7 @@ public class RedmineAuthenticationTest extends GitblitUnitTest {
     @Test
     public void testAuthenticationManager() throws Exception {
     	AuthenticationManager auth = newAuthenticationManager();
-        UserModel userModel = auth.authenticate("RedmineAdminId", "RedmineAPIKey".toCharArray());
+        UserModel userModel = auth.authenticate("RedmineAdminId", "RedmineAPIKey".toCharArray(), null);
         assertThat(userModel.getName(), is("redmineadminid"));
         assertThat(userModel.getDisplayName(), is("baz foo"));
         assertThat(userModel.emailAddress, is("baz@example.com"));

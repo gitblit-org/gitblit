@@ -65,10 +65,11 @@ public interface IAuthenticationManager extends IManager {
 	 * @see IUserService.authenticate(String, char[])
 	 * @param username
 	 * @param password
+	 * @param remoteIP 
 	 * @return a user object or null
 	 * @since 1.4.0
 	 */
-	UserModel authenticate(String username, char[] password);
+	UserModel authenticate(String username, char[] password, String remoteIP);
 
 	/**
 	 * Return the UserModel for already authenticated user.

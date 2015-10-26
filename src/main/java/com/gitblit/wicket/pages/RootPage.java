@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -566,7 +567,9 @@ public abstract class RootPage extends BasePage {
 					String username = RootPage.this.username.getObject();
 					char[] password = RootPage.this.password.getObject().toCharArray();
 
-					UserModel user = app().authentication().authenticate(username, password);
+					HttpServletRequest request = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
+					
+					UserModel user = app().authentication().authenticate(username, password, request.getRemoteAddr());
 					if (user == null) {
 						error(getString("gb.invalidUsernameOrPassword"));
 					} else if (user.username.equals(Constants.FEDERATION_USER)) {
