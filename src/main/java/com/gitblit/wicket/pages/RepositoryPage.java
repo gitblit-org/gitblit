@@ -64,6 +64,7 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
@@ -370,8 +371,10 @@ public abstract class RepositoryPage extends RootPage {
 			add(new ExternalLink("myForkLink", "").setVisible(false));
 		} else {
 			String fork = app().repositories().getFork(user.username, model.name);
+			String userRepo = ModelUtils.getPersonalPath(user.username) + "/" + StringUtils.stripDotGit(StringUtils.getLastPathElement(model.name));
+			boolean hasUserRepo = app().repositories().hasRepository(userRepo);
 			boolean hasFork = fork != null;
-			boolean canFork = user.canFork(model) && model.hasCommits;
+			boolean canFork = user.canFork(model) && model.hasCommits && !hasUserRepo;
 
 			if (hasFork || !canFork) {
 				// user not allowed to fork or fork already exists or repo forbids forking
