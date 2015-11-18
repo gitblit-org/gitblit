@@ -1113,9 +1113,16 @@ public class RepositoryManager implements IRepositoryManager {
 			// find the root, cached
 			String key = getRepositoryKey(repository);
 			RepositoryModel model = repositoryListCache.get(key);
+			if (model == null) {
+				return null;
+			}
+
 			while (model.originRepository != null) {
 				String originKey = getRepositoryKey(model.originRepository);
 				model = repositoryListCache.get(originKey);
+				if (model == null) {
+					return null;
+				}
 			}
 			ForkModel root = getForkModelFromCache(model.name);
 			return root;

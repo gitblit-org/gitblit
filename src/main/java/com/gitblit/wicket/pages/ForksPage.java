@@ -136,6 +136,9 @@ public class ForksPage extends RepositoryPage {
 
 	protected List<FlatFork> flatten(ForkModel node, int level) {
 		List<FlatFork> list = new ArrayList<FlatFork>();
+		if (node == null) {
+			return list;
+		}
 		list.add(new FlatFork(node.repository, level));
 		if (!node.isLeaf()) {
 			for (ForkModel fork : node.forks) {
