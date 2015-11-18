@@ -185,6 +185,11 @@ public abstract class RootPage extends BasePage {
 		// navigation links
 		List<NavLink> navLinks = new ArrayList<NavLink>();
 		if (!authenticateView || (authenticateView && isLoggedIn)) {
+			UserModel user = UserModel.ANONYMOUS;
+			if (isLoggedIn) {
+				user = GitBlitWebSession.get().getUser();
+			}
+
 			navLinks.add(new PageNavLink(isLoggedIn ? "gb.myDashboard" : "gb.dashboard", MyDashboardPage.class,
 					getRootPageParameters()));
 			if (isLoggedIn && app().tickets().isReady()) {
@@ -192,7 +197,9 @@ public abstract class RootPage extends BasePage {
 			}
 			navLinks.add(new PageNavLink("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
-			navLinks.add(new PageNavLink("gb.filestore", FilestorePage.class, getRootPageParameters()));
+			if (user.canAdmin()) {
+				navLinks.add(new PageNavLink("gb.filestore", FilestorePage.class, getRootPageParameters()));
+			}
 			navLinks.add(new PageNavLink("gb.activity", ActivityPage.class, getRootPageParameters()));
 			if (allowLucene) {
 				navLinks.add(new PageNavLink("gb.search", LuceneSearchPage.class));
@@ -200,11 +207,6 @@ public abstract class RootPage extends BasePage {
 
 			if (!authenticateView || (authenticateView && isLoggedIn)) {
 				addDropDownMenus(navLinks);
-			}
-
-			UserModel user = UserModel.ANONYMOUS;
-			if (isLoggedIn) {
-				user = GitBlitWebSession.get().getUser();
 			}
 
 			// add nav link extensions
@@ -568,7 +570,7 @@ public abstract class RootPage extends BasePage {
 					char[] password = RootPage.this.password.getObject().toCharArray();
 
 					HttpServletRequest request = ((WebRequest)RequestCycle.get().getRequest()).getHttpServletRequest();
-					
+
 					UserModel user = app().authentication().authenticate(username, password, request.getRemoteAddr());
 					if (user == null) {
 						error(getString("gb.invalidUsernameOrPassword"));

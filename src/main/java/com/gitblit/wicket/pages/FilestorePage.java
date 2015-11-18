@@ -29,51 +29,41 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.Constants;
-import com.gitblit.Keys;
 import com.gitblit.models.FilestoreModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.FilestoreUI;
-import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.WicketUtils;
 
 /**
  * Page to display the current status of the filestore.
- * Certain errors also displayed to aid in fault finding  
+ * Certain errors also displayed to aid in fault finding
  *
  * @author Paul Martin
- *
- *
  */
+@RequiresAdminRole
 public class FilestorePage extends RootPage {
 
 	public FilestorePage() {
 		super();
 		setupPage("", "");
-		// check to see if we should display a login message
-		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
-		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
-			String messageSource = app().settings().getString(Keys.web.loginMessage, "gitblit");
-			return;
-		}
-		
+
 		final List<FilestoreModel> files = app().filestore().getAllObjects();
 		final long nBytesUsed = app().filestore().getFilestoreUsedByteCount();
 		final long nBytesAvailable = app().filestore().getFilestoreAvailableByteCount();
-		
-		// Load the markdown welcome message
-		String messageSource = app().settings().getString(Keys.web.repositoriesMessage, "gitblit");
-		String message = MessageFormat.format(getString("gb.filestoreStats"), files.size(), 
-				FileUtils.byteCountToDisplaySize(nBytesUsed), FileUtils.byteCountToDisplaySize(nBytesAvailable) ); 
+
+		String message = MessageFormat.format(getString("gb.filestoreStats"), files.size(),
+				FileUtils.byteCountToDisplaySize(nBytesUsed), FileUtils.byteCountToDisplaySize(nBytesAvailable) );
 
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
-		
+
 		add(repositoriesMessage);
-		
+
 		BookmarkablePageLink<Void> helpLink = new BookmarkablePageLink<Void>("filestoreHelp", FilestoreUsage.class);
 		helpLink.add(new Label("helpMessage", getString("gb.filestoreHelp")));
 		add(helpLink);
-		
+
 
 		DataView<FilestoreModel> filesView = new DataView<FilestoreModel>("fileRow",
 				new ListDataProvider<FilestoreModel>(files)) {
@@ -89,26 +79,26 @@ public class FilestorePage extends RootPage {
 			@Override
 			public void populateItem(final Item<FilestoreModel> item) {
 				final FilestoreModel entry = item.getModelObject();
-				
+
 				DateFormat dateFormater = new SimpleDateFormat(Constants.ISO8601);
-				
+
 				UserModel user = app().users().getUserModel(entry.getChangedBy());
 				user = user == null ? UserModel.ANONYMOUS : user;
-				
+
 				Label icon = FilestoreUI.getStatusIcon("status", entry);
 				item.add(icon);
 				item.add(new Label("on", dateFormater.format(entry.getChangedOn())));
 				item.add(new Label("by", user.getDisplayName()));
-				
+
 				item.add(new Label("oid", entry.oid));
-				item.add(new Label("size", FileUtils.byteCountToDisplaySize(entry.getSize())));				
-				
+				item.add(new Label("size", FileUtils.byteCountToDisplaySize(entry.getSize())));
+
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
 
 		};
-		
+
 		add(filesView);
 	}
 }
