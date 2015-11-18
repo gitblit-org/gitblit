@@ -19,7 +19,7 @@ releaseDate: 2014-10-28
 
 # Project urls
 url: 'http://gitblit.com'
-issuesUrl: 'http://code.google.com/p/gitblit/issues/list'
+issuesUrl: 'https://github.com/gitblit/gitblit'
 socialNetworkUrl: 'https://plus.google.com/114464678392593421684'
 forumUrl: 'http://groups.google.com/group/gitblit'
 mavenUrl: 'http://gitblit.github.io/gitblit-maven'
