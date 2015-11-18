@@ -58,7 +58,7 @@ r27: {
     - Freemarker 2.3.22
     - Lucene 4.10.0 (ticket-159)
     - SSHD 1.0.0
-    - JGit 4.0.2
+    - JGit 4.1.1
     - Groovy 2.4.4
     - Wicket 1.4.22
     - BouncyCastle 1.52

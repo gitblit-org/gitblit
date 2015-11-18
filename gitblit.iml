@@ -408,12 +408,14 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-4.1.0.201509280440-r.jar">
+      <library name="org.eclipse.jgit-4.1.1.201511131810-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-4.1.0.201509280440-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-4.1.1.201511131810-r.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-4.1.1.201511131810-r.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -492,12 +494,14 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-4.1.0.201509280440-r.jar">
+      <library name="org.eclipse.jgit.http.server-4.1.1.201511131810-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-4.1.0.201509280440-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-4.1.1.201511131810-r.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-4.1.1.201511131810-r.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
