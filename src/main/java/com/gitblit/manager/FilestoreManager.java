@@ -102,8 +102,10 @@ public class FilestoreManager implements IFilestoreManager {
 	@Override
 	public IManager start() {
 
-		//Try to load any existing metadata
-		File metadata = new File(getStorageFolder(), METAFILE);
+		// Try to load any existing metadata
+		File dir = getStorageFolder();
+		dir.mkdirs();
+		File metadata = new File(dir, METAFILE);
 		
 		if (metadata.exists()) {
 			Collection<FilestoreModel> items = null;
