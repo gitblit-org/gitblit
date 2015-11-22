@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.7.0 release
 #
 r27: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.7.0 released
+    id: 1.7.0
+    date: 2015-11-22
     note: ~
     html: ~
     text: ~
@@ -1667,6 +1667,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r27
-release: &r26
-releases: &r[1..26]
+snapshot: ~
+release: &r27
+releases: &r[1..27]
