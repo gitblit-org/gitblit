@@ -72,6 +72,7 @@
 <li><a href='setup_bugtraq.html'>bugtraq</a></li>
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
+<li><a href='setup_fail2ban.html'>fail2ban</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -114,24 +115,22 @@
 <ul class='dropdown-menu'>
 <li><a href='releasenotes.html'>release notes</a></li>
 <li><a href='releases.html'>release history</a></li>
-<li class='divider'></li>
-<li><a href='roadmap.html'>roadmap</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -146,9 +145,8 @@
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
-<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
@@ -156,7 +154,6 @@
 <li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
 <li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
 <li class='divider'></li>
-<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
@@ -168,14 +165,22 @@
 		</div><!-- end Navigation Bar -->
 <div class='container'>
 <!-- Begin Markdown -->
-<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit WAR (1.2.1+)</h2>
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit WAR (1.7.0+)</h2><p>The default <code>gitblit.properties</code> file has been split into two files: <code>gitblit.properties</code>, which is the recommended file for setting your configuration, and <code>defaults.properties</code> which are Gitblit's default settings.</p>
+<pre><code># Include Gitblit&#39;s &#39;defaults.properties&#39; within your configuration.
+#
+# COMMA-DELIMITED
+# SINCE 1.7.0
+include = defaults.properties
+</code></pre><p>Notice that the default settings are <em>included</em> by your <code>gitblit.properties</code> file. The disadvantage to this approach is you must flip between discovering/reading the settings in <code>defaults.properties</code> and setting them in <code>gitblit.properties</code>, but there are some clear advantages too. This setup is not required. You may continue to keep all your settings in <code>gitblit.properties</code> like before.</p><p>Additionally you may find it useful if you are maintaining several Gitblit instances to share common properties files.</p>
+<h2 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit WAR (1.4.0+)</h2><p>The <em>baseFolder</em> context parameter has been replaced with a <em>baseFolder</em> JNDI env-entry. This means you can define the <em>baseFolder</em> from the administrative console of your servlet container and not have to manipulate anything in the web.xml file.</p>
+<h2 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit WAR (1.2.1+)</h2>
 <ol>
   <li>Make sure your <code>WEB-INF/web.xml</code> <em>baseFolder</em> context parameter is not <code>${contextFolder}/WEB-INF/data</code>!<br/>If it is, move your <code>WEB-INF/data</code> folder to a location writeable by your servlet container.</li>
   <li>Deploy new WAR</li>
   <li>Edit the new WAR's <code>WEB-INF/web.xml</code> file and set the <em>baseFolder</em> context parameter to your external baseFolder.</li>
   <li>Review and optionally apply any new settings as indicated in the <a href="releases.html">release log</a> to <code>${baseFolder}/gitblit.properties</code>.</li>
 </ol>
-<h2 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit WAR (pre-1.2.1)</h2>
+<h2 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit WAR (pre-1.2.1)</h2>
 <ol>
   <li>Create a <code>data</code> as outlined in step 1 of <em>Upgrading Gitblit GO (pre-1.2.1)</em></li>
   <li>Copy your existing web.xml to your data folder</li>
@@ -184,9 +189,8 @@
   <li>Manually apply any changes you made to your original web.xml file to the gitblit.properties file you copied to your data folder</li>
   <li>Edit the new WAR's <code>WEB-INF/web.xml</code> file and set the <em>baseFolder</em> context parameter to your external baseFolder.</li>
 </ol>
-<h2 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit WAR (1.4.0+)</h2><p>The <em>baseFolder</em> context parameter has been replaced with a <em>baseFolder</em> JNDI env-entry. This means you can define the <em>baseFolder</em> from the administrative console of your servlet container and not have to manipulate anything in the web.xml file.
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="setup_war.html">&larr; setup WAR</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2014-10-28</p>
+<div ><ul class="pager"><li class="previous"><a href="setup_war.html">&larr; setup WAR</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2015-11-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

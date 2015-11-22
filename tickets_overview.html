@@ -72,6 +72,7 @@
 <li><a href='setup_bugtraq.html'>bugtraq</a></li>
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
+<li><a href='setup_fail2ban.html'>fail2ban</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -114,24 +115,22 @@
 <ul class='dropdown-menu'>
 <li><a href='releasenotes.html'>release notes</a></li>
 <li><a href='releases.html'>release history</a></li>
-<li class='divider'></li>
-<li><a href='roadmap.html'>roadmap</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -146,9 +145,8 @@
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
-<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
@@ -156,7 +154,6 @@
 <li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
 <li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
 <li class='divider'></li>
-<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
@@ -196,7 +193,7 @@
   <li>The organizational unit of the Gitblit Tickets feature is the <em>ticket</em>.</li>
   <li>A <em>ticket</em> can be used to report a bug, request an enhancement, ask a question, etc. A ticket can also be used to collaborate on a <em>patchset</em> that addresses the request.</li>
   <li>A <em>patchset</em> is a series of commits from a merge base that exists in the target branch of your repository to the tip of the patchset. A patchset may only contain a single commit, or it may contain dozens. This is similar to the commits in a <em>Pull Request</em>. One important distinction here is that in Gitblit, each <em>Patchset</em> is developed on a separate branch and can be completely rewritten without losing the previous patchsets (this creates a new patchset).</li>
-  <li>A <em>ticket</em> monitors the development of <em>patchsets</em> by tracking <em>revisions</em> to <em>patchsets</em>. The ticket alslo monitors rewritten patchsets. Each <em>patchset</em> is developed on it's own Git branch.</li>
+  <li>A <em>ticket</em> monitors the development of <em>patchsets</em> by tracking <em>revisions</em> to <em>patchsets</em>. The ticket also monitors rewritten patchsets. Each <em>patchset</em> is developed on it's own Git branch.</li>
 </ol><p>Tracking <em>patchsets</em> is similar in concept to Gerrit, but there is a critical difference. In Gerrit, <em>every</em> commit in the <em>patchset</em> has it's own ticket <strong>AND</strong> Git branch. In Gerrit, <em>patchsets</em> can be easily rewritten and for each rewritten commit, a new branch ref is created. This leads to an explosion in refs for the repository over time. In Gitblit, only the tip of the <em>patchset</em> gets a branch ref and this branch ref is updated, like a regular branch, unless a rewrite is detected.</p><p>If you prefer the Gerrit-style workflow, you can achieve a fair approximation by only pushing single commit patchsets and always amending them. You will not be able to chain tickets together, like you can chain reviews in Gerrit.</p>
 <h3 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Types of Tickets</h3><p>Gitblit has two primary ticket types with a subtle distinction between them.</p>
 <ol>
@@ -241,7 +238,7 @@
   <li>Multiple backend choices</li>
 </ul>
 <!-- End Markdown -->
-<div ><ul class="pager"> <li class="next"><a href="tickets_using.html">using &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-10-28</p>
+<div ><ul class="pager"> <li class="next"><a href="tickets_using.html">using &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2015-11-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

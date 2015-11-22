@@ -72,6 +72,7 @@
 <li><a href='setup_bugtraq.html'>bugtraq</a></li>
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
+<li><a href='setup_fail2ban.html'>fail2ban</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -114,24 +115,22 @@
 <ul class='dropdown-menu'>
 <li><a href='releasenotes.html'>release notes</a></li>
 <li><a href='releases.html'>release history</a></li>
-<li class='divider'></li>
-<li><a href='roadmap.html'>roadmap</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -146,9 +145,8 @@
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
-<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
@@ -156,7 +154,6 @@
 <li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
 <li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
 <li class='divider'></li>
-<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
@@ -168,14 +165,21 @@
 		</div><!-- end Navigation Bar -->
 <div class='container'>
 <!-- Begin Markdown -->
-<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Roadmap</h2><p>This is not exactly a formal roadmap but it is a priority list of what might be implemented in future releases.<br/>This list is volatile and may not reflect what will be in the next release.</p>
-<ul>
-  <li>Add support for Project owners/administrators (<a href='https://dev.gitblit.com/tickets/gitblit.git/75'>ticket 75</a>)</li>
-  <li>Add Project create/update pages</li>
-  <li>Integrate improvements for git-flow (<a href='https://dev.gitblit.com/tickets/gitblit.git/55'>ticket 55</a>)</li>
-</ul>
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Configure fail2ban for Gitblit-SSH</h2><p>This procedure uses <a href="http://www.fail2ban.org/">fail2ban</a>.</p><p>First, create a new filter file <code>gitblit.conf</code> in filter directory (Debian/CentOS: <code>/etc/fail2ban/filter.d/</code>) or into <code>filter.conf</code> file. Here is an example:</p>
+<pre><code>[Definition]
+failregex =  Failed login attempt for .+, invalid credentials from &lt;HOST&gt;\s*$
+             could not authenticate .*? \(/&lt;HOST&gt;:[0-9]*\) for SSH using the supplied password$
+ignoreregex =
+</code></pre><p>Then edit <code>jail.conf</code> to add "gitblit" service (Debian: <code>/etc/fail2ban/jail.conf</code>). For example:</p>
+<pre><code>[gitblit]
+enabled = true
+port = 443,29418
+protocol = tcp
+filter = gitblit
+logpath = /var/log/gitblit.log
+</code></pre><p>Reload fail2ban config to apply (<code>fail2ban-client reload</code>).</p><p>Check the status of the gitblit fail2ban jail with <code>fail2ban-client status gitblit</code>
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2014-10-28</p>
+<div ><ul class="pager"><li class="previous"><a href="setup_scaling.html">&larr; scaling</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2015-11-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

@@ -72,6 +72,7 @@
 <li><a href='setup_bugtraq.html'>bugtraq</a></li>
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
+<li><a href='setup_fail2ban.html'>fail2ban</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -114,24 +115,22 @@
 <ul class='dropdown-menu'>
 <li><a href='releasenotes.html'>release notes</a></li>
 <li><a href='releases.html'>release history</a></li>
-<li class='divider'></li>
-<li><a href='roadmap.html'>roadmap</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -146,9 +145,8 @@
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
-<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
@@ -156,7 +154,6 @@
 <li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
 <li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
 <li class='divider'></li>
-<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
@@ -169,7 +166,9 @@
 <div class='container'>
 <!-- Begin Markdown -->
 <h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>gitblit.properties</h2><p><span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Gitblit Settings</span><br/>
+<span style="color:#004000;"># DEFAULTS.PROPERTIES</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># The default Gitblit settings.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <br/>
 <span style="color:#004000;"># This settings file supports parameterization from the command-line for the</span><br/>
@@ -280,6 +279,18 @@
 <span style="color:#004000;"># RESTART REQUIRED</span><br/>
 <span style="color:#000080;">git.sshBindInterface</span> = <span style="color:#800000;"></span><br/>
 <br/>
+<span style="color:#004000;"># Manually specify the hostname to use in advertised SSH repository urls.</span><br/>
+<span style="color:#004000;"># This may be useful in complex forwarding setups.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">git.sshAdvertisedHost</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># Manually specify the port to use in advertised SSH repository urls.</span><br/>
+<span style="color:#004000;"># This may be useful in complex forwarding setups.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">git.sshAdvertisedPort</span> = <span style="color:#800000;"></span><br/>
+<br/>
 <span style="color:#004000;"># Specify the SSH key manager to use for retrieving, storing, and removing</span><br/>
 <span style="color:#004000;"># SSH keys.</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -293,6 +304,28 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.5.0</span><br/>
 <span style="color:#000080;">git.sshKeysFolder</span> = <span style="color:#800000;">${baseFolder}/ssh</span><br/>
+<br/>
+<span style="color:#004000;"># Use Kerberos5 (GSS) authentication</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">git.sshWithKrb5</span> = <span style="color:#800000;">false</span><br/>
+<br/>
+<span style="color:#004000;"># The path to a Kerberos 5 keytab.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">git.sshKrb5Keytab</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># The service principal name to be used for Kerberos5.</span><br/>
+<span style="color:#004000;"># The default is host/hostname.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">git.sshKrb5ServicePrincipalName</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># Strip the domain suffix from a kerberos username.</span><br/>
+<span style="color:#004000;"># e.g. <a href="mailto:&#106;&#97;&#x6d;&#x65;&#x73;@&#98;&#105;&#x67;bo&#x78;">&#106;&#97;&#x6d;&#x65;&#x73;@&#98;&#105;&#x67;bo&#x78;</a> would be "james"</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">git.sshKrb5StripDomain</span> = <span style="color:#800000;">true</span><br/>
 <br/>
 <span style="color:#004000;"># SSH backend NIO2|MINA.</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -752,6 +785,21 @@
 <span style="color:#004000;"># SINCE 1.5.0</span><br/>
 <span style="color:#000080;">plugins.registry</span> = <span style="color:#800000;">http://plugins.gitblit.com/plugins.json</span><br/>
 <br/>
+<span style="color:#004000;"># The HTTP proxy host for plugin manager.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">plugins.httpProxyHost</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># The HTTP proxy port for plugin manager.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">plugins.httpProxyPort</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># The HTTP proxy authorization header for plugin manager.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">plugins.httpProxyAuthorization</span> = <span style="color:#800000;"></span><br/>
+<br/>
 <span style="color:#004000;"># Number of threads used to handle miscellaneous tasks in the background.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.6.0</span><br/>
@@ -926,6 +974,11 @@
 <span style="color:#004000;"># SINCE 1.2.0</span><br/>
 <span style="color:#004000;"># BASEFOLDER</span><br/>
 <span style="color:#000080;">web.projectsFile</span> = <span style="color:#800000;">${baseFolder}/projects.conf</span><br/>
+<br/>
+<span style="color:#004000;"># Defines the tab length for all blob views</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.tabLength</span> = <span style="color:#800000;">4</span><br/>
 <br/>
 <span style="color:#004000;"># Either the full path to a user config file (users.conf)</span><br/>
 <span style="color:#004000;"># OR a fully qualified class name that implements the IUserService interface.</span><br/>
@@ -1112,6 +1165,11 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 0.8.0</span><br/>
 <span style="color:#000080;">web.allowGravatar</span> = <span style="color:#800000;">true</span><br/>
+<br/>
+<span style="color:#004000;"># Define which class will generate the avatar URL.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.avatarClass</span> = <span style="color:#800000;">com.gitblit.GravatarGenerator</span><br/>
 <br/>
 <span style="color:#004000;"># Allow dynamic zip downloads.</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1306,6 +1364,38 @@
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
 <span style="color:#000080;">web.otherUrls</span> = <span style="color:#800000;"></span><br/>
 <br/>
+<span style="color:#004000;"># Should HTTP/HTTPS URLs be displayed if the git servlet is enabled?</span><br/>
+<span style="color:#004000;"># default: true</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.showHttpServletUrls</span> = <span style="color:#800000;">true</span><br/>
+<br/>
+<span style="color:#004000;"># Should git URLs be displayed if the git daemon is enabled?</span><br/>
+<span style="color:#004000;"># default: true</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.showGitDaemonUrls</span> = <span style="color:#800000;">true</span><br/>
+<br/>
+<span style="color:#004000;"># Should SSH URLs be displayed if the SSH daemon is enabled?</span><br/>
+<span style="color:#004000;"># default: true</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.showSshDaemonUrls</span> = <span style="color:#800000;">true</span><br/>
+<br/>
+<span style="color:#004000;"># Should effective permissions be advertised for access paths defined in web.otherUrls?</span><br/>
+<span style="color:#004000;"># If false, gitblit will indicate unknown permissions for the external link. If true,</span><br/>
+<span style="color:#004000;"># gitblit will indicate permissions as defined within gitblit (including limiting to clone</span><br/>
+<span style="color:#004000;"># permission is the transport type is not a valid push mechaism in git.acceptedPushTransports).</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># Configure with caution: Note that gitblit has no way of knowing if further restrictions</span><br/>
+<span style="color:#004000;"># are imposed by an external forwarding agent, so this may cause user confusion due to</span><br/>
+<span style="color:#004000;"># more rights being advertised than are available through the URL. It will NOT grant</span><br/>
+<span style="color:#004000;"># additional rights, but may incorrectly offer actions that are unavailable externally.</span><br/>
+<span style="color:#004000;"># default: false</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.advertiseAccessPermissionForOtherUrls</span> = <span style="color:#800000;">false</span><br/>
+<br/>
 <span style="color:#004000;"># Should app-specific clone links be displayed for SourceTree, SparkleShare, etc?</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.3.0</span><br/>
@@ -1351,7 +1441,7 @@
 <span style="color:#000080;">web.showSearchTypeSelection</span> = <span style="color:#800000;">false</span><br/>
 <br/>
 <span style="color:#004000;"># Controls display of activity graphs on the dashboard, activity, and summary</span><br/>
-<span style="color:#004000;"># pages. Charting makes use of the external Google Charts API.</span><br/>
+<span style="color:#004000;"># pages. Charts are generated using Flotr2; an open source HTML5 library.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
 <span style="color:#000080;">web.generateActivityGraph</span> = <span style="color:#800000;">true</span><br/>
@@ -1456,7 +1546,7 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SPACE-DELIMITED</span><br/>
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
-<span style="color:#000080;">web.prettyPrintExtensions</span> = <span style="color:#800000;">aea agc basic c cbm cl clj cpp cs css dart el erl erlang frm fs go groovy h hpp hs htm html java js latex lisp ll llvm lsp lua ml moxie mumps n nemerle pascal php pl pm prefs properties proto py r R rb rd Rd rkt s S scala scm sh Splus sql ss tcl tex vb vbs vhd vhdl wiki xml xq xquery yaml yml ymlapollo</span><br/>
+<span style="color:#000080;">web.prettyPrintExtensions</span> = <span style="color:#800000;">aea agc basic bat c cbm cl clj cmd cpp cs css dart el erl erlang frm fs go groovy h hpp hs htm html java js latex lisp ll llvm lsp lua ml moxie mumps n nemerle pascal php pl pm prefs properties proto py r R rb rd Rd rkt s S scala scm sh Splus sql ss tcl tex vb vbs vhd vhdl wiki xml xq xquery yaml yml ymlapollo</span><br/>
 <br/>
 <span style="color:#004000;"># Registered extensions for markdown transformation</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1504,7 +1594,7 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SPACE-DELIMITED</span><br/>
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
-<span style="color:#000080;">web.imageExtensions</span> = <span style="color:#800000;">bmp jpg jpeg gif png ico</span><br/>
+<span style="color:#000080;">web.imageExtensions</span> = <span style="color:#800000;">bmp ico gif jpg jpeg png svg</span><br/>
 <br/>
 <span style="color:#004000;"># Registered extensions for binary blobs</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1524,6 +1614,12 @@
 <span style="color:#004000;"># RESTART REQUIRED</span><br/>
 <span style="color:#000080;">web.debugMode</span> = <span style="color:#800000;">false</span><br/>
 <br/>
+<span style="color:#004000;"># Allows to hide the user logon form or dropdown menu from the top pane</span><br/>
+<span style="color:#004000;"># if it's not needed.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.displayUserPanel</span> = <span style="color:#800000;">true</span><br/>
+<br/>
 <span style="color:#004000;"># Force a default locale for all users, ignoring the browser's settings.</span><br/>
 <span style="color:#004000;"># An empty value allows Gitblit to use the translation preferred by the browser.</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1533,6 +1629,32 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.3.0</span><br/>
 <span style="color:#000080;">web.forceDefaultLocale</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># The following two settings serve to avoid browser overload when trying to</span><br/>
+<span style="color:#004000;"># render very large diffs. Both limits apply to commitdiffs, not to single-file</span><br/>
+<span style="color:#004000;"># diffs.</span><br/>
+<br/>
+<span style="color:#004000;"># Maximum number of diff lines to display for a single file diff in a commitdiff.</span><br/>
+<span style="color:#004000;"># Defaults to 4000; can be adjusted in the range [500 .. 4000]. Smaller values</span><br/>
+<span style="color:#004000;"># set the limit to 500, larger values to 4000. The count includes context lines</span><br/>
+<span style="color:#004000;"># in the diff.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># If a file diff in a commitdiff produces more lines, the diff for that file is</span><br/>
+<span style="color:#004000;"># not shown in the commitdiff.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.maxDiffLinesPerFile</span> = <span style="color:#800000;">4000</span><br/>
+<br/>
+<span style="color:#004000;"># Total maximum number of diff lines to show in a commitdiff. Defaults to 20000;</span><br/>
+<span style="color:#004000;"># can be adjusted in the range [1000 .. 20000]. Smaller values set the limit to</span><br/>
+<span style="color:#004000;"># 1000, larger values to 20000. The count includes context lines in diffs.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># If a commitdiff produces more lines, it is truncated after the first file</span><br/>
+<span style="color:#004000;"># that exceeds the limit. Diffs for subsequent files in the commit are not shown</span><br/>
+<span style="color:#004000;"># at all in the commitdiff. Omitted files are listed, though.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">web.maxDiffLines</span> = <span style="color:#800000;">20000</span><br/>
 <br/>
 <span style="color:#004000;"># Enable/disable global regex substitutions (i.e. shared across repositories)</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1743,6 +1865,22 @@
 <span style="color:#004000;"># SINCE 1.3.0</span><br/>
 <span style="color:#000080;">realm.container.autoCreateAccounts</span> = <span style="color:#800000;">false</span><br/>
 <br/>
+<span style="color:#004000;"># A set of mapping used to map HTTP session attributes to user informations</span><br/>
+<span style="color:#004000;"># They are used if realm.container.autoCreateAccounts is set to true and</span><br/>
+<span style="color:#004000;"># the webapp container used can fill the session with user informations</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">realm.container.autoAccounts.displayName</span> = <span style="color:#800000;"></span><br/>
+<span style="color:#000080;">realm.container.autoAccounts.emailAddress</span> = <span style="color:#800000;"></span><br/>
+<span style="color:#000080;">realm.container.autoAccounts.locale</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># If the user's created by the webapp container is given this role,</span><br/>
+<span style="color:#004000;"># the user created will be a admin user.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">realm.container.autoAccounts.adminRole</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<br/>
 <span style="color:#004000;"># Allow or prohibit Windows guest account logins</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.3.0</span><br/>
@@ -1757,9 +1895,9 @@
 <span style="color:#004000;"># The default domain for authentication.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># If specified, this domain will be used for authentication UNLESS the supplied</span><br/>
-<span style="color:#004000;"># login name manually specifies a domain (.e.g. mydomain\james or <a href="mailto:&#x6a;&#x61;&#x6d;&#x65;&#115;&#64;&#x6d;&#x79;&#100;&#111;&#109;&#97;i&#110;">&#x6a;&#x61;&#x6d;&#x65;&#115;&#64;&#x6d;&#x79;&#100;&#111;&#109;&#97;i&#110;</a>)</span><br/>
+<span style="color:#004000;"># login name manually specifies a domain (.e.g. mydomain\james or <a href="mailto:j&#x61;&#x6d;&#x65;&#x73;&#x40;&#109;&#121;d&#x6f;&#109;&#x61;&#105;&#110;">j&#x61;&#x6d;&#x65;&#x73;&#x40;&#109;&#121;d&#x6f;&#109;&#x61;&#105;&#110;</a>)</span><br/>
 <span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># If unspecified, the username must be specified in UPN format (<a href="mailto:&#x6e;&#97;&#109;e@&#x64;&#x6f;&#109;&#x61;&#x69;&#x6e;&#41;">&#x6e;&#97;&#109;e@&#x64;&#x6f;&#109;&#x61;&#x69;&#x6e;&#41;</a>.</span><br/>
+<span style="color:#004000;"># If unspecified, the username must be specified in UPN format (<a href="mailto:&#110;a&#109;e&#x40;&#100;o&#109;a&#x69;&#110;&#41;">&#110;a&#109;e&#x40;&#100;o&#109;a&#x69;&#110;&#41;</a>.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># if "." (dot) is specified, ONLY the local account database will be used.</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1909,7 +2047,7 @@
 <span style="color:#004000;"># This may be a single attribute, or a string of multiple attributes. Examples:</span><br/>
 <span style="color:#004000;"># email - Uses the attribute 'email' on the user record</span><br/>
 <span style="color:#004000;"># ${givenName}.${surname}@gitblit.com -Will concatenate the 2 attributes</span><br/>
-<span style="color:#004000;"># together with a '.' and '@' creating something like <a href="mailto:&#x66;&#105;&#x72;&#x73;&#116;&#46;&#x6c;&#97;s&#x74;&#x40;&#103;&#x69;&#x74;&#x62;&#108;i&#116;&#x2e;c&#111;&#x6d;">&#x66;&#105;&#x72;&#x73;&#116;&#46;&#x6c;&#97;s&#x74;&#x40;&#103;&#x69;&#x74;&#x62;&#108;i&#116;&#x2e;c&#111;&#x6d;</a></span><br/>
+<span style="color:#004000;"># together with a '.' and '@' creating something like <a href="mailto:fi&#x72;&#115;&#116;&#x2e;&#x6c;&#x61;&#x73;&#x74;&#x40;g&#105;tb&#x6c;&#x69;t.&#x63;o&#109;">fi&#x72;&#115;&#116;&#x2e;&#x6c;&#x61;&#x73;&#x74;&#x40;g&#105;tb&#x6c;&#x69;t.&#x63;o&#109;</a></span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.0.0</span><br/>
 <span style="color:#000080;">realm.ldap.email</span> = <span style="color:#800000;">email</span><br/>
@@ -2071,9 +2209,23 @@
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
 <span style="color:#004000;"># RESTART REQUIRED</span><br/>
 <span style="color:#000080;">server.shutdownPort</span> = <span style="color:#800000;">8081</span><br/>
+<br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># Gitblit Filestore Settings</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># The location to save the filestore blobs</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">filestore.storageFolder</span> = <span style="color:#800000;">${baseFolder}/lfs</span><br/>
+<br/>
+<span style="color:#004000;"># Maximum allowable upload size</span><br/>
+<span style="color:#004000;"># The default value, -1, disables upload limits.</span><br/>
+<span style="color:#004000;"># Common unit suffixes of k, m, or g are supported.</span><br/>
+<span style="color:#004000;"># SINCE 1.7.0</span><br/>
+<span style="color:#000080;">filestore.maxUploadSize</span> = <span style="color:#800000;">-1</span><br/>
 
 <!-- End Markdown -->
-<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-10-28</p>
+<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2015-11-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

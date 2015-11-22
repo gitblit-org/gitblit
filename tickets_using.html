@@ -72,6 +72,7 @@
 <li><a href='setup_bugtraq.html'>bugtraq</a></li>
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
+<li><a href='setup_fail2ban.html'>fail2ban</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -114,24 +115,22 @@
 <ul class='dropdown-menu'>
 <li><a href='releasenotes.html'>release notes</a></li>
 <li><a href='releases.html'>release history</a></li>
-<li class='divider'></li>
-<li><a href='roadmap.html'>roadmap</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -146,9 +145,8 @@
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
-<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
@@ -156,7 +154,6 @@
 <li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
 <li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
 <li class='divider'></li>
-<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
@@ -340,7 +337,7 @@ git branch -d ticket-{id}
 </ul><p>Only users with write (RW) permissions to the repository can give a +2 and -2 score. All other users are allowed to score +/-1. If the repository is configured to <em>require approval</em> then then +2 score has an important meaning. The merge button will only be shown if there is at least one +2 score and no -2 scores. If there is a -2 score, the merge is blocked by the web ui. Users with RW permissions, however, can still manually merge and push the patchset to the integration branch; Gitblit does not enforce vetoed patchsets on push.</p>
 <h4 class="section" id='H20'><a href="#H20" class="sectionlink"><i class="icon-share-alt"> </i></a>Reviews and Updated or Rewritten Patchsets</h4><p>If the patchset is updated or rewritten, all former review scores are ignored; review scores apply to specific revisions of patchsets - they are not blanket approvals/disapprovals.
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="tickets_overview.html">&larr; overview</a></li> <li class="next"><a href="tickets_barnum.html">barnum &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-10-28</p>
+<div ><ul class="pager"><li class="previous"><a href="tickets_overview.html">&larr; overview</a></li> <li class="next"><a href="tickets_barnum.html">barnum &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2015-11-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

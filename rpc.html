@@ -72,6 +72,7 @@
 <li><a href='setup_bugtraq.html'>bugtraq</a></li>
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
+<li><a href='setup_fail2ban.html'>fail2ban</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -114,24 +115,22 @@
 <ul class='dropdown-menu'>
 <li><a href='releasenotes.html'>release notes</a></li>
 <li><a href='releases.html'>release history</a></li>
-<li class='divider'></li>
-<li><a href='roadmap.html'>roadmap</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -146,9 +145,8 @@
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
-<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
@@ -156,7 +154,6 @@
 <li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
 <li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
 <li class='divider'></li>
-<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
@@ -265,7 +262,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
 <tr><td>500</td><td>server error</td><td>Gitblit failed to process the request likely because the input object created a conflict</td></tr>
 <tr><td>501</td><td>unknown request</td><td>Gitblit does not recognize the RPC request type</td></tr>
 </table>
-<h3 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_REPOSITORIES</h3><p><strong>url</strong>: <a href="https://localhost/rpc?req=LIST_REPOSITORIES">https://localhost/rpc?req=LIST_REPOSITORIES</a><br/><strong>response body</strong>: Map&lt;String, RepositoryModel&gt; where the map key is the clone url of the repository</p><p><pre>{
+<h3 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_REPOSITORIES</h3><p><strong>url</strong>: <a href="https://localhost/rpc/?req=LIST_REPOSITORIES">https://localhost/rpc/?req=LIST_REPOSITORIES</a><br/><strong>response body</strong>: Map&lt;String, RepositoryModel&gt; where the map key is the clone url of the repository</p><p><pre>{
   &quot;https://localhost/git/libraries/xmlapache.git&quot;: {
     &quot;name&quot;: &quot;libraries/xmlapache.git&quot;,
     &quot;description&quot;: &quot;apache xmlrpc client and server&quot;,
@@ -308,7 +305,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
   }
 }
 </pre></p>
-<h3 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: EDIT_REPOSITORY (rename)</h3><p>The original repository name is specified in the <em>name</em> url parameter. The new name is set within the JSON object.</p><p><strong>url</strong>: <a href="https://localhost/rpc?req=EDIT_REPOSITORY&name=libraries/xmlapache.git">https://localhost/rpc?req=EDIT_REPOSITORY&name=libraries/xmlapache.git</a><br/><strong>post body</strong>: RepositoryModel</p><p><pre>{
+<h3 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: EDIT_REPOSITORY (rename)</h3><p>The original repository name is specified in the <em>name</em> url parameter. The new name is set within the JSON object.</p><p><strong>url</strong>: <a href="https://localhost/rpc/?req=EDIT_REPOSITORY&name=libraries/xmlapache.git">https://localhost/rpc/?req=EDIT_REPOSITORY&name=libraries/xmlapache.git</a><br/><strong>post body</strong>: RepositoryModel</p><p><pre>{
     &quot;name&quot;: &quot;libraries/xmlapache-renamed.git&quot;,
     &quot;description&quot;: &quot;apache xmlrpc client and server&quot;,
     &quot;owner&quot;: &quot;admin&quot;,
@@ -330,7 +327,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
     &quot;size&quot;: &quot;102 KB&quot;
 }
 </pre></p>
-<h3 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_USERS</h3><p><strong>url</strong>: <a href="https://localhost/rpc?req=LIST_USERS">https://localhost/rpc?req=LIST_USERS</a><br/><strong>response body</strong>: List&lt;UserModel&gt;</p><p><pre>[
+<h3 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_USERS</h3><p><strong>url</strong>: <a href="https://localhost/rpc/?req=LIST_USERS">https://localhost/rpc/?req=LIST_USERS</a><br/><strong>response body</strong>: List&lt;UserModel&gt;</p><p><pre>[
   {
     &quot;username&quot;: &quot;admin&quot;,
     &quot;password&quot;: &quot;admin&quot;,
@@ -350,7 +347,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
   }
 ]
 </pre></p>
-<h3 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_SETTINGS</h3><p><strong>url</strong>: <a href="https://localhost/rpc?req=LIST_SETTINGS">https://localhost/rpc?req=LIST_SETTINGS</a><br/><strong>response body</strong>: ServerSettings</p><p><pre>{
+<h3 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_SETTINGS</h3><p><strong>url</strong>: <a href="https://localhost/rpc/?req=LIST_SETTINGS">https://localhost/rpc/?req=LIST_SETTINGS</a><br/><strong>response body</strong>: ServerSettings</p><p><pre>{
   &quot;settings&quot;: {
       &quot;web.siteName&quot;: {
         &quot;name&quot;: &quot;web.siteName&quot;,
@@ -375,7 +372,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
   }
 }
 </pre></p>
-<h3 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_STATUS</h3><p><strong>url</strong>: <a href="https://localhost/rpc?req=LIST_STATUS">https://localhost/rpc?req=LIST_STATUS</a><br/><strong>response body</strong>: ServerStatus</p><p><pre>{
+<h3 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Example: LIST_STATUS</h3><p><strong>url</strong>: <a href="https://localhost/rpc/?req=LIST_STATUS">https://localhost/rpc/?req=LIST_STATUS</a><br/><strong>response body</strong>: ServerStatus</p><p><pre>{
   &quot;bootDate&quot;: &quot;2011-10-22T12:13:00Z&quot;,
   &quot;version&quot;: &quot;0.7.0-SNAPSHOT&quot;,
   &quot;releaseDate&quot;: &quot;PENDING&quot;,
@@ -403,7 +400,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
 }
 </pre>
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="design.html">&larr; design</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2014-10-28</p>
+<div ><ul class="pager"><li class="previous"><a href="design.html">&larr; design</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2015-11-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

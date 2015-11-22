@@ -72,6 +72,7 @@
 <li><a href='setup_bugtraq.html'>bugtraq</a></li>
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
+<li><a href='setup_fail2ban.html'>fail2ban</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -114,24 +115,22 @@
 <ul class='dropdown-menu'>
 <li><a href='releasenotes.html'>release notes</a></li>
 <li><a href='releases.html'>release history</a></li>
-<li class='divider'></li>
-<li><a href='roadmap.html'>roadmap</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.6.2.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.6.2.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.6.2.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -146,9 +145,8 @@
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='http://code.google.com/p/gitblit/issues/list'>Issues</a></li>
+<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
-<li><a href='https://plus.google.com/114464678392593421684'>Google+</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='http://www.ohloh.net/p/gitblit'>Ohloh</a></li>
 <li class='divider'></li>
@@ -156,7 +154,6 @@
 <li><a href='https://asciinema.org/a/9342'>Gitblit SSH and Plugin Management asciicast</a></li>
 <li><a href='http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html'>GitMinutes #29: James Moger on Gitblit</a></li>
 <li class='divider'></li>
-<li><a href='https://plus.google.com/+JamesMoger'>+JamesMoger</a></li>
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
@@ -170,14 +167,14 @@
 <!-- Begin Markdown -->
 <h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit GO Installation & Setup</h2>
 <ol>
-  <li>Download and unzip Gitblit GO <a href="http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.zip">1.6.2 (Windows)</a> or <a href="http://dl.bintray.com/gitblit/releases/gitblit-1.6.2.tar.gz">1.6.2 (Linux/OSX)</a>.<br/><em>Its best to eliminate spaces in the path name.</em></li>
+  <li>Download and unzip Gitblit GO <a href="http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip">1.7.0 (Windows)</a> or <a href="http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz">1.7.0 (Linux/OSX)</a>.<br/><em>It is best to eliminate spaces in the path name.</em></li>
   <li>The server itself is configured through a simple text file.<br/>Open <code>data/gitblit.properties</code> in your favorite text editor and make sure to review and set:
   <ul>
     <li><em>server.httpPort</em> and <em>server.httpsPort</em></li>
     <li><em>server.storePassword</em> (do not enter <em>#</em> characters)<br/><strong>https</strong> is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!</li>
     <li><em>git.packedGitLimit</em> (set larger than the size of your largest repository)</li>
   </ul></li>
-  <li>Execute <code>authority.cmd</code> or <code>java -cp gitblit.jar com.gitblit.authority.Launcher --baseFolder data</code> from a command-line<br/><strong>NOTE:</strong> The Authority is a Swing GUI application. Use of this tool is not required as Gitblit GO will startup and create SSL certificates itself, BUT use of this tool allows you to control the identification metadata used in the generated certificates. Skipping this step will result in certificates with default metadata.
+  <li>Execute <code>authority.cmd</code> or <code>java -cp gitblit.jar com.gitblit.authority.Launcher --baseFolder data</code> from a command-line<br/><strong>NOTE:</strong> The Authority is a Swing GUI application. Use of this tool is not required as Gitblit GO will startup and create SSL certificates itself, BUT use of this tool allows you to control the identification metadata used in the generated self-signed certificates. Skipping this step will result in certificates with default metadata.
   <ol>
     <li>fill out the fields in the <em>new certificate defaults</em> dialog</li>
     <li>enter the store password used in <em>server.storePassword</em> when prompted. This generates an SSL certificate for <strong>localhost</strong>.</li>
@@ -190,7 +187,8 @@
 </ol>
 <h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>GO Data Location</h3><p>By default, Gitblit GO stores all data (users, settings, repositories, etc) in the <code>data</code> subfolder of your GO installation. You may specify an external location for your data on the command-line by setting the <em>--baseFolder</em> argument. If you relocate the data folder then you must supply the <em>--baseFolder</em> argument to both GO and the Certificate Authority.</p><p>If you are deploying Gitblit to a *nix platform, you might consider moving the data folder out of the GO installation folder and then creating a symlink named "data" that points to your moved folder.</p>
 <h4 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Specifying baseFolder via GITBLIT_HOME</h4><p>You can specify <code>GITBLIT_HOME</code> either as an environment variable or as a <code>-DGITBLIT_HOME</code> JVM system property.</p>
-<h3 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating your own Self-Signed SSL Certificate</h3><p>Gitblit GO (and Gitblit Certificate Authority) automatically generates a Certificate Authority (CA) certificate and an ssl certificate signed by this CA certificate that is bound to <em>localhost</em>.</p><p>Remote Eclipse/EGit/JGit clients (&lt; 3.0) will fail to communicate using this certificate because JGit always verifies the hostname of the certificate, regardless of the <em>http.sslVerify=false</em> client-side setting.</p><p>The EGit failure message is something like:</p>
+<h3 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Including Other Properties</h3><p>SINCE 1.7.0</p><p>Gitblit supports loading it's settings from multiple properties files. You can achieve this using the <code>include=filename</code> key. This setting supports loading multiple files using a <em>comma</em> as the delimiter. They are processed in the order defined and they may be nested (i.e. your included properties may include properties, etc, etc).</p>
+<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating your own Self-Signed SSL Certificate</h3><p>Gitblit GO (and Gitblit Certificate Authority) automatically generates a Certificate Authority (CA) certificate and an ssl certificate signed by this CA certificate that is bound to <em>localhost</em>.</p><p>Remote Eclipse/EGit/JGit clients (&lt; 3.0) will fail to communicate using this certificate because JGit always verifies the hostname of the certificate, regardless of the <em>http.sslVerify=false</em> client-side setting.</p><p>The EGit failure message is something like:</p>
 <pre><code>Cannot get remote repository refs.
 Reason: https:/myserver.com/git/myrepo.git: cannot open git-upload-pack
 </code></pre><p>If you want to serve your repositories to another machine over https then you will want to generate a new certificate for the hostname or ip address you are serving from.</p><p><strong>NOTE:</strong> The Gitblit Authority is a GUI tool and will require X11 forwarding on headless UNIX boxes.</p>
@@ -208,7 +206,7 @@ Reason: https:/myserver.com/git/myrepo.git: cannot open git-upload-pack
   <li>data/certs/ca.crt</li>
   <li>data/certs/caRevocationList.crl (optional)</li>
 </ol>
-<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Client SSL Certificates</h3><p>SINCE 1.2.0</p><p>Gitblit supports X509 certificate authentication. This authentication method relies on your servlet container to validate/verify/trust your client certificate and can be used by your browser and your git client.</p><p>All X509 certificates have a <em>distinguished name (DN)</em> which is a signature of several fields like:</p>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Client SSL Certificates</h3><p>SINCE 1.2.0</p><p>Gitblit supports X509 certificate authentication. This authentication method relies on your servlet container to validate/verify/trust your client certificate and can be used by your browser and your git client.</p><p>All X509 certificates have a <em>distinguished name (DN)</em> which is a signature of several fields like:</p>
 <pre><code>C=US,O=Gitblit,OU=Gitblit,CN=james
 </code></pre><p>Gitblit must be able to map the DN of the certificate to an <em>existing</em> account username. The default mapping is to extract the <em>common name (CN)</em> value from the DN and use that as the account name. If the CN is a valid account, then the user is authenticated. The servlet container which runs Gitblit validates, verifies, and trusts the certificate passed to Gitblit. If you need to specify an alternative DN mapping you may do so with the <em>git.certificateUsernameOIDs</em> setting, but this mapping must be matched to the user account name.</p><p>How do you make your servlet container trust a client certificate?</p><p>In the WAR variant, you will have to manually setup your servlet container to:</p>
 <ol>
@@ -216,28 +214,28 @@ Reason: https:/myserver.com/git/myrepo.git: cannot open git-upload-pack
   <li>trust a CA certificate used to sign your client certificates</li>
   <li>generate client certificates signed by your CA certificate</li>
 </ol><p>Alternatively, Gitblit GO is designed to facilitate use of client certificate authentication. Gitblit GO ships with a tool that simplifies creation and management of client certificates, Gitblit Certificate Authority.</p>
-<h4 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating SSL Certificates with Gitblit Certificate Authority</h4><p>When you generate a new client certificate, a zip file bundle is created which includes a P12 keystore for browsers and a PEM keystore for Git. Both of these are password-protected. Additionally, a personalized README file is generated with setup instructions for popular browsers and Git. The README is generated from <code>data\certs\instructions.tmpl</code> and can be modified to suit your needs.</p>
+<h4 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Creating SSL Certificates with Gitblit Certificate Authority</h4><p>When you generate a new client certificate, a zip file bundle is created which includes a P12 keystore for browsers and a PEM keystore for Git. Both of these are password-protected. Additionally, a personalized README file is generated with setup instructions for popular browsers and Git. The README is generated from <code>data\certs\instructions.tmpl</code> and can be modified to suit your needs.</p>
 <ol>
   <li><code>authority.cmd</code> or <code>java -jar authority.jar --baseFolder data</code></li>
   <li>Select the user for which to generate the certificate</li>
   <li>Click the <em>new certificate</em> button and enter the expiration date of the certificate. You must also enter a password for the generated keystore. This password is <em>not</em> the same as the user's login password. This password is used to protect the privatekey and public certificate you will generate for the selected user. You must also enter a password hint for the user.</li>
   <li>If your mail server settings are properly configured you will have a <em>send email</em> checkbox which you can use to immediately send the generated certificate bundle to the user.</li>
 </ol>
-<h4 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Certificate Inspection and Advanced Troubleshooting</h4><p>X509 certificates can be confusing and tricky even with the simplified Gitblit Certificate Authority tool. If you find you need more tooling to understand your keystores, certificates, and certificate revocation lists (CRLs), I highly recommend <a href="http://portecle.sourceforge.net">Portecle</a> which can be conveniently launched as a <a href="http://portecle.sourceforge.net/webstart/portecle.jnlp">Java Web Start app</a>.</p>
-<h3 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Running as a Windows Service</h3><p>Gitblit uses <a href="http://commons.apache.org/daemon">Apache Commons Daemon</a> to install and configure its Windows service.</p>
+<h4 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Certificate Inspection and Advanced Troubleshooting</h4><p>X509 certificates can be confusing and tricky even with the simplified Gitblit Certificate Authority tool. If you find you need more tooling to understand your keystores, certificates, and certificate revocation lists (CRLs), I highly recommend <a href="http://portecle.sourceforge.net">Portecle</a> which can be conveniently launched as a <a href="http://portecle.sourceforge.net/webstart/portecle.jnlp">Java Web Start app</a>.</p>
+<h3 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>Running as a Windows Service</h3><p>Gitblit uses <a href="http://commons.apache.org/daemon">Apache Commons Daemon</a> to install and configure its Windows service.</p>
 <ol>
   <li><strong>Review the contents</strong> of the <code>installService.cmd</code> where you may have to change the <u>default keystore password</u>.</li>
   <li>Set the <em>ARCH</em> value as appropriate for your installed Java Virtual Machine.</li>
   <li>Add any necessary <em>--StartParams</em> as enumerated below in <strong>Command-Line Parameters</strong>.</li>
   <li>Execute the script.</li>
 </ol><p>After service installation you can use the <code>gitblitw.exe</code> utility to control and modify the runtime settings of the service.<br/>Additional service definition options and runtime capabilities of <code>gitblitw.exe</code> (prunmgr.exe) are documented <a href="http://commons.apache.org/daemon/procrun.html">here</a>.</p><p><strong>NOTE:</strong><br/>If you change the name of the service from <em>gitblit</em> you must also change the name of <code>gitblitw.exe</code> to match the new service name otherwise the connection between the service and the utility is lost, at least to double-click execution. </p>
-<h4 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>VM Considerations</h4><p>By default, the service installation script configures your Windows service to use your default JVM. This setup usually defaults to a client VM.<br/>If you have installed a JDK, you might consider using the <code>gitblitw.exe</code> utility to manually specify the <em>server</em> VM.</p>
+<h4 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>VM Considerations</h4><p>By default, the service installation script configures your Windows service to use your default JVM. This setup usually defaults to a client VM.<br/>If you have installed a JDK, you might consider using the <code>gitblitw.exe</code> utility to manually specify the <em>server</em> VM.</p>
 <ol>
   <li>Execute <code>gitblitw.exe</code></li>
   <li>On the <em>Java</em> tab uncheck <em>Use default</em>.</li>
   <li>Manually navigate your filesystem and specify the server VM with the <code>...</code> button<br/><pre>Java Virtual Machine:<br/>C:\Program Files\Java\jre6\bin\server\jvm.dll</pre></li>
 </ol>
-<h4 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>Command-Line Parameters</h4><p>Command-Line parameters override the values in <code>gitblit.properties</code> at runtime.</p>
+<h4 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Command-Line Parameters</h4><p>Command-Line parameters override the values in <code>gitblit.properties</code> at runtime.</p>
 <pre><code>--baseFolder           The default base folder for all relative file reference settings
 --repositoriesFolder   Git Repositories Folder
 --userService          Authentication and Authorization Service (filename or fully qualified classname)
@@ -253,11 +251,11 @@ Reason: https:/myserver.com/git/myrepo.git: cannot open git-upload-pack
 </code></pre><p><strong>Example</strong></p>
 <pre><code>java -jar gitblit.jar --userService c:/myrealm.config --storePassword something --baseFolder c:/data
 </code></pre>
-<h4 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Overriding Gitblit GO's Log4j Configuration</h4><p>You can override Gitblit GO's default Log4j configuration with a command-line parameter to the JVM.</p>
+<h4 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Overriding Gitblit GO's Log4j Configuration</h4><p>You can override Gitblit GO's default Log4j configuration with a command-line parameter to the JVM.</p>
 <pre><code>java -Dlog4j.configuration=file:///home/james/log4j.properties -jar gitblit.jar &lt;optional_gitblit_args&gt;
 </code></pre><p>You can not use override the default log4j configuration <em>AND</em> specify the <code>--dailyLogFile</code> parameter. For reference, here is <a href="https://github.com/gitblit/gitblit/blob/master/src/log4j.properties">Gitblit's default Log4j configuration</a>. It includes some file appenders that are disabled by default. 
 <!-- End Markdown -->
-<div ><ul class="pager"> <li class="next"><a href="upgrade_go.html">upgrade GO &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2014-10-28</p>
+<div ><ul class="pager"> <li class="next"><a href="upgrade_go.html">upgrade GO &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2015-11-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
