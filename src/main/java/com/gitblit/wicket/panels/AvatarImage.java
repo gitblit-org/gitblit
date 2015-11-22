@@ -17,9 +17,9 @@ package com.gitblit.wicket.panels;
 
 import org.eclipse.jgit.lib.PersonIdent;
 
+import com.gitblit.AvatarGenerator;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ActivityUtils;
 import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
 
@@ -29,36 +29,31 @@ import com.gitblit.wicket.WicketUtils;
  * @author James Moger
  *
  */
-public class GravatarImage extends BasePanel {
+public class AvatarImage extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public GravatarImage(String id, PersonIdent person) {
+	public AvatarImage(String id, PersonIdent person) {
 		this(id, person, 0);
 	}
 
-	public GravatarImage(String id, PersonIdent person, int width) {
+	public AvatarImage(String id, PersonIdent person, int width) {
 		this(id, person.getName(), person.getEmailAddress(), "gravatar", width, true);
 	}
 
-	public GravatarImage(String id, PersonIdent person, String cssClass, int width, boolean identicon) {
+	public AvatarImage(String id, PersonIdent person, String cssClass, int width, boolean identicon) {
 		this(id, person.getName(), person.getEmailAddress(), cssClass, width, identicon);
 	}
 
-	public GravatarImage(String id, UserModel user, String cssClass, int width, boolean identicon) {
+	public AvatarImage(String id, UserModel user, String cssClass, int width, boolean identicon) {
 		this(id, user.getDisplayName(), user.emailAddress, cssClass, width, identicon);
 	}
 
-	public GravatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean identicon) {
+	public AvatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean identicon) {
 		super(id);
 
-		String email = emailaddress == null ? username.toLowerCase() : emailaddress.toLowerCase();
-		String url;
-		if (identicon) {
-			url = ActivityUtils.getGravatarIdenticonUrl(email, width);
-		} else {
-			url = ActivityUtils.getGravatarThumbnailUrl(email, width);
-		}
+		AvatarGenerator avatarGenerator = app().runtime().getInjector().getInstance(AvatarGenerator.class);
+		String url = avatarGenerator.getURL(username, emailaddress, identicon, width);
 		ExternalImage image = new ExternalImage("image", url);
 		if (cssClass != null) {
 			WicketUtils.setCssClass(image, cssClass);

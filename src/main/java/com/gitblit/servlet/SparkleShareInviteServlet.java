@@ -20,20 +20,20 @@ import java.net.URL;
 import java.text.MessageFormat;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Handles requests for Sparkleshare Invites
@@ -41,7 +41,8 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public class SparkleShareInviteServlet extends DaggerServlet {
+@Singleton
+public class SparkleShareInviteServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -53,12 +54,17 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 
 	private IRepositoryManager repositoryManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.settings = dagger.get(IStoredSettings.class);
-		this.userManager = dagger.get(IUserManager.class);
-		this.authenticationManager = dagger.get(IAuthenticationManager.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	@Inject
+	public SparkleShareInviteServlet(
+			IStoredSettings settings,
+			IUserManager userManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		this.settings = settings;
+		this.userManager = userManager;
+		this.authenticationManager = authenticationManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	@Override
@@ -83,6 +89,8 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 			response.getWriter().append("SSH is not active on this server!");
 			return;
 		}
+		int sshDisplayPort = settings.getInteger(Keys.git.sshAdvertisedPort, sshPort);
+
 		// extract repo name from request
 		String repoUrl = request.getPathInfo().substring(1);
 
@@ -105,6 +113,10 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 		String url = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
 		if (!StringUtils.isEmpty(url) && url.indexOf("localhost") == -1) {
 			host = new URL(url).getHost();
+		}
+		String sshDisplayHost = settings.getString(Keys.git.sshAdvertisedHost, "");
+		if(sshDisplayHost.isEmpty()) {
+			sshDisplayHost = host;
 		}
 
 		UserModel user;
@@ -135,7 +147,7 @@ public class SparkleShareInviteServlet extends DaggerServlet {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		sb.append("<sparkleshare><invite>\n");
-		sb.append(MessageFormat.format("<address>ssh://{0}@{1}:{2,number,0}/</address>\n", user.username, host, sshPort));
+		sb.append(MessageFormat.format("<address>ssh://{0}@{1}:{2,number,0}/</address>\n", user.username, sshDisplayHost, sshDisplayPort));
 		sb.append(MessageFormat.format("<remote_path>/{0}</remote_path>\n", model.name));
 		int fanoutPort = settings.getInteger(Keys.fanout.port, 0);
 		if (fanoutPort > 0) {

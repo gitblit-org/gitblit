@@ -1,9 +1,11 @@
+tags
 /temp
 /lib
 /ext
 /build
 /site
 /git
+/lucene
 /build.properties
 /federation.properties
 /mailtest.properties
@@ -27,3 +29,4 @@
 /**/.idea
 /**/init.lua
 /**/session
+/nbproject/private

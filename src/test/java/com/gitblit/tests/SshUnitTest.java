@@ -26,10 +26,10 @@ import java.security.KeyPairGenerator;
 import java.security.PublicKey;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.sshd.ClientChannel;
-import org.apache.sshd.ClientSession;
-import org.apache.sshd.SshClient;
 import org.apache.sshd.client.ServerKeyVerifier;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.channel.ClientChannel;
+import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.util.SecurityUtils;
 import org.junit.After;
 import org.junit.AfterClass;

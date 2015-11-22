@@ -17,7 +17,7 @@ package com.gitblit.transport.ssh;
 
 import java.util.Locale;
 
-import org.apache.sshd.server.PasswordAuthenticator;
+import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +51,13 @@ public class UsernamePasswordAuthenticator implements PasswordAuthenticator {
 		}
 
 		username = username.toLowerCase(Locale.US);
-		UserModel user = authManager.authenticate(username, password.toCharArray());
+		UserModel user = authManager.authenticate(username, password.toCharArray(), null);
 		if (user != null) {
 			client.setUser(user);
 			return true;
 		}
 
-		log.warn("could not authenticate {} for SSH using the supplied password", username);
+		log.warn("could not authenticate {} ({}) for SSH using the supplied password", username, client.getRemoteAddress());
 		return false;
 	}
 }

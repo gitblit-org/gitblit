@@ -34,7 +34,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 
 public class ForksPage extends RepositoryPage {
@@ -63,7 +63,7 @@ public class ForksPage extends RepositoryPage {
 						user = new UserModel(repository.projectPath.substring(1));
 					}
 					PersonIdent ident = new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.getDisplayName() : user.emailAddress);
-					item.add(new GravatarImage("anAvatar", ident, 20));
+					item.add(new AvatarImage("anAvatar", ident, 20));
 					if (pageRepository.equals(repository)) {
 						// do not link to self
 						item.add(new Label("aProject", user.getDisplayName()));
@@ -136,6 +136,9 @@ public class ForksPage extends RepositoryPage {
 
 	protected List<FlatFork> flatten(ForkModel node, int level) {
 		List<FlatFork> list = new ArrayList<FlatFork>();
+		if (node == null) {
+			return list;
+		}
 		list.add(new FlatFork(node.repository, level));
 		if (!node.isLeaf()) {
 			for (ForkModel fork : node.forks) {

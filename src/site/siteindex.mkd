@@ -23,12 +23,9 @@
 		<tbody>
 		<tr><th>License</th><td><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></td></tr>
 		<tr><th>Sources</th><td><a href="${project.scmUrl}">GitHub</a></td></tr>		
-		<tr><th>Issues</th><td><a href="${project.issuesUrl}">GoogleCode</a></td></tr>
+		<tr><th>Issues</th><td><a href="${project.issuesUrl}">GitHub</a></td></tr>
 		<tr><th>Discussion</th><td><a href="${project.forumUrl}">Gitblit Group</a></td></tr>
-		<tr><th>Google+</th><td><a href="${project.socialNetworkUrl}">Gitblit+</a></td></tr>
 		<tr><th>Ohloh</th><td><a target="_top" href="http://www.ohloh.net/p/gitblit"><img border="0" width="100" height="16" src="http://www.ohloh.net/p/gitblit/widgets/project_thin_badge.gif" alt="Ohloh project report for Gitblit" /></a></td></tr>
-		<tr><th>Donations</th><td>If you enjoy Gitblit and want to support its development, please consider making a donation to <a href="http://www.stjude.org">St. Jude Children's Research Hospital</a>.
-		<a href="http://www.stjude.org" alt="St. Jude Children's Research Hospital"><img style="padding-top:10px;" src="stjude_150x150.gif"/></a></td></tr>
 		</tbody>
 		</table>
 	</div>

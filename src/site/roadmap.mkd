@@ -1,8 +1,0 @@
-## Roadmap
-
-This is not exactly a formal roadmap but it is a priority list of what might be implemented in future releases.  
-This list is volatile and may not reflect what will be in the next release.
-
-* Add support for Project owners/administrators (ticket-75)
-* Add Project create/update pages
-* Integrate improvements for git-flow (ticket-55)

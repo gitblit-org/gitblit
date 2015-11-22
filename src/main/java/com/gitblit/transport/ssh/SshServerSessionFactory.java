@@ -67,6 +67,6 @@ public class SshServerSessionFactory extends SessionFactory {
 
 	@Override
 	protected AbstractSession doCreateSession(IoSession ioSession) throws Exception {
-		return new SshServerSession(server, ioSession);
+		return new SshServerSession(getServer(), ioSession);
 	}
 }

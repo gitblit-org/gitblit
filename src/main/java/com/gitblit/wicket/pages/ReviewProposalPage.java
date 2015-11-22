@@ -76,8 +76,9 @@ public class ReviewProposalPage extends RootSubPage {
 		sb.append(asParam(p, proposal.name, "exclude", ""));
 		sb.append(asParam(p, proposal.name, "include", ""));
 
+		final int tabLength = app().settings().getInteger(Keys.web.tabLength, 4);
 		add(new Label("definition", StringUtils.breakLinesForHtml(StringUtils.escapeForHtml(sb
-				.toString().trim(), true))).setEscapeModelStrings(false));
+				.toString().trim(), true, tabLength))).setEscapeModelStrings(false));
 
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>(
 				proposal.repositories.values());

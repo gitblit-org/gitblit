@@ -40,15 +40,26 @@ public class ReflogPage extends RepositoryPage {
 		boolean hasMore = reflogPanel.hasMore();
 		add(reflogPanel);
 
-		add(new BookmarkablePageLink<Void>("firstPage", ReflogPage.class,
+		add(new BookmarkablePageLink<Void>("firstPageTop", ReflogPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId))
 				.setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("prevPage", ReflogPage.class,
+		add(new BookmarkablePageLink<Void>("prevPageTop", ReflogPage.class,
 				WicketUtils.newLogPageParameter(repositoryName, objectId, prevPage))
 				.setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("nextPage", ReflogPage.class,
+		add(new BookmarkablePageLink<Void>("nextPageTop", ReflogPage.class,
 				WicketUtils.newLogPageParameter(repositoryName, objectId, nextPage))
 				.setEnabled(hasMore));
+
+		add(new BookmarkablePageLink<Void>("firstPageBottom", ReflogPage.class,
+				WicketUtils.newObjectParameter(repositoryName, objectId))
+				.setEnabled(pageNumber > 1));
+		add(new BookmarkablePageLink<Void>("prevPageBottom", ReflogPage.class,
+				WicketUtils.newLogPageParameter(repositoryName, objectId, prevPage))
+				.setEnabled(pageNumber > 1));
+		add(new BookmarkablePageLink<Void>("nextPageBottom", ReflogPage.class,
+				WicketUtils.newLogPageParameter(repositoryName, objectId, nextPage))
+				.setEnabled(hasMore));
+
 	}
 
 	@Override

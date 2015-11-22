@@ -28,6 +28,8 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Implementation of a ticket service that rejects everything.
@@ -35,8 +37,10 @@ import com.gitblit.models.TicketModel.Change;
  * @author James Moger
  *
  */
+@Singleton
 public class NullTicketService extends ITicketService {
 
+	@Inject
 	public NullTicketService(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
@@ -58,6 +62,7 @@ public class NullTicketService extends ITicketService {
 
 	@Override
 	public NullTicketService start() {
+		log.info("{} started", getClass().getSimpleName());
 		return this;
 	}
 

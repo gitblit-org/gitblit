@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServlet;
+
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -31,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.FeedEntryModel;
@@ -45,8 +46,8 @@ import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
-
-import dagger.ObjectGraph;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * SyndicationServlet generates RSS 2.0 feeds and feed links.
@@ -56,7 +57,8 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public class SyndicationServlet extends DaggerServlet {
+@Singleton
+public class SyndicationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
@@ -68,11 +70,15 @@ public class SyndicationServlet extends DaggerServlet {
 
 	private IProjectManager projectManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger) {
-		this.settings = dagger.get(IStoredSettings.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
-		this.projectManager = dagger.get(IProjectManager.class);
+	@Inject
+	public SyndicationServlet(
+			IStoredSettings settings,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager) {
+
+		this.settings = settings;
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
 	}
 
 	/**
@@ -362,7 +368,7 @@ public class SyndicationServlet extends DaggerServlet {
 			if (mountParameters) {
 				// mounted url
 				feedLink = MessageFormat.format("{0}/summary/{1}", gitblitUrl,
-						StringUtils.encodeURL(feedName));
+						StringUtils.encodeURL(feedName.replace('/', fsc)));
 			} else {
 				// parameterized url
 				feedLink = MessageFormat.format("{0}/summary/?r={1}", gitblitUrl,

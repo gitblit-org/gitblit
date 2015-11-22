@@ -154,6 +154,7 @@ public class BlamePage extends RepositoryPage {
 
 		add(new Label("missingBlob").setVisible(false));
 
+		final int tabLength = app().settings().getInteger(Keys.web.tabLength, 4);
 		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
 		final Map<?, String> colorMap = initializeColors(activeBlameType, lines);
 		ListDataProvider<AnnotatedLine> blameDp = new ListDataProvider<AnnotatedLine>(lines);
@@ -212,7 +213,7 @@ public class BlamePage extends RepositoryPage {
 					color = colorMap.get(entry.commitId);
 					break;
 				}
-				Component data = new Label("data", StringUtils.escapeForHtml(entry.data, true)).setEscapeModelStrings(false);
+				Component data = new Label("data", StringUtils.escapeForHtml(entry.data, true, tabLength)).setEscapeModelStrings(false);
 				data.add(new SimpleAttributeModifier("style", "background-color: " + color + ";"));
 				item.add(data);
 			}

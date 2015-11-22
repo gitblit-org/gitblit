@@ -18,6 +18,7 @@ package com.gitblit.manager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.Constants.Role;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshKey;
@@ -64,10 +65,21 @@ public interface IAuthenticationManager extends IManager {
 	 * @see IUserService.authenticate(String, char[])
 	 * @param username
 	 * @param password
+	 * @param remoteIP 
 	 * @return a user object or null
 	 * @since 1.4.0
 	 */
-	UserModel authenticate(String username, char[] password);
+	UserModel authenticate(String username, char[] password, String remoteIP);
+
+	/**
+	 * Return the UserModel for already authenticated user.
+	 *
+	 * @see IUserService.authenticate(String, char[])
+	 * @param username
+	 * @return a user object or null
+	 * @since 1.7.0
+	 */
+	UserModel authenticate(String username);
 
 	/**
 	 * Returns the Gitlbit cookie in the request.
@@ -160,5 +172,23 @@ public interface IAuthenticationManager extends IManager {
 	 * @since 1.4.0
 	 */
 	boolean supportsTeamMembershipChanges(TeamModel team);
+
+	/**
+	 * Returns true if the specified role can be changed.
+	 *
+	 * @param user
+	 * @return true if the specified role can be changed
+	 * @since 1.6.1
+	 */
+	boolean supportsRoleChanges(UserModel user, Role role);
+
+	/**
+	 * Returns true if the specified role can be changed.
+	 *
+	 * @param team
+	 * @return true if the specified role can be changed
+	 * @since 1.6.1
+	 */
+	boolean supportsRoleChanges(TeamModel team, Role role);
 
 }

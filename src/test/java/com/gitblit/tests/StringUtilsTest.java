@@ -50,7 +50,7 @@ public class StringUtilsTest extends GitblitUnitTest {
 	public void testEscapeForHtml() throws Exception {
 		String input = "& < > \" \t";
 		String outputNoChange = "&amp; &lt; &gt; &quot; \t";
-		String outputChange = "&amp;&nbsp;&lt;&nbsp;&gt;&nbsp;&quot;&nbsp; &nbsp; &nbsp;";
+		String outputChange = "&amp;&nbsp;&lt;&nbsp;&gt;&nbsp;&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 		assertEquals(outputNoChange, StringUtils.escapeForHtml(input, false));
 		assertEquals(outputChange, StringUtils.escapeForHtml(input, true));
 	}

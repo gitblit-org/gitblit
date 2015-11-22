@@ -1,0 +1,24 @@
+## Configure fail2ban for Gitblit-SSH
+
+This procedure uses [fail2ban](http://www.fail2ban.org/).
+
+First, create a new filter file `gitblit.conf` in filter directory (Debian/CentOS: `/etc/fail2ban/filter.d/`) or into `filter.conf` file. Here is an example:
+
+    [Definition]
+    failregex =  Failed login attempt for .+, invalid credentials from <HOST>\s*$
+                 could not authenticate .*? \(/<HOST>:[0-9]*\) for SSH using the supplied password$
+    ignoreregex =
+
+Then edit `jail.conf` to add "gitblit" service (Debian: `/etc/fail2ban/jail.conf`). For example:
+
+    [gitblit]
+    enabled = true
+    port = 443,29418
+    protocol = tcp
+    filter = gitblit
+    logpath = /var/log/gitblit.log
+
+
+Reload fail2ban config to apply (`fail2ban-client reload`).
+
+Check the status of the gitblit fail2ban jail with `fail2ban-client status gitblit`

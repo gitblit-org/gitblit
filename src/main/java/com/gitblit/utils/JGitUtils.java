@@ -90,6 +90,7 @@ import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SubmoduleModel;
+import com.google.common.base.Strings;
 
 /**
  * Collection of static methods for retrieving information from a repository.
@@ -690,7 +691,10 @@ public class JGitUtils {
 		if (commit == null) {
 			return new Date(0);
 		}
-		return commit.getAuthorIdent().getWhen();
+		if (commit.getAuthorIdent() != null) {
+			return commit.getAuthorIdent().getWhen();
+		}
+		return getCommitDate(commit);
 	}
 
 	/**
@@ -773,7 +777,7 @@ public class JGitUtils {
 			}
 		} finally {
 			rw.dispose();
-			tw.release();
+			tw.close();
 		}
 		return content;
 	}
@@ -884,7 +888,64 @@ public class JGitUtils {
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to get files for commit {1}", commit.getName());
 		} finally {
-			tw.release();
+			tw.close();
+		}
+		Collections.sort(list);
+		return list;
+	}
+
+	/**
+	 * Returns the list of files in the specified folder at the specified
+	 * commit. If the repository does not exist or is empty, an empty list is
+	 * returned.
+	 *
+	 * This is modified version that implements path compression feature.
+	 *
+	 * @param repository
+	 * @param path
+	 *            if unspecified, root folder is assumed.
+	 * @param commit
+	 *            if null, HEAD is assumed.
+	 * @return list of files in specified path
+	 */
+	public static List<PathModel> getFilesInPath2(Repository repository, String path, RevCommit commit) {
+
+		List<PathModel> list = new ArrayList<PathModel>();
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		if (commit == null) {
+			commit = getCommit(repository, null);
+		}
+		final TreeWalk tw = new TreeWalk(repository);
+		try {
+
+			tw.addTree(commit.getTree());
+			final boolean isPathEmpty = Strings.isNullOrEmpty(path);
+
+			if (!isPathEmpty) {
+				PathFilter f = PathFilter.create(path);
+				tw.setFilter(f);
+			}
+
+			tw.setRecursive(true);
+			List<String> paths = new ArrayList<>();
+
+			while (tw.next()) {
+					String child = isPathEmpty ? tw.getPathString()
+							: tw.getPathString().replaceFirst(String.format("%s/", path), "");
+					paths.add(child);
+			}
+
+			for(String p: PathUtils.compressPaths(paths)) {
+				String pathString = isPathEmpty ? p : String.format("%s/%s", path, p);
+				list.add(getPathModel(repository, pathString, path, commit));
+			}
+
+		} catch (IOException e) {
+			error(e, repository, "{0} failed to get files for commit {1}", commit.getName());
+		} finally {
+			tw.close();
 		}
 		Collections.sort(list);
 		return list;
@@ -936,7 +997,7 @@ public class JGitUtils {
 							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
 							ChangeType.ADD));
 				}
-				tw.release();
+				tw.close();
 			} else {
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
 				DiffStatFormatter df = new DiffStatFormatter(commit.getName());
@@ -991,7 +1052,7 @@ public class JGitUtils {
 			RevCommit start = rw.parseCommit(startRange);
 			RevCommit end = rw.parseCommit(endRange);
 			list.addAll(getFilesInRange(repository, start, end));
-			rw.release();
+			rw.close();
 		} catch (Throwable t) {
 			error(t, repository, "{0} failed to determine files in range {1}..{2}!", startCommit, endCommit);
 		}
@@ -1089,7 +1150,7 @@ public class JGitUtils {
 		} catch (IOException e) {
 			error(e, repository, "{0} failed to get documents for commit {1}", commit.getName());
 		} finally {
-			tw.release();
+			tw.close();
 		}
 		Collections.sort(list);
 		return list;
@@ -1122,6 +1183,46 @@ public class JGitUtils {
 		return new PathModel(name, tw.getPathString(), size, tw.getFileMode(0).getBits(),
 				objectId.getName(), commit.getName());
 	}
+
+	/**
+	 * Returns a path model by path string
+	 *
+	 * @param repo
+	 * @param path
+	 * @param filter
+	 * @param commit
+	 * @return a path model of the specified object
+	 */
+	private static PathModel getPathModel(Repository repo, String path, String filter, RevCommit commit)
+			throws IOException {
+
+		long size = 0;
+		TreeWalk tw = TreeWalk.forPath(repo, path, commit.getTree());
+		String pathString = path;
+
+			if (!tw.isSubtree() && (tw.getFileMode(0) != FileMode.GITLINK)) {
+				size = tw.getObjectReader().getObjectSize(tw.getObjectId(0), Constants.OBJ_BLOB);
+				pathString = PathUtils.getLastPathComponent(pathString);
+
+			} else if (tw.isSubtree()) {
+
+				// do not display dirs that are behind in the path
+				if (!Strings.isNullOrEmpty(filter)) {
+					pathString = path.replaceFirst(filter + "/", "");
+				}
+
+				// remove the last slash from path in displayed link
+				if (pathString != null && pathString.charAt(pathString.length()-1) == '/') {
+					pathString = pathString.substring(0, pathString.length()-1);
+				}
+			}
+
+			return new PathModel(pathString, tw.getPathString(), size, tw.getFileMode(0).getBits(),
+					tw.getObjectId(0).getName(), commit.getName());
+
+
+	}
+
 
 	/**
 	 * Returns a permissions representation of the mode bits.
@@ -1946,7 +2047,7 @@ public class JGitUtils {
 			error(t, repository, "{0} can't find {1} in commit {2}", path, commit.name());
 		} finally {
 			rw.dispose();
-			tw.release();
+			tw.close();
 		}
 		return commitId;
 	}
@@ -2120,10 +2221,10 @@ public class JGitUtils {
 						success = false;
 					}
 				} finally {
-					revWalk.release();
+					revWalk.close();
 				}
 			} finally {
-				odi.release();
+				odi.close();
 			}
 		} catch (Throwable t) {
 			error(t, repository, "Failed to create orphan branch {1} in repository {0}", branchName);
@@ -2270,7 +2371,7 @@ public class JGitUtils {
 	}
 
 	public static enum MergeStatus {
-		NOT_MERGEABLE, FAILED, ALREADY_MERGED, MERGEABLE, MERGED;
+		MISSING_INTEGRATION_BRANCH, MISSING_SRC_BRANCH, NOT_MERGEABLE, FAILED, ALREADY_MERGED, MERGEABLE, MERGED;
 	}
 
 	/**
@@ -2286,8 +2387,16 @@ public class JGitUtils {
 		RevWalk revWalk = null;
 		try {
 			revWalk = new RevWalk(repository);
-			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
-			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
+			ObjectId branchId = repository.resolve(toBranch);
+			if (branchId == null) {
+				return MergeStatus.MISSING_INTEGRATION_BRANCH;
+			}
+			ObjectId srcId = repository.resolve(src);
+			if (srcId == null) {
+				return MergeStatus.MISSING_SRC_BRANCH;
+			}
+			RevCommit branchTip = revWalk.lookupCommit(branchId);
+			RevCommit srcTip = revWalk.lookupCommit(srcId);
 			if (revWalk.isMergedInto(srcTip, branchTip)) {
 				// already merged
 				return MergeStatus.ALREADY_MERGED;
@@ -2300,11 +2409,13 @@ public class JGitUtils {
 			if (canMerge) {
 				return MergeStatus.MERGEABLE;
 			}
+		} catch (NullPointerException e) {
+			LOGGER.error("Failed to determine canMerge", e);
 		} catch (IOException e) {
 			LOGGER.error("Failed to determine canMerge", e);
 		} finally {
 			if (revWalk != null) {
-				revWalk.release();
+				revWalk.close();
 			}
 		}
 		return MergeStatus.NOT_MERGEABLE;
@@ -2390,14 +2501,14 @@ public class JGitUtils {
 					// return the merge commit id
 					return new MergeResult(MergeStatus.MERGED, mergeCommitId.getName());
 				} finally {
-					odi.release();
+					odi.close();
 				}
 			}
 		} catch (IOException e) {
 			LOGGER.error("Failed to merge", e);
 		} finally {
 			if (revWalk != null) {
-				revWalk.release();
+				revWalk.close();
 			}
 		}
 		return new MergeResult(MergeStatus.FAILED, null);

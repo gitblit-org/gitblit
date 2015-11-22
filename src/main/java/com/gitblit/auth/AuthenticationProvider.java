@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccountType;
+import com.gitblit.Constants.Role;
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
@@ -151,6 +152,24 @@ public abstract class AuthenticationProvider {
 	 */
 	public abstract boolean supportsTeamMembershipChanges();
 
+	/**
+	 * Returns true if the user's role can be changed.
+	 *
+	 * @param user
+	 * @param role
+	 * @return true if the user's role can be changed
+	 */
+	public abstract boolean supportsRoleChanges(UserModel user, Role role);
+
+	/**
+	 * Returns true if the team's role can be changed.
+	 *
+	 * @param user
+	 * @param role
+	 * @return true if the team's role can be changed
+	 */
+	public abstract boolean supportsRoleChanges(TeamModel team, Role role);
+
     @Override
     public String toString() {
     	return getServiceName() + " (" + getClass().getName() + ")";
@@ -212,5 +231,16 @@ public abstract class AuthenticationProvider {
 		public boolean supportsTeamMembershipChanges() {
 			return true;
 		}
+
+		@Override
+		public boolean supportsRoleChanges(UserModel user, Role role) {
+			return true;
+		}
+
+		@Override
+		public boolean supportsRoleChanges(TeamModel team, Role role) {
+			return true;
+		}
+
     }
 }

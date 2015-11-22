@@ -15,9 +15,15 @@
  */
 package com.gitblit.servlet;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.manager.IAuthenticationManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -28,7 +34,17 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
+@Singleton
 public class RawFilter extends AccessRestrictionFilter {
+
+	@Inject
+	public RawFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		super(runtimeManager, authenticationManager, repositoryManager);
+	}
 
 	/**
 	 * Extract the repository name from the url.
@@ -82,7 +98,7 @@ public class RawFilter extends AccessRestrictionFilter {
 	 * @return true if the filter allows repository creation
 	 */
 	@Override
-	protected boolean isCreationAllowed() {
+	protected boolean isCreationAllowed(String action) {
 		return false;
 	}
 
@@ -91,10 +107,11 @@ public class RawFilter extends AccessRestrictionFilter {
 	 *
 	 * @param repository
 	 * @param action
+	 * @param method
 	 * @return true if the action may be performed
 	 */
 	@Override
-	protected boolean isActionAllowed(RepositoryModel repository, String action) {
+	protected boolean isActionAllowed(RepositoryModel repository, String action, String method) {
 		return true;
 	}
 
@@ -103,10 +120,11 @@ public class RawFilter extends AccessRestrictionFilter {
 	 *
 	 * @param repository
 	 * @param action
+	 * @param method
 	 * @return true if authentication required
 	 */
 	@Override
-	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
+	protected boolean requiresAuthentication(RepositoryModel repository, String action, String method) {
 		return repository.accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
 

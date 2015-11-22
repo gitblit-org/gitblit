@@ -88,10 +88,10 @@ import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.TicketsUI;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.BasePanel.JavascriptTextPrompt;
 import com.gitblit.wicket.panels.CommentPanel;
 import com.gitblit.wicket.panels.DiffStatPanel;
-import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.IconAjaxLink;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ShockWaveComponent;
@@ -312,7 +312,7 @@ public class TicketPage extends RepositoryPage {
 					if (user == null) {
 						user = new UserModel(username);
 					}
-					item.add(new GravatarImage("participant", user.getDisplayName(),
+					item.add(new AvatarImage("participant", user.getDisplayName(),
 							user.emailAddress, null, 25, true));
 				}
 			};
@@ -519,6 +519,10 @@ public class TicketPage extends RepositoryPage {
 		 * TICKET METADATA
 		 */
 		add(new Label("ticketType", ticket.type.toString()));
+
+		add(new Label("priority", ticket.priority.toString()));
+		add(new Label("severity", ticket.severity.toString()));
+
 		if (StringUtils.isEmpty(ticket.topic)) {
 			add(new Label("ticketTopic").setVisible(false));
 		} else {
@@ -527,6 +531,8 @@ public class TicketPage extends RepositoryPage {
 			String safeTopic = app().xssFilter().relaxed(topic);
 			add(new Label("ticketTopic", safeTopic).setEscapeModelStrings(false));
 		}
+
+
 
 
 		/*
@@ -730,7 +736,7 @@ public class TicketPage extends RepositoryPage {
 		} else {
 			// permit user to comment
 			Fragment newComment = new Fragment("newComment", "newCommentFragment", this);
-			GravatarImage img = new GravatarImage("newCommentAvatar", user.username, user.emailAddress,
+			AvatarImage img = new AvatarImage("newCommentAvatar", user.username, user.emailAddress,
 					"gravatar-round", avatarWidth, true);
 			newComment.add(img);
 			CommentPanel commentPanel = new CommentPanel("commentPanel", user, ticket, null, TicketsPage.class);
@@ -746,7 +752,7 @@ public class TicketPage extends RepositoryPage {
 		if (currentPatchset == null) {
 			// no patchset available
 			RepositoryUrl repoUrl = getRepositoryUrl(user, repository);
-			boolean canPropose = repoUrl != null && repoUrl.permission.atLeast(AccessPermission.CLONE) && !UserModel.ANONYMOUS.equals(user);
+			boolean canPropose = repoUrl != null && repoUrl.hasPermission() && repoUrl.permission.atLeast(AccessPermission.CLONE) && !UserModel.ANONYMOUS.equals(user);
 			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository) && canPropose) {
 				// ticket & repo will accept a proposal patchset
 				// show the instructions for proposing a patchset
@@ -810,14 +816,14 @@ public class TicketPage extends RepositoryPage {
 				public void populateItem(final Item<RevCommit> item) {
 					RevCommit commit = item.getModelObject();
 					PersonIdent author = commit.getAuthorIdent();
-					item.add(new GravatarImage("authorAvatar", author.getName(), author.getEmailAddress(), null, 16, false));
+					item.add(new AvatarImage("authorAvatar", author.getName(), author.getEmailAddress(), null, 16, false));
 					item.add(new Label("author", commit.getAuthorIdent().getName()));
 					item.add(new LinkPanel("commitId", null, getShortObjectId(commit.getName()),
 							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit.getName()), true));
 					item.add(new LinkPanel("diff", "link", getString("gb.diff"), CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, commit.getName()), true));
 					item.add(new Label("title", StringUtils.trimString(commit.getShortMessage(), Constants.LEN_SHORTLOG_REFS)));
-					item.add(WicketUtils.createDateLabel("commitDate", JGitUtils.getCommitDate(commit), GitBlitWebSession
+					item.add(WicketUtils.createDateLabel("commitDate", JGitUtils.getAuthorDate(commit), GitBlitWebSession
 							.get().getTimezone(), getTimeUtils(), false));
 					item.add(new DiffStatPanel("commitDiffStat", 0, 0, true));
 				}
@@ -981,12 +987,12 @@ public class TicketPage extends RepositoryPage {
 		UserModel commenter = app().users().getUserModel(entry.author);
 		if (commenter == null) {
 			// unknown user
-			container.add(new GravatarImage("changeAvatar", entry.author,
+			container.add(new AvatarImage("changeAvatar", entry.author,
 					entry.author, null, avatarSize, false).setVisible(avatarSize > 0));
 			container.add(new Label("changeAuthor", entry.author.toLowerCase()));
 		} else {
 			// known user
-			container.add(new GravatarImage("changeAvatar", commenter.getDisplayName(),
+			container.add(new AvatarImage("changeAvatar", commenter.getDisplayName(),
 					commenter.emailAddress, avatarSize > 24 ? "gravatar-round" : null,
 							avatarSize, true).setVisible(avatarSize > 0));
 			container.add(new LinkPanel("changeAuthor", null, commenter.getDisplayName(),
@@ -1425,6 +1431,12 @@ public class TicketPage extends RepositoryPage {
 				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetAlreadyMerged"), ticket.mergeTo)));
 				return mergePanel;
+			} else if (MergeStatus.MISSING_INTEGRATION_BRANCH == mergeStatus) {
+				// target/integration branch is missing
+				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", this);
+				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
+				mergePanel.add(new Label("mergeMore", MessageFormat.format(getString("gb.missingIntegrationBranchMore"), ticket.mergeTo)));
+				return mergePanel;
 			} else {
 				// patchset can not be cleanly merged
 				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", this);
@@ -1503,7 +1515,7 @@ public class TicketPage extends RepositoryPage {
 	 */
 	protected RepositoryUrl getRepositoryUrl(UserModel user, RepositoryModel repository) {
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
-		List<RepositoryUrl> urls = app().gitblit().getRepositoryUrls(req, user, repository);
+		List<RepositoryUrl> urls = app().services().getRepositoryUrls(req, user, repository);
 		if (ArrayUtils.isEmpty(urls)) {
 			return null;
 		}

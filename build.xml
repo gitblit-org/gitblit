@@ -8,7 +8,7 @@
 		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.9.3" />
+	<property name="moxie.version" value="0.9.4" />
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
@@ -41,9 +41,10 @@
 		<mx:init verbose="no" mxroot="${moxie.dir}" />
 				
 		<!-- Set Ant project properties -->
-		<property name="distribution.zipfile" value="gitblit-${project.version}.zip" />
-		<property name="distribution.tgzfile" value="gitblit-${project.version}.tar.gz" />
-		<property name="distribution.warfile" value="gitblit-${project.version}.war" />
+		<property name="release.name" value="gitblit-${project.version}"/>
+		<property name="distribution.zipfile" value="${release.name}.zip" />
+		<property name="distribution.tgzfile" value="${release.name}.tar.gz" />
+		<property name="distribution.warfile" value="${release.name}.war" />
 		<property name="fedclient.zipfile" value="fedclient-${project.version}.zip" />
 		<property name="manager.zipfile" value="manager-${project.version}.zip" />
 		<property name="authority.zipfile" value="authority-${project.version}.zip" />
@@ -81,10 +82,9 @@
 			<fileset dir="${project.distrib.dir}/data" />
 		</copy>
 		
-		<!-- copy gitblit.properties to the source directory.
-		     this file is only used for parsing setting descriptions. -->
-		<copy tofile="${project.src.dir}/reference.properties" overwrite="true"
-			file="${project.distrib.dir}/data/gitblit.properties" />
+		<!-- copy defaults.properties to the source directory -->
+		<copy tofile="${project.src.dir}/defaults.properties" overwrite="true"
+			file="${project.distrib.dir}/data/defaults.properties" />
 
 		<!-- copy clientapps.json to the source directory.
 		     this file is only used if a local file is not provided. -->
@@ -101,8 +101,8 @@
 	-->
 	<target name="compile" depends="setup" description="compiles Gitblit from source">
 		
-		<!-- Generate the Keys class from the properties file -->
-		<mx:keys propertiesfile="${project.distrib.dir}/data/gitblit.properties"
+		<!-- Generate the Keys class from the defaults.properties file -->
+		<mx:keys propertiesfile="${project.distrib.dir}/data/defaults.properties"
 			 	outputclass="com.gitblit.Keys"
 			 	todir="${project.src.dir}" />
 
@@ -170,14 +170,17 @@
 		
 		<echo>Building Gitblit GO ${project.version}</echo>
 
-		<local name="go.dir" />
-		<property name="go.dir" value="${project.outputDirectory}/go" />	
+		<local name="go.dir"/>
+		<property name="go.dir" value="${project.outputDirectory}/go"/>
 		<delete dir="${go.dir}" />
+		
+		<local name="go.release.dir" />
+		<property name="go.release.dir" value="${go.dir}/${release.name}" />	
 
 		<local name="webinf" />
 		<property name="webinf" value="${project.compileOutputDirectory}/WEB-INF" />
 
-		<prepareDataDirectory toDir="${go.dir}/data" />
+		<prepareDataDirectory toDir="${go.release.dir}/data" />
 		
 		<!-- Copy the web.xml from the prototype web.xml -->
 		<copy todir="${webinf}" overwrite="true">
@@ -188,42 +191,43 @@
 		</copy>
 		
 		<!-- Build jar -->
-		<mx:jar destfile="${go.dir}/gitblit.jar" includeresources="true">
+		<mx:jar destfile="${go.release.dir}/gitblit.jar" includeresources="true">
 			<mainclass name="com.gitblit.GitBlitServer" />
 			<launcher paths="ext" />
 		</mx:jar>
 
 		<!-- Generate the docs for the GO build -->
-		<generateDocs toDir="${go.dir}/docs" />
-		
+		<generateDocs toDir="${go.release.dir}/docs" />
+
 		<!-- Create GO Windows Zip deployment -->
 		<mx:zip basedir="${go.dir}">
 			<!-- LICENSE and NOTICE -->
-			<fileset dir="${basedir}" >
+			<zipfileset dir="${basedir}" prefix="${release.name}">
 				<include name="LICENSE" />
 				<include name="NOTICE" />
-			</fileset>
+			</zipfileset>
 			<!-- Windows distrib files -->
-			<zipfileset dir="${project.distrib.dir}/win" />
+			<zipfileset dir="${project.distrib.dir}/win" prefix="${release.name}"/>
 			<!-- Gitblit Authority data -->
-			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
+			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="${release.name}/data/certs" />
+
 			<!-- include all dependencies -->
-			<dependencies prefix="ext" />
+			<dependencies prefix="${release.name}/ext" />
 		</mx:zip>
 
 		<!-- Create GO Linux/OSX tar.gz deployment -->
 		<mx:tar basedir="${go.dir}" longfile="gnu" compression="gzip">
 			<!-- LICENSE and NOTICE -->
-			<fileset dir="${basedir}" >
+			<zipfileset dir="${basedir}" prefix="${release.name}">
 				<include name="LICENSE" />
 				<include name="NOTICE" />
-			</fileset>
+			</zipfileset>
 			<!-- Linux/OSX distrib files -->
-			<tarfileset dir="${project.distrib.dir}/linux" filemode="755" />
+			<tarfileset dir="${project.distrib.dir}/linux" filemode="755" prefix="${release.name}"/>
 			<!-- Gitblit Authority data -->
-			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
+			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="${release.name}/data/certs" />
 			<!-- include all dependencies -->
-			<dependencies prefix="ext" />
+			<dependencies prefix="${release.name}/ext" />
 		</mx:tar>		
 
 	</target>
@@ -257,7 +261,7 @@
 		</mx:webxml>
 
 		<!-- Gitblit jar -->
-		<mx:jar destfile="${webinf}/lib/gitblit.jar" includeresources="false" />
+		<mx:jar destfile="${webinf}/lib/gitblit-${project.version}.jar" includeresources="false" />
 
 		<!-- Build the WAR file -->
 		<mx:zip basedir="${war.dir}" destfile="${project.targetDirectory}/${distribution.warfile}" compress="true" >
@@ -290,7 +294,7 @@
 			 classes, exclude any classes in classpath jars -->
 		<mx:genjar tag="" includeresources="false" excludeClasspathJars="true"
 			destfile="${project.targetDirectory}/fedclient.jar"
-			excludes="**/.class,**/*.java, **/Thumbs.db, **/*.mkd, com/gitblit/wicket/**">
+			excludes="**/.class, **/*.java, **/Thumbs.db, **/*.mkd, **/*.md, **/*.css, com/gitblit/wicket/**">
 			<mainclass name="com.gitblit.FederationClient" />
 			<class name="com.gitblit.Keys" />
 			<launcher paths="ext" />
@@ -330,7 +334,8 @@
 		<!-- generate jar by traversing the class hierarchy of the specified
 			 classes, exclude any classes in classpath jars -->
 		<mx:genjar tag="" includeResources="false" excludeClasspathJars="true"
-			destfile="${project.targetDirectory}/manager.jar">
+			destfile="${project.targetDirectory}/manager.jar"
+			excludes="**/.class, **/*.java, **/Thumbs.db, **/*.mkd, **/*.md, **/*.css, com/gitblit/wicket/**">
 			<resource file="${project.src.dir}/com/gitblit/client/splash.png" />
 			<resource file="${project.resources.dir}/gitblt-favicon.png" />
 			<resource file="${project.resources.dir}/gitweb-favicon.png" />
@@ -406,9 +411,10 @@
 
 		<!-- Build API Library jar -->
 		<mx:genjar tag="" includeResources="false" excludeClasspathJars="true"
-			destfile="${project.targetDirectory}/gbapi-${project.version}.jar">
+			destfile="${project.targetDirectory}/gbapi-${project.version}.jar"
+			excludes="**/.class, **/*.java, **/Thumbs.db, **/*.mkd, **/*.md, **/*.css, com/gitblit/wicket/**">
+			<mainclass name="com.gitblit.client.GitblitClient" />
 			<class name="com.gitblit.Keys" />
-			<class name="com.gitblit.client.GitblitClient" />
 			<class name="com.gitblit.models.FederationModel" />
 			<class name="com.gitblit.models.FederationProposal" />
 			<class name="com.gitblit.models.FederationSet" />			
@@ -507,6 +513,7 @@
 						<page name="bugtraq" src="setup_bugtraq.mkd" />
 						<page name="mirrors" src="setup_mirrors.mkd" />
 						<page name="scaling" src="setup_scaling.mkd" />
+						<page name="fail2ban" src="setup_fail2ban.mkd" />
 						<divider />
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 					</menu>
@@ -546,8 +553,6 @@
 					<page name="release history" out="releases.html">
 						<template src="releasehistory.ftl" data="${releaselog}" />
 					</page>
-					<divider />
-					<page name="roadmap" src="roadmap.mkd" />					
 				</menu>
 				
 				<menu name="downloads">
@@ -578,7 +583,6 @@
 					<link name="Github" src="${project.scmUrl}" />
 					<link name="Issues" src="${project.issuesUrl}" />
 					<link name="Discussion" src="${project.forumUrl}" />
-					<link name="Google+" src="${project.socialNetworkUrl}" />
 					<link name="Twitter" src="https://twitter.com/gitblit" />
 					<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
                     <divider />
@@ -586,7 +590,6 @@
 					<link name="Gitblit SSH and Plugin Management asciicast" src="https://asciinema.org/a/9342" />
                     <link name="GitMinutes #29: James Moger on Gitblit" src="http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html" />
 					<divider />
-					<link name="+JamesMoger" src="https://plus.google.com/+JamesMoger" />
 					<link name="@JamesMoger" src="https://twitter.com/JamesMoger" />
 				</menu>
 				<divider />
@@ -594,7 +597,7 @@
 			
 			<replace token="%GCURL%" value="${gc.url}" />
 			
-			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/gitblit.properties" />
+			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 			
 			<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
 			<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
@@ -890,12 +893,11 @@
 						<link name="Github" src="${project.scmUrl}" />
 						<link name="Issues" src="${project.issuesUrl}" />
 						<link name="Discussion" src="${project.forumUrl}" />
-						<link name="Google+" src="${project.socialNetworkUrl}" />
 						<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
 					</menu>
 				</structure>
 				
-				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/gitblit.properties" />
+				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 				
 				<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
 				<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
@@ -935,6 +937,7 @@
 				<fileset dir="${project.distrib.dir}/data">
 					<include name="users.conf" />
 					<include name="projects.conf" />
+					<include name="defaults.properties" />
 					<include name="gitblit.properties" />					
 				</fileset>
 			</copy>

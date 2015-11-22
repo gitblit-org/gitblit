@@ -19,7 +19,6 @@ import java.text.MessageFormat;
 
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -31,6 +30,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.NonTrimmedPasswordTextField;
 
 public class ChangePasswordPage extends RootSubPage {
 
@@ -114,10 +114,10 @@ public class ChangePasswordPage extends RootSubPage {
 				setResponsePage(RepositoriesPage.class);
 			}
 		};
-		PasswordTextField passwordField = new PasswordTextField("password", password);
+		NonTrimmedPasswordTextField passwordField = new NonTrimmedPasswordTextField("password", password);
 		passwordField.setResetPassword(false);
 		form.add(passwordField);
-		PasswordTextField confirmPasswordField = new PasswordTextField("confirmPassword",
+		NonTrimmedPasswordTextField confirmPasswordField = new NonTrimmedPasswordTextField("confirmPassword",
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField);

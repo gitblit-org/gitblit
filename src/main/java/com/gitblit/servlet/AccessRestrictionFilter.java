@@ -17,22 +17,22 @@ package com.gitblit.servlet;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Iterator;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-
-import dagger.ObjectGraph;
 
 /**
  * The AccessRestrictionFilter is an AuthenticationFilter that confirms that the
@@ -54,11 +54,15 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	protected IRepositoryManager repositoryManager;
 
-	@Override
-	protected void inject(ObjectGraph dagger, FilterConfig filterConfig) {
-		super.inject(dagger, filterConfig);
-		this.runtimeManager = dagger.get(IRuntimeManager.class);
-		this.repositoryManager = dagger.get(IRepositoryManager.class);
+	protected AccessRestrictionFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		super(authenticationManager);
+
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**
@@ -82,16 +86,17 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	 *
 	 * @return true if the filter allows repository creation
 	 */
-	protected abstract boolean isCreationAllowed();
+	protected abstract boolean isCreationAllowed(String action);
 
 	/**
 	 * Determine if the action may be executed on the repository.
 	 *
 	 * @param repository
 	 * @param action
+	 * @param method
 	 * @return true if the action may be performed
 	 */
-	protected abstract boolean isActionAllowed(RepositoryModel repository, String action);
+	protected abstract boolean isActionAllowed(RepositoryModel repository, String action, String method);
 
 	/**
 	 * Determine if the repository requires authentication.
@@ -100,7 +105,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	 * @param action
 	 * @return true if authentication required
 	 */
-	protected abstract boolean requiresAuthentication(RepositoryModel repository, String action);
+	protected abstract boolean requiresAuthentication(RepositoryModel repository, String action, String method);
 
 	/**
 	 * Determine if the user can access the repository and perform the specified
@@ -124,7 +129,26 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	protected RepositoryModel createRepository(UserModel user, String repository, String action) {
 		return null;
 	}
-
+	
+	/**
+	 * Allows authentication header to be altered based on the action requested
+	 * Default is WWW-Authenticate
+	 * @param action
+	 * @return authentication type header
+	 */
+	protected String getAuthenticationHeader(String action) {
+		return "WWW-Authenticate";
+	}
+	
+	/**
+	 * Allows request headers to be used as part of filtering
+	 * @param request
+	 * @return true (default) if headers are valid, false otherwise
+	 */
+	protected boolean hasValidRequestHeader(String action, HttpServletRequest request) {
+		return true;
+	}
+	
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
@@ -161,13 +185,14 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		// Load the repository model
 		RepositoryModel model = repositoryManager.getRepositoryModel(repository);
 		if (model == null) {
-			if (isCreationAllowed()) {
+			if (isCreationAllowed(urlRequestType)) {
 				if (user == null) {
 					// challenge client to provide credentials for creation. send 401.
 					if (runtimeManager.isDebugMode()) {
 						logger.info(MessageFormat.format("ARF: CREATE CHALLENGE {0}", fullUrl));
 					}
-					httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
+					
+					httpResponse.setHeader(getAuthenticationHeader(urlRequestType), CHALLENGE);
 					httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				} else {
@@ -186,7 +211,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		}
 
 		// Confirm that the action may be executed on the repository
-		if (!isActionAllowed(model, urlRequestType)) {
+		if (!isActionAllowed(model, urlRequestType, httpRequest.getMethod())) {
 			logger.info(MessageFormat.format("ARF: action {0} on {1} forbidden ({2})",
 					urlRequestType, model, HttpServletResponse.SC_FORBIDDEN));
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -208,13 +233,13 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		}
 
 		// BASIC authentication challenge and response processing
-		if (!StringUtils.isEmpty(urlRequestType) && requiresAuthentication(model, urlRequestType)) {
+		if (!StringUtils.isEmpty(urlRequestType) && requiresAuthentication(model, urlRequestType,  httpRequest.getMethod())) {
 			if (user == null) {
 				// challenge client to provide credentials. send 401.
 				if (runtimeManager.isDebugMode()) {
 					logger.info(MessageFormat.format("ARF: CHALLENGE {0}", fullUrl));
 				}
-				httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
+				httpResponse.setHeader(getAuthenticationHeader(urlRequestType), CHALLENGE);
 				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			} else {
@@ -245,5 +270,18 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		// unauthenticated request permitted.
 		// pass processing to the restricted servlet.
 		chain.doFilter(authenticatedRequest, httpResponse);
+	}
+	
+	public static boolean hasContentInRequestHeader(HttpServletRequest request, String headerName, String content)
+	{
+		Iterator<String> headerItr = Collections.list(request.getHeaders(headerName)).iterator();
+		
+		while (headerItr.hasNext()) {
+			if (headerItr.next().contains(content)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

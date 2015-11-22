@@ -29,12 +29,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.Request;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.resource.ContextRelativeResource;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -46,6 +48,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.Metric;
+import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -54,6 +57,10 @@ public class WicketUtils {
 
 	public static void setCssClass(Component container, String value) {
 		container.add(new SimpleAttributeModifier("class", value));
+	}
+
+	public static void addCssClass(Component container, String value) {
+		container.add(new AttributeAppender("class", new Model<String>(value), " "));
 	}
 
 	public static void setCssStyle(Component container, String value) {
@@ -324,6 +331,31 @@ public class WicketUtils {
 		return new PageParameters(parameterMap);
 	}
 
+	public static PageParameters newDiffParameter(String repositoryName,
+			String objectId, DiffComparator diffComparator) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(objectId)) {
+			return newRepositoryParameter(repositoryName);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("w", "" + diffComparator.ordinal());
+		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newDiffParameter(String repositoryName,
+			String objectId, DiffComparator diffComparator, String blobPath) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(objectId)) {
+			return newRepositoryParameter(repositoryName);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("w", "" + diffComparator.ordinal());
+		parameterMap.put("f", blobPath);
+		return new PageParameters(parameterMap);
+	}
+
 	public static PageParameters newRangeParameter(String repositoryName,
 			String startRange, String endRange) {
 		Map<String, String> parameterMap = new HashMap<String, String>();
@@ -486,6 +518,11 @@ public class WicketUtils {
 
 	public static String getSearchType(PageParameters params) {
 		return params.getString("st", null);
+	}
+
+	public static DiffComparator getDiffComparator(PageParameters params) {
+		int ordinal = params.getInt("w", 0);
+		return DiffComparator.values()[ordinal];
 	}
 
 	public static int getPage(PageParameters params) {

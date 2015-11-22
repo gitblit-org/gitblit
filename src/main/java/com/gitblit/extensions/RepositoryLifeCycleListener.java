@@ -36,6 +36,24 @@ public abstract class RepositoryLifeCycleListener implements ExtensionPoint {
 	public abstract void onCreation(RepositoryModel repository);
 
 	/**
+	 * Called after a repository has been forked.
+	 *
+	 * @param origin
+	 * @param fork
+	 * @since 1.7.0
+	 */
+	public abstract void onFork(RepositoryModel origin, RepositoryModel fork);
+
+	/**
+	 * Called after a repository has been renamed.
+	 *
+	 * @param oldName
+	 * @param repository
+	 * @since 1.7.0
+	 */
+	public abstract void onRename(String oldName, RepositoryModel repository);
+
+	/**
 	 * Called after a repository has been deleted.
 	 *
 	 * @param repository

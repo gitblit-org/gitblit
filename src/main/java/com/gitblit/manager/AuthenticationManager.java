@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthenticationType;
+import com.gitblit.Constants.Role;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider;
@@ -52,6 +53,8 @@ import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * The authentication manager handles user login & logout.
@@ -59,6 +62,7 @@ import com.gitblit.utils.X509Utils.X509Metadata;
  * @author James Moger
  *
  */
+@Singleton
 public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -75,6 +79,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 	private final Map<String, String> legacyRedirects;
 
+	@Inject
 	public AuthenticationManager(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager) {
@@ -189,6 +194,14 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 */
 	@Override
 	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {
+
+		// Check if this request has already been authenticated, and trust that instead of re-processing
+		String reqAuthUser = (String) httpRequest.getAttribute(Constants.ATTRIB_AUTHUSER);
+		if (!StringUtils.isEmpty(reqAuthUser)) {
+			logger.warn("Called servlet authenticate when request is already authenticated.");
+			return userManager.getUserModel(reqAuthUser);
+		}
+
 		// try to authenticate by servlet container principal
 		if (!requiresCertificate) {
 			Principal principal = httpRequest.getUserPrincipal();
@@ -199,7 +212,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 					UserModel user = userManager.getUserModel(username);
 					if (user != null) {
 						// existing user
-						flagSession(httpRequest, AuthenticationType.CONTAINER);
+						flagRequest(httpRequest, AuthenticationType.CONTAINER, user.username);
 						logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
 						return validateAuthentication(user, AuthenticationType.CONTAINER);
@@ -210,8 +223,31 @@ public class AuthenticationManager implements IAuthenticationManager {
 						user.displayName = username;
 						user.password = Constants.EXTERNAL_ACCOUNT;
 						user.accountType = AccountType.CONTAINER;
+						
+						// Try to extract user's informations for the session
+						// it uses "realm.container.autoAccounts.*" as the attribute name to look for
+						HttpSession session = httpRequest.getSession();
+						String emailAddress = resolveAttribute(session, Keys.realm.container.autoAccounts.emailAddress);
+						if(emailAddress != null) {
+							user.emailAddress = emailAddress;
+						}
+						String displayName = resolveAttribute(session, Keys.realm.container.autoAccounts.displayName);
+						if(displayName != null) {
+							user.displayName = displayName;
+						}
+						String userLocale = resolveAttribute(session, Keys.realm.container.autoAccounts.locale);
+						if(userLocale != null) {
+							user.getPreferences().setLocale(userLocale);
+						}
+						String adminRole = settings.getString(Keys.realm.container.autoAccounts.adminRole, null);
+						if(adminRole != null && ! adminRole.isEmpty()) {
+							if(httpRequest.isUserInRole(adminRole)) {
+								user.canAdmin = true;
+							}
+						}
+						
 						userManager.updateUserModel(user);
-						flagSession(httpRequest, AuthenticationType.CONTAINER);
+						flagRequest(httpRequest, AuthenticationType.CONTAINER, user.username);
 						logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
 								user.username, httpRequest.getRemoteAddr()));
 						return validateAuthentication(user, AuthenticationType.CONTAINER);
@@ -232,7 +268,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 			UserModel user = userManager.getUserModel(model.username);
 			X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
 			if (user != null) {
-				flagSession(httpRequest, AuthenticationType.CERTIFICATE);
+				flagRequest(httpRequest, AuthenticationType.CERTIFICATE, user.username);
 				logger.debug(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
 						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
 				return validateAuthentication(user, AuthenticationType.CERTIFICATE);
@@ -254,7 +290,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		if (!StringUtils.isEmpty(cookie)) {
 			user = userManager.getUserModel(cookie.toCharArray());
 			if (user != null) {
-				flagSession(httpRequest, AuthenticationType.COOKIE);
+				flagRequest(httpRequest, AuthenticationType.COOKIE, user.username);
 				logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
 					user.username, httpRequest.getRemoteAddr()));
 				return validateAuthentication(user, AuthenticationType.COOKIE);
@@ -274,19 +310,41 @@ public class AuthenticationManager implements IAuthenticationManager {
 			if (values.length == 2) {
 				String username = values[0];
 				char[] password = values[1].toCharArray();
-				user = authenticate(username, password);
+				user = authenticate(username, password, httpRequest.getRemoteAddr());
 				if (user != null) {
-					flagSession(httpRequest, AuthenticationType.CREDENTIALS);
+					flagRequest(httpRequest, AuthenticationType.CREDENTIALS, user.username);
 					logger.debug(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return validateAuthentication(user, AuthenticationType.CREDENTIALS);
-				} else {
-					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}",
-							username, httpRequest.getRemoteAddr()));
 				}
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Extract given attribute from the session and return it's content
+	 * it return null if attributeMapping is empty, or if the value is
+	 * empty
+	 * 
+	 * @param session The user session
+	 * @param attributeMapping
+	 * @return
+	 */
+	private String resolveAttribute(HttpSession session, String attributeMapping) {
+		String attributeName = settings.getString(attributeMapping, null);
+		if(StringUtils.isEmpty(attributeName)) {
+			return null;
+		}
+		Object attributeValue = session.getAttribute(attributeName);
+		if(attributeValue == null) {
+			return null;
+		}
+		String value = attributeValue.toString();
+		if(value.isEmpty()) {
+			return null;
+		}
+		return value;
 	}
 
 	/**
@@ -321,6 +379,35 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 
 	/**
+	 * Return the UserModel for already authenticated user.
+	 *
+	 * This implementation assumes that the authentication has already take place
+	 * (e.g. SSHDaemon) and that this is a validation/verification of the user.
+	 *
+	 * @param username
+	 * @return a user object or null
+	 */
+	@Override
+	public UserModel authenticate(String username) {
+		if (username != null) {
+			if (!StringUtils.isEmpty(username)) {
+				UserModel user = userManager.getUserModel(username);
+				if (user != null) {
+					// existing user
+					logger.debug(MessageFormat.format("{0} authenticated externally", user.username));
+					return validateAuthentication(user, AuthenticationType.CONTAINER);
+				}
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0} during external authentication",
+							username));
+			}
+		} else {
+			logger.warn("Empty user passed to AuthenticationManager.authenticate!");
+		}
+		return null;
+	}
+
+
+	/**
 	 * This method allows the authentication manager to reject authentication
 	 * attempts.  It is called after the username/secret have been verified to
 	 * ensure that the authentication technique has been logged.
@@ -341,8 +428,9 @@ public class AuthenticationManager implements IAuthenticationManager {
 		return user;
 	}
 
-	protected void flagSession(HttpServletRequest httpRequest, AuthenticationType authenticationType) {
-		httpRequest.getSession().setAttribute(Constants.AUTHENTICATION_TYPE, authenticationType);
+	protected void flagRequest(HttpServletRequest httpRequest, AuthenticationType authenticationType, String authedUsername) {
+		httpRequest.setAttribute(Constants.ATTRIB_AUTHUSER,  authedUsername);
+		httpRequest.setAttribute(Constants.ATTRIB_AUTHTYPE,  authenticationType);
 	}
 
 	/**
@@ -354,7 +442,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 * @return a user object or null
 	 */
 	@Override
-	public UserModel authenticate(String username, char[] password) {
+	public UserModel authenticate(String username, char[] password, String remoteIP) {
 		if (StringUtils.isEmpty(username)) {
 			// can not authenticate empty username
 			return null;
@@ -371,22 +459,29 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 		// try local authentication
 		if (user != null && user.isLocalAccount()) {
-			return authenticateLocal(user, password);
-		}
-
-		// try registered external authentication providers
-		for (AuthenticationProvider provider : authenticationProviders) {
-			if (provider instanceof UsernamePasswordAuthenticationProvider) {
-				UserModel returnedUser = provider.authenticate(usernameDecoded, password);
-				if (returnedUser != null) {
-					// user authenticated
-					returnedUser.accountType = provider.getAccountType();
-					return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+			UserModel returnedUser = authenticateLocal(user, password);
+			if (returnedUser != null) {
+				// user authenticated
+				return returnedUser;
+			}
+		} else {
+			// try registered external authentication providers
+			for (AuthenticationProvider provider : authenticationProviders) {
+				if (provider instanceof UsernamePasswordAuthenticationProvider) {
+					UserModel returnedUser = provider.authenticate(usernameDecoded, password);
+					if (returnedUser != null) {
+						// user authenticated
+						returnedUser.accountType = provider.getAccountType();
+						return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+					}
 				}
 			}
 		}
 
 		// could not authenticate locally or with a provider
+		logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}", username, 
+				remoteIP != null ? remoteIP : "unknown"));
+		
 		return null;
 	}
 
@@ -463,9 +558,15 @@ public class AuthenticationManager implements IAuthenticationManager {
 	@Override
 	public void setCookie(HttpServletRequest request, HttpServletResponse response, UserModel user) {
 		if (settings.getBoolean(Keys.web.allowCookieAuthentication, true)) {
-			HttpSession session = request.getSession();
-			AuthenticationType authenticationType = (AuthenticationType) session.getAttribute(Constants.AUTHENTICATION_TYPE);
-			boolean standardLogin = authenticationType.isStandard();
+			boolean standardLogin = true;
+
+			if (null != request) {
+				// Pull the auth type from the request, it is set there if container managed
+				AuthenticationType authenticationType = (AuthenticationType) request.getAttribute(Constants.ATTRIB_AUTHTYPE);
+
+				if (null != authenticationType)
+					standardLogin = authenticationType.isStandard();
+			}
 
 			if (standardLogin) {
 				Cookie userCookie;
@@ -574,6 +675,28 @@ public class AuthenticationManager implements IAuthenticationManager {
 	@Override
 	public boolean supportsTeamMembershipChanges(TeamModel team) {
 		return (team != null && team.isLocalTeam()) || findProvider(team).supportsTeamMembershipChanges();
+	}
+
+	/**
+	 * Returns true if the user's role can be changed.
+	 *
+	 * @param user
+	 * @return true if the user's role can be changed
+	 */
+	@Override
+	public boolean supportsRoleChanges(UserModel user, Role role) {
+		return (user != null && user.isLocalAccount()) || findProvider(user).supportsRoleChanges(user, role);
+	}
+
+	/**
+	 * Returns true if the team's role can be changed.
+	 *
+	 * @param user
+	 * @return true if the team's role can be changed
+	 */
+	@Override
+	public boolean supportsRoleChanges(TeamModel team, Role role) {
+		return (team != null && team.isLocalTeam()) || findProvider(team).supportsRoleChanges(team, role);
 	}
 
 	protected AuthenticationProvider findProvider(UserModel user) {

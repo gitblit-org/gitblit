@@ -24,7 +24,7 @@ This file is formatted like a standard Git config file.  Here are some quick exa
         logregex = "Change-Id:\\s*(I[A-Fa-f0-9]{40})"
     
     [bugtraq "jira"]
-        https://jira.atlassian.com/browse/%BUGID%
+        url = https://jira.atlassian.com/browse/%BUGID%
         logregex = (JRA-\\d+)
 
     [bugtraq "github"]

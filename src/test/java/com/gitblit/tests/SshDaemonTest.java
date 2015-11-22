@@ -19,8 +19,8 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.apache.sshd.ClientSession;
-import org.apache.sshd.SshClient;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.session.ClientSession;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.revwalk.RevCommit;

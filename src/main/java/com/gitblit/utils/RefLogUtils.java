@@ -294,10 +294,10 @@ public class RefLogUtils {
 								rc));
 					}
 				} finally {
-					revWalk.release();
+					revWalk.close();
 				}
 			} finally {
-				odi.release();
+				odi.close();
 			}
 		} catch (Throwable t) {
 			error(t, repository, "Failed to commit reflog entry to {0}");
@@ -395,12 +395,12 @@ public class RefLogUtils {
 			}
 
 			// release the treewalk
-			treeWalk.release();
+			treeWalk.close();
 
 			// finish temporary in-core index used for this commit
 			dcBuilder.finish();
 		} finally {
-			inserter.release();
+			inserter.close();
 		}
 		return inCoreIndex;
 	}

@@ -166,7 +166,7 @@ public class DigestsPanel extends BasePanel {
 				} else if (isTag) {
 					// link to tag
 					logItem.add(new LinkPanel("refChanged", null, shortRefName,
-							TagPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
+							TagPage.class, WicketUtils.newObjectParameter(change.repository, shortRefName)));
 				} else if (isTicket) {
 					// link to ticket
 					logItem.add(new LinkPanel("refChanged", null, shortRefName,
@@ -174,7 +174,7 @@ public class DigestsPanel extends BasePanel {
 				} else {
 					// link to tree
 					logItem.add(new LinkPanel("refChanged", null, shortRefName,
-						TreePage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
+						TreePage.class, WicketUtils.newObjectParameter(change.repository, shortRefName)));
 				}
 
 				// to/from/etc
@@ -216,7 +216,7 @@ public class DigestsPanel extends BasePanel {
 						final RepositoryCommit commit = commitItem.getModelObject();
 
 						// author gravatar
-						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent(), null, 16, false));
+						commitItem.add(new AvatarImage("commitAuthor", commit.getAuthorIdent(), null, 16, false));
 
 						// merge icon
 						if (commit.getParentCount() > 1) {

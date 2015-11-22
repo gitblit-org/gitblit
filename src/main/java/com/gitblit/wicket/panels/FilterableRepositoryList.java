@@ -125,7 +125,15 @@ public class FilterableRepositoryList extends BasePanel {
 			item.t = getTimeUtils().timeAgo(repo.lastChange);
 			item.d = df.format(repo.lastChange);
 			item.c = StringUtils.getColor(StringUtils.stripDotGit(repo.name));
-			item.wc = repo.isBare ? 0 : 1;
+			if (!repo.isBare) {
+				item.y = 3;
+			} else if (repo.isMirror) {
+				item.y = 2;
+			} else if (repo.isFork()) {
+				item.y = 1;
+			} else {
+				item.y = 0;
+			}
 			list.add(item);
 		}
 
@@ -147,6 +155,6 @@ public class FilterableRepositoryList extends BasePanel {
 		String i; // information/description
 		long s;   // stars
 		String c; // html color
-		int wc;   // working copy: 1 = true, 0 = false
+		int y;    // type: 0 = normal, 1 = fork, 2 = mirror, 3 = clone
 	}
 }

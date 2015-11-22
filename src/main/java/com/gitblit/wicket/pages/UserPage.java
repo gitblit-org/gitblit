@@ -104,7 +104,7 @@ public class UserPage extends RootPage {
 		if (isMyProfile) {
 			addPreferences(user);
 
-			if (app().gitblit().isServingSSH()) {
+			if (app().services().isServingSSH()) {
 				// show the SSH key management tab
 				addSshKeys(user);
 			} else {
@@ -183,7 +183,8 @@ public class UserPage extends RootPage {
 				new Language("Norsk", "no"),
 				new Language("Język Polski", "pl"),
 				new Language("Português", "pt_BR"),
-				new Language("中文", "zh_CN"));
+				new Language("簡體中文", "zh_CN"),
+				new Language("正體中文", "zh_TW"));
 
 		Locale locale = user.getPreferences().getLocale();
 		if (locale == null) {
@@ -248,14 +249,16 @@ public class UserPage extends RootPage {
 				emailMeOnMyTicketChanges).setVisible(app().notifier().isSendingMail()));
 
 		List<Transport> availableTransports = new ArrayList<>();
-		if (app().gitblit().isServingSSH()) {
+		if (app().services().isServingSSH()) {
 			availableTransports.add(Transport.SSH);
 		}
-		if (app().gitblit().isServingHTTP()) {
-			availableTransports.add(Transport.HTTPS);
+		if (app().services().isServingHTTP()) {
 			availableTransports.add(Transport.HTTP);
 		}
-		if (app().gitblit().isServingGIT()) {
+		if (app().services().isServingHTTPS()) {
+			availableTransports.add(Transport.HTTPS);
+		}
+		if (app().services().isServingGIT()) {
 			availableTransports.add(Transport.GIT);
 		}
 

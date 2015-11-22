@@ -214,7 +214,7 @@ public final class BugtraqConfig {
 			}
 			finally {
 				rw.dispose();
-				tw.release();
+				tw.close();
 			}
 
 			if (content == null) {

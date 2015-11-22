@@ -3,14 +3,14 @@
 #
 
 # Specify minimum Moxie version required to build
-requires: 0.9.3
+requires: 0.9.4
 
 # Project Metadata
 name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.6.3-SNAPSHOT
+version: 1.7.0-SNAPSHOT
 inceptionYear: 2011
 
 # Current stable release
@@ -19,7 +19,7 @@ releaseDate: 2014-10-28
 
 # Project urls
 url: 'http://gitblit.com'
-issuesUrl: 'http://code.google.com/p/gitblit/issues/list'
+issuesUrl: 'https://github.com/gitblit/gitblit'
 socialNetworkUrl: 'https://plus.google.com/114464678392593421684'
 forumUrl: 'http://groups.google.com/group/gitblit'
 mavenUrl: 'http://gitblit.github.io/gitblit-maven'
@@ -58,7 +58,7 @@ mainclass: com.gitblit.GitBlitServer
 sourceDirectories:
 - compile 'src/main/java'
 - compile 'src/main/bugtraq'
-- compile 'src/main/dagger' apt
+- compile 'src/main/gen' apt
 - test 'src/test/java'
 - test 'src/test/bugtraq'
 # Moxie supports one site-scoped directory for mx:doc
@@ -95,23 +95,27 @@ dependencyDirectory: ext
 registeredRepositories:
 - { id: eclipse, url: 'http://repo.eclipse.org/content/groups/releases' }
 - { id: eclipse-snapshots, url: 'http://repo.eclipse.org/content/groups/snapshots' }
-- { id: atlassian-contrib, url: 'https://maven.atlassian.com/content/repositories/atlassian-3rdparty' }
+- { id: gitblit, url: 'http://gitblit.github.io/gitblit-maven' }
 
 # Source all dependencies from the following repositories in the specified order
-repositories: central, eclipse-snapshots, eclipse, atlassian-contrib
+repositories: central, eclipse-snapshots, eclipse, gitblit
 
 # Convenience properties for dependencies
 properties: {
-  jetty.version  : 9.2.9.v20150224
-  wicket.version : 1.4.21
-  lucene.version : 4.6.0
-  jgit.version   : 3.5.1.201410131835-r
-  groovy.version : 1.8.8
-  bouncycastle.version : 1.49
+  jetty.version  : 9.2.13.v20150730
+  slf4j.version  : 1.7.12
+  wicket.version : 1.4.22
+  lucene.version : 4.10.4
+  jgit.version   : 4.1.1.201511131810-r
+  groovy.version : 2.4.4
+  bouncycastle.version : 1.52
   selenium.version : 2.28.0
   wikitext.version : 1.4
-  sshd.version: 0.12.0
-  mina.version: 2.0.7
+  sshd.version: 1.0.0
+  mina.version: 2.0.9
+  guice.version : 4.0
+  # Gitblit maintains a fork of guice-servlet
+  guice-servlet.version : 4.0-gb2
   }
 
 # Dependencies
@@ -126,15 +130,14 @@ properties: {
 #
 
 dependencies:
-# Dagger dependency injection library (annotation processor)
-- compile 'com.squareup.dagger:dagger:1.1.0' :war apt
-- compile 'com.squareup.dagger:dagger-compiler:1.1.0' :war optional apt
-# Standard dependencies
+- compile 'com.google.inject:guice:${guice.version}' :war :fedclient
+- compile 'com.google.inject.extensions:guice-servlet:${guice-servlet.version}' :war
+- compile 'com.google.guava:guava:18.0' :war :fedclient
 - compile 'com.intellij:annotations:12.0' :war
-- compile 'log4j:log4j:1.2.17' :war :fedclient :authority
-- compile 'org.slf4j:slf4j-api:1.7.5' :war :fedclient :authority
-- compile 'org.slf4j:slf4j-log4j12:1.7.5' :war :fedclient :authority
-- compile 'com.sun.mail:javax.mail:1.5.1' :war :authority
+- compile 'log4j:log4j:1.2.17' :war :fedclient :manager
+- compile 'org.slf4j:slf4j-api:${slf4j.version}' :war :fedclient :manager
+- compile 'org.slf4j:slf4j-log4j12:${slf4j.version}' :war :fedclient :manager
+- compile 'com.sun.mail:javax.mail:1.5.1' :war
 - compile 'javax.servlet:javax.servlet-api:3.1.0' :fedclient
 - compile 'org.eclipse.jetty.aggregate:jetty-all:${jetty.version}' @jar
 - compile 'org.apache.wicket:wicket:${wicket.version}' :war !org.mockito
@@ -145,36 +148,36 @@ dependencies:
 - compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-memory:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-queryparser:${lucene.version}' :war :fedclient
-- compile 'org.pegdown:pegdown:1.4.2' :war
+- compile 'org.pegdown:pegdown:1.5.0' :war
 - compile 'org.fusesource.wikitext:wikitext-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:twiki-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:textile-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:tracwiki-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:mediawiki-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:confluence-core:${wikitext.version}' :war
-- compile 'org.eclipse.jgit:org.eclipse.jgit:${jgit.version}' :war :fedclient :manager :authority !junit
-- compile 'org.eclipse.jgit:org.eclipse.jgit.http.server:${jgit.version}' :war :manager :authority !junit
-- compile 'org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}' :war :authority
-- compile 'org.bouncycastle:bcmail-jdk15on:${bouncycastle.version}' :war :authority
-- compile 'org.bouncycastle:bcpkix-jdk15on:${bouncycastle.version}' :war :authority
+- compile 'org.eclipse.jgit:org.eclipse.jgit:${jgit.version}' :war :fedclient :manager !junit
+- compile 'org.eclipse.jgit:org.eclipse.jgit.http.server:${jgit.version}' :war :manager !junit
+- compile 'org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}' :war
+- compile 'org.bouncycastle:bcmail-jdk15on:${bouncycastle.version}' :war
+- compile 'org.bouncycastle:bcpkix-jdk15on:${bouncycastle.version}' :war
 - compile 'org.apache.sshd:sshd-core:${sshd.version}' :war !org.easymock
 - compile 'org.apache.mina:mina-core:${mina.version}' :war !org.easymock
 - compile 'rome:rome:0.9' :war :manager :api
-- compile 'com.google.code.gson:gson:1.7.2' :war :fedclient :manager :api
+- compile 'com.google.code.gson:gson:2.3.1' :war :fedclient :manager :api
 - compile 'org.codehaus.groovy:groovy-all:${groovy.version}' :war
-- compile 'com.unboundid:unboundid-ldapsdk:2.3.0' :war
+- compile 'com.unboundid:unboundid-ldapsdk:2.3.8' :war
 - compile 'org.apache.ivy:ivy:2.2.0' :war
 - compile 'com.toedter:jcalendar:1.3.2' :authority
 - compile 'org.apache.commons:commons-compress:1.4.1' :war
 - compile 'commons-io:commons-io:2.2' :war
 - compile 'com.force.api:force-partner-api:24.0.0' :war
-- compile 'org.freemarker:freemarker:2.3.19' :war
-- compile 'com.github.dblock.waffle:waffle-jna:1.5' :war
-- compile 'org.kohsuke:libpam4j:1.7' :war
-- compile 'args4j:args4j:2.0.26' :war :fedclient :authority
+- compile 'org.freemarker:freemarker:2.3.22' :war
+- compile 'com.github.dblock.waffle:waffle-jna:1.7.3' :war
+- compile 'org.kohsuke:libpam4j:1.8' :war
+- compile 'args4j:args4j:2.0.29' :war :fedclient
 - compile 'commons-codec:commons-codec:1.7' :war
-- compile 'redis.clients:jedis:2.3.1' :war
-- compile 'ro.fortsoft.pf4j:pf4j:0.8.0' :war
+- compile 'redis.clients:jedis:2.6.2' :war
+- compile 'ro.fortsoft.pf4j:pf4j:0.9.0' :war
 - compile 'org.apache.tika:tika-core:1.5' :war
 - compile 'org.jsoup:jsoup:1.7.3' :war
 - test 'junit'
@@ -182,6 +185,7 @@ dependencies:
 - test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar
 - test 'org.seleniumhq.selenium:selenium-support:${selenium.version}' @jar
 - test 'org.seleniumhq.selenium:selenium-firefox-driver:${selenium.version}'
+- test 'org.mockito:mockito-core:1.10.19'
 # Dependencies with the "build" scope are retrieved
 # and injected into the Ant runtime classpath
 - build 'jacoco'

@@ -9,7 +9,13 @@
 	</div>
 	
 	<div ng-repeat="item in ${ngList} | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
-		<b><span class="repositorySwatch" style="background-color:{{item.c}};"><span ng-show="item.wc">!</span><span ng-show="!item.wc">&nbsp;</span></span></b>
+		<span style="color:{{item.c}};padding-right:2px;">
+            <span ng-show="item.y == 0" class="octicon octicon-centered octicon-repo"></span>
+            <span ng-show="item.y == 1" class="octicon octicon-centered octicon-repo-forked"></span>
+            <span ng-show="item.y == 2" class="octicon octicon-centered octicon-mirror"></span>
+            <span ng-show="item.y == 3" class="octicon octicon-centered octicon-repo-push"></span>
+        </span>
+    
 		<a href="summary/?r={{item.r}}" title="{{item.i}}">{{item.p}}<b>{{item.n}}</b></a>
 		<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
 		<span ng-show="item.s" class="pull-right">

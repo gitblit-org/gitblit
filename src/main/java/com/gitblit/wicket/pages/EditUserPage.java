@@ -27,7 +27,6 @@ import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
@@ -35,12 +34,14 @@ import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.Constants.Role;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.NonTrimmedPasswordTextField;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
@@ -177,7 +178,9 @@ public class EditUserPage extends RootSubPage {
 
 				// update user permissions
 				for (RegistrantAccessPermission repositoryPermission : permissions) {
-					userModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
+					if (repositoryPermission.mutable) {
+						userModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
+					}
 				}
 
 				Iterator<String> selectedTeams = teams.getSelectedChoices();
@@ -216,24 +219,33 @@ public class EditUserPage extends RootSubPage {
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
-		// not all user services support manipulating username and password
+		// not all user providers support manipulating username and password
 		boolean editCredentials = app().authentication().supportsCredentialChanges(userModel);
 
-		// not all user services support manipulating display name
+		// not all user providers support manipulating display name
 		boolean editDisplayName = app().authentication().supportsDisplayNameChanges(userModel);
 
-		// not all user services support manipulating email address
+		// not all user providers support manipulating email address
 		boolean editEmailAddress = app().authentication().supportsEmailAddressChanges(userModel);
 
-		// not all user services support manipulating team memberships
+		// not all user providers support manipulating team memberships
 		boolean editTeams = app().authentication().supportsTeamMembershipChanges(userModel);
+
+		// not all user providers support manipulating the admin role
+		boolean changeAdminRole = app().authentication().supportsRoleChanges(userModel, Role.ADMIN);
+
+		// not all user providers support manipulating the create role
+		boolean changeCreateRole = app().authentication().supportsRoleChanges(userModel, Role.CREATE);
+
+		// not all user providers support manipulating the fork role
+		boolean changeForkRole = app().authentication().supportsRoleChanges(userModel, Role.FORK);
 
 		// field names reflective match UserModel fields
 		form.add(new TextField<String>("username").setEnabled(editCredentials));
-		PasswordTextField passwordField = new PasswordTextField("password");
+		NonTrimmedPasswordTextField passwordField = new NonTrimmedPasswordTextField("password");
 		passwordField.setResetPassword(false);
 		form.add(passwordField.setEnabled(editCredentials));
-		PasswordTextField confirmPasswordField = new PasswordTextField("confirmPassword",
+		NonTrimmedPasswordTextField confirmPasswordField = new NonTrimmedPasswordTextField("confirmPassword",
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField.setEnabled(editCredentials));
@@ -245,7 +257,7 @@ public class EditUserPage extends RootSubPage {
 			// display a disabled-yet-checked checkbox
 			form.add(new CheckBox("canAdmin", Model.of(true)).setEnabled(false));
 		} else {
-			form.add(new CheckBox("canAdmin"));
+			form.add(new CheckBox("canAdmin").setEnabled(changeAdminRole));
 		}
 
 		if (userModel.canFork() && !userModel.canFork) {
@@ -254,7 +266,7 @@ public class EditUserPage extends RootSubPage {
 			form.add(new CheckBox("canFork", Model.of(true)).setEnabled(false));
 		} else {
 			final boolean forkingAllowed = app().settings().getBoolean(Keys.web.allowForking, true);
-			form.add(new CheckBox("canFork").setEnabled(forkingAllowed));
+			form.add(new CheckBox("canFork").setEnabled(forkingAllowed && changeForkRole));
 		}
 
 		if (userModel.canCreate() && !userModel.canCreate) {
@@ -262,7 +274,7 @@ public class EditUserPage extends RootSubPage {
 			// display a disabled-yet-checked checkbox
 			form.add(new CheckBox("canCreate", Model.of(true)).setEnabled(false));
 		} else {
-			form.add(new CheckBox("canCreate"));
+			form.add(new CheckBox("canCreate").setEnabled(changeCreateRole));
 		}
 
 		form.add(new CheckBox("excludeFromFederation"));
