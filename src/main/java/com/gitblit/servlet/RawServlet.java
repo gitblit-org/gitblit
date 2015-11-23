@@ -233,7 +233,7 @@ public class RawServlet extends HttpServlet {
 				try {
 
 					String ext = StringUtils.getFileExtension(file).toLowerCase();
-					String contentType = quickContentTypes.get(ext);
+					String contentType = file.charAt(0) == '.' ? "text/plain" : quickContentTypes.get(ext);
 
 					if (contentType == null) {
 						List<String> exts = runtimeManager.getSettings().getStrings(Keys.web.prettyPrintExtensions);

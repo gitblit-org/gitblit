@@ -9,11 +9,106 @@ r29: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
-    changes: ~
-    additions: ~
-    dependencyChanges: ~
-    contributors: ~
+    fixes:
+    - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-521, ticket-212)
+    - Fix exception when deleting a repository using the FileTicketService (issue-522, ticket-213)
+    - Do not inject team repository permissions as explicit user permissions when editing a user (issue-462, ticket-214)
+    - Whitelist the target link attribute in the XSS filter (ticket-216)    
+    - Strip line breaks from pasted SSH keys (ticket-245)
+    - Fix project sorting (pr-287)
+    - Fix Lucene indexing of tags (pr-291)
+    - Prevent session fixation for external authentication (pr-908)
+    - Encode email subject as UTF-8 (pr-929)
+    - Do not automatically trim passwords (pr-932)
+    - Fix nested repository detection in raw servlet (pr-950, pr-957)
+    - Raw servlet will now assume text/plain for dot files (pr-956)
+    changes:
+    - Replaced Dagger with Guice (ticket-80)
+    - Use release name as root directory in Gitblit GO artifacts (ticket-109)
+    - Split gitblit.properties into gitblit.properties & defaults.properties (ticket-110)
+    - Show team type in teams page (pr-217, ticket-168)
+    - Relocate the repository Delete button (ticket-225)
+    - Improve diff performance by gracefully limiting large diffs (pr-226)
+    - Add granular settings to disable display of git transport urls (pr-274)
+    - Use author date to be consistent with other tools (pr-919)
+    additions:
+    - Add GitHub Octicons (ticket-106)
+    - Support for chain-loading properties files (ticket-110) 
+    - Add Priority & Severity fields for tickets (pr-220, ticket-157)
+    - Add Maintenance ticket type (pr-223, ticket-206)
+    - Add commitdiff option to ignore whitespace (ticket-233)
+    - Add configurable tab length for blob views (ticket-253)
+    - Implement image diffs (pr-229)
+    - Add support for configurable HTTP proxy host/port in PluginManager (pr-235)
+    - Implement collapsed empty folder navigation (pr-241)
+    - Implement hashing to detect usermodel changes and reduce users.conf file I/O (pr-246)
+    - Add support for Kerberos5/GSS authentication to SSH (pr-254)
+    - Allow extraction of additional user metadata in request headers when using external or container authentication (pr-255)
+    - Allow custom host & port specification for advertised SSH urls (pr-268)
+    - Improve logging for fail2ban usage (pr-296)
+    - Initial implementation of Git-LFS (pr-921)
+    - Add "all" repositories parameter to Search page (pr-935)
+    dependencyChanges:
+    - Guice 4.0 (ticket-80, ticket-219)
+    - SLF4j 1.7.12
+    - gson 2.3.1
+    - Freemarker 2.3.22
+    - Lucene 4.10.0 (ticket-159)
+    - SSHD 1.0.0
+    - JGit 4.1.1
+    - Groovy 2.4.4
+    - Wicket 1.4.22
+    - BouncyCastle 1.52
+    - Pegdown 1.5.0
+    - Jetty 9.2.13
+    settings:
+    - { name: web.displayUserPanel, defaultValue: 'true' }
+    - { name: web.tabLength, defaultValue: 4 }
+    - { name: web.avatarClass, defaultValue: '' }
+    - { name: web.showHttpServletUrls, defaultValue: 'true' }
+    - { name: web.showGitDaemonUrls, defaultValue: 'true' }
+    - { name: web.showSshDaemonUrls, defaultValue: 'true' }
+    - { name: web.advertiseAccessPermissionForOtherUrls, defaultValue: 'false' }
+    - { name: web.maxDiffLinesPerFile, defaultValue: '4000' }
+    - { name: web.maxDiffLines, defaultValue: '20000' }
+    - { name: ssh.advertisedHost, defaultValue: '' }
+    - { name: ssh.advertisedPort, defaultValue: '' }
+    - { name: git.sshWithKrb5, defaultValue: '' }
+    - { name: git.sshKrb5Keytab, defaultValue: '' }
+    - { name: git.sshKrb5ServicePrincipalName, defaultValue: '' }
+    - { name: git.sshKrb5StripDomain, defaultValue: 'true' }
+    - { name: filestore.storageFolder, defaultValue: '${baseFolder}/lfs' }
+    - { name: filestore.maxUploadSize, defaultValue: '-1' }
+    - { name: plugins.httpProxyHost, defaultValue: '' }
+    - { name: plugins.httpProxyPort, defaultValue: '' }
+    - { name: plugins.httpProxyAuthorization, defaultValue: '' }
+    - { name: realm.container.autoAccounts.displayName, defaultValue: '' }
+    - { name: realm.container.autoAccounts.emailAddress, defaultValue: '' }
+    - { name: realm.container.autoAccounts.locale, defaultValue: '' }
+    - { name: realm.container.autoAccounts.adminRole, defaultValue: '' }
+    
+    contributors:
+    - James Moger
+    - David Ostrovsky
+    - Alex Lewis
+    - Florian Zschocke
+    - Paul Martin
+    - razzard
+    - Alexander Zabluda
+    - Marcin Cieślak
+    - Rainer W
+    - Vitaliy Filippov
+    - willyann
+    - enrico204
+    - mrjoel
+    - Fabrice Bacchella
+    - Milos Cubrilo
+    - Thomas Wolf
+    - Morten Bøgeskov
+    - Steven Oliver
+    - Dariusz Bywalec
+    - Jan Šmucr
+    -paladox
 }
 
 #
@@ -23,7 +118,7 @@ r28: {
     title: Gitblit 1.7.1 released
     id: 1.7.1
     date: 2015-11-23
-    note: This is a re-build of 1.7.0 with the fix for failed WAR deployments.
+    note: This is a re-build of 1.7.0 with a fix for failed WAR deployments.
     html: ~
     text: ~
     security: ~
