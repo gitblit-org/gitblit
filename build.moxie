@@ -14,8 +14,8 @@ version: 1.8.0-SNAPSHOT
 inceptionYear: 2011
 
 # Current stable release
-releaseVersion: 1.7.0
-releaseDate: 2015-11-22
+releaseVersion: 1.7.1
+releaseDate: 2015-11-23
 
 # Project urls
 url: 'http://gitblit.com'
