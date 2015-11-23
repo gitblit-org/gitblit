@@ -24,14 +24,12 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -50,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;
@@ -57,8 +56,8 @@ import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+
+import dagger.ObjectGraph;
 
 /**
  * Serves the content of a branch.
@@ -66,24 +65,20 @@ import com.google.inject.Singleton;
  * @author James Moger
  *
  */
-@Singleton
-public class RawServlet extends HttpServlet {
+public class RawServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(RawServlet.class);
 
-	private final IRuntimeManager runtimeManager;
+	private IRuntimeManager runtimeManager;
 
-	private final IRepositoryManager repositoryManager;
+	private IRepositoryManager repositoryManager;
 
-	@Inject
-	public RawServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager) {
-
-		this.runtimeManager = runtimeManager;
-		this.repositoryManager = repositoryManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.runtimeManager = dagger.get(IRuntimeManager.class);
+		this.repositoryManager = dagger.get(IRepositoryManager.class);
 	}
 
 	/**
@@ -166,23 +161,14 @@ public class RawServlet extends HttpServlet {
 		}
 
 		// determine repository and resource from url
-		String repository = "";
+		String repository = path; 
 		Repository r = null;
-		int offset = 0;
-		while (r == null) {
-			int slash = path.indexOf('/', offset);
-			if (slash == -1) {
-				repository = path;
-			} else {
-				repository = path.substring(0, slash);
-			}
-			offset = ( slash + 1 );
+		int terminator = repository.length();
+		do {
+			repository = repository.substring(0, terminator);
 			r = repositoryManager.getRepository(repository, false);
-			if (repository.equals(path)) {
-				// either only repository in url or no repository found
-				break;
-			}
-		}
+			terminator = repository.lastIndexOf('/');
+		} while (r == null && terminator > -1 );
 
 		ServletContext context = request.getSession().getServletContext();
 
@@ -229,32 +215,15 @@ public class RawServlet extends HttpServlet {
 				return;
 			}
 
-			Map<String, String> quickContentTypes = new HashMap<>();
-			quickContentTypes.put("html", "text/html");
-			quickContentTypes.put("htm", "text/html");
-			quickContentTypes.put("xml", "application/xml");
-			quickContentTypes.put("json", "application/json");
 
 			List<PathModel> pathEntries = JGitUtils.getFilesInPath(r, requestedPath, commit);
 			if (pathEntries.isEmpty()) {
 				// requested a specific resource
 				String file = StringUtils.getLastPathElement(requestedPath);
 				try {
-
-					String ext = StringUtils.getFileExtension(file).toLowerCase();
-					String contentType = quickContentTypes.get(ext);
-
-					if (contentType == null) {
-						List<String> exts = runtimeManager.getSettings().getStrings(Keys.web.prettyPrintExtensions);
-						if (exts.contains(ext)) {
-							// extension is a registered text type for pretty printing
-							contentType = "text/plain";
-						} else {
-							// query Tika for the content type
-							Tika tika = new Tika();
-							contentType = tika.detect(file);
-						}
-					}
+					// query Tika for the content type
+					Tika tika = new Tika();
+					String contentType = tika.detect(file);
 
 					if (contentType == null) {
 						// ask the container for the content type
@@ -266,7 +235,7 @@ public class RawServlet extends HttpServlet {
 						}
 					}
 
-					if (isTextType(contentType) || isTextDataType(contentType)) {
+					if (isTextType(contentType)) {
 
 						// load, interpret, and serve text content as UTF-8
 						String [] encodings = runtimeManager.getSettings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
@@ -400,13 +369,6 @@ public class RawServlet extends HttpServlet {
 		return false;
 	}
 
-	protected boolean isTextDataType(String contentType) {
-		if ("image/svg+xml".equals(contentType)) {
-			return true;
-		}
-		return false;
-	}
-
 	/**
 	 * Override all text types to be plain text.
 	 *
@@ -468,7 +430,7 @@ public class RawServlet extends HttpServlet {
 				served = true;
 			}
 		} finally {
-			tw.close();
+			tw.release();
 			rw.dispose();
 		}
 
