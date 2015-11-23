@@ -119,18 +119,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.0.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.0.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.0.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.1.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.1.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.0.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.1.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -172,6 +172,179 @@
 	<table class="table">
 		<tbody>
 		<!-- RELEASE HISTORY -->
+		<tr id="1.7.1">
+			<td style="width:100px" id="1.7.1">
+				<b><a href="#1.7.1">1.7.1</a></b><br/>
+				2015-11-23
+			</td>
+			<td>		<p class="lead">Gitblit 1.7.1 released</p>		
+	
+	
+
+		<div class="alert alert-info">
+			<h4>Note</h4>
+			This is a re-build of 1.7.0 with the fix for failed WAR deployments.
+		</div>
+
+   	<h4>fixes</h4>
+	<ul>
+		<li>Fix exception when viewing a ticket with a patchset where the integration branch does not exist (<a href='http://code.google.com/p/gitblit/issues/detail?id=521'>issue 521</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/212'>ticket 212</a>)</li>
+		<li>Fix exception when deleting a repository using the FileTicketService (<a href='http://code.google.com/p/gitblit/issues/detail?id=522'>issue 522</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/213'>ticket 213</a>)</li>
+		<li>Do not inject team repository permissions as explicit user permissions when editing a user (<a href='http://code.google.com/p/gitblit/issues/detail?id=462'>issue 462</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/214'>ticket 214</a>)</li>
+		<li>Whitelist the target link attribute in the XSS filter (<a href='https://dev.gitblit.com/tickets/gitblit.git/216'>ticket 216</a>)</li>
+		<li>Strip line breaks from pasted SSH keys (<a href='https://dev.gitblit.com/tickets/gitblit.git/245'>ticket 245</a>)</li>
+		<li>Fix project sorting (<a href='https://github.com/gitblit/gitblit/pull/287'>pull request #287</a>)</li>
+		<li>Fix Lucene indexing of tags (<a href='https://github.com/gitblit/gitblit/pull/291'>pull request #291</a>)</li>
+		<li>Prevent session fixation for external authentication (<a href='https://github.com/gitblit/gitblit/pull/908'>pull request #908</a>)</li>
+		<li>Encode email subject as UTF-8 (<a href='https://github.com/gitblit/gitblit/pull/929'>pull request #929</a>)</li>
+		<li>Do not automatically trim passwords (<a href='https://github.com/gitblit/gitblit/pull/932'>pull request #932</a>)</li>
+		<li>Fix nested repository detection in raw servlet (<a href='https://github.com/gitblit/gitblit/pull/950'>pull request #950</a>)</li>
+	</ul>
+   	<h4>changes</h4>
+	<ul>
+		<li>Replaced Dagger with Guice (<a href='https://dev.gitblit.com/tickets/gitblit.git/80'>ticket 80</a>)</li>
+		<li>Use release name as root directory in Gitblit GO artifacts (<a href='https://dev.gitblit.com/tickets/gitblit.git/109'>ticket 109</a>)</li>
+		<li>Split gitblit.properties into gitblit.properties &amp; defaults.properties (<a href='https://dev.gitblit.com/tickets/gitblit.git/110'>ticket 110</a>)</li>
+		<li>Show team type in teams page (<a href='https://github.com/gitblit/gitblit/pull/217'>pull request #217</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/168'>ticket 168</a>)</li>
+		<li>Relocate the repository Delete button (<a href='https://dev.gitblit.com/tickets/gitblit.git/225'>ticket 225</a>)</li>
+		<li>Improve diff performance by gracefully limiting large diffs (<a href='https://github.com/gitblit/gitblit/pull/226'>pull request #226</a>)</li>
+		<li>Add granular settings to disable display of git transport urls (<a href='https://github.com/gitblit/gitblit/pull/274'>pull request #274</a>)</li>
+		<li>Use author date to be consistent with other tools (<a href='https://github.com/gitblit/gitblit/pull/919'>pull request #919</a>)</li>
+	</ul>
+   	<h4>additions</h4>
+	<ul>
+		<li>Add GitHub Octicons (<a href='https://dev.gitblit.com/tickets/gitblit.git/106'>ticket 106</a>)</li>
+		<li>Support for chain-loading properties files (<a href='https://dev.gitblit.com/tickets/gitblit.git/110'>ticket 110</a>)</li>
+		<li>Add Priority &amp; Severity fields for tickets (<a href='https://github.com/gitblit/gitblit/pull/220'>pull request #220</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/157'>ticket 157</a>)</li>
+		<li>Add Maintenance ticket type (<a href='https://github.com/gitblit/gitblit/pull/223'>pull request #223</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/206'>ticket 206</a>)</li>
+		<li>Add commitdiff option to ignore whitespace (<a href='https://dev.gitblit.com/tickets/gitblit.git/233'>ticket 233</a>)</li>
+		<li>Add configurable tab length for blob views (<a href='https://dev.gitblit.com/tickets/gitblit.git/253'>ticket 253</a>)</li>
+		<li>Implement image diffs (<a href='https://github.com/gitblit/gitblit/pull/229'>pull request #229</a>)</li>
+		<li>Add support for configurable HTTP proxy host/port in PluginManager (<a href='https://github.com/gitblit/gitblit/pull/235'>pull request #235</a>)</li>
+		<li>Implement collapsed empty folder navigation (<a href='https://github.com/gitblit/gitblit/pull/241'>pull request #241</a>)</li>
+		<li>Implement hashing to detect usermodel changes and reduce users.conf file I/O (<a href='https://github.com/gitblit/gitblit/pull/246'>pull request #246</a>)</li>
+		<li>Add support for Kerberos5/GSS authentication to SSH (<a href='https://github.com/gitblit/gitblit/pull/254'>pull request #254</a>)</li>
+		<li>Allow extraction of additional user metadata in request headers when using external or container authentication (<a href='https://github.com/gitblit/gitblit/pull/255'>pull request #255</a>)</li>
+		<li>Allow custom host &amp; port specification for advertised SSH urls (<a href='https://github.com/gitblit/gitblit/pull/268'>pull request #268</a>)</li>
+		<li>Improve logging for fail2ban usage (<a href='https://github.com/gitblit/gitblit/pull/296'>pull request #296</a>)</li>
+		<li>Initial implementation of Git-LFS (<a href='https://github.com/gitblit/gitblit/pull/921'>pull request #921</a>)</li>
+		<li>Add &quot;all&quot; repositories parameter to Search page (<a href='https://github.com/gitblit/gitblit/pull/935'>pull request #935</a>)</li>
+	</ul>
+   	<h4>new settings</h4>
+	<table class="table">
+		<tr>
+			<td><em>web.displayUserPanel</em></td><td>true</td>
+		</tr>
+		<tr>
+			<td><em>web.tabLength</em></td><td>4</td>
+		</tr>
+		<tr>
+			<td><em>web.avatarClass</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>web.showHttpServletUrls</em></td><td>true</td>
+		</tr>
+		<tr>
+			<td><em>web.showGitDaemonUrls</em></td><td>true</td>
+		</tr>
+		<tr>
+			<td><em>web.showSshDaemonUrls</em></td><td>true</td>
+		</tr>
+		<tr>
+			<td><em>web.advertiseAccessPermissionForOtherUrls</em></td><td>false</td>
+		</tr>
+		<tr>
+			<td><em>web.maxDiffLinesPerFile</em></td><td>4000</td>
+		</tr>
+		<tr>
+			<td><em>web.maxDiffLines</em></td><td>20000</td>
+		</tr>
+		<tr>
+			<td><em>ssh.advertisedHost</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>ssh.advertisedPort</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>git.sshWithKrb5</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>git.sshKrb5Keytab</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>git.sshKrb5ServicePrincipalName</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>git.sshKrb5StripDomain</em></td><td>true</td>
+		</tr>
+		<tr>
+			<td><em>filestore.storageFolder</em></td><td>${baseFolder}/lfs</td>
+		</tr>
+		<tr>
+			<td><em>filestore.maxUploadSize</em></td><td>-1</td>
+		</tr>
+		<tr>
+			<td><em>plugins.httpProxyHost</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>plugins.httpProxyPort</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>plugins.httpProxyAuthorization</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>realm.container.autoAccounts.displayName</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>realm.container.autoAccounts.emailAddress</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>realm.container.autoAccounts.locale</em></td><td></td>
+		</tr>
+		<tr>
+			<td><em>realm.container.autoAccounts.adminRole</em></td><td></td>
+		</tr>
+	</table>
+   	<h4>dependency changes</h4>
+	<ul>
+		<li>Guice 4.0 (<a href='https://dev.gitblit.com/tickets/gitblit.git/80'>ticket 80</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/219'>ticket 219</a>)</li>
+		<li>SLF4j 1.7.12</li>
+		<li>gson 2.3.1</li>
+		<li>Freemarker 2.3.22</li>
+		<li>Lucene 4.10.0 (<a href='https://dev.gitblit.com/tickets/gitblit.git/159'>ticket 159</a>)</li>
+		<li>SSHD 1.0.0</li>
+		<li>JGit 4.1.1</li>
+		<li>Groovy 2.4.4</li>
+		<li>Wicket 1.4.22</li>
+		<li>BouncyCastle 1.52</li>
+		<li>Pegdown 1.5.0</li>
+		<li>Jetty 9.2.13</li>
+	</ul>
+   	<h4>contributors</h4>
+	<ul>
+		<li>Alexander Zabluda</li>
+		<li>Alex Lewis</li>
+		<li>Dariusz Bywalec</li>
+		<li>David Ostrovsky</li>
+		<li>enrico204</li>
+		<li>Fabrice Bacchella</li>
+		<li>Florian Zschocke</li>
+		<li>James Moger</li>
+		<li>Jan Šmucr</li>
+		<li>Marcin Cieślak</li>
+		<li>Milos Cubrilo</li>
+		<li>Morten Bøgeskov</li>
+		<li>mrjoel</li>
+		<li>Paul Martin</li>
+		<li>Rainer W</li>
+		<li>razzard</li>
+		<li>Steven Oliver</li>
+		<li>Thomas Wolf</li>
+		<li>Vitaliy Filippov</li>
+		<li>willyann</li>
+	</ul>
+</td>
+		</tr>
 		<tr id="1.7.0">
 			<td style="width:100px" id="1.7.0">
 				<b><a href="#1.7.0">1.7.0</a></b><br/>
@@ -2299,7 +2472,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 	</table>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2015-11-22</p>
+<footer class="footer"><p class="pull-right">generated 2015-11-23</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
