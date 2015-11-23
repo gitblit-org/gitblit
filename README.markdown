@@ -31,27 +31,7 @@ Getting help
 Contributing
 ------------
 
-GitHub pull requests or Gitblit Tickets are preferred.  Any contributions must be distributed under the terms of the [Apache Software Foundation license, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
-
-**Workflow**
-
-Gitblit practices the [git-flow][1] branching model.
-
-- **master** is the current stable release + fixes accumulated since release.
-- **develop** is the integration branch for the next major release.
-- **ticket/N** are feature or hotfix branches to be merged to **master** or **develop**, as appropriate.
-
-**Feature Development**
-
-Development of new features is mostly done using [Gitblit Tickets][2] hosted at [dev.gitblit.com][3].  This allows continuous dogfooding and improvement of Gitbit's own issue-tracker and pull-request mechanism.
-
-**Release Planning**
-
-Release planning is mostly done using Gitblit Milestones and Gitblit Tickets hosted at [dev.gitblit.com][3].
-
-**Releasing**
-
-When Gitblit is preparing for a release, a **release-{milestone}** branch will be created, tested, & fixed until it is ready to be merged to **master** and tagged as the next major release.  After the release is tagged, the **release-{milestone}** branch will also be merged back into **develop** and then the release branch will be removed.
+GitHub pull requests are preferred.  Any contributions must be distributed under the terms of the [Apache Software Foundation license, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 Building Gitblit
 ----------------
@@ -75,6 +55,3 @@ Building Tips & Tricks
 1. If you are running Ant from an ANSI-capable console, consider setting the `MX_COLOR` environment variable before executing Ant.<pre>set MX_COLOR=true</pre>
 2. The build script will honor your Maven proxy settings.  If you need to fine-tune this, please review the [settings.moxie](http://gitblit.github.io/moxie/settings.html) documentation.
 
-[1]: http://nvie.com/posts/a-successful-git-branching-model
-[2]: http://gitblit.com/tickets_overview.html
-[3]: https://dev.gitblit.com
