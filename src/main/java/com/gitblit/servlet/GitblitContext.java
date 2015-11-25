@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -455,7 +456,12 @@ public class GitblitContext extends GuiceServletContextListener {
 	}
 
 	protected void extractResources(ServletContext context, String path, File toDir) {
-		for (String resource : context.getResourcePaths(path)) {
+		Set<String> resources = context.getResourcePaths(path);
+		if (resources == null) {
+			logger.warn("There are no WAR resources to extract from {}", path);
+			return;
+		}
+		for (String resource : resources) {
 			// extract the resource to the directory if it does not exist
 			File f = new File(toDir, resource.substring(path.length()));
 			if (!f.exists()) {
