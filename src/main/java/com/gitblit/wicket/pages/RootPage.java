@@ -197,9 +197,9 @@ public abstract class RootPage extends BasePage {
 			}
 			navLinks.add(new PageNavLink("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
-			if (user.canAdmin()) {
-				navLinks.add(new PageNavLink("gb.filestore", FilestorePage.class, getRootPageParameters()));
-			}
+			
+			navLinks.add(new PageNavLink("gb.filestore", FilestorePage.class, getRootPageParameters()));
+				
 			navLinks.add(new PageNavLink("gb.activity", ActivityPage.class, getRootPageParameters()));
 			if (allowLucene) {
 				navLinks.add(new PageNavLink("gb.search", LuceneSearchPage.class));

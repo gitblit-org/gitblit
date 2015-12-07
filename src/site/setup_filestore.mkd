@@ -1,0 +1,61 @@
+## Configure Git Large File Storage
+
+Gitblit provides a filestore that supports the [Git Large File Storage (LFS) API](https://git-lfs.github.com/).
+
+### Server Configuration
+
+Gitblit is configured to work straight away.  However you may want to update the following in `gitblit.properties`:
+
+<table class="table">
+<thead>
+<tr><th>parameter</th><th>value</th><th>description</th></tr>
+</thead>
+<tbody>
+<tr>
+  <th>filestore.storageFolder</th><td>${baseFolder}/lfs</td>
+  <td>The path on the server where filestore objects are to be saved.</td>
+</tr>
+<tr>
+  <th>filestore.maxUploadSize</th><td>-1</td>
+  <td>The maximum allowable size that can be uploaded to the filestore.  Once a file is uploaded it will be unaffected by later changes in this property. The default of -1 indicates no limits.</td>
+</tr>
+</tbody>
+</table>
+
+	
+### Limitations
+
+Gitblit currently provides a server-only implementation of the opensource Git LFS API.
+
+1. Files in the filestore are not currently searchable by Lucene.
+2. Mirroring a repository that uses Git LFS will only mirror the pointer files, not the large files.
+3. Federation - Only the pointer files, not the large files, are transfered.
+
+Items 2 & 3 are pending [JGit Git LFS client capabilities](https://bugs.eclipse.org/bugs/show_bug.cgi?id=470333).
+
+
+### How does it work?
+
+1. Files that should be handled by Git LFS are defined in the `.gitattributes` file.
+2. Git LFS installs a pre-commit hook when installed `git lfs install`.
+3. When a commit is made the pre-commit hook replaces the defined Git LFS files with a pointer file containing metadata about the file so that it can be found later.
+4. When a commit is pushed, the changeset is sent to the git repository and the large files are sent to the filestore.   
+
+For further details check out the [Git LFS specification](https://github.com/github/git-lfs/blob/master/docs/spec.md).
+
+### Convert/Migrate existing repository
+
+It is possible to migrate an existing repository containing large files to one that leverages the filestore.  However, commit hash history will be altered.
+
+The following command may be run on a local repository:
+
+    git filter-branch --prune-empty --tree-filter '
+    git lfs track "*.docx" "*.pdf" > /dev/null
+    git add .gitattributes
+    git ls-files | xargs -d "\n" git check-attr filter | grep "filter: lfs" | sed -r "s/(.*): filter: lfs/\1/" | xargs -d "\n" -r bash -c "git rm -f --cached \"\$@\"; git add \"\$@\"" bash \
+    ' --tag-name-filter cat -- --all
+
+
+### Further Considerations
+
+While [other Git LFS implementations are available](https://github.com/github/git-lfs/wiki/Implementations) as there is no current [JGit LFS client capability](https://bugs.eclipse.org/bugs/show_bug.cgi?id=470333), Gitblit will be unable to access them.   

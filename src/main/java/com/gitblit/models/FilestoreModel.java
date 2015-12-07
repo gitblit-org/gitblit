@@ -111,6 +111,15 @@ public class FilestoreModel implements Serializable {
 		repositories.remove(repo);
 	}
 	
+	public synchronized boolean isInRepositoryList(List<String> repoList) {
+		for (String name : repositories) {
+			if (repoList.contains(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public static enum Status {
 
 		Deleted(-30),
