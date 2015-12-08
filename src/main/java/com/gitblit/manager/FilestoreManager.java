@@ -77,6 +77,8 @@ public class FilestoreManager implements IFilestoreManager {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final IRuntimeManager runtimeManager;
+	
+	private final IRepositoryManager repositoryManager;
 
 	private final IStoredSettings settings;
 
@@ -93,8 +95,10 @@ public class FilestoreManager implements IFilestoreManager {
 
 	@Inject
 	FilestoreManager(
-			IRuntimeManager runtimeManager) {
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
 		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
 		this.settings = runtimeManager.getSettings();
 	}
 
@@ -324,8 +328,29 @@ public class FilestoreManager implements IFilestoreManager {
 	}
 
 	@Override
-	public List<FilestoreModel> getAllObjects() {
-		return new ArrayList<FilestoreModel>(fileCache.values());
+	public List<FilestoreModel> getAllObjects(UserModel user) {
+		
+		final List<RepositoryModel> viewableRepositories = repositoryManager.getRepositoryModels(user);
+		List<String> viewableRepositoryNames = new ArrayList<String>(viewableRepositories.size());
+		
+		for (RepositoryModel repository : viewableRepositories) {
+			viewableRepositoryNames.add(repository.name);
+		}
+		
+		if (viewableRepositoryNames.size() == 0) {
+			return null;
+		}
+		
+		final Collection<FilestoreModel> allFiles = fileCache.values();
+		List<FilestoreModel> userViewableFiles = new ArrayList<FilestoreModel>(allFiles.size());
+		
+		for (FilestoreModel file : allFiles) {
+			if (file.isInRepositoryList(viewableRepositoryNames)) {
+				userViewableFiles.add(file);
+			}
+		}
+		
+		return userViewableFiles;				
 	}
 
 	@Override

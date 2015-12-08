@@ -18,6 +18,7 @@ package com.gitblit.wicket.pages;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -31,9 +32,12 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import com.gitblit.Constants;
 import com.gitblit.models.FilestoreModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.FilestoreUI;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 
 /**
  * Page to display the current status of the filestore.
@@ -41,17 +45,22 @@ import com.gitblit.wicket.WicketUtils;
  *
  * @author Paul Martin
  */
-@RequiresAdminRole
+@CacheControl(LastModified.ACTIVITY)
 public class FilestorePage extends RootPage {
 
 	public FilestorePage() {
 		super();
 		setupPage("", "");
 
-		final List<FilestoreModel> files = app().filestore().getAllObjects();
+		final UserModel user = (GitBlitWebSession.get().getUser() == null) ? UserModel.ANONYMOUS : GitBlitWebSession.get().getUser();
 		final long nBytesUsed = app().filestore().getFilestoreUsedByteCount();
 		final long nBytesAvailable = app().filestore().getFilestoreAvailableByteCount();
+		List<FilestoreModel> files = app().filestore().getAllObjects(user);
 
+		if (files == null) {
+			files = new ArrayList<FilestoreModel>();
+		}
+		
 		String message = MessageFormat.format(getString("gb.filestoreStats"), files.size(),
 				FileUtils.byteCountToDisplaySize(nBytesUsed), FileUtils.byteCountToDisplaySize(nBytesAvailable) );
 
@@ -63,7 +72,6 @@ public class FilestorePage extends RootPage {
 		BookmarkablePageLink<Void> helpLink = new BookmarkablePageLink<Void>("filestoreHelp", FilestoreUsage.class);
 		helpLink.add(new Label("helpMessage", getString("gb.filestoreHelp")));
 		add(helpLink);
-
 
 		DataView<FilestoreModel> filesView = new DataView<FilestoreModel>("fileRow",
 				new ListDataProvider<FilestoreModel>(files)) {

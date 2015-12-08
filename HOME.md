@@ -33,6 +33,8 @@ This documentation is the source content from which the [Gitblit website](http:/
 [[src/site/setup_viewer.mkd]]
 [[src/site/administration.mkd]]
 [[src/site/setup_scaling.mkd]]
+[[src/site/setup_filestore.mkd]]
+
 
 ### Gitblit Tickets
 
