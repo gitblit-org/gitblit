@@ -33,10 +33,6 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.GitBlitException.ForbiddenException;
-import com.gitblit.GitBlitException.NotAllowedException;
-import com.gitblit.GitBlitException.UnauthorizedException;
-import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FeedEntryModel;
@@ -119,34 +115,19 @@ public class GitblitClient implements Serializable {
 		refreshRepositories();
 		refreshSubscribedFeeds(0);
 
-		try {
-			// credentials may not have administrator access
-			// or server may have disabled rpc management
-			refreshUsers();
-			if (protocolVersion > 1) {
-				refreshTeams();
-			}
-			allowManagement = true;
-		} catch (UnauthorizedException e) {
-		} catch (ForbiddenException e) {
-		} catch (NotAllowedException e) {
-		} catch (UnknownRequestException e) {
-		} catch (IOException e) {
-			e.printStackTrace();
+		// credentials may not have administrator access
+		// or server may have disabled rpc management
+		refreshUsers();
+		if (protocolVersion > 1) {
+			refreshTeams();
 		}
+		allowManagement = true;
 
-		try {
-			// credentials may not have administrator access
-			// or server may have disabled rpc administration
-			refreshStatus();
-			allowAdministration = true;
-		} catch (UnauthorizedException e) {
-		} catch (ForbiddenException e) {
-		} catch (NotAllowedException e) {
-		} catch (UnknownRequestException e) {
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// credentials may not have administrator access
+		// or server may have disabled rpc administration
+		refreshStatus();
+		allowAdministration = true;
+
 	}
 
 	public int getProtocolVersion() {
