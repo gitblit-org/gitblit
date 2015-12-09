@@ -19,7 +19,7 @@
 		<!-- Edit Milestone Table -->
 		<table class="ticket">
 			<tr><th><wicket:message key="gb.milestone"></wicket:message></th><td class="edit"><input class="input-large" type="text" wicket:id="name" id="name"></input></td></tr>
-			<tr><th><wicket:message key="gb.due"></wicket:message></th><td class="edit"><input class="input-large" type="text" wicket:id="due"></input> &nbsp;<span class="help-inline" wicket:id="dueFormat"></span></td></tr>
+			<tr><th><wicket:message key="gb.due"></wicket:message></th><td class="edit"><input class="input-large" type="date" wicket:id="due"></input> &nbsp;<span class="help-inline" wicket:id="dueFormat"></span></td></tr>
 			<tr><th><wicket:message key="gb.status"></wicket:message><span style="color:red;">*</span></th><td class="edit"><select class="input-large" wicket:id="status"></select></td></tr>
 			<tr><th></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="notify" /> &nbsp;<span class="help-inline"><wicket:message key="gb.notifyChangedOpenTickets"></wicket:message></span></label></td></tr>
 		</table>

@@ -21,7 +21,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -35,6 +34,7 @@ import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.Html5DateField;
 import com.gitblit.wicket.WicketUtils;
 
 /**
@@ -78,9 +78,10 @@ public class NewMilestonePage extends RepositoryPage {
 		dueModel = Model.of(new Date(System.currentTimeMillis() + TimeUtils.ONEDAY));
 
 		form.add(new TextField<String>("name", nameModel));
-		form.add(new DateTextField("due", dueModel, "yyyy-MM-dd"));
+		form.add(new Html5DateField("due", dueModel, "yyyy-MM-dd"));
 		form.add(new Label("dueFormat", "yyyy-MM-dd"));
-
+		addBottomScriptInline("{var e=document.createElement('input');e.type='date';if(e.type=='date'){$('[name=\"due\"]~.help-inline').hide()}}");
+		addBottomScript("scripts/wicketHtml5Patch.js");
 		form.add(new AjaxButton("create") {
 
 			private static final long serialVersionUID = 1L;
