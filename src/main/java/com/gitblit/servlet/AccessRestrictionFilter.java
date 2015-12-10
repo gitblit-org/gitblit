@@ -248,8 +248,8 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 					// authenticated request permitted.
 					// pass processing to the restricted servlet.
 					newSession(authenticatedRequest, httpResponse);
-					logger.info(MessageFormat.format("ARF: {0} ({1}) authenticated", fullUrl,
-							HttpServletResponse.SC_CONTINUE));
+					logger.info(MessageFormat.format("ARF: authenticated {0} to {1} ({2})", user.username,
+							fullUrl, HttpServletResponse.SC_CONTINUE));
 					chain.doFilter(authenticatedRequest, httpResponse);
 					return;
 				}
