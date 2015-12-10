@@ -233,7 +233,14 @@ public class RawServlet extends HttpServlet {
 				try {
 
 					String ext = StringUtils.getFileExtension(file).toLowerCase();
-					String contentType = file.charAt(0) == '.' ? "text/plain" : quickContentTypes.get(ext);
+					// We can't parse out an extension for classic "dotfiles", so make a general assumption that
+					// they're text files to allow presenting them in browser instead of only for download.
+					//
+					// However, that only holds for files with no other extension included, for files that happen
+					// to start with a dot but also include an extension, process the extension normally.
+					// This logic covers .gitattributes, .gitignore, .zshrc, etc., but does not cover .mongorc.js, .zshrc.bak
+					boolean isExtensionlessDotfile = file.charAt(0) == '.' && (file.length() == 1 || file.indexOf('.',  1) < 0);
+					String contentType = isExtensionlessDotfile ? "text/plain" : quickContentTypes.get(ext);
 
 					if (contentType == null) {
 						List<String> exts = runtimeManager.getSettings().getStrings(Keys.web.prettyPrintExtensions);
