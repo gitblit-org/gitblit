@@ -574,7 +574,7 @@ public class Constants {
 	}
 
 	public static enum AuthenticationType {
-		PUBLIC_KEY, CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER;
+		PUBLIC_KEY, CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER, HTTPHEADER;
 
 		public boolean isStandard() {
 			return ordinal() <= COOKIE.ordinal();
@@ -582,7 +582,7 @@ public class Constants {
 	}
 
 	public static enum AccountType {
-		LOCAL, EXTERNAL, CONTAINER, LDAP, REDMINE, SALESFORCE, WINDOWS, PAM, HTPASSWD;
+		LOCAL, CONTAINER, LDAP, REDMINE, SALESFORCE, WINDOWS, PAM, HTPASSWD, HTTPHEADER;
 
 		public static AccountType fromString(String value) {
 			for (AccountType type : AccountType.values()) {
