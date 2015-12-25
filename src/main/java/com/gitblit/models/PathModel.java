@@ -15,11 +15,20 @@
  */
 package com.gitblit.models;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevWalk;
+
+import com.gitblit.manager.FilestoreManager;
+import com.gitblit.utils.JGitUtils;
 
 /**
  * PathModel is a serializable model class that represents a file or a folder,
@@ -34,16 +43,18 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 
 	public final String name;
 	public final String path;
+	private final FilestoreModel filestoreItem;
 	public final long size;
 	public final int mode;
 	public final String objectId;
 	public final String commitId;
 	public boolean isParentPath;
-
-	public PathModel(String name, String path, long size, int mode, String objectId, String commitId) {
+	
+	public PathModel(String name, String path, FilestoreModel filestoreItem, long size, int mode, String objectId, String commitId) {
 		this.name = name;
 		this.path = path;
-		this.size = size;
+		this.filestoreItem = filestoreItem;
+		this.size = (filestoreItem == null) ? size : filestoreItem.getSize();
 		this.mode = mode;
 		this.objectId = objectId;
 		this.commitId = commitId;
@@ -65,6 +76,18 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		return FileMode.REGULAR_FILE.equals(mode)
 				|| FileMode.EXECUTABLE_FILE.equals(mode)
 				|| (FileMode.MISSING.equals(mode) && !isSymlink() && !isSubmodule() && !isTree());
+	}
+	
+	public boolean isFilestoreItem() {
+		return filestoreItem != null;
+	}
+	
+	public String getFilestoreOid() {
+		if (filestoreItem != null) {
+			return filestoreItem.oid;
+		}
+		
+		return null;
 	}
 
 	@Override
@@ -119,9 +142,9 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 
 		public int deletions;
 
-		public PathChangeModel(String name, String path, long size, int mode, String objectId,
+		public PathChangeModel(String name, String path, FilestoreModel filestoreItem, long size, int mode, String objectId,
 				String commitId, ChangeType type) {
-			super(name, path, size, mode, objectId, commitId);
+			super(name, path, filestoreItem, size, mode, objectId, commitId);
 			this.changeType = type;
 		}
 
@@ -148,18 +171,33 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 			return super.equals(o);
 		}
 
-		public static PathChangeModel from(DiffEntry diff, String commitId) {
+		public static PathChangeModel from(DiffEntry diff, String commitId, Repository repository) {
 			PathChangeModel pcm;
+			FilestoreModel filestoreItem = null;
+			long size = 0;
+
+			if (repository != null) {
+				try (RevWalk revWalk = new RevWalk(repository)) {
+					size = revWalk.getObjectReader().getObjectSize(diff.getNewId().toObjectId(), Constants.OBJ_BLOB);
+	
+					if (JGitUtils.isPossibleFilestoreItem(size)) {
+						filestoreItem = JGitUtils.getFilestoreItem(revWalk.getObjectReader().open(diff.getNewId().toObjectId()));
+					}
+				} catch (Exception e) {
+						e.printStackTrace();
+				}
+			}
+			
 			if (diff.getChangeType().equals(ChangeType.DELETE)) {
-				pcm = new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
+				pcm = new PathChangeModel(diff.getOldPath(), diff.getOldPath(), filestoreItem, size, diff
 						.getNewMode().getBits(), diff.getOldId().name(), commitId, diff
 						.getChangeType());
 			} else if (diff.getChangeType().equals(ChangeType.RENAME)) {
-				pcm = new PathChangeModel(diff.getOldPath(), diff.getNewPath(), 0, diff
+				pcm = new PathChangeModel(diff.getOldPath(), diff.getNewPath(), filestoreItem, size, diff
 						.getNewMode().getBits(), diff.getNewId().name(), commitId, diff
 						.getChangeType());
 			} else {
-				pcm = new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
+				pcm = new PathChangeModel(diff.getNewPath(), diff.getNewPath(), filestoreItem, size, diff
 						.getNewMode().getBits(), diff.getNewId().name(), commitId, diff
 						.getChangeType());
 			}

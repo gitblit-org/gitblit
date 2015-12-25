@@ -364,7 +364,7 @@ public class RawServlet extends HttpServlet {
 					if (pathEntries.get(0).path.indexOf('/') > -1) {
 						// we are in a subdirectory, add parent directory link
 						String pp = URLEncoder.encode(requestedPath, Constants.ENCODING);
-						pathEntries.add(0, new PathModel("..", pp + "/..", 0, FileMode.TREE.getBits(), null, null));
+						pathEntries.add(0, new PathModel("..", pp + "/..", null, 0, FileMode.TREE.getBits(), null, null));
 					}
 				}
 

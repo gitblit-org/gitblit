@@ -585,16 +585,16 @@ public class JGitUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testZip() throws Exception {
-		assertFalse(CompressionUtils.zip(null, null, null, null));
+		assertFalse(CompressionUtils.zip(null, null, null, null, null));
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		File zipFileA = new File(GitBlitSuite.REPOSITORIES, "helloworld.zip");
 		FileOutputStream fosA = new FileOutputStream(zipFileA);
-		boolean successA = CompressionUtils.zip(repository, null, Constants.HEAD, fosA);
+		boolean successA = CompressionUtils.zip(repository, null, null, Constants.HEAD, fosA);
 		fosA.close();
 
 		File zipFileB = new File(GitBlitSuite.REPOSITORIES, "helloworld-java.zip");
 		FileOutputStream fosB = new FileOutputStream(zipFileB);
-		boolean successB = CompressionUtils.zip(repository, "java.java", Constants.HEAD, fosB);
+		boolean successB = CompressionUtils.zip(repository, null, "java.java", Constants.HEAD, fosB);
 		fosB.close();
 
 		repository.close();

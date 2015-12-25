@@ -22,6 +22,7 @@ import java.util.Date;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.utils.CompressionUtils;
 import com.gitblit.utils.JGitUtils;
@@ -57,6 +59,8 @@ public class DownloadZipServlet extends HttpServlet {
 	private IStoredSettings settings;
 
 	private IRepositoryManager repositoryManager;
+	
+	private IFilestoreManager filestoreManager;
 
 	public static enum Format {
 		zip(".zip"), tar(".tar"), gz(".tar.gz"), xz(".tar.xz"), bzip2(".tar.bzip2");
@@ -78,9 +82,10 @@ public class DownloadZipServlet extends HttpServlet {
 	}
 
 	@Inject
-	public DownloadZipServlet(IStoredSettings settings, IRepositoryManager repositoryManager) {
+	public DownloadZipServlet(IStoredSettings settings, IRepositoryManager repositoryManager, IFilestoreManager filestoreManager) {
 		this.settings = settings;
 		this.repositoryManager = repositoryManager;
+		this.filestoreManager = filestoreManager;
 	}
 
 	/**
@@ -169,22 +174,23 @@ public class DownloadZipServlet extends HttpServlet {
 			response.setHeader("Pragma", "no-cache");
 			response.setDateHeader("Expires", 0);
 
+			
 			try {
 				switch (format) {
 				case zip:
-					CompressionUtils.zip(r, basePath, objectId, response.getOutputStream());
+					CompressionUtils.zip(r, filestoreManager, basePath, objectId, response.getOutputStream());
 					break;
 				case tar:
-					CompressionUtils.tar(r, basePath, objectId, response.getOutputStream());
+					CompressionUtils.tar(r, filestoreManager, basePath, objectId, response.getOutputStream());
 					break;
 				case gz:
-					CompressionUtils.gz(r, basePath, objectId, response.getOutputStream());
+					CompressionUtils.gz(r, filestoreManager, basePath, objectId, response.getOutputStream());
 					break;
 				case xz:
-					CompressionUtils.xz(r, basePath, objectId, response.getOutputStream());
+					CompressionUtils.xz(r, filestoreManager, basePath, objectId, response.getOutputStream());
 					break;
 				case bzip2:
-					CompressionUtils.bzip2(r, basePath, objectId, response.getOutputStream());
+					CompressionUtils.bzip2(r, filestoreManager, basePath, objectId, response.getOutputStream());
 					break;
 				}
 

@@ -94,6 +94,10 @@ public class Constants {
 	public static final int LEN_SHORTLOG = 78;
 
 	public static final int LEN_SHORTLOG_REFS = 60;
+	
+	public static final int LEN_FILESTORE_META_MIN = 125;
+	
+	public static final int LEN_FILESTORE_META_MAX = 146;
 
 	public static final String DEFAULT_BRANCH = "default";
 

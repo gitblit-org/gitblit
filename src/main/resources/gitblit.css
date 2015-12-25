@@ -1944,6 +1944,12 @@ td.mode {
 	padding-right:15px;
 }
 
+td.filestore {
+	text-align: right;
+	width:1em;
+	padding-right:15px;
+}
+
 td.size {
 	text-align: right;
 	width: 8em;	

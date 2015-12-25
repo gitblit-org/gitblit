@@ -133,10 +133,11 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	/**
 	 * Allows authentication header to be altered based on the action requested
 	 * Default is WWW-Authenticate
+	 * @param httpRequest
 	 * @param action
 	 * @return authentication type header
 	 */
-	protected String getAuthenticationHeader(String action) {
+	protected String getAuthenticationHeader(HttpServletRequest httpRequest, String action) {
 		return "WWW-Authenticate";
 	}
 	
@@ -192,7 +193,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 						logger.info(MessageFormat.format("ARF: CREATE CHALLENGE {0}", fullUrl));
 					}
 					
-					httpResponse.setHeader(getAuthenticationHeader(urlRequestType), CHALLENGE);
+					httpResponse.setHeader(getAuthenticationHeader(httpRequest, urlRequestType), CHALLENGE);
 					httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				} else {
@@ -239,7 +240,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 				if (runtimeManager.isDebugMode()) {
 					logger.info(MessageFormat.format("ARF: CHALLENGE {0}", fullUrl));
 				}
-				httpResponse.setHeader(getAuthenticationHeader(urlRequestType), CHALLENGE);
+				httpResponse.setHeader(getAuthenticationHeader(httpRequest, urlRequestType), CHALLENGE);
 				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			} else {

@@ -102,8 +102,8 @@ public class GitFilter extends AccessRestrictionFilter {
 	}
 
 	/**
-	 * Analyze the url and returns the action of the request. Return values are
-	 * either "/git-receive-pack" or "/git-upload-pack".
+	 * Analyze the url and returns the action of the request. Return values are:
+	 * "/git-receive-pack", "/git-upload-pack" or "/info/lfs".
 	 *
 	 * @param serverUrl
 	 * @return action of the request
@@ -316,18 +316,22 @@ public class GitFilter extends AccessRestrictionFilter {
 	
 	/**
 	 * Git lfs action uses an alternative authentication header, 
+	 * dependent on the viewing method.
 	 * 
+	 * @param httpRequest
 	 * @param action
 	 * @return
 	 */
 	@Override
-	protected String getAuthenticationHeader(String action) {
+	protected String getAuthenticationHeader(HttpServletRequest httpRequest, String action) {
 
 		if (action.equals(gitLfs)) {
-			return "LFS-Authenticate";
+			if (hasContentInRequestHeader(httpRequest, "Accept", FilestoreServlet.GIT_LFS_META_MIME)) {
+				return "LFS-Authenticate";
+			}
 		}
 		
-		return super.getAuthenticationHeader(action);
+		return super.getAuthenticationHeader(httpRequest, action);
 	}
 	
 	/**
