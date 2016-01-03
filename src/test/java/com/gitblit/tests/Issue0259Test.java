@@ -124,11 +124,11 @@ public class Issue0259Test extends GitblitUnitTest {
 
 		UserModel a = new UserModel("a");
 		if (reverseOrder) {
-			a.teams.add(t2);
-			a.teams.add(t1);
+			a.addTeam(t2);
+			a.addTeam(t1);
 		} else {
-			a.teams.add(t1);
-			a.teams.add(t2);
+			a.addTeam(t1);
+			a.addTeam(t2);
 		}
 
 		// simulate a repository rename
@@ -188,7 +188,7 @@ public class Issue0259Test extends GitblitUnitTest {
 			t1.setRepositoryPermission("projects/.*", AccessPermission.DELETE);
 		}
 		UserModel a = new UserModel("a");
-		a.teams.add(t1);
+		a.addTeam(t1);
 
 		// simulate a repository rename
 		a.setRepositoryPermission("projects/renamed.git", null);

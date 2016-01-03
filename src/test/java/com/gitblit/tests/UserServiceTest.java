@@ -52,7 +52,7 @@ public class UserServiceTest extends GitblitUnitTest {
 		admin.password = "password";
 		admin.canAdmin = true;
 		admin.excludeFromFederation = true;
-		admin.teams.add(admins);
+		admin.addTeam(admins);
 
 		service.updateUserModel(admin);
 		admin = null;
@@ -135,7 +135,7 @@ public class UserServiceTest extends GitblitUnitTest {
 		// confirm team membership
 		user = service.getUserModel("test");
 		assertEquals(0, user.permissions.size());
-		assertEquals(1, user.teams.size());
+		assertEquals(1, user.getTeamSize());
 
 		// confirm team access
 		assertTrue(team.hasRepositoryPermission(newrepo1.name));
@@ -178,7 +178,7 @@ public class UserServiceTest extends GitblitUnitTest {
 		team = new TeamModel("testteam");
 		team.addRepositoryPermission(NEWREPO1.name);
 		team.addRepositoryPermission(NEWREPO2.name);
-		user.teams.add(team);
+		user.addTeam(team);
 		service.updateUserModel(user);
 
 		// confirm the inverted team addition
@@ -192,8 +192,8 @@ public class UserServiceTest extends GitblitUnitTest {
 		team = new TeamModel("nextteam");
 		team.addRepositoryPermission(NEWREPO1.name);
 		team.addRepositoryPermission(NEWREPO2.name);
-		user.teams.clear();
-		user.teams.add(team);
+		user.removeAllTeams();
+		user.addTeam(team);
 		service.updateUserModel(user);
 
 		// confirm implicit drop

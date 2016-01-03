@@ -1815,7 +1815,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -1839,7 +1839,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -1863,7 +1863,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
@@ -1887,7 +1887,7 @@ public class PermissionsTest extends GitblitUnitTest {
 
 		TeamModel team = new TeamModel("test");
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertFalse("team member CAN view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
@@ -1913,7 +1913,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -1938,7 +1938,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -1963,7 +1963,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -1988,7 +1988,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.PUSH);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2014,7 +2014,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2039,7 +2039,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2064,7 +2064,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2089,7 +2089,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CREATE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2115,7 +2115,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2140,7 +2140,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2165,7 +2165,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2190,7 +2190,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.DELETE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2216,7 +2216,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2241,7 +2241,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2266,7 +2266,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2291,7 +2291,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.REWIND);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2317,7 +2317,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2342,7 +2342,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2367,7 +2367,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2392,7 +2392,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.CLONE);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2418,7 +2418,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2443,7 +2443,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertTrue("team member CAN NOT clone!", user.canClone(repository));
@@ -2468,7 +2468,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
@@ -2493,7 +2493,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		TeamModel team = new TeamModel("test");
 		team.setRepositoryPermission(repository.name, AccessPermission.VIEW);
 		UserModel user = new UserModel("test");
-		user.teams.add(team);
+		user.addTeam(team);
 
 		assertTrue("team member CAN NOT view!", user.canView(repository));
 		assertFalse("team member CAN clone!", user.canClone(repository));
@@ -2858,7 +2858,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		UserModel user = new UserModel("test");
 		TeamModel team = new TeamModel("team");
 		team.canAdmin = true;
-		user.teams.add(team);
+		user.addTeam(team);
 		assertTrue("User did not inherit admin privileges", user.canAdmin());
 	}
 
@@ -2867,7 +2867,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		UserModel user = new UserModel("test");
 		TeamModel team = new TeamModel("team");
 		team.canFork = true;
-		user.teams.add(team);
+		user.addTeam(team);
 		assertTrue("User did not inherit fork privileges", user.canFork());
 	}
 
@@ -2876,7 +2876,7 @@ public class PermissionsTest extends GitblitUnitTest {
 		UserModel user = new UserModel("test");
 		TeamModel team = new TeamModel("team");
 		team.canCreate= true;
-		user.teams.add(team);
+    user.addTeam(team);
 		assertTrue("User did not inherit create privileges", user.canCreate());
 	}
 

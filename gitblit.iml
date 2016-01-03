@@ -490,7 +490,9 @@
           <root url="jar://$MODULE_DIR$/ext/org.eclipse.jdt.annotation-1.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jdt.annotation-1.1.0.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -604,13 +606,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="unboundid-ldapsdk-2.3.8.jar">
+      <library name="unboundid-ldapsdk-3.1.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/unboundid-ldapsdk-2.3.8.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/unboundid-ldapsdk-3.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/unboundid-ldapsdk-2.3.8.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/unboundid-ldapsdk-3.1.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

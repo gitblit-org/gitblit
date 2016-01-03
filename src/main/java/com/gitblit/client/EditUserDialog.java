@@ -371,8 +371,8 @@ public class EditUserDialog extends JDialog {
 			user.setRepositoryPermission(rp.registrant, rp.permission);
 		}
 
-		user.teams.clear();
-		user.teams.addAll(teamsPalette.getSelections());
+		user.removeAllTeams();
+		user.addTeams(teamsPalette.getSelections());
 		return true;
 	}
 
