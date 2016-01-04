@@ -466,6 +466,12 @@ public class AuthenticationManager implements IAuthenticationManager {
 			return null;
 		}
 
+		if (username.equalsIgnoreCase(Constants.FEDERATION_USER)) {
+			// can not authenticate internal FEDERATION_USER at this point
+			// it must be routed to FederationManager
+			return null;
+		}
+		
 		String usernameDecoded = StringUtils.decodeUsername(username);
 		String pw = new String(password);
 		if (StringUtils.isEmpty(pw)) {
