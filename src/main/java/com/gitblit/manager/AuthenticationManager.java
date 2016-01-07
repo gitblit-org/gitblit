@@ -100,6 +100,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		providerNames.put("redmine", RedmineAuthProvider.class);
 		providerNames.put("salesforce", SalesforceAuthProvider.class);
 		providerNames.put("windows", WindowsAuthProvider.class);
+		providerNames.put("sqlite", SQLiteAuthProvider.class);
 
 		// map of legacy external user services
 		legacyRedirects = new HashMap<String, String>();
