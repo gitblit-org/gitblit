@@ -116,6 +116,8 @@ properties: {
   guice.version : 4.0
   # Gitblit maintains a fork of guice-servlet
   guice-servlet.version : 4.0-gb2
+  sqlite-jdbc.version : 3.8.11.2
+  mindrot-jbcrypt.version : 0.3m
   }
 
 # Dependencies
