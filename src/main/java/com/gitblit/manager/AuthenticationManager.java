@@ -45,6 +45,7 @@ import com.gitblit.auth.HttpHeaderAuthProvider;
 import com.gitblit.auth.LdapAuthProvider;
 import com.gitblit.auth.PAMAuthProvider;
 import com.gitblit.auth.RedmineAuthProvider;
+import com.gitblit.auth.SQLiteAuthProvider;
 import com.gitblit.auth.SalesforceAuthProvider;
 import com.gitblit.auth.WindowsAuthProvider;
 import com.gitblit.models.TeamModel;
