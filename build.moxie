@@ -182,6 +182,8 @@ dependencies:
 - compile 'ro.fortsoft.pf4j:pf4j:0.9.0' :war
 - compile 'org.apache.tika:tika-core:1.5' :war
 - compile 'org.jsoup:jsoup:1.7.3' :war
+- compile 'org.mindrot:jbcrypt:${mindrot-jbcrypt.version}' :war
+- compile 'org.xerial:sqlite-jdbc:${sqlite-jdbc.version}' :war
 - test 'junit'
 # Dependencies for Selenium web page testing
 - test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar
