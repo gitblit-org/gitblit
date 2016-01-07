@@ -23,7 +23,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.sqlite.SQLiteConfig;
-import org.sqlite.SQLiteOpenMode;
 
 import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.Role;
@@ -55,7 +54,7 @@ public class SQLiteAuthProvider extends UsernamePasswordAuthenticationProvider {
         String connStr = "jdbc:sqlite:" + this.settings.getRequiredString(Keys.realm.sqlite.database);
 
         SQLiteConfig config = new SQLiteConfig();
-        config.setOpenMode(SQLiteOpenMode.READONLY);
+        config.setReadOnly(true);
 
         try {
             Class.forName("org.sqlite.JDBC");
