@@ -30,6 +30,7 @@ import org.pegdown.ParsingTimeoutException;
 import org.pegdown.PegDownProcessor;
 import org.pegdown.ast.RootNode;
 
+import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.wicket.MarkupProcessor.WorkaroundHtmlSerializer;
@@ -138,7 +139,7 @@ public class MarkdownUtils {
 
 		// emphasize and link mentions
 		String mentionReplacement = String.format(" **[@$1](%1s/user/$1)**", canonicalUrl);
-		text = text.replaceAll("\\s@([A-Za-z0-9-_]+)", mentionReplacement);
+		text = text.replaceAll(Constants.REGEX_TICKET_MENTION, mentionReplacement);
 
 		// link ticket refs
 		String ticketReplacement = MessageFormat.format("$1[#$2]({0}/tickets?r={1}&h=$2)$3", canonicalUrl, repositoryName);
