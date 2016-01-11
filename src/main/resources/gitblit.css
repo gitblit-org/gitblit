@@ -2072,10 +2072,6 @@ li.L5,
 li.L7,
 li.L9 { background: #fafafa !important; }
 
-div.docs {
-	max-width: 880px;
-}
-
 div.docs ul.nav {	
 	margin-bottom: 0px !important;
 }

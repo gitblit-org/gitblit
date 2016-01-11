@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,16 +37,21 @@ import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.TagCommand;
+import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
+import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.BlobBasedConfig;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
@@ -63,6 +69,7 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.merge.RecursiveMerger;
+import org.eclipse.jgit.merge.ThreeWayMerger;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
@@ -75,6 +82,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.OrTreeFilter;
@@ -2597,4 +2605,127 @@ public class JGitUtils {
 					   + "objects/" + oid;
 		
 	}
+	
+	/**
+	 * Returns all tree entries that do not match the ignore paths.
+	 *
+	 * @param db
+	 * @param ignorePaths
+	 * @param dcBuilder
+	 * @throws IOException
+	 */
+	public static List<DirCacheEntry> getTreeEntries(Repository db, String branch, Collection<String> ignorePaths) throws IOException {
+		List<DirCacheEntry> list = new ArrayList<DirCacheEntry>();
+		TreeWalk tw = null;
+		try {
+			ObjectId treeId = db.resolve(branch + "^{tree}");
+			if (treeId == null) {
+				// branch does not exist yet
+				return list;
+			}
+			tw = new TreeWalk(db);
+			int hIdx = tw.addTree(treeId);
+			tw.setRecursive(true);
+
+			while (tw.next()) {
+				String path = tw.getPathString();
+				CanonicalTreeParser hTree = null;
+				if (hIdx != -1) {
+					hTree = tw.getTree(hIdx, CanonicalTreeParser.class);
+				}
+				if (!ignorePaths.contains(path)) {
+					// add all other tree entries
+					if (hTree != null) {
+						final DirCacheEntry entry = new DirCacheEntry(path);
+						entry.setObjectId(hTree.getEntryObjectId());
+						entry.setFileMode(hTree.getEntryFileMode());
+						list.add(entry);
+					}
+				}
+			}
+		} finally {
+			if (tw != null) {
+				tw.close();
+			}
+		}
+		return list;
+	}
+	
+	public static boolean commitIndex(Repository db, String branch, DirCache index,
+									  ObjectId parentId, boolean forceCommit,
+									  String author, String authorEmail, String message) throws IOException, ConcurrentRefUpdateException {
+		boolean success = false;
+
+		ObjectId headId = db.resolve(branch + "^{commit}");
+		ObjectId baseId = parentId;
+		if (baseId == null || headId == null) { return false; }
+		
+		ObjectInserter odi = db.newObjectInserter();
+		try {
+			// Create the in-memory index of the new/updated ticket
+			ObjectId indexTreeId = index.writeTree(odi);
+
+			// Create a commit object
+			PersonIdent ident = new PersonIdent(author, authorEmail);
+			
+			if (forceCommit == false) {
+				ThreeWayMerger merger = MergeStrategy.RECURSIVE.newMerger(db, true);
+				merger.setObjectInserter(odi);
+				merger.setBase(baseId);
+				boolean mergeSuccess = merger.merge(indexTreeId, headId);
+				
+				if (mergeSuccess) {
+					indexTreeId = merger.getResultTreeId();
+				 } else {
+					//Manual merge required
+					return false; 
+				 }
+			}
+			
+			CommitBuilder commit = new CommitBuilder();
+			commit.setAuthor(ident);
+			commit.setCommitter(ident);
+			commit.setEncoding(com.gitblit.Constants.ENCODING);
+			commit.setMessage(message);
+			commit.setParentId(headId);
+			commit.setTreeId(indexTreeId);
+
+			// Insert the commit into the repository
+			ObjectId commitId = odi.insert(commit);
+			odi.flush();
+
+			RevWalk revWalk = new RevWalk(db);
+			try {
+				RevCommit revCommit = revWalk.parseCommit(commitId);
+				RefUpdate ru = db.updateRef(branch);
+				ru.setForceUpdate(forceCommit);
+				ru.setNewObjectId(commitId);
+				ru.setExpectedOldObjectId(headId);
+				ru.setRefLogMessage("commit: " + revCommit.getShortMessage(), false);
+				Result rc = ru.update();
+
+				switch (rc) {
+				case NEW:
+				case FORCED:
+				case FAST_FORWARD:
+					success = true;
+					break;
+				case REJECTED:
+				case LOCK_FAILURE:
+					throw new ConcurrentRefUpdateException(JGitText.get().couldNotLockHEAD,
+							ru.getRef(), rc);
+				default:
+					throw new JGitInternalException(MessageFormat.format(
+							JGitText.get().updatingRefFailed, branch, commitId.toString(),
+							rc));
+				}
+			} finally {
+				revWalk.close();
+			}
+		} finally {
+			odi.close();
+		}
+		return success;
+	}
+
 }

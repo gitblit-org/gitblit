@@ -1,0 +1,70 @@
+.ProseMirror-menubar {
+
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    color: #666;
+    padding: 1px 6px;
+    border-bottom: 1px solid silver;
+    background: white;
+    z-index: 10;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    overflow: visible;
+	
+}
+
+.ProseMirror-menubar.scrolling {
+	top: 47px;
+}
+
+.ProseMirror-menuitem {
+    display: inline-block;
+    font-size: 1.2em;
+    text-align: center;
+    min-width: 30px;
+    line-height: 30px;
+    box-sizing: border-box;
+    margin: 1px;
+	border-width: 1px;
+    border-style: solid;
+	border-color: white;
+}
+
+.ProseMirror-menuitem:hover {
+    border-radius: 5px;
+    background: #fcfcfc;
+    border-color: #95a5a6;
+    border-width: 1px;
+    border-style: solid;
+    box-sizing: border-box;
+}
+
+.ProseMirror-icon {
+	line-height: inherit;
+	vertical-align: middle;
+}
+
+
+.ProseMirror-menubar .fa-header-x:after {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 65%;
+	vertical-align: text-bottom;
+	position: relative;
+	top: 2px;
+}
+
+.fa-header-1:after {
+	content: "1";
+}
+
+.fa-header-2:after {
+	content: "2";
+}
+
+.fa-header-3:after {
+	content: "3";
+}
+
+.forceHide {
+	display:none !important;
+}

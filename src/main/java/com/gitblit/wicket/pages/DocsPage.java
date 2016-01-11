@@ -103,6 +103,8 @@ public class DocsPage extends RepositoryPage {
 				public void populateItem(final Item<MarkupDocument> item) {
 					MarkupDocument doc = item.getModelObject();
 					// document page links
+					item.add(new BookmarkablePageLink<Void>("editLink", EditFilePage.class,
+							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath)));
 					item.add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
 							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath)));
 					item.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
@@ -147,6 +149,8 @@ public class DocsPage extends RepositoryPage {
 
 				// links
 				item.add(new BookmarkablePageLink<Void>("view", DocPage.class, WicketUtils
+						.newPathParameter(repositoryName, commitId, entry.path)));
+				item.add(new BookmarkablePageLink<Void>("edit", EditFilePage.class, WicketUtils
 						.newPathParameter(repositoryName, commitId, entry.path)));
 				String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, commitId, entry.path);
 				item.add(new ExternalLink("raw", rawUrl));

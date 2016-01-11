@@ -85,6 +85,8 @@ public class DocPage extends RepositoryPage {
 		}
 
 		// document page links
+		fragment.add(new BookmarkablePageLink<Void>("editLink", EditFilePage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
 		fragment.add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
 		fragment.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
