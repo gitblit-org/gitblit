@@ -1056,4 +1056,21 @@
 		<mx:install />
 	</target>
 	
+	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build Gitblit UI via npm
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
+	-->
+	<target name="buildUI" description="Build Gitblit UI via npm">
+		<exec executable="npm" dir="src/main/js/" failonerror="true" vmlauncher="false" searchpath="true" >
+			<arg value="install" />
+		</exec>
+		
+		<exec executable="npm" dir="src/main/js/" failonerror="true" vmlauncher="false" searchpath="true" >
+			<arg value="run" />
+			<arg value="build" />
+		</exec>
+	</target>
+	
 </project>

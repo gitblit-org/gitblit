@@ -1,3 +1,9 @@
 [submodule "src/main/distrib/data/gitignore"]
 	path = src/main/distrib/data/gitignore
 	url = https://github.com/github/gitignore.git
+[submodule "src/main/js/codemirror"]
+	path = src/main/js/codemirror
+	url = https://github.com/codemirror/CodeMirror.git
+[submodule "src/main/js/simplemde"]
+	path = src/main/js/simplemde
+	url = https://github.com/NextStepWebs/simplemde-markdown-editor.git
