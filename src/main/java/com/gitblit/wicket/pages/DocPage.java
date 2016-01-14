@@ -15,33 +15,41 @@
  */
 package com.gitblit.wicket.pages;
 
+
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.model.Model;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.models.UserModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
-import com.gitblit.wicket.MarkupProcessor.MarkupSyntax;
 import com.gitblit.wicket.WicketUtils;
 
 @CacheControl(LastModified.BOOT)
 public class DocPage extends RepositoryPage {
 
-	public DocPage(PageParameters params) {
+	public DocPage(final PageParameters params) {
 		super(params);
 
+		UserModel currentUser = GitBlitWebSession.get().getUser();
+		currentUser = (currentUser == null) ? UserModel.ANONYMOUS : currentUser;
+		
 		final String path = WicketUtils.getPath(params).replace("%2f", "/").replace("%2F", "/");
 		MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
 
@@ -78,10 +86,55 @@ public class DocPage extends RepositoryPage {
 
 		Fragment fragment;
 		MarkupDocument markupDoc = processor.parse(repositoryName, getBestCommitId(commit), documentPath, markupText);
-		if (MarkupSyntax.PLAIN.equals(markupDoc.syntax)) {
-			fragment = new Fragment("doc", "plainContent", this);
-		} else {
+
+
+		if (currentUser.canEdit(getRepositoryModel())) {
+			
+			final Model<String> documentContent = new Model<String>(markupDoc.markup);
+			final Model<String> commitMessage = new Model<String>("Document update");
+					
 			fragment = new Fragment("doc", "markupContent", this);
+			
+			Form<Void> form = new Form<Void>("documentEditor") {
+				
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected void onSubmit() {
+					System.out.print( commitMessage.getObject() );
+					System.out.print( "----------------------" );
+					System.out.print( documentContent.getObject() );
+					
+					//TODO: Perform commit
+					//TODO: Set the latest commit hash to redirect to latest version
+					//TODO: Error if commit failed, i.e. merge conflict
+					setResponsePage(DocPage.class, params);
+					return;
+				}
+			};
+
+			final TextArea<String> docIO = new TextArea<String>("content", documentContent);
+			docIO.setOutputMarkupId(false);	
+			
+			form.add(new Label("commitAuthor", String.format("%s <%s>", currentUser.displayName, currentUser.emailAddress)));
+			form.add(new TextArea<String>("commitMessage", commitMessage));
+			
+			
+			form.setOutputMarkupId(false);
+			form.add(docIO);
+
+			addBottomScriptInline("function commitChanges() { simplemde.codemirror.save(); document.querySelector('form#documentEditor').submit(); }");
+			addBottomScriptInline("var simplemde = attachDocumentEditor(document.querySelector('textarea#editor'), $('#commitDialog'));");
+			
+	        fragment.add(form);
+	        
+		} else {
+			
+			final Model<String> documentContent = new Model<String>(markupDoc.html);
+			
+			fragment = new Fragment("doc", "plainContent", this);
+			
+			fragment.add(new Label("content", documentContent).setEscapeModelStrings(false));
 		}
 
 		// document page links
@@ -92,8 +145,8 @@ public class DocPage extends RepositoryPage {
 		String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, objectId, documentPath);
 		fragment.add(new ExternalLink("rawLink", rawUrl));
 
-		fragment.add(new Label("content", markupDoc.html).setEscapeModelStrings(false));
 		add(fragment);
+        
 	}
 
 	@Override

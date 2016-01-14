@@ -1,2 +1,13 @@
 @import url("codemirror/lib/codemirror.css");
 @import url("simplemde/src/css/simplemde.css");
+
+
+.editor-toolbar.fullscreen  {
+	/* Allow full screen to hide Gitblit header bar */
+	z-index: 1050!important;
+}
+
+
+.CodeMirror {
+    height: 60vh;
+}
