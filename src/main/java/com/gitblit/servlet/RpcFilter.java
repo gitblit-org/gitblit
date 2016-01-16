@@ -128,7 +128,7 @@ public class RpcFilter extends AuthenticationFilter {
 				return;
 			} else {
 				// check user access for request
-				if (user.canAdmin() || canAccess(user, requestType)) {
+				if (user.canAdmin() || !adminRequest) {
 					// authenticated request permitted.
 					// pass processing to the restricted servlet.
 					newSession(authenticatedRequest, httpResponse);
@@ -152,16 +152,5 @@ public class RpcFilter extends AuthenticationFilter {
 		// unauthenticated request permitted.
 		// pass processing to the restricted servlet.
 		chain.doFilter(authenticatedRequest, httpResponse);
-	}
-
-	private boolean canAccess(UserModel user, RpcRequest requestType) {
-		switch (requestType) {
-		case GET_PROTOCOL:
-			return true;
-		case LIST_REPOSITORIES:
-			return true;
-		default:
-			return user.canAdmin();
-		}
 	}
 }
