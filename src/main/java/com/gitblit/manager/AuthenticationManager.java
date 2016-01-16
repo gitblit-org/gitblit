@@ -204,7 +204,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		// Check if this request has already been authenticated, and trust that instead of re-processing
 		String reqAuthUser = (String) httpRequest.getAttribute(Constants.ATTRIB_AUTHUSER);
 		if (!StringUtils.isEmpty(reqAuthUser)) {
-			logger.warn("Called servlet authenticate when request is already authenticated.");
+			logger.debug("Called servlet authenticate when request is already authenticated.");
 			return userManager.getUserModel(reqAuthUser);
 		}
 
