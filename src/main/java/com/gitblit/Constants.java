@@ -582,7 +582,7 @@ public class Constants {
 	}
 
 	public static enum AccountType {
-		LOCAL, CONTAINER, LDAP, REDMINE, SALESFORCE, WINDOWS, PAM, HTPASSWD, HTTPHEADER;
+		LOCAL, CONTAINER, LDAP, REDMINE, SALESFORCE, WINDOWS, PAM, HTPASSWD, HTTPHEADER, SQLITE;
 
 		public static AccountType fromString(String value) {
 			for (AccountType type : AccountType.values()) {
