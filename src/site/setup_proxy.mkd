@@ -46,7 +46,7 @@ ProxyPreserveHost On
 #ProxyPassreverse /gitblit http://localhost:8080/gitblit
 
 # If your httpd frontend is https but you are proxying http Gitblit WAR or GO
-#Header edit Location &#94;http://([&#94;&#8260;]+)/gitblit/ https://&#36;1/gitblit/
+#Header edit Location ^http://([^/]+)/gitblit/ https://$1/gitblit/
 
 # Additionally you will want to tell Gitblit the original scheme and port
 #RequestHeader set X-Forwarded-Proto https
