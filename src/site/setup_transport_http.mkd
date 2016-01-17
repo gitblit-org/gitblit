@@ -17,6 +17,16 @@ Value = <em>false</em></pre>
 - **Command-line Git** ([Git-Config Manual Page](http://www.kernel.org/pub/software/scm/git/docs/git-config.html))  
 <pre>git config --global --bool --add http.sslVerify false</pre>
 
+**NOTE:**
+When generating self-signed certificates, the default Java TLS settings will be used. These default settings will generate a weak Diffie-Hellman key.
+#### Java 8
+The default is a 1024 bit DH key.
+You can up the number of bits used by appending the following command line parameter when starting Gitblit:
+<pre>-Djdk.tls.ephemeralDHKeySize=2048</pre>
+2048 bits is the maximum (Java limitation), and is still considered secure as of this writing.
+#### Java 7
+The default is a 768 bit key. <b>This is hardcoded in Java 7 and cannot be changed.</b>. It is very weak. If you require longer DH keys, use Java 8.
+
 ### Http Post Buffer Size
 You may find the default post buffer of your git client is too small to push large deltas to Gitblit.  Sometimes this can be observed on your client as *hanging* during a push.  Other times it can be observed by git erroring out with a message like: error: RPC failed; result=52, HTTP code = 0.
 
