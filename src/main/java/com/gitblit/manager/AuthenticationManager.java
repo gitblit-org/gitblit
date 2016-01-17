@@ -204,7 +204,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		// Check if this request has already been authenticated, and trust that instead of re-processing
 		String reqAuthUser = (String) httpRequest.getAttribute(Constants.ATTRIB_AUTHUSER);
 		if (!StringUtils.isEmpty(reqAuthUser)) {
-			logger.warn("Called servlet authenticate when request is already authenticated.");
+			logger.debug("Called servlet authenticate when request is already authenticated.");
 			return userManager.getUserModel(reqAuthUser);
 		}
 
@@ -466,6 +466,12 @@ public class AuthenticationManager implements IAuthenticationManager {
 			return null;
 		}
 
+		if (username.equalsIgnoreCase(Constants.FEDERATION_USER)) {
+			// can not authenticate internal FEDERATION_USER at this point
+			// it must be routed to FederationManager
+			return null;
+		}
+		
 		String usernameDecoded = StringUtils.decodeUsername(username);
 		String pw = new String(password);
 		if (StringUtils.isEmpty(pw)) {
