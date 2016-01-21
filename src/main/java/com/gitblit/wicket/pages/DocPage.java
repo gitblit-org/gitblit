@@ -16,7 +16,10 @@
 package com.gitblit.wicket.pages;
 
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -26,9 +29,15 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.Model;
+import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.dircache.DirCacheBuilder;
+import org.eclipse.jgit.dircache.DirCacheEntry;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.gitblit.models.UserModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.BugtraqProcessor;
@@ -47,8 +56,7 @@ public class DocPage extends RepositoryPage {
 	public DocPage(final PageParameters params) {
 		super(params);
 
-		UserModel currentUser = GitBlitWebSession.get().getUser();
-		currentUser = (currentUser == null) ? UserModel.ANONYMOUS : currentUser;
+		final UserModel currentUser = (GitBlitWebSession.get().getUser() != null) ? GitBlitWebSession.get().getUser() : UserModel.ANONYMOUS;
 		
 		final String path = WicketUtils.getPath(params).replace("%2f", "/").replace("%2F", "/");
 		MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
@@ -101,22 +109,55 @@ public class DocPage extends RepositoryPage {
 
 				@Override
 				protected void onSubmit() {
-					System.out.print( commitMessage.getObject() );
-					System.out.print( "----------------------" );
-					System.out.print( documentContent.getObject() );
 					
-					//TODO: Perform commit
-					//TODO: Set the latest commit hash to redirect to latest version
-					//TODO: Error if commit failed, i.e. merge conflict
+					final String document = documentContent.getObject();
+					final String message = commitMessage.getObject();
+					final Repository repository = getRepository();
+					final String branchName = JGitUtils.getBranch(getRepository(), objectId).getName();
+					final String authorEmail = StringUtils.isEmpty(currentUser.emailAddress) ? (currentUser.username + "@gitblit") : currentUser.emailAddress;
+					
+					boolean success = false;
+
+					try {
+						DirCache index = DirCache.newInCore();
+						DirCacheBuilder builder = index.builder();
+						byte[] bytes = document.getBytes( Constants.ENCODING );
+						
+						final DirCacheEntry fileUpdate = new DirCacheEntry(path);
+						fileUpdate.setLength(bytes.length);
+						fileUpdate.setLastModified(System.currentTimeMillis());
+						fileUpdate.setFileMode(FileMode.REGULAR_FILE);
+						fileUpdate.setObjectId(repository.newObjectInserter().insert( org.eclipse.jgit.lib.Constants.OBJ_BLOB, bytes ));
+						builder.add(fileUpdate);
+						
+						Set<String> ignorePaths = new HashSet<String>();
+						ignorePaths.add(path);
+
+						for (DirCacheEntry entry : JGitUtils.getTreeEntries(repository, branchName, ignorePaths)) {
+							builder.add(entry);
+						}
+						
+						builder.finish();
+
+						success = JGitUtils.commitIndex(repository,  branchName,  index, currentUser.getDisplayName(), authorEmail, message);
+						
+					} catch (IOException | ConcurrentRefUpdateException e) {
+						e.printStackTrace();
+					}
+				
+					if (success == false) {
+						DocPage.this.error("Unable to commit document " + path, false);
+					}
+					
 					setResponsePage(DocPage.class, params);
 					return;
 				}
 			};
 
 			final TextArea<String> docIO = new TextArea<String>("content", documentContent);
-			docIO.setOutputMarkupId(false);	
+			docIO.setOutputMarkupId(false);
 			
-			form.add(new Label("commitAuthor", String.format("%s <%s>", currentUser.displayName, currentUser.emailAddress)));
+			form.add(new Label("commitAuthor", String.format("%s <%s>", currentUser.getDisplayName(), currentUser.emailAddress)));
 			form.add(new TextArea<String>("commitMessage", commitMessage));
 			
 			
@@ -163,4 +204,7 @@ public class DocPage extends RepositoryPage {
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return DocsPage.class;
 	}
+	
+	
+
 }
