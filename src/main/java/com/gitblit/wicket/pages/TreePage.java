@@ -70,12 +70,13 @@ public class TreePage extends RepositoryPage {
 			if (path.lastIndexOf('/') > -1) {
 				parentPath = path.substring(0, path.lastIndexOf('/'));
 			}
-			PathModel model = new PathModel("..", parentPath, 0, FileMode.TREE.getBits(), null, objectId);
+			PathModel model = new PathModel("..", parentPath, null, 0, FileMode.TREE.getBits(), null, objectId);
 			model.isParentPath = true;
 			paths.add(0, model);
 		}
 
 		final String id = getBestCommitId(commit);
+		
 		final ByteFormat byteFormat = new ByteFormat();
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 
@@ -88,7 +89,9 @@ public class TreePage extends RepositoryPage {
 			@Override
 			public void populateItem(final Item<PathModel> item) {
 				PathModel entry = item.getModelObject();
+				
 				item.add(new Label("pathPermissions", JGitUtils.getPermissionsFromMode(entry.mode)));
+				
 				if (entry.isParentPath) {
 					// parent .. path
 					item.add(WicketUtils.newBlankImage("pathIcon"));
@@ -96,6 +99,7 @@ public class TreePage extends RepositoryPage {
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class,
 							WicketUtils
 									.newPathParameter(repositoryName, id, entry.path)));
+					item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
 					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
@@ -105,6 +109,8 @@ public class TreePage extends RepositoryPage {
 						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class,
 								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
+
+						item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
@@ -133,6 +139,8 @@ public class TreePage extends RepositoryPage {
 								getShortObjectId(submoduleId), TreePage.class,
 								WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
 
+						item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
+						
 						Fragment links = new Fragment("pathLinks", "submoduleLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", SummaryPage.class,
 								WicketUtils.newRepositoryParameter(submodulePath)).setEnabled(hasSubmodule));
@@ -155,17 +163,33 @@ public class TreePage extends RepositoryPage {
 						}
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
-						item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
-								WicketUtils.newPathParameter(repositoryName, id,
-										path)));
-
+						
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
-						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
-								WicketUtils.newPathParameter(repositoryName, id,
-										path)));
-						String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, id, path);
-						links.add(new ExternalLink("raw", rawUrl));
+						
+						if (entry.isFilestoreItem()) {
+							item.add(new Label("filestore", getString("gb.filestore")).setVisible(true));
+							
+							final String filestoreItemUrl = JGitUtils.getLfsRepositoryUrl(getContextUrl(), repositoryName, entry.getFilestoreOid());
+							
+							item.add(new LinkPanel("pathName", "list", displayPath, filestoreItemUrl));
+							links.add(new ExternalLink("view", filestoreItemUrl));
+							links.add(new ExternalLink("raw", filestoreItemUrl));
+							
+						} else {
+							item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
+							
+							item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
+									WicketUtils.newPathParameter(repositoryName, id,
+											path)));
+							
+							links.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
+									WicketUtils.newPathParameter(repositoryName, id,
+											path)));
+							String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, id, path);
+							links.add(new ExternalLink("raw", rawUrl));
+						}
+						
 						links.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
 								WicketUtils.newPathParameter(repositoryName, id,
 										path)));

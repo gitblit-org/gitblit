@@ -77,8 +77,9 @@
 	<table class="pretty">
 		<tr wicket:id="changedPath">
 			<td class="changeType"><span wicket:id="changeType">[change type]</span></td>
-			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+			<td class="path"><span wicket:id="pathName">[commit path]</span></td>	
 			<td class="hidden-phone rightAlign">
+				<span wicket:id="filestore" style="margin-right:20px;" class="aui-lozenge aui-lozenge-moved"></span>
 				<span class="hidden-tablet" style="padding-right:20px;" wicket:id="diffStat"></span>
 				<span class="link">
 					<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <span class="hidden-tablet"><a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="raw"><wicket:message key="gb.raw"></wicket:message></a> | </span><a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>

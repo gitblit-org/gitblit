@@ -16,6 +16,9 @@
 package com.gitblit.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
@@ -28,9 +31,11 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.MutableObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
@@ -40,6 +45,11 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.gitblit.GitBlit;
+import com.gitblit.manager.IFilestoreManager;
+import com.gitblit.models.FilestoreModel;
+import com.gitblit.models.FilestoreModel.Status;
 
 /**
  * Collection of static methods for retrieving information from a repository.
@@ -87,7 +97,7 @@ public class CompressionUtils {
 	 * @return true if repository was successfully zipped to supplied output
 	 *         stream
 	 */
-	public static boolean zip(Repository repository, String basePath, String objectId,
+	public static boolean zip(Repository repository, IFilestoreManager filestoreManager, String basePath, String objectId,
 			OutputStream os) {
 		RevCommit commit = JGitUtils.getCommit(repository, objectId);
 		if (commit == null) {
@@ -115,16 +125,40 @@ public class CompressionUtils {
 					continue;
 				}
 				tw.getObjectId(id, 0);
-
+				
+				ObjectLoader loader = repository.open(id);
+				
 				ZipArchiveEntry entry = new ZipArchiveEntry(tw.getPathString());
-				entry.setSize(reader.getObjectSize(id, Constants.OBJ_BLOB));
+
+				FilestoreModel filestoreItem = null;
+				
+				if (JGitUtils.isPossibleFilestoreItem(loader.getSize())) {
+					filestoreItem = JGitUtils.getFilestoreItem(tw.getObjectReader().open(id));
+				}
+
+				final long size = (filestoreItem == null) ? loader.getSize() : filestoreItem.getSize();  
+
+				entry.setSize(size);
 				entry.setComment(commit.getName());
 				entry.setUnixMode(mode.getBits());
 				entry.setTime(modified);
 				zos.putArchiveEntry(entry);
+				
+				if (filestoreItem == null) {
+					//Copy repository stored file
+					loader.copyTo(zos);
+				} else {
+					//Copy filestore file
+					try (FileInputStream streamIn = new FileInputStream(filestoreManager.getStoragePath(filestoreItem.oid))) {
+						IOUtils.copyLarge(streamIn, zos);
+					} catch (Throwable e) {
+						LOGGER.error(MessageFormat.format("Failed to archive filestore item {0}", filestoreItem.oid), e);
 
-				ObjectLoader ldr = repository.open(id);
-				ldr.copyTo(zos);
+						//Handle as per other errors 
+						throw e; 
+					}
+				}
+
 				zos.closeArchiveEntry();
 			}
 			zos.finish();
@@ -151,9 +185,9 @@ public class CompressionUtils {
 	 * @return true if repository was successfully zipped to supplied output
 	 *         stream
 	 */
-	public static boolean tar(Repository repository, String basePath, String objectId,
+	public static boolean tar(Repository repository, IFilestoreManager filestoreManager, String basePath, String objectId,
 			OutputStream os) {
-		return tar(null, repository, basePath, objectId, os);
+		return tar(null, repository, filestoreManager, basePath, objectId, os);
 	}
 
 	/**
@@ -169,9 +203,9 @@ public class CompressionUtils {
 	 * @return true if repository was successfully zipped to supplied output
 	 *         stream
 	 */
-	public static boolean gz(Repository repository, String basePath, String objectId,
+	public static boolean gz(Repository repository, IFilestoreManager filestoreManager, String basePath, String objectId,
 			OutputStream os) {
-		return tar(CompressorStreamFactory.GZIP, repository, basePath, objectId, os);
+		return tar(CompressorStreamFactory.GZIP, repository, filestoreManager, basePath, objectId, os);
 	}
 
 	/**
@@ -187,9 +221,9 @@ public class CompressionUtils {
 	 * @return true if repository was successfully zipped to supplied output
 	 *         stream
 	 */
-	public static boolean xz(Repository repository, String basePath, String objectId,
+	public static boolean xz(Repository repository, IFilestoreManager filestoreManager, String basePath, String objectId,
 			OutputStream os) {
-		return tar(CompressorStreamFactory.XZ, repository, basePath, objectId, os);
+		return tar(CompressorStreamFactory.XZ, repository, filestoreManager, basePath, objectId, os);
 	}
 
 	/**
@@ -205,10 +239,10 @@ public class CompressionUtils {
 	 * @return true if repository was successfully zipped to supplied output
 	 *         stream
 	 */
-	public static boolean bzip2(Repository repository, String basePath, String objectId,
+	public static boolean bzip2(Repository repository, IFilestoreManager filestoreManager, String basePath, String objectId,
 			OutputStream os) {
 
-		return tar(CompressorStreamFactory.BZIP2, repository, basePath, objectId, os);
+		return tar(CompressorStreamFactory.BZIP2, repository, filestoreManager, basePath, objectId, os);
 	}
 
 	/**
@@ -227,7 +261,7 @@ public class CompressionUtils {
 	 * @return true if repository was successfully zipped to supplied output
 	 *         stream
 	 */
-	private static boolean tar(String algorithm, Repository repository, String basePath, String objectId,
+	private static boolean tar(String algorithm, Repository repository, IFilestoreManager filestoreManager, String basePath, String objectId,
 			OutputStream os) {
 		RevCommit commit = JGitUtils.getCommit(repository, objectId);
 		if (commit == null) {
@@ -263,6 +297,7 @@ public class CompressionUtils {
 				if (mode == FileMode.GITLINK || mode == FileMode.TREE) {
 					continue;
 				}
+				
 				tw.getObjectId(id, 0);
 
 				ObjectLoader loader = repository.open(id);
@@ -278,9 +313,34 @@ public class CompressionUtils {
 					TarArchiveEntry entry = new TarArchiveEntry(tw.getPathString());
 					entry.setMode(mode.getBits());
 					entry.setModTime(modified);
-					entry.setSize(loader.getSize());
+
+					FilestoreModel filestoreItem = null;
+					
+					if (JGitUtils.isPossibleFilestoreItem(loader.getSize())) {
+						filestoreItem = JGitUtils.getFilestoreItem(tw.getObjectReader().open(id));
+					}
+
+					final long size = (filestoreItem == null) ? loader.getSize() : filestoreItem.getSize();  
+
+					entry.setSize(size);
 					tos.putArchiveEntry(entry);
-					loader.copyTo(tos);
+					
+					if (filestoreItem == null) {
+						//Copy repository stored file
+						loader.copyTo(tos);
+					} else {
+						//Copy filestore file
+						try (FileInputStream streamIn = new FileInputStream(filestoreManager.getStoragePath(filestoreItem.oid))) {
+
+							IOUtils.copyLarge(streamIn, tos);
+						} catch (Throwable e) {
+							LOGGER.error(MessageFormat.format("Failed to archive filestore item {0}", filestoreItem.oid), e);
+
+							//Handle as per other errors 
+							throw e; 
+						}
+					}
+					
 					tos.closeArchiveEntry();
 				}
 			}

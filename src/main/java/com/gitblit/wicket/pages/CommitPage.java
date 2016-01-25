@@ -163,6 +163,8 @@ public class CommitPage extends RepositoryPage {
 			@Override
 			public void populateItem(final Item<PathChangeModel> item) {
 				final PathChangeModel entry = item.getModelObject();
+				final String filestoreItemUrl = entry.isFilestoreItem() ? JGitUtils.getLfsRepositoryUrl(getContextUrl(), repositoryName, entry.getFilestoreOid()) : null;
+				
 				Label changeType = new Label("changeType", "");
 				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 				setChangeTypeTooltip(changeType, entry.changeType);
@@ -194,9 +196,13 @@ public class CommitPage extends RepositoryPage {
 						path = JGitUtils.getStringContent(getRepository(), getCommit().getTree(), path);
 						displayPath = entry.path + " -> " + path;
 					}
-					item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
-							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, path)));
+					
+					if (entry.isFilestoreItem()) {
+						item.add(new LinkPanel("pathName", "list", entry.path, filestoreItemUrl));
+					} else {
+						item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
+							WicketUtils.newPathParameter(repositoryName, entry.commitId, path)));
+					}
 				}
 
 
@@ -204,6 +210,8 @@ public class CommitPage extends RepositoryPage {
 				if (entry.isSubmodule()) {
 					item.add(new ExternalLink("raw", "").setEnabled(false));
 
+					item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
+					
 					// submodule
 					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
@@ -220,12 +228,22 @@ public class CommitPage extends RepositoryPage {
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
 									&& !entry.changeType.equals(ChangeType.DELETE)));
-					item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
-							.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
-					String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, entry.commitId, entry.path);
-					item.add(new ExternalLink("raw", rawUrl)
-							.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
+					
+					if (entry.isFilestoreItem()) {
+						item.add(new Label("filestore", getString("gb.filestore")).setVisible(true));
+						
+						item.add(new ExternalLink("view", filestoreItemUrl));
+						item.add(new ExternalLink("raw", filestoreItemUrl));
+					} else {
+						item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
+						
+						item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
+								.newPathParameter(repositoryName, entry.commitId, entry.path))
+								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
+						String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, entry.commitId, entry.path);
+						item.add(new ExternalLink("raw", rawUrl)
+								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
+					}
 					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)

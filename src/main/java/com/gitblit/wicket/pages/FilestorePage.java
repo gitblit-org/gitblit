@@ -35,7 +35,6 @@ import com.gitblit.models.UserModel;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.FilestoreUI;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.CacheControl.LastModified;
 

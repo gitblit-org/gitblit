@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -42,6 +43,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
 import org.eclipse.jgit.lib.BlobBasedConfig;
@@ -84,12 +86,16 @@ import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
+import com.gitblit.manager.GitblitManager;
+import com.gitblit.models.FilestoreModel;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SubmoduleModel;
+import com.gitblit.servlet.FilestoreServlet;
 import com.google.common.base.Strings;
 
 /**
@@ -993,23 +999,40 @@ public class JGitUtils {
 				tw.setRecursive(true);
 				tw.addTree(commit.getTree());
 				while (tw.next()) {
-					list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
-							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
+					long size = 0;
+					FilestoreModel filestoreItem = null;
+					ObjectId objectId = tw.getObjectId(0);
+					
+					try {
+						if (!tw.isSubtree() && (tw.getFileMode(0) != FileMode.GITLINK)) {
+
+							size = tw.getObjectReader().getObjectSize(objectId, Constants.OBJ_BLOB);
+
+							if (isPossibleFilestoreItem(size)) {
+								filestoreItem = getFilestoreItem(tw.getObjectReader().open(objectId));
+							}
+						}
+					} catch (Throwable t) {
+						error(t, null, "failed to retrieve blob size for " + tw.getPathString());
+					}
+					
+					list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(),filestoreItem, size, tw
+							.getRawMode(0), objectId.getName(), commit.getId().getName(),
 							ChangeType.ADD));
 				}
 				tw.close();
 			} else {
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				DiffStatFormatter df = new DiffStatFormatter(commit.getName());
+				DiffStatFormatter df = new DiffStatFormatter(commit.getName(), repository);
 				df.setRepository(repository);
 				df.setDiffComparator(RawTextComparator.DEFAULT);
 				df.setDetectRenames(true);
 				List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 				for (DiffEntry diff : diffs) {
 					// create the path change model
-					PathChangeModel pcm = PathChangeModel.from(diff, commit.getName());
-
-					if (calculateDiffStat) {
+					PathChangeModel pcm = PathChangeModel.from(diff, commit.getName(), repository);
+						
+						if (calculateDiffStat) {
 						// update file diffstats
 						df.format(diff);
 						PathChangeModel pathStat = df.getDiffStat().getPath(pcm.path);
@@ -1083,7 +1106,7 @@ public class JGitUtils {
 
 			List<DiffEntry> diffEntries = df.scan(startCommit.getTree(), endCommit.getTree());
 			for (DiffEntry diff : diffEntries) {
-				PathChangeModel pcm = PathChangeModel.from(diff,  endCommit.getName());
+				PathChangeModel pcm = PathChangeModel.from(diff,  endCommit.getName(), repository);
 				list.add(pcm);
 			}
 			Collections.sort(list);
@@ -1167,21 +1190,54 @@ public class JGitUtils {
 	private static PathModel getPathModel(TreeWalk tw, String basePath, RevCommit commit) {
 		String name;
 		long size = 0;
+		
 		if (StringUtils.isEmpty(basePath)) {
 			name = tw.getPathString();
 		} else {
 			name = tw.getPathString().substring(basePath.length() + 1);
 		}
 		ObjectId objectId = tw.getObjectId(0);
+		FilestoreModel filestoreItem = null;
+		
 		try {
 			if (!tw.isSubtree() && (tw.getFileMode(0) != FileMode.GITLINK)) {
+
 				size = tw.getObjectReader().getObjectSize(objectId, Constants.OBJ_BLOB);
+
+				if (isPossibleFilestoreItem(size)) {
+					filestoreItem = getFilestoreItem(tw.getObjectReader().open(objectId));
+				}
 			}
 		} catch (Throwable t) {
 			error(t, null, "failed to retrieve blob size for " + tw.getPathString());
 		}
-		return new PathModel(name, tw.getPathString(), size, tw.getFileMode(0).getBits(),
+		return new PathModel(name, tw.getPathString(), filestoreItem, size, tw.getFileMode(0).getBits(),
 				objectId.getName(), commit.getName());
+	}
+	
+	public static boolean isPossibleFilestoreItem(long size) {
+		return (   (size >= com.gitblit.Constants.LEN_FILESTORE_META_MIN) 
+				&& (size <= com.gitblit.Constants.LEN_FILESTORE_META_MAX));
+	}
+	
+	/**
+	 * 
+	 * @return Representative FilestoreModel if valid, otherwise null
+	 */
+	public static FilestoreModel getFilestoreItem(ObjectLoader obj){
+		try {
+			final byte[] blob = obj.getCachedBytes(com.gitblit.Constants.LEN_FILESTORE_META_MAX);
+			final String meta = new String(blob, "UTF-8");
+		
+			return FilestoreModel.fromMetaString(meta);
+
+		} catch (LargeObjectException e) {
+			//Intentionally failing silent
+		} catch (Exception e) {
+			error(e, null, "failed to retrieve filestoreItem " + obj.toString());
+		}
+		
+		return null;
 	}
 
 	/**
@@ -1197,29 +1253,34 @@ public class JGitUtils {
 			throws IOException {
 
 		long size = 0;
+		FilestoreModel filestoreItem = null;
 		TreeWalk tw = TreeWalk.forPath(repo, path, commit.getTree());
 		String pathString = path;
 
-			if (!tw.isSubtree() && (tw.getFileMode(0) != FileMode.GITLINK)) {
-				size = tw.getObjectReader().getObjectSize(tw.getObjectId(0), Constants.OBJ_BLOB);
-				pathString = PathUtils.getLastPathComponent(pathString);
+		if (!tw.isSubtree() && (tw.getFileMode(0) != FileMode.GITLINK)) {
 
-			} else if (tw.isSubtree()) {
+			pathString = PathUtils.getLastPathComponent(pathString);
+			
+			size = tw.getObjectReader().getObjectSize(tw.getObjectId(0), Constants.OBJ_BLOB);
+			
+			if (isPossibleFilestoreItem(size)) {
+				filestoreItem = getFilestoreItem(tw.getObjectReader().open(tw.getObjectId(0)));
+			}
+		} else if (tw.isSubtree()) {
 
-				// do not display dirs that are behind in the path
-				if (!Strings.isNullOrEmpty(filter)) {
-					pathString = path.replaceFirst(filter + "/", "");
-				}
-
-				// remove the last slash from path in displayed link
-				if (pathString != null && pathString.charAt(pathString.length()-1) == '/') {
-					pathString = pathString.substring(0, pathString.length()-1);
-				}
+			// do not display dirs that are behind in the path
+			if (!Strings.isNullOrEmpty(filter)) {
+				pathString = path.replaceFirst(filter + "/", "");
 			}
 
-			return new PathModel(pathString, tw.getPathString(), size, tw.getFileMode(0).getBits(),
-					tw.getObjectId(0).getName(), commit.getName());
+			// remove the last slash from path in displayed link
+			if (pathString != null && pathString.charAt(pathString.length()-1) == '/') {
+				pathString = pathString.substring(0, pathString.length()-1);
+			}
+		}
 
+		return new PathModel(pathString, tw.getPathString(), filestoreItem, size, tw.getFileMode(0).getBits(),
+				tw.getObjectId(0).getName(), commit.getName());
 
 	}
 
@@ -2512,5 +2573,28 @@ public class JGitUtils {
 			}
 		}
 		return new MergeResult(MergeStatus.FAILED, null);
+	}
+	
+	
+	/**
+	 * Returns the LFS URL for the given oid 
+	 * Currently assumes that the Gitblit Filestore is used 
+	 *
+	 * @param baseURL
+	 * @param repository name
+	 * @param oid of lfs item
+	 * @return the lfs item URL
+	 */
+	public static String getLfsRepositoryUrl(String baseURL, String repositoryName, String oid) {
+		
+		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
+			baseURL = baseURL.substring(0, baseURL.length() - 1);
+		}
+		
+		return baseURL + com.gitblit.Constants.R_PATH 
+					   + repositoryName + "/" 
+					   + com.gitblit.Constants.R_LFS 
+					   + "objects/" + oid;
+		
 	}
 }

@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.gitblit.Constants;
 
 /**
  * A FilestoreModel represents a file stored outside a repository but referenced by the repository using a unique objectID
@@ -31,6 +35,18 @@ public class FilestoreModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String metaRegexText = new StringBuilder()
+			.append("version\\shttps://git-lfs.github.com/spec/v1\\s+")
+			.append("oid\\ssha256:(" + Constants.REGEX_SHA256 + ")\\s+")
+			.append("size\\s([0-9]+)")
+			.toString();
+	
+	private static final Pattern metaRegex = Pattern.compile(metaRegexText);
+	
+	private static final int metaRegexIndexSHA = 1;
+	
+	private static final int metaRegexIndexSize = 2;
+	
 	public final String oid;
 	
 	private Long size;
@@ -43,6 +59,12 @@ public class FilestoreModel implements Serializable {
 	//Access Control
 	private List<String> repositories;
 	
+	public FilestoreModel(String id, long definedSize) {
+		oid = id;
+		size = definedSize;
+		status = Status.ReferenceOnly;
+	}
+	
 	public FilestoreModel(String id, long expectedSize, UserModel user, String repo) {
 		oid = id;
 		size = expectedSize;
@@ -51,6 +73,29 @@ public class FilestoreModel implements Serializable {
 		stateChangedOn = new Date();
 		repositories = new ArrayList<String>();
 		repositories.add(repo);
+	}
+	
+	/*
+	 * Attempts to create a FilestoreModel from the given meta string
+	 * 
+	 * @return A valid FilestoreModel if successful, otherwise null
+	 */
+	public static FilestoreModel fromMetaString(String meta) {
+		
+		Matcher m = metaRegex.matcher(meta);
+		
+		if (m.find()) {
+			try
+			{
+				final Long size = Long.parseLong(m.group(metaRegexIndexSize));
+				final String sha = m.group(metaRegexIndexSHA);
+				return new FilestoreModel(sha, size);			
+			} catch (Exception e) {
+				//Fail silent - it is not a valid filestore item
+			}
+		}
+
+		return null;
 	}
 	
 	public synchronized long getSize() {
@@ -102,19 +147,25 @@ public class FilestoreModel implements Serializable {
 	}
 	
 	public synchronized void addRepository(String repo) {
-		if (!repositories.contains(repo)) {
-			repositories.add(repo);
-		}	
+		if (status != Status.ReferenceOnly) {
+			if (!repositories.contains(repo)) {
+				repositories.add(repo);
+			}
+		}
 	}
 	
 	public synchronized void removeRepository(String repo) {
-		repositories.remove(repo);
+		if (status != Status.ReferenceOnly) {
+			repositories.remove(repo);
+		}
 	}
 	
 	public synchronized boolean isInRepositoryList(List<String> repoList) {
-		for (String name : repositories) {
-			if (repoList.contains(name)) {
-				return true;
+		if (status != Status.ReferenceOnly) {
+			for (String name : repositories) {
+				if (repoList.contains(name)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -122,6 +173,8 @@ public class FilestoreModel implements Serializable {
 	
 	public static enum Status {
 
+		ReferenceOnly(-42),
+		
 		Deleted(-30),
 		AuthenticationRequired(-20),
 		

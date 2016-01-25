@@ -238,7 +238,10 @@ public class FilestoreServlet extends HttpServlet {
 			}
 		} else {
 			response.setStatus(responseObject.error.code);
-			serialize(response, responseObject.error);
+			
+			if (isMetaRequest) {
+				serialize(response, responseObject.error);
+			}
 		}
 	};
 	

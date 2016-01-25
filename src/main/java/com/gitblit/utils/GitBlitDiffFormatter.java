@@ -33,6 +33,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.RawParseUtils;
 
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -164,11 +165,11 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 
 	}
 
-	public GitBlitDiffFormatter(String commitId, String path, BinaryDiffHandler handler, int tabLength) {
+	public GitBlitDiffFormatter(String commitId, Repository repository, String path, BinaryDiffHandler handler, int tabLength) {
 		super(new DiffOutputStream());
 		this.os = (DiffOutputStream) getOutputStream();
 		this.os.setFormatter(this, handler);
-		this.diffStat = new DiffStat(commitId);
+		this.diffStat = new DiffStat(commitId, repository);
 		this.tabLength = tabLength;
 		// If we have a full commitdiff, install maxima to avoid generating a super-long diff listing that
 		// will only tax the browser too much.

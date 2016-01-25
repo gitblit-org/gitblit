@@ -32,6 +32,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -93,9 +94,34 @@ public class BlamePage extends RepositoryPage {
 		final BlameType activeBlameType = BlameType.get(blameTypeParam);
 
 		RevCommit commit = getCommit();
-
-		add(new BookmarkablePageLink<Void>("blobLink", BlobPage.class,
-				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+		
+		PathModel pathModel = null;
+		
+		List<PathModel> paths = JGitUtils.getFilesInPath(getRepository(), StringUtils.getRootPath(blobPath), commit);
+		for (PathModel path : paths) {
+			if (path.path.equals(blobPath)) {
+				pathModel = path;
+				break;
+			}
+		}
+		
+		if (pathModel == null) {
+			final String notFound = MessageFormat.format("Blame page failed to find {0} in {1} @ {2}",
+					blobPath, repositoryName, objectId);
+			logger.error(notFound);
+			add(new Label("annotation").setVisible(false));
+			add(new Label("missingBlob", missingBlob(blobPath, commit)).setEscapeModelStrings(false));
+			return;
+		}
+		
+		if (pathModel.isFilestoreItem()) {
+			String rawUrl = JGitUtils.getLfsRepositoryUrl(getContextUrl(), repositoryName, pathModel.getFilestoreOid());
+			add(new ExternalLink("blobLink", rawUrl));
+		} else {
+			add(new BookmarkablePageLink<Void>("blobLink", BlobPage.class,
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));	
+		}
+		
 		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class,
@@ -134,23 +160,9 @@ public class BlamePage extends RepositoryPage {
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
 
-		PathModel pathModel = null;
-		List<PathModel> paths = JGitUtils.getFilesInPath(getRepository(), StringUtils.getRootPath(blobPath), commit);
-		for (PathModel path : paths) {
-			if (path.path.equals(blobPath)) {
-				pathModel = path;
-				break;
-			}
-		}
+		
 
-		if (pathModel == null) {
-			final String notFound = MessageFormat.format("Blame page failed to find {0} in {1} @ {2}",
-					blobPath, repositoryName, objectId);
-			logger.error(notFound);
-			add(new Label("annotation").setVisible(false));
-			add(new Label("missingBlob", missingBlob(blobPath, commit)).setEscapeModelStrings(false));
-			return;
-		}
+		
 
 		add(new Label("missingBlob").setVisible(false));
 

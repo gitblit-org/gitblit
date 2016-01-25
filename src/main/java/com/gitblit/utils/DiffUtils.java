@@ -157,13 +157,16 @@ public class DiffUtils {
 		public final List<PathChangeModel> paths = new ArrayList<PathChangeModel>();
 
 		private final String commitId;
+		
+		private final Repository repository;
 
-		public DiffStat(String commitId) {
+		public DiffStat(String commitId, Repository repository) {
 			this.commitId = commitId;
+			this.repository = repository;
 		}
 
 		public PathChangeModel addPath(DiffEntry entry) {
-			PathChangeModel pcm = PathChangeModel.from(entry, commitId);
+			PathChangeModel pcm = PathChangeModel.from(entry, commitId, repository);
 			paths.add(pcm);
 			return pcm;
 		}
@@ -379,7 +382,7 @@ public class DiffUtils {
 			DiffFormatter df;
 			switch (outputType) {
 			case HTML:
-				df = new GitBlitDiffFormatter(commit.getName(), path, handler, tabLength);
+				df = new GitBlitDiffFormatter(commit.getName(), repository, path, handler, tabLength);
 				break;
 			case PLAIN:
 			default:
@@ -548,7 +551,7 @@ public class DiffUtils {
 		DiffStat stat = null;
 		try {
 			RawTextComparator cmp = RawTextComparator.DEFAULT;
-			DiffStatFormatter df = new DiffStatFormatter(commit.getName());
+			DiffStatFormatter df = new DiffStatFormatter(commit.getName(), repository);
 			df.setRepository(repository);
 			df.setDiffComparator(cmp);
 			df.setDetectRenames(true);

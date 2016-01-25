@@ -20,6 +20,7 @@ import java.io.IOException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.io.NullOutputStream;
 
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -37,9 +38,9 @@ public class DiffStatFormatter extends DiffFormatter {
 
 	private PathChangeModel path;
 
-	public DiffStatFormatter(String commitId) {
+	public DiffStatFormatter(String commitId, Repository repository) {
 		super(NullOutputStream.INSTANCE);
-		diffStat = new DiffStat(commitId);
+		diffStat = new DiffStat(commitId, repository);
 	}
 
 	@Override
