@@ -1,0 +1,33 @@
+{
+  "name": "gitblit",
+  "homepage": "http://gitblit.com/",
+  "version": "1.0.0",
+  "devDependencies": {
+    "browserify": "^11.2.0",
+    "browserify-shim": "^3.8.10",
+    "suitcss-preprocessor": "^0.8.0",
+	"uglify-js": "^2.6.1"
+  },
+  "scripts": {
+    "build": "npm run build:js-min & npm run build:css-min",
+	"build:debug":"npm run build:js & npm run build:css",
+    "build:js": "browserify editor.dev.js > ../resources/gitblit-editor.js",
+    "build:js-min": "browserify editor.dev.js | uglifyjs --compress --mangle -o ../resources/gitblit-editor.min.js",
+	"build:css":"suitcss editor.dev.css ../resources/gitblit-editor.css",
+	"build:css-min":"suitcss -m editor.dev.css ../resources/gitblit-editor.min.css",
+    "postinstall": "cd simplemde && npm install"
+  },
+  "browser": {
+    "CodeMirror": "./codemirror/lib/codemirror.js",
+    "SimpleMDE": "./simplemde/src/js/simplemde",
+    "CodeMirror/addon/fold/foldcode": "./codemirror/addon/fold/foldcode"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "codemirror": "global:CodeMirror"
+  }
+}
