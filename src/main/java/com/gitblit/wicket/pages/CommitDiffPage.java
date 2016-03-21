@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,9 +24,13 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
+import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
+import org.apache.wicket.util.resource.IResourceStream;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -35,6 +40,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffComparator;
@@ -42,6 +48,7 @@ import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
@@ -135,7 +142,6 @@ public class CommitDiffPage extends RepositoryPage {
 			@Override
 			public void populateItem(final Item<PathChangeModel> item) {
 				final PathChangeModel entry = item.getModelObject();
-				final String filestoreItemUrl = entry.isFilestoreItem() ? JGitUtils.getLfsRepositoryUrl(getContextUrl(), repositoryName, entry.getFilestoreOid()) : null; 
 				
 				Label changeType = new Label("changeType", "");
 				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
@@ -162,7 +168,34 @@ public class CommitDiffPage extends RepositoryPage {
 					item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#n" + entry.objectId));
 				} else {
 					// add relative link
-					item.add(new LinkPanel("pathName", "list", entry.path, entry.isFilestoreItem() ? filestoreItemUrl : "#n" + entry.objectId));
+					if (entry.isFilestoreItem()) {
+					
+						item.add(new LinkPanel("pathName", "list", entry.path, new Link<Object>("link", null) {
+							 
+							private static final long serialVersionUID = 1L;
+
+							@Override
+						    public void onClick() {
+								IResourceStream resourceStream = new AbstractResourceStreamWriter() {
+						    		 								    	
+									private static final long serialVersionUID = 1L;
+	
+									@Override 
+						    	    public void write(OutputStream output) {
+										UserModel user =  GitBlitWebSession.get().getUser();
+									    user = user == null ? UserModel.ANONYMOUS : user;
+									    	
+						    	        app().filestore().downloadBlob(entry.getFilestoreOid(), user, getRepositoryModel(), output);
+									}
+								};
+								
+						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
+						    }}));
+					}
+					else
+					{
+						item.add(new LinkPanel("pathName", "list", entry.path, "#n" + entry.objectId));
+					}
 				}
 
 				// quick links
@@ -188,8 +221,53 @@ public class CommitDiffPage extends RepositoryPage {
 					if (entry.isFilestoreItem()) {
 						item.add(new Label("filestore", getString("gb.filestore")).setVisible(true));
 						
-						item.add(new ExternalLink("view", filestoreItemUrl));
-						item.add(new ExternalLink("raw", filestoreItemUrl));
+						item.add(new Link<Object>("view", null) {
+							 
+							private static final long serialVersionUID = 1L;
+
+							@Override
+						    public void onClick() {
+						 
+						    	 IResourceStream resourceStream = new AbstractResourceStreamWriter() {
+						    		 								    	
+									private static final long serialVersionUID = 1L;
+
+									@Override 
+						    	      public void write(OutputStream output) {
+						    	   		 UserModel user =  GitBlitWebSession.get().getUser();
+									     user = user == null ? UserModel.ANONYMOUS : user;
+									    	
+						    	        app().filestore().downloadBlob(entry.getFilestoreOid(), user, getRepositoryModel(), output);
+						    	      }
+						    	  };
+						    	      
+						    	
+						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
+						    }});
+						
+						item.add(new Link<Object>("raw", null) {
+							 
+							private static final long serialVersionUID = 1L;
+
+							@Override
+						    public void onClick() {
+						 
+						    	 IResourceStream resourceStream = new AbstractResourceStreamWriter() {
+						    		 								    	
+									private static final long serialVersionUID = 1L;
+
+									@Override 
+						    	      public void write(OutputStream output) {
+						    	   		 UserModel user =  GitBlitWebSession.get().getUser();
+									     user = user == null ? UserModel.ANONYMOUS : user;
+									    	
+						    	        app().filestore().downloadBlob(entry.getFilestoreOid(), user, getRepositoryModel(), output);
+						    	      }
+						    	  };
+						    	      
+						    	
+						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
+						    }});
 					} else {
 						
 						item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
