@@ -663,14 +663,22 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	@Override
+	protected void onInitialize() {
+
+		super.onInitialize();
+
+		// setup page header and footer
+		setupPage(getRepositoryName(), "/ " + getPageName());
+	}
+	
+	@Override
 	protected void onBeforeRender() {
 		// dispose of repository object
 		if (r != null) {
 			r.close();
 			r = null;
 		}
-		// setup page header and footer
-		setupPage(getRepositoryName(), "/ " + getPageName());
+
 		super.onBeforeRender();
 	}
 
