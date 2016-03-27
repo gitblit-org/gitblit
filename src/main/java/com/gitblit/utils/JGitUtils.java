@@ -2727,5 +2727,22 @@ public class JGitUtils {
 		}
 		return success;
 	}
+	
+	/**
+	 * Returns true if the commit identified by commitId is at the tip of it's branch.
+	 *
+	 * @param repository
+	 * @param commitId
+	 * @return true if the given commit is the tip
+	 */
+	public static boolean isTip(Repository repository, String commitId) {
+		try {
+			RefModel tip = getBranch(repository, commitId);
+			return (tip != null);	
+		} catch (Exception e) {
+			LOGGER.error("Failed to determine isTip", e);
+		}
+		return false;
+	}
 
 }

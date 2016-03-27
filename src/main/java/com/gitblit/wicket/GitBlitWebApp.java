@@ -59,6 +59,7 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.EditFilePage;
 import com.gitblit.wicket.pages.EditMilestonePage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.EditTicketPage;
@@ -230,6 +231,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r", "h");
 		mount("/doc", DocPage.class, "r", "h", "f");
+		mount("/editfile", EditFilePage.class, "r", "h", "f");
 
 		// federation urls
 		mount("/proposal", ReviewProposalPage.class, "t");

@@ -17,6 +17,7 @@ package com.gitblit.wicket.pages;
 
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +52,7 @@ import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
 import com.gitblit.wicket.WicketUtils;
 
-@CacheControl(LastModified.BOOT)
+@CacheControl(LastModified.REPOSITORY)
 public class EditFilePage extends RepositoryPage {
 
 	public EditFilePage(final PageParameters params) {
@@ -96,9 +97,9 @@ public class EditFilePage extends RepositoryPage {
 		Fragment fragment;
 		String displayedCommitId = commit.getId().getName();
 		MarkupDocument markupDoc = processor.parse(repositoryName, displayedCommitId, documentPath, markupText);
-		logger.info("Loading Edit File page: " + displayedCommitId);
+		logger.trace("Loading Edit File page: " + displayedCommitId);
 
-		if (currentUser.canEdit(getRepositoryModel())) {
+		if (currentUser.canEdit(getRepositoryModel()) && JGitUtils.isTip(getRepository(), objectId.toString())) {
 			
 			final Model<String> documentContent = new Model<String>(markupDoc.markup);
 			final Model<String> commitMessage = new Model<String>("Document update");
@@ -112,7 +113,6 @@ public class EditFilePage extends RepositoryPage {
 
 				@Override
 				protected void onSubmit() {
-					
 					final Repository repository = getRepository();
 					final String document = documentContent.getObject();
 					final String message = commitMessage.getObject();
@@ -125,7 +125,7 @@ public class EditFilePage extends RepositoryPage {
 					try {			
 						ObjectId docAtLoad = getRepository().resolve(commitIdAtLoad.getObject());
 						
-						logger.info("Commiting Edit File page: " + commitIdAtLoad.getObject());
+						logger.trace("Commiting Edit File page: " + commitIdAtLoad.getObject());
 						
 						DirCache index = DirCache.newInCore();
 						DirCacheBuilder builder = index.builder();
@@ -156,12 +156,12 @@ public class EditFilePage extends RepositoryPage {
 					}
 				
 					if (success == false) {
-						EditFilePage.this.error("Unable to commit document " + path, false);
+						getSession().error(MessageFormat.format(getString("gb.fileNotMergeable"),path));
 						return;
 					}
 					
+					getSession().info(MessageFormat.format(getString("gb.fileCommitted"),path));
 					setResponsePage(EditFilePage.class, params);
-					return;
 				}
 			};
 
@@ -197,12 +197,12 @@ public class EditFilePage extends RepositoryPage {
 		fragment.add(new ExternalLink("rawLink", rawUrl));
 
 		add(fragment);
-        
+     
 	}
 
 	@Override
 	protected String getPageName() {
-		return getString("gb.docs");
+		return getString("gb.editFile");
 	}
 
 	@Override
@@ -212,7 +212,7 @@ public class EditFilePage extends RepositoryPage {
 
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
-		return DocsPage.class;
+		return EditFilePage.class;
 	}
 	
 	
