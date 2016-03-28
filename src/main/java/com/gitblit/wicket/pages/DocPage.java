@@ -25,11 +25,13 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.models.UserModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
@@ -44,7 +46,9 @@ public class DocPage extends RepositoryPage {
 
 		final String path = WicketUtils.getPath(params).replace("%2f", "/").replace("%2F", "/");
 		MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
-
+		UserModel currentUser = (GitBlitWebSession.get().getUser() != null) ? GitBlitWebSession.get().getUser() : UserModel.ANONYMOUS;
+		final boolean userCanEdit = currentUser.canEdit(getRepositoryModel());
+		
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		String [] encodings = getEncodings();
@@ -85,6 +89,9 @@ public class DocPage extends RepositoryPage {
 		}
 
 		// document page links
+		fragment.add(new BookmarkablePageLink<Void>("editLink", EditFilePage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId, documentPath))
+				.setEnabled(userCanEdit));
 		fragment.add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
 		fragment.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,

@@ -27,15 +27,19 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.StringResourceModel;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.models.PathModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
@@ -54,6 +58,9 @@ public class DocsPage extends RepositoryPage {
 		MarkupProcessor processor = new MarkupProcessor(app().settings(), app().xssFilter());
 
 		Repository r = getRepository();
+		UserModel currentUser = (GitBlitWebSession.get().getUser() != null) ? GitBlitWebSession.get().getUser() : UserModel.ANONYMOUS;
+		final boolean userCanEdit = currentUser.canEdit(getRepositoryModel());
+		
 		RevCommit head = JGitUtils.getCommit(r, objectId);
 		final String commitId = getBestCommitId(head);
 
@@ -102,7 +109,12 @@ public class DocsPage extends RepositoryPage {
 				@Override
 				public void populateItem(final Item<MarkupDocument> item) {
 					MarkupDocument doc = item.getModelObject();
-					// document page links
+					
+					item.add(new BookmarkablePageLink<Void>("editLink", EditFilePage.class,
+							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath))
+							.setEnabled(userCanEdit));
+					
+					// document page links					
 					item.add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
 							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath)));
 					item.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
@@ -148,6 +160,9 @@ public class DocsPage extends RepositoryPage {
 				// links
 				item.add(new BookmarkablePageLink<Void>("view", DocPage.class, WicketUtils
 						.newPathParameter(repositoryName, commitId, entry.path)));
+				item.add(new BookmarkablePageLink<Void>("edit", EditFilePage.class, WicketUtils
+						.newPathParameter(repositoryName, commitId, entry.path))
+						.setEnabled(userCanEdit));
 				String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, commitId, entry.path);
 				item.add(new ExternalLink("raw", rawUrl));
 				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils

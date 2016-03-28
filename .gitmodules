@@ -1,3 +1,6 @@
 [submodule "src/main/distrib/data/gitignore"]
 	path = src/main/distrib/data/gitignore
 	url = https://github.com/github/gitignore.git
+[submodule "src/main/js/prosemirror"]
+	path = src/main/js/prosemirror
+	url = https://github.com/ProseMirror/prosemirror.git

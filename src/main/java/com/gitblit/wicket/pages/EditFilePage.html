@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+
+<!-- contribute editor resources to the page header -->
+<wicket:head>
+   	<link rel="stylesheet" href="gitblit-editor.min.css" />
+	<script type="text/javascript" src="gitblit-editor.min.js"></script>
+</wicket:head>
+
+<body>
+<wicket:extend>
+<div wicket:id="doc"></div>
+<wicket:fragment wicket:id="markupContent">
+	<div class="docs" style="margin-top: -10px;">
+	
+		<!-- doc nav links -->	
+		<div style="float: right;position: relative;z-index: 100;margin-top: 1px;border-radius: 0px 3px 0px 3px;" class="docnav">
+			<a wicket:id="blameLink"><wicket:message key="gb.blame"></wicket:message></a>  | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a>
+		</div>
+		<div id="visualEditor"></div>
+		<form id="documentEditor" style="padding-top:5px;" wicket:id="documentEditor">
+			<textarea id="editor" wicket:id="content">[content]</textarea>
+		
+			<div id="commitDialog" class="modal hide fade">
+			  <div class="modal-header">
+			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			    <h3>Commit Document Changes</h3>
+			  </div>
+			  <div class="modal-body">
+		  		<div wicket:id="commitAuthor"></div>
+		    	<textarea style="width:100%; resize:none" wicket:id="commitMessage"></textarea>
+			  </div>
+			  <div class="modal-footer">
+			    <a href="#" data-dismiss="modal" class="btn"><wicket:message key="gb.continueEditing"></wicket:message></a>
+			    <a href="#" onclick="commitChanges()" class="btn btn-primary"><wicket:message key="gb.commitChanges"></wicket:message></a>
+			  </div>
+			</div>
+		</form>
+		
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="plainContent">
+	<div class="docs">
+			<!-- doc nav links -->	
+			<div style="float: right;" class="docnav">
+				<a wicket:id="blameLink"><wicket:message key="gb.blame"></wicket:message></a>  | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a>
+			</div>	
+
+			<!--  document content -->
+			<div wicket:id="content">[content]</div>
+	</div>
+</wicket:fragment>
+
+</wicket:extend>
+</body>
+</html>
