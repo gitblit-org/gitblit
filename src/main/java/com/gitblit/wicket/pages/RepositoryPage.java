@@ -269,8 +269,15 @@ public abstract class RepositoryPage extends RootPage {
 
 	@Override
 	protected void setupPage(String repositoryName, String pageName) {
+		
+		//This method should only be called once in the page lifecycle.
+		//However, it must be called after the constructor has run, hence not in onInitialize
+		//It may be attempted to be called again if an info or error message is displayed.
+		if (get("projectTitle") != null) { return; }
+		
 		String projectName = StringUtils.getFirstPathElement(repositoryName);
 		ProjectModel project = app().projects().getProjectModel(projectName);
+
 		if (project.isUserProject()) {
 			// user-as-project
 			add(new LinkPanel("projectTitle", null, project.getDisplayName(),
@@ -662,15 +669,7 @@ public abstract class RepositoryPage extends RootPage {
 		}
 	}
 
-	@Override
-	protected void onInitialize() {
 
-		super.onInitialize();
-
-		// setup page header and footer
-		setupPage(getRepositoryName(), "/ " + getPageName());
-	}
-	
 	@Override
 	protected void onBeforeRender() {
 		// dispose of repository object
@@ -678,6 +677,9 @@ public abstract class RepositoryPage extends RootPage {
 			r.close();
 			r = null;
 		}
+		
+		// setup page header and footer
+		setupPage(getRepositoryName(), "/ " + getPageName());
 
 		super.onBeforeRender();
 	}
