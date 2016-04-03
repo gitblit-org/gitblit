@@ -107,6 +107,30 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		TicketModel ticket;
 		List<Change> effectiveChanges = new ArrayList<Change>();
 		Map<String, Change> comments = new HashMap<String, Change>();
+		Map<Integer, Integer> latestRevisions = new HashMap<Integer, Integer>();
+		
+		int latestPatchsetNumber = -1;
+		
+		List<Integer> deletedPatchsets = new ArrayList<Integer>();
+		
+		for (Change change : changes) {
+			if (change.patchset != null) {
+				if (change.patchset.isDeleted()) {
+					deletedPatchsets.add(change.patchset.number);
+				} else {
+					Integer latestRev = latestRevisions.get(change.patchset.number);
+					
+					if (latestRev == null || change.patchset.rev > latestRev) {
+						latestRevisions.put(change.patchset.number, change.patchset.rev);
+					}
+					
+					if (change.patchset.number > latestPatchsetNumber) {
+						latestPatchsetNumber = change.patchset.number;
+					}	
+				}
+			}
+		}
+		
 		for (Change change : changes) {
 			if (change.comment != null) {
 				if (comments.containsKey(change.comment.id)) {
@@ -121,6 +145,19 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				} else {
 					effectiveChanges.add(change);
 					comments.put(change.comment.id, change);
+				}
+			} else if (change.patchset != null) {
+				//All revisions of a deleted patchset are not displayed
+				if (!deletedPatchsets.contains(change.patchset.number)) {
+					
+					Integer latestRev = latestRevisions.get(change.patchset.number);
+					
+					if (    (change.patchset.number < latestPatchsetNumber) 
+						 && (change.patchset.rev == latestRev)) {
+						change.patchset.canDelete = true;
+					}
+					
+					effectiveChanges.add(change);
 				}
 			} else {
 				effectiveChanges.add(change);
@@ -1033,8 +1070,14 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public int added;
 		public PatchsetType type;
 
+		public transient boolean canDelete = false;
+
 		public boolean isFF() {
 			return PatchsetType.FastForward == type;
+		}
+
+		public boolean isDeleted() {
+			return PatchsetType.Delete == type;
 		}
 
 		@Override
@@ -1287,7 +1330,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum PatchsetType {
-		Proposal, FastForward, Rebase, Squash, Rebase_Squash, Amend;
+		Proposal, FastForward, Rebase, Squash, Rebase_Squash, Amend, Delete;
 
 		public boolean isRewrite() {
 			return (this != FastForward) && (this != Proposal);

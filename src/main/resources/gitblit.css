@@ -2360,3 +2360,8 @@ div.markdown table.text th, div.markdown table.text td {
 .filestore-item {
 	color:#815b3a;
 }
+
+.delete-patchset {
+	color:#D51900;
+	font-size: 1.2em;
+}
