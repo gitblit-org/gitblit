@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -343,14 +342,23 @@ public class MyTicketsPage extends RootPage {
         int page = (params != null) ? Math.max(1, WicketUtils.getPage(params)) : 1;
         int pageSize = app().settings().getInteger(Keys.tickets.perPage, 25);
 
-        final List<QueryResult> results = 
+        final List<QueryResult> allResults = 
             StringUtils.isEmpty(searchParam) ? query(qb, page, pageSize, sortBy, desc) : search(searchParam, page, pageSize);
 
-        int totalResults = results.size() == 0 ? 0 : results.get(0).totalResults;
-        buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, repositoryId, page, pageSize, results.size(), totalResults);
+        List<QueryResult> viewableResults = new ArrayList<>(allResults.size());
+        for (QueryResult queryResult : allResults) {
+        	RepositoryModel model = app().repositories().getRepositoryModel(currentUser, queryResult.repository);
+			
+        	if ((model != null) && (currentUser.canView(model))) {
+        		viewableResults.add(queryResult);
+        	}
+		}
+            
+        int totalResults = viewableResults.size() == 0 ? 0 : viewableResults.get(0).totalResults;
+        buildPager(queryParam, milestoneParam, statiiParam, assignedToParam, sortBy, desc, repositoryId, page, pageSize, viewableResults.size(), totalResults);
 
         final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
-        add(new TicketListPanel("ticketList", results, showSwatch, true));
+        add(new TicketListPanel("ticketList", viewableResults, showSwatch, true));
     }
 
     protected PageParameters queryParameters(
