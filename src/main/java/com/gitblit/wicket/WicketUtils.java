@@ -73,8 +73,8 @@ public class WicketUtils {
 		container.add(new SimpleAttributeModifier("style", background));
 	}
 
-	public static void setHtmlTooltip(Component container, String value) {
-		container.add(new SimpleAttributeModifier("title", value));
+	public static Component setHtmlTooltip(Component container, String value) {
+		return container.add(new SimpleAttributeModifier("title", value));
 	}
 
 	public static void setInputPlaceholder(Component container, String value) {

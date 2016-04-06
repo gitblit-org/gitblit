@@ -148,6 +148,8 @@ public class CommitDiffPage extends RepositoryPage {
 				setChangeTypeTooltip(changeType, entry.changeType);
 				item.add(changeType);
 				item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
+				item.add(WicketUtils.setHtmlTooltip(new Label("filestore", ""), getString("gb.filestore"))
+									.setVisible(entry.isFilestoreItem()));
 
 				boolean hasSubmodule = false;
 				String submodulePath = null;
@@ -200,8 +202,6 @@ public class CommitDiffPage extends RepositoryPage {
 
 				// quick links
 				if (entry.isSubmodule()) {
-					item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
-					
 					item.add(new ExternalLink("raw", "").setEnabled(false));
 					// submodule
 					item.add(new ExternalLink("patch", "").setEnabled(false));
@@ -219,8 +219,6 @@ public class CommitDiffPage extends RepositoryPage {
 									&& !entry.changeType.equals(ChangeType.DELETE)));
 					
 					if (entry.isFilestoreItem()) {
-						item.add(new Label("filestore", getString("gb.filestore")).setVisible(true));
-						
 						item.add(new Link<Object>("view", null) {
 							 
 							private static final long serialVersionUID = 1L;
@@ -269,9 +267,6 @@ public class CommitDiffPage extends RepositoryPage {
 						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
 						    }});
 					} else {
-						
-						item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
-						
 						item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
 								.newPathParameter(repositoryName, entry.commitId, entry.path))
 								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
