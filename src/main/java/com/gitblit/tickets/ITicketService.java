@@ -48,6 +48,7 @@ import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
+import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.utils.DeepCopier;
@@ -1213,6 +1214,30 @@ public abstract class ITicketService implements IManager {
 		TicketModel revisedTicket = updateTicket(repository, ticket.number, deletion);
 		return revisedTicket;
 	}
+	
+	/**
+	 * Deletes a patchset from a ticket.
+	 *
+	 * @param ticket
+	 * @param patchset
+	 *            the patchset to delete (should be the highest revision)
+	 * @param userName
+	 * 			the user deleting the commit
+	 * @return the revised ticket if the deletion was successful
+	 * @since 1.8.0
+	 */
+	public final TicketModel deletePatchset(TicketModel ticket, Patchset patchset, String userName) {
+		Change deletion = new Change(userName);
+		deletion.patchset = new Patchset();
+		deletion.patchset.number = patchset.number;
+		deletion.patchset.rev = patchset.rev;
+		deletion.patchset.type = PatchsetType.Delete;
+		
+		RepositoryModel repository = repositoryManager.getRepositoryModel(ticket.repository);
+		TicketModel revisedTicket = updateTicket(repository, ticket.number, deletion);
+		
+		return revisedTicket;
+	} 
 
 	/**
 	 * Commit a ticket change to the repository.

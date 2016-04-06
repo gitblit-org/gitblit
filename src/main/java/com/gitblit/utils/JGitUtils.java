@@ -1745,13 +1745,9 @@ public class JGitUtils {
 	 * @return true if successful
 	 */
 	public static boolean deleteBranchRef(Repository repository, String branch) {
-		String branchName = branch;
-		if (!branchName.startsWith(Constants.R_HEADS)) {
-			branchName = Constants.R_HEADS + branch;
-		}
 
 		try {
-			RefUpdate refUpdate = repository.updateRef(branchName, false);
+			RefUpdate refUpdate = repository.updateRef(branch, false);
 			refUpdate.setForceUpdate(true);
 			RefUpdate.Result result = refUpdate.delete();
 			switch (result) {
@@ -1762,10 +1758,10 @@ public class JGitUtils {
 				return true;
 			default:
 				LOGGER.error(MessageFormat.format("{0} failed to delete to {1} returned result {2}",
-						repository.getDirectory().getAbsolutePath(), branchName, result));
+						repository.getDirectory().getAbsolutePath(), branch, result));
 			}
 		} catch (Throwable t) {
-			error(t, repository, "{0} failed to delete {1}", branchName);
+			error(t, repository, "{0} failed to delete {1}", branch);
 		}
 		return false;
 	}
