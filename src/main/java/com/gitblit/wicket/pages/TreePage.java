@@ -98,15 +98,15 @@ public class TreePage extends RepositoryPage {
 				final PathModel entry = item.getModelObject();
 				
 				item.add(new Label("pathPermissions", JGitUtils.getPermissionsFromMode(entry.mode)));
-				
+				item.add(WicketUtils.setHtmlTooltip(new Label("filestore", ""), getString("gb.filestore"))
+									.setVisible(entry.isFilestoreItem()));
+
 				if (entry.isParentPath) {
 					// parent .. path
 					item.add(WicketUtils.newBlankImage("pathIcon"));
 					item.add(new Label("pathSize", ""));
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class,
-							WicketUtils
-									.newPathParameter(repositoryName, id, entry.path)));
-					item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
+							WicketUtils.newPathParameter(repositoryName, id, entry.path)));
 					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
@@ -116,8 +116,6 @@ public class TreePage extends RepositoryPage {
 						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class,
 								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
-
-						item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
@@ -146,8 +144,6 @@ public class TreePage extends RepositoryPage {
 								getShortObjectId(submoduleId), TreePage.class,
 								WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
 
-						item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
-						
 						Fragment links = new Fragment("pathLinks", "submoduleLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", SummaryPage.class,
 								WicketUtils.newRepositoryParameter(submodulePath)).setEnabled(hasSubmodule));
@@ -175,8 +171,6 @@ public class TreePage extends RepositoryPage {
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
 						
 						if (entry.isFilestoreItem()) {
-							item.add(new Label("filestore", getString("gb.filestore")).setVisible(true));
-							
 							item.add(new LinkPanel("pathName", "list", displayPath, new Link<Object>("link", null) {
 								 
 								private static final long serialVersionUID = 1L;
@@ -250,8 +244,6 @@ public class TreePage extends RepositoryPage {
 							    }});
 							
 						} else {
-							item.add(new Label("filestore", getString("gb.filestore")).setVisible(false));
-							
 							item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
 									WicketUtils.newPathParameter(repositoryName, id,
 											path)));
