@@ -446,7 +446,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new BooleanOption("acceptNewTickets",
 				getString("gb.acceptNewTickets"),
 				getString("gb.acceptNewTicketsDescription"),
-				new PropertyModel<Boolean>(repositoryModel, "acceptNewPatchsets")));
+				new PropertyModel<Boolean>(repositoryModel, "acceptNewTickets")));
 
 		form.add(new BooleanOption("requireApproval",
 				getString("gb.requireApproval"),
