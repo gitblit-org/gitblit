@@ -8,8 +8,18 @@
 <wicket:extend>
 <div class="container">
 	
-	<div class="markdown" style="padding: 10px 0px 5px 0px;">
-		<span wicket:id="repositoriesMessage">[repositories message]</span>
+	<div style="padding: 10px 0px 5px 0px;">
+		<table class="filestore-status">
+			<tr>
+				<td><a wicket:id="filterByOk" href="#"><span wicket:id="statusOkIcon"></span><span wicket:id="statusOkCount"></span></a></td>
+				<td><a wicket:id="filterByPending" href="#"><span wicket:id="statusPendingIcon"></span><span wicket:id="statusPendingCount"></span></a></td>
+				<td><a wicket:id="filterByInprogress" href="#"><span wicket:id="statusInprogressIcon"></span><span wicket:id="statusInprogressCount"></span></a></td>
+				<td><a wicket:id="filterByError" href="#"><span wicket:id="statusErrorIcon"></span><span wicket:id="statusErrorCount"></span></a></td>
+				<td><a wicket:id="filterByDeleted" href="#"><span wicket:id="statusDeletedIcon"></span><span wicket:id="statusDeletedCount"></span></a></td>
+				<td></td>
+				<td><span class="fa fa-fw fa-database"></span><span wicket:id="spaceAvailable"></span></td>
+			</tr>
+		</table>
 		<span style="float:right"><a href="#" wicket:id="filestoreHelp"><span wicket:id="helpMessage">[help message]</span></a></span>
 	</div>
 	
@@ -31,7 +41,14 @@
        		</tr>
     	</tbody>
 	</table>
+	
+	<!-- pager links -->
+	<div style="padding-bottom:5px;">
+		<a wicket:id="firstPageBottom"><wicket:message key="gb.pageFirst"></wicket:message></a> | <a wicket:id="prevPageBottom">&laquo; <wicket:message key="gb.pagePrevious"></wicket:message></a> | <a wicket:id="nextPageBottom"><wicket:message key="gb.pageNext"></wicket:message> &raquo;</a> 
+	</div>
 </div>
+
+	
 </wicket:extend>
 </body>
 </html>

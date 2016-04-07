@@ -417,6 +417,19 @@ public class WicketUtils {
 		return new PageParameters(parameterMap);
 	}
 
+	public static PageParameters newFilestorePageParameter(int pageNumber, String filter) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		
+		if (pageNumber > 1) {
+			parameterMap.put("pg", String.valueOf(pageNumber));
+		}
+		if (filter != null) {
+			parameterMap.put("s", String.valueOf(filter));
+		}
+		
+		return new PageParameters(parameterMap);
+	}
+
 	public static PageParameters newBlobDiffParameter(String repositoryName,
 			String baseCommitId, String commitId, String path) {
 		Map<String, String> parameterMap = new HashMap<String, String>();

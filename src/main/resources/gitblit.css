@@ -2361,6 +2361,33 @@ div.markdown table.text th, div.markdown table.text td {
 	color:#815b3a;
 }
 
+.filestore-status {
+	display: inline;
+	font-size: 1.2em;
+}
+
+table.filestore-status {
+	border:none!important;
+	border-spacing: 10px 0px;
+    border-collapse: separate;
+}
+
+.filestore-status tr td a {
+	border:none!important;
+	margin-right:1.5em!important;
+	padding:0.25em;
+}
+
+.filestore-status td a:hover, .filestore-status td a.filter-on {
+	background-color: #eee;
+	border-radius:5px;
+}
+
+.filestore-status span:nth-child(2) {
+	font-weight:800;
+	margin-left:0.25em;
+}
+
 .delete-patchset {
 	color:#D51900;
 	font-size: 1.2em;
