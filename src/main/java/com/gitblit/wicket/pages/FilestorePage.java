@@ -16,13 +16,12 @@
 package com.gitblit.wicket.pages;
 
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.wicket.Component;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
@@ -30,7 +29,9 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.Constants;
+import com.gitblit.Keys;
 import com.gitblit.models.FilestoreModel;
+import com.gitblit.models.FilestoreModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.FilestoreUI;
@@ -47,10 +48,22 @@ import com.gitblit.wicket.CacheControl.LastModified;
 @CacheControl(LastModified.ACTIVITY)
 public class FilestorePage extends RootPage {
 
-	public FilestorePage() {
-		super();
+	public FilestorePage(PageParameters params) {
+		super(params);
 		setupPage("", "");
 
+		int itemsPerPage = app().settings().getInteger(Keys.web.itemsPerPage, 20);
+		if (itemsPerPage <= 1) {
+			itemsPerPage = 20;
+		}
+		
+		final int pageNumber = WicketUtils.getPage(params);
+		final String filter = WicketUtils.getSearchString(params);
+		
+		int prevPage = Math.max(0, pageNumber - 1);
+		int nextPage = pageNumber + 1;
+		boolean hasMore = false;
+		
 		final UserModel user = (GitBlitWebSession.get().getUser() == null) ? UserModel.ANONYMOUS : GitBlitWebSession.get().getUser();
 		final long nBytesUsed = app().filestore().getFilestoreUsedByteCount();
 		final long nBytesAvailable = app().filestore().getFilestoreAvailableByteCount();
@@ -59,21 +72,88 @@ public class FilestorePage extends RootPage {
 		if (files == null) {
 			files = new ArrayList<FilestoreModel>();
 		}
+
+		long nOk = 0;
+		long nPending = 0;
+		long nInprogress = 0;
+		long nError = 0;
+		long nDeleted = 0;
 		
-		String message = MessageFormat.format(getString("gb.filestoreStats"), files.size(),
-				FileUtils.byteCountToDisplaySize(nBytesUsed), FileUtils.byteCountToDisplaySize(nBytesAvailable) );
+		for (FilestoreModel file : files) {
+			switch (file.getStatus()) {
+			case Available: { nOk++;} break;
+			case Upload_Pending: { nPending++; } break;
+			case Upload_In_Progress: { nInprogress++; } break;
+			case Deleted: { nDeleted++; } break;
+			default: { nError++; } break;
+			}
+		}
+		
+		
+		BookmarkablePageLink<Void> itemOk = new BookmarkablePageLink<Void>("filterByOk", FilestorePage.class,
+				WicketUtils.newFilestorePageParameter(prevPage, SortBy.ok.name()));
+		
+		BookmarkablePageLink<Void> itemPending = new BookmarkablePageLink<Void>("filterByPending", FilestorePage.class,
+				WicketUtils.newFilestorePageParameter(prevPage, SortBy.pending.name()));
+		
+		BookmarkablePageLink<Void> itemInprogress = new BookmarkablePageLink<Void>("filterByInprogress", FilestorePage.class,
+				WicketUtils.newFilestorePageParameter(prevPage, SortBy.inprogress.name()));
+		
+		BookmarkablePageLink<Void> itemError = new BookmarkablePageLink<Void>("filterByError", FilestorePage.class,
+				WicketUtils.newFilestorePageParameter(prevPage, SortBy.error.name()));
 
-		Component repositoriesMessage = new Label("repositoriesMessage", message)
-				.setEscapeModelStrings(false).setVisible(message.length() > 0);
-
-		add(repositoriesMessage);
-
-		BookmarkablePageLink<Void> helpLink = new BookmarkablePageLink<Void>("filestoreHelp", FilestoreUsage.class);
-		helpLink.add(new Label("helpMessage", getString("gb.filestoreHelp")));
-		add(helpLink);
-
-		DataView<FilestoreModel> filesView = new DataView<FilestoreModel>("fileRow",
-				new ListDataProvider<FilestoreModel>(files)) {
+		BookmarkablePageLink<Void> itemDeleted = new BookmarkablePageLink<Void>("filterByDeleted", FilestorePage.class,
+				WicketUtils.newFilestorePageParameter(prevPage, SortBy.deleted.name()));
+		
+		
+		List<FilestoreModel> filteredResults = new ArrayList<FilestoreModel>(files.size());
+		
+		if (filter == null) {
+			filteredResults = files;
+		} else if (filter.equals(SortBy.ok.name())) {
+			WicketUtils.setCssClass(itemOk, "filter-on");
+			
+			for (FilestoreModel item : files) {
+				if (item.getStatus() == Status.Available) {
+					filteredResults.add(item);
+				}
+			}
+		} else if (filter.equals(SortBy.pending.name())) {
+			WicketUtils.setCssClass(itemPending, "filter-on");
+			
+			for (FilestoreModel item : files) {
+				if (item.getStatus() == Status.Upload_Pending) {
+					filteredResults.add(item);
+				}
+			}
+		} else if (filter.equals(SortBy.inprogress.name())) {
+			WicketUtils.setCssClass(itemInprogress, "filter-on");
+			
+			for (FilestoreModel item : files) {
+				if (item.getStatus() == Status.Upload_In_Progress) {
+					filteredResults.add(item);
+				}
+			}
+		} else if (filter.equals(SortBy.error.name())) {
+			WicketUtils.setCssClass(itemError, "filter-on");
+			
+			for (FilestoreModel item : files) {
+				if (item.isInErrorState()) {
+					filteredResults.add(item);
+				}
+			}
+		} else if (filter.equals(SortBy.deleted.name())) {
+			WicketUtils.setCssClass(itemDeleted, "filter-on");
+			
+			for (FilestoreModel item : files) {
+				if (item.getStatus() == Status.Deleted) {
+					filteredResults.add(item);
+				}
+			}
+		}
+		
+		DataView<FilestoreModel> filesView = new DataView<FilestoreModel>("fileRow", 
+				new ListDataProvider<FilestoreModel>(filteredResults) , itemsPerPage) {
 			private static final long serialVersionUID = 1L;
 			private int counter;
 
@@ -106,6 +186,56 @@ public class FilestorePage extends RootPage {
 
 		};
 
+
+		if (filteredResults.size() < itemsPerPage) {
+			filesView.setCurrentPage(0);
+			hasMore = false;
+		} else {
+			filesView.setCurrentPage(pageNumber - 1);
+			hasMore = true;
+		}
+
+		
 		add(filesView);
+		
+		
+		add(new BookmarkablePageLink<Void>("firstPageBottom", FilestorePage.class).setEnabled(pageNumber > 1));
+		add(new BookmarkablePageLink<Void>("prevPageBottom", FilestorePage.class,
+				WicketUtils.newFilestorePageParameter(prevPage, filter)).setEnabled(pageNumber > 1));
+		add(new BookmarkablePageLink<Void>("nextPageBottom", FilestorePage.class,
+				WicketUtils.newFilestorePageParameter(nextPage, filter)).setEnabled(hasMore));
+		
+
+		itemOk.add(FilestoreUI.getStatusIcon("statusOkIcon", FilestoreModel.Status.Available));
+		itemPending.add(FilestoreUI.getStatusIcon("statusPendingIcon", FilestoreModel.Status.Upload_Pending));
+		itemInprogress.add(FilestoreUI.getStatusIcon("statusInprogressIcon", FilestoreModel.Status.Upload_In_Progress));
+		itemError.add(FilestoreUI.getStatusIcon("statusErrorIcon", FilestoreModel.Status.Error_Unknown));
+		itemDeleted.add(FilestoreUI.getStatusIcon("statusDeletedIcon", FilestoreModel.Status.Deleted));
+		
+		itemOk.add(new Label("statusOkCount", String.valueOf(nOk)));
+		itemPending.add(new Label("statusPendingCount", String.valueOf(nPending)));
+		itemInprogress.add(new Label("statusInprogressCount", String.valueOf(nInprogress)));
+		itemError.add(new Label("statusErrorCount", String.valueOf(nError)));
+		itemDeleted.add(new Label("statusDeletedCount", String.valueOf(nDeleted)));
+		
+		add(itemOk);
+		add(itemPending);
+		add(itemInprogress);
+		add(itemError);
+		add(itemDeleted);
+		
+		add(new Label("spaceAvailable", String.format("%s / %s",
+				FileUtils.byteCountToDisplaySize(nBytesUsed),
+				FileUtils.byteCountToDisplaySize(nBytesAvailable))));
+		
+		BookmarkablePageLink<Void> helpLink = new BookmarkablePageLink<Void>("filestoreHelp", FilestoreUsage.class);
+		helpLink.add(new Label("helpMessage", getString("gb.filestoreHelp")));
+		add(helpLink);
+
 	}
+		
+	protected enum SortBy {
+		ok, pending, inprogress, error, deleted;
+	}
+	
 }
