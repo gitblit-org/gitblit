@@ -78,8 +78,6 @@ public class FilestoreManager implements IFilestoreManager {
 
 	private final IRuntimeManager runtimeManager;
 	
-	private final IRepositoryManager repositoryManager;
-
 	private final IStoredSettings settings;
 
 	public static final int UNDEFINED_SIZE = -1;
@@ -94,11 +92,8 @@ public class FilestoreManager implements IFilestoreManager {
 
 
 	@Inject
-	FilestoreManager(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager) {
+	public FilestoreManager(IRuntimeManager runtimeManager) {
 		this.runtimeManager = runtimeManager;
-		this.repositoryManager = repositoryManager;
 		this.settings = runtimeManager.getSettings();
 	}
 
@@ -328,9 +323,8 @@ public class FilestoreManager implements IFilestoreManager {
 	}
 
 	@Override
-	public List<FilestoreModel> getAllObjects(UserModel user) {
+	public List<FilestoreModel> getAllObjects(List<RepositoryModel> viewableRepositories) {
 		
-		final List<RepositoryModel> viewableRepositories = repositoryManager.getRepositoryModels(user);
 		List<String> viewableRepositoryNames = new ArrayList<String>(viewableRepositories.size());
 		
 		for (RepositoryModel repository : viewableRepositories) {

@@ -19,6 +19,7 @@ import static org.eclipse.jgit.treewalk.filter.TreeFilter.ANY_DIFF;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -66,6 +67,11 @@ import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.pdf.PDFParser;
+import org.apache.tika.sax.BodyContentHandler;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -85,8 +91,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.SearchObjectType;
+import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.FilestoreManager;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
@@ -131,6 +140,8 @@ public class LuceneService implements Runnable {
 
 	private final IStoredSettings storedSettings;
 	private final IRepositoryManager repositoryManager;
+	private final IFilestoreManager filestoreManager;
+	
 	private final File repositoriesFolder;
 
 	private final Map<String, IndexSearcher> searchers = new ConcurrentHashMap<String, IndexSearcher>();
@@ -141,10 +152,12 @@ public class LuceneService implements Runnable {
 
 	public LuceneService(
 			IStoredSettings settings,
-			IRepositoryManager repositoryManager) {
+			IRepositoryManager repositoryManager, 
+			IFilestoreManager filestoreManager) {
 
 		this.storedSettings = settings;
 		this.repositoryManager = repositoryManager;
+		this.filestoreManager = filestoreManager;
 		this.repositoriesFolder = repositoryManager.getRepositoriesFolder();
 		String exts = luceneIgnoreExtensions;
 		if (settings != null) {
@@ -540,7 +553,8 @@ public class LuceneService implements Runnable {
 						if (!paths.containsKey(path)) {
 							continue;
 						}
-
+//TODO: Figure out filestore oid the path - bit more involved than updating the index
+						
 						// remove path from set
 						ObjectId blobId = paths.remove(path);
 						result.blobCount++;
@@ -677,9 +691,24 @@ public class LuceneService implements Runnable {
 					}
 
 					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
+						String str = "";
 						// read the blob content
-						String str = JGitUtils.getStringContent(repository, commit.getTree(),
+						if (path.isFilestoreItem()) {
+							//Get file from filestore
+							BodyContentHandler handler = new BodyContentHandler();
+	                        Metadata metadata = new Metadata();
+	                        PDFParser parser = new PDFParser();
+	                        
+	                        ParseContext parseContext = new ParseContext();
+	                        File lfsFile = filestoreManager.getStoragePath(path.getFilestoreOid());
+	                        FileInputStream inputstream = new FileInputStream(lfsFile);
+	                        parser.parse(inputstream, handler, metadata, parseContext);
+							str = handler.toString();
+						} else {
+							str = JGitUtils.getStringContent(repository, commit.getTree(),
 								path.path, encodings);
+						}
+						
 						if (str != null) {
 							doc.add(new Field(FIELD_CONTENT, str, TextField.TYPE_STORED));
 							writer.addDocument(doc);

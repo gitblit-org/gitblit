@@ -81,7 +81,7 @@ public class UITicketTest extends GitblitUnitTest {
 		IPluginManager pluginManager = new PluginManager(runtimeManager).start();
 		INotificationManager notificationManager = new NotificationManager(settings).start();
 		IUserManager userManager = new UserManager(runtimeManager, pluginManager).start();
-		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, pluginManager, userManager).start();
+		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, pluginManager, userManager, null).start();
 
 		BranchTicketService service = new BranchTicketService(
 				runtimeManager,

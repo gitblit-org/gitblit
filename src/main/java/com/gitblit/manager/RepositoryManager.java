@@ -123,6 +123,8 @@ public class RepositoryManager implements IRepositoryManager {
 	private final IPluginManager pluginManager;
 
 	private final IUserManager userManager;
+	
+	private final IFilestoreManager filestoreManager;
 
 	private File repositoriesFolder;
 
@@ -136,12 +138,14 @@ public class RepositoryManager implements IRepositoryManager {
 	public RepositoryManager(
 			IRuntimeManager runtimeManager,
 			IPluginManager pluginManager,
-			IUserManager userManager) {
+			IUserManager userManager,
+			IFilestoreManager filestoreManager) {
 
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
 		this.pluginManager = pluginManager;
 		this.userManager = userManager;
+		this.filestoreManager = filestoreManager;
 	}
 
 	@Override
@@ -1866,7 +1870,7 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	protected void configureLuceneIndexing() {
-		luceneExecutor = new LuceneService(settings, this);
+		luceneExecutor = new LuceneService(settings, this, filestoreManager);
 		String frequency = settings.getString(Keys.web.luceneFrequency, "2 mins");
 		int mins = TimeUtils.convertFrequencyToMinutes(frequency, 2);
 		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, mins,  TimeUnit.MINUTES);

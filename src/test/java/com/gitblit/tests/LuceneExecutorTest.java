@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.gitblit.Keys;
+import com.gitblit.manager.FilestoreManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
@@ -53,8 +54,9 @@ public class LuceneExecutorTest extends GitblitUnitTest {
 		XssFilter xssFilter = new AllowXssFilter();
 		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
 		UserManager users = new UserManager(runtime, null).start();
-		RepositoryManager repos = new RepositoryManager(runtime, null, users);
-		return new LuceneService(settings, repos);
+		RepositoryManager repos = new RepositoryManager(runtime, null, users, null);
+		//TODO: May need filestore
+		return new LuceneService(settings, repos, null);
 	}
 
 	private RepositoryModel newRepositoryModel(Repository repository) {

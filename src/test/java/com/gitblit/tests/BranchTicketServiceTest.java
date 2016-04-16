@@ -16,6 +16,8 @@
 package com.gitblit.tests;
 
 import com.gitblit.IStoredSettings;
+import com.gitblit.manager.FilestoreManager;
+import com.gitblit.manager.IFilestoreManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IPluginManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -57,7 +59,8 @@ public class BranchTicketServiceTest extends TicketServiceTest {
 		IPluginManager pluginManager = new PluginManager(runtimeManager).start();
 		INotificationManager notificationManager = new NotificationManager(settings).start();
 		IUserManager userManager = new UserManager(runtimeManager, pluginManager).start();
-		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, pluginManager, userManager).start();
+		IRepositoryManager repositoryManager = new RepositoryManager(
+				runtimeManager, pluginManager, userManager, null).start();
 
 		BranchTicketService service = new BranchTicketService(
 				runtimeManager,

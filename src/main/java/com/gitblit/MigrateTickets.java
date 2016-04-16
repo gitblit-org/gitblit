@@ -138,7 +138,7 @@ public class MigrateTickets {
 
 		XssFilter xssFilter = new AllowXssFilter();
 		IRuntimeManager runtimeManager = new RuntimeManager(settings, xssFilter, baseFolder).start();
-		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null, null).start();
+		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null, null, null).start();
 
 		String inputServiceName = settings.getString(Keys.tickets.service, BranchTicketService.class.getSimpleName());
 		if (StringUtils.isEmpty(inputServiceName)) {

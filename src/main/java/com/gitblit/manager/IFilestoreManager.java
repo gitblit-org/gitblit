@@ -37,7 +37,7 @@ public interface IFilestoreManager extends IManager {
 	
 	FilestoreModel.Status downloadBlob(String oid, UserModel user, RepositoryModel repo, OutputStream streamOut );
 	
-	List<FilestoreModel> getAllObjects(UserModel user);
+	List<FilestoreModel> getAllObjects(List<RepositoryModel> viewableRepositories);
 	
 	File getStorageFolder();
 	

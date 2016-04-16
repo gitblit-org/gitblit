@@ -1274,8 +1274,8 @@ public class GitblitManager implements IGitblit {
 	}
 	
 	@Override
-	public List<FilestoreModel> getAllObjects(UserModel user) {
-		return filestoreManager.getAllObjects(user);
+	public List<FilestoreModel> getAllObjects(List<RepositoryModel> viewableRepositories) {
+		return filestoreManager.getAllObjects(viewableRepositories);
 	}
 	
 	@Override

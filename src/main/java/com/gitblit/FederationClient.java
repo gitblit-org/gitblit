@@ -98,7 +98,7 @@ public class FederationClient {
 		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, baseFolder).start();
 		NoopNotificationManager notifications = new NoopNotificationManager().start();
 		UserManager users = new UserManager(runtime, null).start();
-		RepositoryManager repositories = new RepositoryManager(runtime, null, users).start();
+		RepositoryManager repositories = new RepositoryManager(runtime, null, users, null).start();
 		FederationManager federation = new FederationManager(runtime, notifications, repositories).start();
 		IGitblit gitblit = new GitblitManager(null, null, runtime, null, notifications, users, null, repositories, null, federation, null);
 

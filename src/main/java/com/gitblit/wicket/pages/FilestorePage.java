@@ -67,7 +67,7 @@ public class FilestorePage extends RootPage {
 		final UserModel user = (GitBlitWebSession.get().getUser() == null) ? UserModel.ANONYMOUS : GitBlitWebSession.get().getUser();
 		final long nBytesUsed = app().filestore().getFilestoreUsedByteCount();
 		final long nBytesAvailable = app().filestore().getFilestoreAvailableByteCount();
-		List<FilestoreModel> files = app().filestore().getAllObjects(user);
+		List<FilestoreModel> files = app().filestore().getAllObjects(app().repositories().getRepositoryModels(user));
 
 		if (files == null) {
 			files = new ArrayList<FilestoreModel>();
