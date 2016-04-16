@@ -66,6 +66,8 @@ public class LuceneSearchPage extends RootPage {
 		// default values
 		ArrayList<String> repositories = new ArrayList<String>();
 		String query = "";
+		boolean allRepos = false;
+
 		int page = 1;
 		int pageSize = app().settings().getInteger(Keys.web.itemsPerPage, 50);
 
@@ -92,7 +94,8 @@ public class LuceneSearchPage extends RootPage {
 				repositories.addAll(list);
 			}
 
-			if (params.containsKey("allrepos")) {
+			allRepos = params.getAsBoolean("allrepos", false);
+			if (allRepos) {
 				repositories.addAll(availableRepositories);
 			}
 
@@ -133,7 +136,7 @@ public class LuceneSearchPage extends RootPage {
 		// search form
 		final Model<String> queryModel = new Model<String>(query);
 		final Model<ArrayList<String>> repositoriesModel = new Model<ArrayList<String>>(searchRepositories);
-		final Model<Boolean> allreposModel = new Model<Boolean>(params != null && params.containsKey("allrepos"));
+		final Model<Boolean> allreposModel = new Model<Boolean>(allRepos);
 		SessionlessForm<Void> form = new SessionlessForm<Void>("searchForm", getClass()) {
 
 			private static final long serialVersionUID = 1L;
