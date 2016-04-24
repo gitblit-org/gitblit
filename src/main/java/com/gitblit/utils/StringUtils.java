@@ -128,8 +128,9 @@ public class StringUtils {
 			}
 			
 			l = (l + 1) % tabLength;
-			if (inStr.charAt(i) == '\n')
+			if (inStr.charAt(i) == '\n') {
 				l = 0;
+			}
 			i++;
 		}
 		return retStr.toString();
