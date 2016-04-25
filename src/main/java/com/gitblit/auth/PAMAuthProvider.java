@@ -122,7 +122,7 @@ public class PAMAuthProvider extends UsernamePasswordAuthenticationProvider {
         }
 
         // create a user cookie
-        setCookie(user, password);
+        setCookie(user);
 
         // update user attributes from UnixUser
         user.accountType = getAccountType();
