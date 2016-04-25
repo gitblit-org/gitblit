@@ -81,7 +81,7 @@ public abstract class AuthenticationProvider {
 	protected void setCookie(UserModel user, char [] password) {
 		// create a user cookie
 		if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-			user.cookie = StringUtils.getSHA1(user.username + new String(password));
+			user.cookie = StringUtils.getSHA1(user.username);
 		}
 	}
 
