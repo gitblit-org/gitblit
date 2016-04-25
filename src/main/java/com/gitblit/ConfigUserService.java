@@ -897,8 +897,8 @@ public class ConfigUserService implements IUserService {
 					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
 					user.countryCode = config.getString(USER, username, COUNTRYCODE);
 					user.cookie = config.getString(USER, username, COOKIE);
-					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
-						user.cookie = StringUtils.getSHA1(user.username + user.password);
+					if (StringUtils.isEmpty(user.cookie)) {
+						user.cookie = StringUtils.getSHA1(user.username);
 					}
 
 					// preferences
