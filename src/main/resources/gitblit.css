@@ -2392,3 +2392,18 @@ table.filestore-status {
 	color:#D51900;
 	font-size: 1.2em;
 }
+
+.ticketReference-comment {
+    font-family: sans-serif;
+    font-weight: 200;
+    font-size: 1em;
+    font-variant: normal;
+    text-transform: none;
+}
+
+.ticketReference-commit {
+    font-family: monospace;
+    font-weight: 200;
+    font-size: 1em;
+    font-variant: normal;
+}

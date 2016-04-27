@@ -107,6 +107,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		TicketModel ticket;
 		List<Change> effectiveChanges = new ArrayList<Change>();
 		Map<String, Change> comments = new HashMap<String, Change>();
+		Map<String, Change> references = new HashMap<String, Change>();
 		Map<Integer, Integer> latestRevisions = new HashMap<Integer, Integer>();
 		
 		int latestPatchsetNumber = -1;
@@ -159,6 +160,18 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 					
 					effectiveChanges.add(change);
 				}
+			} else if (change.reference != null){
+				if (references.containsKey(change.reference.toString())) {
+					Change original = references.get(change.reference.toString());
+					Change clone = copy(original);
+					clone.reference.deleted = change.reference.deleted;
+					int idx = effectiveChanges.indexOf(original);
+					effectiveChanges.remove(original);
+					effectiveChanges.add(idx, clone);
+				} else {
+					effectiveChanges.add(change);
+					references.put(change.reference.toString(), change);
+				}
 			} else {
 				effectiveChanges.add(change);
 			}
@@ -167,9 +180,15 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		// effective ticket
 		ticket = new TicketModel();
 		for (Change change : effectiveChanges) {
+			//Ensure deleted items are not included
 			if (!change.hasComment()) {
-				// ensure we do not include a deleted comment
 				change.comment = null;
+			}
+			if (!change.hasReference()) {
+				change.reference = null;
+			}
+			if (!change.hasPatchset()) {
+				change.patchset = null;
 			}
 			ticket.applyChange(change);
 		}
@@ -354,6 +373,15 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return false;
 	}
 
+	public boolean hasReferences() {
+		for (Change change : changes) {
+			if (change.hasReference()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public List<Attachment> getAttachments() {
 		List<Attachment> list = new ArrayList<Attachment>();
 		for (Change change : changes) {
@@ -364,6 +392,16 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return list;
 	}
 
+	public List<Reference> getReferences() {
+		List<Reference> list = new ArrayList<Reference>();
+		for (Change change : changes) {
+			if (change.hasReference()) {
+				list.add(change.reference);
+			}
+		}
+		return list;
+	}
+	
 	public List<Patchset> getPatchsets() {
 		List<Patchset> list = new ArrayList<Patchset>();
 		for (Change change : changes) {
@@ -573,8 +611,12 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 		}
 
-		// add the change to the ticket
-		changes.add(change);
+		// add real changes to the ticket and ensure deleted changes are removed
+		if (change.isEmptyChange()) {
+			changes.remove(change);
+		} else {
+			changes.add(change);
+		}
 	}
 
 	protected String toString(Object value) {
@@ -645,6 +687,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public Comment comment;
 
+		public Reference reference;
+
 		public Map<Field, String> fields;
 
 		public Set<Attachment> attachments;
@@ -654,6 +698,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public Review review;
 
 		private transient String id;
+
+		//Once links have been made they become a reference on the target ticket
+		//The ticket service handles promoting links to references
+		public transient List<TicketLink> pendingLinks;
 
 		public Change(String author) {
 			this(author, new Date());
@@ -678,7 +726,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		}
 
 		public boolean hasPatchset() {
-			return patchset != null;
+			return patchset != null && !patchset.isDeleted();
 		}
 
 		public boolean hasReview() {
@@ -688,11 +736,42 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public boolean hasComment() {
 			return comment != null && !comment.isDeleted() && comment.text != null;
 		}
+		
+		public boolean hasReference() {
+			return reference != null && !reference.isDeleted();
+		}
+
+		public boolean hasPendingLinks() {
+			return pendingLinks != null && pendingLinks.size() > 0;
+		}
 
 		public Comment comment(String text) {
 			comment = new Comment(text);
 			comment.id = TicketModel.getSHA1(date.toString() + author + text);
 
+			// parse comment looking for ref #n
+			//TODO: Ideally set via settings
+			String x = "(?:ref|task|issue|bug)?[\\s-]*#(\\d+)";
+
+			try {
+				Pattern p = Pattern.compile(x, Pattern.CASE_INSENSITIVE);
+				Matcher m = p.matcher(text);
+				while (m.find()) {
+					String val = m.group(1);
+					long targetTicketId = Long.parseLong(val);
+					
+					if (targetTicketId > 0) {
+						if (pendingLinks == null) {
+							pendingLinks = new ArrayList<TicketLink>();
+						}
+						
+						pendingLinks.add(new TicketLink(targetTicketId, TicketAction.Comment));
+					}
+				}
+			} catch (Exception e) {
+				// ignore
+			}
+			
 			try {
 				Pattern mentions = Pattern.compile("\\s@([A-Za-z0-9-_]+)");
 				Matcher m = mentions.matcher(text);
@@ -706,6 +785,16 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			return comment;
 		}
 
+		public Reference referenceCommit(String commitHash) {
+			reference = new Reference(commitHash);
+			return reference;
+		}
+
+		public Reference referenceTicket(long ticketId, String changeHash) {
+			reference = new Reference(ticketId, changeHash);
+			return reference;
+		}
+		
 		public Review review(Patchset patchset, Score score, boolean addReviewer) {
 			if (addReviewer) {
 				plusList(Field.reviewers, author);
@@ -876,6 +965,17 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 			return false;
 		}
+		
+		/*
+		 * Identify if this is an empty change. i.e. only an author and date is defined.
+		 * This can occur when items have been deleted
+		 * @returns true if the change is empty
+		 */
+		private boolean isEmptyChange() {
+			return ((comment == null) && (reference == null) && 
+					(fields == null) && (attachments == null) && 
+					(patchset == null) && (review == null));
+		}
 
 		@Override
 		public String toString() {
@@ -885,6 +985,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				sb.append(" commented on by ");
 			} else if (hasPatchset()) {
 				sb.append(MessageFormat.format(" {0} uploaded by ", patchset));
+			} else if (hasReference()) {
+				sb.append(MessageFormat.format(" referenced in {0} by ", reference));
 			} else {
 				sb.append(" changed by ");
 			}
@@ -1143,6 +1245,114 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		@Override
 		public String toString() {
 			return text;
+		}
+	}
+	
+	
+	public static enum TicketAction {
+		Commit, Comment, Patchset, Close
+	}
+	
+	//Intentionally not serialized, links are persisted as "references"
+	public static class TicketLink {
+		public long targetTicketId;
+		public String hash;
+		public TicketAction action;
+		public boolean success;
+		public boolean isDelete;
+		
+		public TicketLink(long targetTicketId, TicketAction action) {
+			this.targetTicketId = targetTicketId;
+			this.action = action;
+			success = false;
+			isDelete = false;
+		}
+		
+		public TicketLink(long targetTicketId, TicketAction action, String hash) {
+			this.targetTicketId = targetTicketId;
+			this.action = action;
+			this.hash = hash;
+			success = false;
+			isDelete = false;
+		}
+	}
+	
+	public static enum ReferenceType {
+		Undefined, Commit, Ticket;
+	
+		@Override
+		public String toString() {
+			return name().toLowerCase().replace('_', ' ');
+		}
+		
+		public static ReferenceType fromObject(Object o, ReferenceType defaultType) {
+			if (o instanceof ReferenceType) {
+				// cast and return
+				return (ReferenceType) o;
+			} else if (o instanceof String) {
+				// find by name
+				for (ReferenceType type : values()) {
+					String str = o.toString();
+					if (type.name().equalsIgnoreCase(str)
+							|| type.toString().equalsIgnoreCase(str)) {
+						return type;
+					}
+				}
+			} else if (o instanceof Number) {
+				// by ordinal
+				int id = ((Number) o).intValue();
+				if (id >= 0 && id < values().length) {
+					return values()[id];
+				}
+			}
+
+			return defaultType;
+		}
+	}
+	
+	public static class Reference implements Serializable {
+	
+		private static final long serialVersionUID = 1L;
+		
+		public String hash;
+		public Long ticketId;
+		
+		public Boolean deleted;
+		
+		Reference(String commitHash) {
+			this.hash = commitHash;
+		}
+		
+		Reference(long ticketId, String changeHash) {
+			this.ticketId = ticketId;
+			this.hash = changeHash;
+		}
+		
+		public ReferenceType getSourceType(){
+			if (hash != null) {
+				if (ticketId != null) {
+					return ReferenceType.Ticket;
+				} else {
+					return ReferenceType.Commit;
+				}
+			}
+			
+			return ReferenceType.Undefined;
+		}
+		
+		public boolean isDeleted() {
+			return deleted != null && deleted;
+		}
+		
+		@Override
+		public String toString() {
+			switch (getSourceType()) {
+				case Commit: return hash;
+				case Ticket: return ticketId.toString() + "#" + hash;
+				default: {} break;
+			}
+			
+			return String.format("Unknown Reference Type");
 		}
 	}
 
