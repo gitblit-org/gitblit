@@ -31,7 +31,7 @@ import com.gitblit.Constants;
  * @author Paul Martin
  *
  */
-public class FilestoreModel implements Serializable {
+public class FilestoreModel implements Serializable, Comparable<FilestoreModel> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -215,6 +215,11 @@ public class FilestoreModel implements Serializable {
 			}
 			throw new NoSuchElementException(String.valueOf(state));
 		}
+	}
+
+	@Override
+	public int compareTo(FilestoreModel o) {
+		return this.oid.compareTo(o.oid);
 	}
 
 }
