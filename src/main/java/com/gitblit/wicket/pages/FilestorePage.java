@@ -18,15 +18,20 @@ package com.gitblit.wicket.pages;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
@@ -153,7 +158,7 @@ public class FilestorePage extends RootPage {
 		}
 		
 		DataView<FilestoreModel> filesView = new DataView<FilestoreModel>("fileRow", 
-				new ListDataProvider<FilestoreModel>(filteredResults) , itemsPerPage) {
+				new SortableFilestoreProvider(filteredResults) , itemsPerPage) {
 			private static final long serialVersionUID = 1L;
 			private int counter;
 
@@ -236,6 +241,41 @@ public class FilestorePage extends RootPage {
 		
 	protected enum SortBy {
 		ok, pending, inprogress, error, deleted;
+	}
+	
+	private static class SortableFilestoreProvider extends SortableDataProvider<FilestoreModel> {
+
+		private static final long serialVersionUID = 1L;
+
+		private List<FilestoreModel> list;
+
+		protected SortableFilestoreProvider(List<FilestoreModel> list) {
+			this.list = list;
+		}
+
+		@Override
+		public int size() {
+			if (list == null) {
+				return 0;
+			}
+			return list.size();
+		}
+
+		@Override
+		public IModel<FilestoreModel> model(FilestoreModel header) {
+			return new Model<FilestoreModel>(header);
+		}
+
+		@Override
+		public Iterator<FilestoreModel> iterator(int first, int count) {
+			Collections.sort(list, new Comparator<FilestoreModel>() {
+				@Override
+				public int compare(FilestoreModel o1, FilestoreModel o2) {
+					return o2.getChangedOn().compareTo(o1.getChangedOn());
+				}
+			});
+			return list.subList(first, first + count).iterator();
+		}
 	}
 	
 }
