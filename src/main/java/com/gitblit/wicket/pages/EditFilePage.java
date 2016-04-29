@@ -96,12 +96,10 @@ public class EditFilePage extends RepositoryPage {
 
 		Fragment fragment;
 		String displayedCommitId = commit.getId().getName();
-		MarkupDocument markupDoc = processor.parse(repositoryName, displayedCommitId, documentPath, markupText);
-		logger.trace("Loading Edit File page: " + displayedCommitId);
 
 		if (currentUser.canEdit(getRepositoryModel()) && JGitUtils.isTip(getRepository(), objectId.toString())) {
 			
-			final Model<String> documentContent = new Model<String>(markupDoc.markup);
+			final Model<String> documentContent = new Model<String>(markupText);
 			final Model<String> commitMessage = new Model<String>("Document update");
 			final Model<String> commitIdAtLoad = new Model<String>(displayedCommitId);
 			
@@ -181,6 +179,7 @@ public class EditFilePage extends RepositoryPage {
 	        
 		} else {
 			
+			MarkupDocument markupDoc = processor.parse(repositoryName, displayedCommitId, documentPath, markupText);
 			final Model<String> documentContent = new Model<String>(markupDoc.html);
 			
 			fragment = new Fragment("doc", "plainContent", this);

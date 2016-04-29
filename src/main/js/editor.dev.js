@@ -70,19 +70,19 @@ attachDocumentEditor = function (editorElement, commitDialogElement)
 			var selection = pm.selection;
 			var from = selection.from;
 			var to = selection.to;
-			var attr = {name:"make", level:1};
+			var attr = {name:"make", level:"1"};
 			
-			var node = pm.doc.path(from.path);
+			var node = pm.doc.resolve(from).parent;
 			if (node && node.hasMarkup(pm.schema.nodes.heading, attr)) {
-				return pm.tr.setBlockType(from, to, pm.schema.nodes.paragraph, {}).apply(pm.apply.scroll);
+				return pm.tr.setBlockType(from, to, pm.schema.defaultTextblockType(), {}).apply(pm.apply.scroll);
 			} else {
 				return pm.tr.setBlockType(from, to, pm.schema.nodes.heading, attr).apply(pm.apply.scroll);
 			}
 			
 		},
 		active: function active(pm) {
-			var node = pm.doc.path(pm.selection.from.path);
-			if (node && node.hasMarkup(pm.schema.nodes.heading, {name:"make", level:1})) {
+			var node = pm.doc.resolve(pm.selection.from).parent;
+			if (node && node.hasMarkup(pm.schema.nodes.heading, {name:"make", level:"1"})) {
 				return true;
 			}
 			return false;
@@ -102,19 +102,19 @@ attachDocumentEditor = function (editorElement, commitDialogElement)
 			var selection = pm.selection;
 			var from = selection.from;
 			var to = selection.to;
-			var attr = {name:"make", level:2};
+			var attr = {name:"make", level:"2"};
 			
-			var node = pm.doc.path(from.path);
+			var node = pm.doc.resolve(from).parent;
 			if (node && node.hasMarkup(pm.schema.nodes.heading, attr)) {
-				return pm.tr.setBlockType(from, to, pm.schema.nodes.paragraph, {}).apply(pm.apply.scroll);
+				return pm.tr.setBlockType(from, to, pm.schema.defaultTextblockType(), {}).apply(pm.apply.scroll);
 			} else {
 				return pm.tr.setBlockType(from, to, pm.schema.nodes.heading, attr).apply(pm.apply.scroll);
 			}
 			
 		},
 		active: function active(pm) {
-			var node = pm.doc.path(pm.selection.from.path);
-			if (node && node.hasMarkup(pm.schema.nodes.heading, {name:"make", level:2})) {
+			var node = pm.doc.resolve(pm.selection.from).parent;
+			if (node && node.hasMarkup(pm.schema.nodes.heading, {name:"make", level:"2"})) {
 				return true;
 			}
 			return false;
@@ -134,19 +134,19 @@ attachDocumentEditor = function (editorElement, commitDialogElement)
 			var selection = pm.selection;
 			var from = selection.from;
 			var to = selection.to;
-			var attr = {name:"make", level:3};
+			var attr = {name:"make", level:"3"};
 			
-			var node = pm.doc.path(from.path);
+			var node = pm.doc.resolve(from).parent;
 			if (node && node.hasMarkup(pm.schema.nodes.heading, attr)) {
-				return pm.tr.setBlockType(from, to, pm.schema.nodes.paragraph, {}).apply(pm.apply.scroll);
+				return pm.tr.setBlockType(from, to, pm.schema.defaultTextblockType(), {}).apply(pm.apply.scroll);
 			} else {
 				return pm.tr.setBlockType(from, to, pm.schema.nodes.heading, attr).apply(pm.apply.scroll);
 			}
 			
 		},
 		active: function active(pm) {
-			var node = pm.doc.path(pm.selection.from.path);
-			if (node && node.hasMarkup(pm.schema.nodes.heading, {name:"make", level:3})) {
+			var node = pm.doc.resolve(pm.selection.from).parent;
+			if (node && node.hasMarkup(pm.schema.nodes.heading, {name:"make", level:"3"})) {
 				return true;
 			}
 			return false;
@@ -199,6 +199,15 @@ attachDocumentEditor = function (editorElement, commitDialogElement)
 	  }
 	};
 	
+	updateCmd["selectParentNode"] = {
+	menu: {
+		group: "insertCommands", rank: 10,
+		display: {
+			render: function(cmd, pm) { return renderFontAwesomeIcon(cmd, pm, "fa-arrow-circle-o-left"); }
+		}
+	  }
+	};
+	
 	var pm = window.pm = new edit.ProseMirror({
 	  place: document.querySelector('#visualEditor'),
 	  autoInput: true,
@@ -235,7 +244,6 @@ function renderFontAwesomeIcon(cmd, pm, classNames) {
 	var icon = document.createElement("i");
 	icon.setAttribute("class", "fa fa-fw " + classNames);
 	
-	//TODO: try modify parent to simplify css border etc
 	var active = cmd.active(pm);
 	
 	if (active || cmd.spec.invert) node.classList.add("ProseMirror-menu-active");
