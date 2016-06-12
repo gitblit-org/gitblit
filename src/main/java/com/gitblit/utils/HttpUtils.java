@@ -78,6 +78,7 @@ public class HttpUtils {
         	}
         }
 
+		// try to use reverse-proxy's context
         String context = request.getContextPath();
         String forwardedContext = request.getHeader("X-Forwarded-Context");
         if (StringUtils.isEmpty(forwardedContext)) {
@@ -92,13 +93,24 @@ public class HttpUtils {
         	context = context.substring(1);
         }
 
+		// try to use reverse-proxy's hostname
+		String host = request.getServerName();
+		String forwardedHost = request.getHeader("X-Forwarded-Host");
+		if (StringUtils.isEmpty(forwardedHost)) {
+			forwardedHost = request.getHeader("X_Forwarded_Host");
+		}
+		if (!StringUtils.isEmpty(forwardedHost)) {
+			host = forwardedHost;
+		}
+
+		// build result
 		StringBuilder sb = new StringBuilder();
 		sb.append(scheme);
 		sb.append("://");
-		sb.append(request.getServerName());
+		sb.append(host);
 		if (("http".equals(scheme) && port != 80)
 				|| ("https".equals(scheme) && port != 443)) {
-			sb.append(":" + port);
+			sb.append(":").append(port);
 		}
 		sb.append(context);
 		return sb.toString();
