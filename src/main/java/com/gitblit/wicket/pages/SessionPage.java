@@ -98,6 +98,7 @@ public abstract class SessionPage extends WebPage {
 					}
 				}
 				session.setUser(user);
+				session.continueRequest();
 				return;
 			}
 		}
