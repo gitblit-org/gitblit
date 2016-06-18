@@ -317,6 +317,19 @@ public class TicketNotifier {
 			// comment update
 			sb.append(MessageFormat.format("**{0}** commented on this ticket.", user.getDisplayName()));
 			sb.append(HARD_BRK);
+		} else if (lastChange.hasReference()) {
+			// reference update
+			String type = "?";
+
+			switch (lastChange.reference.getSourceType()) {
+				case Commit: { type = "commit"; } break;
+				case Ticket: { type = "ticket"; } break;
+				default: { } break;
+			}
+				
+			sb.append(MessageFormat.format("**{0}** referenced this ticket in {1} {2}", type, lastChange.toString())); 
+			sb.append(HARD_BRK);
+			
 		} else {
 			// general update
 			pattern = "**{0}** has updated this ticket.";

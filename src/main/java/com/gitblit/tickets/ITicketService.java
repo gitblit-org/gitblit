@@ -50,9 +50,11 @@ import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
+import com.gitblit.models.TicketModel.TicketLink;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.StringUtils;
 import com.google.common.cache.Cache;
@@ -1021,12 +1023,12 @@ public abstract class ITicketService implements IManager {
 	}
 
 	/**
-	 * Updates a ticket.
+	 * Updates a ticket and promotes pending links into references.
 	 *
 	 * @param repository
-	 * @param ticketId
+	 * @param ticketId, or 0 to action pending links in general
 	 * @param change
-	 * @return the ticket model if successful
+	 * @return the ticket model if successful, null if failure or using 0 ticketId
 	 * @since 1.4.0
 	 */
 	public final TicketModel updateTicket(RepositoryModel repository, long ticketId, Change change) {
@@ -1038,28 +1040,78 @@ public abstract class ITicketService implements IManager {
 			throw new RuntimeException("must specify a change author!");
 		}
 
-		TicketKey key = new TicketKey(repository, ticketId);
-		ticketsCache.invalidate(key);
-
-		boolean success = commitChangeImpl(repository, ticketId, change);
-		if (success) {
-			TicketModel ticket = getTicket(repository, ticketId);
-			ticketsCache.put(key, ticket);
-			indexer.index(ticket);
-
-			// call the ticket hooks
-			if (pluginManager != null) {
-				for (TicketHook hook : pluginManager.getExtensions(TicketHook.class)) {
-					try {
-						hook.onUpdateTicket(ticket, change);
-					} catch (Exception e) {
-						log.error("Failed to execute extension", e);
+		boolean success = true;
+		TicketModel ticket = null;
+		
+		if (ticketId > 0) {
+			TicketKey key = new TicketKey(repository, ticketId);
+			ticketsCache.invalidate(key);
+	
+			success = commitChangeImpl(repository, ticketId, change);
+			
+			if (success) {
+				ticket = getTicket(repository, ticketId);
+				ticketsCache.put(key, ticket);
+				indexer.index(ticket);
+	
+				// call the ticket hooks
+				if (pluginManager != null) {
+					for (TicketHook hook : pluginManager.getExtensions(TicketHook.class)) {
+						try {
+							hook.onUpdateTicket(ticket, change);
+						} catch (Exception e) {
+							log.error("Failed to execute extension", e);
+						}
 					}
 				}
 			}
-			return ticket;
 		}
-		return null;
+		
+		if (success) {
+			//Now that the ticket has been successfully persisted add references to this ticket from linked tickets
+			if (change.hasPendingLinks()) {
+				for (TicketLink link : change.pendingLinks) {
+					TicketModel linkedTicket = getTicket(repository, link.targetTicketId);
+					Change dstChange = null;
+					
+					//Ignore if not available or self reference 
+					if (linkedTicket != null && link.targetTicketId != ticketId) {
+						dstChange = new Change(change.author, change.date);
+						
+						switch (link.action) {
+							case Comment: {
+								if (ticketId == 0) {
+									throw new RuntimeException("must specify a ticket when linking a comment!");
+								}
+								dstChange.referenceTicket(ticketId, change.comment.id);
+							} break;
+							
+							case Commit: {
+								dstChange.referenceCommit(link.hash);
+							} break;
+							
+							default: {
+								throw new RuntimeException(
+										String.format("must add persist logic for link of type %s", link.action));
+							}
+						}
+					}
+					
+					if (dstChange != null) {
+						//If not deleted then remain null in journal
+						if (link.isDelete) {
+							dstChange.reference.deleted = true;
+						}
+
+						if (updateTicket(repository, link.targetTicketId, dstChange) != null) {
+							link.success = true;
+						}
+					}
+				}
+			}
+		}
+		
+		return ticket;
 	}
 
 	/**
@@ -1232,9 +1284,18 @@ public abstract class ITicketService implements IManager {
 		deletion.patchset.number = patchset.number;
 		deletion.patchset.rev = patchset.rev;
 		deletion.patchset.type = PatchsetType.Delete;
+		//Find and delete references to tickets by the removed commits
+		List<TicketLink> patchsetTicketLinks = JGitUtils.identifyTicketsBetweenCommits(
+				repositoryManager.getRepository(ticket.repository),
+				settings, patchset.base, patchset.tip);
 		
-		RepositoryModel repository = repositoryManager.getRepositoryModel(ticket.repository);
-		TicketModel revisedTicket = updateTicket(repository, ticket.number, deletion);
+		for (TicketLink link : patchsetTicketLinks) {
+			link.isDelete = true;
+		}
+		deletion.pendingLinks = patchsetTicketLinks;
+		
+		RepositoryModel repositoryModel = repositoryManager.getRepositoryModel(ticket.repository);
+		TicketModel revisedTicket = updateTicket(repositoryModel, ticket.number, deletion);
 		
 		return revisedTicket;
 	} 

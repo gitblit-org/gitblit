@@ -36,7 +36,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
@@ -45,7 +44,6 @@ import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -54,7 +52,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -863,9 +860,6 @@ public class TicketPage extends RepositoryPage {
 				if (event.hasPatchset()) {
 					// patchset
 					Patchset patchset = event.patchset;
-					//In the case of using a cached change list
-					item.setVisible(!patchset.isDeleted());
-					
 					String what;
 					if (event.isStatusChange() && (Status.New == event.getStatus())) {
 						what = getString("gb.proposedThisChange");
@@ -883,6 +877,7 @@ public class TicketPage extends RepositoryPage {
 					LinkPanel psr = new LinkPanel("patchsetRevision", null, patchset.number + "-" + patchset.rev,
 							ComparePage.class, WicketUtils.newRangeParameter(repositoryName, patchset.parent == null ? patchset.base : patchset.parent, patchset.tip), true);
 					WicketUtils.setHtmlTooltip(psr, patchset.toString());
+					WicketUtils.setCssClass(psr, "aui-lozenge aui-lozenge-subtle");
 					item.add(psr);
 					String typeCss = getPatchsetTypeCss(patchset.type);
 					Label typeLabel = new Label("patchsetType", patchset.type.toString());
@@ -907,6 +902,42 @@ public class TicketPage extends RepositoryPage {
 					// comment
 					item.add(new Label("what", getString("gb.commented")));
 					item.add(new Label("patchsetRevision").setVisible(false));
+					item.add(new Label("patchsetType").setVisible(false));
+					item.add(new Label("deleteRevision").setVisible(false));
+					item.add(new Label("patchsetDiffStat").setVisible(false));
+				} else if (event.hasReference()) {
+					// reference
+					switch (event.reference.getSourceType()) {
+						case Commit: {
+							final int shaLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
+							
+							item.add(new Label("what", getString("gb.referencedByCommit")));
+							LinkPanel psr = new LinkPanel("patchsetRevision", null, event.reference.toString().substring(0, shaLen),
+									CommitPage.class, WicketUtils.newObjectParameter(repositoryName, event.reference.toString()), true);
+							WicketUtils.setHtmlTooltip(psr, event.reference.toString());
+							WicketUtils.setCssClass(psr, "ticketReference-commit shortsha1");
+							item.add(psr);
+							
+						} break;
+						
+						case Ticket: {
+							final String text = MessageFormat.format("ticket/{0}", event.reference.ticketId);
+
+							item.add(new Label("what", getString("gb.referencedByTicket")));
+							//NOTE: Ideally reference the exact comment using reference.toString,
+							//		however anchor hash is used and is escaped resulting in broken link
+							LinkPanel psr = new LinkPanel("patchsetRevision", null,  text,
+									TicketsPage.class, WicketUtils.newObjectParameter(repositoryName, event.reference.ticketId.toString()), true);
+							WicketUtils.setCssClass(psr, "ticketReference-comment");
+							item.add(psr);
+						} break;
+					
+						default: {
+							item.add(new Label("what").setVisible(false));
+							item.add(new Label("patchsetRevision").setVisible(false));
+						}
+					}
+					
 					item.add(new Label("patchsetType").setVisible(false));
 					item.add(new Label("deleteRevision").setVisible(false));
 					item.add(new Label("patchsetDiffStat").setVisible(false));

@@ -22,18 +22,28 @@ import groovy.util.GroovyScriptEngine;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.BatchRefUpdate;
 import org.eclipse.jgit.lib.NullProgressMonitor;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.ProgressMonitor;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.PostReceiveHook;
 import org.eclipse.jgit.transport.PreReceiveHook;
 import org.eclipse.jgit.transport.ReceiveCommand;
@@ -50,14 +60,24 @@ import com.gitblit.client.Translation;
 import com.gitblit.extensions.ReceiveHook;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TicketModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.models.TicketModel.Change;
+import com.gitblit.models.TicketModel.Field;
+import com.gitblit.models.TicketModel.Patchset;
+import com.gitblit.models.TicketModel.Status;
+import com.gitblit.models.TicketModel.TicketAction;
+import com.gitblit.models.TicketModel.TicketLink;
 import com.gitblit.tickets.BranchTicketService;
+import com.gitblit.tickets.ITicketService;
+import com.gitblit.tickets.TicketNotifier;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
+import com.google.common.collect.Lists;
 
 
 /**
@@ -92,6 +112,11 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 	protected final IStoredSettings settings;
 
 	protected final IGitblit gitblit;
+	
+	protected final ITicketService ticketService;
+
+	protected final TicketNotifier ticketNotifier;
+	
 
 	public GitblitReceivePack(
 			IGitblit gitblit,
@@ -114,6 +139,14 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		} catch (IOException e) {
 		}
 
+		if (gitblit.getTicketService().isAcceptingTicketUpdates(repository)) {
+			this.ticketService = gitblit.getTicketService();
+			this.ticketNotifier = this.ticketService.createNotifier();
+		} else {
+			this.ticketService = null;
+			this.ticketNotifier = null;
+		}
+		
 		// set advanced ref permissions
 		setAllowCreates(user.canCreateRef(repository));
 		setAllowDeletes(user.canDeleteRef(repository));
@@ -500,6 +533,104 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 				}
 			}
 		}
+		
+		//
+		// if there are ref update receive commands that were
+		// successfully processed and there is an active ticket service for the repository
+		// then process any referenced tickets
+		//
+		if (ticketService != null) {
+			List<ReceiveCommand> allUpdates = ReceiveCommand.filter(batch.getCommands(), Result.OK);
+			if (!allUpdates.isEmpty()) {
+				int ticketsProcessed = 0;
+				for (ReceiveCommand cmd : allUpdates) {
+					switch (cmd.getType()) {
+					case CREATE:
+					case UPDATE:
+						if (cmd.getRefName().startsWith(Constants.R_HEADS)) {
+							Collection<TicketModel> tickets = processReferencedTickets(cmd);
+							ticketsProcessed += tickets.size();
+							for (TicketModel ticket : tickets) {
+								ticketNotifier.queueMailing(ticket);
+							}
+						}
+						break;
+						
+					case UPDATE_NONFASTFORWARD:
+						if (cmd.getRefName().startsWith(Constants.R_HEADS)) {
+							String base = JGitUtils.getMergeBase(getRepository(), cmd.getOldId(), cmd.getNewId());
+							List<TicketLink> deletedRefs = JGitUtils.identifyTicketsBetweenCommits(getRepository(), settings, base, cmd.getOldId().name());
+							for (TicketLink link : deletedRefs) {
+								link.isDelete = true;
+							}
+							Change deletion = new Change(user.username);
+							deletion.pendingLinks = deletedRefs;
+							ticketService.updateTicket(repository, 0, deletion);
+							
+							Collection<TicketModel> tickets = processReferencedTickets(cmd);
+							ticketsProcessed += tickets.size();
+							for (TicketModel ticket : tickets) {
+								ticketNotifier.queueMailing(ticket);
+							}
+						}
+						break;
+					case DELETE:
+						//Identify if the branch has been merged 
+						SortedMap<Integer, String> bases =  new TreeMap<Integer, String>();
+						try {
+							ObjectId dObj = cmd.getOldId();
+							Collection<Ref> tips = getRepository().getRefDatabase().getRefs(Constants.R_HEADS).values();
+							for (Ref ref : tips) {
+								ObjectId iObj = ref.getObjectId();
+								String mergeBase = JGitUtils.getMergeBase(getRepository(), dObj, iObj);
+								if (mergeBase != null) {
+									int d = JGitUtils.countCommits(getRepository(), getRevWalk(), mergeBase, dObj.name());
+									bases.put(d, mergeBase);
+									//All commits have been merged into some other branch
+									if (d == 0) {
+										break;
+									}
+								}
+							}
+							
+							if (bases.isEmpty()) {
+								//TODO: Handle orphan branch case
+							} else {
+								if (bases.firstKey() > 0) {
+									//Delete references from the remaining commits that haven't been merged
+									String mergeBase = bases.get(bases.firstKey());
+									List<TicketLink> deletedRefs = JGitUtils.identifyTicketsBetweenCommits(getRepository(),
+											settings, mergeBase, dObj.name());
+									
+									for (TicketLink link : deletedRefs) {
+										link.isDelete = true;
+									}
+									Change deletion = new Change(user.username);
+									deletion.pendingLinks = deletedRefs;
+									ticketService.updateTicket(repository, 0, deletion);
+								}
+							}
+							
+						} catch (IOException e) {
+							LOGGER.error(null, e);
+						}
+						break;
+						
+					default:
+						break;
+					}
+				}
+	
+				if (ticketsProcessed == 1) {
+					sendInfo("1 ticket updated");
+				} else if (ticketsProcessed > 1) {
+					sendInfo("{0} tickets updated", ticketsProcessed);
+				}
+			}
+	
+			// reset the ticket caches for the repository
+			ticketService.resetCaches(repository);
+		}
 	}
 
 	protected void setGitblitUrl(String url) {
@@ -615,5 +746,117 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	public UserModel getUserModel() {
 		return user;
+	}
+	
+	/**
+	 * Automatically closes open tickets and adds references to tickets if made in the commit message.
+	 *
+	 * @param cmd
+	 */
+	private Collection<TicketModel> processReferencedTickets(ReceiveCommand cmd) {
+		Map<Long, TicketModel> changedTickets = new LinkedHashMap<Long, TicketModel>();
+
+		final RevWalk rw = getRevWalk();
+		try {
+			rw.reset();
+			rw.markStart(rw.parseCommit(cmd.getNewId()));
+			if (!ObjectId.zeroId().equals(cmd.getOldId())) {
+				rw.markUninteresting(rw.parseCommit(cmd.getOldId()));
+			}
+
+			RevCommit c;
+			while ((c = rw.next()) != null) {
+				rw.parseBody(c);
+				List<TicketLink> ticketLinks = JGitUtils.identifyTicketsFromCommitMessage(getRepository(), settings, c);
+				if (ticketLinks == null) {
+					continue;
+				}
+
+				for (TicketLink link : ticketLinks) {
+					
+					TicketModel ticket = ticketService.getTicket(repository, link.targetTicketId);
+					if (ticket == null) {
+						continue;
+					}
+					
+					Change change = null;
+					String commitSha = c.getName();
+					String branchName = Repository.shortenRefName(cmd.getRefName());
+					
+					switch (link.action) {
+						case Commit: {
+							//A commit can reference a ticket in any branch even if the ticket is closed.
+							//This allows developers to identify and communicate related issues
+							change = new Change(user.username);
+							change.referenceCommit(commitSha);
+						} break;
+						
+						case Close: {
+							// As this isn't a patchset theres no merging taking place when closing a ticket
+							if (ticket.isClosed()) {
+								continue;
+							}
+							
+							change = new Change(user.username);
+							change.setField(Field.status, Status.Fixed);
+							
+							if (StringUtils.isEmpty(ticket.responsible)) {
+								// unassigned tickets are assigned to the closer
+								change.setField(Field.responsible, user.username);
+							}
+						}
+						
+						default: {
+							//No action
+						} break;
+					}
+					
+					if (change != null) {
+						ticket = ticketService.updateTicket(repository, ticket.number, change);
+					}
+	
+					if (ticket != null) {
+						sendInfo("");
+						sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
+
+						switch (link.action) {
+							case Commit: {
+								sendInfo("referenced by push of {0} to {1}", commitSha, branchName);
+								changedTickets.put(ticket.number, ticket);
+							} break;
+
+							case Close: {
+								sendInfo("closed by push of {0} to {1}", commitSha, branchName);
+								changedTickets.put(ticket.number, ticket);
+							} break;
+
+							default: { }
+						}
+
+						sendInfo(ticketService.getTicketUrl(ticket));
+						sendInfo("");
+					} else {
+						switch (link.action) {
+							case Commit: {
+								sendError("FAILED to reference ticket {0} by push of {1}", link.targetTicketId, commitSha);
+							} break;
+							
+							case Close: {
+								sendError("FAILED to close ticket {0} by push of {1}", link.targetTicketId, commitSha);	
+							} break;
+							
+							default: { }
+						}
+					}
+				}
+			}
+				
+		} catch (IOException e) {
+			LOGGER.error("Can't scan for changes to reference or close", e);
+		} finally {
+			rw.reset();
+		}
+
+		return changedTickets.values();
 	}
 }

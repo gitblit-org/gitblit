@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,12 +47,15 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheEntry;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.errors.StopWalkException;
 import org.eclipse.jgit.internal.JGitText;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.BlobBasedConfig;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
@@ -91,19 +95,22 @@ import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
-import com.gitblit.manager.GitblitManager;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.git.PatchsetCommand;
 import com.gitblit.models.FilestoreModel;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.models.TicketModel.TicketAction;
+import com.gitblit.models.TicketModel.TicketLink;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SubmoduleModel;
-import com.gitblit.servlet.FilestoreServlet;
 import com.google.common.base.Strings;
 
 /**
@@ -2740,5 +2747,163 @@ public class JGitUtils {
 		}
 		return false;
 	}
+	
+	/*
+	 * Identify ticket by considering the branch the commit is on
+	 * 
+	 * @param repository
+	 * @param commit 
+	 * @return ticket number, or 0 if no ticket
+	 */
+	public static long getTicketNumberFromCommitBranch(Repository repository, RevCommit commit) {
+		// try lookup by change ref
+		Map<AnyObjectId, Set<Ref>> map = repository.getAllRefsByPeeledObjectId();
+		Set<Ref> refs = map.get(commit.getId());
+		if (!ArrayUtils.isEmpty(refs)) {
+			for (Ref ref : refs) {
+				long number = PatchsetCommand.getTicketNumber(ref.getName());
+				
+				if (number > 0) {
+					return number;
+				}
+			}
+		}
+		
+		return 0;
+	}
+	
+	
+	/**
+	 * Try to identify all referenced tickets from the commit.
+	 *
+	 * @param commit
+	 * @return a collection of TicketLinks
+	 */
+	@NotNull
+	public static List<TicketLink> identifyTicketsFromCommitMessage(Repository repository, IStoredSettings settings,
+			RevCommit commit) {
+		List<TicketLink> ticketLinks = new ArrayList<TicketLink>();
+		List<Long> linkedTickets = new ArrayList<Long>();
 
+		// parse commit message looking for fixes/closes #n
+		final String xFixDefault = "(?:fixes|closes)[\\s-]+#?(\\d+)";
+		String xFix = settings.getString(Keys.tickets.closeOnPushCommitMessageRegex, xFixDefault);
+		if (StringUtils.isEmpty(xFix)) {
+			xFix = xFixDefault;
+		}
+		try {
+			Pattern p = Pattern.compile(xFix, Pattern.CASE_INSENSITIVE);
+			Matcher m = p.matcher(commit.getFullMessage());
+			while (m.find()) {
+				String val = m.group(1);
+				long number = Long.parseLong(val); 
+				
+				if (number > 0) {
+					ticketLinks.add(new TicketLink(number, TicketAction.Close));
+					linkedTickets.add(number);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(String.format("Failed to parse \"%s\" in commit %s", xFix, commit.getName()), e);
+		}
+		
+		// parse commit message looking for ref #n
+		final String xRefDefault = "(?:ref|task|issue|bug)?[\\s-]*#(\\d+)";
+		String xRef = settings.getString(Keys.tickets.linkOnPushCommitMessageRegex, xRefDefault);
+		if (StringUtils.isEmpty(xRef)) {
+			xRef = xRefDefault;
+		}
+		try {
+			Pattern p = Pattern.compile(xRef, Pattern.CASE_INSENSITIVE);
+			Matcher m = p.matcher(commit.getFullMessage());
+			while (m.find()) {
+				String val = m.group(1);
+				long number = Long.parseLong(val); 
+				//Most generic case so don't included tickets more precisely linked
+				if ((number > 0) && (!linkedTickets.contains(number))) {
+					ticketLinks.add( new TicketLink(number, TicketAction.Commit, commit.getName()));
+					linkedTickets.add(number);
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(String.format("Failed to parse \"%s\" in commit %s", xRef, commit.getName()), e);
+		}
+
+		return ticketLinks;
+	}
+	
+	/**
+	 * Try to identify all referenced tickets between two commits
+	 *
+	 * @param commit
+	 * @param parseMessage
+	 * @param currentTicketId, or 0 if not on a ticket branch
+	 * @return a collection of TicketLink, or null if commit is already linked
+	 */
+	public static List<TicketLink> identifyTicketsBetweenCommits(Repository repository, IStoredSettings settings,
+			String baseSha, String tipSha) {
+		List<TicketLink> links = new ArrayList<TicketLink>();
+		if (repository == null) { return links; }
+		
+		RevWalk walk = new RevWalk(repository);
+		walk.sort(RevSort.TOPO);
+		walk.sort(RevSort.REVERSE, true);
+		try {
+			RevCommit tip = walk.parseCommit(repository.resolve(tipSha));
+			RevCommit base = walk.parseCommit(repository.resolve(baseSha));
+			walk.markStart(tip);
+			walk.markUninteresting(base);
+			for (;;) {
+				RevCommit commit = walk.next();
+				if (commit == null) {
+					break;
+				}
+				links.addAll(JGitUtils.identifyTicketsFromCommitMessage(repository, settings, commit));
+			}
+		} catch (IOException e) {
+			LOGGER.error("failed to identify tickets between commits.", e);
+		} finally {
+			walk.dispose();
+		}
+		
+		return links;
+	}
+	
+	public static int countCommits(Repository repository, RevWalk walk, ObjectId baseId, ObjectId tipId) {
+		int count = 0;
+		walk.reset();
+		walk.sort(RevSort.TOPO);
+		walk.sort(RevSort.REVERSE, true);
+		try {
+			RevCommit tip = walk.parseCommit(tipId);
+			RevCommit base = walk.parseCommit(baseId);
+			walk.markStart(tip);
+			walk.markUninteresting(base);
+			for (;;) {
+				RevCommit c = walk.next();
+				if (c == null) {
+					break;
+				}
+				count++;
+			}
+		} catch (IOException e) {
+			// Should never happen, the core receive process would have
+			// identified the missing object earlier before we got control.
+			LOGGER.error("failed to get commit count", e);
+			return 0;
+		} finally {
+			walk.close();
+		}
+		return count;
+	}
+
+	public static int countCommits(Repository repository, RevWalk walk, String baseId, String tipId) {
+		int count = 0;
+		try {
+			count = countCommits(repository, walk, repository.resolve(baseId),repository.resolve(tipId));
+		} catch (IOException e) {
+			LOGGER.error("failed to get commit count", e);
+		}
+		return count;
+	}
 }
