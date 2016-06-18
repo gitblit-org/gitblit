@@ -166,7 +166,7 @@ public class TicketReferenceTest extends GitblitUnitTest {
 		
 		assertNotNull(ticketService.updateTicket(repo, a.number, newComment("comment for 1 - no reference")));
 		assertNotNull(ticketService.updateTicket(repo, a.number, newComment("comment for # - no reference")));
-		assertNotNull(ticketService.updateTicket(repo, a.number, newComment("comment for #42 - ignores invalid reference")));
+		assertNotNull(ticketService.updateTicket(repo, a.number, newComment("comment for #999 - ignores invalid reference")));
 
 		a = ticketService.getTicket(repo, a.number);
 		b = ticketService.getTicket(repo, b.number);
@@ -272,7 +272,7 @@ public class TicketReferenceTest extends GitblitUnitTest {
 		
 		makeCommit("commit for 1 - no reference");
 		makeCommit("comment for # - no reference");
-		final RevCommit revCommit1 = makeCommit("comment for #42 - ignores invalid reference");
+		final RevCommit revCommit1 = makeCommit("comment for #999 - ignores invalid reference");
 		final String commit1Sha = revCommit1.name();
 		
 		assertPushSuccess(commit1Sha, branchName);
@@ -396,7 +396,7 @@ public class TicketReferenceTest extends GitblitUnitTest {
 		
 		makeCommit("commit for 1 - no reference");
 		makeCommit("commit for # - no reference");
-		final String message = "commit for #42 - ignores invalid reference";
+		final String message = "commit for #999 - ignores invalid reference";
 		final RevCommit revCommit1 = makeCommit(message);
 		final String commit1Sha = revCommit1.name();
 		
@@ -587,7 +587,7 @@ public class TicketReferenceTest extends GitblitUnitTest {
 		
 		makeCommit("commit for 1 - no reference");
 		makeCommit("commit for # - no reference");
-		final String message = "commit for #42 - ignores invalid reference";
+		final String message = "commit for #999 - ignores invalid reference";
 		final RevCommit revCommit1 = makeCommit(message);
 		final String commit1Sha = revCommit1.name();
 		assertPushSuccess(commit1Sha, branchName);
@@ -645,6 +645,38 @@ public class TicketReferenceTest extends GitblitUnitTest {
 		assertEquals(1, cRefB.size());
 		assertNull(cRefB.get(0).ticketId);
 		assertEquals(commit1Sha, cRefB.get(0).hash);
+	}
+	
+	@Test
+	public void commitTicketBranchMultiCommit() throws Exception {
+		setPatchsetAvailable(false);
+		TicketModel a = ticketService.createTicket(repo, newTicket("commitTicketBranchMultiCommit-A"));
+		TicketModel b = ticketService.createTicket(repo, newTicket("commitTicketBranchMultiCommit-B"));
+		
+		String branchName = String.format("ticket/%d", a.number);
+		git.checkout().setCreateBranch(true).setName(branchName).call();
+		
+		final String message1 = String.format("commit for #%d - patchset multi commit 1", b.number);
+		final RevCommit revCommit1 = makeCommit(message1);
+		final String commit1Sha = revCommit1.name();
+		
+		final String message2 = String.format("commit for #%d - patchset multi commit 2", b.number);
+		final RevCommit revCommit2 = makeCommit(message2);
+		final String commit2Sha = revCommit2.name();
+		
+		assertPushSuccess(commit2Sha, branchName);
+		
+		a = ticketService.getTicket(repo, a.number);
+		b = ticketService.getTicket(repo, b.number);
+		assertFalse(a.hasReferences());
+		assertTrue(b.hasReferences());
+		
+		List<Reference> cRefB = b.getReferences();
+		assertNotNull(cRefB);
+		assertEquals(2, cRefB.size());
+		assertNull(cRefB.get(0).ticketId);
+		assertEquals(commit1Sha, cRefB.get(1).hash);
+		assertEquals(commit2Sha, cRefB.get(0).hash);
 	}
 	
 	@Test
