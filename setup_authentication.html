@@ -73,6 +73,7 @@
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
 <li><a href='setup_fail2ban.html'>fail2ban</a></li>
+<li><a href='setup_filestore.html'>filestore (Git LFS)</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -119,18 +120,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.1.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.1.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.8.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.8.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.1.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.8.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -171,6 +172,7 @@
   <li>Windows authentication</li>
   <li>PAM authentication</li>
   <li>Htpasswd authentication</li>
+  <li>HTTP header authentication</li>
   <li>Redmine auhentication</li>
   <li>Salesforce.com authentication</li>
   <li>Servlet container authentication</li>
@@ -235,21 +237,27 @@ realm.pam.serviceName = gitblit
 <pre><code>realm.authenticationProviders = htpasswd
 realm.htpasswd.userFile = /path/to/htpasswd
 </code></pre>
-<h3 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>Redmine Authentication</h3><p>You may authenticate your users against a Redmine installation as long as your Redmine install has properly enabled <a href="http://www.redmine.org/projects/redmine/wiki/Rest_Api#Authentication">API authentication</a>. This user service only supports user authentication; it does not support team creation based on Redmine groups. Redmine administrators will also be Gitblit administrators.</p>
+<h3 class="section" id='H9'><a href="#H9" class="sectionlink"><i class="icon-share-alt"> </i></a>HTTP Header Authentication</h3><p>HTTP header authentication allows you to use existing authentication performed by a trusted frontend, such as a reverse proxy. Ensure that when used, gitblit is ONLY availabe via the trusted frontend, otherwise it is vulnerable to a user adding the header explicitly.</p><p>By default, no user or team header is defined, which results in all authentication failing this mechanism. The user header can also be defined while leaving the team header undefined, which causes users to be authenticated from the headers, but team memberships to be maintained locally.</p>
+<pre><code>realm.httpheader.userheader = REMOTE_USER
+realm.httpheader.teamheader = X-GitblitExample-GroupNames
+realm.httpheader.teamseparator = ,
+realm.httpheader.autoCreateAccounts = false
+</code></pre>
+<h3 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>Redmine Authentication</h3><p>You may authenticate your users against a Redmine installation as long as your Redmine install has properly enabled <a href="http://www.redmine.org/projects/redmine/wiki/Rest_Api#Authentication">API authentication</a>. This user service only supports user authentication; it does not support team creation based on Redmine groups. Redmine administrators will also be Gitblit administrators.</p>
 <pre><code>realm.authenticationProviders = redmine
 realm.redmine.url = http://example.com/redmine
 </code></pre>
-<h3 class="section" id='H10'><a href="#H10" class="sectionlink"><i class="icon-share-alt"> </i></a>Salesforce.com Authentication</h3><p>You may authenticate your users against Salesforce.com. You can require that user's belong to a particular organization by specifying a non-zero organization id.</p>
+<h3 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Salesforce.com Authentication</h3><p>You may authenticate your users against Salesforce.com. You can require that user's belong to a particular organization by specifying a non-zero organization id.</p>
 <pre><code>realm.authenticationProviders = salesforce
 realm.salesforce.orgId = 0
 </code></pre>
-<h3 class="section" id='H11'><a href="#H11" class="sectionlink"><i class="icon-share-alt"> </i></a>Container Authentication</h3><p>If you are using the WAR variant and deploying into your own servlet container which has a pre-defined authentication mechanism protecting the Gitblit webapp, then you may instruct Gitblit to automatically create Gitblit accounts for container-authenticated user principals.</p>
+<h3 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Container Authentication</h3><p>If you are using the WAR variant and deploying into your own servlet container which has a pre-defined authentication mechanism protecting the Gitblit webapp, then you may instruct Gitblit to automatically create Gitblit accounts for container-authenticated user principals.</p>
 <pre><code>realm.container.autoCreateAccounts = true
 </code></pre>
-<h2 class="section" id='H12'><a href="#H12" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Authentication</h2><p>This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations. This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.</p><p>Please subclass <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java">com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider</a>.</p><p>You may use your subclass by specifying its fully qualified classname in the <em>realm.authenticationProviders</em> setting.</p><p>Your subclass must be on Gitblit's classpath and must have a public default constructor. </p>
-<h3 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Everything</h3><p>Instead of maintaining a <code>users.conf</code> file, you may want to integrate Gitblit into an existing environment.</p><p>You may use your own custom <em>com.gitblit.IUserService</em> implementation by specifying its fully qualified classname in the <em>realm.userService</em> setting.</p><p>Your user service class must be on Gitblit's classpath and must have a public default constructor.<br/>Please see the following interface definition <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/IUserService.java">com.gitblit.IUserService</a>.
+<h2 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Authentication</h2><p>This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations. This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.</p><p>Please subclass <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java">com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider</a>.</p><p>You may use your subclass by specifying its fully qualified classname in the <em>realm.authenticationProviders</em> setting.</p><p>Your subclass must be on Gitblit's classpath and must have a public default constructor. </p>
+<h3 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Everything</h3><p>Instead of maintaining a <code>users.conf</code> file, you may want to integrate Gitblit into an existing environment.</p><p>You may use your own custom <em>com.gitblit.IUserService</em> implementation by specifying its fully qualified classname in the <em>realm.userService</em> setting.</p><p>Your user service class must be on Gitblit's classpath and must have a public default constructor.<br/>Please see the following interface definition <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/IUserService.java">com.gitblit.IUserService</a>.
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="administration.html">&larr; administration</a></li> <li class="next"><a href="setup_hooks.html">push hooks &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2015-11-23</p>
+<div ><ul class="pager"><li class="previous"><a href="administration.html">&larr; administration</a></li> <li class="next"><a href="setup_hooks.html">push hooks &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2016-06-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

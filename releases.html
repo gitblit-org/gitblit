@@ -73,6 +73,7 @@
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
 <li><a href='setup_fail2ban.html'>fail2ban</a></li>
+<li><a href='setup_filestore.html'>filestore (Git LFS)</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -119,18 +120,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.1.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.1.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.8.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.8.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.1.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.8.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -172,6 +173,71 @@
 	<table class="table">
 		<tbody>
 		<!-- RELEASE HISTORY -->
+		<tr id="1.8.0">
+			<td style="width:100px" id="1.8.0">
+				<b><a href="#1.8.0">1.8.0</a></b><br/>
+				2016-06-22
+			</td>
+			<td>		<p class="lead">Gitblit 1.8.0 released</p>		
+	
+	
+
+
+   	<h4 style="color:red;">security</h4>
+	<ul>
+		<li>Fixed bug in My Tickets which would expose ticket metadata (title, type, etc) for private repos. (<a href='https://github.com/gitblit/gitblit/pull/1040'>pull request #1040</a>)</li>
+	</ul>
+   	<h4>fixes</h4>
+	<ul>
+		<li>Fix HTML5 date input support (<a href='https://github.com/gitblit/gitblit/pull/982'>pull request #982</a>)</li>
+		<li>Honor disable ticket repository setting (<a href='https://github.com/gitblit/gitblit/pull/1045'>pull request #1045</a>)</li>
+		<li>Fix paging on filestore items (<a href='https://github.com/gitblit/gitblit/pull/1070'>pull request #1070</a>)</li>
+		<li>Fix redirects on session loss (<a href='https://github.com/gitblit/gitblit/pull/1087'>pull request #1087</a>)</li>
+		<li>Fix always searching all repositories (<a href='https://github.com/gitblit/gitblit/pull/1060'>pull request #1060</a>)</li>
+		<li>Fix RPC list branches for requests without admin powers (<a href='https://github.com/gitblit/gitblit/pull/994'>pull request #994</a>)</li>
+		<li>Fix baseURL handling when generating urls (<a href='https://github.com/gitblit/gitblit/pull/1086'>pull request #1086</a>)</li>
+		<li>Fix my tickets ignoring repo read permissions (<a href='https://github.com/gitblit/gitblit/pull/1040'>pull request #1040</a>)</li>
+		<li>Fix bug where jgit.packedGitOpenFiles was not properly set (<a href='https://github.com/gitblit/gitblit/pull/1049'>pull request #1049</a>)</li>
+		<li>Fix encoding of JavaDoc</li>
+	</ul>
+   	<h4>changes</h4>
+	<ul>
+		<li>Sort filestore by most recent first (<a href='https://github.com/gitblit/gitblit/pull/1061'>pull request #1061</a>)</li>
+		<li>Improve the document editor tablet support (<a href='https://github.com/gitblit/gitblit/pull/1062'>pull request #1062</a>)</li>
+		<li>Improve HTTP header authentication (<a href='https://github.com/gitblit/gitblit/pull/980'>pull request #980</a>)</li>
+		<li>Improve authentication logging (<a href='https://github.com/gitblit/gitblit/pull/981'>pull request #981</a>)</li>
+		<li>Improve logic of handling dot files in the raw servlet (<a href='https://github.com/gitblit/gitblit/pull/983'>pull request #983</a>)</li>
+		<li>Change Jenkins Groovy script to support any protocol (<a href='https://github.com/gitblit/gitblit/pull/986'>pull request #986</a>)</li>
+		<li>Remove empty catch blocks swallowing exceptions during authentication (<a href='https://github.com/gitblit/gitblit/pull/979'>pull request #979</a>)</li>
+		<li>Various documentation improvements</li>
+	</ul>
+   	<h4>additions</h4>
+	<ul>
+		<li>Delete patchset feature (<a href='https://github.com/gitblit/gitblit/pull/1039'>pull request #1039</a>)</li>
+		<li>Support ticket references from tickets and commits on other branches (<a href='https://github.com/gitblit/gitblit/pull/1048'>pull request #1048</a>)</li>
+		<li>YouTrack Groovy push hook (<a href='https://github.com/gitblit/gitblit/pull/1084'>pull request #1084</a>)</li>
+	</ul>
+   	<h4>dependency changes</h4>
+	<ul>
+		<li>Prosemirror 0.6.1</li>
+	</ul>
+   	<h4>contributors</h4>
+	<ul>
+		<li>dbywalec</li>
+		<li>dsteinkopf</li>
+		<li>James Moger</li>
+		<li>mereth</li>
+		<li>metasim</li>
+		<li>mrjoel</li>
+		<li>Paul Martin</li>
+		<li>pingunaut</li>
+		<li>RedShift1</li>
+		<li>rgroux</li>
+		<li>stummb</li>
+		<li>yyjdelete</li>
+	</ul>
+</td>
+		</tr>
 		<tr id="1.7.1">
 			<td style="width:100px" id="1.7.1">
 				<b><a href="#1.7.1">1.7.1</a></b><br/>
@@ -183,7 +249,7 @@
 
 		<div class="alert alert-info">
 			<h4>Note</h4>
-			This is a re-build of 1.7.0 with the fix for failed WAR deployments.
+			This is a re-build of 1.7.0 with a fix for failed WAR deployments.
 		</div>
 
    	<h4>fixes</h4>
@@ -2472,7 +2538,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 	</table>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2015-11-23</p>
+<footer class="footer"><p class="pull-right">generated 2016-06-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

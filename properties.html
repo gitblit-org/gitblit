@@ -73,6 +73,7 @@
 <li><a href='setup_mirrors.html'>mirrors</a></li>
 <li><a href='setup_scaling.html'>scaling</a></li>
 <li><a href='setup_fail2ban.html'>fail2ban</a></li>
+<li><a href='setup_filestore.html'>filestore (Git LFS)</a></li>
 <li class='divider'></li>
 <li><a href='setup_viewer.html'>Gitblit as a viewer</a></li>
 </ul></li> <!-- End Submenu -->
@@ -119,18 +120,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.7.1.war'>Gitblit WAR</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.7.1.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.7.1.zip'>Federation Client</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.8.0.zip'>Gitblit Manager</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.8.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.7.1.zip'>API Library</a></li>
+<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.8.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
@@ -322,7 +323,7 @@
 <span style="color:#000080;">git.sshKrb5ServicePrincipalName</span> = <span style="color:#800000;"></span><br/>
 <br/>
 <span style="color:#004000;"># Strip the domain suffix from a kerberos username.</span><br/>
-<span style="color:#004000;"># e.g. <a href="mailto:&#106;&#97;&#x6d;&#x65;&#x73;@&#98;&#105;&#x67;bo&#x78;">&#106;&#97;&#x6d;&#x65;&#x73;@&#98;&#105;&#x67;bo&#x78;</a> would be "james"</span><br/>
+<span style="color:#004000;"># e.g. <a href="mailto:&#x6a;&#x61;&#x6d;&#101;&#x73;&#x40;&#x62;&#105;&#103;&#98;&#111;x">&#x6a;&#x61;&#x6d;&#101;&#x73;&#x40;&#x62;&#105;&#103;&#98;&#111;x</a> would be "james"</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.7.0</span><br/>
 <span style="color:#000080;">git.sshKrb5StripDomain</span> = <span style="color:#800000;">true</span><br/>
@@ -753,6 +754,13 @@
 <span style="color:#004000;"># SINCE 1.5.0</span><br/>
 <span style="color:#000080;">tickets.closeOnPushCommitMessageRegex</span> = <span style="color:#800000;">(?:fixes|closes)[\\s-]+#?(\\d+)</span><br/>
 <br/>
+<span style="color:#004000;"># The case-insensitive regular expression used to identify and link tickets on</span><br/>
+<span style="color:#004000;"># push to the commits based on commit message. In the case of a patchset</span><br/>
+<span style="color:#004000;"># self references are ignored</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.8.0</span><br/>
+<span style="color:#000080;">tickets.linkOnPushCommitMessageRegex</span> = <span style="color:#800000;">(?:ref|task|issue|bug)?[\\s-]*#(\\d+)</span><br/>
+<br/>
 <span style="color:#004000;"># Specify the location of the Lucene Ticket index</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.4.0</span><br/>
@@ -996,6 +1004,7 @@
 <span style="color:#004000;"># Valid providers are:</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># htpasswd</span><br/>
+<span style="color:#004000;"># httpheader</span><br/>
 <span style="color:#004000;"># ldap</span><br/>
 <span style="color:#004000;"># pam</span><br/>
 <span style="color:#004000;"># redmine</span><br/>
@@ -1895,9 +1904,9 @@
 <span style="color:#004000;"># The default domain for authentication.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># If specified, this domain will be used for authentication UNLESS the supplied</span><br/>
-<span style="color:#004000;"># login name manually specifies a domain (.e.g. mydomain\james or <a href="mailto:j&#x61;&#x6d;&#x65;&#x73;&#x40;&#109;&#121;d&#x6f;&#109;&#x61;&#105;&#110;">j&#x61;&#x6d;&#x65;&#x73;&#x40;&#109;&#121;d&#x6f;&#109;&#x61;&#105;&#110;</a>)</span><br/>
+<span style="color:#004000;"># login name manually specifies a domain (.e.g. mydomain\james or <a href="mailto:&#x6a;am&#x65;&#115;@&#109;y&#100;&#x6f;&#109;&#x61;&#x69;&#110;">&#x6a;am&#x65;&#115;@&#109;y&#100;&#x6f;&#109;&#x61;&#x69;&#110;</a>)</span><br/>
 <span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># If unspecified, the username must be specified in UPN format (<a href="mailto:&#110;a&#109;e&#x40;&#100;o&#109;a&#x69;&#110;&#41;">&#110;a&#109;e&#x40;&#100;o&#109;a&#x69;&#110;&#41;</a>.</span><br/>
+<span style="color:#004000;"># If unspecified, the username must be specified in UPN format (<a href="mailto:&#x6e;am&#x65;@&#100;om&#x61;&#105;&#x6e;)">&#x6e;am&#x65;@&#100;om&#x61;&#105;&#x6e;)</a>.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># if "." (dot) is specified, ONLY the local account database will be used.</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -1917,6 +1926,42 @@
 <span style="color:#004000;"># BASEFOLDER</span><br/>
 <span style="color:#004000;"># SINCE 1.3.2</span><br/>
 <span style="color:#000080;">realm.htpasswd.userfile</span> = <span style="color:#800000;">${baseFolder}/htpasswd</span><br/>
+<br/>
+<span style="color:#004000;"># The name of the HTTP header containing the user name to trust as authenticated</span><br/>
+<span style="color:#004000;"># default: none</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># WARNING: only use this mechanism if your requests are coming from a trusted</span><br/>
+<span style="color:#004000;"># and secure source such as a self managed reverse proxy!</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># RESTART REQUIRED</span><br/>
+<span style="color:#004000;"># SINCE 1.7.2</span><br/>
+<span style="color:#000080;">realm.httpheader.userheader</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># The name of the HTTP header containing the team names of which the user is a member.</span><br/>
+<span style="color:#004000;"># If this is defined, then only groups from the headers will be available, whereas</span><br/>
+<span style="color:#004000;"># if this remains undefined, then local groups will be used.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># This setting requires that you have configured realm.httpheader.userheader.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># default: none</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># RESTART REQUIRED</span><br/>
+<span style="color:#004000;"># SINCE 1.7.2</span><br/>
+<span style="color:#000080;">realm.httpheader.teamheader</span> = <span style="color:#800000;"></span><br/>
+<br/>
+<span style="color:#004000;"># The regular expression pattern used to separate team names in the team header value</span><br/>
+<span style="color:#004000;"># default: ,</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># This setting requires that you have configured realm.httpheader.teamheader</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># RESTART REQUIRED</span><br/>
+<span style="color:#004000;"># SINCE 1.7.2</span><br/>
+<span style="color:#000080;">realm.httpheader.teamseparator</span> = <span style="color:#800000;">,</span><br/>
+<br/>
+<span style="color:#004000;"># Auto-creates user accounts when successfully authenticated based on HTTP headers.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.7.2</span><br/>
+<span style="color:#000080;">realm.httpheader.autoCreateAccounts</span> = <span style="color:#800000;">false</span><br/>
 <br/>
 <span style="color:#004000;"># Restrict the Salesforce user to members of this org.</span><br/>
 <span style="color:#004000;"># default: 0 (i.e. do not check the Org ID)</span><br/>
@@ -2047,7 +2092,7 @@
 <span style="color:#004000;"># This may be a single attribute, or a string of multiple attributes. Examples:</span><br/>
 <span style="color:#004000;"># email - Uses the attribute 'email' on the user record</span><br/>
 <span style="color:#004000;"># ${givenName}.${surname}@gitblit.com -Will concatenate the 2 attributes</span><br/>
-<span style="color:#004000;"># together with a '.' and '@' creating something like <a href="mailto:fi&#x72;&#115;&#116;&#x2e;&#x6c;&#x61;&#x73;&#x74;&#x40;g&#105;tb&#x6c;&#x69;t.&#x63;o&#109;">fi&#x72;&#115;&#116;&#x2e;&#x6c;&#x61;&#x73;&#x74;&#x40;g&#105;tb&#x6c;&#x69;t.&#x63;o&#109;</a></span><br/>
+<span style="color:#004000;"># together with a '.' and '@' creating something like <a href="mailto:&#102;&#105;&#x72;&#x73;&#116;&#x2e;l&#97;&#115;&#116;&#x40;g&#105;&#x74;&#98;&#x6c;&#x69;&#x74;&#46;&#99;&#111;m">&#102;&#105;&#x72;&#x73;&#116;&#x2e;l&#97;&#115;&#116;&#x40;g&#105;&#x74;&#98;&#x6c;&#x69;&#x74;&#46;&#99;&#111;m</a></span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.0.0</span><br/>
 <span style="color:#000080;">realm.ldap.email</span> = <span style="color:#800000;">email</span><br/>
@@ -2225,7 +2270,7 @@
 <span style="color:#000080;">filestore.maxUploadSize</span> = <span style="color:#800000;">-1</span><br/>
 
 <!-- End Markdown -->
-<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2015-11-23</p>
+<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2016-06-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

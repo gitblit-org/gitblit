@@ -166,85 +166,46 @@
 		</div><!-- end Navigation Bar -->
 <div class='container'>
 <!-- Begin Markdown -->
-
-<!-- CURRENT RELEASE -->
-	<h3 id="1.8.0" class="section"><a href="#1.8.0" class="sectionlink"><i class="icon-share-alt"> </i></a>Current Release (1.8.0) <small>this is the current stable release</small></h3>
-	<table class="table">
-		<tbody>
-			<tr>
-				<td style="background-color:inherit;width:100px">2016-06-22</td>
-				<td style="background-color:inherit;">	
-	
-
-
-   	<h4 style="color:red;">security</h4>
-	<ul>
-		<li>Fixed bug in My Tickets which would expose ticket metadata (title, type, etc) for private repos. (<a href='https://github.com/gitblit/gitblit/pull/1040'>pull request #1040</a>)</li>
-	</ul>
-   	<h4>fixes</h4>
-	<ul>
-		<li>Fix HTML5 date input support (<a href='https://github.com/gitblit/gitblit/pull/982'>pull request #982</a>)</li>
-		<li>Honor disable ticket repository setting (<a href='https://github.com/gitblit/gitblit/pull/1045'>pull request #1045</a>)</li>
-		<li>Fix paging on filestore items (<a href='https://github.com/gitblit/gitblit/pull/1070'>pull request #1070</a>)</li>
-		<li>Fix redirects on session loss (<a href='https://github.com/gitblit/gitblit/pull/1087'>pull request #1087</a>)</li>
-		<li>Fix always searching all repositories (<a href='https://github.com/gitblit/gitblit/pull/1060'>pull request #1060</a>)</li>
-		<li>Fix RPC list branches for requests without admin powers (<a href='https://github.com/gitblit/gitblit/pull/994'>pull request #994</a>)</li>
-		<li>Fix baseURL handling when generating urls (<a href='https://github.com/gitblit/gitblit/pull/1086'>pull request #1086</a>)</li>
-		<li>Fix my tickets ignoring repo read permissions (<a href='https://github.com/gitblit/gitblit/pull/1040'>pull request #1040</a>)</li>
-		<li>Fix bug where jgit.packedGitOpenFiles was not properly set (<a href='https://github.com/gitblit/gitblit/pull/1049'>pull request #1049</a>)</li>
-		<li>Fix encoding of JavaDoc</li>
-	</ul>
-   	<h4>changes</h4>
-	<ul>
-		<li>Sort filestore by most recent first (<a href='https://github.com/gitblit/gitblit/pull/1061'>pull request #1061</a>)</li>
-		<li>Improve the document editor tablet support (<a href='https://github.com/gitblit/gitblit/pull/1062'>pull request #1062</a>)</li>
-		<li>Improve HTTP header authentication (<a href='https://github.com/gitblit/gitblit/pull/980'>pull request #980</a>)</li>
-		<li>Improve authentication logging (<a href='https://github.com/gitblit/gitblit/pull/981'>pull request #981</a>)</li>
-		<li>Improve logic of handling dot files in the raw servlet (<a href='https://github.com/gitblit/gitblit/pull/983'>pull request #983</a>)</li>
-		<li>Change Jenkins Groovy script to support any protocol (<a href='https://github.com/gitblit/gitblit/pull/986'>pull request #986</a>)</li>
-		<li>Remove empty catch blocks swallowing exceptions during authentication (<a href='https://github.com/gitblit/gitblit/pull/979'>pull request #979</a>)</li>
-		<li>Various documentation improvements</li>
-	</ul>
-   	<h4>additions</h4>
-	<ul>
-		<li>Delete patchset feature (<a href='https://github.com/gitblit/gitblit/pull/1039'>pull request #1039</a>)</li>
-		<li>Support ticket references from tickets and commits on other branches (<a href='https://github.com/gitblit/gitblit/pull/1048'>pull request #1048</a>)</li>
-		<li>YouTrack Groovy push hook (<a href='https://github.com/gitblit/gitblit/pull/1084'>pull request #1084</a>)</li>
-	</ul>
-   	<h4>dependency changes</h4>
-	<ul>
-		<li>Prosemirror 0.6.1</li>
-	</ul>
-   	<h4>contributors</h4>
-	<ul>
-		<li>dbywalec</li>
-		<li>dsteinkopf</li>
-		<li>James Moger</li>
-		<li>mereth</li>
-		<li>metasim</li>
-		<li>mrjoel</li>
-		<li>Paul Martin</li>
-		<li>pingunaut</li>
-		<li>RedShift1</li>
-		<li>rgroux</li>
-		<li>stummb</li>
-		<li>yyjdelete</li>
-	</ul>
-</td>
-			</tr>
-		</tbody>
-	</table>
-
-<!-- NEXT RELEASE -->
-
-<div>
-	<ul class="pager">
-		<li class="next"><a href="releases.html">All Releases &rarr;</a></li>
-	</ul>
-</div>
-
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Configure Git Large File Storage</h2><p>Gitblit provides a filestore that supports the <a href="https://git-lfs.github.com/">Git Large File Storage (LFS) API</a>.</p>
+<h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Server Configuration</h3><p>Gitblit is configured to work straight away. However you may want to update the following in <code>gitblit.properties</code>:</p>
+<table class="table">
+<thead>
+<tr><th>parameter</th><th>value</th><th>description</th></tr>
+</thead>
+<tbody>
+<tr>
+  <th>filestore.storageFolder</th><td>${baseFolder}/lfs</td>
+  <td>The path on the server where filestore objects are to be saved.</td>
+</tr>
+<tr>
+  <th>filestore.maxUploadSize</th><td>-1</td>
+  <td>The maximum allowable size that can be uploaded to the filestore.  Once a file is uploaded it will be unaffected by later changes in this property. The default of -1 indicates no limits.</td>
+</tr>
+</tbody>
+</table>
+<h3 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Limitations</h3><p>Gitblit currently provides a server-only implementation of the opensource Git LFS API.</p>
+<ol>
+  <li>Files in the filestore are not currently searchable by Lucene.</li>
+  <li>Mirroring a repository that uses Git LFS will only mirror the pointer files, not the large files.</li>
+  <li>Federation - Only the pointer files, not the large files, are transfered.</li>
+</ol><p>Items 2 &amp; 3 are pending <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=470333">JGit Git LFS client capabilities</a>.</p>
+<h3 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>How does it work?</h3>
+<ol>
+  <li>Files that should be handled by Git LFS are defined in the <code>.gitattributes</code> file.</li>
+  <li>Git LFS installs a pre-commit hook when installed <code>git lfs install</code>.</li>
+  <li>When a commit is made the pre-commit hook replaces the defined Git LFS files with a pointer file containing metadata about the file so that it can be found later.</li>
+  <li>When a commit is pushed, the changeset is sent to the git repository and the large files are sent to the filestore.</li>
+</ol><p>For further details check out the <a href="https://github.com/github/git-lfs/blob/master/docs/spec.md">Git LFS specification</a>.</p>
+<h3 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Convert/Migrate existing repository</h3><p>It is possible to migrate an existing repository containing large files to one that leverages the filestore. However, commit hash history will be altered.</p><p>The following command may be run on a local repository:</p>
+<pre><code>git filter-branch --prune-empty --tree-filter &#39;
+git lfs track &quot;*.docx&quot; &quot;*.pdf&quot; &gt; /dev/null
+git add .gitattributes
+git ls-files | xargs -d &quot;\n&quot; git check-attr filter | grep &quot;filter: lfs&quot; | sed -r &quot;s/(.*): filter: lfs/\1/&quot; | xargs -d &quot;\n&quot; -r bash -c &quot;git rm -f --cached \&quot;\$@\&quot;; git add \&quot;\$@\&quot;&quot; bash \
+&#39; --tag-name-filter cat -- --all
+</code></pre>
+<h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Further Considerations</h3><p>While <a href="https://github.com/github/git-lfs/wiki/Implementations">other Git LFS implementations are available</a> as there is no current <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=470333">JGit LFS client capability</a>, Gitblit will be unable to access them. 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2016-06-22</p>
+<div ><ul class="pager"><li class="previous"><a href="setup_fail2ban.html">&larr; fail2ban</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2016-06-22</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
