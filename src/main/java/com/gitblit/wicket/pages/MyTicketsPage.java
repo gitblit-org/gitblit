@@ -74,13 +74,13 @@ public class MyTicketsPage extends RootPage {
         final String username = currentUser.getName();
 
         final String[] statiiParam = (params == null) ? TicketsUI.openStatii : params.getStringArray(Lucene.status.name());
-        final String assignedToParam = (params == null) ? "" : params.getString(Lucene.responsible.name(), null);
-        final String milestoneParam = (params == null) ? "" : params.getString(Lucene.milestone.name(), null);
-        final String queryParam = (params == null) ? null : params.getString("q", null);
-        final String searchParam = (params == null) ? "" : params.getString("s", null);
-        final String sortBy = (params == null) ? "" : Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
-        final String repositoryId = (params == null) ? "" : params.getString(Lucene.rid.name(), null);
-        final boolean desc = (params == null) ? true : !"asc".equals(params.getString("direction", "desc"));
+        final String assignedToParam = (params == null) ? "" : params.get(Lucene.responsible.name()).toString();
+        final String milestoneParam = (params == null) ? "" : params.get(Lucene.milestone.name()).toString();
+        final String queryParam = (params == null) ? null : params.get("q").toString();
+        final String searchParam = (params == null) ? "" : params.get("s").toString();
+        final String sortBy = (params == null) ? "" : Lucene.fromString(params.get("sort").toString(Lucene.created.name())).name();
+        final String repositoryId = (params == null) ? "" : params.get(Lucene.rid.name()).toString();
+        final boolean desc = (params == null) ? true : !"asc".equals(params.get("direction").toString("desc"));
 
 
         // add the user title panel

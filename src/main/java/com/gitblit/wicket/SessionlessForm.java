@@ -23,8 +23,8 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WicketURLDecoder;
-import org.apache.wicket.protocol.http.request.WebRequestCodingStrategy;
+//import org.apache.wicket.protocol.http.WicketURLDecoder;
+//import org.apache.wicket.protocol.http.request.WebRequestCodingStrategy;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
@@ -100,7 +100,7 @@ public class SessionlessForm<T> extends StatelessForm<T> {
 	 *            The open tag for the body
 	 */
 	@Override
-	protected void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag)
+	public void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag)
 	{
 		// render the hidden bookmarkable page field
 		AppendingStringBuffer buffer = new AppendingStringBuffer(HIDDEN_DIV_START);

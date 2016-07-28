@@ -35,11 +35,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -49,8 +51,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AuthenticationType;
@@ -393,8 +393,8 @@ public abstract class RootPage extends BasePage {
 			clonedParams = new PageParameters(params);
 		}
 
-		if (!clonedParams.containsKey("db")) {
-			clonedParams.put("db",  daysBack);
+		if (clonedParams.get("db").isEmpty()) {
+			clonedParams.add("db",  daysBack);
 		}
 
 		List<MenuItem> items = new ArrayList<MenuItem>();
@@ -434,7 +434,7 @@ public abstract class RootPage extends BasePage {
 		String set = WicketUtils.getSet(params);
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
-		int daysBack = params.getInt("db", 0);
+		int daysBack = params.get("db").toInt(0);
 		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 
 		List<RepositoryModel> availableModels = getRepositoryModels();

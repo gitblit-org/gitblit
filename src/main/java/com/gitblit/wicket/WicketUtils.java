@@ -26,19 +26,18 @@ import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.Request;
+import org.apache.wicket.request.resource.ContextRelativeResource;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.HeaderContributor;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.resource.ContextRelativeResource;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 
 import com.gitblit.Constants;
@@ -56,7 +55,7 @@ import com.gitblit.utils.TimeUtils;
 public class WicketUtils {
 
 	public static void setCssClass(Component container, String value) {
-		container.add(new SimpleAttributeModifier("class", value));
+		container.add(new AttributeModifier("class", value));
 	}
 
 	public static void addCssClass(Component container, String value) {
@@ -64,21 +63,21 @@ public class WicketUtils {
 	}
 
 	public static void setCssStyle(Component container, String value) {
-		container.add(new SimpleAttributeModifier("style", value));
+		container.add(new AttributeModifier("style", value));
 	}
 
 	public static void setCssBackground(Component container, String value) {
 		String background = MessageFormat.format("background-color:{0};",
 				StringUtils.getColor(value));
-		container.add(new SimpleAttributeModifier("style", background));
+		container.add(new AttributeModifier("style", background));
 	}
 
 	public static Component setHtmlTooltip(Component container, String value) {
-		return container.add(new SimpleAttributeModifier("title", value));
+		return container.add(new AttributeModifier("title", value));
 	}
 
 	public static void setInputPlaceholder(Component container, String value) {
-		container.add(new SimpleAttributeModifier("placeholder", value));
+		container.add(new AttributeModifier("placeholder", value));
 	}
 
 	public static void setChangeTypeCssClass(Component container, ChangeType type) {
@@ -506,11 +505,11 @@ public class WicketUtils {
 	}
 
 	public static String getProjectName(PageParameters params) {
-		return params.getString("p", "");
+		return params.get("p").toString("");
 	}
 
 	public static String getRepositoryName(PageParameters params) {
-		return params.getString("r", "");
+		return params.get("r").toString("");
 	}
 
 	public static String getObject(PageParameters params) {
@@ -540,7 +539,7 @@ public class WicketUtils {
 
 	public static int getPage(PageParameters params) {
 		// index from 1
-		return params.getInt("pg", 1);
+		return params.get("pg").toInt(1);
 	}
 
 	public static String getRegEx(PageParameters params) {
@@ -576,7 +575,7 @@ public class WicketUtils {
 	}
 
 	public static String getNameParameter(PageParameters params) {
-		return params.getString("n", "");
+		return params.get("n").toString("");
 	}
 
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {

@@ -108,8 +108,9 @@ public class Menu {
 				isSelected = false;
 			} else {
 				parameters = new PageParameters(params);
-				if (parameters.containsKey(parameter)) {
-					isSelected = params.getString(parameter).equals(value);
+//				if (parameters.containsKey(parameter)) {
+				if (!parameters.get(parameter).isEmpty()) {
+					isSelected = params.get(parameter).toString().equals(value);
 					// set the new selection value
 					setParameter(parameter, value);
 				} else {
@@ -125,7 +126,7 @@ public class Menu {
 				if (StringUtils.isEmpty(value)) {
 					this.parameters.remove(parameter);
 				} else {
-					this.parameters.put(parameter, value);
+					this.parameters.add(parameter, value);
 				}
 			}
 		}

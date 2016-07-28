@@ -141,8 +141,8 @@ public class ActivityPage extends RootPage {
 
 		PageParameters currentParameters = getPageParameters();
 		int daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
-		if (currentParameters != null && !currentParameters.containsKey("db")) {
-			currentParameters.put("db", daysBack);
+		if (currentParameters != null && currentParameters.get("db").isEmpty()) {
+			currentParameters.add("db", daysBack);
 		}
 
 		// preserve time filter options on repository choices

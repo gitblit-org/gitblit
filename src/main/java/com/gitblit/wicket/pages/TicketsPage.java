@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -367,7 +367,7 @@ public class TicketsPage extends RepositoryPage {
 						tq.color = StringUtils.getColor(tq.name);
 					}
 					String background = MessageFormat.format("background-color:{0};", tq.color);
-					swatch.add(new SimpleAttributeModifier("style", background));
+					swatch.add(new AttributeModifier("style", background));
 					item.add(swatch);
 					if (activeQuery.contains(tq.query)) {
 						// selected
@@ -377,7 +377,7 @@ public class TicketsPage extends RepositoryPage {
 						Label checked = new Label("checked");
 						WicketUtils.setCssClass(checked, "iconic-o-x");
 						item.add(checked);
-						item.add(new SimpleAttributeModifier("style", background));
+						item.add(new AttributeModifier("style", background));
 					} else {
 						// unselected
 						String q = QueryBuilder.q(queryParam).toSubquery().and(tq.query).build();

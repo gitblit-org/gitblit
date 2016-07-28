@@ -24,11 +24,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wicket.IRequestTarget;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.AbortWithWebErrorCodeException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -52,7 +51,7 @@ public class RawPage extends SessionPage {
 	public RawPage(final PageParameters params) {
 		super(params);
 
-		if (!params.containsKey("r")) {
+		if (params.get("r").isEmpty()) {
 			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
 		}

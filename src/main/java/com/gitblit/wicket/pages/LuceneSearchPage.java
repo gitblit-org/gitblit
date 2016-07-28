@@ -88,19 +88,19 @@ public class LuceneSearchPage extends RootPage {
 
 			page = WicketUtils.getPage(params);
 
-			if (params.containsKey("repositories")) {
-				String value = params.getString("repositories", "");
+			if (!params.get("repositories").isEmpty()) {
+				String value = params.get("repositories").toString("");
 				List<String> list = StringUtils.getStringsFromValue(value);
 				repositories.addAll(list);
 			}
 
-			allRepos = params.getAsBoolean("allrepos", false);
+			allRepos = params.get("allrepos").toBoolean(false);
 			if (allRepos) {
 				repositories.addAll(availableRepositories);
 			}
 
-			if (params.containsKey("query")) {
-				query = params.getString("query", "");
+			if (!params.get("query").isEmpty()) {
+				query = params.get("query").toString("");
 			} else {
 				String value = WicketUtils.getSearchString(params);
 				String type = WicketUtils.getSearchType(params);
@@ -153,9 +153,9 @@ public class LuceneSearchPage extends RootPage {
 					return;
 				}
 				PageParameters params = new PageParameters();
-				params.put("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
-				params.put("query", queryModel.getObject());
-				params.put("allrepos", allreposModel.getObject());
+				params.add("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
+				params.add("query", queryModel.getObject());
+				params.add("allrepos", allreposModel.getObject());
 				LuceneSearchPage page = new LuceneSearchPage(params);
 				setResponsePage(page);
 			}
@@ -249,8 +249,8 @@ public class LuceneSearchPage extends RootPage {
 		add(resultsView.setVisible(results.size() > 0));
 
 		PageParameters pagerParams = new PageParameters();
-		pagerParams.put("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
-		pagerParams.put("query", queryModel.getObject());
+		pagerParams.add("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
+		pagerParams.add("query", queryModel.getObject());
 
 		boolean showPager = false;
 		int totalPages = 0;

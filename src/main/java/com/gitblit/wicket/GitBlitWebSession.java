@@ -21,12 +21,12 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
-import org.apache.wicket.Request;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
@@ -64,10 +64,10 @@ public final class GitBlitWebSession extends WebSession {
 	 */
 	public void cacheRequest(Class<? extends Page> pageClass) {
 		// build absolute url with correctly encoded parameters?!
-		Request req = WebRequestCycle.get().getRequest();
+		Request req = RequestCycle.get().getRequest();
 		Map<String, ?> params = req.getRequestParameters().getParameters();
 		PageParameters pageParams = new PageParameters(params);
-		String relativeUrl = WebRequestCycle.get().urlFor(pageClass, pageParams).toString();
+		String relativeUrl = RequestCycle.get().urlFor(pageClass, pageParams).toString();
 		requestUrl = RequestUtils.toAbsolutePath(relativeUrl);
 		if (isTemporary())
 		{

@@ -265,7 +265,7 @@ public class TicketPage extends RepositoryPage {
 			} else {
 				milestoneParameters = WicketUtils.newRepositoryParameter(repositoryName);
 			}
-			milestoneParameters.put(Lucene.milestone.name(), ticket.milestone);
+			milestoneParameters.add(Lucene.milestone.name(), ticket.milestone);
 			int progress = 0;
 			int open = 0;
 			int closed = 0;

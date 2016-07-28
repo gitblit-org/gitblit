@@ -36,7 +36,7 @@ public class PatchPage extends SessionPage {
 	public PatchPage(final PageParameters params) {
 		super(params);
 
-		if (!params.containsKey("r")) {
+		if (params.get("r").isEmpty()) {
 			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
 		}

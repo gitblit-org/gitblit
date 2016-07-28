@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.RequestCycle;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.mylyn.wikitext.confluence.core.ConfluenceLanguage;
