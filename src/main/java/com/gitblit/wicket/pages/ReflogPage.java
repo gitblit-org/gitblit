@@ -15,7 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 import com.gitblit.wicket.CacheControl;

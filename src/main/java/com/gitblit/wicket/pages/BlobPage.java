@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RedirectException;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;

@@ -19,7 +19,7 @@ import java.io.OutputStream;
 import java.util.concurrent.Callable;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;

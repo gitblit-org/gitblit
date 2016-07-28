@@ -15,7 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;

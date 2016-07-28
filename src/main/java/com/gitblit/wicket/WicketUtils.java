@@ -27,7 +27,7 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.Request;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.HeaderContributor;

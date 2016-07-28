@@ -16,7 +16,7 @@
 package com.gitblit.wicket.pages;
 
 import org.apache.wicket.IRequestTarget;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.slf4j.Logger;

@@ -17,7 +17,7 @@ package com.gitblit.wicket;
 
 import org.apache.wicket.AbstractRestartResponseException;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;

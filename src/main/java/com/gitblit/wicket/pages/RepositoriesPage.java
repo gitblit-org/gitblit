@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Constants;
 

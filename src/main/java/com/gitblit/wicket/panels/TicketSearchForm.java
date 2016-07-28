@@ -18,7 +18,7 @@ package com.gitblit.wicket.panels;
 import java.io.Serializable;
 import java.text.MessageFormat;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;

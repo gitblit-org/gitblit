@@ -21,7 +21,7 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
