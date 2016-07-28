@@ -24,15 +24,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
+import org.apache.wicket.request.cycle.RequestCycle;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
@@ -41,6 +40,7 @@ import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -78,7 +78,7 @@ public class RepositoryUrlPanel extends BasePanel {
 	protected void onInitialize() {
 		super.onInitialize();
 
-		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
+		HttpServletRequest req = GitBlitRequestUtils.getServletRequest();
 
 		List<RepositoryUrl> repositoryUrls = app().services().getRepositoryUrls(req, user, repository);
 		// grab primary url from the top of the list

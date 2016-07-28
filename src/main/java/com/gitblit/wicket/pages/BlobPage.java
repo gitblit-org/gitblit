@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.RedirectException;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -54,7 +54,7 @@ public class BlobPage extends RepositoryPage {
 		String [] encodings = getEncodings();
 
 		if (StringUtils.isEmpty(objectId) && StringUtils.isEmpty(blobPath)) {
-			throw new RedirectException(TreePage.class, WicketUtils.newRepositoryParameter(repositoryName));
+			throw new RestartResponseException(TreePage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
 
 		if (StringUtils.isEmpty(blobPath)) {

@@ -15,12 +15,9 @@
  */
 package com.gitblit.wicket.panels;
 
-import java.io.OutputStream;
-import java.util.concurrent.Callable;
-
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -29,13 +26,8 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
-import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
-import org.apache.wicket.util.resource.IResourceStream;
 
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
 public class LinkPanel extends Panel {
@@ -80,10 +72,10 @@ public class LinkPanel extends Panel {
 			link = new BookmarkablePageLink<Void>("link", clazz, parameters);
 		}
 		if (newWindow) {
-			link.add(new SimpleAttributeModifier("target", "_blank"));
+			link.add(new AttributeModifier("target", "_blank"));
 		}
 		if (linkCssClass != null) {
-			link.add(new SimpleAttributeModifier("class", linkCssClass));
+			link.add(new AttributeModifier("class", linkCssClass));
 		}
 		Label icon = new Label("icon");
 		if (StringUtils.isEmpty(bootstrapIcon)) {
@@ -106,10 +98,10 @@ public class LinkPanel extends Panel {
 		this.labelModel = new Model<String>(label);
 		ExternalLink link = new ExternalLink("link", href);
 		if (newWindow) {
-			link.add(new SimpleAttributeModifier("target", "_blank"));
+			link.add(new AttributeModifier("target", "_blank"));
 		}
 		if (linkCssClass != null) {
-			link.add(new SimpleAttributeModifier("class", linkCssClass));
+			link.add(new AttributeModifier("class", linkCssClass));
 		}
 		link.add(new Label("icon").setVisible(false));
 		link.add(new Label("label", labelModel));
@@ -122,7 +114,7 @@ public class LinkPanel extends Panel {
 		this.labelModel = new Model<String>(label);
 		
 		if (linkCssClass != null) {
-			link.add(new SimpleAttributeModifier("class", linkCssClass));
+			link.add(new AttributeModifier("class", linkCssClass));
 		}
 		
 		link.add(new Label("icon").setVisible(false));
@@ -132,12 +124,12 @@ public class LinkPanel extends Panel {
 
 	public void setNoFollow() {
 		Component c = get("link");
-		c.add(new SimpleAttributeModifier("rel", "nofollow"));
+		c.add(new AttributeModifier("rel", "nofollow"));
 	}
 
 	public void setTooltip(String tooltip) {
 		Component c = get("link");
-		c.add(new SimpleAttributeModifier("title", tooltip));
+		c.add(new AttributeModifier("title", tooltip));
 	}
 
 }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -143,7 +143,7 @@ public class TicketListPanel extends BasePanel {
 						}
 
 						String background = MessageFormat.format("background-color:{0};", tLabel.color);
-						label.add(new SimpleAttributeModifier("style", background));
+						label.add(new AttributeModifier("style", background));
 						labelItem.add(label);
 					}
 				};

@@ -17,9 +17,9 @@ package com.gitblit.wicket.pages;
 
 import java.util.List;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -95,7 +95,7 @@ public class DocsPage extends RepositoryPage {
 					item.add(link);
 					if (counter == 0) {
 						counter++;
-						item.add(new SimpleAttributeModifier("class", "active"));
+						item.add(new AttributeModifier("class", "active"));
 					}
 				}
 			};
@@ -128,13 +128,13 @@ public class DocsPage extends RepositoryPage {
 					Component content = new Label("content", doc.html)
 						.setEscapeModelStrings(false);
 					if (!MarkupSyntax.PLAIN.equals(doc.syntax)) {
-						content.add(new SimpleAttributeModifier("class", "markdown"));
+						content.add(new AttributeModifier("class", "markdown"));
 					}
 					item.add(content);
-					item.add(new SimpleAttributeModifier("id", file));
+					item.add(new AttributeModifier("id", file));
 					if (counter == 0) {
 						counter++;
-						item.add(new SimpleAttributeModifier("class", "tab-pane active"));
+						item.add(new AttributeModifier("class", "tab-pane active"));
 					}
 				}
 			};

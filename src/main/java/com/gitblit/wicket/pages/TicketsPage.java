@@ -88,12 +88,12 @@ public class TicketsPage extends RepositoryPage {
 		boolean isAuthenticated = user != null && user.isAuthenticated;
 
 		final String [] statiiParam = params.getStringArray(Lucene.status.name());
-		final String assignedToParam = params.getString(Lucene.responsible.name(), null);
-		final String milestoneParam = params.getString(Lucene.milestone.name(), null);
-		final String queryParam = params.getString("q", null);
-		final String searchParam = params.getString("s", null);
-		final String sortBy = Lucene.fromString(params.getString("sort", Lucene.created.name())).name();
-		final boolean desc = !"asc".equals(params.getString("direction", "desc"));
+		final String assignedToParam = params.get(Lucene.responsible.name()).toString(null);
+		final String milestoneParam = params.get(Lucene.milestone.name()).toString(null);
+		final String queryParam = params.get("q").toString(null);
+		final String searchParam = params.get("s").toString(null);
+		final String sortBy = Lucene.fromString(params.get("sort").toString( Lucene.created.name())).name();
+		final boolean desc = !"asc".equals(params.get("direction").toString("desc"));
 
 		// add search form
 		add(new TicketSearchForm("ticketSearchForm", repositoryName, searchParam, getClass(), params));

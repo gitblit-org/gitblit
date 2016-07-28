@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
@@ -134,9 +134,9 @@ public abstract class RepositoryPage extends RootPage {
 			}
 		}
 
-		if (params.containsKey(PARAM_STAR)) {
+		if (!params.get(PARAM_STAR).isEmpty()) {
 			// set starred state
-			boolean star = params.getBoolean(PARAM_STAR);
+			boolean star = params.get(PARAM_STAR).toBoolean();
 			UserModel user = GitBlitWebSession.get().getUser();
 			if (user != null && user.isAuthenticated) {
 				UserRepositoryPreferences prefs = user.getPreferences().getRepositoryPreferences(getRepositoryModel().name);
@@ -354,7 +354,7 @@ public abstract class RepositoryPage extends RootPage {
 		// (un)star link allows a user to star a repository
 		if (user.isAuthenticated && model.hasCommits) {
 			PageParameters starParams = DeepCopier.copy(getPageParameters());
-			starParams.put(PARAM_STAR, !user.getPreferences().isStarredRepository(model.name));
+			starParams.add(PARAM_STAR, !user.getPreferences().isStarredRepository(model.name));
 			String toggleStarUrl = getRequestCycle().urlFor(getClass(), starParams).toString();
 			if (user.getPreferences().isStarredRepository(model.name)) {
 				// show unstar button
@@ -419,7 +419,7 @@ public abstract class RepositoryPage extends RootPage {
 		WicketUtils.setCssClass(icon, iconClass);
 		button.add(icon);
 		button.add(new Label("label", label));
-		button.add(new SimpleAttributeModifier("href", url));
+		button.add(new AttributeModifier("href", url));
 		add(button);
 	}
 

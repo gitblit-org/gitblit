@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -151,7 +151,7 @@ public class NewRepositoryPage extends RootSubPage {
 		};
 
 		// do not let the browser pre-populate these fields
-		form.add(new SimpleAttributeModifier("autocomplete", "off"));
+		form.add(new AttributeModifier("autocomplete", "off"));
 
 		namePanel = new RepositoryNamePanel("namePanel", repositoryModel);
 		form.add(namePanel);

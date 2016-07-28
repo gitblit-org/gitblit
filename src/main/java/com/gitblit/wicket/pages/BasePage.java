@@ -36,7 +36,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.CssPackageResource;
+import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.apache.wicket.RedirectToUrlException;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.basic.Label;
@@ -45,7 +48,6 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.util.time.Duration;
@@ -62,6 +64,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.CacheControl;
@@ -94,10 +97,10 @@ public abstract class BasePage extends SessionPage {
 
 	private void customizeHeader() {
 		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
-			add(CSSPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
+			add(CssPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
 		}
 		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
-			add(CSSPackageResource.getHeaderContribution("hideheader.css"));
+			add(CssPackageResource.getHeaderContribution("hideheader.css"));
 		}
 	}
 
@@ -352,9 +355,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	protected String getServerName() {
-		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
-		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
-		return req.getServerName();
+		return GitBlitRequestUtils.getServletRequest().getServerName();
 	}
 
 	protected List<ProjectModel> getProjectModels() {
@@ -371,7 +372,7 @@ public abstract class BasePage extends SessionPage {
 		boolean hasParameter = false;
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
-		int daysBack = params.getInt("db", 0);
+		int daysBack = params.get("db").toInt(0);
 		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 
 		List<ProjectModel> availableModels = getProjectModels();
@@ -527,7 +528,7 @@ public abstract class BasePage extends SessionPage {
 	protected void addBottomScript(String scriptPath) {
 		RepeatingView bottomScripts = getBottomScriptContainer();
 		Label script = new Label(bottomScripts.newChildId(), "<script type='text/javascript' src='"
-				+ urlFor(new JavascriptResourceReference(this.getClass(), scriptPath)) + "'></script>\n");
+				+ urlFor(new JavaScriptResourceReference(this.getClass(), scriptPath)) + "'></script>\n");
 		bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
 	}
 

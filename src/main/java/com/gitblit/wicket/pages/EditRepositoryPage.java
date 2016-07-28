@@ -29,7 +29,6 @@ import java.util.Set;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -408,7 +407,7 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 
 		// do not let the browser pre-populate these fields
-		form.add(new SimpleAttributeModifier("autocomplete", "off"));
+		form.add(new AttributeModifier("autocomplete", "off"));
 
 
 		//
@@ -638,9 +637,9 @@ public class EditRepositoryPage extends RootSubPage {
 					repositoryModel.authorizationControl = AuthorizationControl.NAMED;
 				}
 
-				target.addComponent(verifyCommitter);
-				target.addComponent(usersPalette);
-				target.addComponent(teamsPalette);
+				target.add(verifyCommitter);
+				target.add(usersPalette);
+				target.add(teamsPalette);
 			}
 		};
 

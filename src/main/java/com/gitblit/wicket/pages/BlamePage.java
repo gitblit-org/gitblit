@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -90,7 +90,7 @@ public class BlamePage extends RepositoryPage {
 
 		final String blobPath = WicketUtils.getPath(params);
 
-		final String blameTypeParam = params.getString("blametype", BlameType.COMMIT.toString());
+		final String blameTypeParam = params.get("blametype").toString(BlameType.COMMIT.toString());
 		final BlameType activeBlameType = BlameType.get(blameTypeParam);
 
 		RevCommit commit = getCommit();
@@ -145,7 +145,7 @@ public class BlamePage extends RepositoryPage {
 					new BookmarkablePageLink<Void>(blameByLinkText, BlamePage.class, blameTypePageParam);
 
 			if (activeBlameType == type) {
-				blameByPageLink.add(new SimpleAttributeModifier("style", "font-weight:bold;"));
+				blameByPageLink.add(new AttributeModifier("style", "font-weight:bold;"));
 			}
 
 			add(blameByPageLink);
@@ -226,7 +226,7 @@ public class BlamePage extends RepositoryPage {
 					break;
 				}
 				Component data = new Label("data", StringUtils.escapeForHtml(entry.data, true, tabLength)).setEscapeModelStrings(false);
-				data.add(new SimpleAttributeModifier("style", "background-color: " + color + ";"));
+				data.add(new AttributeModifier("style", "background-color: " + color + ";"));
 				item.add(data);
 			}
 		};

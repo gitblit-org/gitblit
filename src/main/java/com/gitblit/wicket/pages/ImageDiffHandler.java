@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WicketURLEncoder;
+//import org.apache.wicket.protocol.http.WicketURLEncoder;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.jsoup.nodes.Element;

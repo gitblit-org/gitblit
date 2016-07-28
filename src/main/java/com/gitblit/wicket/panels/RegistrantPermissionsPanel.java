@@ -214,7 +214,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 
 						@Override
 						protected void onUpdate(AjaxRequestTarget target) {
-							target.addComponent(permissionChoice);
+							target.add(permissionChoice);
 						}
 					});
 				}
@@ -277,7 +277,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				registrants.remove(rp.registrant);
 
 				// force the panel to refresh
-				target.addComponent(RegistrantPermissionsPanel.this);
+				target.add(RegistrantPermissionsPanel.this);
 			}
 		};
 		addPermissionForm.add(button);
@@ -339,7 +339,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		@Override
 		protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 			RegistrantPermissionsPanel.this.activeState = buttonState;
-			target.addComponent(RegistrantPermissionsPanel.this);
+			target.add(RegistrantPermissionsPanel.this);
 		}
 	};
 }

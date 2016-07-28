@@ -15,10 +15,12 @@
  */
 package com.gitblit.wicket.pages;
 
-import org.apache.wicket.IRequestTarget;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebResponse;
+//import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.protocol.http.WebResponse;
+//import org.apache.wicket.RequestCycle;
+//import org.apache.wicket.protocol.http.WebResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,7 @@ public class ExportTicketPage extends SessionPage {
 	public ExportTicketPage(final PageParameters params) {
 		super(params);
 
-		if (!params.containsKey("r")) {
+		if (params.get("r").isEmpty()) {
 			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
 		}

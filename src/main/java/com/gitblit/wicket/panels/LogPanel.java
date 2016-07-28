@@ -19,8 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -85,7 +85,7 @@ public class LogPanel extends BasePanel {
 			graph.setVisible(false);
 		} else {
 			// set the rowspan on the graph row and +1 for the graph row itself
-			graph.add(new SimpleAttributeModifier("rowspan", "" + (commits.size() + 1)));
+			graph.add(new AttributeModifier("rowspan", "" + (commits.size() + 1)));
 			graph.add(new ExternalImage("image", BranchGraphServlet.asLink(baseUrl, repositoryName, commits.get(0).name(), commits.size())));
 		}
 

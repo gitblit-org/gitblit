@@ -38,7 +38,6 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -51,7 +50,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebRequest;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -87,6 +85,7 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.MergeStatus;
 import com.gitblit.utils.CommitCache;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
@@ -635,7 +634,7 @@ public class TicketPage extends RepositoryPage {
 				Label label = new Label("label", value);
 				TicketLabel tLabel = app().tickets().getLabel(repository, value);
 				String background = MessageFormat.format("background-color:{0};", tLabel.color);
-				label.add(new SimpleAttributeModifier("style", background));
+				label.add(new AttributeModifier("style", background));
 				item.add(label);
 			}
 		};
@@ -1362,7 +1361,7 @@ public class TicketPage extends RepositoryPage {
 	}
 
 	protected <X extends MarkupContainer> X setNewTarget(X x) {
-		x.add(new SimpleAttributeModifier("target", "_blank"));
+		x.add(new AttributeModifier("target", "_blank"));
 		return x;
 	}
 
@@ -1569,7 +1568,7 @@ public class TicketPage extends RepositoryPage {
 	 * @return the primary repository url
 	 */
 	protected RepositoryUrl getRepositoryUrl(UserModel user, RepositoryModel repository) {
-		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
+		HttpServletRequest req = GitBlitRequestUtils.getServletRequest();
 		List<RepositoryUrl> urls = app().services().getRepositoryUrls(req, user, repository);
 		if (ArrayUtils.isEmpty(urls)) {
 			return null;

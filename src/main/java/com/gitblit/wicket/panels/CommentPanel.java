@@ -23,7 +23,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+//import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;

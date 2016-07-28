@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -217,7 +217,7 @@ public class EditUserPage extends RootSubPage {
 		};
 
 		// do not let the browser pre-populate these fields
-		form.add(new SimpleAttributeModifier("autocomplete", "off"));
+		form.add(new AttributeModifier("autocomplete", "off"));
 
 		// not all user providers support manipulating username and password
 		boolean editCredentials = app().authentication().supportsCredentialChanges(userModel);
