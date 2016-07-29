@@ -336,7 +336,7 @@ class HtmlMailWriter {
         }
         builder.td() {
             mkp.yield header.oldPath
-			mkp.yieldUnescaped "<b> -&rt; </b>"
+			mkp.yieldUnescaped "<b> -&gt; </b>"
 			a(href:blobDiffUrl(id, header.newPath),  header.newPath)
         }
     }
