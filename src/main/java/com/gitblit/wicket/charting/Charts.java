@@ -18,6 +18,7 @@ package com.gitblit.wicket.charting;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.IHeaderContributor;
 
 /**
@@ -26,7 +27,7 @@ import org.apache.wicket.markup.html.IHeaderContributor;
  * @author Tim Ryan
  *
  */
-public abstract class Charts implements IHeaderContributor {
+public abstract class Charts extends Behavior {
 
 	private static final long serialVersionUID = 1L;
 	

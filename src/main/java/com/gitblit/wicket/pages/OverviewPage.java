@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
@@ -147,7 +146,7 @@ public class OverviewPage extends RepositoryPage {
 			chart.setHeight(150);
 
 			charts.addChart(chart);
-			add(new HeaderContributor(charts));
+			add(charts);
 		}
 	}
 }

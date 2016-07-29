@@ -17,6 +17,7 @@ package com.gitblit.wicket.charting;
 
 import javax.servlet.ServletContext;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -35,7 +36,7 @@ public class Flotr2Charts extends Charts {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void renderHead(IHeaderResponse response) {
+	public void renderHead(Component component, IHeaderResponse response) {
 
 		// add Google Chart JS API reference
 		ServletContext servletContext = WebApplication.get().getServletContext();

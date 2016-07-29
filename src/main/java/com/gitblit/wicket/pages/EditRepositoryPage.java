@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -775,6 +776,11 @@ public class EditRepositoryPage extends RootSubPage {
 		public String getIdValue(FederationStrategy type, int index) {
 			return Integer.toString(index);
 		}
+
+		@Override
+		public FederationStrategy getObject(String id, IModel<? extends List<? extends FederationStrategy>> choices) {
+			return choices.getObject().get(Integer.valueOf(id));
+		}
 	}
 
 	private class GCPeriodRenderer implements IChoiceRenderer<Integer> {
@@ -796,6 +802,11 @@ public class EditRepositoryPage extends RootSubPage {
 		@Override
 		public String getIdValue(Integer value, int index) {
 			return Integer.toString(index);
+		}
+		
+		@Override
+		public Integer getObject(String id, IModel<? extends List<? extends Integer>> choices) {
+			return choices.getObject().get(Integer.valueOf(id));
 		}
 	}
 
@@ -820,6 +831,11 @@ public class EditRepositoryPage extends RootSubPage {
 		@Override
 		public String getIdValue(Integer value, int index) {
 			return Integer.toString(index);
+		}
+		
+		@Override
+		public Integer getObject(String id, IModel<? extends List<? extends Integer>> choices) {
+			return choices.getObject().get(Integer.valueOf(id));
 		}
 	}
 }

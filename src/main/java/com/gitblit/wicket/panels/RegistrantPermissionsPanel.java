@@ -312,6 +312,11 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		public String getIdValue(AccessPermission type, int index) {
 			return Integer.toString(index);
 		}
+
+		@Override
+		public AccessPermission getObject(String id, IModel<? extends List<? extends AccessPermission>> choices) {
+			return choices.getObject().get(Integer.valueOf(id));
+		}
 	}
 
 	private class ShowStateButton extends AjaxButton {

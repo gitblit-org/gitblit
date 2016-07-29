@@ -19,7 +19,7 @@ package com.gitblit.wicket.panels;
 import java.util.List;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ResourceReference;
+//import org.apache.wicket.ResourceReference;
 import org.apache.wicket.core.request.ClientInfo;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;

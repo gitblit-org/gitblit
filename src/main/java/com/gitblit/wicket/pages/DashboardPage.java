@@ -29,7 +29,6 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
@@ -240,7 +239,7 @@ public abstract class DashboardPage extends RootPage {
 			chart.setShowLegend(false);
 			charts.addChart(chart);
 
-			add(new HeaderContributor(charts));
+			add(charts);
 			frag.add(new Fragment("charts", "chartsFragment", this));
 		} else {
 			frag.add(new Label("charts").setVisible(false));

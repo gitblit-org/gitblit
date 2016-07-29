@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -160,7 +159,7 @@ public class SummaryPage extends RepositoryPage {
 			add(new Label("commitsChart").setVisible(false));
 		} else {
 			Charts charts = createCharts(metrics);
-			add(new HeaderContributor(charts));
+			add(charts);
 		}
 	}
 

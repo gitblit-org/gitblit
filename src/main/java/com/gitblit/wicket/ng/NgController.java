@@ -19,9 +19,10 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.request.resource.PackageResourceReference;
 
 import com.google.gson.Gson;
@@ -35,7 +36,7 @@ import com.google.gson.GsonBuilder;
  * @author James Moger
  *
  */
-public class NgController implements IHeaderContributor {
+public class NgController extends Behavior {
 
 	private static final long serialVersionUID = 1L;
 
@@ -53,7 +54,7 @@ public class NgController implements IHeaderContributor {
 	}
 
 	@Override
-	public void renderHead(IHeaderResponse response) {
+	public void renderHead(Component component, IHeaderResponse response) {
 		// add Google AngularJS reference
 		response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(NgController.class, "angular.js")));
 

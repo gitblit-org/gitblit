@@ -105,8 +105,8 @@ public class Html5DateField extends TextField<Date> implements ITextFormatProvid
 	 * @return A pattern-specific converter
 	 */
 	@Override
-	public IConverter getConverter(Class<?> type)
-	{
+	public <C> IConverter<C> getConverter(Class<C> type) {
+
 		if (converter == null)
 		{
 			return super.getConverter(type);
@@ -148,9 +148,8 @@ public class Html5DateField extends TextField<Date> implements ITextFormatProvid
 	}
 	
 	@Override
-	protected String getInputType()
-	{
-		return "date";
+	protected String[] getInputTypes() {
+		return new String[]{"date"};
 	}
 	
 }

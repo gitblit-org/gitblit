@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -307,9 +308,9 @@ public class RepositoriesPanel extends BasePanel {
 		};
 		add(dataView);
 
-		if (dp instanceof SortableDataProvider<?>) {
+		if (dp instanceof SortableDataProvider<?,?>) {
 			// add sortable header
-			SortableDataProvider<?> sdp = (SortableDataProvider<?>) dp;
+			SortableDataProvider<?,?> sdp = (SortableDataProvider<?,?>) dp;
 			Fragment fragment = new Fragment("headerContent", "flatRepositoryHeader", this);
 			fragment.add(newSort("orderByRepository", SortBy.repository, sdp, dataView));
 			fragment.add(newSort("orderByDescription", SortBy.description, sdp, dataView));
@@ -345,7 +346,7 @@ public class RepositoriesPanel extends BasePanel {
 		repository, description, owner, date;
 	}
 
-	protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?> dp,
+	protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?,?> dp,
 			final DataView<?> dataView) {
 		return new OrderByBorder(wicketId, field.name(), dp) {
 			private static final long serialVersionUID = 1L;
@@ -357,7 +358,7 @@ public class RepositoriesPanel extends BasePanel {
 		};
 	}
 
-	private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel> {
+	private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel, String> {
 
 		private static final long serialVersionUID = 1L;
 
@@ -365,11 +366,11 @@ public class RepositoriesPanel extends BasePanel {
 
 		protected SortableRepositoriesProvider(List<RepositoryModel> list) {
 			this.list = list;
-			setSort(SortBy.date.name(), false);
+			setSort(SortBy.date.name(), SortOrder.DESCENDING);
 		}
 
 		@Override
-		public int size() {
+		public long size() {
 			if (list == null) {
 				return 0;
 			}
@@ -382,8 +383,8 @@ public class RepositoriesPanel extends BasePanel {
 		}
 
 		@Override
-		public Iterator<RepositoryModel> iterator(int first, int count) {
-			SortParam sp = getSort();
+		public Iterator<? extends RepositoryModel> iterator(long first, long count) {
+			SortParam<String> sp = getSort();
 			String prop = sp.getProperty();
 			final boolean asc = sp.isAscending();
 
@@ -430,7 +431,8 @@ public class RepositoriesPanel extends BasePanel {
 					}
 				});
 			}
-			return list.subList(first, first + count).iterator();
+			return list.subList(Math.toIntExact(first), Math.toIntExact(first + count)).iterator();
 		}
+
 	}
 }

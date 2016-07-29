@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 
@@ -118,7 +117,7 @@ public class ActivityPage extends RootPage {
 			// create the activity charts
 			if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 				Charts charts = createCharts(recentActivity);
-				add(new HeaderContributor(charts));
+				add(charts);
 				add(new Fragment("chartsPanel", "chartsFragment", this));
 			} else {
 				add(new Label("chartsPanel").setVisible(false));

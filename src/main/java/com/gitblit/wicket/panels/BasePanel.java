@@ -90,7 +90,7 @@ public abstract class BasePanel extends Panel {
 		private static final long serialVersionUID = 1L;
 
 		public JavascriptEventConfirmation(String event, String msg) {
-			super(event, true, new Model<String>(msg));
+			super(event, new Model<String>(msg));
 		}
 
 		@Override
@@ -112,7 +112,7 @@ public abstract class BasePanel extends Panel {
 		private String initialValue = "";
 
 		public JavascriptTextPrompt(String event, String msg, String value) {
-			super(event, true, new Model<String>(msg));
+			super(event,  new Model<String>(msg));
 			initialValue = value;
 		}
 
