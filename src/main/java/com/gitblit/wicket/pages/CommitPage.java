@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -29,7 +30,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
-//import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
 import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -58,6 +58,8 @@ import com.gitblit.wicket.panels.RefsPanel;
 @CacheControl(LastModified.BOOT)
 public class CommitPage extends RepositoryPage {
 
+	private static final long serialVersionUID = 1L;
+
 	public CommitPage(PageParameters params) {
 		super(params);
 
@@ -76,11 +78,10 @@ public class CommitPage extends RepositoryPage {
 			add(new Label("parentLink", "none"));
 			add(new Label("commitdiffLink", getString("gb.commitdiff")));
 		} else {
-			add(new LinkPanel("parentLink", null, getShortObjectId(parents.get(0)),
-					CommitPage.class, newCommitParameter(parents.get(0))));
-			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff",
-					this, null), CommitDiffPage.class, WicketUtils.newObjectParameter(
-					repositoryName, objectId)));
+			add(new LinkPanel("parentLink", null, getShortObjectId(parents.get(0)), CommitPage.class,
+					newCommitParameter(parents.get(0))));
+			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff", this, null),
+					CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 		}
 		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
@@ -91,18 +92,17 @@ public class CommitPage extends RepositoryPage {
 
 		// author
 		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), Constants.SearchType.AUTHOR));
-		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(),
-				getTimeZone(), getTimeUtils()));
+		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(), getTimeZone(),
+				getTimeUtils()));
 
 		// committer
 		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), Constants.SearchType.COMMITTER));
-		add(WicketUtils.createTimestampLabel("commitCommitterDate",
-				c.getCommitterIdent().getWhen(), getTimeZone(), getTimeUtils()));
+		add(WicketUtils.createTimestampLabel("commitCommitterDate", c.getCommitterIdent().getWhen(), getTimeZone(),
+				getTimeUtils()));
 
 		add(new Label("commitId", c.getName()));
 
-		add(new LinkPanel("commitTree", "list", c.getTree().getName(), TreePage.class,
-				newCommitParameter()));
+		add(new LinkPanel("commitTree", "list", c.getTree().getName(), TreePage.class, newCommitParameter()));
 		add(new BookmarkablePageLink<Void>("treeLink", TreePage.class, newCommitParameter()));
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 
@@ -116,12 +116,9 @@ public class CommitPage extends RepositoryPage {
 			@Override
 			public void populateItem(final Item<String> item) {
 				String entry = item.getModelObject();
-				item.add(new LinkPanel("commitParent", "list", entry, CommitPage.class,
-						newCommitParameter(entry)));
-				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class,
-						newCommitParameter(entry)));
-				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class,
-						newCommitParameter(entry)));
+				item.add(new LinkPanel("commitParent", "list", entry, CommitPage.class, newCommitParameter(entry)));
+				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, newCommitParameter(entry)));
+				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, newCommitParameter(entry)));
 			}
 		};
 		add(parentsView);
@@ -138,13 +135,13 @@ public class CommitPage extends RepositoryPage {
 			public void populateItem(final Item<GitNote> item) {
 				GitNote entry = item.getModelObject();
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
-				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(),
-						Constants.SearchType.AUTHOR));
+				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(), Constants.SearchType.AUTHOR));
 				item.add(new AvatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
-				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
-						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
-				item.add(new Label("noteContent", bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName,
-						entry.content)).setEscapeModelStrings(false));
+				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef.getAuthorIdent().getWhen(),
+						getTimeZone(), getTimeUtils()));
+				item.add(new Label("noteContent",
+						bugtraqProcessor().processPlainCommitMessage(getRepository(), repositoryName, entry.content))
+								.setEscapeModelStrings(false));
 			}
 		};
 		add(notesView.setVisible(notes.size() > 0));
@@ -170,22 +167,21 @@ public class CommitPage extends RepositoryPage {
 			@Override
 			public void populateItem(final Item<PathChangeModel> item) {
 				final PathChangeModel entry = item.getModelObject();
-				
+
 				Label changeType = new Label("changeType", "");
 				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 				setChangeTypeTooltip(changeType, entry.changeType);
 				item.add(changeType);
 				item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
 				item.add(WicketUtils.setHtmlTooltip(new Label("filestore", ""), getString("gb.filestore"))
-									.setVisible(entry.isFilestoreItem()));
+						.setVisible(entry.isFilestoreItem()));
 
 				boolean hasSubmodule = false;
 				String submodulePath = null;
 				if (entry.isTree()) {
 					// tree
 					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class,
-							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, entry.path)));
+							WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				} else if (entry.isSubmodule()) {
 					// submodule
 					String submoduleId = entry.objectId;
@@ -193,9 +189,9 @@ public class CommitPage extends RepositoryPage {
 					submodulePath = submodule.gitblitPath;
 					hasSubmodule = submodule.hasSubmodule;
 
-					item.add(new LinkPanel("pathName", "list", entry.path + " @ " +
-							getShortObjectId(submoduleId), TreePage.class,
-							WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
+					item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId),
+							TreePage.class, WicketUtils.newPathParameter(submodulePath, submoduleId, ""))
+									.setEnabled(hasSubmodule));
 				} else {
 					// blob
 					String displayPath = entry.path;
@@ -204,125 +200,132 @@ public class CommitPage extends RepositoryPage {
 						path = JGitUtils.getStringContent(getRepository(), getCommit().getTree(), path);
 						displayPath = entry.path + " -> " + path;
 					}
-					
+
 					if (entry.isFilestoreItem()) {
 						item.add(new LinkPanel("pathName", "list", entry.path, new Link<Object>("link", null) {
-							 
+
 							private static final long serialVersionUID = 1L;
 
 							@Override
-						    public void onClick() {
-						 
-						    	 IResourceStream resourceStream = new AbstractResourceStreamWriter() {
-						    		 								    	
+							public void onClick() {
+
+								IResourceStream resourceStream = new AbstractResourceStreamWriter() {
+
 									private static final long serialVersionUID = 1L;
 
-									@Override 
-						    	      public void write(OutputStream output) {
-						    	   		 UserModel user =  GitBlitWebSession.get().getUser();
-									     user = user == null ? UserModel.ANONYMOUS : user;
-									    	
-						    	        app().filestore().downloadBlob(entry.getFilestoreOid(), user, getRepositoryModel(), output);
-						    	      }
-						    	  };
-						    	      
-						    	
-						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
-						    }}));
-						
-						
+									@Override
+									public void write(OutputStream output) {
+										UserModel user = GitBlitWebSession.get().getUser();
+										user = user == null ? UserModel.ANONYMOUS : user;
+
+										app().filestore().downloadBlob(entry.getFilestoreOid(), user,
+												getRepositoryModel(), output);
+									}
+								};
+
+								ResourceStreamRequestHandler resourceStreamRequestHandler = new ResourceStreamRequestHandler(
+										resourceStream, entry.path);
+								getRequestCycle().scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);
+							}
+						}));
+
 					} else {
 						item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
-							WicketUtils.newPathParameter(repositoryName, entry.commitId, path)));
+								WicketUtils.newPathParameter(repositoryName, entry.commitId, path)));
 					}
 				}
-
 
 				// quick links
 				if (entry.isSubmodule()) {
 					item.add(new ExternalLink("raw", "").setEnabled(false));
 
 					// submodule
-					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
-							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
-					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
-							.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
+					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class,
+							WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path))
+									.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class,
+							WicketUtils.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
 					item.add(new ExternalLink("blame", "").setEnabled(false));
-					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
-							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
+							WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path))
+									.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 				} else {
 					// tree or blob
-					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
-							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
-									&& !entry.changeType.equals(ChangeType.DELETE)));
-					
+					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class,
+							WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path))
+									.setEnabled(!entry.changeType.equals(ChangeType.ADD)
+											&& !entry.changeType.equals(ChangeType.DELETE)));
+
 					if (entry.isFilestoreItem()) {
 						item.add(new Link<Object>("view", null) {
-							 
+
 							private static final long serialVersionUID = 1L;
 
 							@Override
-						    public void onClick() {
-						 
-						    	 IResourceStream resourceStream = new AbstractResourceStreamWriter() {
-						    		 								    	
+							public void onClick() {
+
+								IResourceStream resourceStream = new AbstractResourceStreamWriter() {
+
 									private static final long serialVersionUID = 1L;
 
-									@Override 
-						    	      public void write(OutputStream output) {
-						    	   		 UserModel user =  GitBlitWebSession.get().getUser();
-									     user = user == null ? UserModel.ANONYMOUS : user;
-									    	
-						    	        app().filestore().downloadBlob(entry.getFilestoreOid(), user, getRepositoryModel(), output);
-						    	      }
-						    	  };
-						    	      
-						    	
-						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
-						    }});
-						
+									@Override
+									public void write(OutputStream output) {
+										UserModel user = GitBlitWebSession.get().getUser();
+										user = user == null ? UserModel.ANONYMOUS : user;
+
+										app().filestore().downloadBlob(entry.getFilestoreOid(), user,
+												getRepositoryModel(), output);
+									}
+								};
+
+								ResourceStreamRequestHandler resourceStreamRequestHandler = new ResourceStreamRequestHandler(
+										resourceStream, entry.path);
+								getRequestCycle().scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);
+							}
+						});
+
 						item.add(new Link<Object>("raw", null) {
-							 
+
 							private static final long serialVersionUID = 1L;
 
 							@Override
-						    public void onClick() {
-						 
-						    	 IResourceStream resourceStream = new AbstractResourceStreamWriter() {
-						    		 								    	
+							public void onClick() {
+
+								IResourceStream resourceStream = new AbstractResourceStreamWriter() {
+
 									private static final long serialVersionUID = 1L;
 
-									@Override 
-						    	      public void write(OutputStream output) {
-						    	   		 UserModel user =  GitBlitWebSession.get().getUser();
-									     user = user == null ? UserModel.ANONYMOUS : user;
-									    	
-						    	        app().filestore().downloadBlob(entry.getFilestoreOid(), user, getRepositoryModel(), output);
-						    	      }
-						    	  };
-						    	      
-						    	
-						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
-						    }});
-						    						
+									@Override
+									public void write(OutputStream output) {
+										UserModel user = GitBlitWebSession.get().getUser();
+										user = user == null ? UserModel.ANONYMOUS : user;
+
+										app().filestore().downloadBlob(entry.getFilestoreOid(), user,
+												getRepositoryModel(), output);
+									}
+								};
+
+								ResourceStreamRequestHandler resourceStreamRequestHandler = new ResourceStreamRequestHandler(
+										resourceStream, entry.path);
+								getRequestCycle().scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);
+							}
+						});
+
 					} else {
-						item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-								.newPathParameter(repositoryName, entry.commitId, entry.path))
-								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
+						item.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
+								WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path))
+										.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 						String rawUrl = RawServlet.asLink(getContextUrl(), repositoryName, entry.commitId, entry.path);
 						item.add(new ExternalLink("raw", rawUrl)
 								.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 					}
-					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
-							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
-									&& !entry.changeType.equals(ChangeType.DELETE)));
-					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
-							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
+							WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path))
+									.setEnabled(!entry.changeType.equals(ChangeType.ADD)
+											&& !entry.changeType.equals(ChangeType.DELETE)));
+					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
+							WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path))
+									.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 				}
 
 				WicketUtils.setAlternatingBackground(item, counter);

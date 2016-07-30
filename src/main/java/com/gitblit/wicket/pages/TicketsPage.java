@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.string.StringValue;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -87,7 +88,7 @@ public class TicketsPage extends RepositoryPage {
 		UserModel user = GitBlitWebSession.get().getUser();
 		boolean isAuthenticated = user != null && user.isAuthenticated;
 
-		final String [] statiiParam = params.getStringArray(Lucene.status.name());
+		final String [] statiiParam = (String[]) params.getValues(Lucene.status.name()).stream().map(StringValue::toString).toArray();
 		final String assignedToParam = params.get(Lucene.responsible.name()).toString(null);
 		final String milestoneParam = params.get(Lucene.milestone.name()).toString(null);
 		final String queryParam = params.get("q").toString(null);
