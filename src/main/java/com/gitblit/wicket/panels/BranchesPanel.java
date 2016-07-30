@@ -148,7 +148,7 @@ public class BranchesPanel extends BasePanel {
 					fragment.add(new ExternalLink("raw", rawUrl));
 					fragment.add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class, shortUniqRef));
 					fragment.add(new ExternalLink("syndication", SyndicationServlet.asLink(
-							getRequest().getRelativePathPrefixToContextRoot(), model.name,
+							GitBlitRequestUtils.getRelativePathPrefixToContextRoot(), model.name,
 							Repository.shortenRefName(entry.getName()), 0)));
 					if (showDelete) {
 						fragment.add(createDeleteBranchLink(model, entry));

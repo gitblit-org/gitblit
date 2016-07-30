@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -56,7 +57,7 @@ public abstract class BasePanel extends Panel {
 	}
 
 	protected String getContextUrl() {
-		return getRequest().getRelativePathPrefixToContextRoot();
+		return GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 	}
 
 	protected TimeZone getTimeZone() {

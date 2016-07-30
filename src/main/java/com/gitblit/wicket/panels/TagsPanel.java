@@ -32,6 +32,7 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.servlet.RawServlet;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -115,7 +116,7 @@ public class TagsPanel extends BasePanel {
 							.newObjectParameter(repositoryName, entry.getReferencedObjectId()
 									.getName())));
 
-					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
+					String contextUrl = GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 					String rawUrl = RawServlet.asLink(contextUrl, repositoryName, entry.displayName,
 							entry.getReferencedObjectId().getName());
 					fragment.add(new ExternalLink("raw", rawUrl));
