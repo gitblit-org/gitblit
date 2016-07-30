@@ -29,7 +29,7 @@ import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.Response;
-import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.value.IValueMap;
 
 /**
@@ -85,8 +85,8 @@ public abstract class ObjectContainer extends WebMarkupContainer {
 			parent = parent.getParent();
 		}
 		if (parent != null) {
-			ResourceReference resRef = new ResourceReference(parent.getClass(), src, false);
-			return (urlFor(resRef).toString());
+			PackageResourceReference resRef = new PackageResourceReference(parent.getClass(), src);
+			return (urlFor(resRef, getPage().getPageParameters()).toString());
 		}
 
 		return (src);
