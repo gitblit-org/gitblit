@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -32,7 +33,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.RequestUtils;
-//import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
@@ -43,6 +43,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.CommitCache;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
@@ -231,9 +232,8 @@ public class BranchesPanel extends BasePanel {
 
 				// redirect to the owning page
 				PageParameters params = WicketUtils.newRepositoryParameter(repositoryModel.name);
-				String relativeUrl = urlFor(getPage().getClass(), params).toString();
-				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
-				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+				String absoluteUrl = GitBlitRequestUtils.toAbsoluteUrl(getPage().getClass(), params);
+				getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 			}
 		};
 

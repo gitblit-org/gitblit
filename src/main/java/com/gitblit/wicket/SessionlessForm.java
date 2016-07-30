@@ -30,6 +30,7 @@ import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.wicket.pages.BasePage;
 
 /**
@@ -152,8 +153,6 @@ public class SessionlessForm<T> extends StatelessForm<T> {
 	}
 
 	protected String getAbsoluteUrl(Class<? extends BasePage> pageClass, PageParameters pageParameters) {
-		String relativeUrl = urlFor(pageClass, pageParameters).toString();
-		String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
-		return absoluteUrl;
+		return GitBlitRequestUtils.toAbsoluteUrl(pageClass, pageParameters);
 	}
 }

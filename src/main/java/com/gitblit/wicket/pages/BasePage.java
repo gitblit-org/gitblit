@@ -38,6 +38,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.Page;
 import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.CssPackageResource;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
@@ -49,7 +50,6 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
-import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.util.time.Duration;
 import org.apache.wicket.util.time.Time;
 import org.slf4j.Logger;
@@ -113,9 +113,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	protected String getCanonicalUrl(Class<? extends BasePage> clazz, PageParameters params) {
-		String relativeUrl = urlFor(clazz, params).toString();
-		String canonicalUrl = RequestUtils.toAbsolutePath(relativeUrl);
-		return canonicalUrl;
+		return GitBlitRequestUtils.toAbsoluteUrl(clazz, params);
 	}
 
 	protected void redirectTo(Class<? extends BasePage> pageClass) {
@@ -124,7 +122,7 @@ public abstract class BasePage extends SessionPage {
 
 	protected void redirectTo(Class<? extends BasePage> pageClass, PageParameters parameters) {
 		String absoluteUrl = getCanonicalUrl(pageClass, parameters);
-		getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+		getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 	}
 
 	protected String getLanguageCode() {
@@ -230,7 +228,7 @@ public abstract class BasePage extends SessionPage {
 		int expires = app().settings().getInteger(Keys.web.pageCacheExpires, 0);
 		WebResponse response = (WebResponse) getResponse();
 		response.setLastModifiedTime(Time.valueOf(when));
-		response.setDateHeader("Expires", System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds());
+		response.addHeader("Expires", String.valueOf(System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds()));
 	}
 
 	protected String getPageTitle(String repositoryName) {
@@ -469,8 +467,7 @@ public abstract class BasePage extends SessionPage {
 		}
 		if (toPage != null) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
-			String relativeUrl = urlFor(toPage, params).toString();
-			String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+			String absoluteUrl = GitBlitRequestUtils.toAbsoluteUrl(toPage, params);
 			throw new RedirectToUrlException(absoluteUrl);
 		} else {
 			super.error(message);
@@ -478,7 +475,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	public void authenticationError(String message) {
-		logger().error(getRequest().getURL() + " for " + GitBlitWebSession.get().getUsername());
+		logger().error(getRequest().getUrl() + " for " + GitBlitWebSession.get().getUsername());
 		if (!GitBlitWebSession.get().isLoggedIn()) {
 			// cache the request if we have not authenticated.
 			// the request will continue after authentication.

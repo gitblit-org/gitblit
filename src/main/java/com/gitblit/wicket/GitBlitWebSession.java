@@ -34,6 +34,7 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.gitblit.GitBlitServer.Params;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.GitBlitRequestUtils;
 
 public final class GitBlitWebSession extends WebSession {
 
@@ -73,10 +74,8 @@ public final class GitBlitWebSession extends WebSession {
 		params.getParameterNames().forEach(name->{
 			pageParams.add(name, params.getParameterValue(name));
 		});
-		String relativeUrl = RequestCycle.get().urlFor(pageClass, pageParams).toString();
-		requestUrl = RequestUtils.toAbsolutePath(relativeUrl);
-//		String relativeUrl = RequestCycle.get().urlFor(pageClass, pageParams).toString();
-//		requestUrl = RequestCycle.get().getUrlRenderer().renderFullUrl(Url.parse(relativeUrl));
+		requestUrl = GitBlitRequestUtils.toAbsoluteUrl(pageClass, pageParams);
+
 		
 		if (isTemporary())
 		{

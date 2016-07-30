@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.basic.Label;
@@ -37,7 +38,6 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-//import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
@@ -63,6 +63,7 @@ import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.BugtraqProcessor;
 import com.gitblit.utils.DeepCopier;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.RefLogUtils;
@@ -763,7 +764,7 @@ public abstract class RepositoryPage extends RootPage {
 			if (StringUtils.isEmpty(searchString)) {
 				// redirect to self to avoid wicket page update bug
 				String absoluteUrl = getCanonicalUrl();
-				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+				getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 				return;
 			}
 			for (Constants.SearchType type : Constants.SearchType.values()) {
@@ -785,7 +786,7 @@ public abstract class RepositoryPage extends RootPage {
 			// mounted url parameters (issue-111)
 			PageParameters params = WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType);
 			String absoluteUrl = getCanonicalUrl(searchPageClass, params);
-			getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+			getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 		}
 	}
 }

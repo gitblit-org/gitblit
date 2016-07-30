@@ -18,11 +18,11 @@ package com.gitblit.wicket.panels;
 import java.io.Serializable;
 import java.text.MessageFormat;
 
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-//import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.SessionlessForm;
@@ -64,7 +64,7 @@ public class TicketSearchForm extends SessionlessForm<Void> implements Serializa
 		if (StringUtils.isEmpty(searchString)) {
 			// redirect to self to avoid wicket page update bug
 			String absoluteUrl = getAbsoluteUrl();
-			getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+			getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 			return;
 		}
 
@@ -73,6 +73,6 @@ public class TicketSearchForm extends SessionlessForm<Void> implements Serializa
 		PageParameters params = WicketUtils.newRepositoryParameter(repositoryName);
 		params.add("s", searchString);
 		String absoluteUrl = getAbsoluteUrl(pageClass, params);
-		getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+		getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 	}
 }

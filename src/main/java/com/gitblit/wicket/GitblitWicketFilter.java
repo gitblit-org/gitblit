@@ -129,7 +129,7 @@ public class GitblitWicketFilter extends WicketFilter {
 
 		repo = repo.replace("%2f", "/").replace("%2F", "/").replace(settings.getChar(Keys.web.forwardSlashCharacter, '/'), '/');
 
-		GitBlitWebApp app = (GitBlitWebApp) getWebApplication();
+		GitBlitWebApp app = (GitBlitWebApp) getApplication();
 		int expires = settings.getInteger(Keys.web.pageCacheExpires, 0);
 		if (!StringUtils.isEmpty(page) && app.isCacheablePage(page) && expires > 0) {
 			// page can be cached by the browser

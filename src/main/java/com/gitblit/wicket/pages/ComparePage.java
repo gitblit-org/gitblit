@@ -19,6 +19,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -33,7 +34,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.RequestUtils;
-//import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -45,6 +45,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.DiffUtils.DiffComparator;
 import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
@@ -236,12 +237,11 @@ public class ComparePage extends RepositoryPage {
 
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
 				if (ignoreWS) {
-					params.put("w", 1);
+					params.add("w", 1);
 				}
 
-				String relativeUrl = urlFor(ComparePage.class, params).toString();
-				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
-				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+				String absoluteUrl = GitBlitRequestUtils.toAbsoluteUrl(ComparePage.class, params);
+				getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 			}
 		};
 
@@ -278,11 +278,10 @@ public class ComparePage extends RepositoryPage {
 
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
 				if (ignoreWS) {
-					params.put("w", 1);
+					params.add("w", 1);
 				}
-				String relativeUrl = urlFor(ComparePage.class, params).toString();
-				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
-				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+				String absoluteUrl = GitBlitRequestUtils.toAbsoluteUrl(ComparePage.class, params);
+				getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 			}
 		};
 

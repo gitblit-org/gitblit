@@ -1722,8 +1722,7 @@ public class TicketPage extends RepositoryPage {
 				}
 				
 				//Force reload of the page to rebuild ticket change cache
-				String relativeUrl = urlFor(TicketsPage.class, getPageParameters()).toString();
-				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+				String absoluteUrl = GitBlitRequestUtils.toAbsoluteUrl(TicketsPage.class, getPageParameters());
 				setResponsePage(new RedirectPage(absoluteUrl));
 			}
 		};
