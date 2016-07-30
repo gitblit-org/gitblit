@@ -18,12 +18,11 @@ package com.gitblit.wicket.charting;
 import javax.servlet.ServletContext;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
-import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.resource.ContextRelativeResource;
-import org.apache.wicket.request.resource.ContextRelativeResourceReference;
+import org.apache.wicket.request.resource.PackageResourceReference;
 
 /**
  * Concrete class for Flotr2 charts
@@ -39,17 +38,12 @@ public class Flotr2Charts extends Charts {
 	public void renderHead(Component component, IHeaderResponse response) {
 
 		// add Google Chart JS API reference
-		ServletContext servletContext = WebApplication.get().getServletContext();
-		String contextPath = servletContext.getContextPath();
-
-		response.render(JavaScriptHeaderItem.forReference(new ContextRelativeResourceReference(contextPath + "/bootstrap/js/jquery.js", false)));
-		response.render(JavaScriptHeaderItem.forReference(new ContextRelativeResourceReference(contextPath + "/flotr2/flotr2.min.js", false)));
-		response.render(JavaScriptHeaderItem.forReference(new ContextRelativeResourceReference(contextPath + "/flotr2/flotr2.custom.css", false)));
+		response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(Flotr2Charts.class, "flotr2.min.js")));
+		response.render(CssHeaderItem.forReference(new PackageResourceReference(Flotr2Charts.class, "flotr2.custom.css")));
 
 		// prepare draw chart function
 		StringBuilder sb = new StringBuilder();
 
-//		line(sb, "$( document ).ready(function() {");
 		line(sb, "try {");
 		// add charts to header
 		for (Chart chart : charts) {
@@ -62,7 +56,6 @@ public class Flotr2Charts extends Charts {
 		line(sb, "  }");
 		line(sb, "}");
 		// end draw chart function
-//		line(sb, "});");
 		response.render(OnDomReadyHeaderItem.forScript(sb.toString()));
 	}
 

@@ -81,8 +81,6 @@ import com.gitblit.wicket.panels.AvatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
 
-import de.akquinet.devops.GitBlitServer4UITests;
-
 /**
  * Root page is a topbar, navigable page like Repositories, Users, or
  * Federation.
@@ -91,6 +89,8 @@ import de.akquinet.devops.GitBlitServer4UITests;
  *
  */
 public abstract class RootPage extends BasePage {
+
+	private static final long serialVersionUID = 1L;
 
 	boolean showAdmin;
 

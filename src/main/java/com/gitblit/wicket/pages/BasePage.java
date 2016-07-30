@@ -38,7 +38,7 @@ import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.CssResourceReference;
+import org.apache.wicket.request.resource.ContextRelativeResourceReference;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -78,12 +78,12 @@ public abstract class BasePage extends SessionPage {
 
 	public BasePage() {
 		super();
-//		customizeHeader();
+		// customizeHeader();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
-//		customizeHeader();
+		// customizeHeader();
 	}
 
 	protected Logger logger() {
@@ -93,25 +93,15 @@ public abstract class BasePage extends SessionPage {
 		return logger;
 	}
 
-//	private void customizeHeader() {
-//		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
-//			add(CssPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
-//		}
-//		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
-//			add(CssPackageResource.getHeaderContribution("hideheader.css"));
-//		}
-//	}
-	
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
-//			add(CssPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
-			response.render(CssHeaderItem.forReference(new CssResourceReference(Application.class, "bootstrap/css/bootstrap-responsive.css")));
+			response.render(CssHeaderItem.forReference(
+					new ContextRelativeResourceReference("/bootstrap/css/bootstrap-responsive.css", false)));
 		}
 		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
-//			add(CssPackageResource.getHeaderContribution("hideheader.css"));
-			response.render(CssHeaderItem.forReference(new CssResourceReference(Application.class, "hideheader.css")));
+			response.render(CssHeaderItem.forReference(new ContextRelativeResourceReference("/hideheader.css", false)));
 		}
 	}
 
@@ -148,7 +138,8 @@ public abstract class BasePage extends SessionPage {
 		if (timeUtils == null) {
 			ResourceBundle bundle;
 			try {
-				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", GitBlitWebSession.get().getLocale());
+				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp",
+						GitBlitWebSession.get().getLocale());
 			} catch (Throwable t) {
 				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp");
 			}
@@ -176,7 +167,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	@Override
-	protected void setHeaders(WebResponse response)	{
+	protected void setHeaders(WebResponse response) {
 		// set canonical link as http header for SEO (issue-304)
 		// https://support.google.com/webmasters/answer/139394?hl=en
 		response.setHeader("Link", MessageFormat.format("<{0}>; rel=\"canonical\"", getCanonicalUrl()));
@@ -196,7 +187,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	/**
-	 * Sets the last-modified header date, if appropriate, for this page.  The
+	 * Sets the last-modified header date, if appropriate, for this page. The
 	 * date used is determined by the CacheControl annotation.
 	 *
 	 */
@@ -239,7 +230,8 @@ public abstract class BasePage extends SessionPage {
 		int expires = app().settings().getInteger(Keys.web.pageCacheExpires, 0);
 		WebResponse response = (WebResponse) getResponse();
 		response.setLastModifiedTime(Time.valueOf(when));
-		response.addHeader("Expires", String.valueOf(System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds()));
+		response.addHeader("Expires",
+				String.valueOf(System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds()));
 	}
 
 	protected String getPageTitle(String repositoryName) {
@@ -257,7 +249,8 @@ public abstract class BasePage extends SessionPage {
 	protected void setupPage(String repositoryName, String pageName) {
 		add(new Label("title", getPageTitle(repositoryName)));
 		getBottomScriptContainer();
-		String rootLinkUrl = app().settings().getString(Keys.web.rootLink, urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
+		String rootLinkUrl = app().settings().getString(Keys.web.rootLink,
+				urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
 		ExternalLink rootLink = new ExternalLink("rootLink", rootLinkUrl);
 		WicketUtils.setHtmlTooltip(rootLink, app().settings().getString(Keys.web.siteName, Constants.NAME));
 		add(rootLink);
@@ -359,8 +352,8 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	protected TimeZone getTimeZone() {
-		return app().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
-				.getTimezone() : app().getTimezone();
+		return app().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get().getTimezone()
+				: app().getTimezone();
 	}
 
 	protected String getServerName() {
@@ -472,9 +465,9 @@ public abstract class BasePage extends SessionPage {
 
 	public void error(String message, Throwable t, Class<? extends Page> toPage, PageParameters params) {
 		if (t == null) {
-			logger().error(message  + " for " + GitBlitWebSession.get().getUsername());
+			logger().error(message + " for " + GitBlitWebSession.get().getUsername());
 		} else {
-			logger().error(message  + " for " + GitBlitWebSession.get().getUsername(), t);
+			logger().error(message + " for " + GitBlitWebSession.get().getUsername(), t);
 		}
 		if (toPage != null) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
@@ -528,10 +521,12 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	/**
-	 * Adds a HTML script element loading the javascript designated by the given path.
+	 * Adds a HTML script element loading the javascript designated by the given
+	 * path.
 	 *
 	 * @param scriptPath
-	 *            page-relative path to the Javascript resource; normally starts with "scripts/"
+	 *            page-relative path to the Javascript resource; normally starts
+	 *            with "scripts/"
 	 */
 	protected void addBottomScript(String scriptPath) {
 		RepeatingView bottomScripts = getBottomScriptContainer();
