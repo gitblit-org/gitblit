@@ -39,6 +39,7 @@ import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.ByteFormat;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -64,7 +65,7 @@ public class TreePage extends RepositoryPage {
 		// tree page links
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, path)));
-		add(new CompressedDownloadsPanel("compressedLinks", getRequest()
+		add(new CompressedDownloadsPanel("compressedLinks", GitBlitRequestUtils
 				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, path));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));

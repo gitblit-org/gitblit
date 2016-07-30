@@ -105,7 +105,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	protected String getContextUrl() {
-		return getRequest().getRelativePathPrefixToContextRoot();
+		return GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 	}
 
 	protected String getCanonicalUrl() {

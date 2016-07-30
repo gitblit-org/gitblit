@@ -168,7 +168,7 @@ public abstract class RepositoryPage extends RootPage {
 		NavigationPanel navigationPanel = new NavigationPanel("repositoryNavPanel", getRepoNavPageClass(), navLinks);
 		add(navigationPanel);
 
-		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
+		add(new ExternalLink("syndication", SyndicationServlet.asLink(GitBlitRequestUtils
 				.getRelativePathPrefixToContextRoot(), getRepositoryName(), null, 0)));
 
 		// add floating search form
@@ -246,7 +246,7 @@ public abstract class RepositoryPage extends RootPage {
 		// per-repository extra navlinks
 		if (JGitUtils.getPagesBranch(r) != null) {
 			ExternalNavLink pagesLink = new ExternalNavLink("gb.pages", PagesServlet.asLink(
-					getRequest().getRelativePathPrefixToContextRoot(), getRepositoryName(), null), true);
+					GitBlitRequestUtils.getRelativePathPrefixToContextRoot(), getRepositoryName(), null), true);
 			navLinks.add(pagesLink);
 		}
 
@@ -426,7 +426,7 @@ public abstract class RepositoryPage extends RootPage {
 
 	protected void addSyndicationDiscoveryLink() {
 		add(WicketUtils.syndicationDiscoveryLink(SyndicationServlet.getTitle(repositoryName,
-				objectId), SyndicationServlet.asLink(getRequest()
+				objectId), SyndicationServlet.asLink(GitBlitRequestUtils
 				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, 0)));
 	}
 

@@ -31,6 +31,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -158,7 +159,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(new Label("repositorySize", localizer.getString("gb.empty", parent)).setEscapeModelStrings(false));
 		}
 
-		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
+		add(new ExternalLink("syndication", SyndicationServlet.asLink(GitBlitRequestUtils
 				.getRelativePathPrefixToContextRoot(), entry.name, null, 0)));
 	}
 }

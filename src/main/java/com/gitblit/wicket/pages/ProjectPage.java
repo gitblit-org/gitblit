@@ -35,6 +35,7 @@ import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.servlet.SyndicationServlet;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
@@ -107,7 +108,7 @@ public class ProjectPage extends DashboardPage {
 		add(new Label("projectTitle", project.getDisplayName()));
 		add(new Label("projectDescription", project.description));
 
-		String feedLink = SyndicationServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), projectName, null, 0);
+		String feedLink = SyndicationServlet.asLink(GitBlitRequestUtils.getRelativePathPrefixToContextRoot(), projectName, null, 0);
 		add(new ExternalLink("syndication", feedLink));
 
 		add(WicketUtils.syndicationDiscoveryLink(SyndicationServlet.getTitle(project.getDisplayName(),

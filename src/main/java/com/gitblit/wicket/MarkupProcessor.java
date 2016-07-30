@@ -57,6 +57,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.servlet.RawServlet;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -268,7 +269,7 @@ public class MarkupProcessor {
 				if (imagePath.indexOf("://") == -1) {
 					// relative image
 					String path = doc.getRelativePath(imagePath);
-					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
+					String contextUrl = GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 					url = RawServlet.asLink(contextUrl, repositoryName, commitId, path);
 				} else {
 					// absolute image
@@ -325,7 +326,7 @@ public class MarkupProcessor {
 				if (node.url.indexOf("://") == -1) {
 					// repository-relative image link
 					String path = doc.getRelativePath(node.url);
-					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
+					String contextUrl = GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 					String url = RawServlet.asLink(contextUrl, repositoryName, commitId, path);
 					return new Rendering(url, text);
 				}
@@ -339,7 +340,7 @@ public class MarkupProcessor {
 				if (url.indexOf("://") == -1) {
 					// repository-relative image link
 					String path = doc.getRelativePath(url);
-					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
+					String contextUrl = GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 					String wurl = RawServlet.asLink(contextUrl, repositoryName, commitId, path);
 					rendering = new Rendering(wurl, alt);
 				} else {
