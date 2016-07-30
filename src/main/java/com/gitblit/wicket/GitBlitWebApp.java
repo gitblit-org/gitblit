@@ -282,8 +282,11 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		if (!settings.getBoolean(Keys.web.mountParameters, true)) {
 			parameters = new String[] {};
 		}
-		mount(new GitblitParamUrlCodingStrategy(settings, xssFilter, location, clazz, parameters));
-
+		//TODO: check if needed with wichet-7
+//		mount(new GitblitParamUrlCodingStrategy(settings, xssFilter, location, clazz, parameters));
+		mount(location, clazz, parameters);
+		
+		
 		// map the mount point to the cache control definition
 		if (clazz.isAnnotationPresent(CacheControl.class)) {
 			CacheControl cacheControl = clazz.getAnnotation(CacheControl.class);
