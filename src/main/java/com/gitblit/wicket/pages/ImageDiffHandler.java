@@ -15,11 +15,10 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.util.encoding.UrlDecoder;
+import org.apache.wicket.request.Url;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.util.encoding.UrlEncoder;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.Side;
@@ -147,8 +146,8 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 	 * Returns a URL that will fetch the designated static resource from within GitBlit.
 	 */
 	protected String getStaticResourceUrl(String contextRelativePath) {
-		return WebApplication.get().getRequestCycleProcessor().getRequestCodingStrategy().rewriteStaticRelativeUrl(contextRelativePath);
-	}
+		return RequestCycle.get().getUrlRenderer().renderFullUrl(Url.parse(contextRelativePath));
+		}
 
 	/**
 	 * Encode a URL component of a {@link RawServlet} URL in the special way that the servlet expects it. Note that

@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
@@ -40,16 +38,14 @@ import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.CssPackageResource;
+import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
-import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.markup.repeater.RepeatingView;
-import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.util.time.Duration;
 import org.apache.wicket.util.time.Time;
 import org.slf4j.Logger;
@@ -74,18 +70,20 @@ import com.gitblit.wicket.WicketUtils;
 
 public abstract class BasePage extends SessionPage {
 
+	private static final long serialVersionUID = 1L;
+
 	private transient Logger logger;
 
 	private transient TimeUtils timeUtils;
 
 	public BasePage() {
 		super();
-		customizeHeader();
+//		customizeHeader();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
-		customizeHeader();
+//		customizeHeader();
 	}
 
 	protected Logger logger() {
@@ -95,12 +93,25 @@ public abstract class BasePage extends SessionPage {
 		return logger;
 	}
 
-	private void customizeHeader() {
+//	private void customizeHeader() {
+//		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
+//			add(CssPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
+//		}
+//		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
+//			add(CssPackageResource.getHeaderContribution("hideheader.css"));
+//		}
+//	}
+	
+	@Override
+	public void renderHead(IHeaderResponse response) {
+		super.renderHead(response);
 		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
-			add(CssPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
+//			add(CssPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
+			response.render(CssHeaderItem.forReference(new CssResourceReference(Application.class, "bootstrap/css/bootstrap-responsive.css")));
 		}
 		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
-			add(CssPackageResource.getHeaderContribution("hideheader.css"));
+//			add(CssPackageResource.getHeaderContribution("hideheader.css"));
+			response.render(CssHeaderItem.forReference(new CssResourceReference(Application.class, "hideheader.css")));
 		}
 	}
 
@@ -525,7 +536,7 @@ public abstract class BasePage extends SessionPage {
 	protected void addBottomScript(String scriptPath) {
 		RepeatingView bottomScripts = getBottomScriptContainer();
 		Label script = new Label(bottomScripts.newChildId(), "<script type='text/javascript' src='"
-				+ urlFor(new JavaScriptResourceReference(this.getClass(), scriptPath)) + "'></script>\n");
+				+ urlFor(new JavaScriptResourceReference(this.getClass(), scriptPath), null) + "'></script>\n");
 		bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
 	}
 

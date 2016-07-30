@@ -79,6 +79,8 @@ import com.gitblit.wicket.panels.TextOption;
 
 public class EditRepositoryPage extends RootSubPage {
 
+	private static final long serialVersionUID = 1L;
+
 	private final boolean isCreate;
 
 	RepositoryNamePanel namePanel;
@@ -388,7 +390,6 @@ public class EditRepositoryPage extends RootSubPage {
 					error(e.getMessage());
 					return;
 				}
-				setRedirect(false);
 				setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryModel.name));
 			}
 		};

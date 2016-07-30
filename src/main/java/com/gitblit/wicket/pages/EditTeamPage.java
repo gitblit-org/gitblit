@@ -208,7 +208,6 @@ public class EditTeamPage extends RootSubPage {
 					error(e.getMessage());
 					return;
 				}
-				setRedirect(false);
 				if (isCreate) {
 					// create another team
 					info(MessageFormat.format(getString("gb.teamCreated"),

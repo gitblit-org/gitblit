@@ -21,7 +21,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.wicket.Application;
 import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.Session;
 import org.apache.wicket.application.IClassResolver;
@@ -284,7 +283,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		}
 		//TODO: check if needed with wichet-7
 //		mount(new GitblitParamUrlCodingStrategy(settings, xssFilter, location, clazz, parameters));
-		mount(location, clazz, parameters);
+		mountPage(location, clazz);
 		
 		
 		// map the mount point to the cache control definition

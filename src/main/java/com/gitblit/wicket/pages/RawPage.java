@@ -24,8 +24,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.IRequestCycle;
+import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -46,6 +46,8 @@ import com.gitblit.wicket.WicketUtils;
 
 public class RawPage extends SessionPage {
 
+	private static final long serialVersionUID = 1L;
+
 	private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
 	String contentType;
@@ -58,13 +60,10 @@ public class RawPage extends SessionPage {
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 
-		getRequestCycle().setRequestTarget(new IRequestTarget() {
-			@Override
-			public void detach(RequestCycle requestCycle) {
-			}
+		getRequestCycle().scheduleRequestHandlerAfterCurrent(new IRequestHandler() {
 
 			@Override
-			public void respond(RequestCycle requestCycle) {
+			public void respond(IRequestCycle requestCycle) {
 				WebResponse response = (WebResponse) requestCycle.getResponse();
 
 				final String repositoryName = WicketUtils.getRepositoryName(params);
@@ -173,7 +172,6 @@ public class RawPage extends SessionPage {
 							response.setContentType(contentType);
 
 						    try {
-						    	WebRequest request = (WebRequest) requestCycle.getRequest();
 						    	String userAgent = GitBlitRequestUtils.getServletRequest().getHeader("User-Agent");
 
 								if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
@@ -233,7 +231,15 @@ public class RawPage extends SessionPage {
 				}
 				r.close();
 			}
+
+			@Override
+			public void detach(IRequestCycle requestCycle) {
+				// TODO Auto-generated method stub
+				
+			}
+
 		});
+		
 	}
 
 	@Override

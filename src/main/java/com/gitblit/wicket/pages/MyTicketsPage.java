@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.string.StringValue;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
@@ -56,7 +57,9 @@ import com.gitblit.wicket.panels.UserTitlePanel;
  */
 public class MyTicketsPage extends RootPage {
 
-    public MyTicketsPage() {
+	private static final long serialVersionUID = 1L;
+
+	public MyTicketsPage() {
         this(null);
     }
 
@@ -66,14 +69,13 @@ public class MyTicketsPage extends RootPage {
 
         UserModel currentUser = GitBlitWebSession.get().getUser();
         if (currentUser == null || UserModel.ANONYMOUS.equals(currentUser)) {
-            setRedirect(true);
             setResponsePage(getApplication().getHomePage());
             return;
         }
 
         final String username = currentUser.getName();
 
-        final String[] statiiParam = (params == null) ? TicketsUI.openStatii : params.getStringArray(Lucene.status.name());
+        final String[] statiiParam = (params == null) ? TicketsUI.openStatii : (String[]) params.getValues(Lucene.status.name()).stream().map(StringValue::toString).toArray();
         final String assignedToParam = (params == null) ? "" : params.get(Lucene.responsible.name()).toString();
         final String milestoneParam = (params == null) ? "" : params.get(Lucene.milestone.name()).toString();
         final String queryParam = (params == null) ? null : params.get("q").toString();

@@ -127,7 +127,7 @@ public class BlobPage extends RepositoryPage {
 				case 3:
 					// binary blobs
 					add(new Label("blobText", "Binary File"));
-					add(new Image("blobImage").setVisible(false));
+					add(new Image("blobImage", "blobImage").setVisible(false));
 					break;
 				default:
 					// plain text
@@ -140,7 +140,7 @@ public class BlobPage extends RepositoryPage {
 						addBottomScriptInline("jQuery(prettyPrint);");
 					}
 					add(new Label("blobText", table).setEscapeModelStrings(false));
-					add(new Image("blobImage").setVisible(false));
+					add(new Image("blobImage", "blobImage").setVisible(false));
 					fileExtension = extension;
 				}
 			} else {
@@ -154,7 +154,7 @@ public class BlobPage extends RepositoryPage {
 					addBottomScriptInline("jQuery(prettyPrint);");
 				}
 				add(new Label("blobText", table).setEscapeModelStrings(false));
-				add(new Image("blobImage").setVisible(false));
+				add(new Image("blobImage", "blobImage").setVisible(false));
 			}
 		}
 	}

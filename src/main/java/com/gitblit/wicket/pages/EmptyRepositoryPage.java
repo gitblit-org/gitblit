@@ -33,6 +33,8 @@ import com.gitblit.wicket.panels.RepositoryUrlPanel;
 
 public class EmptyRepositoryPage extends RepositoryPage {
 
+	private static final long serialVersionUID = 1L;
+
 	public EmptyRepositoryPage(PageParameters params) {
 		super(params);
 

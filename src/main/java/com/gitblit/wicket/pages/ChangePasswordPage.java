@@ -33,6 +33,8 @@ import com.gitblit.wicket.NonTrimmedPasswordTextField;
 
 public class ChangePasswordPage extends RootSubPage {
 
+	private static final long serialVersionUID = 1L;
+
 	IModel<String> password = new Model<String>("");
 	IModel<String> confirmPassword = new Model<String>("");
 
@@ -106,7 +108,6 @@ public class ChangePasswordPage extends RootSubPage {
 					error(e.getMessage());
 					return;
 				}
-				setRedirect(false);
 				info(getString("gb.passwordChanged"));
 				setResponsePage(RepositoriesPage.class);
 			}
@@ -125,7 +126,6 @@ public class ChangePasswordPage extends RootSubPage {
 
 			@Override
 			public void onSubmit() {
-				setRedirect(false);
 				error(getString("gb.passwordChangeAborted"));
 				setResponsePage(RepositoriesPage.class);
 			}

@@ -42,7 +42,6 @@ public class LogoutPage extends BasePage {
 			setupPage(null, getString("gb.logout"));
 
 		} else {
-//			setRedirect(true);
 //			setResponsePage(getApplication().getHomePage());
 			throw new RestartResponseException(getApplication().getHomePage());
 		} // not via WWW-Auth
