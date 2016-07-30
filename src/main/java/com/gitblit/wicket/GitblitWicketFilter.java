@@ -81,6 +81,12 @@ public class GitblitWicketFilter extends WicketFilter {
 			public WebApplication createApplication(WicketFilter filter) {
 				return webapp;
 			}
+
+			@Override
+			public void destroy(WicketFilter filter) {
+				// TODO Auto-generated method stub
+				
+			}
 		};
 	}
 
