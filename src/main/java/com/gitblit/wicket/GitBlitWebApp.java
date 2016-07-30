@@ -117,6 +117,7 @@ import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
 import com.gitblit.wicket.resources.bootstrap.Bootstrap;
+import com.gitblit.wicket.resources.fontawesome.FontAwesome;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -267,7 +268,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		// filestore URL
 		mount("/filestore", FilestorePage.class);
 		Bootstrap.install(this);
-
+		FontAwesome.install(this);
 		
 		// allow started Wicket plugins to initialize
 		for (PluginWrapper pluginWrapper : pluginManager.getPlugins()) {
