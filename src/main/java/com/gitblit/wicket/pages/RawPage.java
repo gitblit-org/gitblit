@@ -34,6 +34,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -177,13 +178,13 @@ public class RawPage extends SessionPage {
 
 								if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
 								      response.setHeader("Content-Disposition", "filename=\""
-								    		  +  URLEncoder.encode(filename, "UTF-8") + "\"");
+								    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
 								} else if (userAgent != null && userAgent.indexOf("MSIE") > -1) {
 								      response.setHeader("Content-Disposition", "attachment; filename=\""
-								    		  +  URLEncoder.encode(filename, "UTF-8") + "\"");
+								    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
 								} else {
 										response.setHeader("Content-Disposition", "attachment; filename=\""
-										      + new String(filename.getBytes("UTF-8"), "latin1") + "\"");
+										      + new String(filename.getBytes(Constants.ENCODING), "latin1") + "\"");
 								}
 							}
 							catch (UnsupportedEncodingException e) {

@@ -53,6 +53,7 @@ import org.pegdown.plugins.ToHtmlSerializerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
@@ -369,7 +370,7 @@ public class MarkupProcessor {
 		String fsc = settings.getString(Keys.web.forwardSlashCharacter, "/");
 		String encodedPath = document.replace(' ', '-');
 		try {
-			encodedPath = URLEncoder.encode(encodedPath, "UTF-8");
+			encodedPath = URLEncoder.encode(encodedPath, Constants.ENCODING);
 		} catch (UnsupportedEncodingException e) {
 			logger.error(null, e);
 		}
