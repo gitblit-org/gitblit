@@ -15,39 +15,20 @@
  */
 package com.gitblit.wicket;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.sshd.server.ServerBuilder;
 import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.Session;
 import org.apache.wicket.application.IClassResolver;
-import org.apache.wicket.core.util.file.WebApplicationPath;
-import org.apache.wicket.core.util.resource.ClassPathResourceFinder;
-import org.apache.wicket.core.util.resource.UrlResourceStream;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.request.resource.SharedResourceReference;
-import org.apache.wicket.request.resource.IResource.Attributes;
-import org.apache.wicket.request.resource.PackageResourceReference;
-import org.apache.wicket.util.file.IResourceFinder;
-import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.string.StringValue;
 import org.apache.wicket.util.time.Duration;
 
 import ro.fortsoft.pf4j.PluginState;
@@ -119,6 +100,7 @@ import com.gitblit.wicket.pages.UsersPage;
 import com.gitblit.wicket.resources.StaticResources;
 import com.gitblit.wicket.resources.bootstrap.Bootstrap;
 import com.gitblit.wicket.resources.fontawesome.FontAwesome;
+import com.gitblit.wicket.resources.octicons.Octicons;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -270,6 +252,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		mount("/filestore", FilestorePage.class);
 		Bootstrap.install(this);
 		FontAwesome.install(this);
+		Octicons.install(this);
 		StaticResources.install(this);
 		
 		// allow started Wicket plugins to initialize
