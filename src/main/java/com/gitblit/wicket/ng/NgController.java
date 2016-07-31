@@ -17,13 +17,16 @@ package com.gitblit.wicket.ng;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.resource.JQueryResourceReference;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -56,7 +59,16 @@ public class NgController extends Behavior {
 	@Override
 	public void renderHead(Component component, IHeaderResponse response) {
 		// add Google AngularJS reference
-		response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(NgController.class, "angular.js")));
+		response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(NgController.class, "angular.js"){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<HeaderItem> getDependencies() {
+				List<HeaderItem> deps = super.getDependencies();
+				deps.add(JavaScriptHeaderItem.forReference(JQueryResourceReference.get()));
+				return deps;
+			}
+		}));
 
 		Gson gson = new GsonBuilder().create();
 
@@ -71,7 +83,7 @@ public class NgController extends Behavior {
 		}
 		line(sb, "}");
 
-		response.render(JavaScriptHeaderItem.forScript(sb.toString(), "angularController"));
+		response.render(JavaScriptHeaderItem.forScript(sb.toString(), "angularController-"+name));
 	}
 
 	private void line(StringBuilder sb, String line) {

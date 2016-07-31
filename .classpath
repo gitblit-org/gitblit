@@ -112,7 +112,7 @@
 	<classpathentry kind="lib" path="ext/platform-3.4.0.jar" sourcepath="ext/src/platform-3.4.0.jar"/>
 	<classpathentry kind="lib" path="ext/mockito-core-1.10.19.jar" sourcepath="ext/src/mockito-core-1.10.19.jar"/>
 	<classpathentry kind="lib" path="ext/objenesis-2.1.jar" sourcepath="ext/src/objenesis-2.1.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>

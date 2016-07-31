@@ -40,8 +40,10 @@ import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContextRelativeResourceReference;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
+import org.apache.wicket.resource.JQueryResourceReference;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -67,6 +69,7 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.resources.bootstrap.Bootstrap;
 
 public abstract class BasePage extends SessionPage {
 
@@ -96,9 +99,10 @@ public abstract class BasePage extends SessionPage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
+		response.render(JavaScriptHeaderItem.forReference(JQueryResourceReference.get()));
+		
 		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
-			response.render(CssHeaderItem.forReference(
-					new ContextRelativeResourceReference("/bootstrap/css/bootstrap-responsive.css", false)));
+			response.render(CssHeaderItem.forReference(Application.get().getSharedResources().get(Bootstrap.BOOTSTRAP_RESPONSIVE_CSS_RESOURCE)));
 		}
 		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
 			response.render(CssHeaderItem.forReference(new ContextRelativeResourceReference("/hideheader.css", false)));
