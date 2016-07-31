@@ -75,7 +75,7 @@ public class RepositoriesPanel extends BasePanel {
 		Fragment managementLinks;
 		if (showAdmin) {
 			// user is admin
-			managementLinks = new Fragment("managementPanel", "adminLinks", this);
+			managementLinks = new Fragment("managementPanel", "adminLinks", RepositoriesPanel.this);
 			managementLinks.add(new Link<Void>("clearCache") {
 
 				private static final long serialVersionUID = 1L;
@@ -90,7 +90,7 @@ public class RepositoriesPanel extends BasePanel {
 			add(managementLinks);
 		} else if (showManagement && user != null && user.canCreate()) {
 			// user can create personal repositories
-			managementLinks = new Fragment("managementPanel", "personalLinks", this);
+			managementLinks = new Fragment("managementPanel", "personalLinks", RepositoriesPanel.this);
 			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
 			add(managementLinks);
 		} else {
@@ -160,7 +160,7 @@ public class RepositoriesPanel extends BasePanel {
 				if (entry instanceof GroupRepositoryModel) {
 					GroupRepositoryModel groupRow = (GroupRepositoryModel) entry;
 					currGroupName = entry.name;
-					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
+					Fragment row = new Fragment("rowContent", "groupRepositoryRow", RepositoriesPanel.this);
 					item.add(row);
 
 					String name = groupRow.name;
@@ -180,19 +180,19 @@ public class RepositoriesPanel extends BasePanel {
 					counter = 0;
 					return;
 				}
-				Fragment row = new Fragment("rowContent", "repositoryRow", this);
+				Fragment row = new Fragment("rowContent", "repositoryRow", RepositoriesPanel.this);
 				item.add(row);
 
 				// show colored repository type icon
 				Fragment iconFragment;
 				if (entry.isMirror) {
-					iconFragment = new Fragment("repoIcon", "mirrorIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "mirrorIconFragment", RepositoriesPanel.this);
 				} else if (entry.isFork()) {
-					iconFragment = new Fragment("repoIcon", "forkIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "forkIconFragment", RepositoriesPanel.this);
 				} else if (entry.isBare) {
-					iconFragment = new Fragment("repoIcon", "repoIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "repoIconFragment", RepositoriesPanel.this);
 				} else {
-					iconFragment = new Fragment("repoIcon", "cloneIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "cloneIconFragment", RepositoriesPanel.this);
 				}
 				if (showSwatch) {
 					WicketUtils.setCssStyle(iconFragment, "color:" + StringUtils.getColor(entry.toString()));
@@ -311,7 +311,7 @@ public class RepositoriesPanel extends BasePanel {
 		if (dp instanceof SortableDataProvider<?,?>) {
 			// add sortable header
 			SortableDataProvider<?,?> sdp = (SortableDataProvider<?,?>) dp;
-			Fragment fragment = new Fragment("headerContent", "flatRepositoryHeader", this);
+			Fragment fragment = new Fragment("headerContent", "flatRepositoryHeader", RepositoriesPanel.this);
 			fragment.add(newSort("orderByRepository", SortBy.repository, sdp, dataView));
 			fragment.add(newSort("orderByDescription", SortBy.description, sdp, dataView));
 			fragment.add(newSort("orderByOwner", SortBy.owner, sdp, dataView));
@@ -319,7 +319,7 @@ public class RepositoriesPanel extends BasePanel {
 			add(fragment);
 		} else {
 			// not sortable
-			Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
+			Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", RepositoriesPanel.this);
 			add(fragment);
 		}
 	}
