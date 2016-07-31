@@ -165,10 +165,10 @@ public class TicketsPage extends RepositoryPage {
 
 		Fragment milestonePanel;
 		if (currentMilestone == null) {
-			milestonePanel = new Fragment("milestonePanel", "noMilestoneFragment", this);
+			milestonePanel = new Fragment("milestonePanel", "noMilestoneFragment", TicketsPage.this);
 			add(milestonePanel);
 		} else {
-			milestonePanel = new Fragment("milestonePanel", "milestoneProgressFragment", this);
+			milestonePanel = new Fragment("milestonePanel", "milestoneProgressFragment", TicketsPage.this);
 			milestonePanel.add(new Label("currentMilestone", currentMilestone.name));
 			if (currentMilestone.due == null) {
 				milestonePanel.add(new Label("currentDueDate", getString("gb.notSpecified")));
@@ -194,7 +194,7 @@ public class TicketsPage extends RepositoryPage {
 			add(milestonePanel);
 		}
 
-		Fragment milestoneDropdown = new Fragment("milestoneDropdown", "milestoneDropdownFragment", this);
+		Fragment milestoneDropdown = new Fragment("milestoneDropdown", "milestoneDropdownFragment", TicketsPage.this);
 		PageParameters resetMilestone = queryParameters(queryParam, null, statiiParam, assignedToParam, sortBy, desc, 1);
 		milestoneDropdown.add(new BookmarkablePageLink<Void>("resetMilestone", TicketsPage.class, resetMilestone));
 
@@ -354,7 +354,7 @@ public class TicketsPage extends RepositoryPage {
 		if (dynamicQueries.size() == 0) {
 			add(new Label("dynamicQueries").setVisible(false));
 		} else {
-			Fragment fragment = new Fragment("dynamicQueries", "dynamicQueriesFragment", this);
+			Fragment fragment = new Fragment("dynamicQueries", "dynamicQueriesFragment", TicketsPage.this);
 			ListDataProvider<TicketQuery> dynamicQueriesDp = new ListDataProvider<TicketQuery>(new ArrayList<TicketQuery>(dynamicQueries));
 			DataView<TicketQuery> dynamicQueriesList = new DataView<TicketQuery>("dynamicQuery", dynamicQueriesDp) {
 				private static final long serialVersionUID = 1L;
@@ -547,7 +547,7 @@ public class TicketsPage extends RepositoryPage {
 
 			@Override
 			public void populateItem(final Item<TicketMilestone> item) {
-				Fragment entryPanel = new Fragment("entryPanel", "milestoneListFragment", this);
+				Fragment entryPanel = new Fragment("entryPanel", "milestoneListFragment", TicketsPage.this);
 				item.add(entryPanel);
 
 				final TicketMilestone tm = item.getModelObject();
@@ -595,7 +595,7 @@ public class TicketsPage extends RepositoryPage {
 					// re-load milestone with query results
 					TicketMilestone m = app().tickets().getMilestone(getRepositoryModel(), tm.name);
 
-					Fragment milestonePanel = new Fragment("milestonePanel", "openMilestoneFragment", this);
+					Fragment milestonePanel = new Fragment("milestonePanel", "openMilestoneFragment", TicketsPage.this);
 					Label label = new Label("progress");
 					WicketUtils.setCssStyle(label, "width:" + m.getProgress() + "%;");
 					milestonePanel.add(label);

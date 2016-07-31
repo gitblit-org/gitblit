@@ -207,7 +207,7 @@ public class HistoryPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 					item.add(commitHash);
 
-					Fragment links = new Fragment("historyLinks", "treeLinks", this);
+					Fragment links = new Fragment("historyLinks", "treeLinks", HistoryPanel.this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
@@ -230,7 +230,7 @@ public class HistoryPanel extends BasePanel {
 						WicketUtils.setHtmlTooltip(commitHash, submoduleId);
 						item.add(commitHash.setEnabled(hasSubmodule));
 					}
-					Fragment links = new Fragment("historyLinks", "treeLinks", this);
+					Fragment links = new Fragment("historyLinks", "treeLinks", HistoryPanel.this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
@@ -244,7 +244,7 @@ public class HistoryPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 					item.add(commitHash);
 
-					Fragment links = new Fragment("historyLinks", "blobLinks", this);
+					Fragment links = new Fragment("historyLinks", "blobLinks", HistoryPanel.this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					links.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class,

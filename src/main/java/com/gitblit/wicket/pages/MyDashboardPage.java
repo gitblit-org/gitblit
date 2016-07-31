@@ -159,9 +159,9 @@ public class MyDashboardPage extends DashboardPage {
 
 		Fragment repositoryTabs;
 		if (UserModel.ANONYMOUS.equals(user)) {
-			repositoryTabs = new Fragment("repositoryTabs", "anonymousTabsFragment", this);
+			repositoryTabs = new Fragment("repositoryTabs", "anonymousTabsFragment", MyDashboardPage.this);
 		} else {
-			repositoryTabs = new Fragment("repositoryTabs", "authenticatedTabsFragment", this);
+			repositoryTabs = new Fragment("repositoryTabs", "authenticatedTabsFragment", MyDashboardPage.this);
 		}
 
 		add(repositoryTabs);

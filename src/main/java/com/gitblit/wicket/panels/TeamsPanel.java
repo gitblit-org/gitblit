@@ -37,7 +37,7 @@ public class TeamsPanel extends BasePanel {
 	public TeamsPanel(String wicketId, final boolean showAdmin) {
 		super(wicketId);
 
-		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
+		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", TeamsPanel.this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newTeam", EditTeamPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
@@ -65,7 +65,7 @@ public class TeamsPanel extends BasePanel {
 						: ""));
 				item.add(new Label("repositories",
 						entry.repositories.size() > 0 ? ("" + entry.repositories.size()) : ""));
-				Fragment teamLinks = new Fragment("teamLinks", "teamAdminLinks", this);
+				Fragment teamLinks = new Fragment("teamLinks", "teamAdminLinks", TeamsPanel.this);
 				teamLinks.add(new BookmarkablePageLink<Void>("editTeam", EditTeamPage.class,
 						WicketUtils.newTeamnameParameter(entry.name)));
 				Link<Void> deleteLink = new Link<Void>("deleteTeam") {

@@ -103,7 +103,7 @@ public class EditFilePage extends RepositoryPage {
 			final Model<String> commitMessage = new Model<String>("Document update");
 			final Model<String> commitIdAtLoad = new Model<String>(displayedCommitId);
 			
-			fragment = new Fragment("doc", "markupContent", this);
+			fragment = new Fragment("doc", "markupContent", EditFilePage.this);
 			
 			Form<Void> form = new Form<Void>("documentEditor") {
 				
@@ -182,7 +182,7 @@ public class EditFilePage extends RepositoryPage {
 			MarkupDocument markupDoc = processor.parse(repositoryName, displayedCommitId, documentPath, markupText);
 			final Model<String> documentContent = new Model<String>(markupDoc.html);
 			
-			fragment = new Fragment("doc", "plainContent", this);
+			fragment = new Fragment("doc", "plainContent", EditFilePage.this);
 			
 			fragment.add(new Label("content", documentContent).setEscapeModelStrings(false));
 		}

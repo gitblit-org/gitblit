@@ -301,17 +301,17 @@ public class UserPage extends RootPage {
 
 		// add the preferences tab
 		add(new Fragment("preferencesLink", "preferencesLinkFragment", this).setRenderBodyOnly(true));
-		Fragment fragment = new Fragment("preferencesTab", "preferencesTabFragment", this);
+		Fragment fragment = new Fragment("preferencesTab", "preferencesTabFragment", UserPage.this);
 		fragment.add(prefs);
 		add(fragment.setRenderBodyOnly(true));
 	}
 
 	private void addSshKeys(final UserModel user) {
-		Fragment keysTab = new Fragment("sshKeysTab", "sshKeysTabFragment", this);
+		Fragment keysTab = new Fragment("sshKeysTab", "sshKeysTabFragment", UserPage.this);
 		keysTab.add(new SshKeysPanel("sshKeysPanel", user));
 
 		// add the SSH keys tab
-		add(new Fragment("sshKeysLink", "sshKeysLinkFragment", this).setRenderBodyOnly(true));
+		add(new Fragment("sshKeysLink", "sshKeysLinkFragment", UserPage.this).setRenderBodyOnly(true));
 		add(keysTab.setRenderBodyOnly(true));
 	}
 

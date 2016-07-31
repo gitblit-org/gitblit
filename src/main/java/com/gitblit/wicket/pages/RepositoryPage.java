@@ -305,16 +305,16 @@ public abstract class RepositoryPage extends RootPage {
 		RepositoryModel model = getRepositoryModel();
 		if (StringUtils.isEmpty(model.originRepository)) {
 			if (model.isMirror) {
-				add(new Fragment("repoIcon", "mirrorIconFragment", this));
-				Fragment mirrorFrag = new Fragment("originRepository", "mirrorFragment", this);
+				add(new Fragment("repoIcon", "mirrorIconFragment", RepositoryPage.this));
+				Fragment mirrorFrag = new Fragment("originRepository", "mirrorFragment", RepositoryPage.this);
 				Label lbl = new Label("originRepository", MessageFormat.format(getString("gb.mirrorOf"), "<b>" + model.origin + "</b>"));
 				mirrorFrag.add(lbl.setEscapeModelStrings(false));
 				add(mirrorFrag);
 			} else {
 				if (model.isBare) {
-					add(new Fragment("repoIcon", "repoIconFragment", this));
+					add(new Fragment("repoIcon", "repoIconFragment", RepositoryPage.this));
 				} else {
-					add(new Fragment("repoIcon", "cloneIconFragment", this));
+					add(new Fragment("repoIcon", "cloneIconFragment", RepositoryPage.this));
 				}
 				add(new Label("originRepository", Optional.of(model.description).or("")));
 			}
@@ -323,21 +323,21 @@ public abstract class RepositoryPage extends RootPage {
 			if (origin == null) {
 				// no origin repository, show description if available
 				if (model.isBare) {
-					add(new Fragment("repoIcon", "repoIconFragment", this));
+					add(new Fragment("repoIcon", "repoIconFragment", RepositoryPage.this));
 				} else {
-					add(new Fragment("repoIcon", "cloneIconFragment", this));
+					add(new Fragment("repoIcon", "cloneIconFragment", RepositoryPage.this));
 				}
 				add(new Label("originRepository", Optional.of(model.description).or("")));
 			} else if (!user.canView(origin)) {
 				// show origin repository without link
-				add(new Fragment("repoIcon", "forkIconFragment", this));
-				Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
+				add(new Fragment("repoIcon", "forkIconFragment", RepositoryPage.this));
+				Fragment forkFrag = new Fragment("originRepository", "originFragment", RepositoryPage.this);
 				forkFrag.add(new Label("originRepository", StringUtils.stripDotGit(model.originRepository)));
 				add(forkFrag);
 			} else {
 				// link to origin repository
-				add(new Fragment("repoIcon", "forkIconFragment", this));
-				Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
+				add(new Fragment("repoIcon", "forkIconFragment", RepositoryPage.this));
+				Fragment forkFrag = new Fragment("originRepository", "originFragment", RepositoryPage.this);
 				forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(model.originRepository),
 						SummaryPage.class, WicketUtils.newRepositoryParameter(model.originRepository)));
 				add(forkFrag);
@@ -415,7 +415,7 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	protected void addToolbarButton(String wicketId, String iconClass, String label, String url) {
-		Fragment button = new Fragment(wicketId, "toolbarLinkFragment", this);
+		Fragment button = new Fragment(wicketId, "toolbarLinkFragment", RepositoryPage.this);
 		Label icon = new Label("icon");
 		WicketUtils.setCssClass(icon, iconClass);
 		button.add(icon);
@@ -621,14 +621,14 @@ public abstract class RepositoryPage extends RootPage {
 					value = getString("gb.missingUsername");
 				}
 			}
-			Fragment partial = new Fragment(wicketId, "partialPersonIdent", this);
+			Fragment partial = new Fragment(wicketId, "partialPersonIdent", RepositoryPage.this);
 			LinkPanel link = new LinkPanel("personName", "list", value, GitSearchPage.class,
 					WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType));
 			setPersonSearchTooltip(link, value, searchType);
 			partial.add(link);
 			return partial;
 		} else {
-			Fragment fullPerson = new Fragment(wicketId, "fullPersonIdent", this);
+			Fragment fullPerson = new Fragment(wicketId, "fullPersonIdent", RepositoryPage.this);
 			LinkPanel nameLink = new LinkPanel("personName", "list", name, GitSearchPage.class,
 					WicketUtils.newSearchParameter(repositoryName, objectId, name, searchType));
 			setPersonSearchTooltip(nameLink, name, searchType);

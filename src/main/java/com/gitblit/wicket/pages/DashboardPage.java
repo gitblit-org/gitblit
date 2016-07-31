@@ -88,7 +88,7 @@ public abstract class DashboardPage extends RootPage {
 			}
 		}
 
-		Fragment activityFragment = new Fragment("activity", "activityFragment", this);
+		Fragment activityFragment = new Fragment("activity", "activityFragment", DashboardPage.this);
 		add(activityFragment);
 		activityFragment.add(new Label("feedTitle", feedTitle));
 		if (digests.size() == 0) {
@@ -240,7 +240,7 @@ public abstract class DashboardPage extends RootPage {
 			charts.addChart(chart);
 
 			add(charts);
-			frag.add(new Fragment("charts", "chartsFragment", this));
+			frag.add(new Fragment("charts", "chartsFragment", DashboardPage.this));
 		} else {
 			frag.add(new Label("charts").setVisible(false));
 		}

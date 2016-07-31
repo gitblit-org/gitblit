@@ -692,7 +692,7 @@ public abstract class RootPage extends BasePage {
 		 * @return a submenu fragment
 		 */
 		private Fragment newSubmenu(String wicketId, String submenuTitle, List<MenuItem> menuItems) {
-			Fragment submenu = new Fragment(wicketId, "submenuFragment", this);
+			Fragment submenu = new Fragment(wicketId, "submenuFragment", RootPage.this);
 			submenu.add(new Label("submenuTitle", submenuTitle).setRenderBodyOnly(true));
 			ListDataProvider<MenuItem> menuItemsDp = new ListDataProvider<MenuItem>(menuItems);
 			DataView<MenuItem> submenuItems = new DataView<MenuItem>("submenuItem", menuItemsDp) {

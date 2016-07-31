@@ -163,7 +163,7 @@ public class EditTicketPage extends RepositoryPage {
 		} else {
 			statusChoices = Arrays.asList(TicketModel.Status.requestWorkflow);
 		}
-		Fragment status = new Fragment("status", "statusFragment", this);
+		Fragment status = new Fragment("status", "statusFragment", EditTicketPage.this);
 		status.add(new DropDownChoice<TicketModel.Status>("status", statusModel, statusChoices));
 		form.add(status);
 
@@ -200,7 +200,7 @@ public class EditTicketPage extends RepositoryPage {
 			}
 			Collections.sort(responsibles);
 			responsibles.add(new TicketResponsible(NIL, "", ""));
-			Fragment responsible = new Fragment("responsible", "responsibleFragment", this);
+			Fragment responsible = new Fragment("responsible", "responsibleFragment", EditTicketPage.this);
 			responsible.add(new DropDownChoice<TicketResponsible>("responsible", responsibleModel, responsibles));
 			form.add(responsible.setVisible(!responsibles.isEmpty()));
 
@@ -224,12 +224,12 @@ public class EditTicketPage extends RepositoryPage {
 			}
 
 			// milestone
-			Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
+			Fragment milestone = new Fragment("milestone", "milestoneFragment", EditTicketPage.this);
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 
 			// priority
-			Fragment priority = new Fragment("priority", "priorityFragment", this);
+			Fragment priority = new Fragment("priority", "priorityFragment", EditTicketPage.this);
 			List<TicketModel.Priority> priorityChoices = Arrays.asList(TicketModel.Priority.choices());
 			priority.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, priorityChoices));
 			form.add(priority);
@@ -245,7 +245,7 @@ public class EditTicketPage extends RepositoryPage {
 			branches.remove(Repository.shortenRefName(getRepositoryModel().mergeTo));
 			branches.add(0, Repository.shortenRefName(getRepositoryModel().mergeTo));
 
-			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", this);
+			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", EditTicketPage.this);
 			mergeto.add(new DropDownChoice<String>("mergeto", mergeToModel, branches));
 			form.add(mergeto.setVisible(!branches.isEmpty()));
 		} else {

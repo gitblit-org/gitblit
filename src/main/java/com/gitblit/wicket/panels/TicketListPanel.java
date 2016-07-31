@@ -101,7 +101,7 @@ public class TicketListPanel extends BasePanel {
 				if (ticket.updatedAt == null) {
 					item.add(new Label("updated").setVisible(false));
 				} else {
-					Fragment updated = new Fragment("updated", "updatedFragment", this);
+					Fragment updated = new Fragment("updated", "updatedFragment", TicketListPanel.this);
 					UserModel updater = app().users().getUserModel(ticket.updatedBy);
 					if (updater != null) {
 						updated.add(new LinkPanel("updatedBy", null, updater.getDisplayName(),

@@ -140,7 +140,7 @@ public class BranchesPanel extends BasePanel {
 				item.add(shortlog);
 
 				if (maxCount <= 0) {
-					Fragment fragment = new Fragment("branchLinks", showDelete? "branchPageAdminLinks" : "branchPageLinks", this);
+					Fragment fragment = new Fragment("branchLinks", showDelete? "branchPageAdminLinks" : "branchPageLinks", BranchesPanel.this);
 					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, shortUniqRef));
 					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, shortUniqRef));
 					String rawUrl = RawServlet.asLink(getContextUrl(), model.name, Repository.shortenRefName(entry.getName()), null);
@@ -154,7 +154,7 @@ public class BranchesPanel extends BasePanel {
 					}
 					item.add(fragment);
 				} else {
-					Fragment fragment = new Fragment("branchLinks", "branchPanelLinks", this);
+					Fragment fragment = new Fragment("branchLinks", "branchPanelLinks", BranchesPanel.this);
 					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, shortUniqRef));
 					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, shortUniqRef));
 					String rawUrl = RawServlet.asLink(getContextUrl(), model.name, Repository.shortenRefName(entry.getName()), null);

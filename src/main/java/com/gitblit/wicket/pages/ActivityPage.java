@@ -118,7 +118,7 @@ public class ActivityPage extends RootPage {
 			if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 				Charts charts = createCharts(recentActivity);
 				add(charts);
-				add(new Fragment("chartsPanel", "chartsFragment", this));
+				add(new Fragment("chartsPanel", "chartsFragment", ActivityPage.this));
 			} else {
 				add(new Label("chartsPanel").setVisible(false));
 			}

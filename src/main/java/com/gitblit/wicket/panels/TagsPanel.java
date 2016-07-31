@@ -106,7 +106,7 @@ public class TagsPanel extends BasePanel {
 					}
 					item.add(messageLink);
 
-					Fragment fragment = new Fragment("tagLinks", "blobLinks", this);
+					Fragment fragment = new Fragment("tagLinks", "blobLinks", TagsPanel.this);
 					fragment.add(new BookmarkablePageLink<Void>("tag", TagPage.class, WicketUtils
 							.newObjectParameter(repositoryName, entry.getObjectId().getName()))
 							.setEnabled(entry.isAnnotatedTag()));
@@ -133,7 +133,7 @@ public class TagsPanel extends BasePanel {
 						}
 						item.add(messageLink);
 
-						Fragment fragment = new Fragment("tagLinks", "annotatedLinks", this);
+						Fragment fragment = new Fragment("tagLinks", "annotatedLinks", TagsPanel.this);
 						fragment.add(new BookmarkablePageLink<Void>("tag", TagPage.class,
 								WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
 										.getName())).setEnabled(entry.isAnnotatedTag()));
@@ -150,7 +150,7 @@ public class TagsPanel extends BasePanel {
 						item.add(new LinkPanel("tagDescription", "list", message, CommitPage.class,
 								WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
 										.getName())));
-						Fragment fragment = new Fragment("tagLinks", "lightweightLinks", this);
+						Fragment fragment = new Fragment("tagLinks", "lightweightLinks", TagsPanel.this);
 						fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class,
 								WicketUtils.newObjectParameter(repositoryName, entry
 										.getReferencedObjectId().getName())));

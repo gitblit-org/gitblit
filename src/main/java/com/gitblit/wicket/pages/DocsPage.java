@@ -71,11 +71,11 @@ public class DocsPage extends RepositoryPage {
 		Fragment fragment = null;
 		if (roots.isEmpty()) {
 			// no identified root documents
-			fragment = new Fragment("docs", "noIndexFragment", this);
+			fragment = new Fragment("docs", "noIndexFragment", DocsPage.this);
 			setResponsePage(NoDocsPage.class, params);
 		} else {
 			// root documents, use tabbed ui of index/root and document list
-			fragment = new Fragment("docs", "tabsFragment", this);
+			fragment = new Fragment("docs", "tabsFragment", DocsPage.this);
 			ListDataProvider<MarkupDocument> docDp = new ListDataProvider<MarkupDocument>(roots);
 
 			// tab titles
@@ -143,7 +143,7 @@ public class DocsPage extends RepositoryPage {
 
 		// document list
 		final ByteFormat byteFormat = new ByteFormat();
-		Fragment docs = new Fragment("documents", "documentsFragment", this);
+		Fragment docs = new Fragment("documents", "documentsFragment", DocsPage.this);
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("document", pathsDp) {
 			private static final long serialVersionUID = 1L;

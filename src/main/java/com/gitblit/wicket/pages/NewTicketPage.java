@@ -149,18 +149,18 @@ public class NewTicketPage extends RepositoryPage {
 				}
 			}
 			Collections.sort(responsibles);
-			Fragment responsible = new Fragment("responsible", "responsibleFragment", this);
+			Fragment responsible = new Fragment("responsible", "responsibleFragment", NewTicketPage.this);
 			responsible.add(new DropDownChoice<TicketResponsible>("responsible", responsibleModel, responsibles));
 			form.add(responsible.setVisible(!responsibles.isEmpty()));
 
 			// milestone
 			List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel(), Status.Open);
-			Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
+			Fragment milestone = new Fragment("milestone", "milestoneFragment", NewTicketPage.this);
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 
 			// priority
-			Fragment priority = new Fragment("priority", "priorityFragment", this);
+			Fragment priority = new Fragment("priority", "priorityFragment", NewTicketPage.this);
 			priority.add(new DropDownChoice<TicketModel.Priority>("priority", priorityModel, Arrays.asList(TicketModel.Priority.choices())));
 			form.add(priority);
 
@@ -175,7 +175,7 @@ public class NewTicketPage extends RepositoryPage {
 			branches.remove(Repository.shortenRefName(getRepositoryModel().HEAD));
 			branches.add(0, Repository.shortenRefName(getRepositoryModel().HEAD));
 
-			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", this);
+			Fragment mergeto = new Fragment("mergeto", "mergeToFragment", NewTicketPage.this);
 			mergeto.add(new DropDownChoice<String>("mergeto", mergeToModel, branches));
 			form.add(mergeto.setVisible(!branches.isEmpty()));
 		} else {

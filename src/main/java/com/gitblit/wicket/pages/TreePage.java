@@ -120,7 +120,7 @@ public class TreePage extends RepositoryPage {
 								WicketUtils.newPathParameter(repositoryName, id, entry.path)));
 
 						// links
-						Fragment links = new Fragment("pathLinks", "treeLinks", this);
+						Fragment links = new Fragment("pathLinks", "treeLinks", TreePage.this);
 						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
 								WicketUtils.newPathParameter(repositoryName, id, entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
@@ -144,7 +144,7 @@ public class TreePage extends RepositoryPage {
 								TreePage.class, WicketUtils.newPathParameter(submodulePath, submoduleId, ""))
 										.setEnabled(hasSubmodule));
 
-						Fragment links = new Fragment("pathLinks", "submoduleLinks", this);
+						Fragment links = new Fragment("pathLinks", "submoduleLinks", TreePage.this);
 						links.add(new BookmarkablePageLink<Void>("view", SummaryPage.class,
 								WicketUtils.newRepositoryParameter(submodulePath)).setEnabled(hasSubmodule));
 						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
@@ -167,7 +167,7 @@ public class TreePage extends RepositoryPage {
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 
 						// links
-						Fragment links = new Fragment("pathLinks", "blobLinks", this);
+						Fragment links = new Fragment("pathLinks", "blobLinks", TreePage.this);
 
 						if (entry.isFilestoreItem()) {
 							item.add(new LinkPanel("pathName", "list", displayPath, new Link<Object>("link", null) {

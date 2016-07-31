@@ -60,13 +60,13 @@ public class ProjectRepositoryPanel extends BasePanel {
 
 		Fragment iconFragment;
 		if (entry.isMirror) {
-			iconFragment = new Fragment("repoIcon", "mirrorIconFragment", this);
+			iconFragment = new Fragment("repoIcon", "mirrorIconFragment", ProjectRepositoryPanel.this);
 		} else if (entry.isFork()) {
-			iconFragment = new Fragment("repoIcon", "forkIconFragment", this);
+			iconFragment = new Fragment("repoIcon", "forkIconFragment", ProjectRepositoryPanel.this);
 		} else if (entry.isBare) {
-			iconFragment = new Fragment("repoIcon", "repoIconFragment", this);
+			iconFragment = new Fragment("repoIcon", "repoIconFragment", ProjectRepositoryPanel.this);
 		} else {
-			iconFragment = new Fragment("repoIcon", "cloneIconFragment", this);
+			iconFragment = new Fragment("repoIcon", "cloneIconFragment", ProjectRepositoryPanel.this);
 		}
 		if (showSwatch) {
 			WicketUtils.setCssStyle(iconFragment, "color:" + StringUtils.getColor(entry.toString()));
@@ -76,7 +76,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 		if (StringUtils.isEmpty(entry.originRepository)) {
 			add(new Label("originRepository").setVisible(false));
 		} else {
-			Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
+			Fragment forkFrag = new Fragment("originRepository", "originFragment", ProjectRepositoryPanel.this);
 			forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(entry.originRepository),
 					SummaryPage.class, WicketUtils.newRepositoryParameter(entry.originRepository)));
 			add(forkFrag);
@@ -126,11 +126,11 @@ public class ProjectRepositoryPanel extends BasePanel {
 		}
 		Fragment repositoryLinks;
 		if (user.canAdmin(entry)) {
-			repositoryLinks = new Fragment("repositoryLinks", "repositoryOwnerLinks", this);
+			repositoryLinks = new Fragment("repositoryLinks", "repositoryOwnerLinks", ProjectRepositoryPanel.this);
 			repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository", EditRepositoryPage.class,
 					WicketUtils.newRepositoryParameter(entry.name)));
 		} else {
-			repositoryLinks = new Fragment("repositoryLinks", "repositoryUserLinks", this);
+			repositoryLinks = new Fragment("repositoryLinks", "repositoryUserLinks", ProjectRepositoryPanel.this);
 		}
 
 		repositoryLinks.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils

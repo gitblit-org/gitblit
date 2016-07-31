@@ -84,7 +84,7 @@ public class ComparePage extends RepositoryPage {
 			add(new Label("comparison").setVisible(false));
 		} else {
 			// active comparison
-			Fragment comparison = new Fragment("comparison", "comparisonFragment", this);
+			Fragment comparison = new Fragment("comparison", "comparisonFragment", ComparePage.this);
 			add(comparison);
 
 			RevCommit fromCommit;
