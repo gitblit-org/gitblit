@@ -15,15 +15,16 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WicketURLEncoder;
+import org.apache.wicket.request.Url;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.util.encoding.UrlEncoder;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.jsoup.nodes.Element;
 
+import com.gitblit.Constants;
 import com.gitblit.servlet.RawServlet;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.HtmlBuilder;
@@ -145,8 +146,8 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 	 * Returns a URL that will fetch the designated static resource from within GitBlit.
 	 */
 	protected String getStaticResourceUrl(String contextRelativePath) {
-		return WebApplication.get().getRequestCycleProcessor().getRequestCodingStrategy().rewriteStaticRelativeUrl(contextRelativePath);
-	}
+		return RequestCycle.get().getUrlRenderer().renderFullUrl(Url.parse(contextRelativePath));
+		}
 
 	/**
 	 * Encode a URL component of a {@link RawServlet} URL in the special way that the servlet expects it. Note that
@@ -165,6 +166,6 @@ public class ImageDiffHandler implements DiffUtils.BinaryDiffHandler {
 		// Actually, this should be done in RawServlet.asLink(). As it is now, this may be incorrect if that
 		// operation ever uses query parameters instead of paths, or if it is fixed to urlencode its path
 		// components. But I don't want to touch that static method in RawServlet.
-		return WicketURLEncoder.PATH_INSTANCE.encode(component, StandardCharsets.UTF_8.name()).replaceAll("%2[fF]", "/");
+		return UrlEncoder.PATH_INSTANCE.encode(component, Constants.ENCODING).replaceAll("%2[fF]", "/");
 	}
 }

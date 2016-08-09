@@ -24,8 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
@@ -74,7 +75,7 @@ public class RepositoriesPanel extends BasePanel {
 		Fragment managementLinks;
 		if (showAdmin) {
 			// user is admin
-			managementLinks = new Fragment("managementPanel", "adminLinks", this);
+			managementLinks = new Fragment("managementPanel", "adminLinks", RepositoriesPanel.this);
 			managementLinks.add(new Link<Void>("clearCache") {
 
 				private static final long serialVersionUID = 1L;
@@ -89,7 +90,7 @@ public class RepositoriesPanel extends BasePanel {
 			add(managementLinks);
 		} else if (showManagement && user != null && user.canCreate()) {
 			// user can create personal repositories
-			managementLinks = new Fragment("managementPanel", "personalLinks", this);
+			managementLinks = new Fragment("managementPanel", "personalLinks", RepositoriesPanel.this);
 			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
 			add(managementLinks);
 		} else {
@@ -159,7 +160,7 @@ public class RepositoriesPanel extends BasePanel {
 				if (entry instanceof GroupRepositoryModel) {
 					GroupRepositoryModel groupRow = (GroupRepositoryModel) entry;
 					currGroupName = entry.name;
-					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
+					Fragment row = new Fragment("rowContent", "groupRepositoryRow", RepositoriesPanel.this);
 					item.add(row);
 
 					String name = groupRow.name;
@@ -179,19 +180,19 @@ public class RepositoriesPanel extends BasePanel {
 					counter = 0;
 					return;
 				}
-				Fragment row = new Fragment("rowContent", "repositoryRow", this);
+				Fragment row = new Fragment("rowContent", "repositoryRow", RepositoriesPanel.this);
 				item.add(row);
 
 				// show colored repository type icon
 				Fragment iconFragment;
 				if (entry.isMirror) {
-					iconFragment = new Fragment("repoIcon", "mirrorIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "mirrorIconFragment", RepositoriesPanel.this);
 				} else if (entry.isFork()) {
-					iconFragment = new Fragment("repoIcon", "forkIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "forkIconFragment", RepositoriesPanel.this);
 				} else if (entry.isBare) {
-					iconFragment = new Fragment("repoIcon", "repoIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "repoIconFragment", RepositoriesPanel.this);
 				} else {
-					iconFragment = new Fragment("repoIcon", "cloneIconFragment", this);
+					iconFragment = new Fragment("repoIcon", "cloneIconFragment", RepositoriesPanel.this);
 				}
 				if (showSwatch) {
 					WicketUtils.setCssStyle(iconFragment, "color:" + StringUtils.getColor(entry.toString()));
@@ -307,10 +308,10 @@ public class RepositoriesPanel extends BasePanel {
 		};
 		add(dataView);
 
-		if (dp instanceof SortableDataProvider<?>) {
+		if (dp instanceof SortableDataProvider<?,?>) {
 			// add sortable header
-			SortableDataProvider<?> sdp = (SortableDataProvider<?>) dp;
-			Fragment fragment = new Fragment("headerContent", "flatRepositoryHeader", this);
+			SortableDataProvider<?,?> sdp = (SortableDataProvider<?,?>) dp;
+			Fragment fragment = new Fragment("headerContent", "flatRepositoryHeader", RepositoriesPanel.this);
 			fragment.add(newSort("orderByRepository", SortBy.repository, sdp, dataView));
 			fragment.add(newSort("orderByDescription", SortBy.description, sdp, dataView));
 			fragment.add(newSort("orderByOwner", SortBy.owner, sdp, dataView));
@@ -318,7 +319,7 @@ public class RepositoriesPanel extends BasePanel {
 			add(fragment);
 		} else {
 			// not sortable
-			Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
+			Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", RepositoriesPanel.this);
 			add(fragment);
 		}
 	}
@@ -345,7 +346,7 @@ public class RepositoriesPanel extends BasePanel {
 		repository, description, owner, date;
 	}
 
-	protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?> dp,
+	protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?,?> dp,
 			final DataView<?> dataView) {
 		return new OrderByBorder(wicketId, field.name(), dp) {
 			private static final long serialVersionUID = 1L;
@@ -357,7 +358,7 @@ public class RepositoriesPanel extends BasePanel {
 		};
 	}
 
-	private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel> {
+	private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel, String> {
 
 		private static final long serialVersionUID = 1L;
 
@@ -365,11 +366,11 @@ public class RepositoriesPanel extends BasePanel {
 
 		protected SortableRepositoriesProvider(List<RepositoryModel> list) {
 			this.list = list;
-			setSort(SortBy.date.name(), false);
+			setSort(SortBy.date.name(), SortOrder.DESCENDING);
 		}
 
 		@Override
-		public int size() {
+		public long size() {
 			if (list == null) {
 				return 0;
 			}
@@ -382,8 +383,8 @@ public class RepositoriesPanel extends BasePanel {
 		}
 
 		@Override
-		public Iterator<RepositoryModel> iterator(int first, int count) {
-			SortParam sp = getSort();
+		public Iterator<? extends RepositoryModel> iterator(long first, long count) {
+			SortParam<String> sp = getSort();
 			String prop = sp.getProperty();
 			final boolean asc = sp.isAscending();
 
@@ -430,7 +431,8 @@ public class RepositoriesPanel extends BasePanel {
 					}
 				});
 			}
-			return list.subList(first, first + count).iterator();
+			return list.subList(Math.toIntExact(first), Math.toIntExact(first + count)).iterator();
 		}
+
 	}
 }

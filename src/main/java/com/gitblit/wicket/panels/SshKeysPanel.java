@@ -86,7 +86,7 @@ public class SshKeysPanel extends BasePanel {
 							keys.addAll(app().keys().getKeys(user.username));
 
 							// update the panel
-							target.addComponent(SshKeysPanel.this);
+							target.add(SshKeysPanel.this);
 						}
 					}
 				};
@@ -159,7 +159,7 @@ public class SshKeysPanel extends BasePanel {
 					keys.addAll(app().keys().getKeys(user.username));
 
 					// update the panel
-					target.addComponent(SshKeysPanel.this);
+					target.add(SshKeysPanel.this);
 				}
 			}
 		});

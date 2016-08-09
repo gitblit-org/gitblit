@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.Keys;
@@ -121,7 +120,7 @@ public class FilterableProjectList extends BasePanel {
 		// inject an AngularJS controller with static data
 		NgController ctrl = new NgController(ngCtrl);
 		ctrl.addVariable(ngList, list);
-		add(new HeaderContributor(ctrl));
+		add(ctrl);
 	}
 
 	protected class ProjectListItem implements Serializable {

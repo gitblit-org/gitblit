@@ -45,7 +45,7 @@ public class MarkdownTextArea extends TextArea {
 			protected void onUpdate(AjaxRequestTarget target) {
 				renderPreview(previewModel);
 				if (target != null) {
-					target.addComponent(previewLabel);
+					target.add(previewLabel);
 				}
 			}
 		});
@@ -56,7 +56,7 @@ public class MarkdownTextArea extends TextArea {
 			protected void onUpdate(AjaxRequestTarget target) {
 				renderPreview(previewModel);
 				if (target != null) {
-					target.addComponent(previewLabel);
+					target.add(previewLabel);
 				}
 			}
 		});

@@ -17,8 +17,12 @@ package com.gitblit.wicket.charting;
 
 import javax.servlet.ServletContext;
 
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.Component;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
+import org.apache.wicket.request.resource.PackageResourceReference;
 
 /**
  * Concrete class for Flotr2 charts
@@ -31,20 +35,15 @@ public class Flotr2Charts extends Charts {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void renderHead(IHeaderResponse response) {
+	public void renderHead(Component component, IHeaderResponse response) {
 
 		// add Google Chart JS API reference
-		ServletContext servletContext = WebApplication.get().getServletContext();
-		String contextPath = servletContext.getContextPath();
-
-		response.renderJavascriptReference(contextPath + "/bootstrap/js/jquery.js");
-		response.renderJavascriptReference(contextPath + "/flotr2/flotr2.min.js");
-		response.renderCSSReference(contextPath + "/flotr2/flotr2.custom.css");
+		response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(Flotr2Charts.class, "flotr2.min.js")));
+		response.render(CssHeaderItem.forReference(new PackageResourceReference(Flotr2Charts.class, "flotr2.custom.css")));
 
 		// prepare draw chart function
 		StringBuilder sb = new StringBuilder();
 
-		line(sb, "$( document ).ready(function() {");
 		line(sb, "try {");
 		// add charts to header
 		for (Chart chart : charts) {
@@ -57,8 +56,7 @@ public class Flotr2Charts extends Charts {
 		line(sb, "  }");
 		line(sb, "}");
 		// end draw chart function
-		line(sb, "});");
-		response.renderJavascript(sb.toString(), null);
+		response.render(OnDomReadyHeaderItem.forScript(sb.toString()));
 	}
 
 	@Override

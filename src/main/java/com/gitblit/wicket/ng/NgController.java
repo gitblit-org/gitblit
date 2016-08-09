@@ -17,11 +17,16 @@ package com.gitblit.wicket.ng;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.head.HeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.request.resource.PackageResourceReference;
+import org.apache.wicket.resource.JQueryResourceReference;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,7 +39,7 @@ import com.google.gson.GsonBuilder;
  * @author James Moger
  *
  */
-public class NgController implements IHeaderContributor {
+public class NgController extends Behavior {
 
 	private static final long serialVersionUID = 1L;
 
@@ -52,9 +57,18 @@ public class NgController implements IHeaderContributor {
 	}
 
 	@Override
-	public void renderHead(IHeaderResponse response) {
+	public void renderHead(Component component, IHeaderResponse response) {
 		// add Google AngularJS reference
-		response.renderJavascriptReference(new ResourceReference(NgController.class, "angular.js"));
+		response.render(JavaScriptHeaderItem.forReference(new PackageResourceReference(NgController.class, "angular.js"){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<HeaderItem> getDependencies() {
+				List<HeaderItem> deps = super.getDependencies();
+				deps.add(JavaScriptHeaderItem.forReference(JQueryResourceReference.get()));
+				return deps;
+			}
+		}));
 
 		Gson gson = new GsonBuilder().create();
 
@@ -69,7 +83,7 @@ public class NgController implements IHeaderContributor {
 		}
 		line(sb, "}");
 
-		response.renderJavascript(sb.toString(), null);
+		response.render(JavaScriptHeaderItem.forScript(sb.toString(), "angularController-"+name));
 	}
 
 	private void line(StringBuilder sb, String line) {

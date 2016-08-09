@@ -35,10 +35,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -51,7 +50,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebRequest;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -87,6 +85,7 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.MergeStatus;
 import com.gitblit.utils.CommitCache;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
@@ -265,7 +264,7 @@ public class TicketPage extends RepositoryPage {
 			} else {
 				milestoneParameters = WicketUtils.newRepositoryParameter(repositoryName);
 			}
-			milestoneParameters.put(Lucene.milestone.name(), ticket.milestone);
+			milestoneParameters.add(Lucene.milestone.name(), ticket.milestone);
 			int progress = 0;
 			int open = 0;
 			int closed = 0;
@@ -275,7 +274,7 @@ public class TicketPage extends RepositoryPage {
 				closed = tm.getClosedTickets();
 			}
 
-			Fragment milestoneProgress = new Fragment("milestone", "milestoneProgressFragment", this);
+			Fragment milestoneProgress = new Fragment("milestone", "milestoneProgressFragment", TicketPage.this);
 			milestoneProgress.add(new LinkPanel("link", null, ticket.milestone, TicketsPage.class, milestoneParameters));
 			Label label = new Label("progress");
 			WicketUtils.setCssStyle(label, "width:" + progress + "%;");
@@ -334,7 +333,7 @@ public class TicketPage extends RepositoryPage {
 		/*
 		 * LARGE STATUS INDICATOR WITH ICON (DISCUSSION TAB->SIDE BAR)
 		 */
-		Fragment ticketStatus = new Fragment("ticketStatus", "ticketStatusFragment", this);
+		Fragment ticketStatus = new Fragment("ticketStatus", "ticketStatusFragment", TicketPage.this);
 		Label ticketIcon = TicketsUI.getStateIcon("ticketIcon", ticket);
 		ticketStatus.add(ticketIcon);
 		ticketStatus.add(new Label("ticketStatus", ticket.status.toString()));
@@ -350,7 +349,7 @@ public class TicketPage extends RepositoryPage {
 				/*
 				 * OPEN TICKET
 				 */
-				Fragment controls = new Fragment("controls", "openControlsFragment", this);
+				Fragment controls = new Fragment("controls", "openControlsFragment", TicketPage.this);
 
 				/*
 				 * STATUS
@@ -510,7 +509,7 @@ public class TicketPage extends RepositoryPage {
 				/*
 				 * CLOSED TICKET
 				 */
-				Fragment controls = new Fragment("controls", "closedControlsFragment", this);
+				Fragment controls = new Fragment("controls", "closedControlsFragment", TicketPage.this);
 
 				String editHref = urlFor(EditTicketPage.class, params).toString();
 				controls.add(new ExternalLink("editLink", editHref, getString("gb.edit")));
@@ -635,7 +634,7 @@ public class TicketPage extends RepositoryPage {
 				Label label = new Label("label", value);
 				TicketLabel tLabel = app().tickets().getLabel(repository, value);
 				String background = MessageFormat.format("background-color:{0};", tLabel.color);
-				label.add(new SimpleAttributeModifier("style", background));
+				label.add(new AttributeModifier("style", background));
 				item.add(label);
 			}
 		};
@@ -649,7 +648,7 @@ public class TicketPage extends RepositoryPage {
 		if (comments.size() == 0) {
 			add(new Label("discussion").setVisible(false));
 		} else {
-			Fragment discussionFragment = new Fragment("discussion", "discussionFragment", this);
+			Fragment discussionFragment = new Fragment("discussion", "discussionFragment", TicketPage.this);
 			ListDataProvider<Change> discussionDp = new ListDataProvider<Change>(discussion);
 			DataView<Change> discussionView = new DataView<Change>("discussion", discussionDp) {
 				private static final long serialVersionUID = 1L;
@@ -682,7 +681,7 @@ public class TicketPage extends RepositoryPage {
 							commitLink = mergedPatch.toString();
 						}
 
-						Fragment mergeFragment = new Fragment("entry", "mergeFragment", this);
+						Fragment mergeFragment = new Fragment("entry", "mergeFragment", TicketPage.this);
 						mergeFragment.add(new LinkPanel("commitLink", null, commitLink,
 								CommitPage.class, WicketUtils.newObjectParameter(repositoryName, resolvedBy)));
 						mergeFragment.add(new Label("toBranch", MessageFormat.format(getString("gb.toBranch"),
@@ -695,7 +694,7 @@ public class TicketPage extends RepositoryPage {
 						/*
 						 *  STATUS CHANGE
 						 */
-						Fragment frag = new Fragment("entry", "statusFragment", this);
+						Fragment frag = new Fragment("entry", "statusFragment", TicketPage.this);
 						Label status = new Label("statusChange", entry.getStatus().toString());
 						String css = TicketsUI.getLozengeClass(entry.getStatus(), false);
 						WicketUtils.setCssClass(status, css);
@@ -710,7 +709,7 @@ public class TicketPage extends RepositoryPage {
 						String bugtraq = bugtraqProcessor().processText(getRepository(), repositoryName, entry.comment.text);
 						String comment = MarkdownUtils.transformGFM(app().settings(), bugtraq, repositoryName);
 						String safeComment = app().xssFilter().relaxed(comment);
-						Fragment frag = new Fragment("entry", "commentFragment", this);
+						Fragment frag = new Fragment("entry", "commentFragment", TicketPage.this);
 						Label commentIcon = new Label("commentIcon");
 						if (entry.comment.src == CommentSource.Email) {
 							WicketUtils.setCssClass(commentIcon, "iconic-mail");
@@ -742,7 +741,7 @@ public class TicketPage extends RepositoryPage {
 			add(new Label("newComment").setVisible(false));
 		} else {
 			// permit user to comment
-			Fragment newComment = new Fragment("newComment", "newCommentFragment", this);
+			Fragment newComment = new Fragment("newComment", "newCommentFragment", TicketPage.this);
 			AvatarImage img = new AvatarImage("newCommentAvatar", user.username, user.emailAddress,
 					"gravatar-round", avatarWidth, true);
 			newComment.add(img);
@@ -763,7 +762,7 @@ public class TicketPage extends RepositoryPage {
 			if (ticket.isOpen() && app().tickets().isAcceptingNewPatchsets(repository) && canPropose) {
 				// ticket & repo will accept a proposal patchset
 				// show the instructions for proposing a patchset
-				Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
+				Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", TicketPage.this);
 				changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
 				changeIdFrag.add(new Label("ptWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")));
 				changeIdFrag.add(new Label("ptWorkflowSteps", getProposeWorkflow("propose_pt.md", repoUrl.url, ticket.number)).setEscapeModelStrings(false));
@@ -772,7 +771,7 @@ public class TicketPage extends RepositoryPage {
 				add(changeIdFrag);
 			} else {
 				// explain why you can't propose a patchset
-				Fragment fragment = new Fragment("patchset", "canNotProposeFragment", this);
+				Fragment fragment = new Fragment("patchset", "canNotProposeFragment", TicketPage.this);
 				String reason = "";
 				if (ticket.isClosed()) {
 					reason = getString("gb.ticketIsClosed");
@@ -796,7 +795,7 @@ public class TicketPage extends RepositoryPage {
 			}
 		} else {
 			// show current patchset
-			Fragment patchsetFrag = new Fragment("patchset", "patchsetFragment", this);
+			Fragment patchsetFrag = new Fragment("patchset", "patchsetFragment", TicketPage.this);
 			patchsetFrag.add(new Label("commitsInPatchset", MessageFormat.format(getString("gb.commitsInPatchsetN"), currentPatchset.number)));
 
 			patchsetFrag.add(createMergePanel(user, repository));
@@ -843,7 +842,7 @@ public class TicketPage extends RepositoryPage {
 		/*
 		 * ACTIVITY TAB
 		 */
-		Fragment revisionHistory = new Fragment("activity", "activityFragment", this);
+		Fragment revisionHistory = new Fragment("activity", "activityFragment", TicketPage.this);
 		List<Change> events = new ArrayList<Change>(ticket.changes);
 		Collections.sort(events);
 		Collections.reverse(events);
@@ -1091,7 +1090,7 @@ public class TicketPage extends RepositoryPage {
 		patchsets.remove(currentPatchset);
 		Collections.reverse(patchsets);
 
-		Fragment panel = new Fragment(wicketId, "collapsiblePatchsetFragment", this);
+		Fragment panel = new Fragment(wicketId, "collapsiblePatchsetFragment", TicketPage.this);
 
 		// patchset header
 		String ps = "<b>" + currentPatchset.number + "</b>";
@@ -1168,7 +1167,7 @@ public class TicketPage extends RepositoryPage {
 			}
 
 			// user can review, add review controls
-			Fragment reviewControls = new Fragment("reviewControls", "reviewControlsFragment", this);
+			Fragment reviewControls = new Fragment("reviewControls", "reviewControlsFragment", TicketPage.this);
 
 			// show "approve" button if no review OR not current score
 			if (user.canApprovePatchset(repository) && (myReview == null || Score.approved != myReview.score)) {
@@ -1362,7 +1361,7 @@ public class TicketPage extends RepositoryPage {
 	}
 
 	protected <X extends MarkupContainer> X setNewTarget(X x) {
-		x.add(new SimpleAttributeModifier("target", "_blank"));
+		x.add(new AttributeModifier("target", "_blank"));
 		return x;
 	}
 
@@ -1416,7 +1415,7 @@ public class TicketPage extends RepositoryPage {
 		if (allowMerge) {
 			if (MergeStatus.MERGEABLE == mergeStatus) {
 				// patchset can be cleanly merged to integration branch OR has already been merged
-				Fragment mergePanel = new Fragment("mergePanel", "mergeableFragment", this);
+				Fragment mergePanel = new Fragment("mergePanel", "mergeableFragment", TicketPage.this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetMergeable"), ticket.mergeTo)));
 				if (user.canPush(repository)) {
 					// user can merge locally
@@ -1483,18 +1482,18 @@ public class TicketPage extends RepositoryPage {
 				return mergePanel;
 			} else if (MergeStatus.ALREADY_MERGED == mergeStatus) {
 				// patchset already merged
-				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", this);
+				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", TicketPage.this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetAlreadyMerged"), ticket.mergeTo)));
 				return mergePanel;
 			} else if (MergeStatus.MISSING_INTEGRATION_BRANCH == mergeStatus) {
 				// target/integration branch is missing
-				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", this);
+				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", TicketPage.this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
 				mergePanel.add(new Label("mergeMore", MessageFormat.format(getString("gb.missingIntegrationBranchMore"), ticket.mergeTo)));
 				return mergePanel;
 			} else {
 				// patchset can not be cleanly merged
-				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", this);
+				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", TicketPage.this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
 				if (user.canPush(repository)) {
 					// user can merge locally
@@ -1509,17 +1508,17 @@ public class TicketPage extends RepositoryPage {
 			// merge not allowed
 			if (MergeStatus.ALREADY_MERGED == mergeStatus) {
 				// patchset already merged
-				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", this);
+				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", TicketPage.this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetAlreadyMerged"), ticket.mergeTo)));
 				return mergePanel;
 			} else if (ticket.isVetoed(patchset)) {
 				// patchset has been vetoed
-				Fragment mergePanel =  new Fragment("mergePanel", "vetoedFragment", this);
+				Fragment mergePanel =  new Fragment("mergePanel", "vetoedFragment", TicketPage.this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
 				return mergePanel;
 			} else if (repository.requireApproval) {
 				// patchset has been not been approved for merge
-				Fragment mergePanel = new Fragment("mergePanel", "notApprovedFragment", this);
+				Fragment mergePanel = new Fragment("mergePanel", "notApprovedFragment", TicketPage.this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotApproved"), ticket.mergeTo)));
 				mergePanel.add(new Label("mergeMore", MessageFormat.format(getString("gb.patchsetNotApprovedMore"), ticket.mergeTo)));
 				return mergePanel;
@@ -1531,7 +1530,7 @@ public class TicketPage extends RepositoryPage {
 	}
 
 	protected Component getMergeInstructions(UserModel user, RepositoryModel repository, String markupId, String infoKey) {
-		Fragment cmd = new Fragment(markupId, "commandlineMergeFragment", this);
+		Fragment cmd = new Fragment(markupId, "commandlineMergeFragment", TicketPage.this);
 		cmd.add(new Label("instructions", MessageFormat.format(getString(infoKey), ticket.mergeTo)));
 
 		// git instructions
@@ -1569,7 +1568,7 @@ public class TicketPage extends RepositoryPage {
 	 * @return the primary repository url
 	 */
 	protected RepositoryUrl getRepositoryUrl(UserModel user, RepositoryModel repository) {
-		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
+		HttpServletRequest req = GitBlitRequestUtils.getServletRequest();
 		List<RepositoryUrl> urls = app().services().getRepositoryUrls(req, user, repository);
 		if (ArrayUtils.isEmpty(urls)) {
 			return null;
@@ -1640,7 +1639,7 @@ public class TicketPage extends RepositoryPage {
 	protected Fragment createCopyFragment(String wicketId, String text) {
 		if (app().settings().getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
 			// clippy: flash-based copy & paste
-			Fragment copyFragment = new Fragment(wicketId, "clippyPanel", this);
+			Fragment copyFragment = new Fragment(wicketId, "clippyPanel", TicketPage.this);
 			String baseUrl = WicketUtils.getGitblitURL(getRequest());
 			ShockWaveComponent clippy = new ShockWaveComponent("clippy", baseUrl + "/clippy.swf");
 			clippy.setValue("flashVars", "text=" + StringUtils.encodeURL(text));
@@ -1648,7 +1647,7 @@ public class TicketPage extends RepositoryPage {
 			return copyFragment;
 		} else {
 			// javascript: manual copy & paste with modal browser prompt dialog
-			Fragment copyFragment = new Fragment(wicketId, "jsPanel", this);
+			Fragment copyFragment = new Fragment(wicketId, "jsPanel", TicketPage.this);
 			ContextImage img = WicketUtils.newImage("copyIcon", "clippy.png");
 			img.add(new JavascriptTextPrompt("onclick", "Copy to Clipboard (Ctrl+C, Enter)", text));
 			copyFragment.add(img);
@@ -1723,8 +1722,7 @@ public class TicketPage extends RepositoryPage {
 				}
 				
 				//Force reload of the page to rebuild ticket change cache
-				String relativeUrl = urlFor(TicketsPage.class, getPageParameters()).toString();
-				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+				String absoluteUrl = GitBlitRequestUtils.toAbsoluteUrl(TicketsPage.class, getPageParameters());
 				setResponsePage(new RedirectPage(absoluteUrl));
 			}
 		};

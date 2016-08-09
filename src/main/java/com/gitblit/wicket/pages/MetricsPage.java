@@ -25,8 +25,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
 
@@ -72,7 +71,7 @@ public class MetricsPage extends RepositoryPage {
 		createBarChart(charts, "dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
 		createPieChart(charts, "authorsChart", getAuthorMetrics(r, objectId));
 
-		add(new HeaderContributor(charts));
+		add(charts);
 
 	}
 

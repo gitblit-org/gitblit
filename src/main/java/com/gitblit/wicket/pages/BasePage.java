@@ -31,23 +31,23 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.RedirectToUrlException;
-import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.request.flow.RedirectToUrlException;
+import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.ContextRelativeResourceReference;
+import org.apache.wicket.request.resource.JavaScriptResourceReference;
+import org.apache.wicket.resource.JQueryResourceReference;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.markup.repeater.RepeatingView;
-import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
-import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.util.time.Duration;
 import org.apache.wicket.util.time.Time;
 import org.slf4j.Logger;
@@ -62,14 +62,18 @@ import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.resources.bootstrap.Bootstrap;
 
 public abstract class BasePage extends SessionPage {
+
+	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger;
 
@@ -77,12 +81,12 @@ public abstract class BasePage extends SessionPage {
 
 	public BasePage() {
 		super();
-		customizeHeader();
+		// customizeHeader();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
-		customizeHeader();
+		// customizeHeader();
 	}
 
 	protected Logger logger() {
@@ -92,17 +96,21 @@ public abstract class BasePage extends SessionPage {
 		return logger;
 	}
 
-	private void customizeHeader() {
+	@Override
+	public void renderHead(IHeaderResponse response) {
+		super.renderHead(response);
+		response.render(JavaScriptHeaderItem.forReference(JQueryResourceReference.get()));
+		
 		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
-			add(CSSPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
+			response.render(CssHeaderItem.forReference(Application.get().getSharedResources().get(Bootstrap.BOOTSTRAP_RESPONSIVE_CSS_RESOURCE)));
 		}
 		if (app().settings().getBoolean(Keys.web.hideHeader, false)) {
-			add(CSSPackageResource.getHeaderContribution("hideheader.css"));
+			response.render(CssHeaderItem.forReference(new ContextRelativeResourceReference("/hideheader.css", false)));
 		}
 	}
 
 	protected String getContextUrl() {
-		return getRequest().getRelativePathPrefixToContextRoot();
+		return GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 	}
 
 	protected String getCanonicalUrl() {
@@ -110,9 +118,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	protected String getCanonicalUrl(Class<? extends BasePage> clazz, PageParameters params) {
-		String relativeUrl = urlFor(clazz, params).toString();
-		String canonicalUrl = RequestUtils.toAbsolutePath(relativeUrl);
-		return canonicalUrl;
+		return GitBlitRequestUtils.toAbsoluteUrl(clazz, params);
 	}
 
 	protected void redirectTo(Class<? extends BasePage> pageClass) {
@@ -121,7 +127,7 @@ public abstract class BasePage extends SessionPage {
 
 	protected void redirectTo(Class<? extends BasePage> pageClass, PageParameters parameters) {
 		String absoluteUrl = getCanonicalUrl(pageClass, parameters);
-		getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
+		getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(absoluteUrl));
 	}
 
 	protected String getLanguageCode() {
@@ -136,7 +142,8 @@ public abstract class BasePage extends SessionPage {
 		if (timeUtils == null) {
 			ResourceBundle bundle;
 			try {
-				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", GitBlitWebSession.get().getLocale());
+				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp",
+						GitBlitWebSession.get().getLocale());
 			} catch (Throwable t) {
 				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp");
 			}
@@ -164,7 +171,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	@Override
-	protected void setHeaders(WebResponse response)	{
+	protected void setHeaders(WebResponse response) {
 		// set canonical link as http header for SEO (issue-304)
 		// https://support.google.com/webmasters/answer/139394?hl=en
 		response.setHeader("Link", MessageFormat.format("<{0}>; rel=\"canonical\"", getCanonicalUrl()));
@@ -184,7 +191,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	/**
-	 * Sets the last-modified header date, if appropriate, for this page.  The
+	 * Sets the last-modified header date, if appropriate, for this page. The
 	 * date used is determined by the CacheControl annotation.
 	 *
 	 */
@@ -227,7 +234,8 @@ public abstract class BasePage extends SessionPage {
 		int expires = app().settings().getInteger(Keys.web.pageCacheExpires, 0);
 		WebResponse response = (WebResponse) getResponse();
 		response.setLastModifiedTime(Time.valueOf(when));
-		response.setDateHeader("Expires", System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds());
+		response.addHeader("Expires",
+				String.valueOf(System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds()));
 	}
 
 	protected String getPageTitle(String repositoryName) {
@@ -245,7 +253,8 @@ public abstract class BasePage extends SessionPage {
 	protected void setupPage(String repositoryName, String pageName) {
 		add(new Label("title", getPageTitle(repositoryName)));
 		getBottomScriptContainer();
-		String rootLinkUrl = app().settings().getString(Keys.web.rootLink, urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
+		String rootLinkUrl = app().settings().getString(Keys.web.rootLink,
+				urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
 		ExternalLink rootLink = new ExternalLink("rootLink", rootLinkUrl);
 		WicketUtils.setHtmlTooltip(rootLink, app().settings().getString(Keys.web.siteName, Constants.NAME));
 		add(rootLink);
@@ -347,14 +356,12 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	protected TimeZone getTimeZone() {
-		return app().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
-				.getTimezone() : app().getTimezone();
+		return app().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get().getTimezone()
+				: app().getTimezone();
 	}
 
 	protected String getServerName() {
-		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
-		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
-		return req.getServerName();
+		return GitBlitRequestUtils.getServletRequest().getServerName();
 	}
 
 	protected List<ProjectModel> getProjectModels() {
@@ -371,7 +378,7 @@ public abstract class BasePage extends SessionPage {
 		boolean hasParameter = false;
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
-		int daysBack = params.getInt("db", 0);
+		int daysBack = params.get("db").toInt(0);
 		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 
 		List<ProjectModel> availableModels = getProjectModels();
@@ -462,14 +469,13 @@ public abstract class BasePage extends SessionPage {
 
 	public void error(String message, Throwable t, Class<? extends Page> toPage, PageParameters params) {
 		if (t == null) {
-			logger().error(message  + " for " + GitBlitWebSession.get().getUsername());
+			logger().error(message + " for " + GitBlitWebSession.get().getUsername());
 		} else {
-			logger().error(message  + " for " + GitBlitWebSession.get().getUsername(), t);
+			logger().error(message + " for " + GitBlitWebSession.get().getUsername(), t);
 		}
 		if (toPage != null) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
-			String relativeUrl = urlFor(toPage, params).toString();
-			String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+			String absoluteUrl = GitBlitRequestUtils.toAbsoluteUrl(toPage, params);
 			throw new RedirectToUrlException(absoluteUrl);
 		} else {
 			super.error(message);
@@ -477,7 +483,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	public void authenticationError(String message) {
-		logger().error(getRequest().getURL() + " for " + GitBlitWebSession.get().getUsername());
+		logger().error(getRequest().getUrl() + " for " + GitBlitWebSession.get().getUsername());
 		if (!GitBlitWebSession.get().isLoggedIn()) {
 			// cache the request if we have not authenticated.
 			// the request will continue after authentication.
@@ -519,15 +525,17 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	/**
-	 * Adds a HTML script element loading the javascript designated by the given path.
+	 * Adds a HTML script element loading the javascript designated by the given
+	 * path.
 	 *
 	 * @param scriptPath
-	 *            page-relative path to the Javascript resource; normally starts with "scripts/"
+	 *            page-relative path to the Javascript resource; normally starts
+	 *            with "scripts/"
 	 */
 	protected void addBottomScript(String scriptPath) {
 		RepeatingView bottomScripts = getBottomScriptContainer();
 		Label script = new Label(bottomScripts.newChildId(), "<script type='text/javascript' src='"
-				+ urlFor(new JavascriptResourceReference(this.getClass(), scriptPath)) + "'></script>\n");
+				+ urlFor(new JavaScriptResourceReference(this.getClass(), scriptPath), null) + "'></script>\n");
 		bottomScripts.add(script.setEscapeModelStrings(false).setRenderBodyOnly(true));
 	}
 

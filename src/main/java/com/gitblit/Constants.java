@@ -19,6 +19,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -89,7 +90,7 @@ public class Constants {
 
 	public static final String PROPOSAL_EXT = ".json";
 
-	public static final String ENCODING = "UTF-8";
+	public static final String ENCODING = StandardCharsets.UTF_8.name();
 
 	public static final int LEN_SHORTLOG = 78;
 

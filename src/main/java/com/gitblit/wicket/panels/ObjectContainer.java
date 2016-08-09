@@ -19,17 +19,17 @@ package com.gitblit.wicket.panels;
 import java.util.List;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.Response;
+//import org.apache.wicket.ResourceReference;
+import org.apache.wicket.core.request.ClientInfo;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.ClientProperties;
-import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
-import org.apache.wicket.request.ClientInfo;
+import org.apache.wicket.request.Response;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.util.value.IValueMap;
 
 /**
@@ -85,8 +85,8 @@ public abstract class ObjectContainer extends WebMarkupContainer {
 			parent = parent.getParent();
 		}
 		if (parent != null) {
-			ResourceReference resRef = new ResourceReference(parent.getClass(), src, false);
-			return (urlFor(resRef).toString());
+			PackageResourceReference resRef = new PackageResourceReference(parent.getClass(), src);
+			return (urlFor(resRef, getPage().getPageParameters()).toString());
 		}
 
 		return (src);
@@ -149,7 +149,7 @@ public abstract class ObjectContainer extends WebMarkupContainer {
 			ClientInfo clientInfo = WebSession.get().getClientInfo();
 
 			if (clientInfo == null || !(clientInfo instanceof WebClientInfo)) {
-				clientInfo = new WebClientInfo((WebRequestCycle) getRequestCycle());
+				clientInfo = new WebClientInfo(getRequestCycle());
 				WebSession.get().setClientInfo(clientInfo);
 			}
 

@@ -117,4 +117,8 @@ public class PluginClassResolver implements IClassResolver {
 			}
 		}
 	}
+
+	@Override
+	public ClassLoader getClassLoader() {
+		return getClass().getClassLoader();	}
 }

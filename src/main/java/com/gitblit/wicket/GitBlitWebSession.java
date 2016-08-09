@@ -21,16 +21,20 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.RedirectToUrlException;
-import org.apache.wicket.Request;
+import org.apache.wicket.request.IRequestParameters;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Url;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.flow.RedirectToUrlException;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
+import com.gitblit.GitBlitServer.Params;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.GitBlitRequestUtils;
 
 public final class GitBlitWebSession extends WebSession {
 
@@ -64,11 +68,15 @@ public final class GitBlitWebSession extends WebSession {
 	 */
 	public void cacheRequest(Class<? extends Page> pageClass) {
 		// build absolute url with correctly encoded parameters?!
-		Request req = WebRequestCycle.get().getRequest();
-		Map<String, ?> params = req.getRequestParameters().getParameters();
-		PageParameters pageParams = new PageParameters(params);
-		String relativeUrl = WebRequestCycle.get().urlFor(pageClass, pageParams).toString();
-		requestUrl = RequestUtils.toAbsolutePath(relativeUrl);
+		Request req = RequestCycle.get().getRequest();
+		IRequestParameters params = req.getRequestParameters();
+		PageParameters pageParams = new PageParameters();
+		params.getParameterNames().forEach(name->{
+			pageParams.add(name, params.getParameterValue(name));
+		});
+		requestUrl = GitBlitRequestUtils.toAbsoluteUrl(pageClass, pageParams);
+
+		
 		if (isTemporary())
 		{
 			// we must bind the temporary session into the session store

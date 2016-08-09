@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -56,7 +57,7 @@ public abstract class BasePanel extends Panel {
 	}
 
 	protected String getContextUrl() {
-		return getRequest().getRelativePathPrefixToContextRoot();
+		return GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 	}
 
 	protected TimeZone getTimeZone() {
@@ -90,7 +91,7 @@ public abstract class BasePanel extends Panel {
 		private static final long serialVersionUID = 1L;
 
 		public JavascriptEventConfirmation(String event, String msg) {
-			super(event, true, new Model<String>(msg));
+			super(event, new Model<String>(msg));
 		}
 
 		@Override
@@ -112,7 +113,7 @@ public abstract class BasePanel extends Panel {
 		private String initialValue = "";
 
 		public JavascriptTextPrompt(String event, String msg, String value) {
-			super(event, true, new Model<String>(msg));
+			super(event,  new Model<String>(msg));
 			initialValue = value;
 		}
 

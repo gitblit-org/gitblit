@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -28,7 +29,6 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
 import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -60,6 +60,8 @@ import com.gitblit.wicket.panels.RefsPanel;
 
 @CacheControl(LastModified.BOOT)
 public class CommitDiffPage extends RepositoryPage {
+
+	private static final long serialVersionUID = 1L;
 
 	public CommitDiffPage(PageParameters params) {
 		super(params);
@@ -191,8 +193,9 @@ public class CommitDiffPage extends RepositoryPage {
 									}
 								};
 								
-						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
-						    }}));
+								ResourceStreamRequestHandler resourceStreamRequestHandler = new ResourceStreamRequestHandler(
+										resourceStream, entry.path);
+								getRequestCycle().scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);						    }}));
 					}
 					else
 					{
@@ -240,8 +243,9 @@ public class CommitDiffPage extends RepositoryPage {
 						    	  };
 						    	      
 						    	
-						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
-						    }});
+						    	  ResourceStreamRequestHandler resourceStreamRequestHandler = new ResourceStreamRequestHandler(
+											resourceStream, entry.path);
+									getRequestCycle().scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);						    }});
 						
 						item.add(new Link<Object>("raw", null) {
 							 
@@ -264,8 +268,9 @@ public class CommitDiffPage extends RepositoryPage {
 						    	  };
 						    	      
 						    	
-						    	getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, entry.path));
-						    }});
+						    	  ResourceStreamRequestHandler resourceStreamRequestHandler = new ResourceStreamRequestHandler(
+											resourceStream, entry.path);
+									getRequestCycle().scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);						    }});
 					} else {
 						item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
 								.newPathParameter(repositoryName, entry.commitId, entry.path))

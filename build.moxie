@@ -68,14 +68,14 @@ resourceDirectories:
 - compile 'src/main/resources'
 - site 'src/site/resources'
 
-# compile for Java 7 class format
+# compile for Java 8 class format
 tasks: {
 	'mx:javac' : {
-        source: 1.7
-        target: 1.7
-        compiler: javac1.7
+        source: 1.8
+        target: 1.8
+        compiler: javac1.8
         encoding: UTF-8
-        # stop complaints about bootstrap classpath when compiling with Java 7
+        # stop complaints about bootstrap classpath when compiling with Java 8
         compilerArgs: '-Xlint:-options'
     }
 }
@@ -104,7 +104,7 @@ repositories: central, eclipse-snapshots, eclipse, gitblit
 properties: {
   jetty.version  : 9.2.13.v20150730
   slf4j.version  : 1.7.12
-  wicket.version : 1.4.22
+  wicket.version : 7.4.0
   lucene.version : 4.10.4
   jgit.version   : 4.1.1.201511131810-r
   groovy.version : 2.4.4
@@ -140,7 +140,7 @@ dependencies:
 - compile 'com.sun.mail:javax.mail:1.5.1' :war
 - compile 'javax.servlet:javax.servlet-api:3.1.0' :fedclient
 - compile 'org.eclipse.jetty.aggregate:jetty-all:${jetty.version}' @jar
-- compile 'org.apache.wicket:wicket:${wicket.version}' :war !org.mockito
+- compile 'org.apache.wicket:wicket-core:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-auth-roles:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-extensions:${wicket.version}' :war !org.mockito
 - compile 'org.apache.lucene:lucene-core:${lucene.version}' :war :fedclient

@@ -38,7 +38,7 @@ public class UsersPanel extends BasePanel {
 	public UsersPanel(String wicketId, final boolean showAdmin) {
 		super(wicketId);
 
-		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
+		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", UsersPanel.this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
@@ -85,7 +85,7 @@ public class UsersPanel extends BasePanel {
 				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
 				item.add(new Label("repositories",
 						entry.permissions.size() > 0 ? ("" + entry.permissions.size()) : ""));
-				Fragment userLinks = new Fragment("userLinks", "userAdminLinks", this);
+				Fragment userLinks = new Fragment("userLinks", "userAdminLinks", UsersPanel.this);
 				userLinks.add(new BookmarkablePageLink<Void>("editUser", EditUserPage.class,
 						WicketUtils.newUsernameParameter(entry.username)));
 				Link<Void> deleteLink = new Link<Void>("deleteUser") {

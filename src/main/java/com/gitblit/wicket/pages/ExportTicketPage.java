@@ -15,10 +15,10 @@
  */
 package com.gitblit.wicket.pages;
 
-import org.apache.wicket.IRequestTarget;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.IRequestCycle;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +30,8 @@ import com.gitblit.wicket.WicketUtils;
 
 public class ExportTicketPage extends SessionPage {
 
+	private static final long serialVersionUID = 1L;
+
 	private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
 	String contentType;
@@ -37,18 +39,15 @@ public class ExportTicketPage extends SessionPage {
 	public ExportTicketPage(final PageParameters params) {
 		super(params);
 
-		if (!params.containsKey("r")) {
+		if (params.get("r").isEmpty()) {
 			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 
-		getRequestCycle().setRequestTarget(new IRequestTarget() {
+		getRequestCycle().scheduleRequestHandlerAfterCurrent(new IRequestHandler() {
+			
 			@Override
-			public void detach(RequestCycle requestCycle) {
-			}
-
-			@Override
-			public void respond(RequestCycle requestCycle) {
+			public void respond(IRequestCycle requestCycle) {
 				WebResponse response = (WebResponse) requestCycle.getResponse();
 
 				final String repositoryName = WicketUtils.getRepositoryName(params);
@@ -68,6 +67,12 @@ public class ExportTicketPage extends SessionPage {
 				} catch (Exception e) {
 					logger.error("Failed to write text response", e);
 				}
+			}
+			
+			@Override
+			public void detach(IRequestCycle requestCycle) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}

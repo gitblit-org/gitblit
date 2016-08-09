@@ -10,7 +10,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.AbstractTextComponent.ITextFormatProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.convert.converters.DateConverter;
+import org.apache.wicket.util.convert.converter.DateConverter;
 
 public class Html5DateField extends TextField<Date> implements ITextFormatProvider {
 
@@ -105,8 +105,8 @@ public class Html5DateField extends TextField<Date> implements ITextFormatProvid
 	 * @return A pattern-specific converter
 	 */
 	@Override
-	public IConverter getConverter(Class<?> type)
-	{
+	public <C> IConverter<C> getConverter(Class<C> type) {
+
 		if (converter == null)
 		{
 			return super.getConverter(type);
@@ -148,9 +148,8 @@ public class Html5DateField extends TextField<Date> implements ITextFormatProvid
 	}
 	
 	@Override
-	protected String getInputType()
-	{
-		return "date";
+	protected String[] getInputTypes() {
+		return new String[]{"date"};
 	}
 	
 }

@@ -17,7 +17,6 @@ package com.gitblit.wicket.panels;
 
 import java.util.List;
 
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -32,6 +31,7 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.servlet.RawServlet;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -106,7 +106,7 @@ public class TagsPanel extends BasePanel {
 					}
 					item.add(messageLink);
 
-					Fragment fragment = new Fragment("tagLinks", "blobLinks", this);
+					Fragment fragment = new Fragment("tagLinks", "blobLinks", TagsPanel.this);
 					fragment.add(new BookmarkablePageLink<Void>("tag", TagPage.class, WicketUtils
 							.newObjectParameter(repositoryName, entry.getObjectId().getName()))
 							.setEnabled(entry.isAnnotatedTag()));
@@ -115,7 +115,7 @@ public class TagsPanel extends BasePanel {
 							.newObjectParameter(repositoryName, entry.getReferencedObjectId()
 									.getName())));
 
-					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
+					String contextUrl = GitBlitRequestUtils.getRelativePathPrefixToContextRoot();
 					String rawUrl = RawServlet.asLink(contextUrl, repositoryName, entry.displayName,
 							entry.getReferencedObjectId().getName());
 					fragment.add(new ExternalLink("raw", rawUrl));
@@ -133,7 +133,7 @@ public class TagsPanel extends BasePanel {
 						}
 						item.add(messageLink);
 
-						Fragment fragment = new Fragment("tagLinks", "annotatedLinks", this);
+						Fragment fragment = new Fragment("tagLinks", "annotatedLinks", TagsPanel.this);
 						fragment.add(new BookmarkablePageLink<Void>("tag", TagPage.class,
 								WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
 										.getName())).setEnabled(entry.isAnnotatedTag()));
@@ -150,7 +150,7 @@ public class TagsPanel extends BasePanel {
 						item.add(new LinkPanel("tagDescription", "list", message, CommitPage.class,
 								WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
 										.getName())));
-						Fragment fragment = new Fragment("tagLinks", "lightweightLinks", this);
+						Fragment fragment = new Fragment("tagLinks", "lightweightLinks", TagsPanel.this);
 						fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class,
 								WicketUtils.newObjectParameter(repositoryName, entry
 										.getReferencedObjectId().getName())));

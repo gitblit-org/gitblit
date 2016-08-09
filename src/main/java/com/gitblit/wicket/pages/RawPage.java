@@ -24,26 +24,29 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wicket.IRequestTarget;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.protocol.http.servlet.AbortWithWebErrorCodeException;
+import org.apache.wicket.request.IRequestCycle;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.GitBlitRequestUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
 public class RawPage extends SessionPage {
+
+	private static final long serialVersionUID = 1L;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -52,18 +55,15 @@ public class RawPage extends SessionPage {
 	public RawPage(final PageParameters params) {
 		super(params);
 
-		if (!params.containsKey("r")) {
+		if (params.get("r").isEmpty()) {
 			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 
-		getRequestCycle().setRequestTarget(new IRequestTarget() {
-			@Override
-			public void detach(RequestCycle requestCycle) {
-			}
+		getRequestCycle().scheduleRequestHandlerAfterCurrent(new IRequestHandler() {
 
 			@Override
-			public void respond(RequestCycle requestCycle) {
+			public void respond(IRequestCycle requestCycle) {
 				WebResponse response = (WebResponse) requestCycle.getResponse();
 
 				final String repositoryName = WicketUtils.getRepositoryName(params);
@@ -96,7 +96,7 @@ public class RawPage extends SessionPage {
 						final String objectNotFound = MessageFormat.format("Raw page failed to find object {0} in {1}",
 								objectId, repositoryName);
 						logger.error(objectNotFound);
-						throw new AbortWithWebErrorCodeException(HttpServletResponse.SC_NOT_FOUND, objectNotFound);
+						throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, objectNotFound);
 					}
 					contentType = "application/octet-stream";
 					response.setContentType(contentType);
@@ -113,7 +113,7 @@ public class RawPage extends SessionPage {
 						final String commitNotFound = MessageFormat.format("Raw page failed to find commit {0} in {1}",
 								objectId, repositoryName);
 						logger.error(commitNotFound);
-						throw new AbortWithWebErrorCodeException(HttpServletResponse.SC_NOT_FOUND, commitNotFound);
+						throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, commitNotFound);
 					}
 
 					String filename = blobPath;
@@ -149,7 +149,7 @@ public class RawPage extends SessionPage {
 							byte[] image = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
 							if (image == null) {
 								logger.error(blobNotFound);
-								throw new AbortWithWebErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
+								throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
 							}
 							contentType = "image/" + extension.toLowerCase();
 							response.setContentType(contentType);
@@ -165,25 +165,24 @@ public class RawPage extends SessionPage {
 							byte[] binary = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
 							if (binary == null) {
 								logger.error(blobNotFound);
-								throw new AbortWithWebErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
+								throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
 							}
 							contentType = "application/octet-stream";
 							response.setContentLength(binary.length);
 							response.setContentType(contentType);
 
 						    try {
-						    	WebRequest request = (WebRequest) requestCycle.getRequest();
-						    	String userAgent = request.getHttpServletRequest().getHeader("User-Agent");
+						    	String userAgent = GitBlitRequestUtils.getServletRequest().getHeader("User-Agent");
 
 								if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
 								      response.setHeader("Content-Disposition", "filename=\""
-								    		  +  URLEncoder.encode(filename, "UTF-8") + "\"");
+								    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
 								} else if (userAgent != null && userAgent.indexOf("MSIE") > -1) {
 								      response.setHeader("Content-Disposition", "attachment; filename=\""
-								    		  +  URLEncoder.encode(filename, "UTF-8") + "\"");
+								    		  +  URLEncoder.encode(filename, Constants.ENCODING) + "\"");
 								} else {
 										response.setHeader("Content-Disposition", "attachment; filename=\""
-										      + new String(filename.getBytes("UTF-8"), "latin1") + "\"");
+										      + new String(filename.getBytes(Constants.ENCODING), "latin1") + "\"");
 								}
 							}
 							catch (UnsupportedEncodingException e) {
@@ -202,7 +201,7 @@ public class RawPage extends SessionPage {
 									blobPath, encodings);
 							if (content == null) {
 								logger.error(blobNotFound);
-								throw new AbortWithWebErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
+								throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
 							}
 							contentType = "text/plain; charset=UTF-8";
 							response.setContentType(contentType);
@@ -219,7 +218,7 @@ public class RawPage extends SessionPage {
 								encodings);
 						if (content == null) {
 							logger.error(blobNotFound);
-							throw new AbortWithWebErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
+							throw new AbortWithHttpErrorCodeException(HttpServletResponse.SC_NOT_FOUND, blobNotFound);
 						}
 						contentType = "text/plain; charset=UTF-8";
 						response.setContentType(contentType);
@@ -232,7 +231,15 @@ public class RawPage extends SessionPage {
 				}
 				r.close();
 			}
+
+			@Override
+			public void detach(IRequestCycle requestCycle) {
+				// TODO Auto-generated method stub
+				
+			}
+
 		});
+		
 	}
 
 	@Override

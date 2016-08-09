@@ -68,7 +68,7 @@ public class BooleanChoiceOption<T> extends BasePanel {
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				choice.setEnabled(checkbox.getModelObject());
-				target.addComponent(choice);
+				target.add(choice);
 				if (!choice.isEnabled()) {
 					choice.setModelObject(null);
 				}

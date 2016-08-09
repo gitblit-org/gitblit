@@ -23,8 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -144,7 +143,7 @@ public class SummaryPage extends RepositoryPage {
 			if (markupDoc == null || markupDoc.markup == null) {
 				add(new Label("readme").setVisible(false));
 			} else {
-				Fragment fragment = new Fragment("readme", MarkupSyntax.PLAIN.equals(markupDoc.syntax) ? "plaintextPanel" : "markdownPanel", this);
+				Fragment fragment = new Fragment("readme", MarkupSyntax.PLAIN.equals(markupDoc.syntax) ? "plaintextPanel" : "markdownPanel", SummaryPage.this);
 				fragment.add(new Label("readmeFile", markupDoc.documentPath));
 				// Add the html to the page
 				Component content = new Label("readmeContent", markupDoc.html).setEscapeModelStrings(false);
@@ -160,7 +159,7 @@ public class SummaryPage extends RepositoryPage {
 			add(new Label("commitsChart").setVisible(false));
 		} else {
 			Charts charts = createCharts(metrics);
-			add(new HeaderContributor(charts));
+			add(charts);
 		}
 	}
 

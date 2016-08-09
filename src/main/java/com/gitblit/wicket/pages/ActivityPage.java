@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 
@@ -118,8 +117,8 @@ public class ActivityPage extends RootPage {
 			// create the activity charts
 			if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 				Charts charts = createCharts(recentActivity);
-				add(new HeaderContributor(charts));
-				add(new Fragment("chartsPanel", "chartsFragment", this));
+				add(charts);
+				add(new Fragment("chartsPanel", "chartsFragment", ActivityPage.this));
 			} else {
 				add(new Label("chartsPanel").setVisible(false));
 			}
@@ -141,8 +140,8 @@ public class ActivityPage extends RootPage {
 
 		PageParameters currentParameters = getPageParameters();
 		int daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
-		if (currentParameters != null && !currentParameters.containsKey("db")) {
-			currentParameters.put("db", daysBack);
+		if (currentParameters != null && currentParameters.get("db").isEmpty()) {
+			currentParameters.add("db", daysBack);
 		}
 
 		// preserve time filter options on repository choices
