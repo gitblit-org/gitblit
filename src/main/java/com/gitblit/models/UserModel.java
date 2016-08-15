@@ -660,4 +660,8 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		String projectPath = StringUtils.getFirstPathElement(repository);
 		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath());
 	}
+	
+	public String createCookie() {
+		return StringUtils.getSHA1(String.valueOf(Math.random()));
+	}
 }

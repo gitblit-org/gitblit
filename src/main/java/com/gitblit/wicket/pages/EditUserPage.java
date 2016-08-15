@@ -156,7 +156,7 @@ public class EditUserPage extends RootSubPage {
 						}
 
 						// change the cookie
-						userModel.cookie = StringUtils.getSHA1(userModel.username + password);
+						userModel.cookie = userModel.createCookie();
 
 						// Optionally store the password MD5 digest.
 						String type = app().settings().getString(Keys.realm.passwordStorage, "md5");
