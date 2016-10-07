@@ -347,7 +347,6 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				if (result != null && result.getEntryCount() == 1) {
 					SearchResultEntry loggingInUser = result.getSearchEntries().get(0);
 					String loggingInUserDN = loggingInUser.getDN();
-
 					if (alreadyAuthenticated || isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
 						logger.debug("LDAP authenticated: " + username);
 
@@ -464,7 +463,6 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
 		String loggingInUserDN = loggingInUser.getDN();
-
 		// Clear the users team memberships - we're going to get them from LDAP
 		user.teams.clear();
 
@@ -559,13 +557,22 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	}
 
 	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
+	  LDAPConnection authldapConnection = getLdapConnection();
 		try {
-			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
-			ldapConnection.bind(userDn, password);
+			if (settings.getBoolean(Keys.realm.ldap.groupQueryWithUser, false)
+					&& !StringUtils.isEmpty(settings.getString(Keys.realm.ldap.username, "")) ) {
+				// bind authConnection to user 
+				authldapConnection.bind(userDn, password);
+			} else {
+				// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
+				ldapConnection.bind(userDn, password);
+			}
 			return true;
 		} catch (LDAPException e) {
 			logger.error("Error authenticating user", e);
 			return false;
+		} finally {
+		  authldapConnection.close();
 		}
 	}
 
