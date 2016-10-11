@@ -346,8 +346,8 @@ public abstract class RootPage extends BasePage {
 		}
 
 		// user's team memberships
-		if (user != null && user.teams.size() > 0) {
-			List<TeamModel> teams = new ArrayList<TeamModel>(user.teams);
+		if (user != null && user.getTeamSize() > 0) {
+			List<TeamModel> teams = new ArrayList<TeamModel>(user.getTeams());
 			Collections.sort(teams);
 			for (TeamModel team : teams) {
 				filters.add(new ToggleMenuItem(MessageFormat.format("{0} ({1})", team.name,

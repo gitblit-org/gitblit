@@ -165,7 +165,7 @@ dependencies:
 - compile 'rome:rome:0.9' :war :manager :api
 - compile 'com.google.code.gson:gson:2.3.1' :war :fedclient :manager :api
 - compile 'org.codehaus.groovy:groovy-all:${groovy.version}' :war
-- compile 'com.unboundid:unboundid-ldapsdk:2.3.8' :war
+- compile 'com.unboundid:unboundid-ldapsdk:3.1.0' :war
 - compile 'org.apache.ivy:ivy:2.2.0' :war
 - compile 'com.toedter:jcalendar:1.3.2' :authority
 - compile 'org.apache.commons:commons-compress:1.4.1' :war

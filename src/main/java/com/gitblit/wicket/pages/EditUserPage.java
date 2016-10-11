@@ -97,7 +97,7 @@ public class EditUserPage extends RootSubPage {
 		List<String> repos = getAccessRestrictedRepositoryList(true, userModel);
 
 		List<String> userTeams = new ArrayList<String>();
-		for (TeamModel team : userModel.teams) {
+		for (TeamModel team : userModel.getTeams()) {
 			userTeams.add(team.name);
 		}
 		Collections.sort(userTeams);
@@ -184,13 +184,13 @@ public class EditUserPage extends RootSubPage {
 				}
 
 				Iterator<String> selectedTeams = teams.getSelectedChoices();
-				userModel.teams.clear();
+				userModel.removeAllTeams();
 				while (selectedTeams.hasNext()) {
 					TeamModel team = app().users().getTeamModel(selectedTeams.next());
 					if (team == null) {
 						continue;
 					}
-					userModel.teams.add(team);
+					userModel.addTeam(team);
 				}
 
 				try {

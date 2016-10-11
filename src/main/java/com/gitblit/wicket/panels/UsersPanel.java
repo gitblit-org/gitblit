@@ -33,85 +33,77 @@ import com.gitblit.wicket.pages.EditUserPage;
 
 public class UsersPanel extends BasePanel {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public UsersPanel(String wicketId, final boolean showAdmin) {
-		super(wicketId);
+  public UsersPanel(String wicketId, final boolean showAdmin) {
+    super(wicketId);
 
-		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
-		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
-		add(adminLinks.setVisible(showAdmin));
+    Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
+    adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
+    add(adminLinks.setVisible(showAdmin));
 
-		final List<UserModel> users = app().users().getAllUsers();
-		DataView<UserModel> usersView = new DataView<UserModel>("userRow",
-				new ListDataProvider<UserModel>(users)) {
-			private static final long serialVersionUID = 1L;
-			private int counter;
+    final List<UserModel> users = app().users().getAllUsers();
+    DataView<UserModel> usersView = new DataView<UserModel>("userRow", new ListDataProvider<UserModel>(users)) {
+      private static final long serialVersionUID = 1L;
+      private int counter;
 
-			@Override
-			protected void onBeforeRender() {
-				super.onBeforeRender();
-				counter = 0;
-			}
+      @Override
+      protected void onBeforeRender() {
+        super.onBeforeRender();
+        counter = 0;
+      }
 
-			@Override
-			public void populateItem(final Item<UserModel> item) {
-				final UserModel entry = item.getModelObject();
-				String css = "list" + (entry.disabled ? "-strikethrough":"");
-				LinkPanel editLink = new LinkPanel("username", css, entry.username,
-						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
-				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
-				item.add(editLink);
+      @Override
+      public void populateItem(final Item<UserModel> item) {
+        final UserModel entry = item.getModelObject();
+        String css = "list" + (entry.disabled ? "-strikethrough" : "");
+        LinkPanel editLink = new LinkPanel("username", css, entry.username, EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
+        WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
+        item.add(editLink);
 
-				if (StringUtils.isEmpty(entry.displayName)) {
-					item.add(new Label("displayName").setVisible(false));
-				} else {
-					editLink = new LinkPanel("displayName", css, entry.getDisplayName(),
-						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
-					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
-					item.add(editLink);
-				}
+        if (StringUtils.isEmpty(entry.displayName)) {
+          item.add(new Label("displayName").setVisible(false));
+        } else {
+          editLink = new LinkPanel("displayName", css, entry.getDisplayName(), EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
+          WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
+          item.add(editLink);
+        }
 
-				if (StringUtils.isEmpty(entry.emailAddress)) {
-					item.add(new Label("emailAddress").setVisible(false));
-				} else {
-					editLink = new LinkPanel("emailAddress", css, entry.emailAddress,
-						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
-					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
-					item.add(editLink);
-				}
+        if (StringUtils.isEmpty(entry.emailAddress)) {
+          item.add(new Label("emailAddress").setVisible(false));
+        } else {
+          editLink = new LinkPanel("emailAddress", css, entry.emailAddress, EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
+          WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
+          item.add(editLink);
+        }
 
-				item.add(new Label("accountType", entry.accountType.name() + (entry.canAdmin() ? ", admin":"")));
-				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
-				item.add(new Label("repositories",
-						entry.permissions.size() > 0 ? ("" + entry.permissions.size()) : ""));
-				Fragment userLinks = new Fragment("userLinks", "userAdminLinks", this);
-				userLinks.add(new BookmarkablePageLink<Void>("editUser", EditUserPage.class,
-						WicketUtils.newUsernameParameter(entry.username)));
-				Link<Void> deleteLink = new Link<Void>("deleteUser") {
+        item.add(new Label("accountType", entry.accountType.name() + (entry.canAdmin() ? ", admin" : "")));
+        item.add(new Label("teams", entry.getTeamSize() > 0 ? ("" + entry.getTeamSize()) : ""));
+        item.add(new Label("repositories", entry.permissions.size() > 0 ? ("" + entry.permissions.size()) : ""));
+        Fragment userLinks = new Fragment("userLinks", "userAdminLinks", this);
+        userLinks.add(new BookmarkablePageLink<Void>("editUser", EditUserPage.class, WicketUtils.newUsernameParameter(entry.username)));
+        Link<Void> deleteLink = new Link<Void>("deleteUser") {
 
-					private static final long serialVersionUID = 1L;
+          private static final long serialVersionUID = 1L;
 
-					@Override
-					public void onClick() {
-						if (app().users().deleteUser(entry.username)) {
-							users.remove(entry);
-							info(MessageFormat.format(getString("gb.userDeleted"), entry.username));
-						} else {
-							error(MessageFormat.format(getString("gb.deleteUserFailed"),
-									entry.username));
-						}
-					}
-				};
-				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						getString("gb.deleteUser"), entry.username)));
-				userLinks.add(deleteLink);
-				item.add(userLinks);
+          @Override
+          public void onClick() {
+            if (app().users().deleteUser(entry.username)) {
+              users.remove(entry);
+              info(MessageFormat.format(getString("gb.userDeleted"), entry.username));
+            } else {
+              error(MessageFormat.format(getString("gb.deleteUserFailed"), entry.username));
+            }
+          }
+        };
+        deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(getString("gb.deleteUser"), entry.username)));
+        userLinks.add(deleteLink);
+        item.add(userLinks);
 
-				WicketUtils.setAlternatingBackground(item, counter);
-				counter++;
-			}
-		};
-		add(usersView.setVisible(showAdmin));
-	}
+        WicketUtils.setAlternatingBackground(item, counter);
+        counter++;
+      }
+    };
+    add(usersView.setVisible(showAdmin));
+  }
 }

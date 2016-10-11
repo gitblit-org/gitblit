@@ -31,96 +31,93 @@ import com.gitblit.models.UserModel;
  */
 public class UsersTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	List<UserModel> list;
+  List<UserModel> list;
 
-	enum Columns {
-		Name, Display_Name, Type, Teams, Repositories;
+  enum Columns {
+    Name, Display_Name, Type, Teams, Repositories;
 
-		@Override
-		public String toString() {
-			return name().replace('_', ' ');
-		}
-	}
+    @Override
+    public String toString() {
+      return name().replace('_', ' ');
+    }
+  }
 
-	public UsersTableModel() {
-		this(new ArrayList<UserModel>());
-	}
+  public UsersTableModel() {
+    this(new ArrayList<UserModel>());
+  }
 
-	public UsersTableModel(List<UserModel> users) {
-		this.list = users;
-		Collections.sort(this.list);
-	}
+  public UsersTableModel(List<UserModel> users) {
+    this.list = users;
+    Collections.sort(this.list);
+  }
 
-	@Override
-	public int getRowCount() {
-		return list.size();
-	}
+  @Override
+  public int getRowCount() {
+    return list.size();
+  }
 
-	@Override
-	public int getColumnCount() {
-		return Columns.values().length;
-	}
+  @Override
+  public int getColumnCount() {
+    return Columns.values().length;
+  }
 
-	@Override
-	public String getColumnName(int column) {
-		Columns col = Columns.values()[column];
-		switch (col) {
-		case Name:
-			return Translation.get("gb.name");
-		case Display_Name:
-			return Translation.get("gb.displayName");
-		case Type:
-			return Translation.get("gb.type");
-		case Teams:
-			return Translation.get("gb.teamMemberships");
-		case Repositories:
-			return Translation.get("gb.repositories");
-		}
-		return "";
-	}
+  @Override
+  public String getColumnName(int column) {
+    Columns col = Columns.values()[column];
+    switch (col) {
+    case Name:
+      return Translation.get("gb.name");
+    case Display_Name:
+      return Translation.get("gb.displayName");
+    case Type:
+      return Translation.get("gb.type");
+    case Teams:
+      return Translation.get("gb.teamMemberships");
+    case Repositories:
+      return Translation.get("gb.repositories");
+    }
+    return "";
+  }
 
-	/**
-	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 *
-	 * @param columnIndex
-	 *            the column being queried
-	 * @return the Object.class
-	 */
-	@Override
-	public Class<?> getColumnClass(int columnIndex) {
-		return String.class;
-	}
+  /**
+   * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
+   *
+   * @param columnIndex the column being queried
+   * @return the Object.class
+   */
+  @Override
+  public Class<?> getColumnClass(int columnIndex) {
+    return String.class;
+  }
 
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		UserModel model = list.get(rowIndex);
-		Columns col = Columns.values()[columnIndex];
-		switch (col) {
-		case Name:
-			return model.username;
-		case Display_Name:
-			return model.displayName;
-		case Type:
-			StringBuilder sb = new StringBuilder();
-			if (model.accountType != null) {
-				sb.append(model.accountType.name());
-			}
-			if (model.canAdmin()) {
-				if (sb.length() > 0) {
-					sb.append(", ");
-				}
-				sb.append("admin");
-			}
-			return sb.toString();
-		case Teams:
-			return (model.teams == null || model.teams.size() == 0) ? "" : String
-					.valueOf(model.teams.size());
-		case Repositories:
-			return (model.permissions == null || model.permissions.size() == 0) ? "" : String
-					.valueOf(model.permissions.size());
-		}
-		return null;
-	}
+  @Override
+  public Object getValueAt(int rowIndex, int columnIndex) {
+    UserModel model = list.get(rowIndex);
+    Columns col = Columns.values()[columnIndex];
+    switch (col) {
+    case Name:
+      return model.username;
+    case Display_Name:
+      return model.displayName;
+    case Type:
+      StringBuilder sb = new StringBuilder();
+      if (model.accountType != null) {
+        sb.append(model.accountType.name());
+      }
+      if (model.canAdmin()) {
+        if (sb.length() > 0) {
+          sb.append(", ");
+        }
+        sb.append("admin");
+      }
+      return sb.toString();
+    case Teams:
+      return (model.getTeams() == null || model.getTeams().size() == 0) ? "" : String.valueOf(model.getTeamSize());
+    case Repositories:
+      return (model.permissions == null || model.permissions.size() == 0) ? "" : String.valueOf(model.permissions.size());
+    }
+    return null;
+  }
 }

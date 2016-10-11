@@ -22,12 +22,6 @@
 		review the defaults for any new settings.  Settings are always versioned
 		with a SINCE x.y.z attribute and also noted in the release changelog.
 		-->
-	<env-entry>
-		<description>The base folder is used to specify the root location of your Gitblit data.</description>
-		<env-entry-name>baseFolder</env-entry-name>
-		<env-entry-type>java.lang.String</env-entry-type>
-		<env-entry-value>${contextFolder}/WEB-INF/data</env-entry-value>
-	</env-entry>
 	
 	<!-- Gitblit Displayname -->
 	<display-name>Gitblit - @gb.version@</display-name>

@@ -279,6 +279,7 @@
 			<!-- include "war" tagged dependencies -->
 			<dependencies prefix="WEB-INF/lib" tag="war" />
 		</mx:zip>
+	  	<copyfile dest="${project.targetDirectory}/git.war" src="${project.targetDirectory}/${distribution.warfile}"/>
 	</target>
 
 
