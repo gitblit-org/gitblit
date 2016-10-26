@@ -19,9 +19,9 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jgit.lib.ObjectId;
@@ -58,7 +58,7 @@ public class CommitCache {
 	}
 
 	protected CommitCache() {
-		cache = new ConcurrentHashMap<String, ObjectCache<List<RepositoryCommit>>>();
+		cache = new HashMap<>();
 	}
 
 	/**
@@ -93,7 +93,9 @@ public class CommitCache {
 	 *
 	 */
 	public void clear() {
-		cache.clear();
+		synchronized (cache) {
+			cache.clear();
+		}
 	}
 
 	/**
@@ -103,8 +105,11 @@ public class CommitCache {
 	 */
 	public void clear(String repositoryName) {
 		String repoKey = repositoryName.toLowerCase();
-		ObjectCache<List<RepositoryCommit>> repoCache = cache.remove(repoKey);
-		if (repoCache != null) {
+		boolean hadEntries = false;
+		synchronized (cache) {
+			hadEntries = cache.remove(repoKey) != null;
+		}
+		if (hadEntries) {
 			logger.info(MessageFormat.format("{0} commit cache cleared", repositoryName));
 		}
 	}
@@ -117,12 +122,16 @@ public class CommitCache {
 	 */
 	public void clear(String repositoryName, String branch) {
 		String repoKey = repositoryName.toLowerCase();
-		ObjectCache<List<RepositoryCommit>> repoCache = cache.get(repoKey);
-		if (repoCache != null) {
-			List<RepositoryCommit> commits = repoCache.remove(branch.toLowerCase());
-			if (!ArrayUtils.isEmpty(commits)) {
-				logger.info(MessageFormat.format("{0}:{1} commit cache cleared", repositoryName, branch));
+		boolean hadEntries = false;
+		synchronized (cache) {
+			ObjectCache<List<RepositoryCommit>> repoCache = cache.get(repoKey);
+			if (repoCache != null) {
+				List<RepositoryCommit> commits = repoCache.remove(branch.toLowerCase());
+				hadEntries = !ArrayUtils.isEmpty(commits);
 			}
+		}
+		if (hadEntries) {
+			logger.info(MessageFormat.format("{0}:{1} commit cache cleared", repositoryName, branch));
 		}
 	}
 
@@ -156,49 +165,55 @@ public class CommitCache {
 		if (cacheDays > 0 && (sinceDate.getTime() >= cacheCutoffDate.getTime())) {
 			// request fits within the cache window
 			String repoKey = repositoryName.toLowerCase();
-			if (!cache.containsKey(repoKey)) {
-				cache.put(repoKey, new ObjectCache<List<RepositoryCommit>>());
-			}
-
-			ObjectCache<List<RepositoryCommit>> repoCache = cache.get(repoKey);
 			String branchKey = branch.toLowerCase();
 
 			RevCommit tip = JGitUtils.getCommit(repository, branch);
 			Date tipDate = JGitUtils.getCommitDate(tip);
 
-			List<RepositoryCommit> commits;
-			if (!repoCache.hasCurrent(branchKey, tipDate)) {
-				commits = repoCache.getObject(branchKey);
-				if (ArrayUtils.isEmpty(commits)) {
-					// we don't have any cached commits for this branch, reload
-					commits = get(repositoryName, repository, branch, cacheCutoffDate);
-					repoCache.updateObject(branchKey, tipDate, commits);
-					logger.debug(MessageFormat.format("parsed {0} commits from {1}:{2} since {3,date,yyyy-MM-dd} in {4} msecs",
-							commits.size(), repositoryName, branch, cacheCutoffDate, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
-				} else {
-					// incrementally update cache since the last cached commit
-					ObjectId sinceCommit = commits.get(0).getId();
-					List<RepositoryCommit> incremental = get(repositoryName, repository, branch, sinceCommit);
-					logger.info(MessageFormat.format("incrementally added {0} commits to cache for {1}:{2} in {3} msecs",
-							incremental.size(), repositoryName, branch, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
-					incremental.addAll(commits);
-					repoCache.updateObject(branchKey, tipDate, incremental);
-					commits = incremental;
+			ObjectCache<List<RepositoryCommit>> repoCache;
+			synchronized (cache) {
+				repoCache = cache.get(repoKey);
+				if (repoCache == null) {
+					repoCache = new ObjectCache<>();
+					cache.put(repoKey, repoCache);
 				}
-			} else {
-				// cache is current
-				commits = repoCache.getObject(branchKey);
-				// evict older commits outside the cache window
-				commits = reduce(commits, cacheCutoffDate);
-				// update cache
-				repoCache.updateObject(branchKey, tipDate, commits);
 			}
+			synchronized (repoCache) {
+				List<RepositoryCommit> commits;
+				if (!repoCache.hasCurrent(branchKey, tipDate)) {
+					commits = repoCache.getObject(branchKey);
+					if (ArrayUtils.isEmpty(commits)) {
+						// we don't have any cached commits for this branch, reload
+						commits = get(repositoryName, repository, branch, cacheCutoffDate);
+						repoCache.updateObject(branchKey, tipDate, commits);
+						logger.debug(MessageFormat.format("parsed {0} commits from {1}:{2} since {3,date,yyyy-MM-dd} in {4} msecs",
+								commits.size(), repositoryName, branch, cacheCutoffDate, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+					} else {
+						// incrementally update cache since the last cached commit
+						ObjectId sinceCommit = commits.get(0).getId();
+						List<RepositoryCommit> incremental = get(repositoryName, repository, branch, sinceCommit);
+						logger.info(MessageFormat.format("incrementally added {0} commits to cache for {1}:{2} in {3} msecs",
+								incremental.size(), repositoryName, branch, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+						incremental.addAll(commits);
+						repoCache.updateObject(branchKey, tipDate, incremental);
+						commits = incremental;
+					}
+				} else {
+					// cache is current
+					commits = repoCache.getObject(branchKey);
+					// evict older commits outside the cache window
+					commits = reduce(commits, cacheCutoffDate);
+					// update cache
+					repoCache.updateObject(branchKey, tipDate, commits);
+				}
 
-			if (sinceDate.equals(cacheCutoffDate)) {
-				list = commits;
-			} else {
-				// reduce the commits to those since the specified date
-				list = reduce(commits, sinceDate);
+				if (sinceDate.equals(cacheCutoffDate)) {
+					// Mustn't hand out the cached list; that's not thread-safe
+					list = new ArrayList<>(commits);
+				} else {
+					// reduce the commits to those since the specified date
+					list = reduce(commits, sinceDate);
+				}
 			}
 			logger.debug(MessageFormat.format("retrieved {0} commits from cache of {1}:{2} since {3,date,yyyy-MM-dd} in {4} msecs",
 					list.size(), repositoryName, branch, sinceDate, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
@@ -222,8 +237,9 @@ public class CommitCache {
 	 */
 	protected List<RepositoryCommit> get(String repositoryName, Repository repository, String branch, Date sinceDate) {
 		Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository, false);
-		List<RepositoryCommit> commits = new ArrayList<RepositoryCommit>();
-		for (RevCommit commit : JGitUtils.getRevLog(repository, branch, sinceDate)) {
+		List<RevCommit> revLog = JGitUtils.getRevLog(repository, branch, sinceDate);
+		List<RepositoryCommit> commits = new ArrayList<RepositoryCommit>(revLog.size());
+		for (RevCommit commit : revLog) {
 			RepositoryCommit commitModel = new RepositoryCommit(repositoryName, branch, commit);
 			List<RefModel> commitRefs = allRefs.get(commitModel.getId());
 			commitModel.setRefs(commitRefs);
@@ -243,8 +259,9 @@ public class CommitCache {
 	 */
 	protected List<RepositoryCommit> get(String repositoryName, Repository repository, String branch, ObjectId sinceCommit) {
 		Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository, false);
-		List<RepositoryCommit> commits = new ArrayList<RepositoryCommit>();
-		for (RevCommit commit : JGitUtils.getRevLog(repository, sinceCommit.getName(), branch)) {
+		List<RevCommit> revLog = JGitUtils.getRevLog(repository, sinceCommit.getName(), branch);
+		List<RepositoryCommit> commits = new ArrayList<RepositoryCommit>(revLog.size());
+		for (RevCommit commit : revLog) {
 			RepositoryCommit commitModel = new RepositoryCommit(repositoryName, branch, commit);
 			List<RefModel> commitRefs = allRefs.get(commitModel.getId());
 			commitModel.setRefs(commitRefs);
@@ -261,7 +278,7 @@ public class CommitCache {
 	 * @return  a list of commits
 	 */
 	protected List<RepositoryCommit> reduce(List<RepositoryCommit> commits, Date sinceDate) {
-		List<RepositoryCommit> filtered = new ArrayList<RepositoryCommit>();
+		List<RepositoryCommit> filtered = new ArrayList<RepositoryCommit>(commits.size());
 		for (RepositoryCommit commit : commits) {
 			if (commit.getCommitDate().compareTo(sinceDate) >= 0) {
 				filtered.add(commit);

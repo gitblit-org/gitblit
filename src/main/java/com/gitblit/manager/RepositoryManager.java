@@ -1952,39 +1952,47 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	protected void configureCommitCache() {
-		int daysToCache = settings.getInteger(Keys.web.activityCacheDays, 14);
+		final int daysToCache = settings.getInteger(Keys.web.activityCacheDays, 14);
 		if (daysToCache <= 0) {
 			logger.info("Commit cache is disabled");
-		} else {
-			long start = System.nanoTime();
-			long repoCount = 0;
-			long commitCount = 0;
-			logger.info(MessageFormat.format("Preparing {0} day commit cache. please wait...", daysToCache));
-			CommitCache.instance().setCacheDays(daysToCache);
-			Date cutoff = CommitCache.instance().getCutoffDate();
-			for (String repositoryName : getRepositoryList()) {
-				RepositoryModel model = getRepositoryModel(repositoryName);
-				if (model != null && model.hasCommits && model.lastChange.after(cutoff)) {
-					repoCount++;
-					Repository repository = getRepository(repositoryName);
-					for (RefModel ref : JGitUtils.getLocalBranches(repository, true, -1)) {
-						if (!ref.getDate().after(cutoff)) {
-							// branch not recently updated
-							continue;
-						}
-						List<?> commits = CommitCache.instance().getCommits(repositoryName, repository, ref.getName());
-						if (commits.size() > 0) {
-							logger.info(MessageFormat.format("  cached {0} commits for {1}:{2}",
-									commits.size(), repositoryName, ref.getName()));
-							commitCount += commits.size();
-						}
-					}
-					repository.close();
-				}
-			}
-			logger.info(MessageFormat.format("built {0} day commit cache of {1} commits across {2} repositories in {3} msecs",
-					daysToCache, commitCount, repoCount, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+			return;
 		}
+		logger.info(MessageFormat.format("Preparing {0} day commit cache...", daysToCache));
+		CommitCache.instance().setCacheDays(daysToCache);
+		Thread loader = new Thread() {
+			@Override
+			public void run() {
+				long start = System.nanoTime();
+				long repoCount = 0;
+				long commitCount = 0;
+				Date cutoff = CommitCache.instance().getCutoffDate();
+				for (String repositoryName : getRepositoryList()) {
+					RepositoryModel model = getRepositoryModel(repositoryName);
+					if (model != null && model.hasCommits && model.lastChange.after(cutoff)) {
+						repoCount++;
+						Repository repository = getRepository(repositoryName);
+						for (RefModel ref : JGitUtils.getLocalBranches(repository, true, -1)) {
+							if (!ref.getDate().after(cutoff)) {
+								// branch not recently updated
+								continue;
+							}
+							List<?> commits = CommitCache.instance().getCommits(repositoryName, repository, ref.getName());
+							if (commits.size() > 0) {
+								logger.info(MessageFormat.format("  cached {0} commits for {1}:{2}",
+										commits.size(), repositoryName, ref.getName()));
+								commitCount += commits.size();
+							}
+						}
+						repository.close();
+					}
+				}
+				logger.info(MessageFormat.format("built {0} day commit cache of {1} commits across {2} repositories in {3} msecs",
+						daysToCache, commitCount, repoCount, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+			}
+		};
+		loader.setName("CommitCacheLoader");
+		loader.setDaemon(true);
+		loader.start();
 	}
 
 	protected void confirmWriteAccess() {
