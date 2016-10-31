@@ -1,0 +1,25 @@
+/**
+ * Disabled links in a PagerPanel. Bootstrap 2.0.4 only handles <a>, but not <span>. Wicket renders disabled links as spans.
+ * The .pagination rules here are identical to the ones for <a> in bootstrap.css, but for <span>.
+ */
+.pagination span {
+  float: left;
+  padding: 0 14px;
+  line-height: 34px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-left-width: 0;
+}
+
+.pagination li:first-child span {
+  border-left-width: 1px;
+  -webkit-border-radius: 3px 0 0 3px;
+     -moz-border-radius: 3px 0 0 3px;
+          border-radius: 3px 0 0 3px;
+}
+
+.pagination li:last-child span {
+  -webkit-border-radius: 0 3px 3px 0;
+     -moz-border-radius: 0 3px 3px 0;
+          border-radius: 0 3px 3px 0;
+}
