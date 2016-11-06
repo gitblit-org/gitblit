@@ -17,7 +17,9 @@
 package com.gitblit.tests;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +29,10 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.gitblit.Constants.AccountType;
 import com.gitblit.IStoredSettings;
@@ -43,7 +49,9 @@ import com.gitblit.utils.XssFilter;
 import com.gitblit.utils.XssFilter.AllowXssFilter;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerSnapshot;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldap.sdk.OperationType;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldif.LDIFReader;
@@ -55,19 +63,31 @@ import com.unboundid.ldif.LDIFReader;
  * @author jcrygier
  *
  */
+@RunWith(Parameterized.class)
 public class LdapAuthenticationTest extends GitblitUnitTest {
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+
+	public enum ServerMode { ANONYMOUS, AUTHENTICATED };
+
+	@Rule
+	public TemporaryFolder folder = new TemporaryFolder();
 
 	private static final String RESOURCE_DIR = "src/test/resources/ldap/";
 
-    private File usersConf;
+	@Parameter
+	public ServerMode serverMode;
 
-    private LdapAuthProvider ldap;
+	private File usersConf;
 
-	static int ldapPort = 1389;
+	private LdapAuthProvider ldap;
+
+	private static int ldapPort = 1389;
+	private static int ldapAuthedPort = 2389;
 
 	private static InMemoryDirectoryServer ds;
+	private static InMemoryDirectoryServerSnapshot dsAnonSnapshot;
+
+	private static InMemoryDirectoryServer dsAuthed;
+	private static InMemoryDirectoryServerSnapshot dsAuthedSnapshot;
 
 	private IUserManager userManager;
 
@@ -75,21 +95,54 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	private MemorySettings settings;
 
-	@BeforeClass
-	public static void createInMemoryLdapServer() throws Exception {
-		InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig("dc=MyDomain");
-		config.addAdditionalBindCredentials("cn=Directory Manager", "password");
-		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", ldapPort));
-		config.setSchema(null);
 
-		ds = new InMemoryDirectoryServer(config);
-		ds.startListening();
+
+	@Parameters(name = "{0}")
+	public static Collection<Object[]> data() {
+		return Arrays.asList(new Object[][] { {ServerMode.ANONYMOUS}, {ServerMode.AUTHENTICATED} });
 	}
 
+
+
+	@BeforeClass
+	public static void init() throws Exception {
+		InMemoryDirectoryServerConfig config = createInMemoryLdapServerConfig();
+		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", ldapPort));
+		ds = createInMemoryLdapServer(config);
+		dsAnonSnapshot = ds.createSnapshot();
+
+
+		config = createInMemoryLdapServerConfig();
+		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", ldapAuthedPort));
+		config.setAuthenticationRequiredOperationTypes(EnumSet.allOf(OperationType.class));
+		dsAuthed = createInMemoryLdapServer(config);
+		dsAuthedSnapshot = ds.createSnapshot();
+
+	}
+
+	public static InMemoryDirectoryServer createInMemoryLdapServer(InMemoryDirectoryServerConfig config) throws Exception {
+		InMemoryDirectoryServer imds = new InMemoryDirectoryServer(config);
+		imds.importFromLDIF(true, RESOURCE_DIR + "sampledata.ldif");
+		imds.startListening();
+		return imds;
+	}
+
+	public static InMemoryDirectoryServerConfig createInMemoryLdapServerConfig() throws Exception {
+		InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig("dc=MyDomain");
+		config.addAdditionalBindCredentials("cn=Directory Manager", "password");
+		config.setSchema(null);
+		return config;
+	}
+
+
+
 	@Before
-	public void init() throws Exception {
-		ds.clear();
-		ds.importFromLDIF(true, new LDIFReader(new FileInputStream(RESOURCE_DIR + "sampledata.ldif")));
+	public void setup() throws Exception {
+		ds.restoreSnapshot(dsAnonSnapshot);
+		dsAuthed.restoreSnapshot(dsAuthedSnapshot);
+
+		System.out.println("Before with server mode " + serverMode);
+
 		usersConf = folder.newFile("users.conf");
 		FileUtils.copyFile(new File(RESOURCE_DIR + "users.conf"), usersConf);
 		settings = getSettings();
@@ -117,11 +170,15 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	private MemorySettings getSettings() {
 		Map<String, Object> backingMap = new HashMap<String, Object>();
 		backingMap.put(Keys.realm.userService, usersConf.getAbsolutePath());
-		backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + ldapPort);
-//		backingMap.put(Keys.realm.ldap.domain, "");
-		backingMap.put(Keys.realm.ldap.username, "cn=Directory Manager");
-		backingMap.put(Keys.realm.ldap.password, "password");
-//		backingMap.put(Keys.realm.ldap.backingUserService, "users.conf");
+		if (ServerMode.ANONYMOUS == serverMode) {
+			backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + ldapPort);
+			backingMap.put(Keys.realm.ldap.username, "");
+			backingMap.put(Keys.realm.ldap.password, "");
+		} else {
+			backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + ldapAuthedPort);
+			backingMap.put(Keys.realm.ldap.username, "cn=Directory Manager");
+			backingMap.put(Keys.realm.ldap.password, "password");
+		}
 		backingMap.put(Keys.realm.ldap.maintainTeams, "true");
 		backingMap.put(Keys.realm.ldap.accountBase, "OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain");
 		backingMap.put(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
@@ -135,6 +192,8 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		MemorySettings ms = new MemorySettings(backingMap);
 		return ms;
 	}
+
+
 
 	@Test
 	public void testAuthenticate() {
@@ -159,6 +218,13 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNotNull(userThreeModel.getTeam("git_users"));
 		assertNull(userThreeModel.getTeam("git_admins"));
 		assertTrue(userThreeModel.canAdmin);
+
+		UserModel userFourModel = ldap.authenticate("UserFour", "userFourPassword".toCharArray());
+		assertNotNull(userFourModel);
+		assertNotNull(userFourModel.getTeam("git_users"));
+		assertNull(userFourModel.getTeam("git_admins"));
+		assertNull(userFourModel.getTeam("git admins"));
+		assertFalse(userFourModel.canAdmin);
 	}
 
 	@Test
@@ -210,7 +276,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	@Test
 	public void addingUserInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
-		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
+		getDS().addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap users in gitblit user model", 5, countLdapUsersInUserManager());
 	}
@@ -218,14 +284,14 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	@Test
 	public void addingUserInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
 		settings.put(Keys.realm.ldap.synchronize, "true");
-		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
+		getDS().addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap users in gitblit user model", 6, countLdapUsersInUserManager());
 	}
 
 	@Test
 	public void addingGroupsInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
-		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
+		getDS().addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap groups in gitblit team model", 0, countLdapTeamsInUserManager());
 	}
@@ -233,7 +299,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	@Test
 	public void addingGroupsInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
 		settings.put(Keys.realm.ldap.synchronize, "true");
-		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
+		getDS().addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
 		ldap.sync();
 		assertEquals("Number of ldap groups in gitblit team model", 1, countLdapTeamsInUserManager());
 	}
@@ -261,6 +327,13 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNotNull(userThreeModel.getTeam("git_users"));
 		assertNull(userThreeModel.getTeam("git_admins"));
 		assertTrue(userThreeModel.canAdmin);
+
+		UserModel userFourModel = auth.authenticate("UserFour", "userFourPassword".toCharArray(), null);
+		assertNotNull(userFourModel);
+		assertNotNull(userFourModel.getTeam("git_users"));
+		assertNull(userFourModel.getTeam("git_admins"));
+		assertNull(userFourModel.getTeam("git admins"));
+		assertFalse(userFourModel.canAdmin);
 	}
 
 	@Test
@@ -275,6 +348,17 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray(), null);
 		assertNull(userOneModelFailedAuth);
 	}
+
+
+
+	private InMemoryDirectoryServer getDS() {
+		if (ServerMode.ANONYMOUS == serverMode) {
+			return ds;
+		} else {
+			return dsAuthed;
+		}
+	}
+
 
 	private int countLdapUsersInUserManager() {
 		int ldapAccountCount = 0;
