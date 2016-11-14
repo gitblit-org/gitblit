@@ -48,7 +48,7 @@ public class PagerPanel extends Panel {
 			deltas = new int[] { -2, -1, 0, 1, 2 };
 		}
 
-		if (totalPages > 0) {
+		if (totalPages > 0 && currentPage > 1) {
 			pages.add(new PageObject("\u2190", currentPage - 1));
 		}
 		for (int delta : deltas) {
@@ -57,7 +57,7 @@ public class PagerPanel extends Panel {
 				pages.add(new PageObject("" + page, page));
 			}
 		}
-		if (totalPages > 0) {
+		if (totalPages > 0 && currentPage < totalPages) {
 			pages.add(new PageObject("\u2192", currentPage + 1));
 		}
 
@@ -75,6 +75,7 @@ public class PagerPanel extends Panel {
 				item.add(link);
 				if (pageItem.page == currentPage || pageItem.page < 1 || pageItem.page > totalPages) {
 					WicketUtils.setCssClass(item, "disabled");
+					link.setEnabled(false);
 				}
 			}
 		};
