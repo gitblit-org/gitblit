@@ -83,7 +83,7 @@ public class TeamsPanel extends BasePanel {
 						}
 					}
 				};
-				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+				deleteLink.add(new JavascriptEventConfirmation("click", MessageFormat.format(
 						"Delete team \"{0}\"?", entry.name)));
 				teamLinks.add(deleteLink);
 				item.add(teamLinks);

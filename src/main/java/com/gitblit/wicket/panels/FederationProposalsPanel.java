@@ -76,7 +76,7 @@ public class FederationProposalsPanel extends BasePanel {
 						}
 					}
 				};
-				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+				deleteLink.add(new JavascriptEventConfirmation("click", MessageFormat.format(
 						"Delete proposal \"{0}\"?", entry.name)));
 				item.add(deleteLink);
 				WicketUtils.setAlternatingBackground(item, counter);

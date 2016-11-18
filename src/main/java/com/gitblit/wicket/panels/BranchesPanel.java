@@ -236,7 +236,7 @@ public class BranchesPanel extends BasePanel {
 			}
 		};
 
-		deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+		deleteLink.add(new JavascriptEventConfirmation("click", MessageFormat.format(
 				"Delete branch \"{0}\"?", entry.displayName )));
 		return deleteLink;
 	}

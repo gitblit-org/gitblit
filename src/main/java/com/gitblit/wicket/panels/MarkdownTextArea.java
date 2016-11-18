@@ -38,7 +38,7 @@ public class MarkdownTextArea extends TextArea {
 	public MarkdownTextArea(String id, final IModel<String> previewModel, final Label previewLabel) {
 		super(id);
 		setModel(new PropertyModel(this, "text"));
-		add(new AjaxFormComponentUpdatingBehavior("onblur") {
+		add(new AjaxFormComponentUpdatingBehavior("blur") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -49,7 +49,7 @@ public class MarkdownTextArea extends TextArea {
 				}
 			}
 		});
-		add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -97,7 +97,7 @@ public class MarkdownTextArea extends TextArea {
 //		private static final long serialVersionUID = 1L;
 //
 //		public RichTextSetActiveTextFieldAttributeModifier(String markupId) {
-//			super("onClick", true, new Model("richTextSetActiveTextField('" + markupId + "');"));
+//			super("Click", true, new Model("richTextSetActiveTextField('" + markupId + "');"));
 //		}
 //	}
 

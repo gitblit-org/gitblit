@@ -208,7 +208,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				permissionChoice.setEnabled(entry.mutable);
 				permissionChoice.setOutputMarkupId(true);
 				if (entry.mutable) {
-					permissionChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+					permissionChoice.add(new AjaxFormComponentUpdatingBehavior("change") {
 
 						private static final long serialVersionUID = 1L;
 
@@ -254,9 +254,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				// add permission to our list
-				RegistrantAccessPermission rp = (RegistrantAccessPermission) form.getModel().getObject();
+				RegistrantAccessPermission rp = (RegistrantAccessPermission) getForm().getModel().getObject();
 				if (rp.permission == null) {
 					return;
 				}
@@ -342,7 +342,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		}
 
 		@Override
-		protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+		protected void onSubmit(AjaxRequestTarget target) {
 			RegistrantPermissionsPanel.this.activeState = buttonState;
 			target.add(RegistrantPermissionsPanel.this);
 		}

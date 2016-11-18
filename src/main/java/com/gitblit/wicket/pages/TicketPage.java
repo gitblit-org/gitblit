@@ -1404,14 +1404,14 @@ public class TicketPage extends RepositoryPage {
 
 		boolean allowMerge;
 		if (repository.requireApproval) {
-			// rpeository requires approval
+			// repository requires approval
 			allowMerge = ticket.isOpen() && ticket.isApproved(patchset);
 		} else {
-			// vetos are binding
+			// vetoes are binding
 			allowMerge = ticket.isOpen() && !ticket.isVetoed(patchset);
 		}
 
-		MergeStatus mergeStatus = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo);
+		MergeStatus mergeStatus = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo, repository.mergeType);
 		if (allowMerge) {
 			if (MergeStatus.MERGEABLE == mergeStatus) {
 				// patchset can be cleanly merged to integration branch OR has already been merged
@@ -1649,7 +1649,7 @@ public class TicketPage extends RepositoryPage {
 			// javascript: manual copy & paste with modal browser prompt dialog
 			Fragment copyFragment = new Fragment(wicketId, "jsPanel", TicketPage.this);
 			ContextImage img = WicketUtils.newImage("copyIcon", "clippy.png");
-			img.add(new JavascriptTextPrompt("onclick", "Copy to Clipboard (Ctrl+C, Enter)", text));
+			img.add(new JavascriptTextPrompt("click", "Copy to Clipboard (Ctrl+C, Enter)", text));
 			copyFragment.add(img);
 			return copyFragment;
 		}
@@ -1729,7 +1729,7 @@ public class TicketPage extends RepositoryPage {
 
 		WicketUtils.setHtmlTooltip(deleteLink, MessageFormat.format(getString("gb.deletePatchset"), patchset.number));
 		
-		deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(getString("gb.deletePatchset"), patchset.number)));
+		deleteLink.add(new JavascriptEventConfirmation("click", MessageFormat.format(getString("gb.deletePatchset"), patchset.number)));
 		
 		return deleteLink;
 	}

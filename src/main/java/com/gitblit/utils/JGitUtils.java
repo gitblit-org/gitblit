@@ -99,6 +99,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.MergeType;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
@@ -2453,44 +2454,13 @@ public class JGitUtils {
 	 * @param repository
 	 * @param src
 	 * @param toBranch
+	 * @param mergeType
+	 *            Defines the integration strategy to use for merging.
 	 * @return true if we can merge without conflict
 	 */
-	public static MergeStatus canMerge(Repository repository, String src, String toBranch) {
-		RevWalk revWalk = null;
-		try {
-			revWalk = new RevWalk(repository);
-			ObjectId branchId = repository.resolve(toBranch);
-			if (branchId == null) {
-				return MergeStatus.MISSING_INTEGRATION_BRANCH;
-			}
-			ObjectId srcId = repository.resolve(src);
-			if (srcId == null) {
-				return MergeStatus.MISSING_SRC_BRANCH;
-			}
-			RevCommit branchTip = revWalk.lookupCommit(branchId);
-			RevCommit srcTip = revWalk.lookupCommit(srcId);
-			if (revWalk.isMergedInto(srcTip, branchTip)) {
-				// already merged
-				return MergeStatus.ALREADY_MERGED;
-			} else if (revWalk.isMergedInto(branchTip, srcTip)) {
-				// fast-forward
-				return MergeStatus.MERGEABLE;
-			}
-			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
-			boolean canMerge = merger.merge(branchTip, srcTip);
-			if (canMerge) {
-				return MergeStatus.MERGEABLE;
-			}
-		} catch (NullPointerException e) {
-			LOGGER.error("Failed to determine canMerge", e);
-		} catch (IOException e) {
-			LOGGER.error("Failed to determine canMerge", e);
-		} finally {
-			if (revWalk != null) {
-				revWalk.close();
-			}
-		}
-		return MergeStatus.NOT_MERGEABLE;
+	public static MergeStatus canMerge(Repository repository, String src, String toBranch, MergeType mergeType) {
+		IntegrationStrategy strategy = IntegrationStrategyFactory.create(mergeType, repository, src, toBranch);
+		return strategy.canMerge();
 	}
 
 
@@ -2511,11 +2481,13 @@ public class JGitUtils {
 	 * @param repository
 	 * @param src
 	 * @param toBranch
+	 * @param mergeType
+	 *            Defines the integration strategy to use for merging.
 	 * @param committer
 	 * @param message
 	 * @return the merge result
 	 */
-	public static MergeResult merge(Repository repository, String src, String toBranch,
+	public static MergeResult merge(Repository repository, String src, String toBranch, MergeType mergeType,
 			PersonIdent committer, String message) {
 
 		if (!toBranch.startsWith(Constants.R_REFS)) {
@@ -2523,15 +2495,202 @@ public class JGitUtils {
 			toBranch = Constants.R_HEADS + toBranch;
 		}
 
-		RevWalk revWalk = null;
+		IntegrationStrategy strategy = IntegrationStrategyFactory.create(mergeType, repository, src, toBranch);
+		MergeResult mergeResult = strategy.merge(committer, message);
+
+		if (mergeResult.status != MergeStatus.MERGED) {
+			return mergeResult;
+		}
+
 		try {
-			revWalk = new RevWalk(repository);
-			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
-			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
-			if (revWalk.isMergedInto(srcTip, branchTip)) {
-				// already merged
-				return new MergeResult(MergeStatus.ALREADY_MERGED, null);
+			// Update the integration branch ref
+			RefUpdate mergeRefUpdate = repository.updateRef(toBranch);
+			mergeRefUpdate.setNewObjectId(strategy.getMergeCommit());
+			mergeRefUpdate.setRefLogMessage(strategy.getRefLogMessage(), false);
+			mergeRefUpdate.setExpectedOldObjectId(strategy.branchTip);
+			RefUpdate.Result rc = mergeRefUpdate.update();
+			switch (rc) {
+			case FAST_FORWARD:
+				// successful, clean merge
+				break;
+			default:
+				mergeResult = new MergeResult(MergeStatus.FAILED, null);
+				throw new GitBlitException(MessageFormat.format("Unexpected result \"{0}\" when {1} in {2}",
+						rc.name(), strategy.getOperationMessage(), repository.getDirectory()));
 			}
+		} catch (IOException e) {
+			LOGGER.error("Failed to merge", e);
+		}
+
+		return mergeResult;
+	}
+
+
+	private static abstract class IntegrationStrategy {
+		Repository repository;
+		String src;
+		String toBranch;
+
+		RevWalk revWalk;
+		RevCommit branchTip;
+		RevCommit srcTip;
+
+		RevCommit mergeCommit;
+		String refLogMessage;
+		String operationMessage;
+
+		RevCommit getMergeCommit() {
+			return mergeCommit;
+		}
+
+		String getRefLogMessage() {
+			return refLogMessage;
+		}
+
+		String getOperationMessage() {
+			return operationMessage;
+		}
+
+		IntegrationStrategy(Repository repository, String src, String toBranch) {
+			this.repository = repository;
+			this.src = src;
+			this.toBranch = toBranch;
+		}
+
+		void prepare() throws IOException {
+			if (revWalk == null) revWalk = new RevWalk(repository);
+			ObjectId branchId = repository.resolve(toBranch);
+			if (branchId != null) {
+				branchTip = revWalk.lookupCommit(branchId);
+			}
+			ObjectId srcId = repository.resolve(src);
+			if (srcId != null) {
+				srcTip = revWalk.lookupCommit(srcId);
+			}
+		}
+
+
+		abstract MergeStatus _canMerge() throws IOException;
+
+
+		MergeStatus canMerge() {
+			try {
+				prepare();
+				if (branchTip == null) {
+					return MergeStatus.MISSING_INTEGRATION_BRANCH;
+				}
+				if (srcTip == null) {
+					return MergeStatus.MISSING_SRC_BRANCH;
+				}
+				if (revWalk.isMergedInto(srcTip, branchTip)) {
+					// already merged
+					return MergeStatus.ALREADY_MERGED;
+				}
+				// determined by specific integration strategy
+				return _canMerge();
+
+			} catch (NullPointerException e) {
+				LOGGER.error("Failed to determine canMerge", e);
+			} catch (IOException e) {
+				LOGGER.error("Failed to determine canMerge", e);
+			} finally {
+				if (revWalk != null) {
+					revWalk.close();
+				}
+			}
+
+			return MergeStatus.NOT_MERGEABLE;
+		}
+
+
+		abstract MergeResult _merge(PersonIdent committer, String message) throws IOException;
+
+
+		MergeResult merge(PersonIdent committer, String message) {
+			try {
+				prepare();
+				if (revWalk.isMergedInto(srcTip, branchTip)) {
+					// already merged
+					return new MergeResult(MergeStatus.ALREADY_MERGED, null);
+				}
+				// determined by specific integration strategy
+				return _merge(committer, message);
+
+			} catch (IOException e) {
+				LOGGER.error("Failed to merge", e);
+			} finally {
+				if (revWalk != null) {
+					revWalk.close();
+				}
+			}
+
+			return new MergeResult(MergeStatus.FAILED, null);
+		}
+	}
+
+
+	private static class FastForwardOnly extends IntegrationStrategy {
+		FastForwardOnly(Repository repository, String src, String toBranch) {
+			super(repository, src, toBranch);
+		}
+
+		@Override
+		MergeStatus _canMerge() throws IOException {
+			if (revWalk.isMergedInto(branchTip, srcTip)) {
+				// fast-forward
+				return MergeStatus.MERGEABLE;
+			}
+
+			return MergeStatus.NOT_MERGEABLE;
+		}
+
+		@Override
+		MergeResult _merge(PersonIdent committer, String message) throws IOException {
+			if (! revWalk.isMergedInto(branchTip, srcTip)) {
+				// is not fast-forward
+				return new MergeResult(MergeStatus.FAILED, null);
+			}
+
+			mergeCommit = srcTip;
+			refLogMessage = "merge " + src + ": Fast-forward";
+			operationMessage = MessageFormat.format("fast-forwarding {0} to commit {1}", srcTip.getName(), branchTip.getName());
+
+			return new MergeResult(MergeStatus.MERGED, srcTip.getName());
+		}
+	}
+
+	private static class MergeIfNecessary extends IntegrationStrategy {
+		MergeIfNecessary(Repository repository, String src, String toBranch) {
+			super(repository, src, toBranch);
+		}
+
+		@Override
+		MergeStatus _canMerge() throws IOException {
+			if (revWalk.isMergedInto(branchTip, srcTip)) {
+				// fast-forward
+				return MergeStatus.MERGEABLE;
+			}
+
+			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
+			boolean canMerge = merger.merge(branchTip, srcTip);
+			if (canMerge) {
+				return MergeStatus.MERGEABLE;
+			}
+
+			return MergeStatus.NOT_MERGEABLE;
+		}
+
+		@Override
+		MergeResult _merge(PersonIdent committer, String message) throws IOException {
+			if (revWalk.isMergedInto(branchTip, srcTip)) {
+				// fast-forward
+				mergeCommit = srcTip;
+				refLogMessage = "merge " + src + ": Fast-forward";
+				operationMessage = MessageFormat.format("fast-forwarding {0} to commit {1}", branchTip.getName(), srcTip.getName());
+
+				return new MergeResult(MergeStatus.MERGED, srcTip.getName());
+			}
+
 			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
 			boolean merged = merger.merge(branchTip, srcTip);
 			if (merged) {
@@ -2555,20 +2714,9 @@ public class JGitUtils {
 					ObjectId mergeCommitId = odi.insert(commitBuilder);
 					odi.flush();
 
-					// set the merge ref to the merge commit
-					RevCommit mergeCommit = revWalk.parseCommit(mergeCommitId);
-					RefUpdate mergeRefUpdate = repository.updateRef(toBranch);
-					mergeRefUpdate.setNewObjectId(mergeCommitId);
-					mergeRefUpdate.setRefLogMessage("commit: " + mergeCommit.getShortMessage(), false);
-					RefUpdate.Result rc = mergeRefUpdate.update();
-					switch (rc) {
-					case FAST_FORWARD:
-						// successful, clean merge
-						break;
-					default:
-						throw new GitBlitException(MessageFormat.format("Unexpected result \"{0}\" when merging commit {1} into {2} in {3}",
-								rc.name(), srcTip.getName(), branchTip.getName(), repository.getDirectory()));
-					}
+					mergeCommit = revWalk.parseCommit(mergeCommitId);
+					refLogMessage = "commit: " + mergeCommit.getShortMessage();
+					operationMessage = MessageFormat.format("merging commit {0} into {1}", srcTip.getName(), branchTip.getName());
 
 					// return the merge commit id
 					return new MergeResult(MergeStatus.MERGED, mergeCommitId.getName());
@@ -2576,17 +2724,82 @@ public class JGitUtils {
 					odi.close();
 				}
 			}
-		} catch (IOException e) {
-			LOGGER.error("Failed to merge", e);
-		} finally {
-			if (revWalk != null) {
-				revWalk.close();
-			}
+			return new MergeResult(MergeStatus.FAILED, null);
 		}
-		return new MergeResult(MergeStatus.FAILED, null);
 	}
-	
-	
+
+	private static class MergeAlways extends IntegrationStrategy {
+		MergeAlways(Repository repository, String src, String toBranch) {
+			super(repository, src, toBranch);
+		}
+
+		@Override
+		MergeStatus _canMerge() throws IOException {
+			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
+			boolean canMerge = merger.merge(branchTip, srcTip);
+			if (canMerge) {
+				return MergeStatus.MERGEABLE;
+			}
+
+			return MergeStatus.NOT_MERGEABLE;
+		}
+
+		@Override
+		MergeResult _merge(PersonIdent committer, String message) throws IOException {
+			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
+			boolean merged = merger.merge(branchTip, srcTip);
+			if (merged) {
+				// create a merge commit and a reference to track the merge commit
+				ObjectId treeId = merger.getResultTreeId();
+				ObjectInserter odi = repository.newObjectInserter();
+				try {
+					// Create a commit object
+					CommitBuilder commitBuilder = new CommitBuilder();
+					commitBuilder.setCommitter(committer);
+					commitBuilder.setAuthor(committer);
+					commitBuilder.setEncoding(Constants.CHARSET);
+					if (StringUtils.isEmpty(message)) {
+						message = MessageFormat.format("merge {0} into {1}", srcTip.getName(), branchTip.getName());
+					}
+					commitBuilder.setMessage(message);
+					commitBuilder.setParentIds(branchTip.getId(), srcTip.getId());
+					commitBuilder.setTreeId(treeId);
+
+					// Insert the merge commit into the repository
+					ObjectId mergeCommitId = odi.insert(commitBuilder);
+					odi.flush();
+
+					mergeCommit = revWalk.parseCommit(mergeCommitId);
+					refLogMessage = "commit: " + mergeCommit.getShortMessage();
+					operationMessage = MessageFormat.format("merging commit {0} into {1}", srcTip.getName(), branchTip.getName());
+
+					// return the merge commit id
+					return new MergeResult(MergeStatus.MERGED, mergeCommitId.getName());
+				} finally {
+					odi.close();
+				}
+			}
+
+			return new MergeResult(MergeStatus.FAILED, null);
+		}
+	}
+
+
+	private static class IntegrationStrategyFactory {
+		static IntegrationStrategy create(MergeType mergeType, Repository repository, String src, String toBranch) {
+			switch(mergeType) {
+			case FAST_FORWARD_ONLY:
+				return new FastForwardOnly(repository, src, toBranch);
+			case MERGE_IF_NECESSARY:
+				return new MergeIfNecessary(repository, src, toBranch);
+			case MERGE_ALWAYS:
+				return new MergeAlways(repository, src, toBranch);
+			}
+			return null;
+		}
+	}
+
+
 	/**
 	 * Returns the LFS URL for the given oid 
 	 * Currently assumes that the Gitblit Filestore is used 

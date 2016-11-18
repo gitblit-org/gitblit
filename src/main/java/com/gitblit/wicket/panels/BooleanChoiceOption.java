@@ -61,7 +61,7 @@ public class BooleanChoiceOption<T> extends BasePanel {
 		add(choice.setMarkupId("choice").setEnabled(choice.getChoices().size() > 0));
 		choice.setEnabled(checkbox.getModelObject());
 
-		checkbox.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		checkbox.add(new AjaxFormComponentUpdatingBehavior("change") {
 
 			private static final long serialVersionUID = 1L;
 

@@ -103,7 +103,7 @@ public class UsersPanel extends BasePanel {
 						}
 					}
 				};
-				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+				deleteLink.add(new JavascriptEventConfirmation("click", MessageFormat.format(
 						getString("gb.deleteUser"), entry.username)));
 				userLinks.add(deleteLink);
 				item.add(userLinks);
