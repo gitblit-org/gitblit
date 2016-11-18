@@ -296,7 +296,6 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNotNull(userOneModel);
 		assertNotNull(userOneModel.getTeam("git_admins"));
 		assertNotNull(userOneModel.getTeam("git_users"));
-		assertTrue(userOneModel.canAdmin);
 
 		UserModel userOneModelFailedAuth = ldap.authenticate("UserOne", "userTwoPassword".toCharArray());
 		assertNull(userOneModelFailedAuth);
@@ -306,13 +305,49 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNotNull(userTwoModel.getTeam("git_users"));
 		assertNull(userTwoModel.getTeam("git_admins"));
 		assertNotNull(userTwoModel.getTeam("git admins"));
-		assertTrue(userTwoModel.canAdmin);
 
 		UserModel userThreeModel = ldap.authenticate("UserThree", "userThreePassword".toCharArray());
 		assertNotNull(userThreeModel);
 		assertNotNull(userThreeModel.getTeam("git_users"));
 		assertNull(userThreeModel.getTeam("git_admins"));
+
+		UserModel userFourModel = ldap.authenticate("UserFour", "userFourPassword".toCharArray());
+		assertNotNull(userFourModel);
+		assertNotNull(userFourModel.getTeam("git_users"));
+		assertNull(userFourModel.getTeam("git_admins"));
+		assertNull(userFourModel.getTeam("git admins"));
+	}
+
+	@Test
+	public void testAdminPropertyTeamsInLdap() {
+		UserModel userOneModel = ldap.authenticate("UserOne", "userOnePassword".toCharArray());
+		assertNotNull(userOneModel);
+		assertNotNull(userOneModel.getTeam("git_admins"));
+		assertNull(userOneModel.getTeam("git admins"));
+		assertNotNull(userOneModel.getTeam("git_users"));
+		assertFalse(userOneModel.canAdmin);
+		assertTrue(userOneModel.canAdmin());
+		assertTrue(userOneModel.getTeam("git_admins").canAdmin);
+		assertFalse(userOneModel.getTeam("git_users").canAdmin);
+
+		UserModel userTwoModel = ldap.authenticate("UserTwo", "userTwoPassword".toCharArray());
+		assertNotNull(userTwoModel);
+		assertNotNull(userTwoModel.getTeam("git_users"));
+		assertNull(userTwoModel.getTeam("git_admins"));
+		assertNotNull(userTwoModel.getTeam("git admins"));
+		assertFalse(userTwoModel.canAdmin);
+		assertTrue(userTwoModel.canAdmin());
+		assertTrue(userTwoModel.getTeam("git admins").canAdmin);
+		assertFalse(userTwoModel.getTeam("git_users").canAdmin);
+
+		UserModel userThreeModel = ldap.authenticate("UserThree", "userThreePassword".toCharArray());
+		assertNotNull(userThreeModel);
+		assertNotNull(userThreeModel.getTeam("git_users"));
+		assertNull(userThreeModel.getTeam("git_admins"));
+		assertNull(userThreeModel.getTeam("git admins"));
 		assertTrue(userThreeModel.canAdmin);
+		assertTrue(userThreeModel.canAdmin());
+		assertFalse(userThreeModel.getTeam("git_users").canAdmin);
 
 		UserModel userFourModel = ldap.authenticate("UserFour", "userFourPassword".toCharArray());
 		assertNotNull(userFourModel);
@@ -320,6 +355,51 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNull(userFourModel.getTeam("git_admins"));
 		assertNull(userFourModel.getTeam("git admins"));
 		assertFalse(userFourModel.canAdmin);
+		assertFalse(userFourModel.canAdmin());
+		assertFalse(userFourModel.getTeam("git_users").canAdmin);
+	}
+
+	@Test
+	public void testAdminPropertyTeamsNotInLdap() {
+		settings.put(Keys.realm.ldap.maintainTeams, "false");
+
+		UserModel userOneModel = ldap.authenticate("UserOne", "userOnePassword".toCharArray());
+		assertNotNull(userOneModel);
+		assertNotNull(userOneModel.getTeam("git_admins"));
+		assertNull(userOneModel.getTeam("git admins"));
+		assertNotNull(userOneModel.getTeam("git_users"));
+		assertTrue(userOneModel.canAdmin);
+		assertTrue(userOneModel.canAdmin());
+		assertFalse(userOneModel.getTeam("git_admins").canAdmin);
+		assertFalse(userOneModel.getTeam("git_users").canAdmin);
+
+		UserModel userTwoModel = ldap.authenticate("UserTwo", "userTwoPassword".toCharArray());
+		assertNotNull(userTwoModel);
+		assertNotNull(userTwoModel.getTeam("git_users"));
+		assertNull(userTwoModel.getTeam("git_admins"));
+		assertNotNull(userTwoModel.getTeam("git admins"));
+		assertFalse(userTwoModel.canAdmin);
+		assertTrue(userTwoModel.canAdmin());
+		assertTrue(userTwoModel.getTeam("git admins").canAdmin);
+		assertFalse(userTwoModel.getTeam("git_users").canAdmin);
+
+		UserModel userThreeModel = ldap.authenticate("UserThree", "userThreePassword".toCharArray());
+		assertNotNull(userThreeModel);
+		assertNotNull(userThreeModel.getTeam("git_users"));
+		assertNull(userThreeModel.getTeam("git_admins"));
+		assertNull(userThreeModel.getTeam("git admins"));
+		assertFalse(userThreeModel.canAdmin);
+		assertFalse(userThreeModel.canAdmin());
+		assertFalse(userThreeModel.getTeam("git_users").canAdmin);
+
+		UserModel userFourModel = ldap.authenticate("UserFour", "userFourPassword".toCharArray());
+		assertNotNull(userFourModel);
+		assertNotNull(userFourModel.getTeam("git_users"));
+		assertNull(userFourModel.getTeam("git_admins"));
+		assertNull(userFourModel.getTeam("git admins"));
+		assertFalse(userFourModel.canAdmin);
+		assertFalse(userFourModel.canAdmin());
+		assertFalse(userFourModel.getTeam("git_users").canAdmin);
 	}
 
 	@Test
@@ -392,6 +472,17 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	}
 
 	@Test
+	public void addingGroupsInLdapShouldUpdateGitBlitUsersNotGroups2() throws Exception {
+		settings.put(Keys.realm.ldap.synchronize, "true");
+		settings.put(Keys.realm.ldap.maintainTeams, "false");
+		getDS().addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
+		getDS().addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
+		ldap.sync();
+		assertEquals("Number of ldap users in gitblit user model", 6, countLdapUsersInUserManager());
+		assertEquals("Number of ldap groups in gitblit team model", 0, countLdapTeamsInUserManager());
+	}
+
+	@Test
 	public void addingGroupsInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
 		// This test only makes sense if the authentication mode allows for synchronization.
 		assumeTrue(authMode == AuthMode.ANONYMOUS || authMode == AuthMode.DS_MANAGER);
@@ -403,12 +494,91 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	}
 
 	@Test
+	public void syncUpdateUsersAndGroupsAdminProperty() throws Exception {
+		// This test only makes sense if the authentication mode allows for synchronization.
+		assumeTrue(authMode == AuthMode.ANONYMOUS || authMode == AuthMode.DS_MANAGER);
+
+		settings.put(Keys.realm.ldap.synchronize, "true");
+		ldap.sync();
+
+		UserModel user = userManager.getUserModel("UserOne");
+		assertNotNull(user);
+		assertFalse(user.canAdmin);
+		assertTrue(user.canAdmin());
+
+		user = userManager.getUserModel("UserTwo");
+		assertNotNull(user);
+		assertFalse(user.canAdmin);
+		assertTrue(user.canAdmin());
+
+		user = userManager.getUserModel("UserThree");
+		assertNotNull(user);
+		assertTrue(user.canAdmin);
+		assertTrue(user.canAdmin());
+
+		user = userManager.getUserModel("UserFour");
+		assertNotNull(user);
+		assertFalse(user.canAdmin);
+		assertFalse(user.canAdmin());
+
+		TeamModel team = userManager.getTeamModel("Git_Admins");
+		assertNotNull(team);
+		assertTrue(team.canAdmin);
+
+		team = userManager.getTeamModel("Git Admins");
+		assertNotNull(team);
+		assertTrue(team.canAdmin);
+
+		team = userManager.getTeamModel("Git_Users");
+		assertNotNull(team);
+		assertFalse(team.canAdmin);
+	}
+
+	@Test
+	public void syncNotUpdateUsersAndGroupsAdminProperty() throws Exception {
+		settings.put(Keys.realm.ldap.synchronize, "true");
+		settings.put(Keys.realm.ldap.maintainTeams, "false");
+		ldap.sync();
+
+		UserModel user = userManager.getUserModel("UserOne");
+		assertNotNull(user);
+		assertTrue(user.canAdmin);
+		assertTrue(user.canAdmin());
+
+		user = userManager.getUserModel("UserTwo");
+		assertNotNull(user);
+		assertFalse(user.canAdmin);
+		assertTrue(user.canAdmin());
+
+		user = userManager.getUserModel("UserThree");
+		assertNotNull(user);
+		assertFalse(user.canAdmin);
+		assertFalse(user.canAdmin());
+
+		user = userManager.getUserModel("UserFour");
+		assertNotNull(user);
+		assertFalse(user.canAdmin);
+		assertFalse(user.canAdmin());
+
+		TeamModel team = userManager.getTeamModel("Git_Admins");
+		assertNotNull(team);
+		assertFalse(team.canAdmin);
+
+		team = userManager.getTeamModel("Git Admins");
+		assertNotNull(team);
+		assertTrue(team.canAdmin);
+
+		team = userManager.getTeamModel("Git_Users");
+		assertNotNull(team);
+		assertFalse(team.canAdmin);
+	}
+
+	@Test
 	public void testAuthenticationManager() {
 		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray(), null);
 		assertNotNull(userOneModel);
 		assertNotNull(userOneModel.getTeam("git_admins"));
 		assertNotNull(userOneModel.getTeam("git_users"));
-		assertTrue(userOneModel.canAdmin);
 
 		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray(), null);
 		assertNull(userOneModelFailedAuth);
@@ -418,13 +588,52 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNotNull(userTwoModel.getTeam("git_users"));
 		assertNull(userTwoModel.getTeam("git_admins"));
 		assertNotNull(userTwoModel.getTeam("git admins"));
-		assertTrue(userTwoModel.canAdmin);
 
 		UserModel userThreeModel = auth.authenticate("UserThree", "userThreePassword".toCharArray(), null);
 		assertNotNull(userThreeModel);
 		assertNotNull(userThreeModel.getTeam("git_users"));
 		assertNull(userThreeModel.getTeam("git_admins"));
+
+		UserModel userFourModel = auth.authenticate("UserFour", "userFourPassword".toCharArray(), null);
+		assertNotNull(userFourModel);
+		assertNotNull(userFourModel.getTeam("git_users"));
+		assertNull(userFourModel.getTeam("git_admins"));
+		assertNull(userFourModel.getTeam("git admins"));
+	}
+
+	@Test
+	public void testAuthenticationManagerAdminPropertyTeamsInLdap() {
+		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray(), null);
+		assertNotNull(userOneModel);
+		assertNotNull(userOneModel.getTeam("git_admins"));
+		assertNull(userOneModel.getTeam("git admins"));
+		assertNotNull(userOneModel.getTeam("git_users"));
+		assertFalse(userOneModel.canAdmin);
+		assertTrue(userOneModel.canAdmin());
+		assertTrue(userOneModel.getTeam("git_admins").canAdmin);
+		assertFalse(userOneModel.getTeam("git_users").canAdmin);
+
+		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray(), null);
+		assertNull(userOneModelFailedAuth);
+
+		UserModel userTwoModel = auth.authenticate("UserTwo", "userTwoPassword".toCharArray(), null);
+		assertNotNull(userTwoModel);
+		assertNotNull(userTwoModel.getTeam("git_users"));
+		assertNull(userTwoModel.getTeam("git_admins"));
+		assertNotNull(userTwoModel.getTeam("git admins"));
+		assertFalse(userTwoModel.canAdmin);
+		assertTrue(userTwoModel.canAdmin());
+		assertTrue(userTwoModel.getTeam("git admins").canAdmin);
+		assertFalse(userTwoModel.getTeam("git_users").canAdmin);
+
+		UserModel userThreeModel = auth.authenticate("UserThree", "userThreePassword".toCharArray(), null);
+		assertNotNull(userThreeModel);
+		assertNotNull(userThreeModel.getTeam("git_users"));
+		assertNull(userThreeModel.getTeam("git_admins"));
+		assertNull(userThreeModel.getTeam("git admins"));
 		assertTrue(userThreeModel.canAdmin);
+		assertTrue(userThreeModel.canAdmin());
+		assertFalse(userThreeModel.getTeam("git_users").canAdmin);
 
 		UserModel userFourModel = auth.authenticate("UserFour", "userFourPassword".toCharArray(), null);
 		assertNotNull(userFourModel);
@@ -432,6 +641,54 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertNull(userFourModel.getTeam("git_admins"));
 		assertNull(userFourModel.getTeam("git admins"));
 		assertFalse(userFourModel.canAdmin);
+		assertFalse(userFourModel.canAdmin());
+		assertFalse(userFourModel.getTeam("git_users").canAdmin);
+	}
+
+	@Test
+	public void testAuthenticationManagerAdminPropertyTeamsNotInLdap() {
+		settings.put(Keys.realm.ldap.maintainTeams, "false");
+
+		UserModel userOneModel = auth.authenticate("UserOne", "userOnePassword".toCharArray(), null);
+		assertNotNull(userOneModel);
+		assertNotNull(userOneModel.getTeam("git_admins"));
+		assertNull(userOneModel.getTeam("git admins"));
+		assertNotNull(userOneModel.getTeam("git_users"));
+		assertTrue(userOneModel.canAdmin);
+		assertTrue(userOneModel.canAdmin());
+		assertFalse(userOneModel.getTeam("git_admins").canAdmin);
+		assertFalse(userOneModel.getTeam("git_users").canAdmin);
+
+		UserModel userOneModelFailedAuth = auth.authenticate("UserOne", "userTwoPassword".toCharArray(), null);
+		assertNull(userOneModelFailedAuth);
+
+		UserModel userTwoModel = auth.authenticate("UserTwo", "userTwoPassword".toCharArray(), null);
+		assertNotNull(userTwoModel);
+		assertNotNull(userTwoModel.getTeam("git_users"));
+		assertNull(userTwoModel.getTeam("git_admins"));
+		assertNotNull(userTwoModel.getTeam("git admins"));
+		assertFalse(userTwoModel.canAdmin);
+		assertTrue(userTwoModel.canAdmin());
+		assertTrue(userTwoModel.getTeam("git admins").canAdmin);
+		assertFalse(userTwoModel.getTeam("git_users").canAdmin);
+
+		UserModel userThreeModel = auth.authenticate("UserThree", "userThreePassword".toCharArray(), null);
+		assertNotNull(userThreeModel);
+		assertNotNull(userThreeModel.getTeam("git_users"));
+		assertNull(userThreeModel.getTeam("git_admins"));
+		assertNull(userThreeModel.getTeam("git admins"));
+		assertFalse(userThreeModel.canAdmin);
+		assertFalse(userThreeModel.canAdmin());
+		assertFalse(userThreeModel.getTeam("git_users").canAdmin);
+
+		UserModel userFourModel = auth.authenticate("UserFour", "userFourPassword".toCharArray(), null);
+		assertNotNull(userFourModel);
+		assertNotNull(userFourModel.getTeam("git_users"));
+		assertNull(userFourModel.getTeam("git_admins"));
+		assertNull(userFourModel.getTeam("git admins"));
+		assertFalse(userFourModel.canAdmin);
+		assertFalse(userFourModel.canAdmin());
+		assertFalse(userFourModel.getTeam("git_users").canAdmin);
 	}
 
 	@Test

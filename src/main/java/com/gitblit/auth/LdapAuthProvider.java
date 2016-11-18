@@ -171,6 +171,8 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 							final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
 							for (UserModel user : ldapUsers.values()) {
 								for (TeamModel userTeam : user.teams) {
+									// Is this an administrative team?
+									setAdminAttribute(userTeam);
 									userTeams.put(userTeam.name, userTeam);
 								}
 							}
@@ -238,10 +240,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
     public boolean supportsRoleChanges(UserModel user, Role role) {
     	if (Role.ADMIN == role) {
     		if (!supportsTeamMembershipChanges()) {
-    			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
-    			if (admins.contains(user.username)) {
-    				return false;
-    			}
+				return false;
     		}
     	}
         return true;
@@ -251,10 +250,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	public boolean supportsRoleChanges(TeamModel team, Role role) {
 		if (Role.ADMIN == role) {
     		if (!supportsTeamMembershipChanges()) {
-    			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
-    			if (admins.contains("@" + team.name)) {
-    				return false;
-    			}
+				return false;
     		}
     	}
 		return true;
@@ -325,6 +321,8 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 							if (!supportsTeamMembershipChanges()) {
 								for (TeamModel userTeam : user.teams) {
+									// Is this an administrative team?
+									setAdminAttribute(userTeam);
 									updateTeam(userTeam);
 								}
 							}
@@ -355,12 +353,33 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 			if (!ArrayUtils.isEmpty(admins)) {
 				user.canAdmin = false;
 				for (String admin : admins) {
-					if (admin.startsWith("@") && user.isTeamMember(admin.substring(1))) {
-						// admin team
-						user.canAdmin = true;
-					} else if (user.getName().equalsIgnoreCase(admin)) {
+					if (user.getName().equalsIgnoreCase(admin)) {
 						// admin user
 						user.canAdmin = true;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Set the canAdmin attribute for team retrieved from LDAP.
+	 * If we are not storing teams in LDAP and/or we have not defined any
+	 * administrator teams, then do not change the admin flag.
+	 *
+	 * @param team
+	 */
+	private void setAdminAttribute(TeamModel team) {
+		if (!supportsTeamMembershipChanges()) {
+			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
+			// if we have defined administrative teams, then set admin flag
+			// otherwise leave admin flag unchanged
+			if (!ArrayUtils.isEmpty(admins)) {
+				team.canAdmin = false;
+				for (String admin : admins) {
+					if (admin.startsWith("@") && team.name.equalsIgnoreCase(admin.substring(1))) {
+						// admin team
+						team.canAdmin = true;
 					}
 				}
 			}
@@ -462,6 +481,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 					TeamModel teamModel = userManager.getTeamModel(teamName);
 					if (teamModel == null) {
 						teamModel = createTeamFromLdap(teamEntry);
+						setAdminAttribute(teamModel);
 						userManager.updateTeamModel(teamModel);
 					}
 				}
