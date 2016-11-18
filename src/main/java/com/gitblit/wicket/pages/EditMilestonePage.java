@@ -120,7 +120,7 @@ public class EditMilestonePage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				String name = nameModel.getObject();
 				if (StringUtils.isEmpty(name)) {
 					return;
@@ -180,7 +180,7 @@ public class EditMilestonePage extends RepositoryPage {
 			}
 		};
 
-		delete.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+		delete.add(new JavascriptEventConfirmation("click", MessageFormat.format(
 			getString("gb.deleteMilestone"), oldName)));
 
 		form.add(delete);

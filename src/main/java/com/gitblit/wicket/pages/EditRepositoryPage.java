@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -369,8 +370,10 @@ public class EditRepositoryPage extends RootSubPage {
 
 					// custom fields
 					repositoryModel.customFields = new LinkedHashMap<String, String>();
-					for (int i = 0; i < customFieldsListView.size(); i++) {
-						ListItem<String> child = (ListItem<String>) customFieldsListView.get(i);
+					Iterator<Component> customFieldsListViewIterator = customFieldsListView.iterator();
+					while(customFieldsListViewIterator.hasNext()){
+					    
+						ListItem<String> child = (ListItem<String>) customFieldsListViewIterator.next();
 						String key = child.getModelObject();
 
 						TextField<String> field = (TextField<String>) child.get("customFieldValue");
@@ -709,7 +712,7 @@ public class EditRepositoryPage extends RootSubPage {
 		};
 
 		if (canDelete) {
-			delete.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+			delete.add(new JavascriptEventConfirmation("click", MessageFormat.format(
 				getString("gb.deleteRepository"), repositoryModel)));
 		}
 		form.add(delete.setVisible(canDelete));

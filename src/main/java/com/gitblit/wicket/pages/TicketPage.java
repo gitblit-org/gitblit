@@ -1649,7 +1649,7 @@ public class TicketPage extends RepositoryPage {
 			// javascript: manual copy & paste with modal browser prompt dialog
 			Fragment copyFragment = new Fragment(wicketId, "jsPanel", TicketPage.this);
 			ContextImage img = WicketUtils.newImage("copyIcon", "clippy.png");
-			img.add(new JavascriptTextPrompt("onclick", "Copy to Clipboard (Ctrl+C, Enter)", text));
+			img.add(new JavascriptTextPrompt("click", "Copy to Clipboard (Ctrl+C, Enter)", text));
 			copyFragment.add(img);
 			return copyFragment;
 		}
@@ -1729,7 +1729,7 @@ public class TicketPage extends RepositoryPage {
 
 		WicketUtils.setHtmlTooltip(deleteLink, MessageFormat.format(getString("gb.deletePatchset"), patchset.number));
 		
-		deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(getString("gb.deletePatchset"), patchset.number)));
+		deleteLink.add(new JavascriptEventConfirmation("click", MessageFormat.format(getString("gb.deletePatchset"), patchset.number)));
 		
 		return deleteLink;
 	}

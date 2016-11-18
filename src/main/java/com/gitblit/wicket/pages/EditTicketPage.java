@@ -62,7 +62,9 @@ import com.google.common.base.Optional;
  */
 public class EditTicketPage extends RepositoryPage {
 
-	static final String NIL = "<nil>";
+    private static final long serialVersionUID = 1L;
+
+    static final String NIL = "<nil>";
 
 	static final String ESC_NIL = StringUtils.escapeForHtml(NIL,  false);
 
@@ -261,7 +263,7 @@ public class EditTicketPage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target) {
 				long ticketId = 0L;
 				try {
 					String h = WicketUtils.getObject(getPageParameters());
