@@ -63,6 +63,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.Constants.MergeType;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException;
@@ -899,6 +900,7 @@ public class RepositoryManager implements IRepositoryManager {
 			model.acceptNewTickets = getConfig(config, "acceptNewTickets", true);
 			model.requireApproval = getConfig(config, "requireApproval", settings.getBoolean(Keys.tickets.requireApproval, false));
 			model.mergeTo = getConfig(config, "mergeTo", null);
+			model.mergeType = MergeType.fromName(getConfig(config, "mergeType", settings.getString(Keys.tickets.mergeType, null)));
 			model.useIncrementalPushTags = getConfig(config, "useIncrementalPushTags", false);
 			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -1557,6 +1559,13 @@ public class RepositoryManager implements IRepositoryManager {
 		if (!StringUtils.isEmpty(repository.mergeTo)) {
 			config.setString(Constants.CONFIG_GITBLIT, null, "mergeTo", repository.mergeTo);
 		}
+		if (repository.mergeType == null || repository.mergeType == MergeType.fromName(settings.getString(Keys.tickets.mergeType, null))) {
+			// use default
+			config.unset(Constants.CONFIG_GITBLIT, null, "mergeType");
+		} else {
+			// override default
+			config.setString(Constants.CONFIG_GITBLIT, null, "mergeType", repository.mergeType.name());
+		}
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalPushTags", repository.useIncrementalPushTags);
 		if (StringUtils.isEmpty(repository.incrementalPushTagPrefix) ||
 				repository.incrementalPushTagPrefix.equals(settings.getString(Keys.git.defaultIncrementalPushTagPrefix, "r"))) {
@@ -1952,39 +1961,47 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	protected void configureCommitCache() {
-		int daysToCache = settings.getInteger(Keys.web.activityCacheDays, 14);
+		final int daysToCache = settings.getInteger(Keys.web.activityCacheDays, 14);
 		if (daysToCache <= 0) {
 			logger.info("Commit cache is disabled");
-		} else {
-			long start = System.nanoTime();
-			long repoCount = 0;
-			long commitCount = 0;
-			logger.info(MessageFormat.format("Preparing {0} day commit cache. please wait...", daysToCache));
-			CommitCache.instance().setCacheDays(daysToCache);
-			Date cutoff = CommitCache.instance().getCutoffDate();
-			for (String repositoryName : getRepositoryList()) {
-				RepositoryModel model = getRepositoryModel(repositoryName);
-				if (model != null && model.hasCommits && model.lastChange.after(cutoff)) {
-					repoCount++;
-					Repository repository = getRepository(repositoryName);
-					for (RefModel ref : JGitUtils.getLocalBranches(repository, true, -1)) {
-						if (!ref.getDate().after(cutoff)) {
-							// branch not recently updated
-							continue;
-						}
-						List<?> commits = CommitCache.instance().getCommits(repositoryName, repository, ref.getName());
-						if (commits.size() > 0) {
-							logger.info(MessageFormat.format("  cached {0} commits for {1}:{2}",
-									commits.size(), repositoryName, ref.getName()));
-							commitCount += commits.size();
-						}
-					}
-					repository.close();
-				}
-			}
-			logger.info(MessageFormat.format("built {0} day commit cache of {1} commits across {2} repositories in {3} msecs",
-					daysToCache, commitCount, repoCount, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+			return;
 		}
+		logger.info(MessageFormat.format("Preparing {0} day commit cache...", daysToCache));
+		CommitCache.instance().setCacheDays(daysToCache);
+		Thread loader = new Thread() {
+			@Override
+			public void run() {
+				long start = System.nanoTime();
+				long repoCount = 0;
+				long commitCount = 0;
+				Date cutoff = CommitCache.instance().getCutoffDate();
+				for (String repositoryName : getRepositoryList()) {
+					RepositoryModel model = getRepositoryModel(repositoryName);
+					if (model != null && model.hasCommits && model.lastChange.after(cutoff)) {
+						repoCount++;
+						Repository repository = getRepository(repositoryName);
+						for (RefModel ref : JGitUtils.getLocalBranches(repository, true, -1)) {
+							if (!ref.getDate().after(cutoff)) {
+								// branch not recently updated
+								continue;
+							}
+							List<?> commits = CommitCache.instance().getCommits(repositoryName, repository, ref.getName());
+							if (commits.size() > 0) {
+								logger.info(MessageFormat.format("  cached {0} commits for {1}:{2}",
+										commits.size(), repositoryName, ref.getName()));
+								commitCount += commits.size();
+							}
+						}
+						repository.close();
+					}
+				}
+				logger.info(MessageFormat.format("built {0} day commit cache of {1} commits across {2} repositories in {3} msecs",
+						daysToCache, commitCount, repoCount, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+			}
+		};
+		loader.setName("CommitCacheLoader");
+		loader.setDaemon(true);
+		loader.start();
 	}
 
 	protected void confirmWriteAccess() {
