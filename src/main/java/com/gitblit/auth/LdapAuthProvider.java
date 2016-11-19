@@ -307,7 +307,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 							}
 
 							// create a user cookie
-							setCookie(user, password);
+							setCookie(user);
 
 							if (!supportsTeamMembershipChanges()) {
 								getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);

@@ -78,10 +78,10 @@ public abstract class AuthenticationProvider {
 
 	public abstract AuthenticationType getAuthenticationType();
 
-	protected void setCookie(UserModel user, char [] password) {
+	protected void setCookie(UserModel user) {
 		// create a user cookie
-		if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-			user.cookie = StringUtils.getSHA1(user.username + new String(password));
+		if (StringUtils.isEmpty(user.cookie)) {
+			user.cookie = StringUtils.getSHA1(user.username);
 		}
 	}
 
