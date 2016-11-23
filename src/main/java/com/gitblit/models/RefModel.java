@@ -59,9 +59,9 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 		this.reference = ref;
 		this.displayName = displayName;
 		this.date = internalGetDate(refObject);
-		this.name = (ref != null) ? ref.getName() : displayName;
+		this.name = ref != null ? ref.getName() : displayName;
 		this.type = internalGetReferencedObjectType(refObject);
-		this.objectId = internalGetObjectId(reference);
+		this.objectId = ref != null ? ref.getObjectId() : ObjectId.zeroId();
 		this.id = this.objectId.getName();
 		this.referencedObjectId = internalGetReferencedObjectId(refObject);
 		this.referencedId = this.referencedObjectId.getName();
@@ -163,10 +163,6 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 		return person;
 	}
 
-	private ObjectId internalGetObjectId(Ref reference) {
-		return reference.getObjectId();
-	}
-
 	public ObjectId getObjectId() {
 		if (objectId == null) {
 			objectId = ObjectId.fromString(id);
@@ -178,7 +174,7 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 		if (referencedObject instanceof RevTag) {
 			return !getReferencedObjectId().equals(getObjectId());
 		}
-		return reference.getPeeledObjectId() != null;
+		return reference != null && reference.getPeeledObjectId() != null;
 	}
 
 	public boolean isAnnotatedTag() {
