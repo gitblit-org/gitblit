@@ -107,9 +107,9 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				}
 
 				try {
-					String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
 					String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
-					String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+					String accountBase = ldapConnection.getAccountBase();
+					String accountPattern = ldapConnection.getAccountPattern();
 					accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
 
 					SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
@@ -275,11 +275,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 			try {
 				// Find the logging in user's DN
-				String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
-				String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
-				accountPattern = StringUtils.replace(accountPattern, "${username}", LdapConnection.escapeLDAPSearchFilter(simpleUsername));
-
-				SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+				SearchResult result = ldapConnection.searchUser(simpleUsername);
 				if (result != null && result.getEntryCount() == 1) {
 					SearchResultEntry loggingInUser = result.getSearchEntries().get(0);
 					String loggingInUserDN = loggingInUser.getDN();
@@ -524,6 +520,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 			return null;
 		}
 	}
+
 
 
 

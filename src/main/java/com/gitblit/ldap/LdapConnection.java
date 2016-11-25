@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 gitblit.com.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.gitblit.ldap;
 
 import java.net.URI;
@@ -69,6 +84,16 @@ public class LdapConnection implements AutoCloseable {
 
 
 
+	public static String getAccountBase(IStoredSettings settings) {
+		return settings.getString(Keys.realm.ldap.accountBase, "");
+	}
+
+	public static String getAccountPattern(IStoredSettings settings) {
+		return settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+	}
+
+
+
 	public LdapConnection(IStoredSettings settings) {
 		this.settings = settings;
 
@@ -78,6 +103,16 @@ public class LdapConnection implements AutoCloseable {
 			this.managerBindRequest = new SimpleBindRequest();
 		}
 		this.managerBindRequest = new SimpleBindRequest(bindUserName, bindPassword);
+	}
+
+
+
+	public String getAccountBase() {
+		return getAccountBase(settings);
+	}
+
+	public String getAccountPattern() {
+		return getAccountPattern(settings);
 	}
 
 
@@ -198,36 +233,6 @@ public class LdapConnection implements AutoCloseable {
 
 
 
-	public SearchResult search(SearchRequest request) {
-		try {
-			return conn.search(request);
-		} catch (LDAPSearchException e) {
-			logger.error("Problem Searching LDAP [{}]",  e.getResultCode());
-			return e.getSearchResult();
-		}
-	}
-
-
-	public SearchResult search(String base, boolean dereferenceAliases, String filter, List<String> attributes) {
-		try {
-			SearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, filter);
-			if (dereferenceAliases) {
-				searchRequest.setDerefPolicy(DereferencePolicy.SEARCHING);
-			}
-			if (attributes != null) {
-				searchRequest.setAttributes(attributes);
-			}
-			SearchResult result = search(searchRequest);
-			return result;
-
-		} catch (LDAPException e) {
-			logger.error("Problem creating LDAP search", e);
-			return null;
-		}
-	}
-
-
-
 	public boolean isAuthenticated(String userDn, String password) {
 		verifyCurrentBinding();
 
@@ -263,6 +268,51 @@ public class LdapConnection implements AutoCloseable {
 						e.getResultCode(), e);
 		}
 		return isAuthenticated;
+	}
+
+
+
+
+	public SearchResult search(SearchRequest request) {
+		try {
+			return conn.search(request);
+		} catch (LDAPSearchException e) {
+			logger.error("Problem Searching LDAP [{}]",  e.getResultCode());
+			return e.getSearchResult();
+		}
+	}
+
+
+	public SearchResult search(String base, boolean dereferenceAliases, String filter, List<String> attributes) {
+		try {
+			SearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, filter);
+			if (dereferenceAliases) {
+				searchRequest.setDerefPolicy(DereferencePolicy.SEARCHING);
+			}
+			if (attributes != null) {
+				searchRequest.setAttributes(attributes);
+			}
+			SearchResult result = search(searchRequest);
+			return result;
+
+		} catch (LDAPException e) {
+			logger.error("Problem creating LDAP search", e);
+			return null;
+		}
+	}
+
+
+	public SearchResult searchUser(String username, List<String> attributes) {
+
+		String accountPattern = getAccountPattern();
+		accountPattern = StringUtils.replace(accountPattern, "${username}", escapeLDAPSearchFilter(username));
+
+		return search(getAccountBase(), false, accountPattern, attributes);
+	}
+
+
+	public SearchResult searchUser(String username) {
+		return searchUser(username, null);
 	}
 
 

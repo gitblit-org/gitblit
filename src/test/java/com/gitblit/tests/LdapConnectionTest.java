@@ -245,4 +245,36 @@ public class LdapConnectionTest extends LdapBasedUnitTest {
 		}
 	}
 
+
+	@Test
+	public void testSearchUser() throws LDAPException {
+		LdapConnection conn = new LdapConnection(settings);
+		try {
+			assertTrue(conn.connect());
+			BindResult br = conn.bind();
+			assertNotNull(br);
+
+			SearchResult result;
+			SearchResultEntry entry;
+
+			result = conn.searchUser("UserOne");
+			assertNotNull(result);
+			assertEquals(1, result.getEntryCount());
+			entry = result.getSearchEntries().get(0);
+			assertEquals("CN=UserOne,OU=US," + ACCOUNT_BASE, entry.getDN());
+
+			result = conn.searchUser("UserFour", Arrays.asList("givenName", "surname"));
+			assertNotNull(result);
+			assertEquals(1, result.getEntryCount());
+			entry = result.getSearchEntries().get(0);
+			assertEquals("CN=UserFour,OU=Canada," + ACCOUNT_BASE, entry.getDN());
+			assertEquals(2, entry.getAttributes().size());
+			assertEquals("User", entry.getAttributeValue("givenName"));
+			assertEquals("Four", entry.getAttributeValue("surname"));
+
+		} finally {
+			conn.close();
+		}
+	}
+
 }
