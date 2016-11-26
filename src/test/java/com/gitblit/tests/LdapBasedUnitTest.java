@@ -74,9 +74,9 @@ public abstract class LdapBasedUnitTest extends GitblitUnitTest {
 	 *
 	 */
 	protected enum AuthMode {
-		ANONYMOUS(1389),
-		DS_MANAGER(2389),
-		USR_MANAGER(3389);
+		ANONYMOUS,
+		DS_MANAGER,
+		USR_MANAGER;
 
 
 		private int ldapPort;
@@ -84,7 +84,7 @@ public abstract class LdapBasedUnitTest extends GitblitUnitTest {
 		private InMemoryDirectoryServerSnapshot dsSnapshot;
 		private BindTracker bindTracker;
 
-		AuthMode(int port) {
+		void setLdapPort(int port) {
 			this.ldapPort = port;
 		}
 
@@ -151,23 +151,26 @@ public abstract class LdapBasedUnitTest extends GitblitUnitTest {
 	public static void ldapInit() throws Exception {
 		InMemoryDirectoryServer ds;
 		InMemoryDirectoryServerConfig config = createInMemoryLdapServerConfig(AuthMode.ANONYMOUS);
-		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", AuthMode.ANONYMOUS.ldapPort()));
+		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("anonymous"));
 		ds = createInMemoryLdapServer(config);
 		AuthMode.ANONYMOUS.setDS(ds);
+		AuthMode.ANONYMOUS.setLdapPort(ds.getListenPort("anonymous"));
 
 
 		config = createInMemoryLdapServerConfig(AuthMode.DS_MANAGER);
-		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", AuthMode.DS_MANAGER.ldapPort()));
+		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("ds_manager"));
 		config.setAuthenticationRequiredOperationTypes(EnumSet.allOf(OperationType.class));
 		ds = createInMemoryLdapServer(config);
 		AuthMode.DS_MANAGER.setDS(ds);
+		AuthMode.DS_MANAGER.setLdapPort(ds.getListenPort("ds_manager"));
 
 
 		config = createInMemoryLdapServerConfig(AuthMode.USR_MANAGER);
-		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", AuthMode.USR_MANAGER.ldapPort()));
+		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("usr_manager"));
 		config.setAuthenticationRequiredOperationTypes(EnumSet.allOf(OperationType.class));
 		ds = createInMemoryLdapServer(config);
 		AuthMode.USR_MANAGER.setDS(ds);
+		AuthMode.USR_MANAGER.setLdapPort(ds.getListenPort("usr_manager"));
 
 	}
 
@@ -220,19 +223,17 @@ public abstract class LdapBasedUnitTest extends GitblitUnitTest {
 	protected MemorySettings getSettings() {
 		Map<String, Object> backingMap = new HashMap<String, Object>();
 		backingMap.put(Keys.realm.userService, usersConf.getAbsolutePath());
+		backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + authMode.ldapPort());
 		switch(authMode) {
 		case ANONYMOUS:
-			backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + authMode.ldapPort());
 			backingMap.put(Keys.realm.ldap.username, "");
 			backingMap.put(Keys.realm.ldap.password, "");
 			break;
 		case DS_MANAGER:
-			backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + authMode.ldapPort());
 			backingMap.put(Keys.realm.ldap.username, DIRECTORY_MANAGER);
 			backingMap.put(Keys.realm.ldap.password, "password");
 			break;
 		case USR_MANAGER:
-			backingMap.put(Keys.realm.ldap.server, "ldap://localhost:" + authMode.ldapPort());
 			backingMap.put(Keys.realm.ldap.username, USER_MANAGER);
 			backingMap.put(Keys.realm.ldap.password, "passwd");
 			break;
