@@ -134,7 +134,7 @@ public class SshDaemon {
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, workQueue));
-		sshd.setShellFactory(new WelcomeShell(settings));
+		sshd.setShellFactory(new WelcomeShell(gitblit));
 
 		// Set the server id.  This can be queried with:
 		//   ssh-keyscan -t rsa,dsa -p 29418 localhost

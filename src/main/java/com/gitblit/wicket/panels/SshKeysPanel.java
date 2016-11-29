@@ -48,11 +48,13 @@ public class SshKeysPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final UserModel user;
+	private final boolean canWriteKeys;
 
 	public SshKeysPanel(String wicketId, UserModel user) {
 		super(wicketId);
 
 		this.user = user;
+		this.canWriteKeys = app().keys().supportsWritingKeys(user);
 	}
 
 	@Override
@@ -90,6 +92,9 @@ public class SshKeysPanel extends BasePanel {
 						}
 					}
 				};
+				if (!canWriteKeys) {
+					delete.setVisibilityAllowed(false);
+				}
 				item.add(delete);
 			}
 		};
@@ -163,6 +168,10 @@ public class SshKeysPanel extends BasePanel {
 				}
 			}
 		});
+
+		if (! canWriteKeys) {
+			addKeyForm.setVisibilityAllowed(false);
+		}
 
 		add(addKeyForm);
 	}

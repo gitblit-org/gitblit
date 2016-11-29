@@ -34,6 +34,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.ldap.LdapConnection;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -218,6 +219,18 @@ public class LdapKeyManager extends IPublicKeyManager {
 		return false;
 	}
 
+
+	public boolean supportsWritingKeys(UserModel user) {
+		return false;
+	}
+
+	public boolean supportsCommentChanges(UserModel user) {
+		return false;
+	}
+
+	public boolean supportsPermissionChanges(UserModel user) {
+		return false;
+	}
 
 
 	private void setKeyPermissions(SshKey key, GbAuthorizedKeyEntry keyEntry) {
