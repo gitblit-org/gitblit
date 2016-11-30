@@ -440,9 +440,11 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
+               
 
 		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
 		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
+                
 
 		// Fill in attributes into groupMemberPattern
 		for (Attribute userAttribute : loggingInUser.getAttributes()) {
@@ -464,6 +466,32 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				teamModel.addUser(user.getName());
 			}
 		}
+                
+                if(user.canAdmin){
+                    String groupAdminMemberPattern = settings.getString(Keys.realm.ldap.groupAdminMemberPattern, "(objectClass=group)");
+                    groupAdminMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
+                    groupAdminMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
+                    // Fill in attributes into groupMemberPattern
+                    for (Attribute userAttribute : loggingInUser.getAttributes()) {
+                            groupAdminMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
+                    }                    
+                    teamMembershipResult = searchTeamsInLdap(ldapConnection, groupBase, true, groupAdminMemberPattern, Arrays.asList("cn"));
+                    if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
+                            for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
+                                    SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
+                                    String teamName = teamEntry.getAttribute("cn").getValue();
+
+                                    TeamModel teamModel = userManager.getTeamModel(teamName);
+                                    if (teamModel == null) {
+                                            teamModel = createTeamFromLdap(teamEntry);
+                                    }
+
+                                    user.teams.add(teamModel);
+                                    teamModel.addUser(user.getName());
+                            }
+                    }
+                
+                }
 	}
 
 	private void getEmptyTeamsFromLdap(LdapConnection ldapConnection) {
