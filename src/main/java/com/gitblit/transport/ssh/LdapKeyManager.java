@@ -44,10 +44,35 @@ import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 
 /**
- * LDAP public key manager
+ * LDAP-only public key manager
  *
  * Retrieves public keys from user's LDAP entries. Using this key manager,
  * no SSH keys can be edited, i.e. added, removed, permissions changed, etc.
+ *
+ * This key manager supports SSH key entries in LDAP of the following form:
+ * [<prefix>:] [<options>] <type> <key> [<comment>]
+ * This follows the required form of entries in the authenticated_keys file,
+ * with an additional optional prefix. Key entries must have a key type
+ * (like "ssh-rsa") and a key, and may have a comment at the end.
+ *
+ * An entry may specify login options as specified for the authorized_keys file.
+ * The 'environment' option may be used to set the permissions for the key
+ * by setting a 'gbPerm' environment variable. The key manager will interpret
+ * such a environment variable option and use the set permission string to set
+ * the permission on the key in Gitblit. Example:
+ *   environment="gbPerm=V",pty ssh-rsa AAAxjka.....dv= Clone only key
+ * Above entry would create a RSA key with the comment "Clone only key" and
+ * set the key permission to CLONE. All other options are ignored.
+ *
+ * In Active Directory SSH public keys are sometimes stored in the attribute
+ * 'altSecurityIdentity'. The attribute value is usually prefixed by a type
+ * identifier. LDAP entries could have the following attribute values:
+ *   altSecurityIdentity: X.509: ADKEJBAKDBZUPABBD...
+ *   altSecurityIdentity: SshKey: ssh-dsa AAAAknenazuzucbhda...
+ * This key manager supports this by allowing an optional prefix to identify
+ * SSH keys. The prefix to be used should be set in the 'realm.ldap.sshPublicKey'
+ * setting by separating it from the attribute name with a colon, e.g.:
+ *    realm.ldap.sshPublicKey = altSecurityIdentity:SshKey
  *
  * @author Florian Zschocke
  *
