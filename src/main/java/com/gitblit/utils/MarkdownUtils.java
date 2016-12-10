@@ -138,7 +138,7 @@ public class MarkdownUtils {
 		String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
 
 		// emphasize and link mentions
-		String mentionReplacement = String.format(" **[@$1](%1s/user/$1)**", canonicalUrl);
+		String mentionReplacement = String.format("**[@${user}](%1s/user/${user})**", canonicalUrl);
 		text = text.replaceAll(Constants.REGEX_TICKET_MENTION, mentionReplacement);
 
 		// link ticket refs

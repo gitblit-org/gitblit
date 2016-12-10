@@ -778,7 +778,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				Pattern mentions = Pattern.compile(Constants.REGEX_TICKET_MENTION);
 				Matcher m = mentions.matcher(text);
 				while (m.find()) {
-					String username = m.group(1);
+					String username = m.group("user");
 					plusList(Field.mentions, username);
 				}
 			} catch (Exception e) {

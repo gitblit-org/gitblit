@@ -67,7 +67,7 @@ public class Constants {
 	 * This regular expression is used when searching for "mentions" in tickets
 	 * (when someone writes @thisOtherUser)
 	 */
-	public static final String REGEX_TICKET_MENTION = "\\s@([^\\s]+)";
+	public static final String REGEX_TICKET_MENTION = "\\B@(?<user>[^\\s]+)\\b";
 
 	public static final String ZIP_PATH = "/zip/";
 

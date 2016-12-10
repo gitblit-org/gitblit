@@ -576,7 +576,7 @@ public class TicketNotifier {
 			Pattern p = Pattern.compile(Constants.REGEX_TICKET_MENTION);
 			Matcher m = p.matcher(lastChange.comment.text);
 			while (m.find()) {
-				String username = m.group();
+				String username = m.group("user");
 				ccs.add(username);
 			}
 		}
