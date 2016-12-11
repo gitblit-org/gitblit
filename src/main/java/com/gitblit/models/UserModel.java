@@ -17,6 +17,7 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -662,6 +663,9 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 	
 	public String createCookie() {
-		return StringUtils.getSHA1(String.valueOf(Math.random()));
+		SecureRandom random = new SecureRandom();
+		byte[] values = new byte[20];
+		random.nextBytes(values);
+		return StringUtils.getSHA1(String.valueOf(values));
 	}
 }
