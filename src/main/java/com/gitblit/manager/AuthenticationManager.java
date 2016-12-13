@@ -45,6 +45,7 @@ import com.gitblit.auth.HttpHeaderAuthProvider;
 import com.gitblit.auth.LdapAuthProvider;
 import com.gitblit.auth.PAMAuthProvider;
 import com.gitblit.auth.RedmineAuthProvider;
+import com.gitblit.auth.SQLiteAuthProvider;
 import com.gitblit.auth.SalesforceAuthProvider;
 import com.gitblit.auth.WindowsAuthProvider;
 import com.gitblit.models.TeamModel;
@@ -99,6 +100,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 		providerNames.put("redmine", RedmineAuthProvider.class);
 		providerNames.put("salesforce", SalesforceAuthProvider.class);
 		providerNames.put("windows", WindowsAuthProvider.class);
+		providerNames.put("sqlite", SQLiteAuthProvider.class);
 
 		// map of legacy external user services
 		legacyRedirects = new HashMap<String, String>();
