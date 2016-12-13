@@ -17,6 +17,7 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ModelUtils;
+import com.gitblit.utils.SecureRandom;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -51,6 +53,8 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	private static final long serialVersionUID = 1L;
 
 	public static final UserModel ANONYMOUS = new UserModel();
+
+	private static final SecureRandom RANDOM = new SecureRandom();
 
 	// field names are reflectively mapped in EditUser page
 	public String username;
@@ -659,5 +663,9 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean isMyPersonalRepository(String repository) {
 		String projectPath = StringUtils.getFirstPathElement(repository);
 		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath());
+	}
+
+	public String createCookie() {
+		return StringUtils.getSHA1(RANDOM.randomBytes(32));
 	}
 }
