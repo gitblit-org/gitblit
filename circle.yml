@@ -1,0 +1,22 @@
+machine:
+  java:
+    version: openjdk7
+
+compile:
+  pre:
+    - java -version
+    - javac -version
+  override:
+    - ant
+
+test:
+  override:
+    - ant test
+  post:
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - cp -a build/tests/TEST-*.xml $CIRCLE_TEST_REPORTS/junit/
+
+general:
+  artifacts:
+    - "build/target/reports"
+
