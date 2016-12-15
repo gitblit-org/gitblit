@@ -432,39 +432,73 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		}
 	}
 
-	private void getTeamsFromLdap(LdapConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
-		String loggingInUserDN = loggingInUser.getDN();
+    private void getTeamsFromLdap(LdapConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
+        logger.info("LDAP getTeamsFromLdap: " + simpleUsername);
+        boolean isAdmin = false;
+        List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
+        String loggingInUserDN = loggingInUser.getDN();
 
-		// Clear the users team memberships - we're going to get them from LDAP
-		user.teams.clear();
+        // Clear the users team memberships - we're going to get them from LDAP
+        user.teams.clear();
 
-		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
-		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
+        String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
+        String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
 
-		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
-		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
+        groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
+        groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
 
-		// Fill in attributes into groupMemberPattern
-		for (Attribute userAttribute : loggingInUser.getAttributes()) {
-			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
-		}
+        // Fill in attributes into groupMemberPattern
+        for (Attribute userAttribute : loggingInUser.getAttributes()) {
+            groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
+        }
 
-		SearchResult teamMembershipResult = searchTeamsInLdap(ldapConnection, groupBase, true, groupMemberPattern, Arrays.asList("cn"));
-		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
-			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
-				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
-				String teamName = teamEntry.getAttribute("cn").getValue();
+        SearchResult teamMembershipResult = searchTeamsInLdap(ldapConnection, groupBase, true, groupMemberPattern, Arrays.asList("cn"));
+        if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
+            for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
+                SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
+                String teamName = teamEntry.getAttribute("cn").getValue();
+                logger.info("LDAP Team: " + teamName);
+                TeamModel teamModel = userManager.getTeamModel(teamName);
+                if (teamModel == null) {
+                    teamModel = createTeamFromLdap(teamEntry);
+                }
 
-				TeamModel teamModel = userManager.getTeamModel(teamName);
-				if (teamModel == null) {
-					teamModel = createTeamFromLdap(teamEntry);
-				}
+                user.teams.add(teamModel);
+                teamModel.addUser(user.getName());
 
-				user.teams.add(teamModel);
-				teamModel.addUser(user.getName());
-			}
-		}
-	}
+			// if we have defined administrative teams, then set admin flag
+                // otherwise leave admin flag unchanged
+                if ( isAdmin!=true && !ArrayUtils.isEmpty(admins)) {
+                    for (String admin : admins) {
+                        if (admin.startsWith("@") && teamName.equalsIgnoreCase(admin.substring(1))) {
+                            logger.info(simpleUsername+"is admin");
+                            isAdmin = true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (isAdmin) {
+            String groupAdminMemberPattern = settings.getString(Keys.realm.ldap.groupAdminMemberPattern, "(objectClass=group)");
+            logger.info("Is admin value "+isAdmin+"add all groups from groupAdminMemberPattern = "+groupAdminMemberPattern);
+            teamMembershipResult = searchTeamsInLdap(ldapConnection, groupBase, true, groupAdminMemberPattern, null);
+            if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
+                for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
+                    SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
+                    String teamName = teamEntry.getAttribute("cn").getValue();
+                    TeamModel teamModel = userManager.getTeamModel(teamName);
+                    if (teamModel == null) {
+                        teamModel = createTeamFromLdap(teamEntry);
+                    }
+
+                    user.teams.add(teamModel);
+                    teamModel.addUser(user.getName());
+                }
+            }
+
+        }
+    }
 
 	private void getEmptyTeamsFromLdap(LdapConnection ldapConnection) {
 		logger.info("Start fetching empty teams from ldap.");
