@@ -66,6 +66,7 @@ sourceDirectories:
 
 resourceDirectories:
 - compile 'src/main/resources'
+- test 'src/test/resources'
 - site 'src/site/resources'
 
 # compile for Java 7 class format

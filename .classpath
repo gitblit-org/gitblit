@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="src/test/java" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/test/bugtraq" output="bin/test-classes" />
 	<classpathentry kind="src" path="src/main/resources" />
+	<classpathentry kind="src" path="src/test/resources" output="bin/test-classes" />
 	<classpathentry kind="lib" path="ext/guice-4.0.jar" sourcepath="ext/src/guice-4.0.jar" />
 	<classpathentry kind="lib" path="ext/javax.inject-1.jar" sourcepath="ext/src/javax.inject-1.jar" />
 	<classpathentry kind="lib" path="ext/aopalliance-1.0.jar" sourcepath="ext/src/aopalliance-1.0.jar" />
