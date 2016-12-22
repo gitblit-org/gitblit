@@ -21,13 +21,13 @@
 	<classpathentry kind="lib" path="ext/wicket-1.4.22.jar" sourcepath="ext/src/wicket-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.22.jar" sourcepath="ext/src/wicket-auth-roles-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.22.jar" sourcepath="ext/src/wicket-extensions-1.4.22.jar" />
-	<classpathentry kind="lib" path="ext/lucene-core-4.10.4.jar" sourcepath="ext/src/lucene-core-4.10.4.jar" />
-	<classpathentry kind="lib" path="ext/lucene-analyzers-common-4.10.4.jar" sourcepath="ext/src/lucene-analyzers-common-4.10.4.jar" />
-	<classpathentry kind="lib" path="ext/lucene-highlighter-4.10.4.jar" sourcepath="ext/src/lucene-highlighter-4.10.4.jar" />
-	<classpathentry kind="lib" path="ext/lucene-memory-4.10.4.jar" sourcepath="ext/src/lucene-memory-4.10.4.jar" />
-	<classpathentry kind="lib" path="ext/lucene-queries-4.10.4.jar" sourcepath="ext/src/lucene-queries-4.10.4.jar" />
-	<classpathentry kind="lib" path="ext/lucene-queryparser-4.10.4.jar" sourcepath="ext/src/lucene-queryparser-4.10.4.jar" />
-	<classpathentry kind="lib" path="ext/lucene-sandbox-4.10.4.jar" sourcepath="ext/src/lucene-sandbox-4.10.4.jar" />
+	<classpathentry kind="lib" path="ext/lucene-core-5.5.2.jar" sourcepath="ext/src/lucene-core-5.5.2.jar" />
+	<classpathentry kind="lib" path="ext/lucene-analyzers-common-5.5.2.jar" sourcepath="ext/src/lucene-analyzers-common-5.5.2.jar" />
+	<classpathentry kind="lib" path="ext/lucene-highlighter-5.5.2.jar" sourcepath="ext/src/lucene-highlighter-5.5.2.jar" />
+	<classpathentry kind="lib" path="ext/lucene-queries-5.5.2.jar" sourcepath="ext/src/lucene-queries-5.5.2.jar" />
+	<classpathentry kind="lib" path="ext/lucene-memory-5.5.2.jar" sourcepath="ext/src/lucene-memory-5.5.2.jar" />
+	<classpathentry kind="lib" path="ext/lucene-queryparser-5.5.2.jar" sourcepath="ext/src/lucene-queryparser-5.5.2.jar" />
+	<classpathentry kind="lib" path="ext/lucene-sandbox-5.5.2.jar" sourcepath="ext/src/lucene-sandbox-5.5.2.jar" />
 	<classpathentry kind="lib" path="ext/jakarta-regexp-1.4.jar" />
 	<classpathentry kind="lib" path="ext/pegdown-1.5.0.jar" sourcepath="ext/src/pegdown-1.5.0.jar" />
 	<classpathentry kind="lib" path="ext/parboiled-java-1.1.7.jar" sourcepath="ext/src/parboiled-java-1.1.7.jar" />

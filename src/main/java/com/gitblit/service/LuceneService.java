@@ -267,7 +267,7 @@ public class LuceneService implements Runnable {
 		// close all writers
 		for (String writer : writers.keySet()) {
 			try {
-				writers.get(writer).close(true);
+				writers.get(writer).close();
 			} catch (Throwable t) {
 				logger.error("Failed to close Lucene writer for " + writer, t);
 			}
@@ -722,8 +722,8 @@ public class LuceneService implements Runnable {
 		String q = MessageFormat.format(pattern, SearchObjectType.blob.name(), branch, path);
 
 		BooleanQuery query = new BooleanQuery();
-		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
-		QueryParser qp = new QueryParser(LUCENE_VERSION, FIELD_SUMMARY, analyzer);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
+		QueryParser qp = new QueryParser(FIELD_SUMMARY, analyzer);
 		query.add(qp.parse(q), Occur.MUST);
 
 		IndexWriter writer = getIndexWriter(repositoryName);
@@ -968,14 +968,14 @@ public class LuceneService implements Runnable {
 		IndexWriter indexWriter = writers.get(repository);
 		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
 		File indexFolder = new File(repositoryFolder, LUCENE_DIR);
-		Directory directory = FSDirectory.open(indexFolder);
+		Directory directory = FSDirectory.open(indexFolder.toPath());
 
 		if (indexWriter == null) {
 			if (!indexFolder.exists()) {
 				indexFolder.mkdirs();
 			}
-			StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
-			IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION, analyzer);
+			StandardAnalyzer analyzer = new StandardAnalyzer();
+			IndexWriterConfig config = new IndexWriterConfig(analyzer);
 			config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			indexWriter = new IndexWriter(directory, config);
 			writers.put(repository, indexWriter);
@@ -1028,16 +1028,16 @@ public class LuceneService implements Runnable {
 			return null;
 		}
 		Set<SearchResult> results = new LinkedHashSet<SearchResult>();
-		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
 			// default search checks summary and content
 			BooleanQuery query = new BooleanQuery();
 			QueryParser qp;
-			qp = new QueryParser(LUCENE_VERSION, FIELD_SUMMARY, analyzer);
+			qp = new QueryParser(FIELD_SUMMARY, analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
 
-			qp = new QueryParser(LUCENE_VERSION, FIELD_CONTENT, analyzer);
+			qp = new QueryParser(FIELD_CONTENT, analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
 
@@ -1060,7 +1060,7 @@ public class LuceneService implements Runnable {
 			Query rewrittenQuery = searcher.rewrite(query);
 			logger.debug(rewrittenQuery.toString());
 
-			TopScoreDocCollector collector = TopScoreDocCollector.create(5000, true);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(5000);
 			searcher.search(rewrittenQuery, collector);
 			int offset = Math.max(0, (page - 1) * pageSize);
 			ScoreDoc[] hits = collector.topDocs(offset, pageSize).scoreDocs;
@@ -1225,7 +1225,7 @@ public class LuceneService implements Runnable {
 	 */
 	private class MultiSourceReader extends MultiReader {
 
-		MultiSourceReader(IndexReader [] readers) {
+		MultiSourceReader(IndexReader [] readers) throws IOException {
 			super(readers, false);
 		}
 

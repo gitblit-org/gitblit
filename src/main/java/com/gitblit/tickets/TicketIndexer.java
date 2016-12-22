@@ -167,7 +167,7 @@ public class TicketIndexer {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Version luceneVersion = Version.LUCENE_46;
+	private final Version luceneVersion = Version.LUCENE_5_5_2;
 
 	private final File luceneDir;
 
@@ -201,8 +201,8 @@ public class TicketIndexer {
 	public boolean deleteAll(RepositoryModel repository) {
 		try {
 			IndexWriter writer = getWriter();
-			StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-			QueryParser qp = new QueryParser(luceneVersion, Lucene.rid.name(), analyzer);
+			StandardAnalyzer analyzer = new StandardAnalyzer();
+			QueryParser qp = new QueryParser(Lucene.rid.name(), analyzer);
 			BooleanQuery query = new BooleanQuery();
 			query.add(qp.parse(repository.getRID()), Occur.MUST);
 
@@ -287,8 +287,8 @@ public class TicketIndexer {
 	 * @return true, if deleted, false if no record was deleted
 	 */
 	private boolean delete(String repository, long ticketId, IndexWriter writer) throws Exception {
-		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-		QueryParser qp = new QueryParser(luceneVersion, Lucene.did.name(), analyzer);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
+		QueryParser qp = new QueryParser(Lucene.did.name(), analyzer);
 		BooleanQuery query = new BooleanQuery();
 		query.add(qp.parse(StringUtils.getSHA1(repository + ticketId)), Occur.MUST);
 
@@ -331,21 +331,21 @@ public class TicketIndexer {
 			return Collections.emptyList();
 		}
 		Set<QueryResult> results = new LinkedHashSet<QueryResult>();
-		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
 			// search the title, description and content
 			BooleanQuery query = new BooleanQuery();
 			QueryParser qp;
 
-			qp = new QueryParser(luceneVersion, Lucene.title.name(), analyzer);
+			qp = new QueryParser(Lucene.title.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
 
-			qp = new QueryParser(luceneVersion, Lucene.body.name(), analyzer);
+			qp = new QueryParser(Lucene.body.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
 
-			qp = new QueryParser(luceneVersion, Lucene.content.name(), analyzer);
+			qp = new QueryParser(Lucene.content.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
 
@@ -354,7 +354,7 @@ public class TicketIndexer {
 
 			log.debug(rewrittenQuery.toString());
 
-			TopScoreDocCollector collector = TopScoreDocCollector.create(5000, true);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(5000);
 			searcher.search(rewrittenQuery, collector);
 			int offset = Math.max(0, (page - 1) * pageSize);
 			ScoreDoc[] hits = collector.topDocs(offset, pageSize).scoreDocs;
@@ -392,9 +392,9 @@ public class TicketIndexer {
 		}
 
 		Set<QueryResult> results = new LinkedHashSet<QueryResult>();
-		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
-			QueryParser qp = new QueryParser(luceneVersion, Lucene.content.name(), analyzer);
+			QueryParser qp = new QueryParser(Lucene.content.name(), analyzer);
 			Query query = qp.parse(queryText);
 
 			IndexSearcher searcher = getSearcher();
@@ -443,14 +443,14 @@ public class TicketIndexer {
 
 	private IndexWriter getWriter() throws IOException {
 		if (writer == null) {
-			Directory directory = FSDirectory.open(luceneDir);
+			Directory directory = FSDirectory.open(luceneDir.toPath());
 
 			if (!luceneDir.exists()) {
 				luceneDir.mkdirs();
 			}
 
-			StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-			IndexWriterConfig config = new IndexWriterConfig(luceneVersion, analyzer);
+			StandardAnalyzer analyzer = new StandardAnalyzer();
+			IndexWriterConfig config = new IndexWriterConfig(analyzer);
 			config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			writer = new IndexWriter(directory, config);
 		}
