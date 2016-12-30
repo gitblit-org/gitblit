@@ -375,7 +375,8 @@ public class GitBlitServer {
 		HashSessionManager sessionManager = new HashSessionManager();
 		sessionManager.setHttpOnly(true);
 		// Use secure cookies if only serving https
-		sessionManager.setSecureRequestOnly(params.port <= 0 && params.securePort > 0);
+		sessionManager.setSecureRequestOnly( (params.port <= 0 && params.securePort > 0) ||
+				(params.port > 0 && params.securePort > 0 && settings.getBoolean(Keys.server.redirectToHttpsPort, true)) );
 		rootContext.getSessionHandler().setSessionManager(sessionManager);
 
 		// Ensure there is a defined User Service

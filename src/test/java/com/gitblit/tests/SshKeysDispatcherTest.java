@@ -37,7 +37,7 @@ public class SshKeysDispatcherTest extends SshUnitTest {
 		String result = testSshCommand("keys ls -L");
 		List<SshKey> keys = getKeyManager().getKeys(username);
 		assertEquals(String.format("There are %d keys!", keys.size()), 2, keys.size());
-		assertEquals(keys.get(0).getRawData() + "\n" + keys.get(1).getRawData(), result);
+		assertEquals(String.format("%s%n%s", keys.get(0).getRawData(), keys.get(1).getRawData()), result);
 	}
 
 	@Test
@@ -64,9 +64,9 @@ public class SshKeysDispatcherTest extends SshUnitTest {
 		assertEquals(String.format("There are %d keys!", keys.size()), 0, keys.size());
 		try {
 			testSshCommand("keys ls -L");
-			assertTrue("Authentication worked without a public key?!", false);
+			fail("Authentication worked without a public key?!");
 		} catch (AssertionError e) {
-			assertTrue(true);
+			// expected
 		}
 	}
 
@@ -77,9 +77,9 @@ public class SshKeysDispatcherTest extends SshUnitTest {
 		assertEquals(String.format("There are %d keys!", keys.size()), 0, keys.size());
 		try {
 			testSshCommand("keys ls -L");
-			assertTrue("Authentication worked without a public key?!", false);
+			fail("Authentication worked without a public key?!");
 		} catch (AssertionError e) {
-			assertTrue(true);
+			// expected
 		}
 	}
 
@@ -96,9 +96,9 @@ public class SshKeysDispatcherTest extends SshUnitTest {
 		StringBuilder sb = new StringBuilder();
 		for (SshKey sk : keys) {
 			sb.append(sk.getRawData());
-			sb.append('\n');
+			sb.append(System.getProperty("line.separator", "\n"));
 		}
-		sb.setLength(sb.length() - 1);
+		sb.setLength(sb.length() - System.getProperty("line.separator", "\n").length());
 		assertEquals(sb.toString(), result);
 	}
 

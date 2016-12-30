@@ -608,6 +608,11 @@ public class AuthenticationManager implements IAuthenticationManager {
 						userCookie = new Cookie(Constants.NAME, cookie);
 						// expire the cookie in 7 days
 						userCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(7));
+
+						// Set cookies HttpOnly so they are not accessible to JavaScript engines
+						userCookie.setHttpOnly(true);
+						// Set secure cookie if only HTTPS is used
+						userCookie.setSecure(httpsOnly());
 					}
 				}
 				String path = "/";
@@ -621,6 +626,15 @@ public class AuthenticationManager implements IAuthenticationManager {
 			}
 		}
 	}
+
+
+	private boolean httpsOnly() {
+		int port = settings.getInteger(Keys.server.httpPort, 0);
+		int tlsPort = settings.getInteger(Keys.server.httpsPort, 0);
+		return  (port <= 0 && tlsPort > 0) ||
+				(port > 0 && tlsPort > 0 && settings.getBoolean(Keys.server.redirectToHttpsPort, true) );
+	}
+
 
 	/**
 	 * Logout a user.

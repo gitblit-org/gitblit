@@ -15,8 +15,14 @@
  */
 package com.gitblit.tests;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.utils.MarkdownUtils;
 
 public class MarkdownUtilsTest extends GitblitUnitTest {
@@ -38,5 +44,71 @@ public class MarkdownUtilsTest extends GitblitUnitTest {
 				MarkdownUtils.transformMarkdown("<table><tr><td>test</td></tr></table>"));
 		assertEquals("<table><tr><td>&lt;test&gt;</td></tr></table>",
 				MarkdownUtils.transformMarkdown("<table><tr><td>&lt;test&gt;</td></tr></table>"));
+	}
+
+
+	@Test
+	public void testUserMentions() {
+		IStoredSettings settings = getSettings();
+		String repositoryName = "test3";
+		String mentionHtml = "<strong><a href=\"http://localhost/user/%1$s\">@%1$s</a></strong>";
+
+		String input = "@j.doe";
+		String output = "<p>" + String.format(mentionHtml, "j.doe") + "</p>";
+		assertEquals(output, MarkdownUtils.transformGFM(settings, input, repositoryName));
+
+		input = " @j.doe";
+		output = "<p>" + String.format(mentionHtml, "j.doe") + "</p>";
+		assertEquals(output, MarkdownUtils.transformGFM(settings, input, repositoryName));
+
+		input = "@j.doe.";
+		output = "<p>" + String.format(mentionHtml, "j.doe") + ".</p>";
+		assertEquals(output, MarkdownUtils.transformGFM(settings, input, repositoryName));
+
+		input = "To @j.doe: ask @jim.beam!";
+		output = "<p>To " + String.format(mentionHtml, "j.doe")
+				+ ": ask " + String.format(mentionHtml, "jim.beam") + "!</p>";
+		assertEquals(output, MarkdownUtils.transformGFM(settings, input, repositoryName));
+
+		input =   "@sta.rt\n"
+				+ "\n"
+				+ "User mentions in tickets are broken.\n"
+				+ "So:\n"
+				+ "@mc_guyver can fix this.\n"
+				+ "@j.doe, can you test after the fix by @m+guyver?\n"
+				+ "Please review this, @jim.beam!\n"
+				+ "Was reported by @jill and @j!doe from jane@doe yesterday.\n"
+				+ "\n"
+				+ "@jack.daniels can vote for john@wayne.name hopefully.\n"
+				+ "@en.de";
+		output =  "<p>"	+ String.format(mentionHtml, "sta.rt") + "</p>"
+				+ "<p>"	+ "User mentions in tickets are broken.<br/>"
+				+ "So:<br/>"
+				+ String.format(mentionHtml, "mc_guyver") + " can fix this.<br/>"
+				+ String.format(mentionHtml, "j.doe") + ", can you test after the fix by " + String.format(mentionHtml, "m+guyver") + "?<br/>"
+				+ "Please review this, " + String.format(mentionHtml, "jim.beam") + "!<br/>"
+				+ "Was reported by " + String.format(mentionHtml, "jill")
+				+ " and " + String.format(mentionHtml, "j!doe")
+				+ " from <a href=\"mailto:&#106;a&#110;&#x65;&#x40;&#x64;&#x6f;&#101;\">&#106;a&#110;&#x65;&#x40;&#x64;&#x6f;&#101;</a> yesterday." 
+				+ "</p>"
+				+ "<p>" + String.format(mentionHtml, "jack.daniels") + " can vote for "
+				+ "<a href=\"mailto:&#x6a;&#x6f;h&#110;&#x40;&#119;a&#121;&#110;&#101;.&#110;a&#x6d;&#101;\">&#x6a;&#x6f;h&#110;&#x40;&#119;a&#121;&#110;&#101;.&#110;a&#x6d;&#101;</a> hopefully.<br/>"
+				+ String.format(mentionHtml, "en.de")
+				+ "</p>";
+		assertEquals(output, MarkdownUtils.transformGFM(settings, input, repositoryName));
+
+	}
+
+
+
+
+	private MemorySettings getSettings() {
+		Map<String, Object> backingMap = new HashMap<String, Object>();
+
+		backingMap.put(Keys.web.canonicalUrl, "http://localhost");
+		backingMap.put(Keys.web.shortCommitIdLength, "7");
+
+		MemorySettings ms = new MemorySettings(backingMap);
+		return ms;
 	}
 }

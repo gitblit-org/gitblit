@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.IPublicKeyManager;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.transport.ssh.commands.CommandMetaData;
@@ -47,12 +48,20 @@ public class KeysDispatcher extends DispatchCommand {
 
 	@Override
 	protected void setup() {
-		register(AddKey.class);
-		register(RemoveKey.class);
+		IPublicKeyManager km = getContext().getGitblit().getPublicKeyManager();
+		UserModel user = getContext().getClient().getUser();
+		if (km != null && km.supportsWritingKeys(user)) {
+			register(AddKey.class);
+			register(RemoveKey.class);
+		}
 		register(ListKeys.class);
 		register(WhichKey.class);
-		register(CommentKey.class);
-		register(PermissionKey.class);
+		if (km != null && km.supportsCommentChanges(user)) {
+			register(CommentKey.class);
+		}
+		if (km != null && km.supportsPermissionChanges(user)) {
+			register(PermissionKey.class);
+		}
 	}
 
 	@CommandMetaData(name = "add", description = "Add an SSH public key to your account")
