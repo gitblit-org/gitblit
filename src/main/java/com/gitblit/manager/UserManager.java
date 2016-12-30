@@ -123,7 +123,7 @@ public class UserManager implements IUserManager {
 					service = createUserService(realmFile);
 				} catch (InstantiationException | IllegalAccessException e1) {
                                         logger.error("failed to instantiate user service {}: {}. Trying once again with IRuntimeManager constructor", realm, e1.getMessage());
-				        //try once again with file constructor. this adds support for subclasses of ConfigUserService
+				        //try once again with IRuntimeManager constructor. This adds support for subclasses of ConfigUserService and other custom IUserServices
                                         try {
                                             Constructor<?> constructor = Class.forName(realm).getConstructor(IRuntimeManager.class);
                                             service = (IUserService) constructor.newInstance(runtimeManager);
