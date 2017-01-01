@@ -28,6 +28,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.SecurePasswordHashUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.NonTrimmedPasswordTextField;
@@ -86,7 +87,7 @@ public class ChangePasswordPage extends RootSubPage {
 				UserModel user = GitBlitWebSession.get().getUser();
 
 				// convert to MD5 digest, if appropriate
-				String type = app().settings().getString(Keys.realm.passwordStorage, "md5");
+				String type = app().settings().getString(Keys.realm.passwordStorage, "PBKDF2WithHmacSHA256");
 				if (type.equalsIgnoreCase("md5")) {
 					// store MD5 digest of password
 					password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
@@ -94,6 +95,9 @@ public class ChangePasswordPage extends RootSubPage {
 					// store MD5 digest of username+password
 					password = StringUtils.COMBINED_MD5_TYPE
 							+ StringUtils.getMD5(user.username.toLowerCase() + password);
+				} else if (type.equalsIgnoreCase("PBKDF2WithHmacSHA256")) {
+					// store PBKDF2WithHmacSHA256 digest of password
+					user.password  = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
 				}
 
 				user.password = password;

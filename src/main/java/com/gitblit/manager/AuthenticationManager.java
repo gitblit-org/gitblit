@@ -52,6 +52,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
+import com.gitblit.utils.SecurePasswordHashUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
 import com.google.inject.Inject;
@@ -518,6 +519,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 */
 	protected UserModel authenticateLocal(UserModel user, char [] password) {
 		UserModel returnedUser = null;
+		//weak password hash
 		if (user.password.startsWith(StringUtils.MD5_TYPE)) {
 			// password digest
 			String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
@@ -534,7 +536,15 @@ public class AuthenticationManager implements IAuthenticationManager {
 		} else if (user.password.equals(new String(password))) {
 			// plain-text password
 			returnedUser = user;
+		} else if (user.password.startsWith(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE)){
+			//strong hash
+			SecurePasswordHashUtils hashUtils = SecurePasswordHashUtils.get();
+            boolean isPasswordValid = hashUtils.isPasswordCorrect(password, user.password);
+            if(isPasswordValid){
+            	returnedUser = user;
+            }
 		}
+		
 		return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
 	}
 

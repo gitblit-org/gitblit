@@ -169,7 +169,7 @@ Usernames must be unique and are case-insensitive.
 Whitespace is illegal.
 
 ### Passwords
-User passwords are CASE-SENSITIVE and may be *plain*, *md5*, or *combined-md5* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
+User passwords are CASE-SENSITIVE and may be *plain*, *md5*, *combined-md5* or *PBKDF2WithHmacSHA256* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
 
 ### User Roles
 There are four actual *roles* in Gitblit:

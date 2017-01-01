@@ -58,7 +58,9 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.SecurePasswordHashUtils;
 import com.gitblit.utils.StringUtils;
+
 
 public class EditUserDialog extends JDialog {
 
@@ -318,7 +320,8 @@ public class EditUserDialog extends JDialog {
 			return false;
 		}
 		if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
-				&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+				&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)
+				&& !password.startsWith(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE)) {
 			String cpw = new String(confirmPasswordField.getPassword());
 			if (cpw == null || cpw.length() != password.length()) {
 				error("Please confirm the password!");
@@ -332,7 +335,7 @@ public class EditUserDialog extends JDialog {
 			// change the cookie
 			user.cookie = user.createCookie();
 
-			String type = settings.get(Keys.realm.passwordStorage).getString("md5");
+			String type = settings.get(Keys.realm.passwordStorage).getString("PBKDF2WithHmacSHA256");
 			if (type.equalsIgnoreCase("md5")) {
 				// store MD5 digest of password
 				user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
@@ -340,6 +343,9 @@ public class EditUserDialog extends JDialog {
 				// store MD5 digest of username+password
 				user.password = StringUtils.COMBINED_MD5_TYPE
 						+ StringUtils.getMD5(user.username + password);
+			} else if (type.equalsIgnoreCase("PBKDF2WithHmacSHA256")) {
+				// store PBKDF2WithHmacSHA256 digest of password
+				user.password  = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
 			} else {
 				// plain-text password
 				user.password = password;
