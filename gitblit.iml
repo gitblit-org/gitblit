@@ -213,24 +213,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-join-5.5.2.jar">
+      <library name="lucene-memory-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-join-5.5.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-memory-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-join-5.5.2.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="lucene-grouping-5.5.2.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-grouping-5.5.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-grouping-5.5.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-memory-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -246,13 +235,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-memory-5.5.2.jar">
+      <library name="lucene-queryparser-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-memory-5.5.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-queryparser-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-memory-5.5.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-queryparser-5.5.2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="lucene-sandbox-5.5.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/lucene-sandbox-5.5.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-sandbox-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
