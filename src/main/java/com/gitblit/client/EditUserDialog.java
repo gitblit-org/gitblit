@@ -335,7 +335,7 @@ public class EditUserDialog extends JDialog {
 			// change the cookie
 			user.cookie = user.createCookie();
 
-			String type = settings.get(Keys.realm.passwordStorage).getString("PBKDF2WithHmacSHA256");
+			String type = settings.get(Keys.realm.passwordStorage).getString(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256);
 			if (type.equalsIgnoreCase("md5")) {
 				// store MD5 digest of password
 				user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
@@ -343,7 +343,7 @@ public class EditUserDialog extends JDialog {
 				// store MD5 digest of username+password
 				user.password = StringUtils.COMBINED_MD5_TYPE
 						+ StringUtils.getMD5(user.username + password);
-			} else if (type.equalsIgnoreCase("PBKDF2WithHmacSHA256")) {
+			} else if (type.equalsIgnoreCase(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256)) {
 				// store PBKDF2WithHmacSHA256 digest of password
 				user.password  = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
 			} else {

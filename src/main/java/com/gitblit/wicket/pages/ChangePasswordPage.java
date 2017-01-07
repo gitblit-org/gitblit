@@ -87,7 +87,7 @@ public class ChangePasswordPage extends RootSubPage {
 				UserModel user = GitBlitWebSession.get().getUser();
 
 				// convert to MD5 digest, if appropriate
-				String type = app().settings().getString(Keys.realm.passwordStorage, "PBKDF2WithHmacSHA256");
+				String type = app().settings().getString(Keys.realm.passwordStorage, SecurePasswordHashUtils.PBKDF2WITHHMACSHA256);
 				if (type.equalsIgnoreCase("md5")) {
 					// store MD5 digest of password
 					password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
@@ -95,7 +95,7 @@ public class ChangePasswordPage extends RootSubPage {
 					// store MD5 digest of username+password
 					password = StringUtils.COMBINED_MD5_TYPE
 							+ StringUtils.getMD5(user.username.toLowerCase() + password);
-				} else if (type.equalsIgnoreCase("PBKDF2WithHmacSHA256")) {
+				} else if (type.equalsIgnoreCase(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256)) {
 					// store PBKDF2WithHmacSHA256 digest of password
 					user.password  = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
 				}
