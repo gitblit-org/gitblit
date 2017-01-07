@@ -10,7 +10,7 @@ name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.8.1-SNAPSHOT
+version: 1.9.0-SNAPSHOT
 inceptionYear: 2011
 
 # Current stable release
@@ -181,7 +181,7 @@ dependencies:
 - compile 'ro.fortsoft.pf4j:pf4j:0.9.0' :war
 - compile 'org.apache.tika:tika-core:1.5' :war
 - compile 'org.jsoup:jsoup:1.7.3' :war
-- test 'junit'
+- test 'junit:junit:4.12'
 # Dependencies for Selenium web page testing
 - test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar
 - test 'org.seleniumhq.selenium:selenium-support:${selenium.version}' @jar
@@ -189,4 +189,4 @@ dependencies:
 - test 'org.mockito:mockito-core:1.10.19'
 # Dependencies with the "build" scope are retrieved
 # and injected into the Ant runtime classpath
-- build 'jacoco'
+- build 'org.jacoco:org.jacoco.ant:0.7.8'
