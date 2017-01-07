@@ -570,7 +570,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 			// check if strong hash algorithm is configured
 			String algorithm = settings.getString(Keys.realm.passwordStorage, SecurePasswordHashUtils.PBKDF2WITHHMACSHA256);
 			if(algorithm.equals(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256)){
-				// rehash the provided correct password and 
+				// rehash the provided correct password and update the user model
 				user.password = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
 				userManager.updateUserModel(user);
 			}	
