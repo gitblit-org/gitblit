@@ -55,6 +55,7 @@ import com.gitblit.manager.UserManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.utils.SecurePasswordHashUtils;
 import com.gitblit.utils.XssFilter;
 import com.gitblit.utils.XssFilter.AllowXssFilter;
 
@@ -658,12 +659,17 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 		users.updateUserModel(user);
 
 		assertNotNull(auth.authenticate(user.username, user.password.toCharArray(), null));
+		
+		// validate that plaintext password was automatically updated to hashed one
+		assertTrue(user.password.startsWith(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE));
+		
 		user.disabled = true;
 
 		users.updateUserModel(user);
 		assertNull(auth.authenticate(user.username, user.password.toCharArray(), null));
 		users.deleteUserModel(user);
 	}
+	
 
 	@Test
 	public void testContenairAuthenticate() throws Exception {

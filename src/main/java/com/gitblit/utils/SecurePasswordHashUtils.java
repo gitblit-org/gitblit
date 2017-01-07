@@ -11,13 +11,16 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 /**
- * The Class SecurePasswordHashUtils provides methods to create and validate secure hashes from user passwords.
+ * The Class SecurePasswordHashUtils provides methods to create and validate
+ * secure hashes from user passwords.
  * 
- * It uses the concept proposed by OWASP - Hashing Java: https://www.owasp.org/index.php/Hashing_Java
+ * It uses the concept proposed by OWASP - Hashing Java:
+ * https://www.owasp.org/index.php/Hashing_Java
  */
 public class SecurePasswordHashUtils {
 
-	public static final String PBKDF2WITHHMACSHA256_TYPE = "PBKDF2WITHHMACSHA256:";
+	public static final String PBKDF2WITHHMACSHA256 = "PBKDF2WithHmacSHA256";
+	public static final String PBKDF2WITHHMACSHA256_TYPE = PBKDF2WITHHMACSHA256.toUpperCase() + ":";
 
 	private static final SecureRandom RANDOM = new SecureRandom();
 	private static final int ITERATIONS = 10000;
@@ -112,8 +115,21 @@ public class SecurePasswordHashUtils {
 	 * @return the sting to be stored in a file (users.conf)
 	 */
 	public String createStoredPasswordFromPassword(String password) {
+		return createStoredPasswordFromPassword(password.toCharArray());
+	}
+
+	/**
+	 * Creates the new secure hash from a password and formats it properly to be
+	 * stored in a file.
+	 *
+	 * @param password
+	 *            the password to be hashed
+	 * @return the sting to be stored in a file (users.conf)
+	 */
+	public String createStoredPasswordFromPassword(char[] password) {
 		byte[] salt = getNextSalt();
-		return String.format("%s%s%s", SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE, StringUtils.toHex(salt), StringUtils.toHex(hash(password.toCharArray(), salt)));
+		return String.format("%s%s%s", SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE, StringUtils.toHex(salt),
+				StringUtils.toHex(hash(password, salt)));
 	}
 
 	/**

@@ -519,7 +519,8 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 */
 	protected UserModel authenticateLocal(UserModel user, char [] password) {
 		UserModel returnedUser = null;
-		//weak password hash
+		boolean strongHashUsed = false;
+
 		if (user.password.startsWith(StringUtils.MD5_TYPE)) {
 			// password digest
 			String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
@@ -533,19 +534,47 @@ public class AuthenticationManager implements IAuthenticationManager {
 			if (user.password.equalsIgnoreCase(md5)) {
 				returnedUser = user;
 			}
-		} else if (user.password.equals(new String(password))) {
-			// plain-text password
-			returnedUser = user;
 		} else if (user.password.startsWith(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE)){
-			//strong hash
+			// strong hash
 			SecurePasswordHashUtils hashUtils = SecurePasswordHashUtils.get();
             boolean isPasswordValid = hashUtils.isPasswordCorrect(password, user.password);
             if(isPasswordValid){
             	returnedUser = user;
+            	strongHashUsed = true;
             }
+		} else if (user.password.equals(new String(password))) {
+			// plain-text password
+			returnedUser = user;
+		} 
+		
+		// validate user
+		returnedUser = validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+		
+		// if no strong hash was used to store the password, try to update it based on the settings
+		if(!strongHashUsed){
+			updateStoredPassword(returnedUser, password);
 		}
 		
-		return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+		return returnedUser;
+	}
+
+	/**
+	 * Update stored password to a strong hash if configured.
+	 *
+	 * @param user the user to be updated
+	 * @param password the password
+	 */
+	protected void updateStoredPassword(UserModel user, char[] password) {
+		// check if user has successfully authenticated i.e. is not null 
+		if(user != null){
+			// check if strong hash algorithm is configured
+			String algorithm = settings.getString(Keys.realm.passwordStorage, SecurePasswordHashUtils.PBKDF2WITHHMACSHA256);
+			if(algorithm.equals(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256)){
+				// rehash the provided correct password and 
+				user.password = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
+				userManager.updateUserModel(user);
+			}	
+		}
 	}
 
 	/**
