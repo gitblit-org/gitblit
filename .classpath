@@ -22,7 +22,6 @@
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.22.jar" sourcepath="ext/src/wicket-auth-roles-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.22.jar" sourcepath="ext/src/wicket-extensions-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/lucene-core-5.5.2.jar" sourcepath="ext/src/lucene-core-5.5.2.jar" />
-	<classpathentry kind="lib" path="ext/lucene-backward-codecs-5.5.2.jar" sourcepath="ext/src/lucene-backward-codecs-5.5.2.jar" />
 	<classpathentry kind="lib" path="ext/lucene-analyzers-common-5.5.2.jar" sourcepath="ext/src/lucene-analyzers-common-5.5.2.jar" />
 	<classpathentry kind="lib" path="ext/lucene-highlighter-5.5.2.jar" sourcepath="ext/src/lucene-highlighter-5.5.2.jar" />
 	<classpathentry kind="lib" path="ext/lucene-memory-5.5.2.jar" sourcepath="ext/src/lucene-memory-5.5.2.jar" />
