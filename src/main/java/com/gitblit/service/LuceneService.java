@@ -65,7 +65,6 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -124,8 +123,6 @@ public class LuceneService implements Runnable {
 	private static final String CONF_VERSION = "version";
 	private static final String CONF_ALIAS = "aliases";
 	private static final String CONF_BRANCH = "branches";
-
-	private static final Version LUCENE_VERSION = Version.LUCENE_4_10_0;
 
 	private final Logger logger = LoggerFactory.getLogger(LuceneService.class);
 

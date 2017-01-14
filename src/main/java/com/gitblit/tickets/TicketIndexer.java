@@ -49,7 +49,6 @@ import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,8 +165,6 @@ public class TicketIndexer {
 	}
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private final Version luceneVersion = Version.LUCENE_5_5_2;
 
 	private final File luceneDir;
 
