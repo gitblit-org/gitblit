@@ -718,10 +718,9 @@ public class LuceneService implements Runnable {
 		String pattern = MessageFormat.format("{0}:'{'0} AND {1}:\"'{'1'}'\" AND {2}:\"'{'2'}'\"", FIELD_OBJECT_TYPE, FIELD_BRANCH, FIELD_PATH);
 		String q = MessageFormat.format(pattern, SearchObjectType.blob.name(), branch, path);
 
-		BooleanQuery query = new BooleanQuery();
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		QueryParser qp = new QueryParser(FIELD_SUMMARY, analyzer);
-		query.add(qp.parse(q), Occur.MUST);
+		BooleanQuery query = new BooleanQuery.Builder().add(qp.parse(q), Occur.MUST).build();
 
 		IndexWriter writer = getIndexWriter(repositoryName);
 		int numDocsBefore = writer.numDocs();
@@ -1028,15 +1027,15 @@ public class LuceneService implements Runnable {
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
 			// default search checks summary and content
-			BooleanQuery query = new BooleanQuery();
+			BooleanQuery.Builder bldr = new BooleanQuery.Builder();
 			QueryParser qp;
 			qp = new QueryParser(FIELD_SUMMARY, analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			qp = new QueryParser(FIELD_CONTENT, analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			IndexSearcher searcher;
 			if (repositories.length == 1) {
@@ -1054,6 +1053,7 @@ public class LuceneService implements Runnable {
 				searcher = new IndexSearcher(reader);
 			}
 
+			BooleanQuery query = bldr.build();
 			Query rewrittenQuery = searcher.rewrite(query);
 			logger.debug(rewrittenQuery.toString());
 

@@ -200,8 +200,7 @@ public class TicketIndexer {
 			IndexWriter writer = getWriter();
 			StandardAnalyzer analyzer = new StandardAnalyzer();
 			QueryParser qp = new QueryParser(Lucene.rid.name(), analyzer);
-			BooleanQuery query = new BooleanQuery();
-			query.add(qp.parse(repository.getRID()), Occur.MUST);
+			BooleanQuery query = new BooleanQuery.Builder().add(qp.parse(repository.getRID()), Occur.MUST).build();
 
 			int numDocsBefore = writer.numDocs();
 			writer.deleteDocuments(query);
@@ -286,8 +285,7 @@ public class TicketIndexer {
 	private boolean delete(String repository, long ticketId, IndexWriter writer) throws Exception {
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		QueryParser qp = new QueryParser(Lucene.did.name(), analyzer);
-		BooleanQuery query = new BooleanQuery();
-		query.add(qp.parse(StringUtils.getSHA1(repository + ticketId)), Occur.MUST);
+		BooleanQuery query = new BooleanQuery.Builder().add(qp.parse(StringUtils.getSHA1(repository + ticketId)), Occur.MUST).build();
 
 		int numDocsBefore = writer.numDocs();
 		writer.deleteDocuments(query);
@@ -331,23 +329,23 @@ public class TicketIndexer {
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
 			// search the title, description and content
-			BooleanQuery query = new BooleanQuery();
+			BooleanQuery.Builder bldr = new BooleanQuery.Builder();
 			QueryParser qp;
 
 			qp = new QueryParser(Lucene.title.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			qp = new QueryParser(Lucene.body.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			qp = new QueryParser(Lucene.content.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			IndexSearcher searcher = getSearcher();
-			Query rewrittenQuery = searcher.rewrite(query);
+			Query rewrittenQuery = searcher.rewrite(bldr.build());
 
 			log.debug(rewrittenQuery.toString());
 
@@ -406,7 +404,7 @@ public class TicketIndexer {
 				sort = new Sort(Lucene.fromString(sortBy).asSortField(desc));
 			}
 			int maxSize = 5000;
-			TopFieldDocs docs = searcher.search(rewrittenQuery, null, maxSize, sort, false, false);
+			TopFieldDocs docs = searcher.search(rewrittenQuery, maxSize, sort, false, false);
 			int size = (pageSize <= 0) ? maxSize : pageSize;
 			int offset = Math.max(0, (page - 1) * size);
 			ScoreDoc[] hits = subset(docs.scoreDocs, offset, size);
