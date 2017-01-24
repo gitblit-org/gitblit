@@ -328,6 +328,18 @@ public class RpcServlet extends JsonServlet {
 			Collection<RegistrantAccessPermission> permissions = deserialize(request, response,
 					RpcUtils.REGISTRANT_PERMISSIONS_TYPE);
 			result = gitblit.setTeamAccessPermissions(model, permissions);
+		} else if (RpcRequest.LIST_REPOSITORY_BRANCHES.equals(reqType)) {
+
+			// list all branches for the given repository		
+			Repository repository = gitblit.getRepository(objectName);
+			List<RefModel> refs = JGitUtils.getLocalBranches(repository, false, -1);
+
+			List<String> branches = new ArrayList<>();
+			for (RefModel ref : refs) {
+				branches.add(ref.getName());
+			}
+			repository.close();
+			result = branches;
 		} else if (RpcRequest.LIST_FEDERATION_REGISTRATIONS.equals(reqType)) {
 			// return the list of federation registrations
 			if (allowAdmin) {
