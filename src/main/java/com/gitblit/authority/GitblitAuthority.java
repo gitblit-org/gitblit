@@ -49,6 +49,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.mail.Message;
 import javax.swing.ImageIcon;
@@ -98,6 +99,7 @@ import com.gitblit.utils.X509Utils;
 import com.gitblit.utils.X509Utils.RevocationReason;
 import com.gitblit.utils.X509Utils.X509Log;
 import com.gitblit.utils.X509Utils.X509Metadata;
+import com.gitblit.wicket.GitBlitWebSession;
 
 /**
  * Simple GUI tool for administering Gitblit client certificates.
@@ -447,7 +449,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				}
 
 				File caKeystoreFile = new File(folder, X509Utils.CA_KEY_STORE);
-				File zip = X509Utils.newClientBundle(metadata, caKeystoreFile, caKeystorePassword, GitblitAuthority.this);
+				File zip = X509Utils.newClientBundle(user,metadata, caKeystoreFile, caKeystorePassword, GitblitAuthority.this);
 
 				// save latest expiration date
 				if (ucm.expires == null || metadata.notAfter.before(ucm.expires)) {
@@ -850,9 +852,16 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		try {
 			if (mail.isReady()) {
 				Mailing mailing = Mailing.newPlain();
-				mailing.subject = "Your Gitblit client certificate for " + metadata.serverHostname;
+				mailing.subject = MessageFormat.format(ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp",user.getPreferences().getLocale()).getString("gb.emailClientCertificateSubject"), metadata.serverHostname);
 				mailing.setRecipients(user.emailAddress);
-				String body = X509Utils.processTemplate(new File(folder, X509Utils.CERTS + File.separator + "mail.tmpl"), metadata);
+				File fileMailTmp = null;
+				String body = null;
+				if( (fileMailTmp = new File(folder, X509Utils.CERTS + File.separator +  "mail.tmpl"+"_"+user.getPreferences().getLocale())).exists())
+				  body = X509Utils.processTemplate(fileMailTmp, metadata);
+				else{
+				  fileMailTmp = new File(folder, X509Utils.CERTS + File.separator +  "mail.tmpl");
+				  body = X509Utils.processTemplate(fileMailTmp, metadata);
+				}  
 				if (StringUtils.isEmpty(body)) {
 					body = MessageFormat.format("Hi {0}\n\nHere is your client certificate bundle.\nInside the zip file are installation instructions.", user.getDisplayName());
 				}
