@@ -62,7 +62,6 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td>Gitblit v1.3.1</td><td>6</td></tr>
 <tr><td>Gitblit v1.4.0</td><td>7</td></tr>
 <tr><td>Gitblit v1.6.0</td><td>8</td></tr>
-<tr><td>Gitblit v1.9.0</td><td>9</td></tr>
 </tbody>
 </table>
 
@@ -105,7 +104,6 @@ Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 <tr><td><s>SET_REPOSITORY_TEAMS</s></td><td><s>repository name</s></td><td><em><s>admin</s></em></td><td><s>2</s></td><td><s>List&lt;String&gt;</s></td><td>-</td></tr>
 <tr><td>LIST_REPOSITORY_TEAM_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>-</td><td>List&lt;String&gt;</td></tr>
 <tr><td>SET_REPOSITORY_TEAM_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>List&lt;String&gt;</td><td>-</td></tr>
-<tr><td>LIST_REPOSITORY_BRANCHES</td><td>repository name</td><td><em>-</em></td><td>9</td><td>-</td><td>List&lt;String&gt;</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>ServerSettings (management keys)</td></tr>
 <tr><td>CLEAR_REPOSITORY_CACHE</td><td>-</td><td><em>-</em></td><td>4</td><td>-</td><td>-</td></tr>
 <tr><td>REINDEX_TICKETS</td><td>repository name</td><td><em>-</em></td><td>7</td><td>-</td><td>-</td></tr>
