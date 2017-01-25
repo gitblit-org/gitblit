@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -852,7 +853,10 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		try {
 			if (mail.isReady()) {
 				Mailing mailing = Mailing.newPlain();
-				mailing.subject = MessageFormat.format(ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp",user.getPreferences().getLocale()).getString("gb.emailClientCertificateSubject"), metadata.serverHostname);
+                if( user.getPreferences().getLocale()!=null )
+                    mailing.subject = MessageFormat.format(ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp",user.getPreferences().getLocale()).getString("gb.emailClientCertificateSubject"), metadata.serverHostname);
+                else
+                    mailing.subject = MessageFormat.format(ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", Locale.ENGLISH).getString("gb.emailClientCertificateSubject") , metadata.serverHostname);
 				mailing.setRecipients(user.emailAddress);
 				File fileMailTmp = null;
 				String body = null;
