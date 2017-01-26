@@ -62,6 +62,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td>Gitblit v1.3.1</td><td>6</td></tr>
 <tr><td>Gitblit v1.4.0</td><td>7</td></tr>
 <tr><td>Gitblit v1.6.0</td><td>8</td></tr>
+<tr><td>Gitblit v1.9.0</td><td>9</td></tr>
 </tbody>
 </table>
 
@@ -80,7 +81,7 @@ Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 <tr><td colspan='6'><em>web.enableRpcServlet=true</em></td></tr>
 <tr><td>GET_PROTOCOL</td><td>-</td><td>-</td><td>2</td><td>-</td><td>Integer</td></tr>
 <tr><td>LIST_REPOSITORIES</td><td>-</td><td>-</td><td>1</td><td>-</td><td>Map&lt;String, RepositoryModel&gt;</td></tr>
-<tr><td>LIST_BRANCHES</td><td>-</td><td>-</td><td>1</td><td>-</td><td>Map&lt;String, List&lt;String&gt;&gt;</td></tr>
+<tr><td>LIST_BRANCHES</td><td>[repository name]</td><td>-</td><td>9</td><td>-</td><td>Map&lt;String, List&lt;String&gt;&gt;</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>-</em></td><td>1</td><td>-</td><td>ServerSettings (basic keys)</td></tr>
 <tr><td>GET_USER</td><td>user name</td><td>-</td><td>6</td><td>-</td><td>UserModel</td></tr>
 <tr><td>FORK_REPOSITORY</td><td>repository name</td><td><em>-</em></td><td>8</td><td>-</td><td>-</td></tr>
