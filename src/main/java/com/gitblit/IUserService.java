@@ -26,6 +26,9 @@ import com.gitblit.models.UserModel;
  * Implementations of IUserService control all aspects of UserModel objects and
  * user authentication.
  *
+ * Plugins implementing this interface (which are instantiated during {@link com.gitblit.manager.UserManager#start()}) can provide
+ * a default constructor or might also use {@link IRuntimeManager} as a constructor argument which will be passed automatically then. 
+ *
  * @author James Moger
  *
  */
