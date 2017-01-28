@@ -954,9 +954,9 @@ public class JGitUtils {
 			List<String> paths = new ArrayList<>();
 
 			while (tw.next()) {
-					String child = isPathEmpty ? tw.getPathString()
-							: tw.getPathString().replaceFirst(String.format("%s/", path), "");
-					paths.add(child);
+				String pathString = tw.getPathString();
+				String child = isPathEmpty ? pathString : pathString.replaceFirst(Pattern.quote(String.format("%s/", path)), "");
+				paths.add(child);
 			}
 
 			for(String p: PathUtils.compressPaths(paths)) {
