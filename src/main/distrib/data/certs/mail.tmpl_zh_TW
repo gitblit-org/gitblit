@@ -1,0 +1,5 @@
+$userDisplayname 您好
+
+ 伺服器 $serverHostname 所需要的私鑰,公鑰以及Gitblit簽證檔案(CA)已經全部打包並且以zip壓縮檔方式寄給您.
+
+ 此外,檔案還附上各瀏覽器設定步驟供您參考.

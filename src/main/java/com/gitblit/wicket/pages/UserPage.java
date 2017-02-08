@@ -166,12 +166,9 @@ public class UserPage extends RootPage {
 
 		navLinks.add(menu);
 	}
-
-	private void addPreferences(UserModel user) {
-		// add preferences
-		Form<Void> prefs = new Form<Void>("prefsForm");
-
-		List<Language> languages = Arrays.asList(
+	
+	public static List<Language> getLanguages(){
+		return  Arrays.asList(
 				new Language("Deutsch","de"),
 				new Language("English","en"),
 				new Language("Español", "es"),
@@ -185,6 +182,13 @@ public class UserPage extends RootPage {
 				new Language("Português", "pt_BR"),
 				new Language("簡體中文", "zh_CN"),
 				new Language("正體中文", "zh_TW"));
+	}
+	
+	private void addPreferences(UserModel user) {
+		// add preferences
+		Form<Void> prefs = new Form<Void>("prefsForm");
+
+		List<Language> languages = getLanguages();
 
 		Locale locale = user.getPreferences().getLocale();
 		if (locale == null) {
@@ -313,23 +317,5 @@ public class UserPage extends RootPage {
 		// add the SSH keys tab
 		add(new Fragment("sshKeysLink", "sshKeysLinkFragment", UserPage.this).setRenderBodyOnly(true));
 		add(keysTab.setRenderBodyOnly(true));
-	}
-
-	private class Language implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		final String name;
-		final String code;
-
-		public Language(String name, String code) {
-			this.name = name;
-			this.code = code;
-		}
-
-		@Override
-		public String toString() {
-			return name + " (" + code +")";
-		}
 	}
 }

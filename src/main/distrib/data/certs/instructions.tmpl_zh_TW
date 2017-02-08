@@ -1,0 +1,111 @@
+********************************************************************************
+ Gitblit 伺服器 $serverHostname 所需之 SSL 用戶端憑證
+********************************************************************************
+
+ $userDisplayname 您好,
+
+ 伺服器 $serverHostname 所需要的私鑰,公鑰以及Gitblit簽證檔案(CA)存放於 $username.p12, PKCS#12 certificate store[1] 以及 $username.pem.
+
+ 兩種證書皆受密碼保護. 
+ 密碼提示: $storePasswordHint
+
+
+Git 憑證匯入步驟
+=============================================
+
+ 附件之 PEM 檔案可以直接匯入至您的git程式裡.
+ 
+    git config [--global] http.sslCert path/to/$username.pem
+    
+ PEM檔案受密碼保護,因此匯入過程會提示多次.  如果您偏好不使用密碼,您需要另外匯出無密碼之私鑰後,再匯入git程式裡.
+ 
+    openssl rsa -in path/to/$username.pem -out path/to/$username.key    
+    git config [--global] http.sslKey path/to/$username.key
+
+ 此外,您應該妥善保管已經解除密碼保護之私鑰.
+ 
+ 註:
+ 如果沒有匯出私鑰, 有些早期git版本將會發生匯入失敗問題,例如:Ubuntu 12.04 with git 1.7.9.5.
+
+
+Firefox 憑證匯入步驟
+=============================================
+
+ Firefox 有自己的證書管理介面.
+
+ 1. 點選 "選項->進階->憑證"
+ 2. 點選 "檢視憑證清單"
+ 3. 切換至 "您的憑證"
+ 4. 點選 "匯入(M)"
+ 5. 選擇電腦中的憑證檔案 $username.p12
+ 6. 輸入憑證檔案所需的密碼    
+ 7. 切換至"憑證機構"
+ 8. 找到 "Gitblit Certificate Authority" 憑證
+ 9. 點選"編輯信任(E)"
+ 10.選擇信任網站.
+
+
+Chrome/IE (Windows) 憑證匯入步驟
+=============================================
+
+ 在Windows作業系統下, Chrome 與 IE 共用相同的憑證設定.
+
+ IE
+ ------------------------------------
+ 1. 選擇 "網際網路選項->內容"
+ 2. 點選"憑證"
+
+ Chrome
+ ------------------------------------
+ 1. 選擇 "設定->顯示進階設定->HTTP/SSL"
+ 2. 點選"管理憑證"
+
+ 共同步驟 (Windows)
+ ------------------------------------
+ 3. 切換至 "個人"
+ 4. 點選"匯入(I)" 
+ 5. 依照指示匯入.
+    請切換匯入檔案類型為p12並且找到 $username.p12 這個憑證檔案
+ 6. 輸入憑證檔案保護密碼
+ 7. 由於主要發放憑證單位(CA)與個人憑證檔案皆儲存於 $username.p12, 因此匯入時候,必須選擇 "自動根據憑證類型來選擇憑證存放區".
+    如果選擇預設值匯入, 將不會安裝主要發放憑證單位(CA)
+
+
+Chrome (Linux) Installation Instructions
+=============================================
+ 
+ On Linux, Chrome maintains it's own certificate store.
+ 
+ 1. Navigate to Settings->Show Advanced Settings->HTTP/SSL
+ 2. Click the "Manage Certificates..." button
+ 3. Navigate your filesystem and select $username.p12
+ 4. At the password prompt enter the certificate store password
+    You have now imported your private key, public certificate, and the CA certificate
+    but now we must manually set the trust settings of the CA certificate.
+ 5. Switch to the "Authorities" tab
+ 6. Scroll down and find "Gitblit-> Gitblit Certificate Authority"
+ 7. Select it and click "Edit Trust..."
+ 8. Check "This certificate can identify websites" and click OK.
+
+
+Chrome/Safari (Mac OS X) Installation Instructions
+=============================================
+
+On Mac OS X, Chrome and Safari both use Keychain Access to store certificates
+so configuring one will automatically apply for both.
+
+ 1. Double-click $username.pem
+ 2. At the password prompt enter the certificate store password
+    You have now imported your private key, public certificate, and the CA certificate
+    but now we must manually set the trust settings of the CA certificate.
+ 3. Find the Gitblit Certificate Authority certificate, it should have a red
+    indicator meaning untrusted, and double-click it.
+ 4. Open the "Trust" disclosure triangle and change "When using this certificate"
+    to "Always Trust".
+ 5. Close the certificate view and enter your system password to save the changes
+    to your keychain. 
+  
+    
+[1] PKCS#12 is one of the standard container formats for sharing private keys and
+    public certificates.
+[2] http://www.openssl.org
