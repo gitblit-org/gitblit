@@ -3,9 +3,9 @@
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
       lang="en"> 
+<body onload="document.getElementById('name').focus();">
 
 <wicket:extend>
-<body onload="document.getElementById('name').focus();">
 	<form style="padding-top:5px;" wicket:id="editForm">
 <div class="row">
 <div class="span12">
@@ -197,7 +197,8 @@
 </div>
 
 </form>	
+</wicket:extend>
+
 </body>
 
-</wicket:extend>
 </html>
