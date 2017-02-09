@@ -315,6 +315,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 
 		@Override
 		public AccessPermission getObject(String id, IModel<? extends List<? extends AccessPermission>> choices) {
+			if(StringUtils.isEmpty(id)){
+				return null;
+			}
 			return choices.getObject().get(Integer.valueOf(id));
 		}
 	}
