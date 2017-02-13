@@ -1,0 +1,3 @@
+## Vítejte v Gitblitu
+
+Rychá a snadná cesta pro hostování a prohlížení vašich [Git](http://www.git-scm.com) repozitářů.
