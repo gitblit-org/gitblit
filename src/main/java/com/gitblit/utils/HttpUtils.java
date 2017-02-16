@@ -110,7 +110,9 @@ public class HttpUtils {
 		sb.append(host);
 		if (("http".equals(scheme) && port != 80)
 				|| ("https".equals(scheme) && port != 443)) {
-			sb.append(":").append(port);
+			if (!host.endsWith(":" + port)) {
+				sb.append(":").append(port);
+			}
 		}
 		sb.append(context);
 		return sb.toString();
