@@ -27,7 +27,6 @@ import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
@@ -44,6 +43,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.NonTrimmedPasswordTextField;
 import com.gitblit.wicket.RequiresAdminRole;
+import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
@@ -106,21 +106,8 @@ public class EditUserPage extends RootSubPage {
 		final List<RegistrantAccessPermission> permissions = app().repositories().getUserAccessPermissions(userModel);
 
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
-				new ArrayList<String>(userTeams)), new CollectionModel<String>(app().users().getAllTeamNames()), 
-				//use index based IChoiceRenderer to add support for special characters in team names (e.g. R&D) 
-				new IChoiceRenderer<String>() {
-					private static final long serialVersionUID = 1L;
-		
-					@Override
-					public Object getDisplayValue(String object) {
-						return object;
-					}
-		
-					@Override
-					public String getIdValue(String object, int index) {
-						return String.valueOf(index);
-					}
-				}, 10, false);
+				new ArrayList<String>(userTeams)), new CollectionModel<String>(app().users()
+				.getAllTeamNames()), new StringChoiceRenderer(), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
