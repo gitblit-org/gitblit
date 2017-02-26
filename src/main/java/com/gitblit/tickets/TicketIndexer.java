@@ -31,6 +31,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -49,6 +51,7 @@ import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -549,14 +552,17 @@ public class TicketIndexer {
 			return;
 		}
 		doc.add(new LongField(lucene.name(), value.getTime(), Store.YES));
+		doc.add(new NumericDocValuesField(lucene.name(), value.getTime()));
 	}
 
 	private void toDocField(Document doc, Lucene lucene, long value) {
 		doc.add(new LongField(lucene.name(), value, Store.YES));
+		doc.add(new NumericDocValuesField(lucene.name(), value));
 	}
 
 	private void toDocField(Document doc, Lucene lucene, int value) {
 		doc.add(new IntField(lucene.name(), value, Store.YES));
+		doc.add(new NumericDocValuesField(lucene.name(), value));
 	}
 
 	private void toDocField(Document doc, Lucene lucene, String value) {
@@ -564,6 +570,7 @@ public class TicketIndexer {
 			return;
 		}
 		doc.add(new org.apache.lucene.document.Field(lucene.name(), value, TextField.TYPE_STORED));
+		doc.add(new SortedDocValuesField(lucene.name(), new BytesRef(value)));
 	}
 
 	/**
