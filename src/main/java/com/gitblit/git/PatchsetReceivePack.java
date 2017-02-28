@@ -1268,7 +1268,28 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	public MergeStatus merge(TicketModel ticket) {
 		PersonIdent committer = new PersonIdent(user.getDisplayName(), StringUtils.isEmpty(user.emailAddress) ? (user.username + "@gitblit") : user.emailAddress);
 		Patchset patchset = ticket.getCurrentPatchset();
-		String message = MessageFormat.format("Merged #{0,number,0} \"{1}\"", ticket.number, ticket.title);
+		StringBuilder messageBuilder = new StringBuilder();
+		messageBuilder.append(MessageFormat.format("Merged #{0,number,0} \"{1}\"", ticket.number, ticket.title));
+
+		// Add Signed-off-by tags to commit message footer if there are reviewers on this patchset
+		// and the setting is enabled on this repo.
+		if (repository.writeSignoffCommit) {
+			messageBuilder.append("\n\n");
+			for (Change change : ticket.getReviews(patchset)) {
+				UserModel ruser = gitblit.getUserModel(change.author);
+				messageBuilder.append(MessageFormat.format(
+							"Signed-off-by: {0} <{1}>\n", 
+							ruser.getDisplayName(), 
+							StringUtils.isEmpty(ruser.emailAddress) ? (ruser.username + "@gitblit") : ruser.emailAddress
+						)
+				);
+			}
+			// Delete extra the line break at the end of the message
+			messageBuilder.deleteCharAt(messageBuilder.length()-1);
+		}
+		
+		// Convert the constructed message to String and continue
+		String message = messageBuilder.toString();
 		Ref oldRef = null;
 		try {
 			oldRef = getRepository().getRef(ticket.mergeTo);

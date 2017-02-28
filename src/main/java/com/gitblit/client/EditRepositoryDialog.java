@@ -96,6 +96,10 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JCheckBox requireApproval;
 
+	private JComboBox requireScore;
+
+	private JCheckBox writeSignoffCommit;
+
 	private JComboBox mergeToField;
 
 	private JCheckBox useIncrementalPushTags;
@@ -221,6 +225,12 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.acceptNewPatchsets);
 		requireApproval = new JCheckBox(Translation.get("gb.requireApprovalDescription"),
 				anRepository.requireApproval);
+		Integer [] 	scores = { 0, 2, 4, 5, 6, 8 };
+		requireScore = new JComboBox(scores);
+		requireScore.setSelectedItem(anRepository.requireScore);
+
+		writeSignoffCommit = new JCheckBox(Translation.get("gb.writeSignoffDescription"),
+				anRepository.writeSignoffCommit);
 
 		if (ArrayUtils.isEmpty(anRepository.availableRefs)) {
 			mergeToField = new JComboBox();
@@ -330,6 +340,10 @@ public class EditRepositoryDialog extends JDialog {
 				acceptNewPatchsets));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.requireApproval"),
 				requireApproval));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.requireScore"),
+				requireScore));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.writeSignoffCommit"),
+				writeSignoffCommit));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.mergeTo"), mergeToField));
 		fieldsPanel
 		.add(newFieldPanel(Translation.get("gb.enableIncrementalPushTags"), useIncrementalPushTags));
@@ -588,6 +602,8 @@ public class EditRepositoryDialog extends JDialog {
 		repository.acceptNewPatchsets = acceptNewPatchsets.isSelected();
 		repository.acceptNewTickets = acceptNewTickets.isSelected();
 		repository.requireApproval = requireApproval.isSelected();
+		repository.requireScore = (Integer) requireScore.getSelectedItem();
+		repository.writeSignoffCommit = writeSignoffCommit.isSelected();
 		repository.mergeTo = mergeToField.getSelectedItem() == null ? null
 				: Repository.shortenRefName(mergeToField.getSelectedItem().toString());
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
