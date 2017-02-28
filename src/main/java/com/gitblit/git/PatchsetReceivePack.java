@@ -1276,6 +1276,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		if (repository.writeSignoffCommit) {
 			messageBuilder.append("\n\n");
 			for (Change change : ticket.getReviews(patchset)) {
+				// Skip sign-off for negative reviews
+				if (change.review.score.getValue() < 0) continue;
 				UserModel ruser = gitblit.getUserModel(change.author);
 				messageBuilder.append(MessageFormat.format(
 							"Signed-off-by: {0} <{1}>\n", 
