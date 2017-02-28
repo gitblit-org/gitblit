@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+<div class="span10 offset1">	
+	<h3><center>Prázdné úložiště</center></h3>
+	<div class="alert alert-info">
+		<span wicket:id="repository" style="font-weight: bold;">[repository]</span> je prázdné úložiště a nemůže být prohlíženo pomocí Gitblitu.
+		<p></p>		
+		Prosím použijte push pro nahrání nějakách commitů do <span wicket:id="pushurl"></span>
+		<hr/>
+		Poté, co použijete push pro nahrání commitů, můžete <b>aktualizovat</b> tuto stránku pro prohlížení vašeho úložiště.
+	</div>
+		
+	<h3><center>Vytvoření nového úložiště z příkazové řádky</center></h3>
+
+	<pre wicket:id="createSyntax"></pre>
+
+	<h3><center>Nahrání existujícího úložiště s použitím push</center></h3>
+
+	<pre wicket:id="existingSyntax"></pre>
+	
+	<div class="span8 offset1">
+		<h2><center>Naučit se Git</center></h2>
+		<p>Pokud si nejste jisti jak použít tuto informaci, zvažte prohlédnutí <a href="http://book.git-scm.com">Git komunitní knihy</a>, abyste lépe porozuměli, jak použít Git.</p>
+
+		<h4>Open Source Git klienti</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://git-scm.com">Git</a></td><td>oficiální, z příkazové řádky</td></tr>
+			<tr><td><a href="http://tortoisegit.googlecode.com">TortoiseGit</a></td><td>Integrace do Průzkumníka Windows (vyžaduje oficiální řádkový Git)</td></tr>
+			<tr><td><a href="http://eclipse.org/egit">Eclipse/EGit</a></td><td>Git pro Eclipse IDE (založený na JGit, jako Gitblit)</td></tr>
+			<tr><td><a href="https://code.google.com/p/gitextensions/">Git Extensions</a></td><td>C# frontend pro Git, který obsahuje integraci do Průzkumníka Windows a do Visual Studia</td></tr>
+			<tr><td><a href="http://rowanj.github.io/gitx/">GitX-dev</a></td><td>Mac OS X Git klient</td></tr>
+		</tbody>			
+		</table>
+
+		<h4>Komerční/Closed-Source Git klienti</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://www.syntevo.com/smartgithg">SmartGit/Hg</a></td><td>Na Javě založený klient pro Git and Mercurial pro Windows, Mac a Linux</td></tr>
+			<tr><td><a href="http://www.sourcetreeapp.com/">SourceTree</a></td><td>Volný Git a Mercurial klient pro Windows a Mac</td></tr>
+			<tr><td><a href="http://www.git-tower.com/">Tower</a></td><td>Mac OS X Git klient</td></tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>	
+</body>
+</html>
