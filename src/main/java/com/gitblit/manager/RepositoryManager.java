@@ -1558,6 +1558,14 @@ public class RepositoryManager implements IRepositoryManager {
 			// override default
 			config.setBoolean(Constants.CONFIG_GITBLIT, null, "requireApproval", repository.requireApproval);
 		}
+		config.setInt(Constants.CONFIG_GITBLIT, null, "requireScore", repository.requireScore);
+		if (settings.getBoolean(Keys.tickets.writeSignoffCommit, false) == repository.writeSignoffCommit) {
+			// use default
+			config.unset(Constants.CONFIG_GITBLIT, null, "writeSignoffCommit");
+		} else {
+			// override default
+			config.setBoolean(Constants.CONFIG_GITBLIT, null, "writeSignoffCommit", repository.writeSignoffCommit);
+		}
 		if (!StringUtils.isEmpty(repository.mergeTo)) {
 			config.setString(Constants.CONFIG_GITBLIT, null, "mergeTo", repository.mergeTo);
 		}
