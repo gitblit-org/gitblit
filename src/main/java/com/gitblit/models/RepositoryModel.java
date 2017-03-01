@@ -90,7 +90,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean acceptNewTickets;
 	public boolean requireApproval;
 	public int requireScore;
-	public boolean writeSignoffCommit;
+	public String writeSignoffCommit;
 	public String mergeTo;
 	public MergeType mergeType;
 

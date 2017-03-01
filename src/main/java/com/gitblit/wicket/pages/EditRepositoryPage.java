@@ -461,10 +461,17 @@ public class EditRepositoryPage extends RootSubPage {
 				new DropDownChoice<Integer>("choice",
 						new PropertyModel<Integer>(repositoryModel, "requireScore"),
 						scores)).setEnabled(allowRequireScore));
-		form.add(new BooleanOption("writeSignoffCommit",
+		List<String> signoffCommitMsgs = Arrays.asList(
+			null,
+			"Signed-off-by",
+			"Reviewed-by",
+			"Acked-by"
+		);
+		form.add(new ChoiceOption<String>("writeSignoffCommit",
 				getString("gb.writeSignoffCommit"),
 				getString("gb.writeSignoffCommitDescription"),
-				new PropertyModel<Boolean>(repositoryModel, "writeSignoffCommit")));
+				new PropertyModel<String>(repositoryModel, "writeSignoffCommit"),
+				signoffCommitMsgs));
 		form.add(new ChoiceOption<String>("mergeTo",
 				getString("gb.mergeTo"),
 				getString("gb.mergeToDescription"),

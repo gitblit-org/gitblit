@@ -98,7 +98,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JComboBox requireScore;
 
-	private JCheckBox writeSignoffCommit;
+	private JComboBox writeSignoffCommit;
 
 	private JComboBox mergeToField;
 
@@ -225,13 +225,19 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.acceptNewPatchsets);
 		requireApproval = new JCheckBox(Translation.get("gb.requireApprovalDescription"),
 				anRepository.requireApproval);
-		Integer [] 	scores = { 0, 2, 4, 5, 6, 8 };
+		Integer [] 	scores = { -1, 0, 2, 4, 5, 6, 8 };
 		requireScore = new JComboBox(scores);
 		requireScore.setSelectedItem(anRepository.requireScore);
 		requireScore.setEnabled(anRepository.requireApproval);
 
-		writeSignoffCommit = new JCheckBox(Translation.get("gb.writeSignoffDescription"),
-				anRepository.writeSignoffCommit);
+		String [] signoffCommitMsgs = {
+			null,
+			"Signed-off-by",
+			"Reviewed-by",
+			"Acked-by"
+		};
+		writeSignoffCommit = new JComboBox(signoffCommitMsgs);
+		writeSignoffCommit.setSelectedItem(anRepository.writeSignoffCommit);
 
 		if (ArrayUtils.isEmpty(anRepository.availableRefs)) {
 			mergeToField = new JComboBox();
@@ -604,7 +610,8 @@ public class EditRepositoryDialog extends JDialog {
 		repository.acceptNewTickets = acceptNewTickets.isSelected();
 		repository.requireApproval = requireApproval.isSelected();
 		repository.requireScore = (Integer) requireScore.getSelectedItem();
-		repository.writeSignoffCommit = writeSignoffCommit.isSelected();
+		repository.writeSignoffCommit = writeSignoffCommit.getSelectedItem() == null ? null
+				: writeSignoffCommit.getSelectedItem().toString();
 		repository.mergeTo = mergeToField.getSelectedItem() == null ? null
 				: Repository.shortenRefName(mergeToField.getSelectedItem().toString());
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
