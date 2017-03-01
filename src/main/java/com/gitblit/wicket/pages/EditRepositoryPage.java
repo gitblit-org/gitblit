@@ -454,12 +454,13 @@ public class EditRepositoryPage extends RootSubPage {
 				getString("gb.requireApprovalDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "requireApproval")));
 		List<Integer> scores = Arrays.asList(-1, 0, 2, 4, 5, 6, 8);
+		final boolean allowRequireScore = repositoryModel.requireApproval;
 		form.add(new ChoiceOption<Integer>("requireScore",
 				getString("gb.requireScore"),
 				getString("gb.requireScoreDescription"),
 				new DropDownChoice<Integer>("choice",
 						new PropertyModel<Integer>(repositoryModel, "requireScore"),
-						scores)));
+						scores)).setEnabled(allowRequireScore));
 		form.add(new BooleanOption("writeSignoffCommit",
 				getString("gb.writeSignoffCommit"),
 				getString("gb.writeSignoffCommitDescription"),

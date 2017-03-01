@@ -228,6 +228,7 @@ public class EditRepositoryDialog extends JDialog {
 		Integer [] 	scores = { 0, 2, 4, 5, 6, 8 };
 		requireScore = new JComboBox(scores);
 		requireScore.setSelectedItem(anRepository.requireScore);
+		requireScore.setEnabled(anRepository.requireApproval);
 
 		writeSignoffCommit = new JCheckBox(Translation.get("gb.writeSignoffDescription"),
 				anRepository.writeSignoffCommit);
