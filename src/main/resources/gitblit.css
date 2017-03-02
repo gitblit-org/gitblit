@@ -1963,6 +1963,7 @@ td.rightAlign {
 td.treeLinks {
 	text-align: right;
 	width: 13em;
+	white-space: nowrap;
 }
 
 span.help-inline {

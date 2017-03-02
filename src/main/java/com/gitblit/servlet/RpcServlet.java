@@ -133,6 +133,10 @@ public class RpcServlet extends JsonServlet {
 							model.name));
 					continue;
 				}
+				if(!StringUtils.isEmpty(objectName) && !objectName.equals(model.name)) {
+					// skip repository if a name was submitted and it doesn't match
+					continue;
+				}
 				// get local branches
 				Repository repository = gitblit.getRepository(model.name);
 				List<RefModel> refs = JGitUtils.getLocalBranches(repository, false, -1);
