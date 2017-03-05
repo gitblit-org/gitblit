@@ -117,10 +117,6 @@ public class LuceneService implements Runnable {
 	private static final String FIELD_DATE = "date";
 	private static final String FIELD_TAG = "tag";
 
-	private static final String CONF_FILE = "lucene.conf";
-	private static final String LUCENE_DIR = "lucene";
-	private static final String CONF_INDEX = "index";
-	private static final String CONF_VERSION = "version";
 	private static final String CONF_ALIAS = "aliases";
 	private static final String CONF_BRANCH = "branches";
 
@@ -290,26 +286,13 @@ public class LuceneService implements Runnable {
 	 * @return true, if successful
 	 */
 	public boolean deleteIndex(String repositoryName) {
-		try {
-			// close any open writer/searcher
-			close(repositoryName);
+		// close any open writer/searcher
+		close(repositoryName);
 
-			// delete the index folder
-			File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
-			File luceneIndex = new File(repositoryFolder, LUCENE_DIR);
-			if (luceneIndex.exists()) {
-				org.eclipse.jgit.util.FileUtils.delete(luceneIndex,
-						org.eclipse.jgit.util.FileUtils.RECURSIVE);
-			}
-			// delete the config file
-			File luceneConfig = new File(repositoryFolder, CONF_FILE);
-			if (luceneConfig.exists()) {
-				luceneConfig.delete();
-			}
-			return true;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		// delete the index folder
+		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
+		LuceneRepoIndexStore luceneIndex = new LuceneRepoIndexStore(repositoryFolder, INDEX_VERSION);
+		return luceneIndex.delete();
 	}
 
 	/**
@@ -383,29 +366,20 @@ public class LuceneService implements Runnable {
 	 * @return a config object
 	 */
 	private FileBasedConfig getConfig(Repository repository) {
-		File file = new File(repository.getDirectory(), CONF_FILE);
-		FileBasedConfig config = new FileBasedConfig(file, FS.detect());
+		LuceneRepoIndexStore luceneIndex = new LuceneRepoIndexStore(repository.getDirectory(), INDEX_VERSION);
+		FileBasedConfig config = new FileBasedConfig(luceneIndex.getConfigFile(), FS.detect());
 		return config;
 	}
 
 	/**
-	 * Reads the Lucene config file for the repository to check the index
-	 * version. If the index version is different, then rebuild the repository
-	 * index.
+	 * Checks if an index exists for the repository, that is compatible with
+	 * INDEX_VERSION and the Lucene version.
 	 *
 	 * @param repository
-	 * @return true of the on-disk index format is different than INDEX_VERSION
+	 * @return true if no index is found for the repository, false otherwise.
 	 */
 	private boolean shouldReindex(Repository repository) {
-		try {
-			FileBasedConfig config = getConfig(repository);
-			config.load();
-			int indexVersion = config.getInt(CONF_INDEX, CONF_VERSION, 0);
-			// reindex if versions do not match
-			return indexVersion != INDEX_VERSION;
-		} catch (Throwable t) {
-		}
-		return true;
+		return ! (new LuceneRepoIndexStore(repository.getDirectory(), INDEX_VERSION).hasIndex());
 	}
 
 
@@ -615,7 +589,6 @@ public class LuceneService implements Runnable {
 			reader.close();
 
 			// commit all changes and reset the searcher
-			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 			config.save();
 			writer.commit();
 			resetIndexSearcher(model.name);
@@ -844,7 +817,6 @@ public class LuceneService implements Runnable {
 				}
 
 				// update the config
-				config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 				config.setString(CONF_ALIAS, null, keyName, branchName);
 				config.setString(CONF_BRANCH, null, keyName, branch.getObjectId().getName());
 				config.save();
@@ -962,14 +934,11 @@ public class LuceneService implements Runnable {
 	 */
 	private IndexWriter getIndexWriter(String repository) throws IOException {
 		IndexWriter indexWriter = writers.get(repository);
-		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
-		File indexFolder = new File(repositoryFolder, LUCENE_DIR);
-		Directory directory = FSDirectory.open(indexFolder.toPath());
-
 		if (indexWriter == null) {
-			if (!indexFolder.exists()) {
-				indexFolder.mkdirs();
-			}
+			File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
+			LuceneRepoIndexStore indexStore = new LuceneRepoIndexStore(repositoryFolder, INDEX_VERSION);
+			indexStore.create();
+			Directory directory = FSDirectory.open(indexStore.getPath());
 			StandardAnalyzer analyzer = new StandardAnalyzer();
 			IndexWriterConfig config = new IndexWriterConfig(analyzer);
 			config.setOpenMode(OpenMode.CREATE_OR_APPEND);
