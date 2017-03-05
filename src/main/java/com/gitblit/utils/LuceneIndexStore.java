@@ -92,7 +92,7 @@ public class LuceneIndexStore
 	{
 		return indexFolder.exists() &&
 				indexFolder.isDirectory() &&
-				(indexFolder.list().length > 1);
+				(indexFolder.list().length > 1);  // Must have more than 'write.lock'
 	}
 
 }

@@ -110,9 +110,8 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 	}
 
 	@Override
-	public BranchTicketService start() {
+	public void onStart() {
 		log.info("{} started", getClass().getSimpleName());
-		return this;
 	}
 
 	@Override

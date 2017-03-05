@@ -227,6 +227,18 @@ public class TicketIndexer {
 	}
 
 	/**
+	 * Checks if a tickets index exists, that is compatible with Lucene.INDEX_VERSION
+	 * and the Lucene codec version.
+	 *
+	 * @return true if no tickets index is found, false otherwise.
+	 *
+	 * @since 1.9.0
+	 */
+	boolean shouldReindex() {
+		return ! this.indexStore.hasIndex();
+	}
+
+	/**
 	 * Bulk Add/Update tickets in the Lucene index
 	 *
 	 * @param tickets

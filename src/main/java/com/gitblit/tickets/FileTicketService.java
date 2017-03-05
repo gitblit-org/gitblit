@@ -80,9 +80,8 @@ public class FileTicketService extends ITicketService {
 	}
 
 	@Override
-	public FileTicketService start() {
+	public void onStart() {
 		log.info("{} started", getClass().getSimpleName());
-		return this;
 	}
 
 	@Override
