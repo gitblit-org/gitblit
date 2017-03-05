@@ -62,7 +62,7 @@ import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Status;
-import com.gitblit.utils.FileUtils;
+import com.gitblit.utils.LuceneIndexStore;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -109,6 +109,8 @@ public class TicketIndexer {
 		//NOTE: Indexing on the underlying value to allow flexibility on naming
 		priority(Type.INT),
 		severity(Type.INT);
+
+		final static int INDEX_VERSION = 2;
 
 		final Type fieldType;
 
@@ -169,14 +171,15 @@ public class TicketIndexer {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final File luceneDir;
+	private final LuceneIndexStore indexStore;
 
 	private IndexWriter writer;
 
 	private IndexSearcher searcher;
 
 	public TicketIndexer(IRuntimeManager runtimeManager) {
-		this.luceneDir = runtimeManager.getFileOrFolder(Keys.tickets.indexFolder, "${baseFolder}/tickets/lucene");
+		File luceneDir = runtimeManager.getFileOrFolder(Keys.tickets.indexFolder, "${baseFolder}/tickets/lucene");
+		this.indexStore = new LuceneIndexStore(luceneDir, Lucene.INDEX_VERSION);
 	}
 
 	/**
@@ -192,7 +195,7 @@ public class TicketIndexer {
 	 */
 	public void deleteAll() {
 		close();
-		FileUtils.delete(luceneDir);
+		indexStore.delete();
 	}
 
 	/**
@@ -441,12 +444,9 @@ public class TicketIndexer {
 
 	private IndexWriter getWriter() throws IOException {
 		if (writer == null) {
-			Directory directory = FSDirectory.open(luceneDir.toPath());
+			indexStore.create();
 
-			if (!luceneDir.exists()) {
-				luceneDir.mkdirs();
-			}
-
+			Directory directory = FSDirectory.open(indexStore.getPath());
 			StandardAnalyzer analyzer = new StandardAnalyzer();
 			IndexWriterConfig config = new IndexWriterConfig(analyzer);
 			config.setOpenMode(OpenMode.CREATE_OR_APPEND);
