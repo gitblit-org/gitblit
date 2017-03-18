@@ -15,6 +15,7 @@
  */
 package com.gitblit.servlet;
 
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 
 import com.google.inject.Inject;
@@ -86,6 +87,11 @@ public class GitFilter extends AccessRestrictionFilter {
 			if (repository.indexOf(urlSuffix) > -1) {
 				repository = repository.substring(0, repository.indexOf(urlSuffix));
 			}
+		}
+		try {
+			repository = java.net.URLDecoder.decode(repository, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			
 		}
 		return repository;
 	}
