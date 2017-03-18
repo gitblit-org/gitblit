@@ -158,7 +158,7 @@ public class SshDaemon {
 			log.info("SSH: adding GSSAPI authentication method.");
 		}
 
-		sshd.setSessionFactory(new SshServerSessionFactory());
+		sshd.setSessionFactory(new SshServerSessionFactory(sshd));
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, workQueue));
