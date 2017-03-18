@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.util.GenericUtils;
 import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
+import org.apache.sshd.common.config.keys.PublicKeyEntryResolver;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
@@ -212,7 +213,7 @@ public class LdapKeyManager extends IPublicKeyManager {
 					List<SshKey> keyList = new ArrayList<>(authorizedKeys.size());
 					for (GbAuthorizedKeyEntry keyEntry : authorizedKeys) {
 						try {
-							SshKey key = new SshKey(keyEntry.resolvePublicKey(fallbackResolver));
+							SshKey key = new SshKey(keyEntry.resolvePublicKey(PublicKeyEntryResolver.FAILING));
 							key.setComment(keyEntry.getComment());
 							setKeyPermissions(key, keyEntry);
 							keyList.add(key);
