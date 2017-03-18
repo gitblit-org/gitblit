@@ -36,8 +36,9 @@ public class SshServerSessionFactory extends SessionFactory {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	public SshServerSessionFactory() {
-	}
+        public SshServerSessionFactory(ServerFactoryManager server) {
+          super(server);
+        }
 
 	@Override
 	protected ServerSessionImpl createSession(final IoSession io) throws Exception {
