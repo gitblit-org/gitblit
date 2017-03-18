@@ -59,7 +59,7 @@ public class BranchTicketServiceTest extends TicketServiceTest {
 		IUserManager userManager = new UserManager(runtimeManager, pluginManager).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, pluginManager, userManager).start();
 
-		BranchTicketService service = new BranchTicketService(
+		BranchTicketService service = (BranchTicketService) new BranchTicketService(
 				runtimeManager,
 				pluginManager,
 				notificationManager,

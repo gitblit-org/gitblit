@@ -58,7 +58,7 @@ public class FileTicketServiceTest extends TicketServiceTest {
 		IUserManager userManager = new UserManager(runtimeManager, pluginManager).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, pluginManager, userManager).start();
 
-		FileTicketService service = new FileTicketService(
+		FileTicketService service = (FileTicketService) new FileTicketService(
 				runtimeManager,
 				pluginManager,
 				notificationManager,
