@@ -37,6 +37,7 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -93,6 +94,8 @@ public class EditRepositoryPage extends RootSubPage {
 	private IModel<String> metricAuthorExclusions;
 
 	private IModel<String> mailingLists;
+
+	private final static String COMMIT_MESSAGE_LINK = "https://git.wiki.kernel.org/index.php/CommitMessageConventions";
 
 	public EditRepositoryPage() {
 		// create constructor
@@ -411,6 +414,8 @@ public class EditRepositoryPage extends RootSubPage {
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
+		// adds documentation link for localization
+		form.add(new ExternalLink("commitMessageLink", COMMIT_MESSAGE_LINK));
 
 		//
 		//
@@ -469,7 +474,7 @@ public class EditRepositoryPage extends RootSubPage {
 		);
 		form.add(new ChoiceOption<String>("writeSignoffCommit",
 				getString("gb.writeSignoffCommit"),
-				getString("gb.writeSignoffCommitDescription"),
+				new String(),
 				new PropertyModel<String>(repositoryModel, "writeSignoffCommit"),
 				signoffCommitMsgs));
 		form.add(new ChoiceOption<String>("mergeTo",
