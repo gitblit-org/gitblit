@@ -27,6 +27,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -49,6 +50,8 @@ import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PagerPanel;
 
 public class LuceneSearchPage extends RootPage {
+
+	private final static String LUCENE_QUERY_SYNTAX_LINK = "https://lucene.apache.org/core/5_5_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package_description";
 
 	public LuceneSearchPage() {
 		super();
@@ -167,6 +170,7 @@ public class LuceneSearchPage extends RootPage {
 		form.add(selections.setEnabled(luceneEnabled));
 		form.add(new TextField<String>("query", queryModel).setEnabled(luceneEnabled));
 		form.add(new CheckBox("allrepos", allreposModel));
+		form.add(new ExternalLink("querySyntax", LUCENE_QUERY_SYNTAX_LINK));
 		add(form.setEnabled(luceneEnabled));
 
 		// execute search

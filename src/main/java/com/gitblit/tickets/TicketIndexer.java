@@ -31,6 +31,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -49,7 +51,7 @@ import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +62,7 @@ import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Status;
-import com.gitblit.utils.FileUtils;
+import com.gitblit.utils.LuceneIndexStore;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -107,6 +109,8 @@ public class TicketIndexer {
 		//NOTE: Indexing on the underlying value to allow flexibility on naming
 		priority(Type.INT),
 		severity(Type.INT);
+
+		final static int INDEX_VERSION = 2;
 
 		final Type fieldType;
 
@@ -167,16 +171,15 @@ public class TicketIndexer {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Version luceneVersion = Version.LUCENE_46;
-
-	private final File luceneDir;
+	private final LuceneIndexStore indexStore;
 
 	private IndexWriter writer;
 
 	private IndexSearcher searcher;
 
 	public TicketIndexer(IRuntimeManager runtimeManager) {
-		this.luceneDir = runtimeManager.getFileOrFolder(Keys.tickets.indexFolder, "${baseFolder}/tickets/lucene");
+		File luceneDir = runtimeManager.getFileOrFolder(Keys.tickets.indexFolder, "${baseFolder}/tickets/lucene");
+		this.indexStore = new LuceneIndexStore(luceneDir, Lucene.INDEX_VERSION);
 	}
 
 	/**
@@ -192,7 +195,7 @@ public class TicketIndexer {
 	 */
 	public void deleteAll() {
 		close();
-		FileUtils.delete(luceneDir);
+		indexStore.delete();
 	}
 
 	/**
@@ -201,10 +204,9 @@ public class TicketIndexer {
 	public boolean deleteAll(RepositoryModel repository) {
 		try {
 			IndexWriter writer = getWriter();
-			StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-			QueryParser qp = new QueryParser(luceneVersion, Lucene.rid.name(), analyzer);
-			BooleanQuery query = new BooleanQuery();
-			query.add(qp.parse(repository.getRID()), Occur.MUST);
+			StandardAnalyzer analyzer = new StandardAnalyzer();
+			QueryParser qp = new QueryParser(Lucene.rid.name(), analyzer);
+			BooleanQuery query = new BooleanQuery.Builder().add(qp.parse(repository.getRID()), Occur.MUST).build();
 
 			int numDocsBefore = writer.numDocs();
 			writer.deleteDocuments(query);
@@ -222,6 +224,18 @@ public class TicketIndexer {
 			log.error("error", e);
 		}
 		return false;
+	}
+
+	/**
+	 * Checks if a tickets index exists, that is compatible with Lucene.INDEX_VERSION
+	 * and the Lucene codec version.
+	 *
+	 * @return true if no tickets index is found, false otherwise.
+	 *
+	 * @since 1.9.0
+	 */
+	boolean shouldReindex() {
+		return ! this.indexStore.hasIndex();
 	}
 
 	/**
@@ -287,10 +301,9 @@ public class TicketIndexer {
 	 * @return true, if deleted, false if no record was deleted
 	 */
 	private boolean delete(String repository, long ticketId, IndexWriter writer) throws Exception {
-		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-		QueryParser qp = new QueryParser(luceneVersion, Lucene.did.name(), analyzer);
-		BooleanQuery query = new BooleanQuery();
-		query.add(qp.parse(StringUtils.getSHA1(repository + ticketId)), Occur.MUST);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
+		QueryParser qp = new QueryParser(Lucene.did.name(), analyzer);
+		BooleanQuery query = new BooleanQuery.Builder().add(qp.parse(StringUtils.getSHA1(repository + ticketId)), Occur.MUST).build();
 
 		int numDocsBefore = writer.numDocs();
 		writer.deleteDocuments(query);
@@ -331,30 +344,30 @@ public class TicketIndexer {
 			return Collections.emptyList();
 		}
 		Set<QueryResult> results = new LinkedHashSet<QueryResult>();
-		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
 			// search the title, description and content
-			BooleanQuery query = new BooleanQuery();
+			BooleanQuery.Builder bldr = new BooleanQuery.Builder();
 			QueryParser qp;
 
-			qp = new QueryParser(luceneVersion, Lucene.title.name(), analyzer);
+			qp = new QueryParser(Lucene.title.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
-			qp = new QueryParser(luceneVersion, Lucene.body.name(), analyzer);
+			qp = new QueryParser(Lucene.body.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
-			qp = new QueryParser(luceneVersion, Lucene.content.name(), analyzer);
+			qp = new QueryParser(Lucene.content.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			IndexSearcher searcher = getSearcher();
-			Query rewrittenQuery = searcher.rewrite(query);
+			Query rewrittenQuery = searcher.rewrite(bldr.build());
 
 			log.debug(rewrittenQuery.toString());
 
-			TopScoreDocCollector collector = TopScoreDocCollector.create(5000, true);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(5000);
 			searcher.search(rewrittenQuery, collector);
 			int offset = Math.max(0, (page - 1) * pageSize);
 			ScoreDoc[] hits = collector.topDocs(offset, pageSize).scoreDocs;
@@ -392,9 +405,9 @@ public class TicketIndexer {
 		}
 
 		Set<QueryResult> results = new LinkedHashSet<QueryResult>();
-		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
-			QueryParser qp = new QueryParser(luceneVersion, Lucene.content.name(), analyzer);
+			QueryParser qp = new QueryParser(Lucene.content.name(), analyzer);
 			Query query = qp.parse(queryText);
 
 			IndexSearcher searcher = getSearcher();
@@ -409,7 +422,7 @@ public class TicketIndexer {
 				sort = new Sort(Lucene.fromString(sortBy).asSortField(desc));
 			}
 			int maxSize = 5000;
-			TopFieldDocs docs = searcher.search(rewrittenQuery, null, maxSize, sort, false, false);
+			TopFieldDocs docs = searcher.search(rewrittenQuery, maxSize, sort, false, false);
 			int size = (pageSize <= 0) ? maxSize : pageSize;
 			int offset = Math.max(0, (page - 1) * size);
 			ScoreDoc[] hits = subset(docs.scoreDocs, offset, size);
@@ -443,14 +456,11 @@ public class TicketIndexer {
 
 	private IndexWriter getWriter() throws IOException {
 		if (writer == null) {
-			Directory directory = FSDirectory.open(luceneDir);
+			indexStore.create();
 
-			if (!luceneDir.exists()) {
-				luceneDir.mkdirs();
-			}
-
-			StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-			IndexWriterConfig config = new IndexWriterConfig(luceneVersion, analyzer);
+			Directory directory = FSDirectory.open(indexStore.getPath());
+			StandardAnalyzer analyzer = new StandardAnalyzer();
+			IndexWriterConfig config = new IndexWriterConfig(analyzer);
 			config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			writer = new IndexWriter(directory, config);
 		}
@@ -554,14 +564,17 @@ public class TicketIndexer {
 			return;
 		}
 		doc.add(new LongField(lucene.name(), value.getTime(), Store.YES));
+		doc.add(new NumericDocValuesField(lucene.name(), value.getTime()));
 	}
 
 	private void toDocField(Document doc, Lucene lucene, long value) {
 		doc.add(new LongField(lucene.name(), value, Store.YES));
+		doc.add(new NumericDocValuesField(lucene.name(), value));
 	}
 
 	private void toDocField(Document doc, Lucene lucene, int value) {
 		doc.add(new IntField(lucene.name(), value, Store.YES));
+		doc.add(new NumericDocValuesField(lucene.name(), value));
 	}
 
 	private void toDocField(Document doc, Lucene lucene, String value) {
@@ -569,6 +582,7 @@ public class TicketIndexer {
 			return;
 		}
 		doc.add(new org.apache.lucene.document.Field(lucene.name(), value, TextField.TYPE_STORED));
+		doc.add(new SortedDocValuesField(lucene.name(), new BytesRef(value)));
 	}
 
 	/**
