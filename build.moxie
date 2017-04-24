@@ -105,8 +105,8 @@ repositories: central, eclipse-snapshots, eclipse, gitblit
 properties: {
   jetty.version  : 9.2.13.v20150730
   slf4j.version  : 1.7.12
-  wicket.version : 8.0.0-M4
-  lucene.version : 4.10.4
+  wicket.version : 8.0.0-M5
+  lucene.version : 5.5.2
   jgit.version   : 4.1.1.201511131810-r
   groovy.version : 2.4.4
   bouncycastle.version : 1.52
@@ -146,9 +146,9 @@ dependencies:
 - compile 'org.apache.wicket:wicket-extensions:${wicket.version}' :war !org.mockito
 - compile 'org.apache.lucene:lucene-core:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-analyzers-common:${lucene.version}' :war :fedclient
-- compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient
+- compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient !org.apache.lucene:lucene-join
 - compile 'org.apache.lucene:lucene-memory:${lucene.version}' :war :fedclient
-- compile 'org.apache.lucene:lucene-queryparser:${lucene.version}' :war :fedclient
+- compile 'org.apache.lucene:lucene-queryparser:${lucene.version}' :war :fedclient !org.apache.lucene:lucene-spatial
 - compile 'org.pegdown:pegdown:1.5.0' :war
 - compile 'org.fusesource.wikitext:wikitext-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:twiki-core:${wikitext.version}' :war

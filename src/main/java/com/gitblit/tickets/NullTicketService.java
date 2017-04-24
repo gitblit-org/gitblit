@@ -61,9 +61,8 @@ public class NullTicketService extends ITicketService {
 	}
 
 	@Override
-	public NullTicketService start() {
+	public void onStart() {
 		log.info("{} started", getClass().getSimpleName());
-		return this;
 	}
 
 	@Override
