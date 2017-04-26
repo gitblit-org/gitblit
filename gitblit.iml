@@ -824,6 +824,72 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library name="simpleclient-0.0.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/simpleclient-0.0.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/simpleclient-0.0.21.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="simpleclient_hotspot-0.0.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/simpleclient_hotspot-0.0.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/simpleclient_hotspot-0.0.21.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="simpleclient_log4j-0.0.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/simpleclient_log4j-0.0.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/simpleclient_log4j-0.0.21.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="simpleclient_guava-0.0.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/simpleclient_guava-0.0.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/simpleclient_guava-0.0.21.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="simpleclient_servlet-0.0.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/simpleclient_servlet-0.0.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/simpleclient_servlet-0.0.21.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="simpleclient_common-0.0.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/simpleclient_common-0.0.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/simpleclient_common-0.0.21.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library name="junit-4.12.jar">
         <CLASSES>
