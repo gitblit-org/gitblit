@@ -227,6 +227,8 @@ public class ActivityPage extends RootPage {
 			chart.addValue(metric.name, metric.count);
 		}
 		chart.setShowLegend(false);
+		url = urlFor(UserPage.class, null).toString();
+		chart.setClickUrl(url);
 		charts.addChart(chart);
 
 		return charts;
