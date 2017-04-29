@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.prometheus.client.Counter;
 import org.eclipse.jgit.api.GarbageCollectCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
@@ -34,6 +35,8 @@ import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FileUtils;
+
+import static com.gitblit.service.PrometheusMetrics.GIT_GARBAGE_COLLECTS_TOTAL;
 
 /**
  * The Garbage Collector Service handles periodic garbage collection in repositories.
@@ -129,6 +132,9 @@ public class GarbageCollectorService implements Runnable {
 		forceClose.set(true);
 	}
 
+	private final Counter garbageCollectsTotal = Counter.build()
+			.name(GIT_GARBAGE_COLLECTS_TOTAL).help(GIT_GARBAGE_COLLECTS_TOTAL).register();
+
 	@Override
 	public void run() {
 		if (!isReady()) {
@@ -200,7 +206,7 @@ public class GarbageCollectorService implements Runnable {
 
 					// do the deed
 					gc.call();
-
+					garbageCollectsTotal.inc();
 					garbageCollected = true;
 				}
 			} catch (Exception e) {
