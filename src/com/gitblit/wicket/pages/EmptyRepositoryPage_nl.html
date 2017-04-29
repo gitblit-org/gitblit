@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="nl"  
+      lang="nl"> 
+
+<body>
+<wicket:extend>
+
+	<h2>Empty Repository</h2>
+	<p></p>
+		<div class="row">
+			<div class="span10">
+				<div class="alert alert-success">
+					<span wicket:id="repository" style="font-weight: bold;">[repository]</span> is een lege repositorie en kan niet bekeken worden door Gitblit.
+					<p></p>		
+					Push aub een paar commitsome commits naar <span wicket:id="pushurl"></span>
+					<p></p>
+					<hr/>
+					Nadat u een paar commits gepushed hebt kunt u deze pagina <b>verversen</b> om de repository te bekijken.
+				</div>
+			</div>
+		</div>
+		
+		<h3>Git Command-Line Syntax</h3>
+		<span style="padding-bottom:5px;">Als u geen lokale Git repositorie heeft, kunt u deze repository clonen, er een paar bestanden naar committen en deze commits teug pushen naar Gitblit.</span>
+		<p></p>
+		<pre style="padding: 5px 30px;" wicket:id="cloneSyntax"></pre>
+		<p></p>
+		<span style="padding-bottom:5px;">Als u al een lokale Git repositorie heeft met commits kunt u deze repository als een remote toevoegen en er naar toe pushen.</span>
+		<p></p>
+		<pre wicket:id="remoteSyntax" style="padding: 5px 30px;"></pre>
+		<p></p>
+		<h3>Learn Git</h3>
+		Als u niet goed weet wat u met deze informatie aan moet raden we aan om het <a href="http://book.git-scm.com">Git Community Book</a> of <a href="http://progit.org/book" target="_blank">Pro Git</a> te bestuderen voor een betere begrip van hoe u Git kunt gebruiken.
+		<p></p>
+		<h4>Open Source Git Clients</h4>
+		<ul>
+			<li><a href="http://git-scm.com">Git</a> - de officiele, command-line Git</li>
+			<li><a href="http://tortoisegit.googlecode.com">TortoiseGit</a> - Windows bestandsverkenner ingetratie (officiele command-line Git is wel nodig)</li>
+			<li><a href="http://eclipse.org/egit">Eclipse/EGit</a> - Git voor de Eclipse IDE (gebaseerd op JGit, zoals Gitblit)</li>
+			<li><a href="https://code.google.com/p/gitextensions/">Git Extensions</a> - C# frontend voor Git met Windows Explorer en Visual Studio integratie</li>
+			<li><a href="http://gitx.laullon.com/">GitX (L)</a> - een Mac OS X Git client</li>			
+		</ul>
+		<p></p>
+		<h4>Commercial/Closed-Source Git Clients</h4>
+		<ul>
+			<li><a href="http://www.syntevo.com/smartgit">SmartGit</a> - Een Java Git, Mercurial, en SVN client applicatie (officiele command-line Git is wel nodig)</li>
+			<li><a href="http://www.sourcetreeapp.com/">SourceTree</a> - Een gratis Mac Client voor Git, Mercurial, en SVN</li>
+		</ul>
+</wicket:extend>	
+</body>
+</html>
