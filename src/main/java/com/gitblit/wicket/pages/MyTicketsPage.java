@@ -75,7 +75,16 @@ public class MyTicketsPage extends RootPage {
 
         final String username = currentUser.getName();
 
-        final String[] statiiParam = (params == null) ? TicketsUI.openStatii : (String[]) params.getValues(Lucene.status.name()).stream().map(StringValue::toString).toArray();
+        final String[] statiiParam;
+        if(params == null){
+        	statiiParam = TicketsUI.openStatii;
+        }else{
+        	List<StringValue> statiiValues = params.getValues(Lucene.status.name());
+    		statiiParam = new String[statiiValues.size()];
+    		for (int i = 0; i < statiiValues.size(); i++) {
+    			statiiParam[i] = statiiValues.get(i).toString();
+    		}
+        }
         final String assignedToParam = (params == null) ? "" : params.get(Lucene.responsible.name()).toString();
         final String milestoneParam = (params == null) ? "" : params.get(Lucene.milestone.name()).toString();
         final String queryParam = (params == null) ? null : params.get("q").toString();

@@ -71,9 +71,9 @@ public final class GitBlitWebSession extends WebSession {
 		Request req = RequestCycle.get().getRequest();
 		IRequestParameters params = req.getRequestParameters();
 		PageParameters pageParams = new PageParameters();
-		params.getParameterNames().forEach(name->{
+		for(String name : params.getParameterNames()){
 			pageParams.add(name, params.getParameterValue(name));
-		});
+		}
 		requestUrl = GitBlitRequestUtils.toAbsoluteUrl(pageClass, pageParams);
 
 		
