@@ -254,7 +254,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				// add permission to our list
 				RegistrantAccessPermission rp = (RegistrantAccessPermission) getForm().getModel().getObject();
 				if (rp.permission == null) {
@@ -345,7 +345,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		}
 
 		@Override
-		protected void onSubmit(AjaxRequestTarget target) {
+		protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 			RegistrantPermissionsPanel.this.activeState = buttonState;
 			target.add(RegistrantPermissionsPanel.this);
 		}

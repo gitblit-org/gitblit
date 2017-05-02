@@ -191,7 +191,7 @@ public class NewTicketPage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				String title = titleModel.getObject();
 				if (StringUtils.isEmpty(title)) {
 					return;

@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -144,7 +143,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 
 	private final IFilestoreManager filestoreManager;
 
-	private static final Instant APPLICATION_STARTUP_TIME = Instant.now();
+	private static final Date APPLICATION_STARTUP_TIME = new Date();
 
 	@Inject
 	public GitBlitWebApp(Provider<IPublicKeyManager> publicKeyManagerProvider,
@@ -529,7 +528,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		return runtimeManager.getTimezone();
 	}
 
-	public Instant getApplicationStartupTime() {
+	public Date getApplicationStartupTime() {
 		return APPLICATION_STARTUP_TIME;
 	}
 

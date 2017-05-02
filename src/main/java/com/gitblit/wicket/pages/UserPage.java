@@ -278,7 +278,7 @@ public class UserPage extends RootPage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
 				UserModel user = GitBlitWebSession.get().getUser();
 
