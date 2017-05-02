@@ -44,7 +44,10 @@ import com.gitblit.servlet.SyndicationFilter;
 import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.wicket.GitblitWicketFilter;
 import com.google.common.base.Joiner;
+import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
+import io.prometheus.client.exporter.MetricsServlet;
+import io.prometheus.client.hotspot.DefaultExports;
 
 /**
  * Defines all the web servlets & filters.
@@ -78,6 +81,11 @@ public class WebModule extends ServletModule {
 		serve(Constants.PT_PATH).with(PtServlet.class);
 		serve("/robots.txt").with(RobotsTxtServlet.class);
 		serve("/logo.png").with(LogoServlet.class);
+
+		// Prometheus
+		bind(MetricsServlet.class).in(Scopes.SINGLETON);
+		serve("/prometheus").with(MetricsServlet.class);
+		DefaultExports.initialize();
 
 		/* Prevent accidental access to 'resources' such as GitBlit java classes
 		 *
