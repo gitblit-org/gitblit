@@ -30,6 +30,7 @@ import com.gitblit.servlet.FilestoreServlet;
 import com.gitblit.servlet.GitFilter;
 import com.gitblit.servlet.GitServlet;
 import com.gitblit.servlet.LogoServlet;
+import com.gitblit.servlet.MetricsFilter;
 import com.gitblit.servlet.PagesFilter;
 import com.gitblit.servlet.PagesServlet;
 import com.gitblit.servlet.ProxyFilter;
@@ -43,7 +44,9 @@ import com.gitblit.servlet.SparkleShareInviteServlet;
 import com.gitblit.servlet.SyndicationFilter;
 import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.wicket.GitblitWicketFilter;
+
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
 import io.prometheus.client.exporter.MetricsServlet;
@@ -84,6 +87,7 @@ public class WebModule extends ServletModule {
 
 		// Prometheus
 		bind(MetricsServlet.class).in(Scopes.SINGLETON);
+		bind(MetricsFilter.class).in(Scopes.SINGLETON);
 		serve("/prometheus").with(MetricsServlet.class);
 		DefaultExports.initialize();
 
@@ -99,8 +103,13 @@ public class WebModule extends ServletModule {
 		serve(fuzzy("/com/")).with(AccessDeniedServlet.class);
 
 		// global filters
-		filter(ALL).through(ProxyFilter.class);
-		filter(ALL).through(EnforceAuthenticationFilter.class);
+        filter(ALL).through(MetricsFilter.class,
+                ImmutableMap.of(
+						MetricsFilter.PARAM_DURATION_HIST_BUCKET_CONFIG, "0.005,0.01,0.025,0.05,0.075,0.1,0.25,0.5,0.75,1,2.5,5,7.5,10",
+                        MetricsFilter.PARAM_PATH_MAX_DEPTH, "16"
+				));
+        filter(ALL).through(ProxyFilter.class);
+        filter(ALL).through(EnforceAuthenticationFilter.class);
 
 		// security filters
 		filter(fuzzy(Constants.R_PATH), fuzzy(Constants.GIT_PATH)).through(GitFilter.class);
