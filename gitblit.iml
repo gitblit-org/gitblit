@@ -147,13 +147,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-core-7.6.0.jar">
+      <library name="wicket-core-7.7.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-core-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-core-7.7.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-core-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-core-7.7.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -169,24 +169,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-request-7.6.0.jar">
+      <library name="wicket-request-7.7.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-request-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-request-7.7.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-request-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-request-7.7.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-util-7.6.0.jar">
+      <library name="wicket-util-7.7.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-util-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-util-7.7.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-util-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-util-7.7.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -257,24 +257,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-auth-roles-7.6.0.jar">
+      <library name="wicket-auth-roles-7.7.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-7.7.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-7.7.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-extensions-7.6.0.jar">
+      <library name="wicket-extensions-7.7.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-extensions-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-extensions-7.7.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-7.6.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-7.7.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

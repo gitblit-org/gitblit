@@ -105,7 +105,7 @@ repositories: central, eclipse-snapshots, eclipse, gitblit
 properties: {
   jetty.version  : 9.2.13.v20150730
   slf4j.version  : 1.7.12
-  wicket.version : 7.6.0
+  wicket.version : 7.7.0
   lucene.version : 5.5.2
   jgit.version   : 4.1.1.201511131810-r
   groovy.version : 2.4.4
