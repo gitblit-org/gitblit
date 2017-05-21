@@ -134,6 +134,8 @@ public class SshKeysPanel extends BasePanel {
 				String data = keyData.getObject();
 				if (StringUtils.isEmpty(data)) {
 					// do not submit empty key
+					error(getString("gb.addSshKeyErrorEmpty"));
+					target.addComponent(getPage().get("feedback"));
 					return;
 				}
 
@@ -142,6 +144,8 @@ public class SshKeysPanel extends BasePanel {
 					key.getPublicKey();
 				} catch (Exception e) {
 					// failed to parse the key
+					error(getString("gb.addSshKeyErrorFormat"));
+					target.addComponent(getPage().get("feedback"));
 					return;
 				}
 

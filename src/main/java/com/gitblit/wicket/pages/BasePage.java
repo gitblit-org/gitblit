@@ -251,7 +251,7 @@ public abstract class BasePage extends SessionPage {
 		add(rootLink);
 
 		// Feedback panel for info, warning, and non-fatal error messages
-		add(new FeedbackPanel("feedback"));
+		add(new FeedbackPanel("feedback").setOutputMarkupId(true));
 
 		add(new Label("gbVersion", "v" + Constants.getVersion()));
 		if (app().settings().getBoolean(Keys.web.aggressiveHeapManagement, false)) {
