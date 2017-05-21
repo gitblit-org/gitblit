@@ -24,6 +24,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -123,6 +124,9 @@ public class SshKeysPanel extends BasePanel {
 				"span5",
 				keyComment));
 
+//		final FeedbackPanel feedback = new FeedbackPanel("feedback");
+//		feedback.setOutputMarkupId(true);
+//		addKeyForm.add(feedback);
 		addKeyForm.add(new AjaxButton("addKeyButton") {
 
 			private static final long serialVersionUID = 1L;
@@ -134,6 +138,8 @@ public class SshKeysPanel extends BasePanel {
 				String data = keyData.getObject();
 				if (StringUtils.isEmpty(data)) {
 					// do not submit empty key
+					error(getString("gb.addSshKeyErrorEmpty"));
+					target.addComponent(getPage().get("feedback"));
 					return;
 				}
 
@@ -142,6 +148,8 @@ public class SshKeysPanel extends BasePanel {
 					key.getPublicKey();
 				} catch (Exception e) {
 					// failed to parse the key
+					error(getString("gb.addSshKeyErrorFormat"));
+					target.addComponent(getPage().get("feedback"));
 					return;
 				}
 
