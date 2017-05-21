@@ -276,7 +276,7 @@ public class ServicesManager implements IServicesManager {
 			Iterator<RepositoryUrl> itr = list.iterator();
 			while (itr.hasNext()) {
 				RepositoryUrl url = itr.next();
-				if (url.transport != null && url.transport.equals(preferredTransport)) {
+				if (url.transport.equals(preferredTransport)) {
 					itr.remove();
 					preferredUrl = url;
 					break;
