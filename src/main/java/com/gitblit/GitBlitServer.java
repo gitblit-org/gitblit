@@ -293,7 +293,7 @@ public class GitBlitServer {
 
 				ServerConnector connector = new ServerConnector(server, factory);
 				connector.setSoLingerTime(-1);
-				connector.setIdleTimeout(settings.getLong(Keys.server.httpTimeout, 30000L));
+				connector.setIdleTimeout(settings.getLong(Keys.server.httpIdleTimeout, 30000L));
 				connector.setPort(params.securePort);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
@@ -330,7 +330,7 @@ public class GitBlitServer {
 
 			ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
 			connector.setSoLingerTime(-1);
-			connector.setIdleTimeout(settings.getLong(Keys.server.httpTimeout, 30000L));
+			connector.setIdleTimeout(settings.getLong(Keys.server.httpIdleTimeout, 30000L));
 			connector.setPort(params.port);
 			String bindInterface = settings.getString(Keys.server.httpBindInterface, null);
 			if (!StringUtils.isEmpty(bindInterface)) {
