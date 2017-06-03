@@ -253,7 +253,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		FontAwesome.install(this);
 		Octicons.install(this);
 		StaticResources.install(this);
-		
+
 		// allow started Wicket plugins to initialize
 		for (PluginWrapper pluginWrapper : pluginManager.getPlugins()) {
 			if (PluginState.STARTED != pluginWrapper.getPluginState()) {
@@ -281,16 +281,13 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 	 */
 	@Override
 	public void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
-		if (parameters == null) {
-			parameters = new String[] {};
+		String mountPoint = location;
+		if (settings.getBoolean(Keys.web.mountParameters, true) && parameters != null) {
+			for (String param : parameters) {
+				mountPoint = String.format("%s/#{%s}", mountPoint, param);
+			}
 		}
-		if (!settings.getBoolean(Keys.web.mountParameters, true)) {
-			parameters = new String[] {};
-		}
-		// TODO: check if needed with wichet-7
-		// mount(new GitblitParamUrlCodingStrategy(settings, xssFilter,
-		// location, clazz, parameters));
-		mountPage(location, clazz);
+		mountPage(mountPoint, clazz);
 
 		// map the mount point to the cache control definition
 		if (clazz.isAnnotationPresent(CacheControl.class)) {
