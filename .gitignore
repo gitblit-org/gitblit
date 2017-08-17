@@ -30,3 +30,8 @@ tags
 /**/init.lua
 /**/session
 /nbproject/private
+/target/
+/.classpath
+/.gitignore
+/.project
+logs
