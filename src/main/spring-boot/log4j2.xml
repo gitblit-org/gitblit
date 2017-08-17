@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF" packages="com.highcom.hc.engine.logger.appender">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<!-- 有%l不用%c -->
+			<PatternLayout pattern="%d [%t] %p  %l - %m%n" />
+		</Console>
+		<RollingFile name="RollingFile" fileName="logs/app.log" filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout>
+				<Pattern>%d [%t] %p %l - %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="250 MB" />
+			</Policies>
+		</RollingFile>
+		 
+	</Appenders>
+	<Loggers>
+		<Logger name="io.milton" level="warn" additivity="true">
+		</Logger>
+		
+		<Logger name="org.glassfish.jersey.internal" level="warn" additivity="true">
+		</Logger>
+		<Logger name="org.hibernate" level="warn" additivity="true">
+		</Logger>
+		<Logger name="com.highcom.hc.core.io.MongoTreeUtils" level="warn" additivity="true">
+		</Logger>
+		<Logger name="com.highcom.hc.webdav.v2" level="warn" additivity="true">
+		</Logger>
+		<Logger name="com.highcom.hc.system.pretreatment" level="info" additivity="true">
+		</Logger>
+		<Logger name="com.highcom.hc.data.driver.mongo.SystemNosqlManager" level="info" additivity="true">
+		</Logger>
+		<Logger name="com.mongodb.diagnostics.logging" level="warn" additivity="true">
+		</Logger>
+		<Logger name="org.springframework" level="info" additivity="true">
+		</Logger>
+		<Logger name="org.glassfish.grizzly" level="info" additivity="true">
+		</Logger>
+		
+		<Root level="info">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingFile" />
+			<AppenderRef ref="databaseAppender" />
+
+		</Root>
+	</Loggers>
+</Configuration>
