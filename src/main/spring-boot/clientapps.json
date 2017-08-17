@@ -1,0 +1,104 @@
+[
+	{
+		"name": "Git",
+		"title": "Git",
+		"description": "a fast, open-source, distributed VCS",
+		"legal": "released under the GPLv2 open source license",
+		"command": "git clone ${repoUrl}",
+		"productUrl": "http://git-scm.com",
+		"icon": "git-black_32x32.png",
+		"isActive": true
+	},
+	{
+		"name": "Barnum",
+		"title": "Barnum",
+		"description": "a command-line Git companion for Gitblit Tickets",
+		"legal": "released under the Apache 2.0 License",
+		"command": "pt clone ${repoUrl}",
+		"productUrl": "http://barnum.gitblit.com",
+		"transports": [ "ssh" ],
+		"icon": "barnum_32x32.png",
+		"isActive": false
+	},	
+	{
+		"name": "SmartGit/Hg",
+		"title": "syntevo SmartGit/Hg\u2122",
+		"description": "a Git client for Windows, Mac, & Linux",
+		"legal": "\u00a9 2013 syntevo GmbH. All rights reserved.",
+		"cloneUrl": "smartgit://cloneRepo/${repoUrl}",
+		"productUrl": "http://www.syntevo.com/smartgithg",
+		"platforms": [ "windows", "macintosh", "linux" ],
+		"icon": "smartgithg_32x32.png",
+		"isActive": true
+	},
+	{
+		"name": "SourceTree",
+		"title": "Atlassian SourceTree\u2122",
+		"description": "a free Git client for Windows or Mac",
+		"legal": "\u00a9 2013 Atlassian. All rights reserved.",
+		"cloneUrl": "sourcetree://cloneRepo/${repoUrl}",
+		"productUrl": "http://sourcetreeapp.com",
+		"platforms": [ "windows", "macintosh" ],
+		"icon": "sourcetree_32x32.png",
+		"isActive": true
+	},
+	{
+		"name": "Tower",
+		"title": "fournova Tower\u2122",
+		"description": "a Git client for Mac",
+		"legal": "\u00a9 2013 fournova Software GmbH. All rights reserved.",
+		"cloneUrl": "gittower://openRepo/${repoUrl}",
+		"productUrl": "http://www.git-tower.com",
+		"platforms": [ "macintosh" ],
+		"icon": "tower_32x32.png",
+		"isActive": true
+	},
+	{
+		"name": "GitHub",
+		"title": "GitHub\u2122 for Mac",
+		"description": "a free Git client for Mac OS X",
+		"legal": "\u00a9 2013 GitHub. All rights reserved.",
+		"cloneUrl": "github-mac://openRepo/${repoUrl}",
+		"productUrl": "http://mac.github.com",
+		"transports": [ "http", "https" ],
+		"platforms": [ "macintosh" ],
+		"icon": "github_32x32.png",
+		"isActive": true
+	},
+	{
+		"name": "GitHub",
+		"title": "GitHub\u2122 for Windows",
+		"description": "a free Git client for Windows",
+		"legal": "\u00a9 2013 GitHub. All rights reserved.",
+		"cloneUrl": "github-windows://openRepo/${repoUrl}",
+		"productUrl": "http://windows.github.com",
+		"transports": [ "http", "https" ],
+		"platforms": [ "windows" ],
+		"icon": "github_32x32.png",
+		"isActive": true
+	},
+	{
+		"name": "SparkleShare",
+		"title": "SparkleShare\u2122",
+		"description": "an open source collaboration and sharing tool",
+		"legal": "released under the GPLv3 open source license",
+		"cloneUrl": "sparkleshare://addProject/${baseUrl}/sparkleshare/${username}@${repository}.xml",
+		"productUrl": "http://sparkleshare.org",
+		"transports": [ "ssh" ],
+		"platforms": [ "windows", "macintosh", "linux" ],
+		"icon": "sparkleshare_32x32.png",
+		"minimumPermission" : "RW+",
+		"isActive": false
+	},
+	{
+		"name": "TortoiseGit",
+		"title": "TortoiseGit",
+		"description": "Windows Shell Interface to Git",
+		"legal": "released under the GPLv2 open source license",
+		"cloneUrl": "tgit://clone/${repoUrl}",
+		"productUrl": "http://www.tortoisegit.org",
+		"platforms": [ "windows" ],
+		"icon": "tortoise32.png",
+		"isActive": true
+	}
+]

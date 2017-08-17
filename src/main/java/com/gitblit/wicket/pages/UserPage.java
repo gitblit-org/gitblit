@@ -219,6 +219,7 @@ public class UserPage extends RootPage {
 				if (language.code.equals(localeCode)) {
 					// language_COUNTRY match
 					preferredLanguage = language;
+					break;
 				} else if (preferredLanguage != null && language.code.startsWith(locale.getLanguage())) {
 					// language match
 					preferredLanguage = language;

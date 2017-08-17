@@ -237,6 +237,7 @@ public class BlamePage extends RepositoryPage {
 		StringBuilder sb = new StringBuilder();
 		String[] chunks = author.split(" ");
 		for (String chunk : chunks) {
+		    if(org.apache.commons.lang3.StringUtils.isAnyBlank(chunks)==false)
 			sb.append(chunk.charAt(0));
 		}
 		return sb.toString().toUpperCase();
