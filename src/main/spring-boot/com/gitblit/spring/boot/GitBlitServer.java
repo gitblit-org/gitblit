@@ -1,12 +1,17 @@
 package com.gitblit.spring.boot;
 
+import java.io.IOException;
+import java.io.PrintStream;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
+import com.gitblit.Constants;
 import com.gitblit.spring.boot.configure.HotPatch;
 
 @Configuration
@@ -25,6 +30,13 @@ public class GitBlitServer {
         }
         SpringApplication application = new SpringApplication(GitBlitServer.class);
         application.setAddCommandLineProperties(true);
+        application.setBanner((Environment environment, Class<?> sourceClass, PrintStream out)->{
+            try {
+                out.write(Constants.getASCIIArt().getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         application.run(args);
     }
 
