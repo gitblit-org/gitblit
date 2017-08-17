@@ -181,7 +181,24 @@ public abstract class ITicketService implements IManager {
 	 * @since 1.4.0
 	 */
 	@Override
-	public abstract ITicketService start();
+	public final ITicketService start() {
+		onStart();
+		if (shouldReindex()) {
+			log.info("Re-indexing all tickets...");
+//			long startTime = System.currentTimeMillis();
+			reindex();
+//			float duration = (System.currentTimeMillis() - startTime) / 1000f;
+//			log.info("Built Lucene index over all tickets in {} secs", duration);
+		}
+		return this;
+	}
+
+	/**
+	 * Start the specific ticket service implementation.
+	 *
+	 * @since 1.9.0
+	 */
+	public abstract void onStart();
 
 	/**
 	 * Stop the service.
@@ -195,6 +212,12 @@ public abstract class ITicketService implements IManager {
 		close();
 		return this;
 	}
+
+	/**
+	 * Closes any open resources used by this service.
+	 * @since 1.4.0
+	 */
+	protected abstract void close();
 
 	/**
 	 * Creates a ticket notifier.  The ticket notifier is not thread-safe!
@@ -272,12 +295,6 @@ public abstract class ITicketService implements IManager {
 	public boolean hasTickets(RepositoryModel repository) {
 		return indexer.hasTickets(repository);
 	}
-
-	/**
-	 * Closes any open resources used by this service.
-	 * @since 1.4.0
-	 */
-	protected abstract void close();
 
 	/**
 	 * Reset all caches in the service.
@@ -1342,6 +1359,18 @@ public abstract class ITicketService implements IManager {
 	public List<QueryResult> queryFor(String query, int page, int pageSize, String sortBy, boolean descending) {
 		return indexer.queryFor(query, page, pageSize, sortBy, descending);
 	}
+
+
+	/**
+	 * Checks tickets should get re-indexed.
+	 *
+	 * @return true if tickets should get re-indexed, false otherwise.
+	 */
+	private boolean shouldReindex()
+	{
+		return indexer.shouldReindex();
+	}
+
 
 	/**
 	 * Destroys an existing index and reindexes all tickets.

@@ -196,7 +196,7 @@ public class HtpasswdAuthProvider extends UsernamePasswordAuthenticationProvider
                 }
 
                 // create a user cookie
-                setCookie(user, password);
+                setCookie(user);
 
                 // Set user attributes, hide password from backing user service.
                 user.password = Constants.EXTERNAL_ACCOUNT;

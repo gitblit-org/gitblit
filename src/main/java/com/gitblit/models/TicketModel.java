@@ -43,6 +43,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jgit.util.RelativeDateFormatter;
 
+import com.gitblit.Constants;
+
 /**
  * The Gitblit Ticket model, its component classes, and enums.
  *
@@ -773,10 +775,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 			
 			try {
-				Pattern mentions = Pattern.compile("\\s@([A-Za-z0-9-_]+)");
+				Pattern mentions = Pattern.compile(Constants.REGEX_TICKET_MENTION);
 				Matcher m = mentions.matcher(text);
 				while (m.find()) {
-					String username = m.group(1);
+					String username = m.group("user");
 					plusList(Field.mentions, username);
 				}
 			} catch (Exception e) {

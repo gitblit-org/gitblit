@@ -1,3 +1,3 @@
 ## 歡迎來到Gitblit版本控管伺服器
 
-一個快速讓您能存放自己Git文件庫的解決方案  [Git](http://www.git-scm.com) 
+一個快速讓您擁有版本控管伺服器的解決方案 : 使用[Git](http://www.git-scm.com) 

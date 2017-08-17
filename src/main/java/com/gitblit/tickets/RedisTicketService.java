@@ -83,12 +83,11 @@ public class RedisTicketService extends ITicketService {
 	}
 
 	@Override
-	public RedisTicketService start() {
+	public void onStart() {
 		log.info("{} started", getClass().getSimpleName());
 		if (!isReady()) {
 			log.warn("{} is not ready!", getClass().getSimpleName());
 		}
-		return this;
 	}
 
 	@Override

@@ -66,7 +66,7 @@ public class SalesforceAuthProvider extends UsernamePasswordAuthenticationProvid
 					user = new UserModel(simpleUsername);
 				}
 
-				setCookie(user, password);
+				setCookie(user);
 				setUserAttributes(user, info);
 
 				updateUser(user);

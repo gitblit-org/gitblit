@@ -293,7 +293,7 @@ public class GitBlitServer {
 
 				ServerConnector connector = new ServerConnector(server, factory);
 				connector.setSoLingerTime(-1);
-				connector.setIdleTimeout(30000);
+				connector.setIdleTimeout(settings.getLong(Keys.server.httpIdleTimeout, 30000L));
 				connector.setPort(params.securePort);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
@@ -330,7 +330,7 @@ public class GitBlitServer {
 
 			ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
 			connector.setSoLingerTime(-1);
-			connector.setIdleTimeout(30000);
+			connector.setIdleTimeout(settings.getLong(Keys.server.httpIdleTimeout, 30000L));
 			connector.setPort(params.port);
 			String bindInterface = settings.getString(Keys.server.httpBindInterface, null);
 			if (!StringUtils.isEmpty(bindInterface)) {
@@ -375,7 +375,8 @@ public class GitBlitServer {
 		HashSessionManager sessionManager = new HashSessionManager();
 		sessionManager.setHttpOnly(true);
 		// Use secure cookies if only serving https
-		sessionManager.setSecureRequestOnly(params.port <= 0 && params.securePort > 0);
+		sessionManager.setSecureRequestOnly( (params.port <= 0 && params.securePort > 0) ||
+				(params.port > 0 && params.securePort > 0 && settings.getBoolean(Keys.server.redirectToHttpsPort, true)) );
 		rootContext.getSessionHandler().setSessionManager(sessionManager);
 
 		// Ensure there is a defined User Service

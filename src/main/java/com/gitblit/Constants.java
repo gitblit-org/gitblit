@@ -62,6 +62,12 @@ public class Constants {
 	public static final String GIT_PATH = "/git/";
 	
 	public static final String REGEX_SHA256 = "[a-fA-F0-9]{64}";
+	
+	/**
+	 * This regular expression is used when searching for "mentions" in tickets
+	 * (when someone writes @thisOtherUser)
+	 */
+	public static final String REGEX_TICKET_MENTION = "\\B@(?<user>[^\\s]+)\\b";
 
 	public static final String ZIP_PATH = "/zip/";
 
@@ -638,6 +644,37 @@ public class Constants {
 			return fromString(scheme);
 		}
 	}
+
+	/**
+	 * The type of merge Gitblit will use when merging a ticket to the integration branch.
+	 * <p>
+	 * The default type is MERGE_ALWAYS.
+	 * <p>
+	 * This is modeled after the Gerrit SubmitType.
+	 */
+	public static enum MergeType {
+		/** Allows a merge only if it can be fast-forward merged into the integration branch. */
+		FAST_FORWARD_ONLY,
+		/** Uses a fast-forward merge if possible, other wise a merge commit is created. */
+		MERGE_IF_NECESSARY,
+		// Future REBASE_IF_NECESSARY,
+		/** Always merge with a merge commit, even when a fast-forward would be possible. */
+		MERGE_ALWAYS,
+		// Future? CHERRY_PICK
+		;
+
+		public static final MergeType DEFAULT_MERGE_TYPE = MERGE_ALWAYS;
+
+		public static MergeType fromName(String name) {
+			for (MergeType type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return DEFAULT_MERGE_TYPE;
+		}
+	}
+
 
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)

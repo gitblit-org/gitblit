@@ -16,9 +16,6 @@
  */
 package com.gitblit.auth;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,26 +30,20 @@ import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.Role;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
+import com.gitblit.ldap.LdapConnection;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.service.LdapSyncService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.sdk.Attribute;
-import com.unboundid.ldap.sdk.DereferencePolicy;
-import com.unboundid.ldap.sdk.ExtendedResult;
-import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.BindResult;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
-import com.unboundid.ldap.sdk.SimpleBindRequest;
-import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
-import com.unboundid.util.ssl.SSLUtil;
-import com.unboundid.util.ssl.TrustAllTrustManager;
 
 /**
  * Implementation of an LDAP user service.
@@ -107,12 +98,18 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		if (enabled) {
 			logger.info("Synchronizing with LDAP @ " + settings.getRequiredString(Keys.realm.ldap.server));
 			final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.removeDeletedUsers, true);
-			LDAPConnection ldapConnection = getLdapConnection();
-			if (ldapConnection != null) {
+			LdapConnection ldapConnection = new LdapConnection(settings);
+			if (ldapConnection.connect()) {
+				if (ldapConnection.bind() == null) {
+					ldapConnection.close();
+					logger.error("Cannot synchronize with LDAP.");
+					return;
+				}
+
 				try {
-					String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
 					String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
-					String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+					String accountBase = ldapConnection.getAccountBase();
+					String accountPattern = ldapConnection.getAccountPattern();
 					accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
 
 					SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
@@ -163,6 +160,8 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 							final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
 							for (UserModel user : ldapUsers.values()) {
 								for (TeamModel userTeam : user.teams) {
+									// Is this an administrative team?
+									setAdminAttribute(userTeam);
 									userTeams.put(userTeam.name, userTeam);
 								}
 							}
@@ -177,66 +176,6 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				}
 			}
 		}
-	}
-
-	private LDAPConnection getLdapConnection() {
-		try {
-
-			URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
-			String ldapHost = ldapUrl.getHost();
-			int ldapPort = ldapUrl.getPort();
-			String bindUserName = settings.getString(Keys.realm.ldap.username, "");
-			String bindPassword = settings.getString(Keys.realm.ldap.password, "");
-
-			LDAPConnection conn;
-			if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {
-				// SSL
-				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-				conn = new LDAPConnection(sslUtil.createSSLSocketFactory());
-				if (ldapPort == -1) {
-					ldapPort = 636;
-				}
-			} else if (ldapUrl.getScheme().equalsIgnoreCase("ldap") || ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
-				// no encryption or StartTLS
-				conn = new LDAPConnection();
-				 if (ldapPort == -1) {
-					 ldapPort = 389;
-				 }
-			} else {
-				logger.error("Unsupported LDAP URL scheme: " + ldapUrl.getScheme());
-				return null;
-			}
-
-			conn.connect(ldapHost, ldapPort);
-
-			if (ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
-				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-				ExtendedResult extendedResult = conn.processExtendedOperation(
-						new StartTLSExtendedRequest(sslUtil.createSSLContext()));
-				if (extendedResult.getResultCode() != ResultCode.SUCCESS) {
-					throw new LDAPException(extendedResult.getResultCode());
-				}
-			}
-
-			if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
-				// anonymous bind
-				conn.bind(new SimpleBindRequest());
-			} else {
-				// authenticated bind
-				conn.bind(new SimpleBindRequest(bindUserName, bindPassword));
-			}
-
-			return conn;
-
-		} catch (URISyntaxException e) {
-			logger.error("Bad LDAP URL, should be in the form: ldap(s|+tls)://<server>:<port>", e);
-		} catch (GeneralSecurityException e) {
-			logger.error("Unable to create SSL Connection", e);
-		} catch (LDAPException e) {
-			logger.error("Error Connecting to LDAP", e);
-		}
-
-		return null;
 	}
 
 	/**
@@ -290,10 +229,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
     public boolean supportsRoleChanges(UserModel user, Role role) {
     	if (Role.ADMIN == role) {
     		if (!supportsTeamMembershipChanges()) {
-    			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
-    			if (admins.contains(user.username)) {
-    				return false;
-    			}
+				return false;
     		}
     	}
         return true;
@@ -303,10 +239,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	public boolean supportsRoleChanges(TeamModel team, Role role) {
 		if (Role.ADMIN == role) {
     		if (!supportsTeamMembershipChanges()) {
-    			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
-    			if (admins.contains("@" + team.name)) {
-    				return false;
-    			}
+				return false;
     		}
     	}
 		return true;
@@ -321,34 +254,33 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	public UserModel authenticate(String username, char[] password) {
 		String simpleUsername = getSimpleUsername(username);
 
-		LDAPConnection ldapConnection = getLdapConnection();
-		if (ldapConnection != null) {
+		LdapConnection ldapConnection = new LdapConnection(settings);
+		if (ldapConnection.connect()) {
+
+			// Try to bind either to the "manager" account,
+			// or directly to the DN of the user logging in, if realm.ldap.bindpattern is configured.
+			String passwd = new String(password);
+			BindResult bindResult = null;
+			String bindPattern = settings.getString(Keys.realm.ldap.bindpattern, "");
+			if (! StringUtils.isEmpty(bindPattern)) {
+				bindResult = ldapConnection.bind(bindPattern, simpleUsername, passwd);
+			} else {
+				bindResult = ldapConnection.bind();
+			}
+			if (bindResult == null) {
+				ldapConnection.close();
+				return null;
+			}
+
+
 			try {
-				boolean alreadyAuthenticated = false;
-
-				String bindPattern = settings.getString(Keys.realm.ldap.bindpattern, "");
-				if (!StringUtils.isEmpty(bindPattern)) {
-					try {
-						String bindUser = StringUtils.replace(bindPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
-						ldapConnection.bind(bindUser, new String(password));
-
-						alreadyAuthenticated = true;
-					} catch (LDAPException e) {
-						return null;
-					}
-				}
-
 				// Find the logging in user's DN
-				String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
-				String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
-				accountPattern = StringUtils.replace(accountPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
-
-				SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+				SearchResult result = ldapConnection.searchUser(simpleUsername);
 				if (result != null && result.getEntryCount() == 1) {
 					SearchResultEntry loggingInUser = result.getSearchEntries().get(0);
 					String loggingInUserDN = loggingInUser.getDN();
 
-					if (alreadyAuthenticated || isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
+					if (ldapConnection.isAuthenticated(loggingInUserDN, passwd)) {
 						logger.debug("LDAP authenticated: " + username);
 
 						UserModel user = null;
@@ -360,7 +292,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 							}
 
 							// create a user cookie
-							setCookie(user, password);
+							setCookie(user);
 
 							if (!supportsTeamMembershipChanges()) {
 								getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
@@ -374,6 +306,8 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 							if (!supportsTeamMembershipChanges()) {
 								for (TeamModel userTeam : user.teams) {
+									// Is this an administrative team?
+									setAdminAttribute(userTeam);
 									updateTeam(userTeam);
 								}
 							}
@@ -404,12 +338,33 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 			if (!ArrayUtils.isEmpty(admins)) {
 				user.canAdmin = false;
 				for (String admin : admins) {
-					if (admin.startsWith("@") && user.isTeamMember(admin.substring(1))) {
-						// admin team
-						user.canAdmin = true;
-					} else if (user.getName().equalsIgnoreCase(admin)) {
+					if (user.getName().equalsIgnoreCase(admin)) {
 						// admin user
 						user.canAdmin = true;
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Set the canAdmin attribute for team retrieved from LDAP.
+	 * If we are not storing teams in LDAP and/or we have not defined any
+	 * administrator teams, then do not change the admin flag.
+	 *
+	 * @param team
+	 */
+	private void setAdminAttribute(TeamModel team) {
+		if (!supportsTeamMembershipChanges()) {
+			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
+			// if we have defined administrative teams, then set admin flag
+			// otherwise leave admin flag unchanged
+			if (!ArrayUtils.isEmpty(admins)) {
+				team.canAdmin = false;
+				for (String admin : admins) {
+					if (admin.startsWith("@") && team.name.equalsIgnoreCase(admin.substring(1))) {
+						// admin team
+						team.canAdmin = true;
 					}
 				}
 			}
@@ -462,7 +417,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		}
 	}
 
-	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
+	private void getTeamsFromLdap(LdapConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
 		String loggingInUserDN = loggingInUser.getDN();
 
 		// Clear the users team memberships - we're going to get them from LDAP
@@ -471,15 +426,15 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
 
-		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
-		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
+		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", LdapConnection.escapeLDAPSearchFilter(loggingInUserDN));
+		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", LdapConnection.escapeLDAPSearchFilter(simpleUsername));
 
 		// Fill in attributes into groupMemberPattern
 		for (Attribute userAttribute : loggingInUser.getAttributes()) {
-			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
+			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", LdapConnection.escapeLDAPSearchFilter(userAttribute.getValue()));
 		}
 
-		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, true, groupMemberPattern, Arrays.asList("cn"));
+		SearchResult teamMembershipResult = searchTeamsInLdap(ldapConnection, groupBase, true, groupMemberPattern, Arrays.asList("cn"));
 		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
 			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
 				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
@@ -496,12 +451,12 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		}
 	}
 
-	private void getEmptyTeamsFromLdap(LDAPConnection ldapConnection) {
+	private void getEmptyTeamsFromLdap(LdapConnection ldapConnection) {
 		logger.info("Start fetching empty teams from ldap.");
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupEmptyMemberPattern, "(&(objectClass=group)(!(member=*)))");
 
-		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, true, groupMemberPattern, null);
+		SearchResult teamMembershipResult = searchTeamsInLdap(ldapConnection, groupBase, true, groupMemberPattern, null);
 		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
 			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
 				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
@@ -511,6 +466,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 					TeamModel teamModel = userManager.getTeamModel(teamName);
 					if (teamModel == null) {
 						teamModel = createTeamFromLdap(teamEntry);
+						setAdminAttribute(teamModel);
 						userManager.updateTeamModel(teamModel);
 					}
 				}
@@ -518,6 +474,30 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		}
 		logger.info("Finished fetching empty teams from ldap.");
 	}
+
+
+	private SearchResult searchTeamsInLdap(LdapConnection ldapConnection, String base, boolean dereferenceAliases, String filter, List<String> attributes) {
+		SearchResult result = ldapConnection.search(base, dereferenceAliases, filter, attributes);
+		if (result == null) {
+			return null;
+		}
+
+		if (result.getResultCode() != ResultCode.SUCCESS) {
+			// Retry the search with user authorization in case we searched as a manager account that could not search for teams.
+			logger.debug("Rebinding as user to search for teams in LDAP");
+			result = null;
+			if (ldapConnection.rebindAsUser()) {
+				result = ldapConnection.search(base, dereferenceAliases, filter, attributes);
+				if (result.getResultCode() != ResultCode.SUCCESS) {
+					return null;
+				}
+				logger.info("Successful search after rebinding as user.");
+			}
+		}
+
+		return result;
+	}
+
 
 	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
 		TeamModel answer = new TeamModel(teamEntry.getAttributeValue("cn"));
@@ -527,47 +507,22 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		return answer;
 	}
 
-	private SearchResult doSearch(LDAPConnection ldapConnection, String base, String filter) {
-		try {
-			return ldapConnection.search(base, SearchScope.SUB, filter);
-		} catch (LDAPSearchException e) {
-			logger.error("Problem Searching LDAP", e);
-
-			return null;
-		}
-	}
-
-	private SearchResult doSearch(LDAPConnection ldapConnection, String base, boolean dereferenceAliases, String filter, List<String> attributes) {
+	private SearchResult doSearch(LdapConnection ldapConnection, String base, String filter) {
 		try {
 			SearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, filter);
-			if (dereferenceAliases) {
-				searchRequest.setDerefPolicy(DereferencePolicy.SEARCHING);
+			SearchResult result = ldapConnection.search(searchRequest);
+			if (result.getResultCode() != ResultCode.SUCCESS) {
+				return null;
 			}
-			if (attributes != null) {
-				searchRequest.setAttributes(attributes);
-			}
-			return ldapConnection.search(searchRequest);
-
-		} catch (LDAPSearchException e) {
-			logger.error("Problem Searching LDAP", e);
-
-			return null;
+			return result;
 		} catch (LDAPException e) {
 			logger.error("Problem creating LDAP search", e);
 			return null;
 		}
 	}
 
-	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
-		try {
-			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
-			ldapConnection.bind(userDn, password);
-			return true;
-		} catch (LDAPException e) {
-			logger.error("Error authenticating user", e);
-			return false;
-		}
-	}
+
+
 
 	/**
 	 * Returns a simple username without any domain prefixes.
@@ -584,34 +539,6 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		return username;
 	}
 
-	// From: https://www.owasp.org/index.php/Preventing_LDAP_Injection_in_Java
-	public static final String escapeLDAPSearchFilter(String filter) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < filter.length(); i++) {
-			char curChar = filter.charAt(i);
-			switch (curChar) {
-			case '\\':
-				sb.append("\\5c");
-				break;
-			case '*':
-				sb.append("\\2a");
-				break;
-			case '(':
-				sb.append("\\28");
-				break;
-			case ')':
-				sb.append("\\29");
-				break;
-			case '\u0000':
-				sb.append("\\00");
-				break;
-			default:
-				sb.append(curChar);
-			}
-		}
-		return sb.toString();
-	}
-
 	private void configureSyncService() {
 		LdapSyncService ldapSyncService = new LdapSyncService(settings, this);
 		if (ldapSyncService.isReady()) {
@@ -624,5 +551,4 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 			logger.info("Ldap sync service is disabled.");
 		}
 	}
-
 }

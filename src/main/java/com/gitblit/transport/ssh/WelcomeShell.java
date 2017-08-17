@@ -34,6 +34,7 @@ import org.eclipse.jgit.util.SystemReader;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.commands.DispatchCommand;
 import com.gitblit.transport.ssh.commands.SshCommandFactory;
@@ -45,19 +46,20 @@ import com.gitblit.utils.StringUtils;
  */
 public class WelcomeShell implements Factory<Command> {
 
-	private final IStoredSettings settings;
+	private final IGitblit gitblit;
 
-	public WelcomeShell(IStoredSettings settings) {
-		this.settings = settings;
+	public WelcomeShell(IGitblit gitblit) {
+		this.gitblit = gitblit;
 	}
 
 	@Override
 	public Command create() {
-		return new SendMessage(settings);
+		return new SendMessage(gitblit);
 	}
 
 	private static class SendMessage implements Command, SessionAware {
 
+		private final IPublicKeyManager km;
 		private final IStoredSettings settings;
 		private ServerSession session;
 
@@ -66,8 +68,9 @@ public class WelcomeShell implements Factory<Command> {
 		private OutputStream err;
 		private ExitCallback exit;
 
-		SendMessage(IStoredSettings settings) {
-			this.settings = settings;
+		SendMessage(IGitblit gitblit) {
+			this.km = gitblit.getPublicKeyManager();
+			this.settings = gitblit.getSettings();
 		}
 
 		@Override
@@ -116,6 +119,10 @@ public class WelcomeShell implements Factory<Command> {
 			UserModel user = client.getUser();
 			String hostname = getHostname();
 			int port = settings.getInteger(Keys.git.sshPort, 0);
+			boolean writeKeysIsSupported = true;
+			if (km != null) {
+				writeKeysIsSupported = km.supportsWritingKeys(user);
+			}
 
 			final String b1 = StringUtils.rightPad("", 72, '═');
 			final String b2 = StringUtils.rightPad("", 72, '─');
@@ -159,7 +166,7 @@ public class WelcomeShell implements Factory<Command> {
 			msg.append(nl);
 			msg.append(nl);
 
-			if (client.getKey() == null) {
+			if (writeKeysIsSupported && client.getKey() == null) {
 				// user has authenticated with a password
 				// display add public key instructions
 				msg.append(" You may upload an SSH public key with the following syntax:");

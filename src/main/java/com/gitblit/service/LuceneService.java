@@ -65,7 +65,6 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -118,14 +117,8 @@ public class LuceneService implements Runnable {
 	private static final String FIELD_DATE = "date";
 	private static final String FIELD_TAG = "tag";
 
-	private static final String CONF_FILE = "lucene.conf";
-	private static final String LUCENE_DIR = "lucene";
-	private static final String CONF_INDEX = "index";
-	private static final String CONF_VERSION = "version";
 	private static final String CONF_ALIAS = "aliases";
 	private static final String CONF_BRANCH = "branches";
-
-	private static final Version LUCENE_VERSION = Version.LUCENE_4_10_0;
 
 	private final Logger logger = LoggerFactory.getLogger(LuceneService.class);
 
@@ -267,7 +260,7 @@ public class LuceneService implements Runnable {
 		// close all writers
 		for (String writer : writers.keySet()) {
 			try {
-				writers.get(writer).close(true);
+				writers.get(writer).close();
 			} catch (Throwable t) {
 				logger.error("Failed to close Lucene writer for " + writer, t);
 			}
@@ -293,26 +286,13 @@ public class LuceneService implements Runnable {
 	 * @return true, if successful
 	 */
 	public boolean deleteIndex(String repositoryName) {
-		try {
-			// close any open writer/searcher
-			close(repositoryName);
+		// close any open writer/searcher
+		close(repositoryName);
 
-			// delete the index folder
-			File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
-			File luceneIndex = new File(repositoryFolder, LUCENE_DIR);
-			if (luceneIndex.exists()) {
-				org.eclipse.jgit.util.FileUtils.delete(luceneIndex,
-						org.eclipse.jgit.util.FileUtils.RECURSIVE);
-			}
-			// delete the config file
-			File luceneConfig = new File(repositoryFolder, CONF_FILE);
-			if (luceneConfig.exists()) {
-				luceneConfig.delete();
-			}
-			return true;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		// delete the index folder
+		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
+		LuceneRepoIndexStore luceneIndex = new LuceneRepoIndexStore(repositoryFolder, INDEX_VERSION);
+		return luceneIndex.delete();
 	}
 
 	/**
@@ -386,29 +366,20 @@ public class LuceneService implements Runnable {
 	 * @return a config object
 	 */
 	private FileBasedConfig getConfig(Repository repository) {
-		File file = new File(repository.getDirectory(), CONF_FILE);
-		FileBasedConfig config = new FileBasedConfig(file, FS.detect());
+		LuceneRepoIndexStore luceneIndex = new LuceneRepoIndexStore(repository.getDirectory(), INDEX_VERSION);
+		FileBasedConfig config = new FileBasedConfig(luceneIndex.getConfigFile(), FS.detect());
 		return config;
 	}
 
 	/**
-	 * Reads the Lucene config file for the repository to check the index
-	 * version. If the index version is different, then rebuild the repository
-	 * index.
+	 * Checks if an index exists for the repository, that is compatible with
+	 * INDEX_VERSION and the Lucene version.
 	 *
 	 * @param repository
-	 * @return true of the on-disk index format is different than INDEX_VERSION
+	 * @return true if no index is found for the repository, false otherwise.
 	 */
 	private boolean shouldReindex(Repository repository) {
-		try {
-			FileBasedConfig config = getConfig(repository);
-			config.load();
-			int indexVersion = config.getInt(CONF_INDEX, CONF_VERSION, 0);
-			// reindex if versions do not match
-			return indexVersion != INDEX_VERSION;
-		} catch (Throwable t) {
-		}
-		return true;
+		return ! (new LuceneRepoIndexStore(repository.getDirectory(), INDEX_VERSION).hasIndex());
 	}
 
 
@@ -618,7 +589,6 @@ public class LuceneService implements Runnable {
 			reader.close();
 
 			// commit all changes and reset the searcher
-			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 			config.save();
 			writer.commit();
 			resetIndexSearcher(model.name);
@@ -721,10 +691,9 @@ public class LuceneService implements Runnable {
 		String pattern = MessageFormat.format("{0}:'{'0} AND {1}:\"'{'1'}'\" AND {2}:\"'{'2'}'\"", FIELD_OBJECT_TYPE, FIELD_BRANCH, FIELD_PATH);
 		String q = MessageFormat.format(pattern, SearchObjectType.blob.name(), branch, path);
 
-		BooleanQuery query = new BooleanQuery();
-		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
-		QueryParser qp = new QueryParser(LUCENE_VERSION, FIELD_SUMMARY, analyzer);
-		query.add(qp.parse(q), Occur.MUST);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
+		QueryParser qp = new QueryParser(FIELD_SUMMARY, analyzer);
+		BooleanQuery query = new BooleanQuery.Builder().add(qp.parse(q), Occur.MUST).build();
 
 		IndexWriter writer = getIndexWriter(repositoryName);
 		int numDocsBefore = writer.numDocs();
@@ -848,7 +817,6 @@ public class LuceneService implements Runnable {
 				}
 
 				// update the config
-				config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 				config.setString(CONF_ALIAS, null, keyName, branchName);
 				config.setString(CONF_BRANCH, null, keyName, branch.getObjectId().getName());
 				config.save();
@@ -966,16 +934,13 @@ public class LuceneService implements Runnable {
 	 */
 	private IndexWriter getIndexWriter(String repository) throws IOException {
 		IndexWriter indexWriter = writers.get(repository);
-		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
-		File indexFolder = new File(repositoryFolder, LUCENE_DIR);
-		Directory directory = FSDirectory.open(indexFolder);
-
 		if (indexWriter == null) {
-			if (!indexFolder.exists()) {
-				indexFolder.mkdirs();
-			}
-			StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
-			IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION, analyzer);
+			File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
+			LuceneRepoIndexStore indexStore = new LuceneRepoIndexStore(repositoryFolder, INDEX_VERSION);
+			indexStore.create();
+			Directory directory = FSDirectory.open(indexStore.getPath());
+			StandardAnalyzer analyzer = new StandardAnalyzer();
+			IndexWriterConfig config = new IndexWriterConfig(analyzer);
 			config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			indexWriter = new IndexWriter(directory, config);
 			writers.put(repository, indexWriter);
@@ -1028,18 +993,18 @@ public class LuceneService implements Runnable {
 			return null;
 		}
 		Set<SearchResult> results = new LinkedHashSet<SearchResult>();
-		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
 		try {
 			// default search checks summary and content
-			BooleanQuery query = new BooleanQuery();
+			BooleanQuery.Builder bldr = new BooleanQuery.Builder();
 			QueryParser qp;
-			qp = new QueryParser(LUCENE_VERSION, FIELD_SUMMARY, analyzer);
+			qp = new QueryParser(FIELD_SUMMARY, analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
-			qp = new QueryParser(LUCENE_VERSION, FIELD_CONTENT, analyzer);
+			qp = new QueryParser(FIELD_CONTENT, analyzer);
 			qp.setAllowLeadingWildcard(true);
-			query.add(qp.parse(text), Occur.SHOULD);
+			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			IndexSearcher searcher;
 			if (repositories.length == 1) {
@@ -1057,10 +1022,11 @@ public class LuceneService implements Runnable {
 				searcher = new IndexSearcher(reader);
 			}
 
+			BooleanQuery query = bldr.build();
 			Query rewrittenQuery = searcher.rewrite(query);
 			logger.debug(rewrittenQuery.toString());
 
-			TopScoreDocCollector collector = TopScoreDocCollector.create(5000, true);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(5000);
 			searcher.search(rewrittenQuery, collector);
 			int offset = Math.max(0, (page - 1) * pageSize);
 			ScoreDoc[] hits = collector.topDocs(offset, pageSize).scoreDocs;
@@ -1225,7 +1191,7 @@ public class LuceneService implements Runnable {
 	 */
 	private class MultiSourceReader extends MultiReader {
 
-		MultiSourceReader(IndexReader [] readers) {
+		MultiSourceReader(IndexReader [] readers) throws IOException {
 			super(readers, false);
 		}
 

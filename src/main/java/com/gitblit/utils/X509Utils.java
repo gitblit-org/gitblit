@@ -743,6 +743,25 @@ public class X509Utils {
 	 */
 	public static File newClientBundle(X509Metadata clientMetadata, File caKeystoreFile,
 			String caKeystorePassword, X509Log x509log) {
+		return newClientBundle(null,clientMetadata,caKeystoreFile,caKeystorePassword,x509log);
+	}
+
+	/**
+	 * Creates a new client certificate PKCS#12 and PEM store.  Any existing
+	 * stores are destroyed.  After generation, the certificates are bundled
+	 * into a zip file with a personalized README file.
+	 *
+	 * The zip file reference is returned.
+	 *
+	 * @param user 
+	 * @param clientMetadata a container for dynamic parameters needed for generation
+	 * @param caKeystoreFile
+	 * @param caKeystorePassword
+	 * @param x509log
+	 * @return a zip file containing the P12, PEM, and personalized README
+	 */
+	public static File newClientBundle(com.gitblit.models.UserModel user,X509Metadata clientMetadata, File caKeystoreFile,
+				String caKeystorePassword, X509Log x509log) {		
 		try {
 			// read the Gitblit CA key and certificate
 			KeyStore store = openKeyStore(caKeystoreFile, caKeystorePassword);
@@ -755,8 +774,17 @@ public class X509Utils {
 	        x509log.log(MessageFormat.format("New client certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getSubjectDN().getName()));
 
 	        // process template message
-	        String readme = processTemplate(new File(caKeystoreFile.getParentFile(), "instructions.tmpl"), clientMetadata);
-
+	        String readme = null;
+	        String sInstructionsFileName = "instructions.tmpl";
+	        if( user == null )
+	        	readme = processTemplate(new File(caKeystoreFile.getParentFile(),sInstructionsFileName), clientMetadata);
+	        else{
+	        	File fileInstructionsTmp = null;
+	        	if( (fileInstructionsTmp = new File(caKeystoreFile.getParentFile(),sInstructionsFileName+"_"+user.getPreferences().getLocale())).exists() )
+	        		readme = processTemplate(fileInstructionsTmp,clientMetadata);
+	        	else
+	        		readme = processTemplate(new File(caKeystoreFile.getParentFile(),sInstructionsFileName),clientMetadata);
+	        }
 	        // Create a zip bundle with the p12, pem, and a personalized readme
 	        File zipFile = new File(targetFolder, clientMetadata.commonName + ".zip");
 	        if (zipFile.exists()) {
