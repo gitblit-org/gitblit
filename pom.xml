@@ -66,7 +66,6 @@
     </repositories>
 
     <properties>
-        <java.version>1.7</java.version>
         <!-- 通用依赖版本 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
@@ -196,6 +195,11 @@
             <artifactId>guice-servlet</artifactId>
             <version>4.1.0</version>
         </dependency>
+<dependency>
+    <groupId>org.javassist</groupId>
+    <artifactId>javassist</artifactId>
+    <version>3.21.0-GA</version>
+</dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -283,31 +287,31 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>4.10.4</version>
+            <version>5.5.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
-            <version>4.10.4</version>
+            <version>5.5.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-highlighter</artifactId>
-            <version>4.10.4</version>
+            <version>5.5.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-memory</artifactId>
-            <version>4.10.4</version>
+            <version>5.5.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
-            <version>4.10.4</version>
+            <version>5.5.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -363,13 +367,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
-         
-        
+
+
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.http.server</artifactId>
             <version>${jgit.version}</version>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -570,6 +574,26 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/bugtraq</source>
+                                <source>src/main/spring-boot</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
@@ -623,29 +647,34 @@
                 <filtering>false</filtering>
             </resource>
             <resource>
-                <directory>src/resources</directory>
+                <directory>src/main/spring-boot</directory>
                 <includes>
                     <include>**/*</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>
             <resource>
-                <directory>src/distrib/data/</directory>
+                <directory>src/main/distrib/data/</directory>
                 <includes>
                     <include>**/*</include>
                 </includes>
                 <targetPath>${project.build.directory}/classes/data/</targetPath>
                 <filtering>false</filtering>
             </resource>
-
             <resource>
-                <directory>src/web</directory>
+                <directory>src/main/resources</directory>
                 <includes>
                     <include>**/*</include>
                 </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
                 <targetPath>${project.build.directory}/classes/static/</targetPath>
                 <filtering>false</filtering>
             </resource>
+
+
+
         </resources>
     </build>
 </project>
