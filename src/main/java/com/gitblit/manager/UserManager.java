@@ -17,6 +17,8 @@ package com.gitblit.manager;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -119,13 +121,31 @@ public class UserManager implements IUserManager {
 					// typical file path configuration
 					File realmFile = runtimeManager.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
 					service = createUserService(realmFile);
-				} catch (InstantiationException | IllegalAccessException  e) {
-					logger.error("failed to instantiate user service {}: {}", realm, e.getMessage());
+				} catch (InstantiationException | IllegalAccessException e) {
+					logger.error("failed to instantiate user service {}: {}. Trying once again with IRuntimeManager constructor", realm, e.getMessage());
+					//try once again with IRuntimeManager constructor. This adds support for subclasses of ConfigUserService and other custom IUserServices
+					service = createIRuntimeManagerAwareUserService(realm);
 				}
 			}
 			setUserService(service);
 		}
 		return this;
+	}
+
+	/**
+	 * Tries to create an {@link IUserService} with {@link #runtimeManager} as a constructor parameter
+	 *
+	 * @param realm the class name of the {@link IUserService} to be instantiated
+	 * @return the {@link IUserService} or {@code null} if instantiation fails
+	 */
+	private IUserService createIRuntimeManagerAwareUserService(String realm) {
+		try {
+		    Constructor<?> constructor = Class.forName(realm).getConstructor(IRuntimeManager.class);
+		    return (IUserService) constructor.newInstance(runtimeManager);
+		} catch (NoSuchMethodException | SecurityException | ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		    logger.error("failed to instantiate user service {}: {}", realm, e.getMessage());
+			return null;
+		}
 	}
 
 	protected IUserService createUserService(File realmFile) {

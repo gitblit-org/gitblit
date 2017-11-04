@@ -23,6 +23,7 @@ import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
@@ -54,6 +55,13 @@ import com.google.common.io.Files;
 public class SshDaemon {
 
 	private final Logger log = LoggerFactory.getLogger(SshDaemon.class);
+
+	private static final String AUTH_PUBLICKEY = "publickey";
+	private static final String AUTH_PASSWORD = "password";
+	private static final String AUTH_KBD_INTERACTIVE = "keyboard-interactive";
+	private static final String AUTH_GSSAPI = "gssapi-with-mic";
+
+
 
 	public static enum SshSessionBackend {
 		MINA, NIO2
@@ -97,9 +105,6 @@ public class SshDaemon {
 		FileKeyPairProvider hostKeyPairProvider = new FileKeyPairProvider();
 		hostKeyPairProvider.setFiles(new String [] { rsaKeyStore.getPath(), dsaKeyStore.getPath(), dsaKeyStore.getPath() });
 
-		// Client public key authenticator
-		SshKeyAuthenticator keyAuthenticator =
-				new SshKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
 
 		// Configure the preferred SSHD backend
 		String sshBackendStr = settings.getString(Keys.git.sshBackend,
@@ -125,16 +130,39 @@ public class SshDaemon {
 		sshd.setPort(addr.getPort());
 		sshd.setHost(addr.getHostName());
 		sshd.setKeyPairProvider(hostKeyPairProvider);
-		sshd.setPublickeyAuthenticator(new CachingPublicKeyAuthenticator(keyAuthenticator));
-		sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
-		if (settings.getBoolean(Keys.git.sshWithKrb5, false)) {
-			sshd.setGSSAuthenticator(new SshKrbAuthenticator(settings, gitblit));
+
+		List<String> authMethods = settings.getStrings(Keys.git.sshAuthenticationMethods);
+		if (authMethods.isEmpty()) {
+			authMethods.add(AUTH_PUBLICKEY);
+			authMethods.add(AUTH_PASSWORD);
 		}
+		// Keep backward compatibility with old setting files that use the git.sshWithKrb5 setting.
+		if (settings.getBoolean("git.sshWithKrb5", false) && !authMethods.contains(AUTH_GSSAPI)) {
+			authMethods.add(AUTH_GSSAPI);
+			log.warn("git.sshWithKrb5 is obsolete!");
+			log.warn("Please add {} to {} in gitblit.properties!", AUTH_GSSAPI, Keys.git.sshAuthenticationMethods);
+			settings.overrideSetting(Keys.git.sshAuthenticationMethods,
+					settings.getString(Keys.git.sshAuthenticationMethods, AUTH_PUBLICKEY + " " + AUTH_PASSWORD) + " " + AUTH_GSSAPI);
+		}
+		if (authMethods.contains(AUTH_PUBLICKEY)) {
+			SshKeyAuthenticator keyAuthenticator = new SshKeyAuthenticator(gitblit.getPublicKeyManager(), gitblit);
+			sshd.setPublickeyAuthenticator(new CachingPublicKeyAuthenticator(keyAuthenticator));
+			log.info("SSH: adding public key authentication method.");
+		}
+		if (authMethods.contains(AUTH_PASSWORD) || authMethods.contains(AUTH_KBD_INTERACTIVE)) {
+			sshd.setPasswordAuthenticator(new UsernamePasswordAuthenticator(gitblit));
+			log.info("SSH: adding password authentication method.");
+		}
+		if (authMethods.contains(AUTH_GSSAPI)) {
+			sshd.setGSSAuthenticator(new SshKrbAuthenticator(settings, gitblit));
+			log.info("SSH: adding GSSAPI authentication method.");
+		}
+
 		sshd.setSessionFactory(new SshServerSessionFactory());
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, workQueue));
-		sshd.setShellFactory(new WelcomeShell(settings));
+		sshd.setShellFactory(new WelcomeShell(gitblit));
 
 		// Set the server id.  This can be queried with:
 		//   ssh-keyscan -t rsa,dsa -p 29418 localhost

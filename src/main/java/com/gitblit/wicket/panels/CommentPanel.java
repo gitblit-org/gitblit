@@ -69,7 +69,7 @@ public class CommentPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onSubmit(AjaxRequestTarget target) {
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				String txt = markdownEditor.getText();
 				if (change == null) {
 					// new comment

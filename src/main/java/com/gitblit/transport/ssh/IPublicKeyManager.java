@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.manager.IManager;
+import com.gitblit.models.UserModel;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheLoader.InvalidCacheLoadException;
@@ -99,4 +100,16 @@ public abstract class IPublicKeyManager implements IManager {
 	public abstract boolean removeKey(String username, SshKey key);
 
 	public abstract boolean removeAllKeys(String username);
+
+	public boolean supportsWritingKeys(UserModel user) {
+		return (user != null);
+	}
+
+	public boolean supportsCommentChanges(UserModel user) {
+		return (user != null);
+	}
+
+	public boolean supportsPermissionChanges(UserModel user) {
+		return (user != null);
+	}
 }

@@ -66,7 +66,7 @@ public class RedisTicketServiceTest extends TicketServiceTest {
 		IUserManager userManager = new UserManager(runtimeManager, pluginManager).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, pluginManager, userManager).start();
 
-		RedisTicketService service = new RedisTicketService(
+		RedisTicketService service = (RedisTicketService) new RedisTicketService(
 				runtimeManager,
 				pluginManager,
 				notificationManager,

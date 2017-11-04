@@ -63,6 +63,12 @@ public class Constants {
 	public static final String GIT_PATH = "/git/";
 	
 	public static final String REGEX_SHA256 = "[a-fA-F0-9]{64}";
+	
+	/**
+	 * This regular expression is used when searching for "mentions" in tickets
+	 * (when someone writes @thisOtherUser)
+	 */
+	public static final String REGEX_TICKET_MENTION = "\\B@(?<user>[^\\s]+)\\b";
 
 	public static final String ZIP_PATH = "/zip/";
 

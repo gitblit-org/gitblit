@@ -431,7 +431,7 @@ public class RepositoriesPanel extends BasePanel {
 					}
 				});
 			}
-			return list.subList(Math.toIntExact(first), Math.toIntExact(first + count)).iterator();
+			return list.subList((int)first, (int)(first + count)).iterator();
 		}
 
 	}

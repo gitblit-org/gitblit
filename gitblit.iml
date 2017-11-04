@@ -11,6 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/bugtraq" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
@@ -146,13 +147,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-core-7.4.0.jar">
+      <library name="wicket-core-7.8.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-core-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-core-7.8.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-core-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-core-7.8.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -168,24 +169,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-request-7.4.0.jar">
+      <library name="wicket-request-7.8.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-request-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-request-7.8.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-request-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-request-7.8.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-util-7.4.0.jar">
+      <library name="wicket-util-7.8.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-util-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-util-7.8.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-util-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-util-7.8.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -223,6 +224,17 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="junit-4.12.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/junit-4.12.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/junit-4.12.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="hamcrest-core-1.3.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/hamcrest-core-1.3.jar!/" />
@@ -245,101 +257,101 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-auth-roles-7.4.0.jar">
+      <library name="wicket-auth-roles-7.8.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-7.8.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-7.8.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="wicket-extensions-7.4.0.jar">
+      <library name="wicket-extensions-7.8.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/wicket-extensions-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/wicket-extensions-7.8.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-7.4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-7.8.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-core-4.10.4.jar">
+      <library name="lucene-core-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-core-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-core-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-core-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-core-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-analyzers-common-4.10.4.jar">
+      <library name="lucene-analyzers-common-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-analyzers-common-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-analyzers-common-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-analyzers-common-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-analyzers-common-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-highlighter-4.10.4.jar">
+      <library name="lucene-highlighter-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-highlighter-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-highlighter-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-highlighter-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-highlighter-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-memory-4.10.4.jar">
+      <library name="lucene-memory-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-memory-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-memory-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-memory-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-memory-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-queries-4.10.4.jar">
+      <library name="lucene-queries-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-queries-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-queries-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-queries-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-queries-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-queryparser-4.10.4.jar">
+      <library name="lucene-queryparser-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-queryparser-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-queryparser-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-queryparser-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-queryparser-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="lucene-sandbox-4.10.4.jar">
+      <library name="lucene-sandbox-5.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/lucene-sandbox-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/lucene-sandbox-5.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/lucene-sandbox-4.10.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-sandbox-5.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -897,17 +909,6 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/jsoup-1.7.3.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library name="junit-4.11.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/junit-4.11.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/junit-4.11.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

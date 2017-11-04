@@ -153,7 +153,7 @@ public class WindowsAuthProvider extends UsernamePasswordAuthenticationProvider 
         }
 
         // create a user cookie
-        setCookie(user, password);
+        setCookie(user);
 
         // update user attributes from Windows identity
         user.accountType = getAccountType();

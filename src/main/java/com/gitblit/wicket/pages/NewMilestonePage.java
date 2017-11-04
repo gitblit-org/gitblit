@@ -87,7 +87,7 @@ public class NewMilestonePage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				String name = nameModel.getObject();
 				if (StringUtils.isEmpty(name)) {
 					// invalid name

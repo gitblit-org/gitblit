@@ -274,7 +274,7 @@ public class FilestorePage extends RootPage {
 					return o2.getChangedOn().compareTo(o1.getChangedOn());
 				}
 			});
-			return list.subList(Math.toIntExact(first), Math.toIntExact(first + count)).iterator();
+			return list.subList((int)first,(int)(first + count)).iterator();
 		}
 
 	}
