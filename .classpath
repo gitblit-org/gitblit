@@ -18,18 +18,18 @@
 	<classpathentry kind="lib" path="ext/javax.mail-1.5.1.jar" sourcepath="ext/src/javax.mail-1.5.1.jar" />
 	<classpathentry kind="lib" path="ext/javax.servlet-api-3.1.0.jar" sourcepath="ext/src/javax.servlet-api-3.1.0.jar" />
 	<classpathentry kind="lib" path="ext/jetty-all-9.2.13.v20150730.jar" sourcepath="ext/src/jetty-all-9.2.13.v20150730.jar" />
-	<classpathentry kind="lib" path="ext/wicket-core-7.7.0.jar" sourcepath="ext/src/wicket-core-7.7.0.jar" />
+	<classpathentry kind="lib" path="ext/wicket-core-7.8.0.jar" sourcepath="ext/src/wicket-core-7.8.0.jar" />
 	<classpathentry kind="lib" path="ext/commons-collections4-4.1.jar" sourcepath="ext/src/commons-collections4-4.1.jar" />
-	<classpathentry kind="lib" path="ext/wicket-request-7.7.0.jar" sourcepath="ext/src/wicket-request-7.7.0.jar" />
-	<classpathentry kind="lib" path="ext/wicket-util-7.7.0.jar" sourcepath="ext/src/wicket-util-7.7.0.jar" />
+	<classpathentry kind="lib" path="ext/wicket-request-7.8.0.jar" sourcepath="ext/src/wicket-request-7.8.0.jar" />
+	<classpathentry kind="lib" path="ext/wicket-util-7.8.0.jar" sourcepath="ext/src/wicket-util-7.8.0.jar" />
 	<classpathentry kind="lib" path="ext/commons-fileupload-1.3.2.jar" sourcepath="ext/src/commons-fileupload-1.3.2.jar" />
 	<classpathentry kind="lib" path="ext/commons-io-2.2.jar" sourcepath="ext/src/commons-io-2.2.jar" />
 	<classpathentry kind="lib" path="ext/hamcrest-junit-2.0.0.0.jar" sourcepath="ext/src/hamcrest-junit-2.0.0.0.jar" />
 	<classpathentry kind="lib" path="ext/junit-4.12.jar" sourcepath="ext/src/junit-4.12.jar" />
 	<classpathentry kind="lib" path="ext/hamcrest-core-1.3.jar" sourcepath="ext/src/hamcrest-core-1.3.jar" />
 	<classpathentry kind="lib" path="ext/java-hamcrest-2.0.0.0.jar" sourcepath="ext/src/java-hamcrest-2.0.0.0.jar" />
-	<classpathentry kind="lib" path="ext/wicket-auth-roles-7.7.0.jar" sourcepath="ext/src/wicket-auth-roles-7.7.0.jar" />
-	<classpathentry kind="lib" path="ext/wicket-extensions-7.7.0.jar" sourcepath="ext/src/wicket-extensions-7.7.0.jar" />
+	<classpathentry kind="lib" path="ext/wicket-auth-roles-7.8.0.jar" sourcepath="ext/src/wicket-auth-roles-7.8.0.jar" />
+	<classpathentry kind="lib" path="ext/wicket-extensions-7.8.0.jar" sourcepath="ext/src/wicket-extensions-7.8.0.jar" />
 	<classpathentry kind="lib" path="ext/lucene-core-5.5.2.jar" sourcepath="ext/src/lucene-core-5.5.2.jar" />
 	<classpathentry kind="lib" path="ext/lucene-analyzers-common-5.5.2.jar" sourcepath="ext/src/lucene-analyzers-common-5.5.2.jar" />
 	<classpathentry kind="lib" path="ext/lucene-highlighter-5.5.2.jar" sourcepath="ext/src/lucene-highlighter-5.5.2.jar" />
