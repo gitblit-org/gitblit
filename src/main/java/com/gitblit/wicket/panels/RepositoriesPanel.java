@@ -61,12 +61,32 @@ public class RepositoriesPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
+    private enum CollapsibleRepositorySetting {
+        DISABLED,
+
+        EXPANDED,
+
+        COLLAPSED;
+
+        public static CollapsibleRepositorySetting get(String name) {
+            CollapsibleRepositorySetting returnVal = CollapsibleRepositorySetting.DISABLED;
+            for (CollapsibleRepositorySetting setting : values()) {
+                if (setting.name().equalsIgnoreCase(name)) {
+                    returnVal = setting;
+                    break;
+                }
+            }
+            return returnVal;
+        }
+    }
     public RepositoriesPanel(String wicketId, final boolean showAdmin, final boolean showManagement, List<RepositoryModel> models, boolean enableLinks,
             final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
         super(wicketId);
 
         final boolean linksActive = enableLinks;
         final boolean showSize = app().settings().getBoolean(Keys.web.showRepositorySizes, true);
+        final String collapsibleRespositorySetting = app().settings().getString(Keys.web.collapsibleRepositoryGroups, null);
+        final CollapsibleRepositorySetting collapsibleRepoGroups = CollapsibleRepositorySetting.get(collapsibleRespositorySetting);
 
         final UserModel user = GitBlitWebSession.get().getUser();
 
@@ -194,6 +214,16 @@ public class RepositoriesPanel extends BasePanel {
                         GroupRepositoryModel groupRow = (GroupRepositoryModel) entry;
                         currGroupName = entry.name;
                         Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
+                        if(collapsibleRepoGroups == CollapsibleRepositorySetting.EXPANDED) {
+                            Fragment groupCollapsible = new Fragment("groupCollapsible", "tableGroupMinusCollapsible", this);
+                            row.add(groupCollapsible);
+                        } else if(collapsibleRepoGroups == CollapsibleRepositorySetting.COLLAPSED) {
+                            Fragment groupCollapsible = new Fragment("groupCollapsible", "tableGroupPlusCollapsible", this);
+                            row.add(groupCollapsible);
+                        } else {
+                            Fragment groupCollapsible = new Fragment("groupCollapsible", "emptyFragment", this);
+                            row.add(groupCollapsible);
+                        }
                         item.add(row);
 
                         String name = groupRow.name;
@@ -209,7 +239,7 @@ public class RepositoriesPanel extends BasePanel {
                             row.add(new LinkPanel("groupName", null, groupRow.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
                             row.add(new Label("groupDescription", entry.description == null ? "" : entry.description));
                         }
-                        WicketUtils.setCssClass(item, "group");
+                        WicketUtils.setCssClass(item, "group collapsible");
                         // reset counter so that first row is light background
                         counter = 0;
                         return;
@@ -345,6 +375,14 @@ public class RepositoriesPanel extends BasePanel {
             } else {
                 // not sortable
                 Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
+                if(collapsibleRepoGroups == CollapsibleRepositorySetting.EXPANDED ||
+                        collapsibleRepoGroups == CollapsibleRepositorySetting.COLLAPSED) {
+                    Fragment allCollapsible = new Fragment("allCollapsible", "tableAllCollapsible", this);
+                    fragment.add(allCollapsible);
+                } else {
+                    Fragment allCollapsible = new Fragment("allCollapsible", "emptyFragment", this);
+                    fragment.add(allCollapsible);
+                }
                 add(fragment);
             }
         }
