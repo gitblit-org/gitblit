@@ -28,7 +28,9 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.basic.MultiLineLabel;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -57,380 +59,406 @@ import com.gitblit.wicket.pages.UserPage;
 
 public class RepositoriesPanel extends BasePanel {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public RepositoriesPanel(String wicketId, final boolean showAdmin, final boolean showManagement,
-			List<RepositoryModel> models, boolean enableLinks,
-			final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
-		super(wicketId);
+    public RepositoriesPanel(String wicketId, final boolean showAdmin, final boolean showManagement, List<RepositoryModel> models, boolean enableLinks,
+            final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
+        super(wicketId);
 
-		final boolean linksActive = enableLinks;
-		final boolean showSize = app().settings().getBoolean(Keys.web.showRepositorySizes, true);
+        final boolean linksActive = enableLinks;
+        final boolean showSize = app().settings().getBoolean(Keys.web.showRepositorySizes, true);
 
-		final UserModel user = GitBlitWebSession.get().getUser();
+        final UserModel user = GitBlitWebSession.get().getUser();
 
-		final IDataProvider<RepositoryModel> dp;
+        IDataProvider<RepositoryModel> dp = null;
 
-		Fragment managementLinks;
-		if (showAdmin) {
-			// user is admin
-			managementLinks = new Fragment("managementPanel", "adminLinks", this);
-			managementLinks.add(new Link<Void>("clearCache") {
+        Fragment managementLinks;
+        if (showAdmin) {
+            // user is admin
+            managementLinks = new Fragment("managementPanel", "adminLinks", this);
+            managementLinks.add(new Link<Void>("clearCache") {
 
-				private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = 1L;
 
-				@Override
-				public void onClick() {
-					app().repositories().resetRepositoryListCache();
-					setResponsePage(RepositoriesPage.class);
-				}
-			}.setVisible(app().settings().getBoolean(Keys.git.cacheRepositoryList, true)));
-			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
-			add(managementLinks);
-		} else if (showManagement && user != null && user.canCreate()) {
-			// user can create personal repositories
-			managementLinks = new Fragment("managementPanel", "personalLinks", this);
-			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
-			add(managementLinks);
-		} else {
-			// user has no management permissions
-			add (new Label("managementPanel").setVisible(false));
-		}
+                @Override
+                public void onClick() {
+                    app().repositories().resetRepositoryListCache();
+                    setResponsePage(RepositoriesPage.class);
+                }
+            }.setVisible(app().settings().getBoolean(Keys.git.cacheRepositoryList, true)));
+            managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
+            add(managementLinks);
+        } else if (showManagement && user != null && user.canCreate()) {
+            // user can create personal repositories
+            managementLinks = new Fragment("managementPanel", "personalLinks", this);
+            managementLinks.add(new BookmarkablePageLink<Void>("newRepository", app().getNewRepositoryPage()));
+            add(managementLinks);
+        } else {
+            // user has no management permissions
+            add(new Label("managementPanel").setVisible(false));
+        }
 
-		if (app().settings().getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
-			List<RepositoryModel> rootRepositories = new ArrayList<RepositoryModel>();
-			Map<String, List<RepositoryModel>> groups = new HashMap<String, List<RepositoryModel>>();
-			for (RepositoryModel model : models) {
-				String rootPath = StringUtils.getRootPath(model.name);
-				if (StringUtils.isEmpty(rootPath)) {
-					// root repository
-					rootRepositories.add(model);
-				} else {
-					// non-root, grouped repository
-					if (!groups.containsKey(rootPath)) {
-						groups.put(rootPath, new ArrayList<RepositoryModel>());
-					}
-					groups.get(rootPath).add(model);
-				}
-			}
-			List<String> roots = new ArrayList<String>(groups.keySet());
-			Collections.sort(roots);
+        if (true) {
+            // if (app().settings().getString(Keys.web.repositoryListType,
+            // "flat").equalsIgnoreCase("tree")) {
+            TreeNodeModel tree = new TreeNodeModel();
+            for (RepositoryModel model : models) {
+                String rootPath = StringUtils.getRootPath(model.name);
+                if (StringUtils.isEmpty(rootPath)) {
+                    // root repository
+                    // rootRepositories.add(model);
+                    tree.add(model);
+                } else {
+                    // create folder structure
+                    tree.add(rootPath, model);
+                    // non-root, grouped repository
+                    // if (!groups.containsKey(rootPath)) {
+                    // groups.put(rootPath, new ArrayList<RepositoryModel>());
+                    // }
+                    // groups.get(rootPath).add(model);
+                }
+            }
 
-			if (rootRepositories.size() > 0) {
-				// inject the root repositories at the top of the page
-				roots.add(0, "");
-				groups.put("", rootRepositories);
-			}
+            WebMarkupContainer row = new WebMarkupContainer("row");
+            add(row);
+            row.add(new MultiLineLabel("rowContent", tree.toString()));
 
-			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
-			for (String root : roots) {
-				List<RepositoryModel> subModels = groups.get(root);
-				ProjectModel project = app().projects().getProjectModel(root);
-				GroupRepositoryModel group = new GroupRepositoryModel(project == null ? root : project.name, subModels.size());
-				if (project != null) {
-					group.title = project.title;
-					group.description = project.description;
-				}
-				groupedModels.add(group);
-				Collections.sort(subModels);
-				groupedModels.addAll(subModels);
-			}
-			dp = new ListDataProvider<RepositoryModel>(groupedModels);
-		} else {
-			dp = new SortableRepositoriesProvider(models);
-		}
 
-		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
+            Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
+            add(fragment);
 
-		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
-			private static final long serialVersionUID = 1L;
-			int counter;
-			String currGroupName;
 
-			@Override
-			protected void onBeforeRender() {
-				super.onBeforeRender();
-				counter = 0;
-			}
 
-			@Override
-			public void populateItem(final Item<RepositoryModel> item) {
-				final RepositoryModel entry = item.getModelObject();
-				if (entry instanceof GroupRepositoryModel) {
-					GroupRepositoryModel groupRow = (GroupRepositoryModel) entry;
-					currGroupName = entry.name;
-					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
-					item.add(row);
 
-					String name = groupRow.name;
-					if (name.startsWith(ModelUtils.getUserRepoPrefix())) {
-						// user page
-						String username = ModelUtils.getUserNameFromRepoPath(name);
-						UserModel user = app().users().getUserModel(username);
-						row.add(new LinkPanel("groupName", null, (user == null ? username : user.getDisplayName()) + " (" + groupRow.count + ")", UserPage.class, WicketUtils.newUsernameParameter(username)));
-						row.add(new Label("groupDescription", getString("gb.personalRepositories")));
-					} else {
-						// project page
-						row.add(new LinkPanel("groupName", null, groupRow.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
-						row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
-					}
-					WicketUtils.setCssClass(item, "group");
-					// reset counter so that first row is light background
-					counter = 0;
-					return;
-				}
-				Fragment row = new Fragment("rowContent", "repositoryRow", this);
-				item.add(row);
+        } else if (app().settings().getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
+            List<RepositoryModel> rootRepositories = new ArrayList<RepositoryModel>();
+            Map<String, List<RepositoryModel>> groups = new HashMap<String, List<RepositoryModel>>();
+            for (RepositoryModel model : models) {
+                String rootPath = StringUtils.getRootPath(model.name);
+                if (StringUtils.isEmpty(rootPath)) {
+                    // root repository
+                    rootRepositories.add(model);
+                } else {
+                    // non-root, grouped repository
+                    if (!groups.containsKey(rootPath)) {
+                        groups.put(rootPath, new ArrayList<RepositoryModel>());
+                    }
+                    groups.get(rootPath).add(model);
+                }
+            }
+            List<String> roots = new ArrayList<String>(groups.keySet());
+            Collections.sort(roots);
 
-				// show colored repository type icon
-				Fragment iconFragment;
-				if (entry.isMirror) {
-					iconFragment = new Fragment("repoIcon", "mirrorIconFragment", this);
-				} else if (entry.isFork()) {
-					iconFragment = new Fragment("repoIcon", "forkIconFragment", this);
-				} else if (entry.isBare) {
-					iconFragment = new Fragment("repoIcon", "repoIconFragment", this);
-				} else {
-					iconFragment = new Fragment("repoIcon", "cloneIconFragment", this);
-				}
-				if (showSwatch) {
-					WicketUtils.setCssStyle(iconFragment, "color:" + StringUtils.getColor(entry.toString()));
-				}
-				row.add(iconFragment);
+            if (rootRepositories.size() > 0) {
+                // inject the root repositories at the top of the page
+                roots.add(0, "");
+                groups.put("", rootRepositories);
+            }
 
-				// try to strip group name for less cluttered list
-				String repoName = entry.toString();
-				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
-					repoName = repoName.substring(currGroupName.length() + 1);
-				}
+            List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
+            for (String root : roots) {
+                List<RepositoryModel> subModels = groups.get(root);
+                ProjectModel project = app().projects().getProjectModel(root);
+                GroupRepositoryModel group = new GroupRepositoryModel(project == null ? root : project.name, subModels.size());
+                if (project != null) {
+                    group.title = project.title;
+                    group.description = project.description;
+                }
+                groupedModels.add(group);
+                Collections.sort(subModels);
+                groupedModels.addAll(subModels);
+            }
+            dp = new ListDataProvider<RepositoryModel>(groupedModels);
+        } else {
+            dp = new SortableRepositoriesProvider(models);
+        }
 
-				if (linksActive) {
-					Class<? extends BasePage> linkPage = SummaryPage.class;
-					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-					row.add(new LinkPanel("repositoryName", "list", repoName, linkPage, pp));
-					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
-							linkPage, pp));
-				} else {
-					// no links like on a federation page
-					row.add(new Label("repositoryName", repoName));
-					row.add(new Label("repositoryDescription", entry.description));
-				}
-				if (entry.hasCommits) {
-					// Existing repository
-					row.add(new Label("repositorySize", entry.size).setVisible(showSize));
-				} else {
-					// New repository
-					row.add(new Label("repositorySize", "<span class='empty'>(" + getString("gb.empty") + ")</span>")
-							.setEscapeModelStrings(false));
-				}
+        if (dp != null) {
+            final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
 
-				if (entry.isSparkleshared()) {
-					row.add(WicketUtils.newImage("sparkleshareIcon", "star_16x16.png",
-							getString("gb.isSparkleshared")));
-				} else {
-					row.add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
-				}
+            DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
+                private static final long serialVersionUID = 1L;
+                int counter;
+                String currGroupName;
 
-				if (!entry.isMirror && entry.isFrozen) {
-					row.add(WicketUtils.newImage("frozenIcon", "cold_16x16.png",
-							getString("gb.isFrozen")));
-				} else {
-					row.add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
-				}
+                @Override
+                protected void onBeforeRender() {
+                    super.onBeforeRender();
+                    counter = 0;
+                }
 
-				if (entry.isFederated) {
-					row.add(WicketUtils.newImage("federatedIcon", "federated_16x16.png",
-							getString("gb.isFederated")));
-				} else {
-					row.add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
-				}
+                @Override
+                public void populateItem(final Item<RepositoryModel> item) {
+                    final RepositoryModel entry = item.getModelObject();
+                    if (entry instanceof GroupRepositoryModel) {
+                        GroupRepositoryModel groupRow = (GroupRepositoryModel) entry;
+                        currGroupName = entry.name;
+                        Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
+                        item.add(row);
 
-				if (entry.isMirror) {
-					row.add(WicketUtils.newImage("accessRestrictionIcon", "mirror_16x16.png",
-							getString("gb.isMirror")));
-				} else {
-					switch (entry.accessRestriction) {
-					case NONE:
-						row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
-						break;
-					case PUSH:
-						row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png",
-								accessRestrictionTranslations.get(entry.accessRestriction)));
-						break;
-					case CLONE:
-						row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png",
-								accessRestrictionTranslations.get(entry.accessRestriction)));
-						break;
-					case VIEW:
-						row.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png",
-								accessRestrictionTranslations.get(entry.accessRestriction)));
-						break;
-					default:
-						row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
-					}
-				}
+                        String name = groupRow.name;
+                        if (name.startsWith(ModelUtils.getUserRepoPrefix())) {
+                            // user page
+                            String username = ModelUtils.getUserNameFromRepoPath(name);
+                            UserModel user = app().users().getUserModel(username);
+                            row.add(new LinkPanel("groupName", null, (user == null ? username : user.getDisplayName()) + " (" + groupRow.count + ")", UserPage.class,
+                                    WicketUtils.newUsernameParameter(username)));
+                            row.add(new Label("groupDescription", getString("gb.personalRepositories")));
+                        } else {
+                            // project page
+                            row.add(new LinkPanel("groupName", null, groupRow.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
+                            row.add(new Label("groupDescription", entry.description == null ? "" : entry.description));
+                        }
+                        WicketUtils.setCssClass(item, "group");
+                        // reset counter so that first row is light background
+                        counter = 0;
+                        return;
+                    }
+                    Fragment row = new Fragment("rowContent", "repositoryRow", this);
+                    item.add(row);
 
-				String owner = "";
-				if (!ArrayUtils.isEmpty(entry.owners)) {
-					// display first owner
-					for (String username : entry.owners) {
-						UserModel ownerModel = app().users().getUserModel(username);
-						if (ownerModel != null) {
-							owner = ownerModel.getDisplayName();
-							break;
-						}
-					}
-					if (entry.owners.size() > 1) {
-						owner += ", ...";
-					}
-				}
-				Label ownerLabel = new Label("repositoryOwner", owner);
-				WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(entry.owners));
-				row.add(ownerLabel);
+                    // show colored repository type icon
+                    Fragment iconFragment;
+                    if (entry.isMirror) {
+                        iconFragment = new Fragment("repoIcon", "mirrorIconFragment", this);
+                    } else if (entry.isFork()) {
+                        iconFragment = new Fragment("repoIcon", "forkIconFragment", this);
+                    } else if (entry.isBare) {
+                        iconFragment = new Fragment("repoIcon", "repoIconFragment", this);
+                    } else {
+                        iconFragment = new Fragment("repoIcon", "cloneIconFragment", this);
+                    }
+                    if (showSwatch) {
+                        WicketUtils.setCssStyle(iconFragment, "color:" + StringUtils.getColor(entry.toString()));
+                    }
+                    row.add(iconFragment);
 
-				String lastChange;
-				if (entry.lastChange.getTime() == 0) {
-					lastChange = "--";
-				} else {
-					lastChange = getTimeUtils().timeAgo(entry.lastChange);
-				}
-				Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
-				row.add(lastChangeLabel);
-				WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
-				if (!StringUtils.isEmpty(entry.lastChangeAuthor)) {
-					WicketUtils.setHtmlTooltip(lastChangeLabel, getString("gb.author") + ": " + entry.lastChangeAuthor);
-				}
+                    // try to strip group name for less cluttered list
+                    String repoName = entry.toString();
+                    if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
+                        repoName = repoName.substring(currGroupName.length() + 1);
+                    }
 
-				WicketUtils.setAlternatingBackground(item, counter);
-				counter++;
-			}
-		};
-		add(dataView);
+                    if (linksActive) {
+                        Class<? extends BasePage> linkPage = SummaryPage.class;
+                        PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
+                        row.add(new LinkPanel("repositoryName", "list", repoName, linkPage, pp));
+                        row.add(new LinkPanel("repositoryDescription", "list", entry.description, linkPage, pp));
+                    } else {
+                        // no links like on a federation page
+                        row.add(new Label("repositoryName", repoName));
+                        row.add(new Label("repositoryDescription", entry.description));
+                    }
+                    if (entry.hasCommits) {
+                        // Existing repository
+                        row.add(new Label("repositorySize", entry.size).setVisible(showSize));
+                    } else {
+                        // New repository
+                        row.add(new Label("repositorySize", "<span class='empty'>(" + getString("gb.empty") + ")</span>").setEscapeModelStrings(false));
+                    }
 
-		if (dp instanceof SortableDataProvider<?>) {
-			// add sortable header
-			SortableDataProvider<?> sdp = (SortableDataProvider<?>) dp;
-			Fragment fragment = new Fragment("headerContent", "flatRepositoryHeader", this);
-			fragment.add(newSort("orderByRepository", SortBy.repository, sdp, dataView));
-			fragment.add(newSort("orderByDescription", SortBy.description, sdp, dataView));
-			fragment.add(newSort("orderByOwner", SortBy.owner, sdp, dataView));
-			fragment.add(newSort("orderByDate", SortBy.date, sdp, dataView));
-			add(fragment);
-		} else {
-			// not sortable
-			Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
-			add(fragment);
-		}
-	}
+                    if (entry.isSparkleshared()) {
+                        row.add(WicketUtils.newImage("sparkleshareIcon", "star_16x16.png", getString("gb.isSparkleshared")));
+                    } else {
+                        row.add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
+                    }
 
-	private static class GroupRepositoryModel extends RepositoryModel {
+                    if (!entry.isMirror && entry.isFrozen) {
+                        row.add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", getString("gb.isFrozen")));
+                    } else {
+                        row.add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
+                    }
 
-		private static final long serialVersionUID = 1L;
+                    if (entry.isFederated) {
+                        row.add(WicketUtils.newImage("federatedIcon", "federated_16x16.png", getString("gb.isFederated")));
+                    } else {
+                        row.add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
+                    }
 
-		int count;
-		String title;
+                    if (entry.isMirror) {
+                        row.add(WicketUtils.newImage("accessRestrictionIcon", "mirror_16x16.png", getString("gb.isMirror")));
+                    } else {
+                        switch (entry.accessRestriction) {
+                        case NONE:
+                            row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+                            break;
+                        case PUSH:
+                            row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+                            break;
+                        case CLONE:
+                            row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+                            break;
+                        case VIEW:
+                            row.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+                            break;
+                        default:
+                            row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+                        }
+                    }
 
-		GroupRepositoryModel(String name, int count) {
-			super(name, "", "", new Date(0));
-			this.count = count;
-		}
+                    String owner = "";
+                    if (!ArrayUtils.isEmpty(entry.owners)) {
+                        // display first owner
+                        for (String username : entry.owners) {
+                            UserModel ownerModel = app().users().getUserModel(username);
+                            if (ownerModel != null) {
+                                owner = ownerModel.getDisplayName();
+                                break;
+                            }
+                        }
+                        if (entry.owners.size() > 1) {
+                            owner += ", ...";
+                        }
+                    }
+                    Label ownerLabel = new Label("repositoryOwner", owner);
+                    WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(entry.owners));
+                    row.add(ownerLabel);
 
-		@Override
-		public String toString() {
-			return (StringUtils.isEmpty(title) ? name  : title) + " (" + count + ")";
-		}
-	}
+                    String lastChange;
+                    if (entry.lastChange.getTime() == 0) {
+                        lastChange = "--";
+                    } else {
+                        lastChange = getTimeUtils().timeAgo(entry.lastChange);
+                    }
+                    Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
+                    row.add(lastChangeLabel);
+                    WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
+                    if (!StringUtils.isEmpty(entry.lastChangeAuthor)) {
+                        WicketUtils.setHtmlTooltip(lastChangeLabel, getString("gb.author") + ": " + entry.lastChangeAuthor);
+                    }
 
-	protected enum SortBy {
-		repository, description, owner, date;
-	}
+                    WicketUtils.setAlternatingBackground(item, counter);
+                    counter++;
+                }
+            };
+            add(dataView);
 
-	protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?> dp,
-			final DataView<?> dataView) {
-		return new OrderByBorder(wicketId, field.name(), dp) {
-			private static final long serialVersionUID = 1L;
+            if (dp instanceof SortableDataProvider<?>) {
+                // add sortable header
+                SortableDataProvider<?> sdp = (SortableDataProvider<?>) dp;
+                Fragment fragment = new Fragment("headerContent", "flatRepositoryHeader", this);
+                fragment.add(newSort("orderByRepository", SortBy.repository, sdp, dataView));
+                fragment.add(newSort("orderByDescription", SortBy.description, sdp, dataView));
+                fragment.add(newSort("orderByOwner", SortBy.owner, sdp, dataView));
+                fragment.add(newSort("orderByDate", SortBy.date, sdp, dataView));
+                add(fragment);
+            } else {
+                // not sortable
+                Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
+                add(fragment);
+            }
+        }
 
-			@Override
-			protected void onSortChanged() {
-				dataView.setCurrentPage(0);
-			}
-		};
-	}
 
-	private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel> {
+    }
 
-		private static final long serialVersionUID = 1L;
+    private static class GroupRepositoryModel extends RepositoryModel {
 
-		private List<RepositoryModel> list;
+        private static final long serialVersionUID = 1L;
 
-		protected SortableRepositoriesProvider(List<RepositoryModel> list) {
-			this.list = list;
-			setSort(SortBy.date.name(), false);
-		}
+        int count;
+        String title;
 
-		@Override
-		public int size() {
-			if (list == null) {
-				return 0;
-			}
-			return list.size();
-		}
+        GroupRepositoryModel(String name, int count) {
+            super(name, "", "", new Date(0));
+            this.count = count;
+        }
 
-		@Override
-		public IModel<RepositoryModel> model(RepositoryModel header) {
-			return new Model<RepositoryModel>(header);
-		}
+        @Override
+        public String toString() {
+            return (StringUtils.isEmpty(title) ? name : title) + " (" + count + ")";
+        }
+    }
 
-		@Override
-		public Iterator<RepositoryModel> iterator(int first, int count) {
-			SortParam sp = getSort();
-			String prop = sp.getProperty();
-			final boolean asc = sp.isAscending();
+    protected enum SortBy {
+        repository, description, owner, date;
+    }
 
-			if (prop == null || prop.equals(SortBy.date.name())) {
-				Collections.sort(list, new Comparator<RepositoryModel>() {
-					@Override
-					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						if (asc) {
-							return o1.lastChange.compareTo(o2.lastChange);
-						}
-						return o2.lastChange.compareTo(o1.lastChange);
-					}
-				});
-			} else if (prop.equals(SortBy.repository.name())) {
-				Collections.sort(list, new Comparator<RepositoryModel>() {
-					@Override
-					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						if (asc) {
-							return o1.name.compareTo(o2.name);
-						}
-						return o2.name.compareTo(o1.name);
-					}
-				});
-			} else if (prop.equals(SortBy.owner.name())) {
-				Collections.sort(list, new Comparator<RepositoryModel>() {
-					@Override
-					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						String own1 = ArrayUtils.toString(o1.owners);
-						String own2 = ArrayUtils.toString(o2.owners);
-						if (asc) {
-							return own1.compareTo(own2);
-						}
-						return own2.compareTo(own1);
-					}
-				});
-			} else if (prop.equals(SortBy.description.name())) {
-				Collections.sort(list, new Comparator<RepositoryModel>() {
-					@Override
-					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						if (asc) {
-							return o1.description.compareTo(o2.description);
-						}
-						return o2.description.compareTo(o1.description);
-					}
-				});
-			}
-			return list.subList(first, first + count).iterator();
-		}
-	}
+    protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?> dp, final DataView<?> dataView) {
+        return new OrderByBorder(wicketId, field.name(), dp) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onSortChanged() {
+                dataView.setCurrentPage(0);
+            }
+        };
+    }
+
+    private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel> {
+
+        private static final long serialVersionUID = 1L;
+
+        private List<RepositoryModel> list;
+
+        protected SortableRepositoriesProvider(List<RepositoryModel> list) {
+            this.list = list;
+            setSort(SortBy.date.name(), false);
+        }
+
+        @Override
+        public int size() {
+            if (list == null) {
+                return 0;
+            }
+            return list.size();
+        }
+
+        @Override
+        public IModel<RepositoryModel> model(RepositoryModel header) {
+            return new Model<RepositoryModel>(header);
+        }
+
+        @Override
+        public Iterator<RepositoryModel> iterator(int first, int count) {
+            SortParam sp = getSort();
+            String prop = sp.getProperty();
+            final boolean asc = sp.isAscending();
+
+            if (prop == null || prop.equals(SortBy.date.name())) {
+                Collections.sort(list, new Comparator<RepositoryModel>() {
+                    @Override
+                    public int compare(RepositoryModel o1, RepositoryModel o2) {
+                        if (asc) {
+                            return o1.lastChange.compareTo(o2.lastChange);
+                        }
+                        return o2.lastChange.compareTo(o1.lastChange);
+                    }
+                });
+            } else if (prop.equals(SortBy.repository.name())) {
+                Collections.sort(list, new Comparator<RepositoryModel>() {
+                    @Override
+                    public int compare(RepositoryModel o1, RepositoryModel o2) {
+                        if (asc) {
+                            return o1.name.compareTo(o2.name);
+                        }
+                        return o2.name.compareTo(o1.name);
+                    }
+                });
+            } else if (prop.equals(SortBy.owner.name())) {
+                Collections.sort(list, new Comparator<RepositoryModel>() {
+                    @Override
+                    public int compare(RepositoryModel o1, RepositoryModel o2) {
+                        String own1 = ArrayUtils.toString(o1.owners);
+                        String own2 = ArrayUtils.toString(o2.owners);
+                        if (asc) {
+                            return own1.compareTo(own2);
+                        }
+                        return own2.compareTo(own1);
+                    }
+                });
+            } else if (prop.equals(SortBy.description.name())) {
+                Collections.sort(list, new Comparator<RepositoryModel>() {
+                    @Override
+                    public int compare(RepositoryModel o1, RepositoryModel o2) {
+                        if (asc) {
+                            return o1.description.compareTo(o2.description);
+                        }
+                        return o2.description.compareTo(o1.description);
+                    }
+                });
+            }
+            return list.subList(first, first + count).iterator();
+        }
+    }
 }
