@@ -30,7 +30,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.basic.MultiLineLabel;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -45,6 +44,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TreeNodeModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ModelUtils;
@@ -79,6 +79,7 @@ public class RepositoriesPanel extends BasePanel {
             return returnVal;
         }
     }
+
     public RepositoriesPanel(String wicketId, final boolean showAdmin, final boolean showManagement, List<RepositoryModel> models, boolean enableLinks,
             final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
         super(wicketId);
@@ -118,37 +119,26 @@ public class RepositoriesPanel extends BasePanel {
             add(new Label("managementPanel").setVisible(false));
         }
 
-        if (true) {
-            // if (app().settings().getString(Keys.web.repositoryListType,
-            // "flat").equalsIgnoreCase("tree")) {
+        if (app().settings().getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("tree")) {
             TreeNodeModel tree = new TreeNodeModel();
             for (RepositoryModel model : models) {
                 String rootPath = StringUtils.getRootPath(model.name);
                 if (StringUtils.isEmpty(rootPath)) {
-                    // root repository
-                    // rootRepositories.add(model);
                     tree.add(model);
                 } else {
                     // create folder structure
                     tree.add(rootPath, model);
-                    // non-root, grouped repository
-                    // if (!groups.containsKey(rootPath)) {
-                    // groups.put(rootPath, new ArrayList<RepositoryModel>());
-                    // }
-                    // groups.get(rootPath).add(model);
                 }
             }
 
-            WebMarkupContainer row = new WebMarkupContainer("row");
-            add(row);
-            row.add(new MultiLineLabel("rowContent", tree.toString()));
-
+            WebMarkupContainer container = new WebMarkupContainer("row");
+            add(container);
+            container.add(new NestedRepositoryTreePanel("rowContent", Model.of(tree), accessRestrictionTranslations, enableLinks));
 
             Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
+            Fragment allCollapsible = new Fragment("allCollapsible", "tableAllCollapsible", this);
+            fragment.add(allCollapsible);
             add(fragment);
-
-
-
 
         } else if (app().settings().getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
             List<RepositoryModel> rootRepositories = new ArrayList<RepositoryModel>();
@@ -214,10 +204,10 @@ public class RepositoriesPanel extends BasePanel {
                         GroupRepositoryModel groupRow = (GroupRepositoryModel) entry;
                         currGroupName = entry.name;
                         Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
-                        if(collapsibleRepoGroups == CollapsibleRepositorySetting.EXPANDED) {
+                        if (collapsibleRepoGroups == CollapsibleRepositorySetting.EXPANDED) {
                             Fragment groupCollapsible = new Fragment("groupCollapsible", "tableGroupMinusCollapsible", this);
                             row.add(groupCollapsible);
-                        } else if(collapsibleRepoGroups == CollapsibleRepositorySetting.COLLAPSED) {
+                        } else if (collapsibleRepoGroups == CollapsibleRepositorySetting.COLLAPSED) {
                             Fragment groupCollapsible = new Fragment("groupCollapsible", "tableGroupPlusCollapsible", this);
                             row.add(groupCollapsible);
                         } else {
@@ -375,8 +365,7 @@ public class RepositoriesPanel extends BasePanel {
             } else {
                 // not sortable
                 Fragment fragment = new Fragment("headerContent", "groupRepositoryHeader", this);
-                if(collapsibleRepoGroups == CollapsibleRepositorySetting.EXPANDED ||
-                        collapsibleRepoGroups == CollapsibleRepositorySetting.COLLAPSED) {
+                if (collapsibleRepoGroups == CollapsibleRepositorySetting.EXPANDED || collapsibleRepoGroups == CollapsibleRepositorySetting.COLLAPSED) {
                     Fragment allCollapsible = new Fragment("allCollapsible", "tableAllCollapsible", this);
                     fragment.add(allCollapsible);
                 } else {
@@ -386,8 +375,6 @@ public class RepositoriesPanel extends BasePanel {
                 add(fragment);
             }
         }
-
-
     }
 
     private static class GroupRepositoryModel extends RepositoryModel {

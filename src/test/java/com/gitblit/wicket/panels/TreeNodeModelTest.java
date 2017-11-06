@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TreeNodeModel;
 
 public class TreeNodeModelTest {
 

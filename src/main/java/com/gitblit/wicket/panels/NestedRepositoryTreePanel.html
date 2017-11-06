@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+	xml:lang="en" lang="en">
+
+<body>
+	<wicket:panel>
+		<tr style="background-color: #bbb" wicket:id="nodeHeader" data-row-type="folder"></tr>
+		<tr wicket:id="subFolders">
+			<span wicket:id="rowContent"></span>
+		</tr>
+		<wicket:container wicket:id="repositories">
+		<tr  wicket:id="rowContent" data-row-type="repo">
+			<td wicket:id="firstColumn" class="left"
+				style="padding-left: 3px;">
+				<div style="border-left: 1px solid black; margin-left:6px; width: 19px;display: inline-block;float: left;"
+					wicket:id="depth">&nbsp;</div> 
+					<span wicket:id="repoIcon"></span><span
+				style="padding-left: 3px;" wicket:id="repositoryName">[repository
+					name]</span>
+			</td>
+			<td class="hidden-phone"><span class="list"
+				wicket:id="repositoryDescription">[repository description]</span></td>
+			<td class="hidden-tablet hidden-phone author"><span
+				wicket:id="repositoryOwner">[repository owner]</span></td>
+			<td class="hidden-phone"
+				style="text-align: right; padding-right: 10px;"><img
+				class="inlineIcon" wicket:id="sparkleshareIcon" /><img
+				class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon"
+				wicket:id="federatedIcon" /><img class="inlineIcon"
+				wicket:id="accessRestrictionIcon" /></td>
+			<td><span wicket:id="repositoryLastChange">[last change]</span></td>
+			<td class="rightAlign hidden-phone"
+				style="text-align: right; padding-right: 15px;"><span
+				style="font-size: 0.8em;" wicket:id="repositorySize">[repository
+					size]</span></td>
+		</tr>
+		</wicket:container>
+
+		<wicket:fragment wicket:id="emptyFragment">
+		</wicket:fragment>
+
+		<wicket:fragment wicket:id="repoIconFragment">
+			<span class="octicon octicon-centered octicon-repo"></span>
+		</wicket:fragment>
+
+		<wicket:fragment wicket:id="mirrorIconFragment">
+			<span class="octicon octicon-centered octicon-mirror"></span>
+		</wicket:fragment>
+
+		<wicket:fragment wicket:id="forkIconFragment">
+			<span class="octicon octicon-centered octicon-repo-forked"></span>
+		</wicket:fragment>
+
+		<wicket:fragment wicket:id="cloneIconFragment">
+			<span class="octicon octicon-centered octicon-repo-push"
+				wicket:message="title:gb.workingCopyWarning"></span>
+		</wicket:fragment>
+		
+		<wicket:fragment wicket:id="tableGroupMinusCollapsible">
+		<i title="Click to expand/collapse" class="fa fa-minus-square-o table-group-collapsible" aria-hidden="true" style="padding-right:3px;cursor:pointer;"></i>
+    </wicket:fragment>
+    
+    <wicket:fragment wicket:id="tableGroupPlusCollapsible">
+		<i title="Click to expand/collapse" class="fa fa-plus-square-o table-group-collapsible" aria-hidden="true" style="padding-right:3px;cursor:pointer;"></i>
+    </wicket:fragment>
+
+		<wicket:fragment wicket:id="tableAllCollapsible">
+			<i title="Click to expand all"
+				class="fa fa-plus-square-o table-openall-collapsible"
+				aria-hidden="true" style="padding-right: 3px; cursor: pointer;"></i>
+			<i title="Click to collapse all"
+				class="fa fa-minus-square-o table-closeall-collapsible"
+				aria-hidden="true" style="padding-right: 3px; cursor: pointer;"></i>
+		</wicket:fragment>
+
+		<wicket:fragment wicket:id="groupRepositoryHeader">
+			<tr>
+				<th class="left"><span wicket:id="allCollapsible"></span> <img
+					style="vertical-align: middle;" src="git-black-16x16.png" /> <wicket:message
+						key="gb.repository">Repository</wicket:message></th>
+				<th class="hidden-phone"><span><wicket:message
+							key="gb.description">Description</wicket:message></span></th>
+				<th class="hidden-tablet hidden-phone"><span><wicket:message
+							key="gb.owner">Owner</wicket:message></span></th>
+				<th class="hidden-phone"></th>
+				<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
+				<th class="right hidden-phone"></th>
+			</tr>
+		</wicket:fragment>
+
+		<wicket:fragment wicket:id="groupRepositoryRow">
+			<td wicket:id="firstColumn" style="" colspan="1">
+			<div style="border-left: 1px solid black; margin-left:6px; width: 19px; display: inline-block;float: left;"
+					wicket:id="depth">&nbsp;</div> 
+			<span
+				wicket:id="groupCollapsible"></span><span wicket:id="groupName">[group
+					name]</span></td>
+			<td colspan="6" style="padding: 2px;"><span class="hidden-phone"
+				style="font-weight: normal; color: #666;"
+				wicket:id="groupDescription">[description]</span></td>
+		</wicket:fragment>
+
+	</wicket:panel>
+</body>
+</html>

@@ -1,25 +1,25 @@
-package com.gitblit.wicket.panels;
+package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.StringUtils;
 
-public class TreeNodeModel implements Serializable {
+public class TreeNodeModel implements Serializable, Comparable<TreeNodeModel> {
 
     private static final long serialVersionUID = 1L;
     final TreeNodeModel parent;
     final String name;
-    private final List<TreeNodeModel> subFolders = new ArrayList<>();
-    private final List<RepositoryModel> repositories = new ArrayList<>();
+    final List<TreeNodeModel> subFolders = new ArrayList<>();
+    final List<RepositoryModel> repositories = new ArrayList<>();
 
     /**
      * Create a new tree root
      */
     public TreeNodeModel() {
-        this.name = "";
+        this.name = "/";
         this.parent = null;
     }
 
@@ -45,6 +45,7 @@ public class TreeNodeModel implements Serializable {
     public TreeNodeModel add(String subFolder) {
         TreeNodeModel n = new TreeNodeModel(subFolder, this);
         subFolders.add(n);
+        Collections.sort(subFolders);
         return n;
     }
 
@@ -55,6 +56,7 @@ public class TreeNodeModel implements Serializable {
      */
     public void add(RepositoryModel repo) {
         repositories.add(repo);
+        Collections.sort(repositories);
     }
 
     /**
@@ -98,8 +100,21 @@ public class TreeNodeModel implements Serializable {
         return getSubTreeNode(this, path, false);
     }
 
+    public List<Serializable> getTreeAsListForFrontend(){
+        List<Serializable> l = new ArrayList<>();
+        getTreeAsListForFrontend(l, this);
+        return l;
+    }
 
-
+    private static void getTreeAsListForFrontend(List<Serializable> list, TreeNodeModel node) {
+        list.add(node);
+        for(TreeNodeModel t : node.subFolders) {
+            getTreeAsListForFrontend(list, t);
+        }
+        for(RepositoryModel r : node.repositories) {
+            list.add(r);
+        }
+    }
 
     private static TreeNodeModel getSubTreeNode(TreeNodeModel node, String path, boolean create) {
         if(!StringUtils.isEmpty(path)) {
@@ -117,7 +132,7 @@ public class TreeNodeModel implements Serializable {
                 }
             }else {
                 //traverse into subFolder
-                String folderInCurrentHierarchyLevel = path.substring(0, path.indexOf('/'));
+                String folderInCurrentHierarchyLevel = StringUtils.getFirstPathElement(path);
 
                 for(TreeNodeModel t : node.subFolders) {
                     if(t.name.equals(folderInCurrentHierarchyLevel) ) {
@@ -138,5 +153,26 @@ public class TreeNodeModel implements Serializable {
 
     private static boolean containsSubFolder(TreeNodeModel node, String path) {
         return getSubTreeNode(node, path, false) != null;
+    }
+
+    @Override
+    public int compareTo(TreeNodeModel t) {
+        return StringUtils.compareRepositoryNames(name, t.name);
+    }
+
+    public TreeNodeModel getParent() {
+        return parent;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<TreeNodeModel> getSubFolders() {
+        return subFolders;
+    }
+
+    public List<RepositoryModel> getRepositories() {
+        return repositories;
     }
 }
