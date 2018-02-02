@@ -130,8 +130,10 @@ public class LuceneService implements Runnable {
 	private final Map<String, IndexWriter> writers = new ConcurrentHashMap<String, IndexWriter>();
 
 	private final String luceneIgnoreExtensions = "7z arc arj bin bmp dll doc docx exe gif gz jar jpg lib lzh odg odf odt pdf ppt png so swf xcf xls xlsx zip";
+	private final String tikaUseExtensions = "pdf doc xls xlsx docx";
 	private Set<String> excludedExtensions;
-
+	private Set<String> tikaExtensions;
+        private boolean defaultAndOperator = false;
 	public LuceneService(
 			IStoredSettings settings,
 			IRepositoryManager repositoryManager) {
@@ -140,10 +142,14 @@ public class LuceneService implements Runnable {
 		this.repositoryManager = repositoryManager;
 		this.repositoriesFolder = repositoryManager.getRepositoriesFolder();
 		String exts = luceneIgnoreExtensions;
-		if (settings != null) {
+                String tikaExts = tikaUseExtensions;
+                if (settings != null) {
 			exts = settings.getString(Keys.web.luceneIgnoreExtensions, exts);
+			tikaExts = settings.getString(Keys.web.tikaExtensions, exts);
+                        defaultAndOperator = settings.getBoolean(Keys.web.luceneDefaultOperatorAnd, false);
 		}
 		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
+		tikaExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(tikaExts));
 	}
 
 	/**
@@ -541,6 +547,7 @@ public class LuceneService implements Runnable {
 
 						// index the blob content
 						if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
+                                        		boolean useTika = tikaExtensions.contains(ext);
 							ObjectLoader ldr = repository.open(blobId, Constants.OBJ_BLOB);
 							InputStream in = ldr.openStream();
 							int n;
@@ -549,7 +556,12 @@ public class LuceneService implements Runnable {
 							}
 							in.close();
 							byte[] content = os.toByteArray();
-							String str = StringUtils.decodeString(content, encodings);
+							String str;
+							if (useTika) {
+							  str = TikaUtils.extractText(ext,name,content);
+							} else {
+							str = StringUtils.decodeString(content, encodings);
+}
 							doc.add(new Field(FIELD_CONTENT, str, TextField.TYPE_STORED));
 							os.reset();
 						}
@@ -645,11 +657,19 @@ public class LuceneService implements Runnable {
 					if (name.indexOf('.') > -1) {
 						ext = name.substring(name.lastIndexOf('.') + 1);
 					}
-
 					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
+                                                boolean useTika = tikaExtensions.contains(ext);
 						// read the blob content
-						String str = JGitUtils.getStringContent(repository, commit.getTree(),
+						String str;
+                                                if (useTika) {
+							byte[] content = JGitUtils.getByteContent(repository, commit.getTree(),
+								path.path,true);
+                                                        str = TikaUtils.extractText(ext,name,content);
+							
+                                                } else {
+                                                 str = JGitUtils.getStringContent(repository, commit.getTree(),
 								path.path, encodings);
+                                                }
 						if (str != null) {
 							doc.add(new Field(FIELD_CONTENT, str, TextField.TYPE_STORED));
 							writer.addDocument(doc);
@@ -693,6 +713,9 @@ public class LuceneService implements Runnable {
 
 		StandardAnalyzer analyzer = new StandardAnalyzer();
 		QueryParser qp = new QueryParser(FIELD_SUMMARY, analyzer);
+                if (defaultAndOperator) {
+                    qp.setDefaultOperator(QueryParser.Operator.AND);
+                }
 		BooleanQuery query = new BooleanQuery.Builder().add(qp.parse(q), Occur.MUST).build();
 
 		IndexWriter writer = getIndexWriter(repositoryName);
@@ -1004,7 +1027,10 @@ public class LuceneService implements Runnable {
 
 			qp = new QueryParser(FIELD_CONTENT, analyzer);
 			qp.setAllowLeadingWildcard(true);
-			bldr.add(qp.parse(text), Occur.SHOULD);
+                        if (defaultAndOperator) {
+                            qp.setDefaultOperator(QueryParser.Operator.AND);
+			}
+                        bldr.add(qp.parse(text), Occur.SHOULD);
 
 			IndexSearcher searcher;
 			if (repositories.length == 1) {
