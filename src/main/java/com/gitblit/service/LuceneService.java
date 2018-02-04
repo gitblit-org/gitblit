@@ -1023,6 +1023,9 @@ public class LuceneService implements Runnable {
 			QueryParser qp;
 			qp = new QueryParser(FIELD_SUMMARY, analyzer);
 			qp.setAllowLeadingWildcard(true);
+                        if (defaultAndOperator) {
+                            qp.setDefaultOperator(QueryParser.Operator.AND);
+			}
 			bldr.add(qp.parse(text), Occur.SHOULD);
 
 			qp = new QueryParser(FIELD_CONTENT, analyzer);
