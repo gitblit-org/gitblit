@@ -145,7 +145,7 @@ public class LuceneService implements Runnable {
                 String tikaExts = tikaUseExtensions;
                 if (settings != null) {
 			exts = settings.getString(Keys.web.luceneIgnoreExtensions, exts);
-			tikaExts = settings.getString(Keys.web.tikaExtensions, exts);
+			tikaExts = settings.getString(Keys.web.tikaExtensions, tikaExts);
                         defaultAndOperator = settings.getBoolean(Keys.web.luceneDefaultOperatorAnd, false);
 		}
 		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
@@ -547,7 +547,7 @@ public class LuceneService implements Runnable {
 
 						// index the blob content
 						if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
-                                        		boolean useTika = tikaExtensions.contains(ext);
+                                        		boolean useTika = tikaExtensions!=null && tikaExtensions.contains(ext);
 							ObjectLoader ldr = repository.open(blobId, Constants.OBJ_BLOB);
 							InputStream in = ldr.openStream();
 							int n;
@@ -658,7 +658,7 @@ public class LuceneService implements Runnable {
 						ext = name.substring(name.lastIndexOf('.') + 1);
 					}
 					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
-                                                boolean useTika = tikaExtensions.contains(ext);
+                                                boolean useTika = tikaExtensions!=null && tikaExtensions.contains(ext);
 						// read the blob content
 						String str;
                                                 if (useTika) {
