@@ -521,14 +521,26 @@ public class TicketsPage extends RepositoryPage {
 		Collections.sort(openMilestones, new Comparator<TicketMilestone>() {
 			@Override
 			public int compare(TicketMilestone o1, TicketMilestone o2) {
-				return o2.due.compareTo(o1.due);
+				if (o1.due == null) {
+					return (o2.due == null) ? 0 : 1;
+				} else if (o2.due == null) {
+					return -1;
+				} else {
+					return o1.due.compareTo(o2.due);
+				}
 			}
 		});
 
 		Collections.sort(closedMilestones, new Comparator<TicketMilestone>() {
 			@Override
 			public int compare(TicketMilestone o1, TicketMilestone o2) {
-				return o2.due.compareTo(o1.due);
+				if (o1.due == null) {
+					return (o2.due == null) ? 0 : 1;
+				} else if (o2.due == null) {
+					return -1;
+				} else {
+					return o1.due.compareTo(o2.due);
+				}
 			}
 		});
 
