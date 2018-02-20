@@ -16,19 +16,30 @@
 package com.gitblit.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.zip.ZipUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 
 public class TikaUtils {
+
     public static String extractText(String ext, String filename, byte[] data) {
-	Tika tika = new Tika();
-	String fileType = tika.detect(filename);
+        Tika tika = new Tika();
+        String fileType = tika.detect(filename);
         try (InputStream is = new ByteArrayInputStream(data)) {
-             Logger.getLogger(TikaUtils.class.getName()).info("Tika parsing "+filename);
+            Logger.getLogger(TikaUtils.class.getName()).info("Tika parsing " + filename);
+            if (isArchive(filename, ext)) {
+                return extractTextFromArchive(ext, filename, data);
+            }
             return tika.parseToString(is);
         } catch (IOException ex) {
             Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
@@ -37,5 +48,42 @@ public class TikaUtils {
             Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, tex);
             return "";
         }
+    }
+
+    private static String extractTextFromArchive(String ext, String filename, byte[] data) {
+        StringBuilder sb = new StringBuilder();
+        Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + filename + " " + data.length);
+        try (InputStream is = new ByteArrayInputStream(data)) {
+            try (ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is)) {
+                ArchiveEntry nextEntry;
+                while ((nextEntry = in.getNextEntry()) != null) {
+                    String archiveExt = null;
+                    String name = nextEntry.getName().toLowerCase();
+                    if (name.indexOf('.') > -1) {
+                        archiveExt = name.substring(name.lastIndexOf('.') + 1);
+                    }
+                    name = filename + "#" + name;
+                    Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + name);
+                    if (!nextEntry.isDirectory()) {
+                        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                            IOUtils.copy(in, bos);
+                            bos.flush();
+                            String result = extractText(archiveExt, name, bos.toByteArray());
+                            sb.append(result);
+                            Logger.getLogger(TikaUtils.class.getName()).info("Tika zip extract " + name + " " + result.length());
+                        }
+                    }
+                }
+            } catch (ArchiveException ex) {
+                Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return sb.toString();
+    }
+
+    private static boolean isArchive(String filename, String ext) {
+        return "zip".equals(ext);
     }
 }
