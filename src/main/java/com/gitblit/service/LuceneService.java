@@ -561,7 +561,7 @@ public class LuceneService implements Runnable {
                             byte[] content = os.toByteArray();
                             String str;
                             if (useTika) {
-                                str = TikaUtils.extractText(ext, name, content, this, new Indexer() {
+                                str = TikaUtils.extractText(ext, name, content, this, path, new Indexer() {
                                     @Override
                                     public boolean index(String name, String content) {
                                         try {
@@ -699,7 +699,7 @@ public class LuceneService implements Runnable {
                         if (useTika) {
                             byte[] content = JGitUtils.getByteContent(repository, commit.getTree(),
                                     path.path, true);
-                            str = TikaUtils.extractText(ext, name, content, this, new Indexer() {
+                            str = TikaUtils.extractText(ext, name, content, this, spath, new Indexer() {
                                 @Override
                                 public boolean index(String name, String content) {
                                     try {

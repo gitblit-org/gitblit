@@ -33,13 +33,13 @@ import org.apache.tika.exception.TikaException;
 
 public class TikaUtils {
 
-    public static String extractText(String ext, String filename, byte[] data, LuceneService service, LuceneService.Indexer indexer) {
+    public static String extractText(String ext, String filename, byte[] data, LuceneService service, String path, LuceneService.Indexer indexer) {
         Tika tika = new Tika();
         String fileType = tika.detect(filename);
         try (InputStream is = new ByteArrayInputStream(data)) {
             Logger.getLogger(TikaUtils.class.getName()).info("Tika parsing " + filename);
             if (isArchive(filename, ext)) {
-                return extractTextFromArchive(ext, filename, data, service,indexer);                
+                return extractTextFromArchive(ext, filename, data, service,path, indexer);                
             }
             return tika.parseToString(is);
         } catch (IOException ex) {
@@ -51,7 +51,7 @@ public class TikaUtils {
         }
     }
 
-    private static String extractTextFromArchive(String ext, String filename, byte[] data, LuceneService service, LuceneService.Indexer indexer) {
+    private static String extractTextFromArchive(String ext, String filename, byte[] data, LuceneService service, String path, LuceneService.Indexer indexer) {
         Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + filename + " " + data.length);        
         try (InputStream is = new ByteArrayInputStream(data)) {
             try (ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is)) {
@@ -62,7 +62,7 @@ public class TikaUtils {
                     if (name.indexOf('.') > -1) {
                         archiveExt = name.substring(name.lastIndexOf('.') + 1);
                     }
-                    name = filename + "#" + name;
+                    name = filename + "/" + name;
                     Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + name);
                     if (!nextEntry.isDirectory()) {
                         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -70,10 +70,10 @@ public class TikaUtils {
                             bos.flush();
                             String result = service.getEncodedString(data, archiveExt);
                             if (result == null && service.useTika(ext)) {
-                                result = extractText(archiveExt, name, bos.toByteArray(), service, indexer);
+                                result = extractText(archiveExt, path+"/"+nextEntry.getName(), bos.toByteArray(), service, path+"/"+nextEntry.getName(), indexer);
                             }
                             if (result!=null) {
-                                indexer.index(name, result);
+                                indexer.index(path+"/"+nextEntry.getName(), result);
                                 Logger.getLogger(TikaUtils.class.getName()).info("Tika zip extract " + name + " " + result.length());
                             }
                             
