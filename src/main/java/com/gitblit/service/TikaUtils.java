@@ -44,7 +44,7 @@ public class TikaUtils {
         } catch (IOException ex) {
             Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
             return "";
-        } catch (TikaException tex) {
+        } catch (Throwable tex) {
             Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, tex);
             return "";
         }
