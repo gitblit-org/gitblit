@@ -93,8 +93,13 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
+import static com.gitblit.utils.JGitUtils.getDefaultBranch;
 import com.gitblit.utils.StringUtils;
+import java.io.ByteArrayInputStream;
 import java.util.logging.Level;
+import org.eclipse.jgit.lib.ObjectStream;
+import org.eclipse.jgit.revwalk.RevBlob;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 
 /**
  * The Lucene service handles indexing and searching repositories.
@@ -552,41 +557,43 @@ public class LuceneService implements Runnable {
                         if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
                             boolean useTika = useTika(ext);
                             ObjectLoader ldr = repository.open(blobId, Constants.OBJ_BLOB);
-                            InputStream in = ldr.openStream();
-                            int n;
-                            while ((n = in.read(tmp)) > 0) {
-                                os.write(tmp, 0, n);
-                            }
-                            in.close();
-                            byte[] content = os.toByteArray();
                             String str;
                             if (useTika) {
-                                str = TikaUtils.extractText(ext, name, content, this, path, new Indexer() {
-                                    @Override
-                                    public boolean index(String name, String content) {
-                                        try {
-                                            Document doc = new Document();
-                                            doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), StringField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_BRANCH, branchName, TextField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_COMMIT, commitName, TextField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_PATH, name, TextField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_ARCHIVE, path, TextField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_DATE, blobDate, StringField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_AUTHOR, blobAuthor, TextField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_COMMITTER, blobCommitter, TextField.TYPE_STORED));
-                                            doc.add(new Field(FIELD_CONTENT, content, TextField.TYPE_STORED));
-                                            writer.addDocument(doc);
-                                            return true;
-                                        } catch (IOException ex) {
-                                            java.util.logging.Logger.getLogger(LuceneService.class.getName()).log(Level.SEVERE, null, ex);
-                                            return false;
+                                try (InputStream is = ldr.openStream()) {
+                                    str = TikaUtils.extractText(ext, name, is, this, path, new Indexer() {
+                                        @Override
+                                        public boolean index(String name, String content) {
+                                            try {
+                                                Document doc = new Document();
+                                                doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), StringField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_BRANCH, branchName, TextField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_COMMIT, commitName, TextField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_PATH, name, TextField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_ARCHIVE, path, TextField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_DATE, blobDate, StringField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_AUTHOR, blobAuthor, TextField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_COMMITTER, blobCommitter, TextField.TYPE_STORED));
+                                                doc.add(new Field(FIELD_CONTENT, content, TextField.TYPE_STORED));
+                                                writer.addDocument(doc);
+                                                return true;
+                                            } catch (IOException ex) {
+                                                java.util.logging.Logger.getLogger(LuceneService.class.getName()).log(Level.SEVERE, null, ex);
+                                                return false;
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             } else {
+                                InputStream in = ldr.openStream();
+                                int n;
+                                while ((n = in.read(tmp)) > 0) {
+                                    os.write(tmp, 0, n);
+                                }
+                                in.close();
+                                byte[] content = os.toByteArray();
                                 str = StringUtils.decodeString(content, encodings);
                             }
-                            if (str!=null) {
+                            if (str != null) {
                                 doc.add(new Field(FIELD_CONTENT, str, TextField.TYPE_STORED));
                             }
                             os.reset();
@@ -644,7 +651,7 @@ public class LuceneService implements Runnable {
         String[] encodings = storedSettings.getStrings(Keys.web.blobEncodings).toArray(new String[0]);
         return StringUtils.decodeString(content, encodings);
     }
-
+    	
     /**
      * Incrementally update the index with the specified commit for the
      * repository.
@@ -697,9 +704,11 @@ public class LuceneService implements Runnable {
                         // read the blob content
                         String str;
                         if (useTika) {
-                            byte[] content = JGitUtils.getByteContent(repository, commit.getTree(),
-                                    path.path, true);
-                            str = TikaUtils.extractText(ext, name, content, this, spath, new Indexer() {
+                            RevWalk rw = new RevWalk(repository);
+                            RevBlob blob = rw.lookupBlob(ObjectId.fromString(path.objectId));
+                            ObjectLoader ldr = repository.open(blob.getId(), Constants.OBJ_BLOB);
+                            try (ObjectStream is = ldr.openStream()) {
+                            str = TikaUtils.extractText(ext, name,is , this, spath, new Indexer() {
                                 @Override
                                 public boolean index(String name, String content) {
                                     try {
@@ -721,7 +730,8 @@ public class LuceneService implements Runnable {
                                     }
                                 }
                             });
-
+                            }                            
+                           rw.dispose();
                         } else {
                             str = JGitUtils.getStringContent(repository, commit.getTree(),
                                     path.path, encodings);
@@ -755,7 +765,7 @@ public class LuceneService implements Runnable {
     }
 
     protected boolean useTika(String ext) {
-        return tikaExtensions != null && tikaExtensions.contains(ext);
+        return tikaExtensions != null && ext != null && tikaExtensions.contains(ext);
     }
 
     /**

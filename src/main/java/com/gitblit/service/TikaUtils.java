@@ -33,57 +33,54 @@ import org.apache.tika.exception.TikaException;
 
 public class TikaUtils {
 
-    public static String extractText(String ext, String filename, byte[] data, LuceneService service, String path, LuceneService.Indexer indexer) {
+    public static String extractText(String ext, String filename, InputStream is, LuceneService service, String path, LuceneService.Indexer indexer) {
         Tika tika = new Tika();
         String fileType = tika.detect(filename);
-        try (InputStream is = new ByteArrayInputStream(data)) {
+        try {
             Logger.getLogger(TikaUtils.class.getName()).info("Tika parsing " + filename);
             if (isArchive(filename, ext)) {
-                return extractTextFromArchive(ext, filename, data, service,path, indexer);                
+                return extractTextFromArchive(ext, filename, is, service, path, indexer);
             }
             return tika.parseToString(is);
-        } catch (IOException ex) {
-            Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
-            return "";
         } catch (Throwable tex) {
             Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, tex);
             return "";
         }
     }
 
-    private static String extractTextFromArchive(String ext, String filename, byte[] data, LuceneService service, String path, LuceneService.Indexer indexer) {
-        Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + filename + " " + data.length);        
-        try (InputStream is = new ByteArrayInputStream(data)) {
-            try (ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is)) {
-                ArchiveEntry nextEntry;
-                while ((nextEntry = in.getNextEntry()) != null) {
-                    String archiveExt = null;
-                    String name = nextEntry.getName().toLowerCase();
-                    if (name.indexOf('.') > -1) {
-                        archiveExt = name.substring(name.lastIndexOf('.') + 1);
-                    }
-                    name = filename + "/" + name;
-                    Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + name);
-                    if (!nextEntry.isDirectory()) {
-                        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                            IOUtils.copy(in, bos);
-                            bos.flush();
-                            String result = service.getEncodedString(bos.toByteArray(), archiveExt);
-                            if (result == null && service.useTika(ext)) {
-                                result = extractText(archiveExt, path+"/"+nextEntry.getName(), bos.toByteArray(), service, path+"/"+nextEntry.getName(), indexer);
-                            }
-                            if (result!=null) {
-                                indexer.index(path+"/"+nextEntry.getName(), result);
-                                Logger.getLogger(TikaUtils.class.getName()).info("Tika zip extract " + name + " " + result.length());
-                            }
-                            
+    private static String extractTextFromArchive(String ext, String filename, InputStream is, LuceneService service, String path, LuceneService.Indexer indexer) {
+        Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + filename + " ");
+        try (ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(ArchiveStreamFactory.ZIP, is)) {
+            ArchiveEntry nextEntry;
+            while ((nextEntry = in.getNextEntry()) != null) {
+                String archiveExt = null;
+                String name = nextEntry.getName().toLowerCase();
+                if (name.indexOf('.') > -1) {
+                    archiveExt = name.substring(name.lastIndexOf('.') + 1);
+                }
+                name = filename + "/" + name;
+                Logger.getLogger(TikaUtils.class.getName()).info("Tika zip parsing " + name);
+                if (!nextEntry.isDirectory()) {
+                    try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                        IOUtils.copy(in, bos);
+                        bos.flush();
+                        String result = service.getEncodedString(bos.toByteArray(), archiveExt);
+                        if (result == null && service.useTika(ext)) {
+                            result = extractText(archiveExt, path + "/" + nextEntry.getName(), new ByteArrayInputStream(bos.toByteArray()), service, path + "/" + nextEntry.getName(), indexer);
                         }
+                        if (result != null) {
+                            indexer.index(path + "/" + nextEntry.getName(), result);
+                            Logger.getLogger(TikaUtils.class.getName()).info("Tika zip extract " + name + " " + result.length());
+                        }
+
+                    } catch (IOException ex) {
+                        Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            } catch (ArchiveException ex) {
-                Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
             }
         } catch (IOException ex) {
+            Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ArchiveException ex) {
             Logger.getLogger(TikaUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
