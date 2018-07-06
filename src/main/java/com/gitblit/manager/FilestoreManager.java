@@ -390,7 +390,7 @@ public class FilestoreManager implements IFilestoreManager {
 		try {
 			return Files.getFileStore(getStorageFolder().toPath()).getUsableSpace();
 		} catch (IOException e) {
-			logger.error(MessageFormat.format("Failed to retrive available space in Filestore {0}", e));
+			logger.error(MessageFormat.format("Failed to retrieve available space in Filestore {0}", e));
 		}
 
 		return UNDEFINED_SIZE;
