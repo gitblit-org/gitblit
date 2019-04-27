@@ -132,6 +132,11 @@
 	-->
 	<target name="test" depends="compile" description="compiles Gitblit from source and runs unit tests">
 		
+		<!-- Generate the HelloworldKeys class from the hello-world.properties file -->
+		<mx:keys propertiesfile="${basedir}/src/test/data/hello-world.properties"
+			 	outputclass="com.gitblit.tests.HelloworldKeys"
+			 	todir="${basedir}/src/test/java" />
+
 		<!-- Compile unit tests -->
 		<mx:javac scope="test" />
 		

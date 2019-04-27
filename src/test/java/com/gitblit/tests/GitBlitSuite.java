@@ -16,6 +16,7 @@
 package com.gitblit.tests;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,12 +28,14 @@ import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.FS;
+import org.eclipse.jgit.util.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.gitblit.FileSettings;
 import com.gitblit.GitBlitException;
 import com.gitblit.GitBlitServer;
 import com.gitblit.manager.IRepositoryManager;
@@ -76,6 +79,12 @@ public class GitBlitSuite {
 	public static final File SETTINGS = new File("src/test/config/test-gitblit.properties");
 
 	public static final File USERSCONF = new File("src/test/config/test-users.conf");
+
+	public static final File HELLOWORLD_REPO_SOURCE = new File("src/test/data/hello-world.git");
+
+	public static final File HELLOWORLD_REPO_PROPERTIES = new File("src/test/data/hello-world.properties");
+
+	public static final FileSettings helloworldSettings = new FileSettings(HELLOWORLD_REPO_PROPERTIES.getAbsolutePath());
 
 	static int port = 8280;
 	static int gitPort = 8300;
@@ -167,15 +176,25 @@ public class GitBlitSuite {
 		Thread.sleep(5000);
 	}
 
+	public static void deleteRefChecksFolder() throws IOException {
+		File refChecks = new File(GitBlitSuite.REPOSITORIES, "refchecks");
+		if (refChecks.exists()) {
+			FileUtils.delete(refChecks, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+	}
+
 	@BeforeClass
 	public static void setUp() throws Exception {
+		//"refchecks" folder is used in GitServletTest;
+		//need be deleted before Gitblit server instance is started
+		deleteRefChecksFolder();
 		startGitblit();
 
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
-			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git");
+			cloneOrFetch("helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
 			cloneOrFetch("ticgit.git", "https://github.com/schacon/ticgit.git");
 			cloneOrFetch("test/jgit.git", "https://github.com/eclipse/jgit.git");
-			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
+			cloneOrFetch("test/helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
 			cloneOrFetch("test/gitective.git", "https://github.com/kevinsawicki/gitective.git");
 

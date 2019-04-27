@@ -74,11 +74,11 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master"));
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master2"));
 
 		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.customFields = new HashMap<String,String>();
@@ -96,11 +96,11 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master"));
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master2"));
 
 		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
@@ -121,11 +121,11 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master"));
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master2"));
 
 		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
@@ -145,7 +145,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master"));
 
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
@@ -159,7 +159,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/tags/v1.0"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/tags/v1.0"));
 
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
@@ -174,8 +174,8 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master"));
 
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
@@ -190,7 +190,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		ReceiveCommand command = new ReceiveCommand(ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), ObjectId.zeroId(),
 				"refs/heads/master");
 		commands.add(command);
 
@@ -208,7 +208,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), ObjectId.zeroId(),
 				"refs/heads/other"));
 
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
@@ -224,7 +224,7 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		ReceiveCommand command = new ReceiveCommand(ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), ObjectId.zeroId(),
 				"refs/tags/v1.0");
 		commands.add(command);
 
@@ -242,8 +242,8 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master"));
 
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
@@ -262,8 +262,8 @@ public class GroovyScriptTest extends GitblitUnitTest {
 		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
-				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
-				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifth)), ObjectId
+				.fromString(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted)), "refs/heads/master"));
 
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
