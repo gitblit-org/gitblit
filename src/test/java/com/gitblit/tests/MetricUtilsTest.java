@@ -45,7 +45,7 @@ public class MetricUtilsTest extends GitblitUnitTest {
 		List<Metric> byEmail = MetricUtils.getAuthorMetrics(repository, null, true);
 		List<Metric> byName = MetricUtils.getAuthorMetrics(repository, null, false);
 		repository.close();
-		assertEquals("No author metrics found!", 9, byEmail.size());
-		assertEquals("No author metrics found!", 8, byName.size());
+		assertEquals("No author metrics found!", GitBlitSuite.helloworldSettings.getInteger(HelloworldKeys.users.byEmail, -1), byEmail.size());
+		assertEquals("No author metrics found!", GitBlitSuite.helloworldSettings.getInteger(HelloworldKeys.users.byName, -1), byName.size());
 	}
 }
