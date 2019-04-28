@@ -17,7 +17,7 @@ package com.gitblit.tests;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -29,7 +29,8 @@ public class JsonUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testSerialization() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		//LinkedHashMap preserves the order of insertion
 		map.put("a", "alligator");
 		map.put("b", "bear");
 		map.put("c", "caterpillar");
@@ -37,7 +38,7 @@ public class JsonUtilsTest extends GitblitUnitTest {
 		map.put("e", "eagle");
 		String json = JsonUtils.toJsonString(map);
 		assertEquals(
-				"{\"d\":\"dingo\",\"e\":\"eagle\",\"b\":\"bear\",\"c\":\"caterpillar\",\"a\":\"alligator\"}",
+				"{\"a\":\"alligator\",\"b\":\"bear\",\"c\":\"caterpillar\",\"d\":\"dingo\",\"e\":\"eagle\"}",
 				json);
 		Map<String, String> map2 = JsonUtils.fromJsonString(json,
 				new TypeToken<Map<String, String>>() {

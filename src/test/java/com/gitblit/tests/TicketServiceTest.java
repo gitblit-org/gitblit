@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.bouncycastle.util.Arrays;
+import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +65,9 @@ public abstract class TicketServiceTest extends GitblitUnitTest {
 	protected IStoredSettings getSettings(boolean deleteAll) throws Exception {
 		File dir = new File(GitBlitSuite.REPOSITORIES, getRepository().name);
 		if (deleteAll) {
-			FileUtils.deleteDirectory(dir);
+			if (dir.exists()) {
+				FileUtils.delete(dir, FileUtils.RECURSIVE | FileUtils.RETRY);
+			}
 			JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, getRepository().name).close();
 		}
 
