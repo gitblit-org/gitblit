@@ -200,11 +200,11 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
     public void testAuthenticationManager()
     {
         MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
-        UserModel user = auth.authenticate("user1", "pass1".toCharArray(), null);
+        UserModel user = auth.authenticate("user1", "#externalAccount".toCharArray(), null);
         assertNotNull(user);
         assertEquals("user1", user.username);
 
-        user = auth.authenticate("user2", "pass2".toCharArray(), null);
+        user = auth.authenticate("user2", "#externalAccount".toCharArray(), null);
         assertNotNull(user);
         assertEquals("user2", user.username);
 

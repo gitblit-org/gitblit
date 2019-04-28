@@ -57,6 +57,7 @@ import com.gitblit.tickets.ITicketService;
  */
 public class TicketReferenceTest extends GitblitUnitTest {
 
+	static final String repoName = "TicketReferenceTest.git";
 	static File workingCopy = new File(GitBlitSuite.REPOSITORIES, "working/TicketReferenceTest.git-wc");
 	
 	static ITicketService ticketService;
@@ -73,13 +74,13 @@ public class TicketReferenceTest extends GitblitUnitTest {
 	
 	@BeforeClass
 	public static void configure() throws Exception {
-		File repositoryName = new File("TicketReferenceTest.git");;
+		File repositoryName = new File(repoName);
 		
 		GitBlitSuite.close(repositoryName);
 		if (repositoryName.exists()) {
 			FileUtils.delete(repositoryName, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
-		repo = new RepositoryModel("TicketReferenceTest.git", null, null, null);
+		repo = new RepositoryModel(repoName, null, null, null);
 		
 		if (gitblit().hasRepository(repo.name)) {
 			gitblit().deleteRepositoryModel(repo);
@@ -141,7 +142,23 @@ public class TicketReferenceTest extends GitblitUnitTest {
 	
 	@AfterClass
 	public static void cleanup() throws Exception {
+		//clean up the test user account if left over
+		if (gitblit().getUserModel(user.username) != null) {
+			gitblit().deleteUser(user.username);
+		}
+
 		GitBlitSuite.close(git);
+
+		//clean up the TicketReferenceTest.git repo
+		File repositoryName = new File(repoName);
+		GitBlitSuite.close(repositoryName);
+		if (repositoryName.exists()) {
+			FileUtils.delete(repositoryName, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+		RepositoryModel repo = new RepositoryModel(repoName, null, null, null);
+		if (gitblit().hasRepository(repo.name)) {
+			gitblit().deleteRepositoryModel(repo);
+		}
 	}
 	
 	@Test

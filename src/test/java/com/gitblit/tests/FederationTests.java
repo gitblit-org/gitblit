@@ -15,6 +15,7 @@
  */
 package com.gitblit.tests;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,12 @@ public class FederationTests extends GitblitUnitTest {
 	String password = GitBlitSuite.password;
 	String token = "d7cc58921a80b37e0329a4dae2f9af38bf61ef5c";
 
+	//test data
+	static final String testUser = "test";
+	static final String testUserPwd = "whocares";
+	static final String testTeam = "testteam";
+	static final String testTeamRepository = "helloworld.git";
+
 	private static final AtomicBoolean started = new AtomicBoolean(false);
 
 	@BeforeClass
@@ -54,9 +61,25 @@ public class FederationTests extends GitblitUnitTest {
 
 	@AfterClass
 	public static void stopGitblit() throws Exception {
+		//clean up test user and team if left over
+		deleteTestUser();
+		deleteTestTeam();
+
 		if (started.get()) {
 			GitBlitSuite.stopGitblit();
 		}
+	}
+
+	private static void deleteTestUser() throws IOException {
+		UserModel user = new UserModel(testUser);
+		user.password = testUserPwd;
+		RpcUtils.deleteUser(user, GitBlitSuite.url, GitBlitSuite.account, GitBlitSuite.password.toCharArray());		
+	}
+
+	private static void deleteTestTeam() throws IOException {
+		TeamModel team = new TeamModel(testTeam);
+		team.addRepositoryPermission(testTeamRepository);
+		RpcUtils.deleteTeam(team, GitBlitSuite.url, GitBlitSuite.account, GitBlitSuite.password.toCharArray());
 	}
 
 	@Test
@@ -121,18 +144,22 @@ public class FederationTests extends GitblitUnitTest {
 
 	@Test
 	public void testPullUsers() throws Exception {
+		//clean up test user and team left over from previous run, if any
+		deleteTestUser();
+		deleteTestTeam();
+
 		List<UserModel> users = FederationUtils.getUsers(getRegistration());
 		assertNotNull(users);
-		// admin is excluded
-		assertEquals(0, users.size());
+		// admin is excluded, hence there should be no other users in the list
+		assertEquals("Gitblit server still contains " + users + " user account(s).", 0, users.size());
 
-		UserModel newUser = new UserModel("test");
-		newUser.password = "whocares";
+		UserModel newUser = new UserModel(testUser);
+		newUser.password = testUserPwd;
 		assertTrue(RpcUtils.createUser(newUser, url, account, password.toCharArray()));
 
-		TeamModel team = new TeamModel("testteam");
-		team.addUser("test");
-		team.addRepositoryPermission("helloworld.git");
+		TeamModel team = new TeamModel(testTeam);
+		team.addUser(testUser);
+		team.addRepositoryPermission(testTeamRepository);
 		assertTrue(RpcUtils.createTeam(team, url, account, password.toCharArray()));
 
 		users = FederationUtils.getUsers(getRegistration());
@@ -140,7 +167,7 @@ public class FederationTests extends GitblitUnitTest {
 		assertEquals(1, users.size());
 
 		newUser = users.get(0);
-		assertTrue(newUser.isTeamMember("testteam"));
+		assertTrue(newUser.isTeamMember(testTeam));
 
 		assertTrue(RpcUtils.deleteUser(newUser, url, account, password.toCharArray()));
 		assertTrue(RpcUtils.deleteTeam(team, url, account, password.toCharArray()));
@@ -148,9 +175,12 @@ public class FederationTests extends GitblitUnitTest {
 
 	@Test
 	public void testPullTeams() throws Exception {
-		TeamModel team = new TeamModel("testteam");
-		team.addUser("test");
-		team.addRepositoryPermission("helloworld.git");
+		//clean up test team left over from previous run, if any
+		deleteTestTeam();
+
+		TeamModel team = new TeamModel(testTeam);
+		team.addUser(testUser);
+		team.addRepositoryPermission(testTeamRepository);
 		assertTrue(RpcUtils.createTeam(team, url, account, password.toCharArray()));
 
 		List<TeamModel> teams = FederationUtils.getTeams(getRegistration());
