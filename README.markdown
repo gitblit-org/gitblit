@@ -1,3 +1,41 @@
+A fork of [gitblit] to fix various test failures, and to improve the build infrastructure going forward.
+
+TODO
+----
+
+* [x] Re-creation of the missing hello-world.git repo (used to be at [/git/hello-world.git]). The absence of this repo at GitHub causes a lot of unit test failures in the project.
+
+* [x] Fix various test failures requiring the hello-world repo.
+
+* [x] Zip all required repos used during testing, and check them in to the project, to avoid network fetch from GitHub during testing.
+
+* [ ] Re-organize the test classes in src/test according to test categories - the purpose is for ease of test execution and failure investigation:
+  * src/test: for pure unit tests.
+  * src/repoTest: for tests requiring some existing repos but no need for a gitblit server.
+  * src/serverTest: for tests requiring the gitbit server to be running. The current GitBlitSuite class will go here, plus other test classes requiring a gitblit server.
+  * src/uiTest: for tests of the gitblit UI.
+  * src/extServiceTest: for tests requiring some external service to be available.
+
+* [ ] The above test class re-org requires a new build tool for the project, as Moxie doesn't support it, hence the conversion to Gradle build tool:
+  * less radical: initial conversion to Gradle keeping the src/main/java intact (i.e. no subprojects.)
+  * more radical: re-organize the src/main/java into subprojects: core, war, go, federation, etc.; each subproject produces its own build artefact:
+    * core: would produce the core gitblit.jar library
+    * war: would produce gitblit.war which includes the above gitblit.jar
+    * go: would produce gitblitGO.zip and/or gitblitGO.tar.gz
+    * etc.
+
+* [ ] upgrade to Java 8 as a minimum
+  * upgrade selenium to at least version 3, for UI testing
+  * replace [pegdown] (deprecated) library with [flexmark-java] library, to work with Java 8, when generating the docs.
+
+[gitblit]: https://github.com/gitblit/gitblit
+[pegdown]: https://github.com/sirthias/pegdown
+[flexmark-java]: https://github.com/vsch/flexmark-java
+
+
+----
+
+
 Gitblit
 =================
 
