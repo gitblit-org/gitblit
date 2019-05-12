@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -39,7 +41,7 @@ import com.gitblit.utils.XssFilter.AllowXssFilter;
  * Test the Htpasswd user service.
  *
  */
-public class HtpasswdAuthenticationTest extends GitblitUnitTest {
+public class HtpasswdAuthenticationTest {
 
     private static final String RESOURCE_DIR = "src/test/resources/htpasswd/";
     private static final String KEY_SUPPORT_PLAINTEXT_PWD = "realm.htpasswd.supportPlaintextPasswords";
@@ -77,7 +79,7 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
 
     private HtpasswdAuthProvider newHtpasswdAuthentication(IStoredSettings settings) {
     	XssFilter xssFilter = new AllowXssFilter();
-    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
+    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitTestConfig.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
     	htpasswd.setup(runtime, users);
@@ -86,7 +88,7 @@ public class HtpasswdAuthenticationTest extends GitblitUnitTest {
 
     private AuthenticationManager newAuthenticationManager(IStoredSettings settings) {
     	XssFilter xssFilter = new AllowXssFilter();
-    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
+    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitTestConfig.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	HtpasswdAuthProvider htpasswd = new HtpasswdAuthProvider();
     	htpasswd.setup(runtime, users);

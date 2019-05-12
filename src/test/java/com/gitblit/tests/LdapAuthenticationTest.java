@@ -64,7 +64,7 @@ public class LdapAuthenticationTest extends LdapBasedUnitTest {
 
 	private LdapAuthProvider newLdapAuthentication(IStoredSettings settings) {
 		XssFilter xssFilter = new AllowXssFilter();
-		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
+		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitTestConfig.BASEFOLDER).start();
 		userManager = new UserManager(runtime, null).start();
 		LdapAuthProvider ldap = new LdapAuthProvider();
 		ldap.setup(runtime, userManager);
@@ -73,7 +73,7 @@ public class LdapAuthenticationTest extends LdapBasedUnitTest {
 
 	private AuthenticationManager newAuthenticationManager(IStoredSettings settings) {
 		XssFilter xssFilter = new AllowXssFilter();
-		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
+		RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitTestConfig.BASEFOLDER).start();
 		AuthenticationManager auth = new AuthenticationManager(runtime, userManager);
 		auth.addAuthenticationProvider(newLdapAuthentication(settings));
 		return auth;

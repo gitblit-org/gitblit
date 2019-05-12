@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import com.gitblit.models.UserChoice;
@@ -25,7 +27,7 @@ import com.gitblit.models.UserChoice;
  * @author Alfred Schmid
  *
  */
-public class UserChoiceTest extends GitblitUnitTest {
+public class UserChoiceTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void creatingUserChoiceWithNullAsUserIdIsImpossible() {

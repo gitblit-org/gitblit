@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -32,13 +34,13 @@ import com.gitblit.utils.JnaUtils;
  *
  * @author Florian Zschocke
  */
-public class JnaUtilsTest extends GitblitUnitTest {
+public class JnaUtilsTest {
 
 	@Test
 	public void testGetgid() {
 		if (JnaUtils.isWindows()) {
 			try {
-				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+				JnaUtils.getFilemode(GitBlitTestConfig.REPOSITORIES);
 			} catch(UnsupportedOperationException e) {}
 		}
 		else {
@@ -56,13 +58,13 @@ public class JnaUtilsTest extends GitblitUnitTest {
 	public void testGetFilemode() throws IOException {
 		if (JnaUtils.isWindows()) {
 			try {
-				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+				JnaUtils.getFilemode(GitBlitTestConfig.REPOSITORIES);
 			} catch(UnsupportedOperationException e) {}
 		}
 		else {
 			String repositoryName = "NewJnaTestRepository.git";
-			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repositoryName);
-			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
+			Repository repository = JGitUtils.createRepository(GitBlitTestConfig.REPOSITORIES, repositoryName);
+			File folder = FileKey.resolve(new File(GitBlitTestConfig.REPOSITORIES, repositoryName), FS.DETECTED);
 			assertTrue(folder.exists());
 
 			int mode = JnaUtils.getFilemode(folder);
@@ -86,13 +88,13 @@ public class JnaUtilsTest extends GitblitUnitTest {
 	public void testSetFilemode() throws IOException {
 		if (JnaUtils.isWindows()) {
 			try {
-				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+				JnaUtils.getFilemode(GitBlitTestConfig.REPOSITORIES);
 			} catch(UnsupportedOperationException e) {}
 		}
 		else {
 			String repositoryName = "NewJnaTestRepository.git";
-			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repositoryName);
-			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
+			Repository repository = JGitUtils.createRepository(GitBlitTestConfig.REPOSITORIES, repositoryName);
+			File folder = FileKey.resolve(new File(GitBlitTestConfig.REPOSITORIES, repositoryName), FS.DETECTED);
 			assertTrue(folder.exists());
 
 			File path = new File(folder, "refs");
@@ -134,11 +136,11 @@ public class JnaUtilsTest extends GitblitUnitTest {
 	public void testGetFilestat() {
 		if (JnaUtils.isWindows()) {
 			try {
-				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+				JnaUtils.getFilemode(GitBlitTestConfig.REPOSITORIES);
 			} catch(UnsupportedOperationException e) {}
 		}
 		else {
-			JnaUtils.Filestat stat = JnaUtils.getFilestat(GitBlitSuite.REPOSITORIES);
+			JnaUtils.Filestat stat = JnaUtils.getFilestat(GitBlitTestConfig.REPOSITORIES);
 			assertNotNull(stat);
 			assertTrue(stat.mode > 0);
 			assertTrue(stat.uid > 0);

@@ -1,12 +1,14 @@
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import org.junit.After;
 import org.junit.Test;
 
 import com.gitblit.Constants;
 import com.gitblit.utils.ModelUtils;
 
-public class ModelUtilsTest extends GitblitUnitTest {
+public class ModelUtilsTest {
 
 	@After
 	public void resetPrefix()

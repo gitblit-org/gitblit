@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import javax.mail.Message;
 
 import org.junit.Test;
@@ -24,7 +26,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.Mailing;
 import com.gitblit.service.MailService;
 
-public class MailTest extends GitblitUnitTest {
+public class MailTest {
 
 	@Test
 	public void testSendMail() throws Exception {

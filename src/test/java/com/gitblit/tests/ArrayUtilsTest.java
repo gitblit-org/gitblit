@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,7 +27,7 @@ import org.junit.Test;
 
 import com.gitblit.utils.ArrayUtils;
 
-public class ArrayUtilsTest extends GitblitUnitTest {
+public class ArrayUtilsTest {
 
 	@Test
 	public void testArrays() {

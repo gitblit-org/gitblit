@@ -15,13 +15,15 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 
 import org.junit.Test;
 
 import com.gitblit.utils.FileUtils;
 
-public class FileUtilsTest extends GitblitUnitTest {
+public class FileUtilsTest {
 
 	@Test
 	public void testReadContent() throws Exception {

@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 
 import org.junit.Test;
@@ -36,7 +38,7 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-public class Issue0271Test extends GitblitUnitTest {
+public class Issue0271Test {
 
 	RepositoryModel repo(String name, AccessRestrictionType restriction) {
 		RepositoryModel repo = new RepositoryModel();

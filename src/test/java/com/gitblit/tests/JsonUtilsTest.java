@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -25,7 +27,7 @@ import org.junit.Test;
 import com.gitblit.utils.JsonUtils;
 import com.google.gson.reflect.TypeToken;
 
-public class JsonUtilsTest extends GitblitUnitTest {
+public class JsonUtilsTest {
 
 	@Test
 	public void testSerialization() {

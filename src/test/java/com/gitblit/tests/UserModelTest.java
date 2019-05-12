@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import com.gitblit.models.UserModel;
@@ -23,7 +25,7 @@ import com.gitblit.models.UserModel;
  * @author Alfred Schmid
  *
  */
-public class UserModelTest extends GitblitUnitTest {
+public class UserModelTest {
 
 	@Test
 	public void whenDisplayNameIsEmptyUsernameIsUsed() {

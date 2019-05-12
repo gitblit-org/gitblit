@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -65,7 +67,7 @@ import com.gitblit.utils.XssFilter.AllowXssFilter;
  *
  */
 @SuppressWarnings("deprecation")
-public class AuthenticationManagerTest extends GitblitUnitTest {
+public class AuthenticationManagerTest {
 
 	UserManager users;
 
@@ -522,7 +524,7 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 
 	IAuthenticationManager newAuthenticationManager() {
 		XssFilter xssFilter = new AllowXssFilter();
-		RuntimeManager runtime = new RuntimeManager(getSettings(), xssFilter, GitBlitSuite.BASEFOLDER).start();
+		RuntimeManager runtime = new RuntimeManager(getSettings(), xssFilter, GitBlitTestConfig.BASEFOLDER).start();
 		users = new UserManager(runtime, null).start();
 		final Map<String, UserModel> virtualUsers = new HashMap<String, UserModel>();
 		users.setUserService(new IUserService() {

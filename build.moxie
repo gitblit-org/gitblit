@@ -146,7 +146,7 @@ dependencies:
 - compile 'org.apache.wicket:wicket-extensions:${wicket.version}' :war !org.mockito
 - compile 'org.apache.lucene:lucene-core:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-analyzers-common:${lucene.version}' :war :fedclient
-- compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient !org.apache.lucene:lucene-join
+- compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-memory:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-queryparser:${lucene.version}' :war :fedclient !org.apache.lucene:lucene-spatial
 - compile 'org.pegdown:pegdown:1.5.0' :war

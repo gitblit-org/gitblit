@@ -1,5 +1,7 @@
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import static org.hamcrest.CoreMatchers.is;
 
 import java.util.HashMap;
@@ -16,7 +18,7 @@ import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.utils.XssFilter;
 import com.gitblit.utils.XssFilter.AllowXssFilter;
 
-public class RedmineAuthenticationTest extends GitblitUnitTest {
+public class RedmineAuthenticationTest {
 
     private static final String JSON = "{\"user\":{\"created_on\":\"2011-03-28T00:41:29Z\",\"lastname\":\"foo\","
         + "\"last_login_on\":\"2012-09-06T23:59:26Z\",\"firstname\":\"baz\","
@@ -28,7 +30,7 @@ public class RedmineAuthenticationTest extends GitblitUnitTest {
 
     RedmineAuthProvider newRedmineAuthentication(IStoredSettings settings) {
     	XssFilter xssFilter = new AllowXssFilter();
-    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitSuite.BASEFOLDER).start();
+    	RuntimeManager runtime = new RuntimeManager(settings, xssFilter, GitBlitTestConfig.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	RedmineAuthProvider redmine = new RedmineAuthProvider();
     	redmine.setup(runtime, users);
@@ -41,7 +43,7 @@ public class RedmineAuthenticationTest extends GitblitUnitTest {
 
     AuthenticationManager newAuthenticationManager() {
     	XssFilter xssFilter = new AllowXssFilter();
-    	RuntimeManager runtime = new RuntimeManager(getSettings(), xssFilter, GitBlitSuite.BASEFOLDER).start();
+    	RuntimeManager runtime = new RuntimeManager(getSettings(), xssFilter, GitBlitTestConfig.BASEFOLDER).start();
     	UserManager users = new UserManager(runtime, null).start();
     	RedmineAuthProvider redmine = new RedmineAuthProvider();
     	redmine.setup(runtime, users);

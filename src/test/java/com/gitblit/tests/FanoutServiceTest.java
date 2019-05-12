@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Map;
@@ -29,7 +31,7 @@ import com.gitblit.fanout.FanoutNioService;
 import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
 
-public class FanoutServiceTest extends GitblitUnitTest {
+public class FanoutServiceTest {
 
 	int fanoutPort = FanoutService.DEFAULT_PORT;
 

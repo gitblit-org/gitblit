@@ -53,7 +53,7 @@ import com.unboundid.ldap.sdk.SimpleBindRequest;
  * @author Florian Zschocke
  *
  */
-public abstract class LdapBasedUnitTest extends GitblitUnitTest {
+public abstract class LdapBasedUnitTest extends org.junit.Assert {
 
 	protected static final String RESOURCE_DIR = "src/test/resources/ldap/";
 	private static final String DIRECTORY_MANAGER = "cn=Directory Manager";
