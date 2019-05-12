@@ -9,7 +9,7 @@ TODO
 
 * [x] Zip all required repos used during testing, and check them in to the project, to avoid network fetch from GitHub during testing.
 
-* [ ] Re-organize the test classes in src/test according to test categories - the purpose is for ease of test execution and failure investigation:
+* [x] Re-organize the test classes in src/test according to test categories - the purpose is for ease of test execution and failure investigation:
   * src/test: for pure unit tests.
   * src/repoTest: for tests requiring some existing repos but no need for a gitblit server.
   * src/serverTest: for tests requiring the gitbit server to be running. The current GitBlitSuite class will go here, plus other test classes requiring a gitblit server.

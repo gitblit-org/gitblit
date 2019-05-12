@@ -56,36 +56,11 @@ import com.gitblit.tests.GitBlitTestConfig;
  *
  */
 @RunWith(Suite.class)
-/*
-@SuiteClasses({ ArrayUtilsTest.class, FileUtilsTest.class, TimeUtilsTest.class,
-		StringUtilsTest.class, Base64Test.class, JsonUtilsTest.class, ByteFormatTest.class,
-		UserModelTest.class, UserChoiceTest.class,
-		ObjectCacheTest.class, PermissionsTest.class, UserServiceTest.class, LdapAuthenticationTest.class,
-		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
-		DiffUtilsTest.class, MetricUtilsTest.class, X509UtilsTest.class,
-		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
-		SshDaemonTest.class, GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
-		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdAuthenticationTest.class,
-		ModelUtilsTest.class, JnaUtilsTest.class, LdapSyncServiceTest.class, FileTicketServiceTest.class,
-		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class,
-		SshKeysDispatcherTest.class, UITicketTest.class, PathUtilsTest.class, SshKerberosAuthenticationTest.class,
-		GravatarTest.class, FilestoreManagerTest.class, FilestoreServletTest.class, TicketReferenceTest.class })
-*/
-/*
 @SuiteClasses({ SyndicationUtilsTest.class,
 	GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
 	SshDaemonTest.class, GroovyScriptTest.class, RepositoryModelTest.class,	
 	SshKeysDispatcherTest.class, 
 	FilestoreManagerTest.class, FilestoreServletTest.class, TicketReferenceTest.class })
-*/
-///*
-@SuiteClasses({
-	//LuceneExecutorTest.class,
-	//GitServletTest.class,
-	//RpcTests.class,
-	TicketReferenceTest.class,
-})
-//*/
 public class GitBlitSuite {
 
 	public static final File BASEFOLDER = GitBlitTestConfig.BASEFOLDER;
