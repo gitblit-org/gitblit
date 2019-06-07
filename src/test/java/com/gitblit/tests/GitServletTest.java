@@ -89,6 +89,9 @@ public class GitServletTest extends GitblitUnitTest {
 
 	@BeforeClass
 	public static void startGitblit() throws Exception {
+		//"refchecks" folder is used in this test class;
+		//need be deleted before Gitblit server instance is started
+		GitBlitSuite.deleteRefChecksFolder();
 		started.set(GitBlitSuite.startGitblit());
 
 		delete(getUser());
@@ -107,19 +110,19 @@ public class GitServletTest extends GitblitUnitTest {
 	public static void deleteWorkingFolders() throws Exception {
 		if (ticgitFolder.exists()) {
 			GitBlitSuite.close(ticgitFolder);
-			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE);
+			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 		if (ticgit2Folder.exists()) {
 			GitBlitSuite.close(ticgit2Folder);
-			FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
+			FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 		if (jgitFolder.exists()) {
 			GitBlitSuite.close(jgitFolder);
-			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE);
+			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 		if (jgit2Folder.exists()) {
 			GitBlitSuite.close(jgit2Folder);
-			FileUtils.delete(jgit2Folder, FileUtils.RECURSIVE);
+			FileUtils.delete(jgit2Folder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 	}
 
@@ -400,7 +403,7 @@ public class GitServletTest extends GitblitUnitTest {
 		// fork from original to a temporary bare repo
 		File verification = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-committer.git");
 		if (verification.exists()) {
-			FileUtils.delete(verification, FileUtils.RECURSIVE);
+			FileUtils.delete(verification, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
@@ -485,7 +488,7 @@ public class GitServletTest extends GitblitUnitTest {
 		// fork from original to a temporary bare repo
 		File verification = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-committer.git");
 		if (verification.exists()) {
-			FileUtils.delete(verification, FileUtils.RECURSIVE);
+			FileUtils.delete(verification, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
@@ -630,7 +633,7 @@ public class GitServletTest extends GitblitUnitTest {
 		// fork from original to a temporary bare repo
 		File refChecks = new File(GitBlitSuite.REPOSITORIES, forkName);
 		if (refChecks.exists()) {
-			FileUtils.delete(refChecks, FileUtils.RECURSIVE);
+			FileUtils.delete(refChecks, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(url + "/" + originName);
@@ -663,7 +666,7 @@ public class GitServletTest extends GitblitUnitTest {
 		// clone temp bare repo to working copy
 		File local = new File(GitBlitSuite.REPOSITORIES, workingCopy);
 		if (local.exists()) {
-			FileUtils.delete(local, FileUtils.RECURSIVE);
+			FileUtils.delete(local, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 		clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/{1}", url, model.name));

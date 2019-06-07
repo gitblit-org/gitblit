@@ -68,6 +68,11 @@ public class RpcTests extends GitblitUnitTest {
 
 	@AfterClass
 	public static void stopGitblit() throws Exception {
+		//clean up the "A-Team" if left over
+		TeamModel aTeam = new TeamModel("A-Team");
+		aTeam.addRepositoryPermission("helloworld.git");
+		RpcUtils.deleteTeam(aTeam, GitBlitSuite.url, GitBlitSuite.account, GitBlitSuite.password.toCharArray());
+
 		if (started.get()) {
 			GitBlitSuite.stopGitblit();
 		}
@@ -265,11 +270,17 @@ public class RpcTests extends GitblitUnitTest {
 
 	@Test
 	public void testTeamAdministration() throws IOException {
+		//clean up the "A-Team" left over from previous run, if any
+		TeamModel aTeam = new TeamModel("A-Team");
+		aTeam.addRepositoryPermission("helloworld.git");
+		RpcUtils.deleteTeam(aTeam, url, account, password.toCharArray());
+
 		List<TeamModel> teams = RpcUtils.getTeams(url, account, password.toCharArray());
-		assertEquals(1, teams.size());
+		//should be just the admins team
+		assertEquals("In addition to 'admins', too many left-over team(s) in Gitblit server: " + teams, 1, teams.size());
 
 		// Create the A-Team
-		TeamModel aTeam = new TeamModel("A-Team");
+		aTeam = new TeamModel("A-Team");
 		aTeam.users.add("admin");
 		aTeam.addRepositoryPermission("helloworld.git");
 		assertTrue(RpcUtils.createTeam(aTeam, url, account, password.toCharArray()));

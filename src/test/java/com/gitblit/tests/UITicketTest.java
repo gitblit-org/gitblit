@@ -16,15 +16,13 @@
 package com.gitblit.tests;
 
 import java.io.File;
-import java.util.Date;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.bouncycastle.util.Arrays;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,26 +38,16 @@ import com.gitblit.manager.PluginManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
-import com.gitblit.models.Mailing;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
-import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
-import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Priority;
 import com.gitblit.models.TicketModel.Severity;
-import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.TicketModel.Type;
 import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.tickets.ITicketService;
-import com.gitblit.tickets.ITicketService.TicketFilter;
-import com.gitblit.tickets.QueryResult;
-import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.BranchTicketService;
-import com.gitblit.tickets.TicketLabel;
-import com.gitblit.tickets.TicketMilestone;
-import com.gitblit.tickets.TicketNotifier;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.XssFilter;
 import com.gitblit.utils.XssFilter.AllowXssFilter;
@@ -70,7 +58,7 @@ import com.gitblit.utils.XssFilter.AllowXssFilter;
 public class UITicketTest extends GitblitUnitTest {
 
 	private ITicketService service;	
-	final String repoName = "UITicketTest.git";
+	static final String repoName = "UITicketTest.git";
 	final RepositoryModel repo = new RepositoryModel(repoName, null, null, null);
 	
 	protected ITicketService getService(boolean deleteAll) throws Exception {
@@ -99,7 +87,9 @@ public class UITicketTest extends GitblitUnitTest {
 	protected IStoredSettings getSettings(boolean deleteAll) throws Exception {
 		File dir = new File(GitBlitSuite.REPOSITORIES, repoName);
 		if (deleteAll) {
-			FileUtils.deleteDirectory(dir);
+			if (dir.exists()) {
+				FileUtils.delete(dir, FileUtils.RECURSIVE | FileUtils.RETRY);
+			}
 			JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repoName).close();
 		}
 		
@@ -112,6 +102,15 @@ public class UITicketTest extends GitblitUnitTest {
 
 		IStoredSettings settings = new MemorySettings(map);
 		return settings;
+	}
+
+	@AfterClass
+	public static void deleteUITicketTestRepo() throws IOException {
+		//delete the UITicketTest.git folder, at end of the test
+		File dir = new File(GitBlitSuite.REPOSITORIES, repoName);
+		if (dir.exists()) {
+			FileUtils.delete(dir, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
 	}
 
 	@Before

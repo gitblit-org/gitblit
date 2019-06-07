@@ -108,7 +108,8 @@ public class JGitUtilsTest extends GitblitUnitTest {
 		Date firstChange = JGitUtils.getFirstChange(repository, null);
 		repository.close();
 		assertNotNull("Could not get first commit!", commit);
-		assertEquals("Incorrect first commit!", "f554664a346629dc2b839f7292d06bad2db4aece",
+		assertEquals("Incorrect first commit!",
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.first),
 				commit.getName());
 		assertTrue(firstChange.equals(new Date(commit.getCommitTime() * 1000L)));
 	}
@@ -442,10 +443,10 @@ public class JGitUtilsTest extends GitblitUnitTest {
 	public void testFilesInCommit() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifteen));
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(repository, commit);
 
-		commit = JGitUtils.getCommit(repository, "af0e9b2891fda85afc119f04a69acf7348922830");
+		commit = JGitUtils.getCommit(repository, GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.deleted));
 		List<PathChangeModel> deletions = JGitUtils.getFilesInCommit(repository, commit);
 
 		commit = JGitUtils.getFirstCommit(repository, null);
@@ -537,8 +538,8 @@ public class JGitUtilsTest extends GitblitUnitTest {
 	public void testRevLogRange() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<RevCommit> commits = JGitUtils.getRevLog(repository,
-				"fbd14fa6d1a01d4aefa1fca725792683800fc67e",
-				"85a0e4087b8439c0aa6b1f4f9e08c26052ab7e87");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second),
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.fifteen));
 		repository.close();
 		assertEquals(14, commits.size());
 	}

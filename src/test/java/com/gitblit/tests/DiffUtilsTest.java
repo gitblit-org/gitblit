@@ -40,7 +40,7 @@ public class DiffUtilsTest extends GitblitUnitTest {
 	public void testParentCommitDiff() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second));
 		String diff = DiffUtils.getCommitDiff(repository, commit, DiffComparator.SHOW_WHITESPACE, DiffOutputType.PLAIN, 3).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
@@ -52,9 +52,9 @@ public class DiffUtilsTest extends GitblitUnitTest {
 	public void testArbitraryCommitDiff() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit baseCommit = JGitUtils.getCommit(repository,
-				"8baf6a833b5579384d9b9ceb8a16b5d0ea2ec4ca");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.first));
 		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second));
 		String diff = DiffUtils.getDiff(repository, baseCommit, commit, DiffComparator.SHOW_WHITESPACE, DiffOutputType.PLAIN, 3).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
@@ -66,7 +66,7 @@ public class DiffUtilsTest extends GitblitUnitTest {
 	public void testPlainFileDiff() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second));
 		String diff = DiffUtils.getDiff(repository, commit, "java.java", DiffComparator.SHOW_WHITESPACE, DiffOutputType.PLAIN, 3).content;
 		repository.close();
 		assertTrue(diff != null && diff.length() > 0);
@@ -78,7 +78,7 @@ public class DiffUtilsTest extends GitblitUnitTest {
 	public void testFilePatch() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second));
 		String patch = DiffUtils.getCommitPatch(repository, null, commit, "java.java");
 		repository.close();
 		assertTrue(patch != null && patch.length() > 0);
@@ -90,9 +90,9 @@ public class DiffUtilsTest extends GitblitUnitTest {
 	public void testArbitraryFilePatch() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit baseCommit = JGitUtils.getCommit(repository,
-				"8baf6a833b5579384d9b9ceb8a16b5d0ea2ec4ca");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.first));
 		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second));
 		String patch = DiffUtils.getCommitPatch(repository, baseCommit, commit, "java.java");
 		repository.close();
 		assertTrue(patch != null && patch.length() > 0);
@@ -104,9 +104,9 @@ public class DiffUtilsTest extends GitblitUnitTest {
 	public void testArbitraryCommitPatch() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit baseCommit = JGitUtils.getCommit(repository,
-				"8baf6a833b5579384d9b9ceb8a16b5d0ea2ec4ca");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.first));
 		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second));
 		String patch = DiffUtils.getCommitPatch(repository, baseCommit, commit, null);
 		repository.close();
 		assertTrue(patch != null && patch.length() > 0);
@@ -118,9 +118,9 @@ public class DiffUtilsTest extends GitblitUnitTest {
 	public void testBlame() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<AnnotatedLine> lines = DiffUtils.blame(repository, "java.java",
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
+				GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.second));
 		repository.close();
 		assertTrue(lines.size() > 0);
-		assertEquals("c6d31dccf5cc75e8e46299fc62d38f60ec6d41e0", lines.get(0).commitId);
+		assertEquals(GitBlitSuite.helloworldSettings.getRequiredString(HelloworldKeys.commit.first), lines.get(0).commitId);
 	}
 }
