@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -302,8 +303,8 @@ public class FileUtils {
 	 * @return a relative path from basePath to path
 	 */
 	public static String getRelativePath(File basePath, File path) {
-		Path exactBase = Paths.get(getExactFile(basePath).toURI());
-		Path exactPath = Paths.get(getExactFile(path).toURI());
+		Path exactBase = getExactPath(basePath);
+		Path exactPath = getExactPath(path);
 		if (exactPath.startsWith(exactBase)) {
 			return exactBase.relativize(exactPath).toString().replace('\\', '/');
 		}
@@ -312,19 +313,27 @@ public class FileUtils {
 	}
 
 	/**
-	 * Returns the exact path for a file. This path will be the canonical path
-	 * unless an exception is thrown in which case it will be the absolute path.
+	 * Returns the exact path for a file. This path will be the real path
+	 * with symbolic links unresolved. If that produces an IOException,
+	 * the path will be the canonical path unless an exception is thrown
+	 * in which case it will be the absolute path.
 	 *
 	 * @param path
 	 * @return the exact file
 	 */
-	public static File getExactFile(File path) {
+	private static Path getExactPath(File path) {
 		try {
-			return path.getCanonicalFile();
+			return path.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
 		} catch (IOException e) {
-			return path.getAbsoluteFile();
+			// ignored, try next option
+		}
+		try {
+			return Paths.get(path.getCanonicalPath());
+		} catch (IOException e) {
+			return Paths.get(path.getAbsolutePath());
 		}
 	}
+
 
 	public static File resolveParameter(String parameter, File aFolder, String path) {
 		if (aFolder == null) {
