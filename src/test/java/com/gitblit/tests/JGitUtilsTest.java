@@ -596,10 +596,22 @@ public class JGitUtilsTest extends GitblitUnitTest {
 	@Test
 	public void testFilesInPath2() throws Exception {
 		assertEquals(0, JGitUtils.getFilesInPath2(null, null, null).size());
+
 		Repository repository = GitBlitSuite.getHelloworldRepository();
+
 		List<PathModel> files = JGitUtils.getFilesInPath2(repository, null, null);
+		assertEquals(GitBlitSuite.helloworldSettings.getInteger(HelloworldKeys.files.top, 15), files.size());
+
+		files = JGitUtils.getFilesInPath2(repository, "C", null);
+		assertEquals(GitBlitSuite.helloworldSettings.getInteger(HelloworldKeys.files.C.top, 1), files.size());
+
+		files = JGitUtils.getFilesInPath2(repository, "[C++]", null);
+		assertEquals(GitBlitSuite.helloworldSettings.getInteger(HelloworldKeys.files.Cpp, 1), files.size());
+
+		files = JGitUtils.getFilesInPath2(repository, "C/C (K&R)", null);
+		assertEquals(GitBlitSuite.helloworldSettings.getInteger(HelloworldKeys.files.C.KnR, 1), files.size());
+
 		repository.close();
-		assertTrue(files.size() > 10);
 	}
 
 	@Test
