@@ -656,10 +656,11 @@ public class JGitUtilsTest extends GitblitUnitTest {
 		commits = JGitUtils.getRevLog(repository, null, "java.java", 0, 2);
 		assertEquals(2, commits.size());
 
-		// grab the commits since 2008-07-15
+		// grab the commits since 2019-06-05
 		commits = JGitUtils.getRevLog(repository, null,
-				new SimpleDateFormat("yyyy-MM-dd").parse("2008-07-15"));
-		assertEquals(12, commits.size());
+				new SimpleDateFormat("yyyy-MM-dd").parse("2019-06-05"));
+		assertEquals("Wrong number of commits since 2019-06-05.",
+				GitBlitSuite.helloworldSettings.getInteger(HelloworldKeys.commits.since_20190605, -1), commits.size());
 		repository.close();
 	}
 
