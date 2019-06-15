@@ -6,14 +6,11 @@
 <body>
 	<wicket:panel>
 		<tr style="background-color: #bbb" wicket:id="nodeHeader" data-row-type="folder"></tr>
-		<tr wicket:id="subFolders">
-			<span wicket:id="rowContent"></span>
-		</tr>
 		<wicket:container wicket:id="repositories">
 		<tr  wicket:id="rowContent" data-row-type="repo">
 			<td wicket:id="firstColumn" class="left"
 				style="padding-left: 3px;">
-				<div style="border-left: 1px solid black; margin-left:6px; width: 19px;display: inline-block;float: left;"
+				<div style="margin-left: 7px; width: 8px;display: inline-block;float: left;"
 					wicket:id="depth">&nbsp;</div>
 					<span wicket:id="repoIcon"></span><span
 				style="padding-left: 3px;" wicket:id="repositoryName">[repository
@@ -36,6 +33,9 @@
 					size]</span></td>
 		</tr>
 		</wicket:container>
+		<tr wicket:id="subFolders">
+			<span wicket:id="rowContent"></span>
+		</tr>
 
 		<wicket:fragment wicket:id="emptyFragment">
 		</wicket:fragment>
@@ -91,7 +91,7 @@
 
 		<wicket:fragment wicket:id="groupRepositoryRow">
 			<td wicket:id="firstColumn" style="" colspan="1">
-			<div style="border-left: 1px solid black; margin-left:6px; width: 19px; display: inline-block;float: left;"
+			<div style="margin-left:6px; width: 10px; display: inline-block;float: left;"
 					wicket:id="depth">&nbsp;</div>
 			<span
 				wicket:id="groupCollapsible"></span><span wicket:id="groupName">[group

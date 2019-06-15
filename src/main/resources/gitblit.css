@@ -45,6 +45,7 @@ a.bugtraq {
 .octicon-centered {
     text-align: center;
     width: 16px;
+    padding-left: 17px;
 }
 
 tr:hover .octicon-centered {

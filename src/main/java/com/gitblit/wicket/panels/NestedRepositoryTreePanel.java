@@ -68,20 +68,6 @@ public class NestedRepositoryTreePanel extends BasePanel {
 		}
 		WicketUtils.addCssClass(nodeHeader, "group collapsible tree");
 
-		add(new ListView<TreeNodeModel>("subFolders", node.getSubFolders()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void populateItem(ListItem<TreeNodeModel> item) {
-				item.add(new NestedRepositoryTreePanel("rowContent", item.getModel(), accessRestrictionTranslations, linksActive));
-			}
-
-			@Override
-			public boolean isVisible() {
-				return super.isVisible() && !node.getSubFolders().isEmpty();
-			}
-		});
-
 		add(new ListView<RepositoryModel>("repositories", node.getRepositories()) {
 			private static final long serialVersionUID = 1L;
 
@@ -219,6 +205,22 @@ public class NestedRepositoryTreePanel extends BasePanel {
 				counter++;
 			}
 		});
+
+		add(new ListView<TreeNodeModel>("subFolders", node.getSubFolders()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(ListItem<TreeNodeModel> item) {
+				item.add(new NestedRepositoryTreePanel("rowContent", item.getModel(), accessRestrictionTranslations, linksActive));
+			}
+
+			@Override
+			public boolean isVisible() {
+				return super.isVisible() && !node.getSubFolders().isEmpty();
+			}
+		});
+
+
 
 	}
 
