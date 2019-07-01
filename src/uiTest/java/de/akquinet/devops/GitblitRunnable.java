@@ -15,6 +15,7 @@
  */
 package de.akquinet.devops;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 
@@ -56,6 +57,7 @@ public class GitblitRunnable implements Runnable {
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
+	@Override
 	public void run() {
 		boolean portsFree = false;
 		long lastRun = -1;
@@ -69,12 +71,14 @@ public class GitblitRunnable implements Runnable {
 
 		}
 		try {
-			GitBlitServer4UITests.main("--httpPort", "" + httpPort, "--httpsPort", ""
-					+ httpsPort, "--shutdownPort", "" + shutdownPort,
-					"--repositoriesFolder",
-					"\"" + GitBlitTestConfig.REPOSITORIES.getAbsolutePath() + "\"",
-					"--userService", userPropertiesPath, "--settings",
-					gitblitPropertiesPath);
+			GitBlitServer4UITests.main(
+					"--httpPort", "" + httpPort,
+					"--httpsPort", "" + httpsPort,
+					"--shutdownPort", "" + shutdownPort,
+					"--repositoriesFolder", GitBlitTestConfig.REPOSITORIES.getAbsolutePath(),
+					"--userService", new File(userPropertiesPath).getAbsolutePath(),
+					"--settings", new File(gitblitPropertiesPath).getAbsolutePath(),
+					"--baseFolder", "data");
 			setStartFailed(false);
 		} catch (Exception iex) {
 			System.out.println("Gitblit server start failed");

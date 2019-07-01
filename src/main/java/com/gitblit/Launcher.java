@@ -15,22 +15,11 @@
  */
 package com.gitblit;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
- * Launch helper class that adds all jars found in the local "lib" & "ext"
- * folders and then calls the application main. Using this technique we do not
+ * Launch helper class that adds all jars found in the local "ext" folder
+ * and then calls the application main. Using this technique we do not
  * have to specify a classpath and we can dynamically add jars to the
  * distribution.
  *
@@ -41,11 +30,6 @@ public class Launcher {
 
 	public static final boolean DEBUG = false;
 
-	/**
-	 * Parameters of the method to add an URL to the System classes.
-	 */
-	private static final Class<?>[] PARAMETERS = new Class[] { URL.class };
-
 	public static void main(String[] args) {
 		if (DEBUG) {
 			System.out.println("jcp=" + System.getProperty("java.class.path"));
@@ -54,95 +38,15 @@ public class Launcher {
 					+ protectionDomain.getCodeSource().getLocation().toExternalForm());
 		}
 
-		// Load the JARs in the lib and ext folder
-		String[] folders = new String[] { "lib", "ext" };
-		List<File> jars = new ArrayList<File>();
-		for (String folder : folders) {
-			if (folder == null) {
-				continue;
-			}
-			File libFolder = new File(folder);
-			if (!libFolder.exists()) {
-				continue;
-			}
-			List<File> found = findJars(libFolder.getAbsoluteFile());
-			jars.addAll(found);
-		}
-		// sort the jars by name and then reverse the order so the newer version
-		// of the library gets loaded in the event that this is an upgrade
-		Collections.sort(jars);
-		Collections.reverse(jars);
-
-		if (jars.size() == 0) {
-			for (String folder : folders) {
-				File libFolder = new File(folder);
-				// this is a test of adding a comment
-				// more really interesting things
-				System.err.println("Failed to find any JARs in " + libFolder.getPath());
-			}
+		// Load the JARs in the ext folder, with no splash screen
+		int numberOfJars = LibraryLoader.loadLibraries("ext", false, null);
+		if (numberOfJars == 0) {
+			System.err.println("Failed to find any JARs in 'ext' folder!");
 			System.exit(-1);
-		} else {
-			for (File jar : jars) {
-				try {
-					jar.canRead();
-					addJarFile(jar);
-				} catch (Throwable t) {
-					t.printStackTrace();
-				}
-			}
 		}
 
 		// Start Server
 		GitBlitServer.main(args);
 	}
 
-	public static List<File> findJars(File folder) {
-		List<File> jars = new ArrayList<File>();
-		if (folder.exists()) {
-			File[] libs = folder.listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File file) {
-					return !file.isDirectory() && file.getName().toLowerCase().endsWith(".jar");
-				}
-			});
-			if (libs != null && libs.length > 0) {
-				jars.addAll(Arrays.asList(libs));
-				if (DEBUG) {
-					for (File jar : jars) {
-						System.out.println("found " + jar);
-					}
-				}
-			}
-		}
-
-		return jars;
-	}
-
-	/**
-	 * Adds a file to the classpath
-	 *
-	 * @param f
-	 *            the file to be added
-	 * @throws IOException
-	 */
-	public static void addJarFile(File f) throws IOException {
-		if (f.getName().indexOf("-sources") > -1 || f.getName().indexOf("-javadoc") > -1) {
-			// don't add source or javadoc jars to runtime classpath
-			return;
-		}
-		URL u = f.toURI().toURL();
-		if (DEBUG) {
-			System.out.println("load=" + u.toExternalForm());
-		}
-		URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-		Class<?> sysclass = URLClassLoader.class;
-		try {
-			Method method = sysclass.getDeclaredMethod("addURL", PARAMETERS);
-			method.setAccessible(true);
-			method.invoke(sysloader, new Object[] { u });
-		} catch (Throwable t) {
-			throw new IOException(MessageFormat.format(
-					"Error, could not add {0} to system classloader", f.getPath()), t);
-		}
-	}
 }

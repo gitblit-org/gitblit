@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wls:weblogic-web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wls="http://www.bea.com/ns/weblogic/90" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd http://www.bea.com/ns/weblogic/90 http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd">
+<wls:weblogic-web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xmlns:wls="http://xmlns.oracle.com/weblogic/weblogic-web-app"
+                      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd
+                                          http://xmlns.oracle.com/weblogic/weblogic-web-app http://xmlns.oracle.com/weblogic/weblogic-web-app/weblogic-web-app.xsd">
     <wls:weblogic-version>12.1.1</wls:weblogic-version>
     <wls:context-root>gitblit</wls:context-root>
     <wls:container-descriptor>

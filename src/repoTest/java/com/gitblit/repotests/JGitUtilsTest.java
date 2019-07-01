@@ -17,6 +17,10 @@ package com.gitblit.repotests;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -53,6 +57,8 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JnaUtils;
 import com.gitblit.utils.StringUtils;
 
+import static org.junit.Assume.assumeTrue;
+
 public class JGitUtilsTest extends RepoUnitTest {
 
 	@Test
@@ -74,6 +80,117 @@ public class JGitUtilsTest extends RepoUnitTest {
 		assertEquals(0, list.size());
 		list.addAll(JGitUtils.getRepositoryList(GitBlitTestConfig.REPOSITORIES, false, true, -1, null));
 		assertTrue("No repositories found in " + GitBlitTestConfig.REPOSITORIES, list.size() > 0);
+	}
+
+	@Test
+	public void testFindRepositoriesSymLinked() {
+
+		String reposdirName = "gitrepos";
+		String repositoryName = "test-linked.git";
+		File extrepodir = new File(GitBlitTestConfig.REPOSITORIES.getParent(), reposdirName);
+		Path symlink = null;
+		Path alink = null;
+		try {
+			Path link = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(),  "test-rln.git");
+			Path target = Paths.get("../" + reposdirName,repositoryName);
+			symlink = Files.createSymbolicLink(link, target);
+
+			link = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(),  "test-ln.git");
+			target = Paths.get(extrepodir.getCanonicalPath(), repositoryName);
+			alink = Files.createSymbolicLink(link, target);
+		}
+		catch (UnsupportedOperationException e) {
+			assumeTrue("No symbolic links supported.", false);
+		}
+		catch (IOException ioe) {
+			try {
+				if (symlink != null) Files.delete(symlink);
+				if (alink != null) Files.delete(alink);
+			}
+			catch (IOException ignored) {}
+			fail(ioe.getMessage());
+		}
+
+
+		Path extDir = null;
+		Repository repository = null;
+
+		String testDirName = "test-linked";
+		String testTestDirName = "test-linked/test";
+		Path testDir = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(),testDirName);
+		Path testTestDir = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(),testTestDirName);
+		Path linkTestRepo = null;
+		Path linkTestTestRepo = null;
+		Path linkExtDir = null;
+		try {
+			List<String> list = JGitUtils.getRepositoryList(GitBlitTestConfig.REPOSITORIES, true, true, -1, null);
+			int preSize = list.size();
+
+			// Create test repo. This will make the link targets exist, so that the number of repos increases by two.
+			extDir = Files.createDirectory(extrepodir.toPath());
+			repository = JGitUtils.createRepository(extrepodir, repositoryName);
+
+			list = JGitUtils.getRepositoryList(GitBlitTestConfig.REPOSITORIES, true, true, -1, null);
+			assertEquals("No linked repositories found in " + GitBlitTestConfig.REPOSITORIES, 2, (list.size() - preSize));
+
+			list = JGitUtils.getRepositoryList(GitBlitTestConfig.REPOSITORIES, true, true, -1, Arrays.asList(".*ln\\.git"));
+			assertEquals("Filtering out linked repos failed.", preSize, list.size());
+
+			// Create subdirectories and place links into them
+			Files.createDirectories(testTestDir);
+
+			Path target = Paths.get(extrepodir.getCanonicalPath(), repositoryName);
+			Path link = Paths.get(testDir.toString(), "test-ln-one.git");
+			linkTestRepo = Files.createSymbolicLink(link, target);
+			link = Paths.get(testTestDir.toString(), "test-ln-two.git");
+			linkTestTestRepo = Files.createSymbolicLink(link, target);
+
+			list = JGitUtils.getRepositoryList(GitBlitTestConfig.REPOSITORIES, true, true, -1, null);
+			assertEquals("No linked repositories found in subdirectories of " + GitBlitTestConfig.REPOSITORIES, 4, (list.size() - preSize));
+			assertTrue("Did not find linked repo test-ln-one.git", list.contains(testDirName + "/test-ln-one.git"));
+			assertTrue("Did not find linked repo test-ln-two.git", list.contains(testTestDirName + "/test-ln-two.git"));
+			list = JGitUtils.getRepositoryList(new File(testDir.toString()), true, true, -1, null);
+			assertEquals("No linked repositories found in subdirectories of " + testDir, 2, list.size());
+			assertTrue("Did not find linked repo test-ln-one.git", list.contains("test-ln-one.git"));
+			assertTrue("Did not find linked repo test-ln-two.git", list.contains("test/test-ln-two.git"));
+
+
+			// Create link to external directory with repos
+			target = Paths.get(extrepodir.getCanonicalPath());
+			link = Paths.get(testDir.toString(), "test-linked");
+			linkExtDir = Files.createSymbolicLink(link, target);
+
+			list = JGitUtils.getRepositoryList(GitBlitTestConfig.REPOSITORIES, true, true, -1, null);
+			assertEquals("No repositories found in linked subdirectories of " + GitBlitTestConfig.REPOSITORIES, 5, (list.size() - preSize));
+			assertTrue("Did not find repo in linked subfolder.", list.contains(testDirName + "/test-linked/" + repositoryName));
+
+			list = JGitUtils.getRepositoryList(new File(testDir.toString()), true, true, -1, null);
+			assertEquals("No repositories found in linked subdirectories of " + testDir, 3, list.size());
+			assertTrue("Did not find repo in linked subfolder.", list.contains("test-linked/" + repositoryName));
+
+		} catch (IOException e) {
+			fail(e.toString());
+		} finally {
+			try {
+				if (repository != null) {
+					repository.close();
+					RepositoryCache.close(repository);
+					FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+				}
+				if (extDir != null) Files.delete(extDir);
+				if (symlink != null) Files.delete(symlink);
+				if (alink != null) Files.delete(alink);
+
+				if (linkExtDir != null) Files.deleteIfExists(linkExtDir);
+				if (linkTestTestRepo != null) Files.deleteIfExists(linkTestTestRepo);
+				if (linkTestRepo != null) Files.deleteIfExists(linkTestRepo);
+
+				Files.deleteIfExists(testTestDir);
+				Files.deleteIfExists(testDir);
+			}
+			catch (IOException ignored) {}
+		}
+
 	}
 
 	@Test
@@ -481,10 +598,22 @@ public class JGitUtilsTest extends RepoUnitTest {
 	@Test
 	public void testFilesInPath2() throws Exception {
 		assertEquals(0, JGitUtils.getFilesInPath2(null, null, null).size());
+
 		Repository repository = GitBlitTestConfig.getHelloworldRepository();
+
 		List<PathModel> files = JGitUtils.getFilesInPath2(repository, null, null);
+		assertEquals(GitBlitTestConfig.helloworldSettings.getInteger(HelloworldKeys.files.top, 15), files.size());
+
+		files = JGitUtils.getFilesInPath2(repository, "C", null);
+		assertEquals(GitBlitTestConfig.helloworldSettings.getInteger(HelloworldKeys.files.C.top, 1), files.size());
+
+		files = JGitUtils.getFilesInPath2(repository, "[C++]", null);
+		assertEquals(GitBlitTestConfig.helloworldSettings.getInteger(HelloworldKeys.files.Cpp, 1), files.size());
+
+		files = JGitUtils.getFilesInPath2(repository, "C/C (K&R)", null);
+		assertEquals(GitBlitTestConfig.helloworldSettings.getInteger(HelloworldKeys.files.C.KnR, 1), files.size());
+
 		repository.close();
-		assertTrue(files.size() > 10);
 	}
 
 	@Test
@@ -529,10 +658,11 @@ public class JGitUtilsTest extends RepoUnitTest {
 		commits = JGitUtils.getRevLog(repository, null, "java.java", 0, 2);
 		assertEquals(2, commits.size());
 
-		// grab the commits since 2008-07-15
+		// grab the commits since 2019-06-05
 		commits = JGitUtils.getRevLog(repository, null,
-				new SimpleDateFormat("yyyy-MM-dd").parse("2008-07-15"));
-		assertEquals(12, commits.size());
+				new SimpleDateFormat("yyyy-MM-dd").parse("2019-06-05"));
+		assertEquals("Wrong number of commits since 2019-06-05.",
+				GitBlitTestConfig.helloworldSettings.getInteger(HelloworldKeys.commits.since_20190605, -1), commits.size());
 		repository.close();
 	}
 

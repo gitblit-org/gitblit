@@ -25,7 +25,7 @@ To use the *LdapUserService* set *realm.authenticationProviders=ldap* in your `g
 #### Example LDAP Layout
 ![block diagram](ldapSample.png "LDAP Sample")
 
-Please see [ldapUserServiceSampleData.ldif](https://github.com/gitblit/gitblit/blob/master/tests/com/gitblit/tests/resources/ldapUserServiceSampleData.ldif) to see the data in LDAP that reflects the above picture.
+Please see [sampledata.ldif](https://github.com/gitblit/gitblit/blob/master/src/test/resources/ldap/sampledata.ldif) to see the data in LDAP that reflects the above picture.
 
 #### Gitblit Settings for Example LDAP Layout
 The following are the settings required to configure Gitblit to authenticate against the example LDAP server with LDAP-controlled team memberships.

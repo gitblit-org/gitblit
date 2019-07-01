@@ -18,6 +18,9 @@
     	</tbody>
 	</table>
 
+	<wicket:fragment wicket:id="emptyFragment">
+    </wicket:fragment>
+
     <wicket:fragment wicket:id="repoIconFragment">
         <span class="octicon octicon-centered octicon-repo"></span>
     </wicket:fragment>
@@ -72,9 +75,15 @@
 		</tr>
 	</wicket:fragment>
 	
+	<wicket:fragment wicket:id="tableAllCollapsible">
+		<i title="Click to expand all" class="fa fa-plus-square-o table-openall-collapsible" aria-hidden="true" style="padding-right:3px;cursor:pointer;"></i>
+		<i title="Click to collapse all" class="fa fa-minus-square-o table-closeall-collapsible" aria-hidden="true" style="padding-right:3px;cursor:pointer;"></i>
+    </wicket:fragment>
+	
 	<wicket:fragment wicket:id="groupRepositoryHeader">
 		<tr>
 			<th class="left">
+				<span wicket:id="allCollapsible"></span>
 				<img style="vertical-align: middle;" src="git-black-16x16.png"/>
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
@@ -86,8 +95,16 @@
 		</tr>
 	</wicket:fragment>
 	
+	<wicket:fragment wicket:id="tableGroupMinusCollapsible">
+		<i title="Click to expand/collapse" class="fa fa-minus-square-o table-group-collapsible" aria-hidden="true" style="padding-right:3px;cursor:pointer;"></i>
+    </wicket:fragment>
+    
+    <wicket:fragment wicket:id="tableGroupPlusCollapsible">
+		<i title="Click to expand/collapse" class="fa fa-plus-square-o table-group-collapsible" aria-hidden="true" style="padding-right:3px;cursor:pointer;"></i>
+    </wicket:fragment>
+	
 	<wicket:fragment wicket:id="groupRepositoryRow">
-        <td colspan="1"><span wicket:id="groupName">[group name]</span></td>
+        <td colspan="1"><span wicket:id="groupCollapsible"></span><span wicket:id="groupName">[group name]</span></td>
         <td colspan="6" style="padding: 2px;"><span class="hidden-phone" style="font-weight:normal;color:#666;" wicket:id="groupDescription">[description]</span></td>
 	</wicket:fragment>
 		

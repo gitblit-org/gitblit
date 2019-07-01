@@ -15,6 +15,7 @@
  */
 package de.akquinet.devops.test.ui;
 
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -30,5 +31,18 @@ import de.akquinet.devops.test.ui.cases.UI_MultiAdminSupportTest;
 @RunWith(Suite.class)
 @SuiteClasses({ UI_MultiAdminSupportTest.class })
 public class TestUISuite {
+
+	private static final String WEB_DRIVER_PROPERTY = "webdriver.gecko.driver";
+    //local path to the latest Gecko web driver (requires Selenium 3 and JDK8+)
+	private static final String WEB_DRIVER_PATH = "D:/dev/geckodriver-v0.24.0-win64/geckodriver.exe";
+
+	@BeforeClass
+	public static void suiteSetUp() {
+		if (System.getProperty(WEB_DRIVER_PROPERTY) == null) {
+			//only need to set it when running interactively in an IDE such as Eclipse 
+			System.setProperty(WEB_DRIVER_PROPERTY, WEB_DRIVER_PATH);
+		}
+		System.out.println("Web driver setting: " + WEB_DRIVER_PROPERTY + "=" + System.getProperty(WEB_DRIVER_PROPERTY));
+	}
 
 }

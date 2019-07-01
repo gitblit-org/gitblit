@@ -1,0 +1,16 @@
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven {
+        url = 'http://gitblit.github.io/moxie/maven'
+    }
+}
+
+dependencies {
+    implementation localGroovy()
+    compileOnly gradleApi() 
+    implementation 'com.gitblit.moxie:moxie-toolkit:0.9.4'
+    implementation 'org.freemarker:freemarker:2.3.22'
+    implementation 'org.ow2.asm:asm-all:5.2'
+}

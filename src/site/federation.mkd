@@ -17,7 +17,7 @@ The *Gitblit 0.8.0* federation protocol adds retrieval of teams and referenced p
 
 The *Gitblit 0.7.0* federation protocol is incompatible with the 0.6.0 federation protocol because of a change in the way timestamps are formatted.
 
-Gitblit 0.6.0 uses the default [google-gson](http://google-gson.googlecode.com) timestamp serializer which generates locally formatted timestamps.  Unfortunately, this creates problems for distributed repositories and distributed developers.  Gitblit 0.7.0 corrects this error by serializing dates to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  As a result 0.7.0 is not compatible with 0.6.0.  A partial backwards-compatibility fallback was considered but it would only work one direction and since the federation mechanism is bidirectional it was not implemented.
+Gitblit 0.6.0 uses the default [google-gson](https://github.com/google/gson) timestamp serializer which generates locally formatted timestamps.  Unfortunately, this creates problems for distributed repositories and distributed developers.  Gitblit 0.7.0 corrects this error by serializing dates to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  As a result 0.7.0 is not compatible with 0.6.0.  A partial backwards-compatibility fallback was considered but it would only work one direction and since the federation mechanism is bidirectional it was not implemented.
 
 ### Origin Gitblit Instance Requirements
 
@@ -49,11 +49,11 @@ If you want your repositories (and optionally users accounts and settings) to be
 
 Gitblit generates the following standard federation tokens:
 
-```java
-String allToken = SHA1(passphrase + "-ALL");
-String usersAndRepositoriesToken = SHA1(passphrase + "-USERS_AND_REPOSITORIES");
-String repositoriesToken = SHA1(passphrase + "-REPOSITORIES");
-```
+%PRETTYPRINTHINT%
+
+    String allToken = SHA1(passphrase + "-ALL");
+    String usersAndRepositoriesToken = SHA1(passphrase + "-USERS_AND_REPOSITORIES");
+    String repositoriesToken = SHA1(passphrase + "-REPOSITORIES");
 
 The *ALL* token allows another Gitblit instance to pull all your repositories, user accounts, server settings, and referenced push scripts.  
 The *USERS_AND_REPOSITORIES* token allows another Gitblit instance to pull all your repositories and  user accounts.  
@@ -132,7 +132,7 @@ Origin Gitblit instances can not directly track the success or failure status of
 
 ### How does it work? (Origin Gitblit Instances)
 
-A pulling Gitblit instance will periodically contact your Gitblit instance and will provide the token as proof that you have granted it federation access.  Your Gitblit instance will decide, based on the supplied token, if the requested data should be returned to the pulling Gitblit instance.  Gitblit data (user accounts, repository metadata, and server settings) are serialized as [JSON](http://json.org) using [google-gson](http://google-gson.googlecode.com) and returned to the pulling Gitblit instance.  Standard Git clone and pull operations are used to transfer commits.
+A pulling Gitblit instance will periodically contact your Gitblit instance and will provide the token as proof that you have granted it federation access.  Your Gitblit instance will decide, based on the supplied token, if the requested data should be returned to the pulling Gitblit instance.  Gitblit data (user accounts, repository metadata, and server settings) are serialized as [JSON](http://json.org) using [google-gson](https://github.com/google/gson) and returned to the pulling Gitblit instance.  Standard Git clone and pull operations are used to transfer commits.
 
 The federation process executes using an internal administrator account, *$gitblit*.  All the normal authentication and authorization processes are used for federation requests. For example, Git commands are authenticated as *$gitblit / token*.
 
@@ -313,7 +313,7 @@ The repositories will be put in *git.repositoriesFolder*/example4.
     
 ## Federation Client
 
-Instead of setting up a full-blown pulling Gitblit instance, you can also use the [federation client](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) command-line utility.  This is a packaged subset of the federation feature in a smaller, simpler command-line only tool.
+Instead of setting up a full-blown pulling Gitblit instance, you can also use the [federation client](%GCURL%fedclient-${project.releaseVersion}.zip) command-line utility.  This is a packaged subset of the federation feature in a smaller, simpler command-line only tool.
 
 The *federation client* relies on many of the same dependencies as Gitblit and will download them on first execution.
 
@@ -327,7 +327,7 @@ By default this tool does not daemonize itself; it executes and then quits.  Thi
 If you are pulling from a Gitblit with a self-signed SSL certificate you will need to configure Git/JGit to bypass certificate verification.  
 ([Git-Config Manual Page](http://www.kernel.org/pub/software/scm/git/docs/git-config.html))  
 
-<pre>git config --global --bool --add http.sslVerify false</pre>
+    git config --global --bool --add http.sslVerify false
 
 ### Command-Line Parameters
 Instead of using `federation.properties` you may directly specify a Gitblit instance to pull from with command-line parameters.

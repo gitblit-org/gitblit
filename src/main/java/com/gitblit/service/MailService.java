@@ -145,7 +145,7 @@ public class MailService implements Runnable {
 			if (StringUtils.isEmpty(fromAddress)) {
 				fromAddress = "gitblit@gitblit.com";
 			}
-			InternetAddress from = new InternetAddress(fromAddress, mailing.from == null ? "Gitblit" : mailing.from);
+			InternetAddress from = new InternetAddress(fromAddress, mailing.from == null ? "Gitblit" : mailing.from,"utf-8");
 			message.setFrom(from);
 
 			Pattern validEmail = Pattern

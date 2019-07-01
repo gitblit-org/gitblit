@@ -19,6 +19,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+//import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
 import com.gitblit.GitBlitServer;
@@ -41,10 +42,10 @@ public abstract class AbstractUITest {
 	private static Thread serverThread;
 	private static WebDriver driver;
 
-	private static final int HTTP_PORT = 8080, HTTPS_PORT = 8443,
+	protected static final int HTTP_PORT = 8080, HTTPS_PORT = 0, //8443,
 			SHUTDOWN_PORT = 8081;
-	private static final String GITBLIT_PROPERTIES_PATH = "test-ui-gitblit.properties",
-			USERS_PROPERTIES_PATH = "test-ui-users.conf";
+	private static final String GITBLIT_PROPERTIES_PATH = "src/test/config/test-ui-gitblit.properties",
+			USERS_PROPERTIES_PATH = "src/test/config/test-ui-users.conf";
 
 	/**
 	 * starts a gitblit server instance in a separate thread before test cases
@@ -72,7 +73,8 @@ public abstract class AbstractUITest {
 				false);
 		System.out.println("Saving all attachments to: " + downloadDir);
 
-		driver = new FirefoxDriver(firefoxProfile);
+		driver = new FirefoxDriver(firefoxProfile); //Selenium 2
+		//driver = new FirefoxDriver(new FirefoxOptions().setProfile(firefoxProfile)); //Selenium 3, and JDK8+
 	}
 
 	/**
@@ -81,7 +83,7 @@ public abstract class AbstractUITest {
 	 */
 	@AfterClass
 	public static void tearDownClass() throws InterruptedException {
-		driver.close();
+		driver.quit();
 		// Stop Gitblit
 		GitBlitServer.main("--stop", "--shutdownPort", "" + SHUTDOWN_PORT);
 

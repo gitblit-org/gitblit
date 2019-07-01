@@ -96,11 +96,11 @@ You may optionally enable committer verification which requires that each commit
 
 Bob must properly set his *user.name* and *user.email* values for the repository to match his Gitblit user account **BEFORE** committing to his repository.
 
-```
-[user "bob"]
-    displayName = Bob Jones
-    emailAddress = bob@somewhere.com
-```
+    [user "bob"]
+        displayName = Bob Jones
+        emailAddress = bob@somewhere.com
+
+&nbsp;
 
     git config user.name "Bob Jones"
     git config user.email bob@somewhere.com	
@@ -131,6 +131,8 @@ Teams have assigned users and assigned repositories.  A user can be a member of 
 All users and permissions are stored in the `users.conf` file. Your file extension must be *.conf* in order to use this user service.
 
 The `users.conf` file uses a Git-style configuration format:
+
+%PRETTYPRINTHINT%
 
     [user "admin"]
 	    password = admin
@@ -196,5 +198,5 @@ i.e. if Team A has clone access to the origin repository, then by default Team A
 2. Forks are always listed in the fork network, regardless of any access restriction set on the fork.  
 In other words, if you fork *RepoA.git* to *~me/RepoA.git* and then set the access restriction of *~me/RepoA.git* to *Authenticated View, Clone, & Push* your fork will still be listed in the fork network for *RepoA.git*.
 
-If you really must have an invisible fork, the clone it locally, create a new personal repository for your invisible fork, and push it back to that personal repository.
+If you really must have an invisible fork, then clone it locally, create a new personal repository for your invisible fork, and push it back to that personal repository.
 

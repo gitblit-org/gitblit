@@ -1,0 +1,79 @@
+<structure>
+    <menu name="about">
+        <page name="overview" src="siteindex.mkd" out="index.html" headerLinks="false" />
+        <page name="features" src="features.mkd" />
+        <page name="screenshots" src="screenshots.mkd" />
+    </menu>
+    <menu name="documentation" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+        <menu name="Gitblit GO" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+            <page name="setup GO" src="setup_go.mkd" />
+            <page name="upgrade GO" src="upgrade_go.mkd" />
+        </menu>
+        <divider />
+        <menu name="Gitblit WAR" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+            <page name="setup WAR" src="setup_war.mkd" />
+            <page name="upgrade WAR" src="upgrade_war.mkd" />
+        </menu>
+        <divider />
+        <menu name="Server Configuration" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+            <page name="administration" src="administration.mkd" />
+            <page name="authentication" src="setup_authentication.mkd" />
+            <page name="push hooks" src="setup_hooks.mkd" />
+            <page name="lucene indexing" src="setup_lucene.mkd" />
+            <page name="reverse proxies" src="setup_proxy.mkd" />
+            <page name="client app menus" src="setup_clientmenus.mkd" />
+            <page name="bugtraq" src="setup_bugtraq.mkd" />
+            <page name="mirrors" src="setup_mirrors.mkd" />
+            <page name="scaling" src="setup_scaling.mkd" />
+            <page name="fail2ban" src="setup_fail2ban.mkd" />
+            <page name="filestore (Git LFS)" src="setup_filestore.mkd" />
+            <divider />
+            <page name="Gitblit as a viewer" src="setup_viewer.mkd" />
+        </menu>
+        <divider />
+        <menu name="Client Usage" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+            <page name="using HTTP/HTTPS" src="setup_transport_http.mkd" />
+            <page name="using SSH" src="setup_transport_ssh.mkd" />
+            <page name="using the Eclipse plugin" src="eclipse_plugin.mkd" />
+        </menu>
+        <divider />
+        <menu name="Tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+            <page name="overview" src="tickets_overview.mkd" />
+            <page name="using" src="tickets_using.mkd" />
+            <page name="barnum" src="tickets_barnum.mkd" />
+            <page name="setup" src="tickets_setup.mkd" />
+            <page name="replication &amp; advanced administration" src="tickets_replication.mkd" />
+        </menu>
+        <divider />
+        <menu name="Plugins" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+            <page name="overview" src="plugins_overview.mkd" />
+            <page name="extension points" src="plugins_extensions.mkd" />
+        </menu>
+        <divider />
+        <page name="federation" src="federation.mkd" />
+        <divider />
+        <page name="settings" src="properties.mkd" />
+        <page name="faq" src="faq.mkd" />
+        <divider />
+        <page name="design" src="design.mkd" />
+        <page name="rpc" src="rpc.mkd" />
+    </menu>
+    <menu name="releases">
+        <page name="release notes" out="releasenotes.html">
+            <template src="releasecurrent.ftl" data="${releaselog}" />
+        </page>
+        <page name="release history" out="releases.html">
+            <template src="releasehistory.ftl" data="${releaselog}" />
+        </page>
+    </menu>
+    <menu name="links">
+        <link name="dev.gitblit.com (self-hosted)" src="https://dev.gitblit.com" />
+        <divider />
+        <link name="Plugins Registry" src="http://plugins.gitblit.com" />
+        <divider />
+        <link name="Github" src="${project.scmUrl}" />
+        <link name="Issues" src="${project.issuesUrl}" />
+        <link name="Discussion" src="${project.forumUrl}" />
+        <link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+    </menu>
+</structure>

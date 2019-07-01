@@ -1,0 +1,28 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    steps:
+      - run:
+          name: Report on build environment
+          command: |
+            java -version
+            javac -version
+
+      - checkout
+      - run: ant
+
+      - run: ant test
+      - run:
+          name: Collect test results
+          command: |
+            mkdir -p test_reports/junit/
+            cp -a build/tests/TEST-*.xml test_reports/junit/
+      - store_test_results:
+          path: test_reports
+      - store_artifacts:
+          path:  build/target/reports
+

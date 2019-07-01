@@ -2,6 +2,8 @@
 
 The default `gitblit.properties` file has been split into two files: `gitblit.properties`, which is the recommended file for setting your configuration, and `defaults.properties` which are Gitblit's default settings.
 
+%PRETTYPRINTHINT%
+
     # Include Gitblit's 'defaults.properties' within your configuration.
     #
     # COMMA-DELIMITED

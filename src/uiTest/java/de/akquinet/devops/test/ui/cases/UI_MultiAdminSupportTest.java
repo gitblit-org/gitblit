@@ -19,6 +19,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.gitblit.tests.GitBlitTestConfig;
+
 import de.akquinet.devops.test.ui.generic.AbstractUITest;
 import de.akquinet.devops.test.ui.view.RepoEditView;
 import de.akquinet.devops.test.ui.view.RepoListView;
@@ -31,13 +33,14 @@ import de.akquinet.devops.test.ui.view.RepoListView;
  */
 public class UI_MultiAdminSupportTest extends AbstractUITest {
 
-	String baseUrl = "https://localhost:8443";
+	//String baseUrl = "https://localhost:" + HTTPS_PORT;
+	String baseUrl = "http://localhost:" + HTTP_PORT;
 	RepoListView view;
 	RepoEditView editView;
 	private static final String TEST_MULTI_ADMIN_SUPPORT_REPO_NAME = "testmultiadminsupport";
-	private static final String TEST_MULTI_ADMIN_SUPPORT_REPO_PATH = "~repocreator/"
+	private static final String TEST_MULTI_ADMIN_SUPPORT_REPO_PATH = GitBlitTestConfig.REPOSITORIES.getPath() + "/"
 			+ TEST_MULTI_ADMIN_SUPPORT_REPO_NAME + ".git";
-	private static final String TEST_MULTI_ADMIN_SUPPORT_REPO_PATH_WITHOUT_SUFFIX = "~repocreator/"
+	private static final String TEST_MULTI_ADMIN_SUPPORT_REPO_PATH_WITHOUT_SUFFIX = GitBlitTestConfig.REPOSITORIES.getPath() + "/"
 			+ TEST_MULTI_ADMIN_SUPPORT_REPO_NAME;
 
 	@Before

@@ -103,30 +103,33 @@ Gitblit supports two primary push ref specs: the magic ref and the patchset ref.
 
 #### to create a new proposal ticket
 
-| ref                  | description                                  |
-| :------------------- | :------------------------------------------- |
-| refs/for/new         | new proposal for the default branch          |
-| refs/for/default     | new proposal for the default branch          |
-| refs/for/{branch}    | new proposal for the specified branch        |
+<table class="table">
+<tr><th>ref</th><th>description</th></tr>
+<tr><td>refs/for/new</td><td>new proposal for the default branch</td></tr>
+<tr><td>refs/for/default</td><td>new proposal for the default branch</td></tr>
+<tr><td>refs/for/{branch}</td><td>new proposal for the specified branch</td></tr>
+</table>
 
 #### to add a proposal patchset (first patchset) to an existing ticket
 
-| ref                  | description                                  |
-| :------------------- | :------------------------------------------- |
-| refs/for/{id}        | add new patchset to an existing ticket       |
+<table class="table">
+<tr><th>ref</th><th>description</th></tr>
+<tr><td>refs/for/{id}</td><td>add new patchset to an existing ticket</td></tr>
+</table>
 
 #### to add commits to an existing patchset
 
-| ref                          | description                          |
-| :--------------------------- | :----------------------------------- |
-| refs/heads/ticket/{id}       | fast-forward an existing patchset    |
-
+<table class="table">
+<tr><th>ref</th><th>description</th></tr>
+<tr><td>refs/heads/ticket/{id}</td><td>fast-forward an existing patchset</td></tr>
+</table>
 
 #### to rewrite a patchset (amend, rebase, squash)
 
-| magic ref            | description                                  |
-| :------------------- | :------------------------------------------- |
-| refs/for/{id}        | to rewrite a patchset                        |
+<table class="table">
+<tr><th>magic ref</th><th>description</th></tr>
+<tr><td>refs/for/{id}</td><td>to rewrite a patchset</td></tr>
+</table>
 
 ### Ticket RefSpec Tricks
 
@@ -134,12 +137,13 @@ Gitblit supports setting some ticket fields from the push refspec.
 
     refs/for/master%topic=bug/42,r=james,m=1.4.1,cc=dave,cc=mark
 
-| parameter | description                                                     |
-| :-------- | :-------------------------------------------------------------- |
-| t         | assign a *topic* to the ticket (matched against bugtraq config) |
-| r         | set the *responsible* user                                      |
-| m         | set the *milestone* for patchset integration                    |
-| cc        | add this account to the *watch* list (multiple ccs allowed)     |
+<table class="table">
+<tr><th>parameter</th><th>description</th></tr>
+<tr><td>t</td><td>assign a <em>topic</em> to the ticket (matched against bugtraq config)</td></tr>
+<tr><td>r</td><td>set the <em>responsible</em> user</td></tr>
+<tr><td>m</td><td>set the <em>milestone</em> for patchset integration</td></tr>
+<tr><td>cc</td><td>add this account to the <em>watch</em> list (multiple ccs allowed)</td></tr>
+</table>
 
 #### examples
 

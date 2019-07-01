@@ -47,9 +47,9 @@ For Eclipse, you can append `-Djsse.enableSNIExtension=false` to your *eclipse.i
 
 Native clients may display an error when attempting to clone or push that looks like this:
 
-```
-C:\projects\git\gitblit>git push rhcloud master
-error: error:14077458:SSL routines:SSL23_GET_SERVER_HELLO:reason(1112) while accessing https://demo-gitblit.rhcloud.com/git/gitblit.git/info/refs?service=git-receive-pack
-fatal: HTTP request failed
-```
+
+    C:\projects\git\gitblit>git push rhcloud master
+    error: error:14077458:SSL routines:SSL23_GET_SERVER_HELLO:reason(1112) while accessing https://demo-gitblit.rhcloud.com/git/gitblit.git/info/refs?service=git-receive-pack
+    fatal: HTTP request failed
+
 
