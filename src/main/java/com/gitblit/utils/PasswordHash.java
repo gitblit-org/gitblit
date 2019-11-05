@@ -16,6 +16,8 @@
 
 package com.gitblit.utils;
 
+import java.util.Arrays;
+
 /**
  * This is the superclass for classes responsible for handling password hashing.
  * 
@@ -35,7 +37,8 @@ public abstract class PasswordHash {
 	 */
 	enum Type {
 		MD5,
-		CMD5
+		CMD5,
+		PBKDF2
 	}
 
 	/**
@@ -70,6 +73,8 @@ public abstract class PasswordHash {
 					return new PasswordHashMD5();
 				case CMD5:
 					return new PasswordHashCombinedMD5();
+				case PBKDF2:
+					return new PasswordHashPbkdf2();
 				default:
 					return null;
 			}
@@ -100,17 +105,17 @@ public abstract class PasswordHash {
 	 * Test if a given string is a hashed password entry. This method simply checks if the
 	 * given string is prefixed by a known hash type identifier.
 	 *
-	 * @param password
+	 * @param storedPassword
 	 * 			A stored user password.
 	 * @return	True if the given string is detected to be hashed with a known hash type,
 	 * 			false otherwise.
 	 */
-	public static boolean isHashedEntry(String password) {
-		return null != getEntryType(password);
+	public static boolean isHashedEntry(String storedPassword) {
+		return null != getEntryType(storedPassword);
 	}
 
-	
-	
+
+
 	/**
 	 * Convert the given password to a hashed password entry to be stored in the user table.
 	 * The resulting string is prefixed by the hashing scheme type followed by a colon:
@@ -123,7 +128,24 @@ public abstract class PasswordHash {
 	 * @return
 	 * 			Hashed password entry to be stored in the user table.
 	 */
-	abstract public String toHashedEntry(String password, String username);
+	abstract public String toHashedEntry(char[] password, String username);
+
+	/**
+	 * Convert the given password to a hashed password entry to be stored in the user table.
+	 * The resulting string is prefixed by the hashing scheme type followed by a colon:
+	 * TYPE:theactualhashinhex
+	 *
+	 * @param password
+	 * 			Password to be hashed.
+	 * @param username
+	 * 			User name, only used for the Combined-MD5 (user+MD5) hashing type.
+	 * @return
+	 * 			Hashed password entry to be stored in the user table.
+	 */
+	public String toHashedEntry(String password, String username) {
+		if (password == null) throw new IllegalArgumentException("The password argument may not be null when hashing a password.");
+		return toHashedEntry(password.toCharArray(), username);
+	}
 
 	/**
 	 * Test if a given password (and user name) match a hashed password.
@@ -145,7 +167,8 @@ public abstract class PasswordHash {
 		if (hashedEntry == null || type != PasswordHash.getEntryType(hashedEntry)) return false;
 		if (password == null) return false;
 
-		String hashed = toHashedEntry(String.valueOf(password), username);
+		String hashed = toHashedEntry(password, username);
+		Arrays.fill(password, Character.MIN_VALUE);
 		return hashed.equalsIgnoreCase(hashedEntry);
 	}
 
@@ -159,6 +182,8 @@ public abstract class PasswordHash {
 		if (indexOfSeparator <= 0) return null;
 		String typeId = hashedEntry.substring(0, indexOfSeparator);
 
+		// Compatibility with type id "PBKDF2WITHHMACSHA256", which is also handled by PBKDF2 type.
+		if (typeId.equalsIgnoreCase("PBKDF2WITHHMACSHA256")) return Type.PBKDF2;
 		try {
 			return Type.valueOf(typeId.toUpperCase());
 		}
@@ -169,7 +194,7 @@ public abstract class PasswordHash {
 	static String getEntryValue(String hashedEntry) {
 		if (hashedEntry == null) return null;
 		int indexOfSeparator = hashedEntry.indexOf(':');
-		return hashedEntry.substring(indexOfSeparator +1, hashedEntry.length());
+		return hashedEntry.substring(indexOfSeparator +1);
 	}
 
 
@@ -182,6 +207,14 @@ public abstract class PasswordHash {
 	{
 		PasswordHashMD5() {
 			super(Type.MD5);
+		}
+
+		// To keep the handling identical to how it was before, and therefore not risk invalidating stored passwords,
+		// for MD5 the (String,String) variant of the method is the one implementing the hashing.
+		@Override
+		public String toHashedEntry(char[] password, String username) {
+			if (password == null) throw new IllegalArgumentException("The password argument may not be null when hashing a password.");
+			return toHashedEntry(new String(password), username);
 		}
 
 		@Override
@@ -201,9 +234,16 @@ public abstract class PasswordHash {
 			super(Type.CMD5);
 		}
 
+		// To keep the handling identical to how it was before, and therefore not risk invalidating stored passwords,
+		// for Combined-MD5 the (String,String) variant of the method is the one implementing the hashing.
+		@Override
+		public String toHashedEntry(char[] password, String username) {
+			if (password == null) throw new IllegalArgumentException("The password argument may not be null when hashing a password.");
+			return toHashedEntry(new String(password), username);
+		}
 		@Override
 		public String toHashedEntry(String password, String username) {
-			if (password == null) throw new IllegalArgumentException("The password argument may not be null when hashing a password with Combined-MD5.");
+			if (password == null) throw new IllegalArgumentException("The password argument may not be null when hashing a password.");
 			if (username == null) throw new IllegalArgumentException("The username argument may not be null when hashing a password with Combined-MD5.");
 			if (StringUtils.isEmpty(username)) throw new IllegalArgumentException("The username argument may not be empty when hashing a password with Combined-MD5.");
 			return type.name() + ":"
