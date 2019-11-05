@@ -99,6 +99,15 @@ public class PasswordHashTest {
 		assertTrue("Failed to match " +CMD5_HASHED_ENTRY_0, pwdh.matches(CMD5_HASHED_ENTRY_0, CMD5_PASSWORD_0.toCharArray(), CMD5_USERNAME_0));
 
 
+		pwdh = PasswordHash.instanceOf("combined-md5");
+		assertNotNull(pwdh);
+		assertEquals(PasswordHash.Type.CMD5, pwdh.type);
+
+		pwdh = PasswordHash.instanceOf("COMBINED-MD5");
+		assertNotNull(pwdh);
+		assertEquals(PasswordHash.Type.CMD5, pwdh.type);
+
+
 		pwdh = PasswordHash.instanceOf("MD5");
 		assertNotNull(pwdh);
 		assertNotEquals(PasswordHash.Type.CMD5, pwdh.type);
@@ -592,5 +601,36 @@ public class PasswordHashTest {
 		assertFalse("Matched wrong hashed entry", pwdh.matches(PBKDF2_HASHED_ENTRY_3, PBKDF2_PASSWORD_0.toCharArray(), null));
 		assertFalse("Matched wrong hashed entry, with empty user", pwdh.matches(PBKDF2_HASHED_ENTRY_3, PBKDF2_PASSWORD_0.toCharArray(), ""));
 		assertFalse("Matched wrong hashed entry, with user", pwdh.matches(PBKDF2_HASHED_ENTRY_3, PBKDF2_PASSWORD_0.toCharArray(), "someuser"));
+	}
+
+	@Test
+	public void getEntryType() {
+		assertEquals(PasswordHash.Type.MD5, PasswordHash.getEntryType("MD5:blah"));
+		assertEquals(PasswordHash.Type.MD5, PasswordHash.getEntryType("md5:blah"));
+		assertEquals(PasswordHash.Type.MD5, PasswordHash.getEntryType("mD5:blah"));
+
+		assertEquals(PasswordHash.Type.CMD5, PasswordHash.getEntryType("CMD5:blah"));
+		assertEquals(PasswordHash.Type.CMD5, PasswordHash.getEntryType("cmd5:blah"));
+		assertEquals(PasswordHash.Type.CMD5, PasswordHash.getEntryType("Cmd5:blah"));
+
+		assertEquals(PasswordHash.Type.CMD5, PasswordHash.getEntryType("combined-md5:blah"));
+		assertEquals(PasswordHash.Type.CMD5, PasswordHash.getEntryType("COMBINED-MD5:blah"));
+		assertEquals(PasswordHash.Type.CMD5, PasswordHash.getEntryType("combined-MD5:blah"));
+
+		assertEquals(PasswordHash.Type.PBKDF2, PasswordHash.getEntryType("PBKDF2:blah"));
+		assertEquals(PasswordHash.Type.PBKDF2, PasswordHash.getEntryType("pbkdf2:blah"));
+		assertEquals(PasswordHash.Type.PBKDF2, PasswordHash.getEntryType("Pbkdf2:blah"));
+		assertEquals(PasswordHash.Type.PBKDF2, PasswordHash.getEntryType("pbKDF2:blah"));
+
+		assertEquals(PasswordHash.Type.PBKDF2, PasswordHash.getEntryType("PBKDF2WithHmacSHA256:blah"));
+		assertEquals(PasswordHash.Type.PBKDF2, PasswordHash.getEntryType("PBKDF2WITHHMACSHA256:blah"));
+	}
+
+	@Test
+	public void getEntryValue() {
+		assertEquals("value", PasswordHash.getEntryValue("MD5:value"));
+		assertEquals("plain text", PasswordHash.getEntryValue("plain text"));
+		assertEquals("what this", PasswordHash.getEntryValue(":what this"));
+		assertEquals("", PasswordHash.getEntryValue(":"));
 	}
 }

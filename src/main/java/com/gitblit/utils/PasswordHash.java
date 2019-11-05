@@ -31,14 +31,27 @@ import java.util.Arrays;
  */
 public abstract class PasswordHash {
 
-
 	/**
 	 * The types of implemented password hashing schemes.
 	 */
-	enum Type {
+	public enum Type {
 		MD5,
 		CMD5,
-		PBKDF2
+		PBKDF2;
+
+		static Type fromName(String name) {
+			if (name == null) return null;
+			for (Type type : Type.values()) {
+				if (type.name().equalsIgnoreCase(name)) return type;
+			}
+			// Compatibility with type id "PBKDF2WITHHMACSHA256", which is also handled by PBKDF2 type.
+			if (name.equalsIgnoreCase("PBKDF2WITHHMACSHA256")) return Type.PBKDF2;
+
+			// Recognise the name used for CMD5 in the settings file.
+			if (name.equalsIgnoreCase("combined-md5")) return Type.CMD5;
+
+			return null;
+		}
 	}
 
 	/**
@@ -58,6 +71,14 @@ public abstract class PasswordHash {
 
 
 	/**
+	 * When no hash type is specified, this determines the default that should be used.
+	 */
+	public static Type getDefaultType() {
+		return Type.PBKDF2;
+	}
+
+
+	/**
 	 * Create an instance of a password hashing class for the given hash type.
 	 *
 	 * @param type
@@ -66,21 +87,17 @@ public abstract class PasswordHash {
 	 * 			or null if the given hash type is not a valid one.
 	 */
 	public static PasswordHash instanceOf(String type) {
-		try {
-			Type hashType = Type.valueOf(type.toUpperCase());
-			switch (hashType) {
-				case MD5:
-					return new PasswordHashMD5();
-				case CMD5:
-					return new PasswordHashCombinedMD5();
-				case PBKDF2:
-					return new PasswordHashPbkdf2();
-				default:
-					return null;
-			}
-		}
-		catch (Exception e) {
-			return null;
+		Type hashType = Type.fromName(type);
+		if (hashType == null) return null;
+		switch (hashType) {
+			case MD5:
+				return new PasswordHashMD5();
+			case CMD5:
+				return new PasswordHashCombinedMD5();
+			case PBKDF2:
+				return new PasswordHashPbkdf2();
+			default:
+				return null;
 		}
 	}
 
@@ -114,6 +131,27 @@ public abstract class PasswordHash {
 		return null != getEntryType(storedPassword);
 	}
 
+
+	/**
+	 * Some hash methods are considered more secure than others. This method determines for a certain type
+	 * of password hash if it is inferior than a given other type and stored passwords should be
+	 * upgraded to the given hashing method.
+	 *
+	 * @param algorithm
+	 * 			Password hashing type to be checked if it is superior than the one of this instance.
+	 * @return	True, if the given type in parameter {@code algorithm} is better and stored passwords should be upgraded to it,
+	 *          false, otehrwise.
+	 */
+	public boolean needsUpgradeTo(String algorithm) {
+		Type hashType = Type.fromName(algorithm);
+		if (hashType == null) return false;
+		if (this.type == hashType) return false;
+
+		// Right now we keep it really simple. With the existing types, only PBKDF2 is considered secure,
+		// everything else is inferior. This will need to be updated once more secure hashing algorithms
+		// are implemented, or the workload/parameters of the PBKDF2 are changed.
+		return hashType == Type.PBKDF2;
+	}
 
 
 	/**
@@ -181,13 +219,7 @@ public abstract class PasswordHash {
 		int indexOfSeparator = hashedEntry.indexOf(':');
 		if (indexOfSeparator <= 0) return null;
 		String typeId = hashedEntry.substring(0, indexOfSeparator);
-
-		// Compatibility with type id "PBKDF2WITHHMACSHA256", which is also handled by PBKDF2 type.
-		if (typeId.equalsIgnoreCase("PBKDF2WITHHMACSHA256")) return Type.PBKDF2;
-		try {
-			return Type.valueOf(typeId.toUpperCase());
-		}
-		catch (Exception e) { return null;}
+		return Type.fromName(typeId);
 	}
 
 

@@ -52,7 +52,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.transport.ssh.SshKey;
 import com.gitblit.utils.Base64;
 import com.gitblit.utils.HttpUtils;
-import com.gitblit.utils.SecurePasswordHashUtils;
+import com.gitblit.utils.PasswordHash;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
 import com.google.inject.Inject;
@@ -519,29 +519,12 @@ public class AuthenticationManager implements IAuthenticationManager {
 	 */
 	protected UserModel authenticateLocal(UserModel user, char [] password) {
 		UserModel returnedUser = null;
-		boolean strongHashUsed = false;
 
-		if (user.password.startsWith(StringUtils.MD5_TYPE)) {
-			// password digest
-			String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
-			if (user.password.equalsIgnoreCase(md5)) {
+		PasswordHash pwdHash = PasswordHash.instanceFor(user.password);
+		if (pwdHash != null) {
+			if (pwdHash.matches(user.password, password, user.username)) {
 				returnedUser = user;
 			}
-		} else if (user.password.startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-			// username+password digest
-			String md5 = StringUtils.COMBINED_MD5_TYPE
-					+ StringUtils.getMD5(user.username.toLowerCase() + new String(password));
-			if (user.password.equalsIgnoreCase(md5)) {
-				returnedUser = user;
-			}
-		} else if (user.password.startsWith(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE)){
-			// strong hash
-			SecurePasswordHashUtils hashUtils = SecurePasswordHashUtils.get();
-            boolean isPasswordValid = hashUtils.isPasswordCorrect(password, user.password);
-            if(isPasswordValid){
-            	returnedUser = user;
-            	strongHashUsed = true;
-            }
 		} else if (user.password.equals(new String(password))) {
 			// plain-text password
 			returnedUser = user;
@@ -550,32 +533,36 @@ public class AuthenticationManager implements IAuthenticationManager {
 		// validate user
 		returnedUser = validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
 		
-		// if no strong hash was used to store the password, try to update it based on the settings
-		if(!strongHashUsed){
-			updateStoredPassword(returnedUser, password);
-		}
-		
+		// try to upgrade the stored password hash to a stronger hash, if necessary
+		upgradeStoredPassword(returnedUser, password, pwdHash);
+
 		return returnedUser;
 	}
 
 	/**
-	 * Update stored password to a strong hash if configured.
+	 * Upgrade stored password to a strong hash if configured.
 	 *
 	 * @param user the user to be updated
 	 * @param password the password
+	 * @param pwdHash
+	 * 				Instance of PasswordHash for the stored password entry. If null, no current hashing is assumed.
 	 */
-	protected void updateStoredPassword(UserModel user, char[] password) {
+	private void upgradeStoredPassword(UserModel user, char[] password, PasswordHash pwdHash) {
 		// check if user has successfully authenticated i.e. is not null 
-		if(user != null){
-			// check if strong hash algorithm is configured
-			String algorithm = settings.getString(Keys.realm.passwordStorage, SecurePasswordHashUtils.PBKDF2WITHHMACSHA256);
-			if(algorithm.equals(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256)){
-				// rehash the provided correct password and update the user model
-				user.password = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
+		if (user == null) return;
+
+		// check if strong hash algorithm is configured
+		String algorithm = settings.getString(Keys.realm.passwordStorage, PasswordHash.getDefaultType().name());
+		if (pwdHash == null || pwdHash.needsUpgradeTo(algorithm)) {
+			// rehash the provided correct password and update the user model
+			pwdHash = PasswordHash.instanceOf(algorithm);
+			if (pwdHash != null) { // necessary since the algorithm name could be something not supported.
+				user.password = pwdHash.toHashedEntry(password, user.username);
 				userManager.updateUserModel(user);
-			}	
+			}
 		}
 	}
+
 
 	/**
 	 * Returns the Gitlbit cookie in the request.

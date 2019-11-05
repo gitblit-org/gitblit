@@ -58,7 +58,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.SecurePasswordHashUtils;
+import com.gitblit.utils.PasswordHash;
 import com.gitblit.utils.StringUtils;
 
 
@@ -319,9 +319,10 @@ public class EditUserDialog extends JDialog {
 					minLength));
 			return false;
 		}
-		if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
-				&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)
-				&& !password.startsWith(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256_TYPE)) {
+		// What we actually test for here, is if the password has been changed. But this also catches if the password
+		// was not changed, but is stored in plain-text. Which is good because then editing the user will hash the
+		// password if by now the storage has been changed to a hashed variant.
+		if (!PasswordHash.isHashedEntry(password)) {
 			String cpw = new String(confirmPasswordField.getPassword());
 			if (cpw == null || cpw.length() != password.length()) {
 				error("Please confirm the password!");
@@ -335,22 +336,17 @@ public class EditUserDialog extends JDialog {
 			// change the cookie
 			user.cookie = user.createCookie();
 
-			String type = settings.get(Keys.realm.passwordStorage).getString(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256);
-			if (type.equalsIgnoreCase("md5")) {
-				// store MD5 digest of password
-				user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
-			} else if (type.equalsIgnoreCase("combined-md5")) {
-				// store MD5 digest of username+password
-				user.password = StringUtils.COMBINED_MD5_TYPE
-						+ StringUtils.getMD5(user.username + password);
-			} else if (type.equalsIgnoreCase(SecurePasswordHashUtils.PBKDF2WITHHMACSHA256)) {
-				// store PBKDF2WithHmacSHA256 digest of password
-				user.password  = SecurePasswordHashUtils.get().createStoredPasswordFromPassword(password);
+			String type = settings.get(Keys.realm.passwordStorage).getString(PasswordHash.getDefaultType().name());
+			PasswordHash pwdHash = PasswordHash.instanceOf(type);
+			if (pwdHash != null) {
+				user.password = pwdHash.toHashedEntry(password, user.username);
 			} else {
-				// plain-text password
+				// plain-text password.
+				// TODO: This is also used when the "realm.passwordStorage" configuration is not a valid type.
+				//       This is a rather bad default, and should probably caught and changed to a secure default.
 				user.password = password;
 			}
-		} else if (rename && password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+		} else if (rename && password.toUpperCase().startsWith(PasswordHash.Type.CMD5.name())) {
 			error("Gitblit is configured for combined-md5 password hashing. You must enter a new password on account rename.");
 			return false;
 		} else {
