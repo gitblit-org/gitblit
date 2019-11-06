@@ -30,12 +30,24 @@ public class PasswordHashTest {
 	static final String MD5_HASHED_ENTRY_0 = "MD5:5F4DCC3B5AA765D61D8327DEB882CF99";
 	static final String MD5_PASSWORD_1 = "This is a test password";
 	static final String MD5_HASHED_ENTRY_1 = "md5:8e1901831af502c0f842d4efb9083bcf";
+	static final String MD5_PASSWORD_2 = "版本库管理方案";
+	static final String MD5_HASHED_ENTRY_2 = "MD5:980017891ff67cf8a20f23aa810e7b5a";
+	static final String MD5_PASSWORD_3 = "PÿrâṃiĐ";
+	static final String MD5_HASHED_ENTRY_3 = "MD5:60359b7e22941164708ae2040040521f";
+
 	static final String CMD5_USERNAME_0 = "Jane Doe";
 	static final String CMD5_PASSWORD_0 = "password";
 	static final String CMD5_HASHED_ENTRY_0 = "CMD5:DB9639A6E5F21457F9DFD7735FAFA68B";
 	static final String CMD5_USERNAME_1 = "Joe Black";
 	static final String CMD5_PASSWORD_1 = "ThisIsAWeirdScheme.Weird";
 	static final String CMD5_HASHED_ENTRY_1 = "cmd5:5c154768287e32fa605656b98894da89";
+	static final String CMD5_USERNAME_2 = "快速便";
+	static final String CMD5_PASSWORD_2 = "版本库管理方案";
+	static final String CMD5_HASHED_ENTRY_2 = "CMD5:f38575ee8af23ba6d923c0d98ee767fc";
+	static final String CMD5_USERNAME_3 = "İńa";
+	static final String CMD5_PASSWORD_3 = "PÿrâṃiĐ";
+	static final String CMD5_HASHED_ENTRY_3 = "CMD5:f1cdc2348c907677529e0e1b011f6793";
+
 	static final String PBKDF2_PASSWORD_0 = "password";
 	static final String PBKDF2_HASHED_ENTRY_0 = "PBKDF2:70617373776f726450415353574f524470617373776f726450415353574f52440f17d16621b32ae1bb2b1041fcb19e294b35d514d361c08eed385766e38f6f3a";
 	static final String PBKDF2_PASSWORD_1 = "A REALLY better scheme than MD5";
@@ -320,8 +332,15 @@ public class PasswordHashTest {
 		String hashedEntry = pwdh.toHashedEntry(MD5_PASSWORD_1, null);
 		assertTrue(MD5_HASHED_ENTRY_1.equalsIgnoreCase(hashedEntry));
 
+		hashedEntry = pwdh.toHashedEntry(MD5_PASSWORD_2, null);
+		assertTrue(MD5_HASHED_ENTRY_2.equalsIgnoreCase(hashedEntry));
+
 		hashedEntry = pwdh.toHashedEntry(MD5_PASSWORD_1, "charlie");
 		assertTrue(MD5_HASHED_ENTRY_1.equalsIgnoreCase(hashedEntry));
+
+		hashedEntry = pwdh.toHashedEntry(MD5_PASSWORD_3, CMD5_USERNAME_3);
+		assertTrue(MD5_HASHED_ENTRY_3.equalsIgnoreCase(hashedEntry));
+
 
 		hashedEntry = pwdh.toHashedEntry("badpassword", "charlie");
 		assertFalse(MD5_HASHED_ENTRY_1.equalsIgnoreCase(hashedEntry));
@@ -348,6 +367,13 @@ public class PasswordHashTest {
 		PasswordHash pwdh = PasswordHash.instanceOf("CMD5");
 		String hashedEntry = pwdh.toHashedEntry(CMD5_PASSWORD_1, CMD5_USERNAME_1);
 		assertTrue(CMD5_HASHED_ENTRY_1.equalsIgnoreCase(hashedEntry));
+
+		hashedEntry = pwdh.toHashedEntry(CMD5_PASSWORD_2, CMD5_USERNAME_2);
+		assertTrue(CMD5_HASHED_ENTRY_2.equalsIgnoreCase(hashedEntry));
+
+		hashedEntry = pwdh.toHashedEntry(CMD5_PASSWORD_3, CMD5_USERNAME_3);
+		assertTrue(CMD5_HASHED_ENTRY_3.equalsIgnoreCase(hashedEntry));
+
 
 		hashedEntry = pwdh.toHashedEntry(CMD5_PASSWORD_1, "charlie");
 		assertFalse(CMD5_HASHED_ENTRY_1.equalsIgnoreCase(hashedEntry));
@@ -447,6 +473,8 @@ public class PasswordHashTest {
 		assertTrue("PWD1, Empty user", pwdh.matches(MD5_HASHED_ENTRY_1, MD5_PASSWORD_1.toCharArray(), ""));
 		assertTrue("PWD1, With user", pwdh.matches(MD5_HASHED_ENTRY_1, MD5_PASSWORD_1.toCharArray(), "maxine"));
 
+		assertTrue("PWD2", pwdh.matches(MD5_HASHED_ENTRY_2, MD5_PASSWORD_2.toCharArray(), null));
+		assertTrue("PWD3", pwdh.matches(MD5_HASHED_ENTRY_3, MD5_PASSWORD_3.toCharArray(), null));
 
 
 		assertFalse("Matched wrong password", pwdh.matches(MD5_HASHED_ENTRY_1, "wrongpassword".toCharArray(), null));
@@ -488,7 +516,9 @@ public class PasswordHashTest {
 		PasswordHash pwdh = PasswordHash.instanceOf("CMD5");
 
 		assertTrue("PWD0", pwdh.matches(CMD5_HASHED_ENTRY_0, CMD5_PASSWORD_0.toCharArray(), CMD5_USERNAME_0));
-		assertTrue("Empty user", pwdh.matches(CMD5_HASHED_ENTRY_1, CMD5_PASSWORD_1.toCharArray(), CMD5_USERNAME_1));
+		assertTrue("PWD1", pwdh.matches(CMD5_HASHED_ENTRY_1, CMD5_PASSWORD_1.toCharArray(), CMD5_USERNAME_1));
+		assertTrue("PWD2", pwdh.matches(CMD5_HASHED_ENTRY_2, CMD5_PASSWORD_2.toCharArray(), CMD5_USERNAME_2));
+		assertTrue("PWD3", pwdh.matches(CMD5_HASHED_ENTRY_3, CMD5_PASSWORD_3.toCharArray(), CMD5_USERNAME_3));
 
 
 
