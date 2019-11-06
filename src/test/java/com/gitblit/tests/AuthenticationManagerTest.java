@@ -43,6 +43,7 @@ import javax.servlet.http.HttpSessionContext;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
+import com.gitblit.utils.PasswordHash;
 import org.junit.Test;
 
 import com.gitblit.IUserService;
@@ -664,6 +665,37 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 		assertNull(auth.authenticate(user.username, user.password.toCharArray(), null));
 		users.deleteUserModel(user);
 	}
+
+
+	@Test
+	public void testAuthenticateUpgradePlaintext() throws Exception {
+		IAuthenticationManager auth = newAuthenticationManager();
+
+		UserModel user = new UserModel("sunnyjim");
+		user.password = "password";
+		users.updateUserModel(user);
+
+		assertNotNull(auth.authenticate(user.username, user.password.toCharArray(), null));
+
+		// validate that plaintext password was automatically updated to hashed one
+		assertTrue(user.password.startsWith(PasswordHash.getDefaultType().name() + ":"));
+	}
+
+
+	@Test
+	public void testAuthenticateUpgradeMD5() throws Exception {
+		IAuthenticationManager auth = newAuthenticationManager();
+
+		UserModel user = new UserModel("sunnyjim");
+		user.password = "MD5:5F4DCC3B5AA765D61D8327DEB882CF99";
+		users.updateUserModel(user);
+
+		assertNotNull(auth.authenticate(user.username, "password".toCharArray(), null));
+
+		// validate that MD5 password was automatically updated to hashed one
+		assertTrue(user.password.startsWith(PasswordHash.getDefaultType().name() + ":"));
+	}
+
 
 	@Test
 	public void testContenairAuthenticate() throws Exception {

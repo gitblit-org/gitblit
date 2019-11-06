@@ -46,10 +46,6 @@ import java.util.regex.PatternSyntaxException;
  */
 public class StringUtils {
 
-	public static final String MD5_TYPE = "MD5:";
-
-	public static final String COMBINED_MD5_TYPE = "CMD5:";
-
 	/**
 	 * Returns true if the string is null or empty.
 	 *

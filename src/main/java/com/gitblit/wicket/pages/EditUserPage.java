@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import com.gitblit.utils.PasswordHash;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -172,15 +173,14 @@ public class EditUserPage extends RootSubPage {
 						return;
 					}
 					String password = userModel.password;
-					if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
-							&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+					if (!PasswordHash.isHashedEntry(password)) {
 						// This is a plain text password.
 						// Check length.
 						int minLength = app().settings().getInteger(Keys.realm.minPasswordLength, 5);
 						if (minLength < 4) {
 							minLength = 4;
 						}
-						if (password.trim().length() < minLength) {
+						if (password.trim().length() < minLength) {  // TODO: Why do we trim here, but not in EditUserDialog and ChangePasswordPage?
 							error(MessageFormat.format(getString("gb.passwordTooShort"),
 									minLength));
 							return;
@@ -190,18 +190,13 @@ public class EditUserPage extends RootSubPage {
 						userModel.cookie = userModel.createCookie();
 
 						// Optionally store the password MD5 digest.
-						String type = app().settings().getString(Keys.realm.passwordStorage, "md5");
-						if (type.equalsIgnoreCase("md5")) {
-							// store MD5 digest of password
-							userModel.password = StringUtils.MD5_TYPE
-									+ StringUtils.getMD5(userModel.password);
-						} else if (type.equalsIgnoreCase("combined-md5")) {
-							// store MD5 digest of username+password
-							userModel.password = StringUtils.COMBINED_MD5_TYPE
-									+ StringUtils.getMD5(username + userModel.password);
+						String type = app().settings().getString(Keys.realm.passwordStorage, PasswordHash.getDefaultType().name());
+						PasswordHash pwdh = PasswordHash.instanceOf(type);
+						if (pwdh != null) { // Hash the password
+							userModel.password = pwdh.toHashedEntry(password, username);
 						}
 					} else if (rename
-							&& password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+							&& password.toUpperCase().startsWith(PasswordHash.Type.CMD5.name())) {
 						error(getString("gb.combinedMd5Rename"));
 						return;
 					}
