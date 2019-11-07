@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar gitblit.jar --baseFolder data --stop
+java -cp "gitblit.jar:ext/*" com.gitblit.GitBlitServer --baseFolder data --stop

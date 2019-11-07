@@ -205,7 +205,6 @@
 		<!-- Build jar -->
 		<mx:jar destfile="${go.release.dir}/gitblit.jar" includeresources="true">
 			<mainclass name="com.gitblit.GitBlitServer" />
-			<launcher paths="ext" />
 		</mx:jar>
 
 		<!-- Generate the docs for the GO build -->

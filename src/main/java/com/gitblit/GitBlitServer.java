@@ -143,7 +143,7 @@ public class GitBlitServer {
 		if (parser != null) {
 			parser.printUsage(System.out);
 			System.out
-					.println("\nExample:\n  java -server -Xmx1024M -jar gitblit.jar --repositoriesFolder c:\\git --httpPort 80 --httpsPort 443");
+					.println("\nExample:\n  java -server -Xmx1024M -cp gitblit.jar:ext/* com.gitblit.GitBlitServer  --repositoriesFolder /srv/git --httpPort 80 --httpsPort 443");
 		}
 		System.exit(0);
 	}
