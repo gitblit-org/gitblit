@@ -225,6 +225,10 @@ public class GitBlitServer {
 		String osversion = System.getProperty("os.version");
 		logger.info("Running on " + osname + " (" + osversion + ")");
 
+		String javaversion = System.getProperty("java.version");
+		String javavendor = System.getProperty("java.vendor");
+		logger.info("JVM version " + javaversion + " (" + javavendor + ")");
+
 		QueuedThreadPool threadPool = new QueuedThreadPool();
 		int maxThreads = settings.getInteger(Keys.server.threadPoolSize, 50);
 		if (maxThreads > 0) {

@@ -53,6 +53,13 @@
 
 		<!-- Download links -->
 		<property name="gc.url" value="http://dl.bintray.com/gitblit/releases/" />
+
+		<!-- Report Java version -->
+		<echo>JDK version: ${ant.java.version}</echo>
+		<exec executable="javac">
+			<arg value="-version" />
+		</exec>
+		<echo>Java/JVM version: ${java.version}</echo>
 	</target>
 
 	
