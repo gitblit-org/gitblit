@@ -92,24 +92,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-api-1.7.12.jar">
+      <library name="slf4j-api-1.7.29.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.12.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.29.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.12.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.29.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-log4j12-1.7.12.jar">
+      <library name="slf4j-log4j12-1.7.29.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.12.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.29.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.12.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.29.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
