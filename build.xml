@@ -308,7 +308,6 @@
 			excludes="**/.class, **/*.java, **/Thumbs.db, **/*.mkd, **/*.md, **/*.css, com/gitblit/wicket/**">
 			<mainclass name="com.gitblit.FederationClient" />
 			<class name="com.gitblit.Keys" />
-			<launcher paths="ext" />
 			<resource file="${project.compileOutputDirectory}/log4j.properties" />
 		</mx:genjar>
 		
@@ -379,7 +378,7 @@
 				</fileset>
 			</resource>
 
-			<mainclass name="com.gitblit.client.GitblitManagerLauncher" />
+			<mainclass name="com.gitblit.client.GitblitManager" />
 			<class name="com.gitblit.Keys" />
 			<class name="com.gitblit.client.GitblitClient" />
 			<class name="com.gitblit.models.FederationModel" />
