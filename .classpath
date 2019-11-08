@@ -55,7 +55,7 @@
 	<classpathentry kind="lib" path="ext/bcmail-jdk15on-1.57.jar" sourcepath="ext/src/bcmail-jdk15on-1.57.jar" />
 	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.57.jar" sourcepath="ext/src/bcpkix-jdk15on-1.57.jar" />
 	<classpathentry kind="lib" path="ext/sshd-core-1.0.0.jar" sourcepath="ext/src/sshd-core-1.0.0.jar" />
-	<classpathentry kind="lib" path="ext/mina-core-2.0.9.jar" sourcepath="ext/src/mina-core-2.0.9.jar" />
+	<classpathentry kind="lib" path="ext/mina-core-2.0.21.jar" sourcepath="ext/src/mina-core-2.0.21.jar" />
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/src/rome-0.9.jar" />
 	<classpathentry kind="lib" path="ext/jdom-1.0.jar" sourcepath="ext/src/jdom-1.0.jar" />
 	<classpathentry kind="lib" path="ext/gson-2.3.1.jar" sourcepath="ext/src/gson-2.3.1.jar" />
