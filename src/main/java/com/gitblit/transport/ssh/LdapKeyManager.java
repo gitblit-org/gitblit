@@ -26,9 +26,9 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.util.GenericUtils;
-import org.apache.sshd.server.config.keys.AuthorizedKeyEntry;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
