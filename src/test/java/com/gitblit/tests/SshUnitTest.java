@@ -24,11 +24,13 @@ import java.net.SocketAddress;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.sshd.client.ServerKeyVerifier;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.channel.ClientChannel;
+import org.apache.sshd.client.future.AuthFuture;
+import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.util.SecurityUtils;
 import org.junit.After;
@@ -112,9 +114,11 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 
 	protected String testSshCommand(String cmd, String stdin) throws IOException, InterruptedException {
 		SshClient client = getClient();
-		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).await().getSession();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
 		session.addPublicKeyIdentity(rwKeyPair);
-		assertTrue(session.auth().await().isSuccess());
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertTrue(authFuture.isSuccess());
 
 		ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_EXEC, cmd);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -131,7 +135,7 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 		channel.setErr(err);
 		channel.open();
 
-		channel.waitFor(ClientChannel.CLOSED, 0);
+		channel.waitFor(EnumSet.of(ClientChannel.ClientChannelEvent.CLOSED), 0);
 
 		String result = out.toString().trim();
 		channel.close(false);

@@ -212,7 +212,7 @@ public class LdapKeyManager extends IPublicKeyManager {
 					List<SshKey> keyList = new ArrayList<>(authorizedKeys.size());
 					for (GbAuthorizedKeyEntry keyEntry : authorizedKeys) {
 						try {
-							SshKey key = new SshKey(keyEntry.resolvePublicKey());
+							SshKey key = new SshKey(keyEntry.resolvePublicKey(null));
 							key.setComment(keyEntry.getComment());
 							setKeyPermissions(key, keyEntry);
 							keyList.add(key);

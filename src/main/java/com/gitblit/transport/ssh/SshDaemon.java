@@ -31,7 +31,7 @@ import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.common.util.SecurityUtils;
 import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.auth.CachingPublicKeyAuthenticator;
+import org.apache.sshd.server.auth.pubkey.CachingPublicKeyAuthenticator;
 import org.bouncycastle.openssl.PEMWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
@@ -158,7 +158,7 @@ public class SshDaemon {
 			log.info("SSH: adding GSSAPI authentication method.");
 		}
 
-		sshd.setSessionFactory(new SshServerSessionFactory());
+		sshd.setSessionFactory(new SshServerSessionFactory(sshd));
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
 		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, workQueue));
