@@ -508,35 +508,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcprov-jdk15on-1.52.jar">
+      <library name="bcprov-jdk15on-1.57.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk15on-1.52.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk15on-1.57.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk15on-1.52.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk15on-1.57.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcmail-jdk15on-1.52.jar">
+      <library name="bcmail-jdk15on-1.57.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk15on-1.52.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk15on-1.57.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk15on-1.52.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk15on-1.57.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcpkix-jdk15on-1.52.jar">
+      <library name="bcpkix-jdk15on-1.57.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk15on-1.52.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk15on-1.57.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcpkix-jdk15on-1.52.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcpkix-jdk15on-1.57.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
