@@ -15,8 +15,8 @@
  */
 package com.gitblit.transport.ssh;
 
-import org.apache.sshd.common.SshdSocketAddress;
 import org.apache.sshd.common.session.Session;
+import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.server.forward.ForwardingFilter;
 
 public class NonForwardingFilter implements ForwardingFilter {

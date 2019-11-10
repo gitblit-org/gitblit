@@ -21,15 +21,21 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.SocketAddress;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.sshd.client.ServerKeyVerifier;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.channel.ClientChannel;
+import org.apache.sshd.client.channel.ClientChannelEvent;
+import org.apache.sshd.client.config.keys.ClientIdentityLoader;
+import org.apache.sshd.client.future.AuthFuture;
+import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.SecurityUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -96,6 +102,16 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 
 	protected SshClient getClient() {
 		SshClient client = SshClient.setUpDefaultClient();
+		client.setClientIdentityLoader(new ClientIdentityLoader() {	// Ignore the files under ~/.ssh
+				@Override
+				public boolean isValidLocation(String location) throws IOException {
+					return true;
+				}
+				@Override
+				public KeyPair loadClientIdentity(String location, FilePasswordProvider provider) throws IOException, GeneralSecurityException {
+					return null;
+				}
+			});
 		client.setServerKeyVerifier(new ServerKeyVerifier() {
 			@Override
 			public boolean verifyServerKey(ClientSession sshClientSession, SocketAddress remoteAddress, PublicKey serverKey) {
@@ -112,9 +128,11 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 
 	protected String testSshCommand(String cmd, String stdin) throws IOException, InterruptedException {
 		SshClient client = getClient();
-		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).await().getSession();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
 		session.addPublicKeyIdentity(rwKeyPair);
-		assertTrue(session.auth().await().isSuccess());
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertTrue(authFuture.isSuccess());
 
 		ClientChannel channel = session.createChannel(ClientChannel.CHANNEL_EXEC, cmd);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -131,7 +149,7 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 		channel.setErr(err);
 		channel.open();
 
-		channel.waitFor(ClientChannel.CLOSED, 0);
+		channel.waitFor(EnumSet.of(ClientChannelEvent.CLOSED, ClientChannelEvent.EOF), 0);
 
 		String result = out.toString().trim();
 		channel.close(false);

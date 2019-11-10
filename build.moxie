@@ -104,7 +104,7 @@ repositories: central, eclipse-snapshots, eclipse, gitblit
 # Convenience properties for dependencies
 properties: {
   jetty.version  : 9.2.13.v20150730
-  slf4j.version  : 1.7.12
+  slf4j.version  : 1.7.29
   wicket.version : 1.4.22
   lucene.version : 5.5.2
   jgit.version   : 4.1.1.201511131810-r
@@ -112,8 +112,8 @@ properties: {
   bouncycastle.version : 1.57
   selenium.version : 2.28.0
   wikitext.version : 1.4
-  sshd.version: 1.0.0
-  mina.version: 2.0.9
+  sshd.version: 1.2.0
+  mina.version: 2.0.21
   guice.version : 4.0
   # Gitblit maintains a fork of guice-servlet
   guice-servlet.version : 4.0-gb2
