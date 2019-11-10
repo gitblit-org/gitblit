@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import org.junit.Ignore;
+
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.INotificationManager;
@@ -39,6 +41,7 @@ import com.gitblit.utils.XssFilter.AllowXssFilter;
  * @author James Moger
  *
  */
+@Ignore("Redis tests currently broken, no service running.")
 public class RedisTicketServiceTest extends TicketServiceTest {
 
 	final RepositoryModel repo = new RepositoryModel("tickets/redis.git", null, null, null);
