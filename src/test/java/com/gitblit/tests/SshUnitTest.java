@@ -37,6 +37,10 @@ import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.SecurityUtils;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.util.FS;
+import org.eclipse.jgit.util.SystemReader;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,6 +67,57 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 	public static void startGitblit() throws Exception {
 		generator = SecurityUtils.getKeyPairGenerator("RSA");
 		started.set(GitBlitSuite.startGitblit());
+
+		final SystemReader dsr  = SystemReader.getInstance();
+		SystemReader.setInstance(new SystemReader()
+		{
+			final SystemReader defaultsr = dsr;
+
+			@Override
+			public String getHostname()
+			{
+				return defaultsr.getHostname();
+			}
+
+			@Override
+			public String getenv(String variable)
+			{
+				if ("GIT_SSH".equalsIgnoreCase(variable)) {
+					return null;
+				}
+				return defaultsr.getenv(variable);
+			}
+
+			@Override
+			public String getProperty(String key)
+			{
+				return defaultsr.getProperty(key);
+			}
+
+			@Override
+			public FileBasedConfig openUserConfig(Config parent, FS fs)
+			{
+				return defaultsr.openUserConfig(parent, fs);
+			}
+
+			@Override
+			public FileBasedConfig openSystemConfig(Config parent, FS fs)
+			{
+				return defaultsr.openSystemConfig(parent, fs);
+			}
+
+			@Override
+			public long getCurrentTime()
+			{
+				return defaultsr.getCurrentTime();
+			}
+
+			@Override
+			public int getTimezone(long when)
+			{
+				return defaultsr.getTimezone(when);
+			}
+		});
 	}
 
 	@AfterClass
