@@ -978,8 +978,20 @@ public class GitServletTest extends GitblitUnitTest {
 		HttpGet request = new HttpGet(testURL);
 
 		HttpResponse response = client.execute(request);
-
 		assertEquals(400, response.getStatusLine().getStatusCode());
+	}
+
+	@Test
+	public void testInvalidURLCloneBundle() throws IOException {
+		final String testURL = GitBlitSuite.gitServletUrl + "/helloworld.git/clone.bundle";
+
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet request = new HttpGet(testURL);
+
+		HttpResponse response = client.execute(request);
+		assertEquals(501, response.getStatusLine().getStatusCode());
+		String content = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+		assertNotNull(content);
 	}
 
 }

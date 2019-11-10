@@ -188,6 +188,15 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 			return;
 		}
 
+		// TODO: Maybe checking for clone bundle should be done somewhere else? Like other stuff?
+		//       In any way, the access to the constant from here is messed up an needs some cleaning up.
+		if (GitFilter.CLONE_BUNDLE.equalsIgnoreCase(urlRequestType)) {
+			logger.info(MessageFormat.format("ARF: Rejecting request for {0}, clone bundle is not implemented.", repository));
+			httpResponse.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "The 'clone.bundle' command is currently not implemented. " +
+					"Please use a normal clone command.");
+			return;
+		}
+
 		UserModel user = getUser(httpRequest);
 
 		// Load the repository model

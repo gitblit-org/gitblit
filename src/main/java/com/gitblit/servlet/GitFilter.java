@@ -49,11 +49,13 @@ public class GitFilter extends AccessRestrictionFilter {
 	static final String GIT_RECEIVE_PACK = "/git-receive-pack";
 
 	static final String GIT_UPLOAD_PACK = "/git-upload-pack";
+
+	static final String CLONE_BUNDLE = "/clone.bundle";
 	
 	static final String GIT_LFS = "/info/lfs";
 	
 	static final String[] SUFFIXES = {GIT_RECEIVE_PACK, GIT_UPLOAD_PACK, "/info/refs", "/HEAD",
-			"/objects", GIT_LFS};
+			"/objects", GIT_LFS, CLONE_BUNDLE};
 
 	private IStoredSettings settings;
 
@@ -127,6 +129,8 @@ public class GitFilter extends AccessRestrictionFilter {
 				return GIT_UPLOAD_PACK;
 			} else if (suffix.startsWith(GIT_LFS)) {
 				return GIT_LFS;
+			} else if (suffix.startsWith(CLONE_BUNDLE)) {
+				return CLONE_BUNDLE;
 			} else {
 				return GIT_UPLOAD_PACK;
 			}
@@ -163,7 +167,11 @@ public class GitFilter extends AccessRestrictionFilter {
 		if (GIT_LFS.equals(action)) {
 			return false;
 		}
-		
+		// Action is not implemened.
+		if (CLONE_BUNDLE.equals(action)) {
+			return false;
+		}
+
 		return settings.getBoolean(Keys.git.allowCreateOnPush, true);
 	}
 
