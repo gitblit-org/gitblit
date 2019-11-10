@@ -167,6 +167,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		String fullUrl = getFullUrl(httpRequest);
 		String repository = extractRepositoryName(fullUrl);
 		if (StringUtils.isEmpty(repository)) {
+			logger.info("ARF: Rejecting request, empty repository name in URL {}", fullUrl);
 			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -180,6 +181,12 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		// Determine if the request URL is restricted
 		String fullSuffix = fullUrl.substring(repository.length());
 		String urlRequestType = getUrlRequestAction(fullSuffix);
+
+		if (StringUtils.isEmpty(urlRequestType)) {
+			logger.info("ARF: Rejecting request for {}, no supported action found in URL {}", repository, fullSuffix);
+			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
 
 		UserModel user = getUser(httpRequest);
 

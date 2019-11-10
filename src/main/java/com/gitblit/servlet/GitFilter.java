@@ -46,14 +46,14 @@ import com.gitblit.utils.StringUtils;
 @Singleton
 public class GitFilter extends AccessRestrictionFilter {
 
-	protected static final String gitReceivePack = "/git-receive-pack";
+	static final String GIT_RECEIVE_PACK = "/git-receive-pack";
 
-	protected static final String gitUploadPack = "/git-upload-pack";
+	static final String GIT_UPLOAD_PACK = "/git-upload-pack";
 	
-	protected static final String gitLfs = "/info/lfs";
+	static final String GIT_LFS = "/info/lfs";
 	
-	protected static final String[] suffixes = { gitReceivePack, gitUploadPack, "/info/refs", "/HEAD",
-			"/objects", gitLfs };
+	static final String[] SUFFIXES = {GIT_RECEIVE_PACK, GIT_UPLOAD_PACK, "/info/refs", "/HEAD",
+			"/objects", GIT_LFS};
 
 	private IStoredSettings settings;
 
@@ -76,13 +76,19 @@ public class GitFilter extends AccessRestrictionFilter {
 	/**
 	 * Extract the repository name from the url.
 	 *
-	 * @param cloneUrl
+	 * @param url
+	 * 			Request URL with repository name in it
 	 * @return repository name
 	 */
-	public static String getRepositoryName(String value) {
-		String repository = value;
+	public static String getRepositoryName(String url) {
+		String repository = url;
+		// strip off parameters from the URL
+		if (repository.contains("?")) {
+			repository = repository.substring(0, repository.indexOf("?"));
+		}
+
 		// get the repository name from the url by finding a known url suffix
-		for (String urlSuffix : suffixes) {
+		for (String urlSuffix : SUFFIXES) {
 			if (repository.indexOf(urlSuffix) > -1) {
 				repository = repository.substring(0, repository.indexOf(urlSuffix));
 			}
@@ -111,18 +117,18 @@ public class GitFilter extends AccessRestrictionFilter {
 	@Override
 	protected String getUrlRequestAction(String suffix) {
 		if (!StringUtils.isEmpty(suffix)) {
-			if (suffix.startsWith(gitReceivePack)) {
-				return gitReceivePack;
-			} else if (suffix.startsWith(gitUploadPack)) {
-				return gitUploadPack;
+			if (suffix.startsWith(GIT_RECEIVE_PACK)) {
+				return GIT_RECEIVE_PACK;
+			} else if (suffix.startsWith(GIT_UPLOAD_PACK)) {
+				return GIT_UPLOAD_PACK;
 			} else if (suffix.contains("?service=git-receive-pack")) {
-				return gitReceivePack;
+				return GIT_RECEIVE_PACK;
 			} else if (suffix.contains("?service=git-upload-pack")) {
-				return gitUploadPack;
-			} else if (suffix.startsWith(gitLfs)) {
-				return gitLfs;
+				return GIT_UPLOAD_PACK;
+			} else if (suffix.startsWith(GIT_LFS)) {
+				return GIT_LFS;
 			} else {
-				return gitUploadPack;
+				return GIT_UPLOAD_PACK;
 			}
 		}
 		return null;
@@ -150,9 +156,11 @@ public class GitFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected boolean isCreationAllowed(String action) {
-		
+		// Unknown action, don't allow creation
+		if (action == null) return false;
+
 		//Repository must already exist before large files can be deposited
-		if (action.equals(gitLfs)) {
+		if (GIT_LFS.equals(action)) {
 			return false;
 		}
 		
@@ -170,7 +178,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected boolean isActionAllowed(RepositoryModel repository, String action, String method) {
 		// the log here has been moved into ReceiveHook to provide clients with
 		// error messages
-		if (gitLfs.equals(action)) {
+		if (GIT_LFS.equals(action)) {
 			if (!method.matches("GET|POST|PUT|HEAD")) {
 				return false;
 			}
@@ -194,13 +202,13 @@ public class GitFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected boolean requiresAuthentication(RepositoryModel repository, String action, String method) {
-		if (gitUploadPack.equals(action)) {
+		if (GIT_UPLOAD_PACK.equals(action)) {
 			// send to client
 			return repository.accessRestriction.atLeast(AccessRestrictionType.CLONE);
-		} else if (gitReceivePack.equals(action)) {
+		} else if (GIT_RECEIVE_PACK.equals(action)) {
 			// receive from client
 			return repository.accessRestriction.atLeast(AccessRestrictionType.PUSH);
-		} else if (gitLfs.equals(action)) {
+		} else if (GIT_LFS.equals(action)) {
 			
 			if (method.matches("GET|HEAD")) {
 				return repository.accessRestriction.atLeast(AccessRestrictionType.CLONE);
@@ -227,10 +235,10 @@ public class GitFilter extends AccessRestrictionFilter {
 			// Git Servlet disabled
 			return false;
 		}
-		if (action.equals(gitReceivePack)) {
+		if (GIT_RECEIVE_PACK.equals(action)) {
 			// push permissions are enforced in the receive pack
 			return true;
-		} else if (action.equals(gitUploadPack)) {
+		} else if (GIT_UPLOAD_PACK.equals(action)) {
 			// Clone request
 			if (user.canClone(repository)) {
 				return true;
@@ -255,9 +263,9 @@ public class GitFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected RepositoryModel createRepository(UserModel user, String repository, String action) {
-		boolean isPush = !StringUtils.isEmpty(action) && gitReceivePack.equals(action);
+		boolean isPush = !StringUtils.isEmpty(action) && GIT_RECEIVE_PACK.equals(action);
 		
-		if (action.equals(gitLfs)) {
+		if (GIT_LFS.equals(action)) {
 			//Repository must already exist for any filestore actions
 			return null;
 		}
@@ -325,7 +333,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	@Override
 	protected String getAuthenticationHeader(HttpServletRequest httpRequest, String action) {
 
-		if (action.equals(gitLfs)) {
+		if (GIT_LFS.equals(action)) {
 			if (hasContentInRequestHeader(httpRequest, "Accept", FilestoreServlet.GIT_LFS_META_MIME)) {
 				return "LFS-Authenticate";
 			}
@@ -344,7 +352,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected boolean hasValidRequestHeader(String action,
 			HttpServletRequest request) {
 
-		if (action.equals(gitLfs) && request.getMethod().equals("POST")) {
+		if (GIT_LFS.equals(action) && request.getMethod().equals("POST")) {
 			if ( 	!hasContentInRequestHeader(request, "Accept", FilestoreServlet.GIT_LFS_META_MIME)
 				 || !hasContentInRequestHeader(request, "Content-Type", FilestoreServlet.GIT_LFS_META_MIME)) {
 				return false;
