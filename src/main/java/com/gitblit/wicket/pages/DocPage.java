@@ -51,6 +51,11 @@ public class DocPage extends RepositoryPage {
 		
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
+		if (commit == null) {
+			setResponsePage(NoDocsPage.class, params);
+			return;
+		}
+
 		String [] encodings = getEncodings();
 
 		// Read raw markup content and transform it to html
