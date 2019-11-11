@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -167,7 +166,7 @@ public class UserPage extends RootPage {
 		navLinks.add(menu);
 	}
 	
-	public static List<Language> getLanguages(){
+	static List<Language> getLanguages(){
 		return  Arrays.asList(
 				new Language("Česky","cs"),
 				new Language("Deutsch","de"),
@@ -184,12 +183,31 @@ public class UserPage extends RootPage {
 				new Language("簡體中文", "zh_CN"),
 				new Language("正體中文", "zh_TW"));
 	}
-	
+
+	static Language getPreferredLanguage(Locale locale, List<Language> languages) {
+		Language preferredLanguage = null;
+		if (locale != null) {
+			String localeCode = locale.getLanguage();
+			if (!StringUtils.isEmpty(locale.getCountry())) {
+				localeCode += "_" + locale.getCountry();
+			}
+
+			for (Language language : languages) {
+				if (language.code.equals(localeCode)) {
+					// language_COUNTRY match
+					preferredLanguage = language;
+				} else if (preferredLanguage == null && language.code.startsWith(locale.getLanguage())) {
+					// language match
+					preferredLanguage = language;
+				}
+			}
+		}
+		return preferredLanguage;
+	}
+
 	private void addPreferences(UserModel user) {
 		// add preferences
 		Form<Void> prefs = new Form<Void>("prefsForm");
-
-		List<Language> languages = getLanguages();
 
 		Locale locale = user.getPreferences().getLocale();
 		if (locale == null) {
@@ -203,28 +221,11 @@ public class UserPage extends RootPage {
 				if (sessionLocale != null) {
 					locale = sessionLocale;
 				}
-			} else {
-
 			}
 		}
 
-		Language preferredLanguage = null;
-		if (locale != null) {
-			String localeCode = locale.getLanguage();
-			if (!StringUtils.isEmpty(locale.getCountry())) {
-				localeCode += "_" + locale.getCountry();
-			}
-
-			for (Language language : languages) {
-				if (language.code.equals(localeCode)) {
-					// language_COUNTRY match
-					preferredLanguage = language;
-				} else if (preferredLanguage != null && language.code.startsWith(locale.getLanguage())) {
-					// language match
-					preferredLanguage = language;
-				}
-			}
-		}
+		List<Language> languages = getLanguages();
+		Language preferredLanguage = getPreferredLanguage(locale, languages);
 
 		final IModel<String> displayName = Model.of(user.getDisplayName());
 		final IModel<String> emailAddress = Model.of(user.emailAddress == null ? "" : user.emailAddress);

@@ -112,30 +112,11 @@ public class EditUserPage extends RootSubPage {
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
 				new ArrayList<String>(userTeams)), new CollectionModel<String>(app().users()
 				.getAllTeamNames()), new StringChoiceRenderer(), 10, false);
+
 		Locale locale = userModel.getPreferences().getLocale();
-		if (locale == null) {
-			locale = Locale.ENGLISH;
-		}
-
 		List<Language> languages = UserPage.getLanguages();
-		Language preferredLanguage = null;
-		if (locale != null) {
-			String localeCode = locale.getLanguage();
-			if (!StringUtils.isEmpty(locale.getCountry())) {
-				localeCode += "_" + locale.getCountry();
-			}
-
-			for (Language lang : languages) {
-				if (lang.code.equals(localeCode)) {
-					// language_COUNTRY match
-					preferredLanguage = lang;
-				} else if (preferredLanguage != null && lang.code.startsWith(locale.getLanguage())) {
-					// language match
-					preferredLanguage = lang;
-				}
-			}
-		}
-		final IModel<Language> language = Model.of(preferredLanguage);		
+		Language preferredLanguage = UserPage.getPreferredLanguage(locale, languages);
+		final IModel<Language> language = Model.of(preferredLanguage);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
