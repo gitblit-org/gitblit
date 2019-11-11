@@ -95,10 +95,5 @@
 	<classpathentry kind="lib" path="ext/mockito-core-1.10.19.jar" sourcepath="ext/src/mockito-core-1.10.19.jar" />
 	<classpathentry kind="lib" path="ext/objenesis-2.1.jar" sourcepath="ext/src/objenesis-2.1.jar" />
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
-	<classpathentry kind="src" path="src/main/dagger">
-		<attributes>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin/classes" />
 </classpath>
