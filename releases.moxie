@@ -5,15 +5,113 @@ r30: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6.
+
+          With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.
+
+          The interface for the ITicketService changed. If you have your own derived implementation, rename `start` to `onStart`. (see commit-63dbdfda)
+
+          To support Java 9+, Gitblit can no longer load JARs from the 'ext' folder by itself. In order to include the folder, it needs to be added to the classpath explicitly by changing the command line. Check the new start scripts to see the new required command line.
+
+          The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.
+
+          When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.
+
+          Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in. 
+          ''
     html: ~
-    text: ~
-    security: ~
-    fixes: ~
-    changes: ~
-    additions: ~
-    dependencyChanges: ~
-    contributors: ~
+    text: ''
+          Highlights:
+          
+          * Collapsible and nested repository groups on the repositories page
+          * Runs on Java 11
+          * Retrieve SSH keys from LDAP
+          * User language preference
+          * Option to merge ticket branches fast-forward or with merge commit
+          ''
+    security:
+      - Change authentication cookie to use random value instead of user information (issue-1063, pr-1116)
+      - Increase cookie security (pr-1167)
+    fixes:
+      - Fixed wrong HTML entity (&rt;) in HTML emails (pr-1105)
+      - Fixed Dutch translation (pr-1130)
+      - Changed LDAP binding strategies, to correctly find team membership (issue-833, issue-920, pr-247, pr-1149)
+      - Fixed disabled links in the PagerPanel to really be disabled (pr-1147)
+      - Set "can admin" permission on LDAP users and teams correctly (pr-1152)
+      - Fixed user mentions in tickets (issue-985)
+      - Fixed JEE Servlet 3.0 definition (issue-1132, pr-1178)
+      - Fixed proxy setup documentation (pr-1183)
+      - Fixed bug with reverse proxy when using a non-standard HTTPS port (issue-1114, pr-1201)
+      - Fixed wrapping of last column in tree page (pr-1202)
+      - Fixed NPE with unsupported transport URL protocol (pr-1238)
+      - Fixed unit tests by providing zipped local versions of external git repositories used for tests (issue-1275, pr-1309)
+      - Fixed NPE for symbolic links to repositories (issue-837, issue-891)
+      - Fixed NPE for ticket milestones without due date (pr-1278)
+      - Fixed NPE with special characters in repository names (issue-999, pr-1194)
+      - Fixed NPE when stopping GitBlit
+      - Fixed exception due to MAC error on SSH connections (issue-1282)
+      - Fixed link to LDAP sample LDIF file in documentation
+      - Fixed NPE on unknown git commands. (issue-1092)
+      - Fixed NPE for URLs to non-existing documents (pr-1324)
+    changes:
+      - Updated traditional Chinese translation (pr-1110)
+      - Load commit cache in the background to improve start-up time (pr-1140)
+      - Improved logging when sending emails fails, to assist in analysis (pr-1144)
+      - Support customized IUserService that can access application settings (pr-1171)
+      - Added feedback for invalid input on user SSH key form (pr-1239)
+      - Encode email sender's name with UTF-8 (pr-1206)
+      - Made Gitblit run on Java 9+ (issue-1262, issue-1294, pr-1266)
+      - The JRE version is reported upon starting
+      - Add the 'ext' directory to the classpath on the command-line to start Gitblit and related programs.
+      - Report back that git command 'clone.bundle' is unsupported instead of simply failing
+    additions:
+      - Added option to merge a ticket branch to the integration branch fast-forward or with a merge commit (pr-1142)
+      - Added SSH key manager that retrieves keys from LDAP directory (pr-1160)
+      - Updated Korean translation (pr-1176)
+      - The list of SSH authentication methods accepted by the server was made configurable (pr-1159)
+      - User language preference setting (pr-1198)
+      - Gitblit Authority sends user certificate email based on user preferred language (pr-1198)
+      - List branches over RPC for a given repository (pr-1192)
+      - Added Czech translation (pr-1200)
+      - Added setting to set HTTP idle timeout to prevent timeouts when cloning large repositories over HTTP(S) (pr-1243)
+      - Made the repository groups on the repositories page collapsible (issue-527, pr-1224)
+      - Made the repository groups on the repositories page nested (issue-725, pr-1267)
+      - Added PBKDF2 as password hashing algorithm. Other password storage choices are deprecated (issue-1166, pr-1172)
+    dependencyChanges:
+      - updated to Lucene 5.5.2
+      - updated to BouncyCastle 1.57
+      - updated to MINA 2.0.21
+      - updated to MINA SSHD 1.2.0
+      - updated to SLF4J 1.7.29
+      - updated to JaCoCo 0.8.4
+    contributors:
+      - Guilliam Xavier
+      - william
+      - Lars Maes
+      - Thomas Wolf
+      - Florian Zschocke
+      - Glenn Matthys
+      - Rodrigo Andrade
+      - Dongsu, Kim
+      - Martin Spielmann
+      - Bala Raman
+      - Rainer W
+      - Markus Fömpe
+      - Jan Breuer
+      - Luca Milanesio
+      - Sebastiano Pilla
+      - Tue Ton
+      - Fritz Schrogl
+      - ybosy
+      - paladox
+      - Jia Zhi Wen
+    settings:
+      - { name: 'git.sshAuthenticationMethods', defaultValue: 'publickey password' }
+      - { name: 'realm.ldap.sshPublicKey', defaultValue: ' ' }
+      - { name: 'server.httpIdleTimeout', defaultValue: 30000 }
+      - { name: 'tickets.mergeType', defaultValue: 'MERGE_ALWAYS' }
+      - { name: 'web.collapsibleRepositoryGroups', defaultValue: 'expanded' }
 }
 
 #
@@ -327,7 +425,7 @@ r25: {
           The next major release (v1.7.0) will focus on:
           * ticket-75: making projects more useful including the concept of project ownership
           
-          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RpeositoryModel to the UserModel
+          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RepositoryModel to the UserModel
           
           * ticket-55: facilitating usage of tickets & git-flow in the web ui
           ''
