@@ -609,7 +609,8 @@
 			<replace token="%GCURL%" value="${gc.url}" />
 			
 			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
-			
+
+			<regex searchPattern="\b(commit)(\s*[#]?|-){0,1}([0-9a-fA-F]{5,})\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/commit/$3'&gt;commit $3&lt;/a&gt;" />
 			<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/issues/$3'&gt;issue $3&lt;/a&gt;" />
 			<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
 			<regex searchPattern="\b(ticket)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://dev.gitblit.com/tickets/gitblit.git/$3'&gt;ticket $3&lt;/a&gt;" />
