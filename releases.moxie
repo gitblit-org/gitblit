@@ -79,10 +79,10 @@ r30: {
       - Made the repository groups on the repositories page nested (issue-725, pr-1267)
       - Added PBKDF2 as password hashing algorithm. Other password storage choices are deprecated (issue-1166, pr-1172)
     dependencyChanges:
-      - updated to Lucene 5.5.2
-      - updated to BouncyCastle 1.57
+      - updated to Lucene 5.5.2 (pr-1168)
+      - updated to BouncyCastle 1.57 (issue-1166)
       - updated to MINA 2.0.21
-      - updated to MINA SSHD 1.2.0
+      - updated to MINA SSHD 1.2.0 (issue-1282, pr-1322)
       - updated to SLF4J 1.7.29
       - updated to JaCoCo 0.8.4
     contributors:
