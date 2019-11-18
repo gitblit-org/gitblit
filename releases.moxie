@@ -6,7 +6,7 @@ r30: {
     id: ${project.version}
     date: ${project.buildDate}
     note: ''
-          Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6.
+          Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. 
 
           With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.
 
