@@ -85,6 +85,7 @@ r30: {
       - updated to MINA SSHD 1.2.0 (issue-1282, pr-1322)
       - updated to SLF4J 1.7.29
       - updated to JaCoCo 0.8.4
+      - updated to JGit 4.5.7.201904151645-r (issue-1030, issue-1091)
     contributors:
       - Guilliam Xavier
       - william
