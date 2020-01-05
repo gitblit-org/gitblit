@@ -6,6 +6,9 @@ jobs:
   build:
     name: Build and test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [7, 8, 11]
     
     steps:
       - name: Checkout
@@ -13,13 +16,15 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup Java
+      - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: ${{ matrix.java-version }}
+
+      - name: Report Java version
+        run: |
+          java -version
+          javac -version
 
       - name: Build with Ant
-        run: ant compile
-
-      - name: Test with Ant
         run: ant test
