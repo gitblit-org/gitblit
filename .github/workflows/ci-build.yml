@@ -29,3 +29,32 @@ jobs:
 
       - name: Build with Ant
         run: ant test
+
+  build_j7:
+    name: Build and test on Java 7
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          submodules: true
+
+      - name: Setup Java 7
+        uses: actions/setup-java@v1
+        with:
+          java-version: 7
+
+      - name: Report Java version
+        run: |
+          java -version
+          javac -version
+
+      - name: Setup Moxie
+        run: |
+          wget http://gitblit.github.io/moxie/maven/com/gitblit/moxie/moxie+ant/0.9.4/moxie+ant-0.9.4.tar.gz
+          tar -xzf moxie+ant-0.9.4.tar.gz
+          moxie-0.9.4/bin/moxie -version
+
+      - name: Build with Moxie
+        run:  moxie-0.9.4/bin/moxie
