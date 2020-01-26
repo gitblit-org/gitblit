@@ -27,7 +27,12 @@
 	<property name="project.src.dir" value="${basedir}/src/main/java" />	
 	<property name="project.resources.dir" value="${basedir}/src/main/resources" />	
 	<property name="project.distrib.dir" value="${basedir}/src/main/distrib" />
-	
+
+	<!-- Tools -->
+	<property name="octokit" location="${basedir}/.github/ok.sh" />
+	<property name="relnoawk" location="${basedir}/src/site/templates/ghreleasenotes.awk" />
+
+
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Initialize Moxie and setup build properties
@@ -50,6 +55,8 @@
 		<property name="authority.zipfile" value="authority-${project.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${project.version}.zip" />
 		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
+		<property name="releaselog" value="${basedir}/releases.moxie" />
+
 
 		<!-- Download links -->
 		<property name="gc.url" value="http://dl.bintray.com/gitblit/releases/" />
@@ -480,9 +487,9 @@
 		</fileset>
 		</delete>
 	</target>
-		
-		
-	<!-- 
+
+
+	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build the Gitblit Website
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -490,8 +497,6 @@
 	<target name="buildSite" depends="prepare" description="Build the Gitblit website">
 		
 		<echo>Building Gitblit Website ${project.version}</echo>
-
-		<property name="releaselog" value="${basedir}/releases.moxie" />
 
 		<!-- Build Site -->
 		<mx:doc	googleplusid="114464678392593421684" googleanalyticsid="UA-24377072-1"
@@ -688,7 +693,7 @@
 		<!-- Build gh-pages branch -->
 		<mx:ghpages repositorydir="${basedir}" obliterate="true" />
 	</target>
-	
+
 
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -731,7 +736,76 @@
 
 	</target>
 
-	
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Publish binaries to GitHub release
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="releaseBinaries" depends="prepare" description="Publish the Gitblit binaries to a GitHub release">
+		<property name="project.tag" value="v${project.version}" />
+
+		<ghReleaseDraft
+			releaselog="${releaselog}"/>
+
+		<echo>Uploading Gitblit ${project.version} binaries</echo>
+
+		<!-- Upload Gitblit GO Windows ZIP file -->
+		<githubUpload
+			source="${project.targetDirectory}/${distribution.zipfile}"
+			target="gitblit-${project.version}.zip" />
+
+		<!-- Upload Gitblit GO Linux/Unix tar.gz file -->
+		<githubUpload
+			source="${project.targetDirectory}/${distribution.tgzfile}"
+			target="gitblit-${project.version}.tar.gz" />
+
+		<!-- Upload Gitblit WAR file -->
+		<githubUpload
+			source="${project.targetDirectory}/${distribution.warfile}"
+			target="gitblit-${project.version}.war" />
+
+		<!-- Upload Gitblit FedClient -->
+		<githubUpload
+			source="${project.targetDirectory}/${fedclient.zipfile}"
+			target="fedclient-${project.version}.zip" />
+
+		<!-- Upload Gitblit Manager -->
+		<githubUpload
+			source="${project.targetDirectory}/${manager.zipfile}"
+			target="manager-${project.version}.zip" />
+
+		<!-- Upload Gitblit API Library -->
+		<githubUpload
+			source="${project.targetDirectory}/${gbapi.zipfile}"
+			target="gbapi-${project.version}.zip" />
+
+
+	</target>
+
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Publish GH release draft
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="publishRelease" depends="prepare" description="Publish the GitHub release draft" >
+		<property name="project.tag" value="v${project.version}" />
+
+		<echo>Publishing Gitblit ${project.version} release draft on GitHub</echo>
+
+		<ghGetReleaseId
+			releaseVersion="${project.version}"/>
+		<exec executable="bash" logError="true" >
+			<arg value="-c" />
+			<arg value="${octokit} -q edit_release fzs gitblit ${ghrelease.id} tag_name='${project.tag}'"></arg>
+		</exec>
+		<ghPublishReleaseDraft
+			releaseid="${ghrelease.id}"/>
+
+	</target>
+
+
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Publish site to site hosting service
@@ -983,7 +1057,7 @@
 			</copy>
       </sequential>
 	</macrodef>
-	
+
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Macro to upload binaries to Bintray
@@ -996,6 +1070,82 @@
 			<echo>uploading @{source} to Bintray</echo>
 			<exec executable="curl">
 				<arg line="--silent --show-error -T @{source} -u${bintray.username}:${bintray.apikey} https://api.bintray.com/content/gitblit/releases/gitblit/${project.version}/@{target}"></arg>
+			</exec>
+		</sequential>
+	</macrodef>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Macro to create release draft on GitHub
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<macrodef name="ghReleaseDraft">
+		<attribute name="releaselog" />
+		<sequential>
+			<echo>Creating release ${project.tag} draft on GitHub</echo>
+			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
+				<arg value="-c" />
+				<arg value="${octokit} create_release fzs gitblit ${project.tag} name=${project.version} draft=true | cut -f2"></arg>
+			</exec>
+			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.upldUrl">
+				<arg value="-c" />
+				<arg value="${octokit} release fzs gitblit ${ghrelease.id} _filter=.upload_url | sed 's/{.*$/?name=/'"></arg>
+			</exec>
+			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.notes">
+				<arg value="-c" />
+				<arg value="cat @{releaselog} | awk -f ${relnoawk} protect=true"></arg>
+			</exec>
+			<exec executable="bash" logError="true" >
+				<arg value="-c" />
+				<arg value="${octokit} -q edit_release fzs gitblit ${ghrelease.id} body='${ghrelease.notes}'"></arg>
+			</exec>
+		</sequential>
+	</macrodef>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Macro to upload binaries to GitHub
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<macrodef name="githubUpload">
+		<attribute name="source"/>
+		<attribute name="target"/>
+		<sequential>
+			<echo>uploading @{source} to GitHub release ${ghrelease.id}</echo>
+			<exec executable="bash" logError="true" failonerror="true" >
+				<arg value="-c" />
+				<arg value="${octokit} upload_asset ${ghrelease.upldUrl}@{target} @{source}"></arg>
+			</exec>
+		</sequential>
+	</macrodef>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Macro to publish release draft on GitHub
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<macrodef name="ghPublishReleaseDraft">
+		<attribute name="releaseid"/>
+		<sequential>
+			<echo>publishing GitHub release draft @{releaseid}</echo>
+			<exec executable="bash" logError="true" >
+				<arg value="-c" />
+				<arg value="${octokit} -q edit_release fzs gitblit @{releaseid} draft=false"></arg>
+			</exec>
+		</sequential>
+	</macrodef>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Macro to publish release draft on GitHub
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<macrodef name="ghGetReleaseId">
+		<attribute name="releaseVersion"/>
+		<sequential>
+			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
+				<arg value="-c" />
+				<arg value="${octokit} list_releases fzs gitblit _filter='.[] | &quot;\(.name)\t\(.tag_name)\t\(.id)&quot;' | grep @{releaseVersion} | cut -f3"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
