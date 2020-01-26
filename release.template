@@ -3,6 +3,28 @@
 # ${project.version} release script
 #
 
+# In order to build on CI systems, we need to make sure we have a Ant
+# that we can use. Ant 1.10 requires Java 8, so we cannot use it for
+# the current version. Instead, Moxie can be used if present.
+if command -v ant 2> /dev/null 1>&2 ; then
+	if ant -version 2> /dev/null ; then
+		antCmd=ant
+	fi
+fi
+if [ -z "$antCmd" ] ; then
+	if command -v moxie 2> /dev/null 1>&2 ; then
+		antCmd=moxie
+	fi
+fi
+if [ -z "$antCmd" ] ; then
+	echo "Cannot find suitable ant or moxie. No build is possible."
+	exit 1
+fi
+
+# Check which branch we are on, so we can run this script not only on master
+branch=$(git symbolic-ref -q --short HEAD)
+
+
 # ensure Maven repository is up-to-date
 echo ""
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -14,13 +36,13 @@ git checkout gh-pages
 git pull
 cd ${project.directory}
 
-# go back one commit to RELEASE commit
+# go back one commit to RELEASE commit  (fzs: what, why? Let's go to the tag)
 echo ""
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "Checking out ${project.version} RELEASE commit ${project.commitId}"
+echo "Checking out ${project.version} RELEASE commit ${project.tag}"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
-git checkout ${project.commitId}
+git checkout ${project.tag}
 
 # build RELEASE artifacts
 echo ""
@@ -28,7 +50,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "Building ${project.version} RELEASE artifacts"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
-ant clean buildAll buildMavenArtifacts
+$antCmd clean buildAll buildMavenArtifacts
 
 # commit all generated artifacts and metadata
 echo ""
@@ -47,24 +69,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "Uploading ${project.version} artifacts"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
-ant publishBinaries
-
-# build site, update gh-pages, and ftp upload site to hosting provider
-echo ""
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "Building ${project.version} website"
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo ""
-ant publishSite
-
-# merge to master
-echo ""
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo "Updating build identifier for next release cycle"
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo ""
-git checkout master
-ant nextPointReleaseCycle
+$antCmd releaseBinaries
 
 # push Maven repository to origin
 echo ""
@@ -82,4 +87,23 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "Pushing master, gh-pages, and tag ${project.tag}"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
-git push origin master gh-pages ${project.tag}
+git push origin gh-pages ${project.tag}
+
+# publish release draft
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Publishing release ${project.version}"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
+$antCmd publishRelease
+
+# merge to master (fzs: what? why merging?)
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Updating build identifier for next release cycle"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
+git checkout ${branch}
+$antCmd nextPointReleaseCycle
+git push origin
+
