@@ -802,7 +802,7 @@
 			releaseVersion="${project.version}"/>
 		<exec executable="bash" logError="true" >
 			<arg value="-c" />
-			<arg value="${octokit} -q edit_release fzs gitblit ${ghrelease.id} tag_name='${release.tag}'"></arg>
+			<arg value="${octokit} -q edit_release ${gh.org} gitblit ${ghrelease.id} tag_name='${release.tag}'"></arg>
 		</exec>
 		<ghPublishReleaseDraft
 			releaseid="${ghrelease.id}"/>
@@ -1100,11 +1100,11 @@
 			<echo>Creating release ${project.tag} draft on GitHub</echo>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
 				<arg value="-c" />
-				<arg value="${octokit} create_release fzs gitblit @{releasetag} name=${project.version} draft=true | cut -f2"></arg>
+				<arg value="${octokit} create_release ${gh.org} gitblit @{releasetag} name=${project.version} draft=true | cut -f2"></arg>
 			</exec>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.upldUrl">
 				<arg value="-c" />
-				<arg value="${octokit} release fzs gitblit ${ghrelease.id} _filter=.upload_url | sed 's/{.*$/?name=/'"></arg>
+				<arg value="${octokit} release ${gh.org} gitblit ${ghrelease.id} _filter=.upload_url | sed 's/{.*$/?name=/'"></arg>
 			</exec>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.notes">
 				<arg value="-c" />
@@ -1112,7 +1112,7 @@
 			</exec>
 			<exec executable="bash" logError="true" >
 				<arg value="-c" />
-				<arg value="${octokit} -q edit_release fzs gitblit ${ghrelease.id} body='${ghrelease.notes}'"></arg>
+				<arg value="${octokit} -q edit_release ${gh.org} gitblit ${ghrelease.id} body='${ghrelease.notes}'"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
@@ -1145,7 +1145,7 @@
 			<echo>publishing GitHub release draft @{releaseid}</echo>
 			<exec executable="bash" logError="true" >
 				<arg value="-c" />
-				<arg value="${octokit} -q edit_release fzs gitblit @{releaseid} draft=false"></arg>
+				<arg value="${octokit} -q edit_release ${gh.org} gitblit @{releaseid} draft=false"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
@@ -1160,7 +1160,7 @@
 		<sequential>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
 				<arg value="-c" />
-				<arg value="${octokit} list_releases fzs gitblit _filter='.[] | &quot;\(.name)\t\(.tag_name)\t\(.id)&quot;' | grep @{releaseVersion} | cut -f3"></arg>
+				<arg value="${octokit} list_releases ${gh.org} gitblit _filter='.[] | &quot;\(.name)\t\(.tag_name)\t\(.id)&quot;' | grep @{releaseVersion} | cut -f3"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
