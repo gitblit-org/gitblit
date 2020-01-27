@@ -500,8 +500,8 @@
 		<echo>Building Gitblit Website ${project.version}</echo>
 
 		<!-- Build Site -->
-		<mx:doc	googleplusid="114464678392593421684" googleanalyticsid="UA-24377072-1"
-			googlePlusOne="true" minify="true" customless="custom.less">
+		<mx:doc	googleanalyticsid="UA-24377072-1"
+		    minify="true" customless="custom.less">
 			<structure>
 				<menu name="about">
 					<page name="overview" src="siteindex.mkd" out="index.html" headerLinks="false" />
