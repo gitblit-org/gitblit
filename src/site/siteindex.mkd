@@ -15,8 +15,7 @@
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="%GCURL%gitblit-${project.releaseVersion}.tar.gz">Download Gitblit GO (Linux/OSX)</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="%GCURL%gitblit-${project.releaseVersion}.war">Download Gitblit WAR</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="%GCURL%manager-${project.releaseVersion}.zip">Download Gitblit Manager</a></div>
-		<a href='https://bintray.com/gitblit/releases/gitblit/view?source=watch' alt='Get automatic notifications about new "stable" versions'><img src='https://www.bintray.com/docs/images/bintray_badge_color.png'></a>
-	</div>
+</div>
 <div data-manifest="http://1c57d83a4c5f3a21ec25c050d4c5e37b.app.jelastic.com/xssu/cross/download/RDYYHABkAFJbUVlMMVU7RUtDARgATExFCEBuGS4jdQJKRUsEDwIBQmNTTEBI" data-width="280" data-theme="flat-blue" data-text="Get it hosted now!" data-tx-empty="Type your email and click the button" data-tx-invalid-email="Invalid email, please check the spelling" data-tx-error="An error has occurred, please try again later" data-tx-success="Check your email" class="je-app" ></div>
 	<div style="padding-top:5px;">
 	<table class="table condensed-table">
