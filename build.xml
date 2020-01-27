@@ -949,6 +949,8 @@
 							<page name="bugtraq" src="setup_bugtraq.mkd" />
 							<page name="mirrors" src="setup_mirrors.mkd" />
 							<page name="scaling" src="setup_scaling.mkd" />
+							<page name="fail2ban" src="setup_fail2ban.mkd" />
+							<page name="filestore (Git LFS)" src="setup_filestore.mkd" />
 							<divider />
 							<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 						</menu>
@@ -996,10 +998,13 @@
 						<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
 					</menu>
 				</structure>
-				
+
+				<replace token="%GCURL%" value="${gc.url}${currentRelease.tag}/" />
+
 				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
-				
-				<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='http://code.google.com/p/gitblit/issues/detail?id=$3'&gt;issue $3&lt;/a&gt;" />
+
+				<regex searchPattern="\b(commit)(\s*[#]?|-){0,1}([0-9a-fA-F]{5,})\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/commit/$3'&gt;commit $3&lt;/a&gt;" />
+				<regex searchPattern="\b(issue)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/issues/$3'&gt;issue $3&lt;/a&gt;" />
 				<regex searchPattern="\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/pull/$3'&gt;pull request #$3&lt;/a&gt;" />
 				<regex searchPattern="\b(ticket)(\s*[#]?|-){0,1}(\d+)\b" replacePattern="&lt;a href='https://dev.gitblit.com/tickets/gitblit.git/$3'&gt;ticket $3&lt;/a&gt;" />
 
