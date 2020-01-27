@@ -24,6 +24,7 @@
 		<tr><th>Sources</th><td><a href="${project.scmUrl}">GitHub</a></td></tr>		
 		<tr><th>Issues</th><td><a href="${project.issuesUrl}">GitHub</a></td></tr>
 		<tr><th>Discussion</th><td><a href="${project.forumUrl}">Gitblit Group</a></td></tr>
+		<tr><th>Twitter</th><td><a href="https://twitter.com/gitblit">@gitblit</a></td></tr>
 		<tr><th>Ohloh</th><td><a target="_top" href="http://www.ohloh.net/p/gitblit"><img border="0" width="100" height="16" src="http://www.ohloh.net/p/gitblit/widgets/project_thin_badge.gif" alt="Ohloh project report for Gitblit" /></a></td></tr>
 		</tbody>
 		</table>

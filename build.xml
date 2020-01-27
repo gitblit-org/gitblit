@@ -992,6 +992,7 @@
 						<link name="Github" src="${project.scmUrl}" />
 						<link name="Issues" src="${project.issuesUrl}" />
 						<link name="Discussion" src="${project.forumUrl}" />
+						<link name="Twitter" src="https://twitter.com/gitblit" />
 						<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
 					</menu>
 				</structure>
