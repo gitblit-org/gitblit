@@ -47,6 +47,7 @@
 				
 		<!-- Set Ant project properties -->
 		<property name="release.tag" value="v${project.version}" />
+		<property name="currentRelease.tag" value="v${project.releaseVersion}" />
 		<property name="release.name" value="gitblit-${project.version}"/>
 		<property name="distribution.zipfile" value="${release.name}.zip" />
 		<property name="distribution.tgzfile" value="${release.name}.tar.gz" />
@@ -58,9 +59,11 @@
 		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
 		<property name="releaselog" value="${basedir}/releases.moxie" />
 
+		<!-- GitHub user/organization name -->
+		<property name="gh.org" value="fzs" />
 
 		<!-- Download links -->
-		<property name="gc.url" value="http://dl.bintray.com/gitblit/releases/" />
+		<property name="gc.url" value="https://github.com/${gh.org}/gitblit/releases/download/" />
 
 		<!-- Report Java version -->
 		<echo>JDK version: ${ant.java.version}</echo>
@@ -573,20 +576,21 @@
 				</menu>
 				
 				<menu name="downloads">
-					<link name="Gitblit GO (Windows)" src="${gc.url}gitblit-${project.releaseVersion}.zip" />
-					<link name="Gitblit GO (Linux/OSX)" src="${gc.url}gitblit-${project.releaseVersion}.tar.gz" />
-					<link name="Gitblit WAR" src="${gc.url}gitblit-${project.releaseVersion}.war" />
+					<link name="Gitblit GO (Windows)" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.zip" />
+					<link name="Gitblit GO (Linux/OSX)" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.tar.gz" />
+					<link name="Gitblit WAR" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.war" />
 					<divider />
 					<link name="Gitblit GO (Docker)" src="https://registry.hub.docker.com/u/jmoger/gitblit/" />
 					<divider />
 					<link name="Plugins Registry" src="http://plugins.gitblit.com" />
 					<divider />
-					<link name="Gitblit Manager" src="${gc.url}manager-${project.releaseVersion}.zip" />
-					<link name="Federation Client" src="${gc.url}fedclient-${project.releaseVersion}.zip" />
+					<link name="Gitblit Manager" src="${gc.url}${currentRelease.tag}/manager-${project.releaseVersion}.zip" />
+					<link name="Federation Client" src="${gc.url}${currentRelease.tag}/fedclient-${project.releaseVersion}.zip" />
 					<divider />
-					<link name="API Library" src="${gc.url}gbapi-${project.releaseVersion}.zip" />
+					<link name="API Library" src="${gc.url}${currentRelease.tag}/gbapi-${project.releaseVersion}.zip" />
 					<divider />
-					<link name="Bintray (1.4.0+)" src="https://bintray.com/gitblit/releases/gitblit" />
+					<link name="GitHub (1.9.0+)" src="https://github.com/${gh.org}/gitblit/releases" />
+					<link name="Bintray (1.4.0-1.8.0)" src="https://bintray.com/gitblit/releases/gitblit" />
 					<link name="GoogleCode (pre-1.4.0)" src="https://code.google.com/p/gitblit/downloads/list?can=1" />
 					<divider />
 					<link name="Maven Repository" src="${project.mavenUrl}" />
@@ -612,7 +616,7 @@
 				<divider />
 			</structure>
 			
-			<replace token="%GCURL%" value="${gc.url}" />
+			<replace token="%GCURL%" value="${gc.url}${currentRelease.tag}/" />
 			
 			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 
