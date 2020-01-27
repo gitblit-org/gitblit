@@ -46,6 +46,7 @@
 		<mx:init verbose="no" mxroot="${moxie.dir}" />
 				
 		<!-- Set Ant project properties -->
+		<property name="release.tag" value="v${project.version}" />
 		<property name="release.name" value="gitblit-${project.version}"/>
 		<property name="distribution.zipfile" value="${release.name}.zip" />
 		<property name="distribution.tgzfile" value="${release.name}.tar.gz" />
@@ -743,10 +744,10 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="releaseBinaries" depends="prepare" description="Publish the Gitblit binaries to a GitHub release">
-		<property name="project.tag" value="v${project.version}" />
 
 		<ghReleaseDraft
-			releaselog="${releaselog}"/>
+			releaselog="${releaselog}"
+		    releasetag="${release.tag}"/>
 
 		<echo>Uploading Gitblit ${project.version} binaries</echo>
 
@@ -790,7 +791,6 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="publishRelease" depends="prepare" description="Publish the GitHub release draft" >
-		<property name="project.tag" value="v${project.version}" />
 
 		<echo>Publishing Gitblit ${project.version} release draft on GitHub</echo>
 
@@ -798,7 +798,7 @@
 			releaseVersion="${project.version}"/>
 		<exec executable="bash" logError="true" >
 			<arg value="-c" />
-			<arg value="${octokit} -q edit_release fzs gitblit ${ghrelease.id} tag_name='${project.tag}'"></arg>
+			<arg value="${octokit} -q edit_release fzs gitblit ${ghrelease.id} tag_name='${release.tag}'"></arg>
 		</exec>
 		<ghPublishReleaseDraft
 			releaseid="${ghrelease.id}"/>
@@ -1090,11 +1090,12 @@
 	-->
 	<macrodef name="ghReleaseDraft">
 		<attribute name="releaselog" />
+		<attribute name="releasetag" />
 		<sequential>
 			<echo>Creating release ${project.tag} draft on GitHub</echo>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
 				<arg value="-c" />
-				<arg value="${octokit} create_release fzs gitblit ${project.tag} name=${project.version} draft=true | cut -f2"></arg>
+				<arg value="${octokit} create_release fzs gitblit @{releasetag} name=${project.version} draft=true | cut -f2"></arg>
 			</exec>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.upldUrl">
 				<arg value="-c" />
