@@ -796,7 +796,7 @@
 	-->
 	<target name="publishRelease" depends="prepare" description="Publish the GitHub release draft" >
 
-		<echo>Publishing Gitblit ${project.version} release draft on GitHub</echo>
+		<echo>Publishing Gitblit ${project.version} release draft on GitHub for tag ${release.tag}</echo>
 
 		<ghGetReleaseId
 			releaseVersion="${project.version}"/>
@@ -1102,7 +1102,7 @@
 		<attribute name="releaselog" />
 		<attribute name="releasetag" />
 		<sequential>
-			<echo>Creating release ${project.tag} draft on GitHub</echo>
+			<echo>creating release ${release.tag} draft on GitHub</echo>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
 				<arg value="-c" />
 				<arg value="${octokit} create_release ${gh.org} gitblit @{releasetag} name=${project.version} draft=true | cut -f2"></arg>
