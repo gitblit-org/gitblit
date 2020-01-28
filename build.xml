@@ -982,10 +982,16 @@
 						<page name="design" src="design.mkd" />
 						<page name="rpc" src="rpc.mkd" />
 					</menu>
+
 					<menu name="changelog">
-						<page name="current release" src="releasecurrent.mkd" />
-						<page name="older releases" src="releasehistory.mkd" />
+						<page name="current release" out="releasenotes.html">
+							<template src="releasecurrent.ftl" data="${releaselog}" />
+						</page>
+						<page name="all releases" out="releases.html">
+							<template src="releasehistory.ftl" data="${releaselog}" />
+						</page>
 					</menu>
+
 					<menu name="links">
 						<link name="dev.gitblit.com (self-hosted)" src="https://dev.gitblit.com" />
 						<divider />
