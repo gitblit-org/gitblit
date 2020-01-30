@@ -872,34 +872,27 @@ GB_RELEASE_TAG=${project.tag}
 		</mx:if>
 
 		<!-- create the release process script -->
-		<mx:if>
-			<os family="windows" />
-			<then>
-				<!-- Windows PowerShell script        -->
-				<!-- set-executionpolicy remotesigned -->
-				<property name="recipe" value="release_${project.version}.ps1" />
-			</then>
-			<else>
-				<!-- Bash script -->
-				<property name="recipe" value="release_${project.version}.sh" />
-			</else>
-		</mx:if>
-		<delete file="${recipe}" failonerror="false" quiet="true" verbose="false" />
-		<!-- Work-around for lack of proper ant property substitution in copy -->
-		<property name="dollar" value="$"/>
-		<copy file="release.template" tofile="${recipe}">
-			<filterset begintoken="${dollar}{" endtoken="}">
-				<filter token="project.version" value="${project.version}" />
-				<filter token="project.commitId" value="${project.commitId}" />
-				<filter token="project.tag" value="${project.tag}" />
-				<filter token="project.directory" value="${basedir}" />
-				<filter token="maven.directory" value="${maven.directory}" />
-			</filterset>
-		</copy>
-		<chmod file="${recipe}" perm="ugo+rx" />
+		<createReleaseScript
+				projectVersion="${project.version}"
+				projectTag="${project.tag}"
+				projectCommitId="${project.commitId}" />
 	</target>
 
- 
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Tag a new version and prepare for the next development cycle.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="releaseScript" depends="prepare" description="create the release process script for a release version">
+		<!-- create the release process script -->
+		<createReleaseScript
+				projectVersion="${project.version}"
+				projectTag="${release.tag}"
+				projectCommitId="${release.tag}" />
+	</target>
+
+
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Prepare for the next point release development cycle.
@@ -927,7 +920,47 @@ GB_RELEASE_TAG=${project.tag}
 		</mx:commit>		
 	</target>
 
-	
+
+
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Create the release process script from the template.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<macrodef name="createReleaseScript">
+		<attribute name="projectVersion" />
+		<attribute name="projectTag" />
+		<attribute name="projectCommitId" />
+		<sequential>
+			<mx:if>
+				<os family="windows" />
+				<then>
+					<!-- Windows PowerShell script        -->
+					<!-- set-executionpolicy remotesigned -->
+					<property name="recipe" value="release_@{projectVersion}.ps1" />
+				</then>
+				<else>
+					<!-- Bash script -->
+					<property name="recipe" value="release_@{projectVersion}.sh" />
+				</else>
+			</mx:if>
+			<delete file="${recipe}" failonerror="false" quiet="true" verbose="false" />
+			<!-- Work-around for lack of proper ant property substitution in copy -->
+			<property name="dollar" value="$"/>
+			<copy file="release.template" tofile="${recipe}">
+				<filterset begintoken="${dollar}{" endtoken="}">
+					<filter token="project.version" value="@{projectVersion}" />
+					<filter token="project.commitId" value="@{projectCommitId}" />
+					<filter token="project.tag" value="@{projectTag}" />
+					<filter token="project.directory" value="${basedir}" />
+					<filter token="maven.directory" value="${maven.directory}" />
+				</filterset>
+			</copy>
+			<chmod file="${recipe}" perm="ugo+rx" />
+		</sequential>
+	</macrodef>
+
   <!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build Gitblit Docs
