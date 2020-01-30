@@ -1,0 +1,194 @@
+name: Release in gitblit/gitblit repo
+
+on:
+  push:
+    tags:
+      - 'r[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+
+  build_and_test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          submodules: true
+
+      - name: Setup Java 7
+        uses: actions/setup-java@v1
+        with:
+          java-version: 7
+
+      - name: Report Java version
+        run: |
+          java -version
+          javac -version
+
+      - name: Setup Moxie
+        run: |
+          wget http://gitblit.github.io/moxie/maven/com/gitblit/moxie/moxie+ant/0.9.4/moxie+ant-0.9.4.tar.gz
+          tar -xzf moxie+ant-0.9.4.tar.gz
+          moxie-0.9.4/bin/moxie -version
+
+      - name: Build with Moxie
+        run:  moxie-0.9.4/bin/moxie test
+
+
+
+  build_release:
+    name: Build and deploy release
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    env:
+      GH_ORG: fzs
+      moxie: moxie-0.9.4/bin/moxie
+      versinfo: ../verinf.sh
+
+    steps:
+      - name: Setup Java 7
+        uses: actions/setup-java@v1
+        with:
+          java-version: 7
+
+      - name: Report Java version
+        run: |
+          java -version
+          javac -version
+
+
+
+      - name: Set up Git properties
+        run: |
+          set -x 
+          git config --global user.name ${{ github.event.pusher.name }}
+          git config --global user.email ${{ github.event.pusher.email }}
+
+      - name: Checkout gitblit master for reference
+        uses: actions/checkout@v2
+        with:
+          path: gitblit-ref
+          ref: master
+          fetch-depth: 2
+      - name: Fetch all branches in reference
+        run: |
+          cd gitblit-ref
+          git fetch --no-tags --prune --depth=2 origin +refs/heads/*:refs/remotes/origin/*
+
+      - name: Checkout gitblit master from gitblit
+        uses: actions/checkout@v2
+        with:
+          path: gitblit
+          repository: ${{ env.GH_ORG }}/gitblit
+          ref: master
+          token: ${{ secrets.GITBLIT_RELEASE_PAT }}
+          fetch-depth: 2
+      - name: Fetch all branches from gitblit
+        run: |
+          cd gitblit
+          git fetch --no-tags --prune --depth=2 origin +refs/heads/*:refs/remotes/origin/*
+      - name: Checkout submodules in gitblit
+        shell: bash
+        run: |
+          cd gitblit
+          git submodule sync --recursive
+          git submodule update --init --force --recursive
+
+      - name: Check if gitblit repo is on the same branch and commit as my reference
+        run: |
+          cd gitblit-ref
+          refC=$(git rev-parse HEAD)
+          refB=$(git symbolic-ref -q --short HEAD)
+          cd ../gitblit
+          gbC=$(git rev-parse HEAD)
+          gbB=$(git symbolic-ref -q --short HEAD)
+          echo "$refB - $gbB"
+          if [ "$refB" != "$gbB" ] ; then echo "Not the same branch in refrence and gitblit repo!" ; exit 1 ; fi
+          echo "refC: $refC"
+          echo "gbC:  $gbC"
+          if [ "$refC" != "$gbC" ] ; then echo "Different commits in refrence and gitblit repo" ; exit 2 ; fi
+        continue-on-error: false
+
+
+      - name: Checkout gitblit maven repository
+        uses: actions/checkout@v2
+        with:
+          path: gitblit-maven
+          repository: ${{ env.GH_ORG }}/gitblit-maven
+          ref: gh-pages
+          token: ${{ secrets.GITBLIT_RELEASE_PAT }}
+
+
+      - name: Setup Moxie
+        run: |
+          wget http://gitblit.github.io/moxie/maven/com/gitblit/moxie/moxie+ant/0.9.4/moxie+ant-0.9.4.tar.gz
+          tar -xzf moxie+ant-0.9.4.tar.gz
+          $moxie -version
+
+
+
+      - name: Create release version
+        working-directory: gitblit
+        run:  |
+          ../$moxie -DversionInfo=${versinfo} tagRelease
+          cat ${versinfo}
+          . ${versinfo}
+          echo "Release version $GB_RELEASE_VERSION with tag $GB_RELEASE_TAG"
+
+
+
+      - name: Build release artifacts
+        run: |
+          cd gitblit
+          ../$moxie clean buildAll buildMavenArtifacts
+
+      - name: Commit Maven artifacts
+        working-directory: gitblit-maven
+        run: |
+          . ${versinfo}
+          git add .
+          git commit -m "Release $GB_RELEASE_VERSION artifacts"
+
+      - name: Update website
+        working-directory: gitblit
+        run: |
+          echo "Create local gh-pages branch"
+          git branch --force --track gh-pages refs/remotes/origin/gh-pages
+          ../$moxie updateSite
+
+
+
+      - name: Create release and upload artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITBLIT_RELEASE_PAT }}
+        working-directory: gitblit
+        run: ../$moxie releaseBinaries
+
+      - name: Push Maven artifacts to repository
+        working-directory: gitblit-maven
+        run: git push origin gh-pages
+
+      - name: Push updated gh-pages and release tag
+        working-directory: gitblit
+        run: |
+          . ${versinfo}
+          git status
+          git push origin gh-pages ${GB_RELEASE_TAG}
+
+      - name: Publish GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITBLIT_RELEASE_PAT }}
+        working-directory: gitblit
+        run: ../$moxie publishRelease
+
+
+
+      - name: Update build identifier and version for next development cycle
+        working-directory: gitblit
+        run: |
+          git checkout master
+          ../$moxie nextPointReleaseCycle
+          git push origin
+
