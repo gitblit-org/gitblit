@@ -847,15 +847,29 @@
 	<target name="tagRelease" depends="prepare" description="tag a new version and prepare for the next development cycle">
 		<!-- release -->
 		<property name="dryrun" value="false" />
-		<mx:version stage="release" dryrun="${dryrun}" />		
+		<mx:version stage="release" dryrun="${dryrun}" />
 		<property name="project.tag" value="v${project.version}" />
 		<!-- commit build.moxie & releases.moxie (automatic) -->
 		<mx:commit showtitle="no">
-		    <message>Prepare ${project.version} release</message>
+			<message>Prepare ${project.version} release</message>
 			<tag name="${project.tag}">
 				<message>${project.name} ${project.version} release</message>
 			</tag>
 		</mx:commit>
+
+		<!-- output version information for other scripts/programs to pick up -->
+		<mx:if>
+			<and>
+				<isset property="versionInfo" />
+				<not><equals arg1="${versionInfo}" arg2="" trim="true"/></not>
+			</and>
+			<then>
+				<echo file="${basedir}/${versionInfo}">
+GB_RELEASE_VERSION=${project.version}
+GB_RELEASE_TAG=${project.tag}
+</echo>
+			</then>
+		</mx:if>
 
 		<!-- create the release process script -->
 		<mx:if>
