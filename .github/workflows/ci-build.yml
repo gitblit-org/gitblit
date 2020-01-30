@@ -62,4 +62,4 @@ jobs:
           moxie-0.9.4/bin/moxie -version
 
       - name: Build with Moxie
-        run:  moxie-0.9.4/bin/moxie
+        run:  moxie-0.9.4/bin/moxie test

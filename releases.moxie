@@ -63,8 +63,8 @@ r30: {
       - Encode email sender's name with UTF-8 (pr-1206)
       - Made Gitblit run on Java 9+ (issue-1262, issue-1294, pr-1266)
       - The JRE version is reported upon starting
-      - Add the 'ext' directory to the classpath on the command-line to start Gitblit and related programs.
-      - Report back that git command 'clone.bundle' is unsupported instead of simply failing
+      - Add the `ext` directory to the classpath on the command-line to start Gitblit and related programs.
+      - Report back that git command `clone.bundle` is unsupported instead of simply failing
     additions:
       - Added option to merge a ticket branch to the integration branch fast-forward or with a merge commit (pr-1142)
       - Added SSH key manager that retrieves keys from LDAP directory (pr-1160)
