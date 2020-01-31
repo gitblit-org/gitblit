@@ -32,6 +32,8 @@
 	<property name="octokit" location="${basedir}/.github/ok.sh" />
 	<property name="relnoawk" location="${basedir}/src/site/templates/ghreleasenotes.awk" />
 
+	<!-- GitHub user/organization name -->
+	<property name="gh.org" value="gitblit" />
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,8 +61,6 @@
 		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
 		<property name="releaselog" value="${basedir}/releases.moxie" />
 
-		<!-- GitHub user/organization name -->
-		<property name="gh.org" value="fzs" />
 
 		<!-- Download links -->
 		<property name="gc.url" value="https://github.com/${gh.org}/gitblit/releases/download/" />
