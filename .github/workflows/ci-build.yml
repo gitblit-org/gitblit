@@ -3,8 +3,7 @@ name: Continous build - build and test on every push
 on:
   push:
     branches-ignore:
-      - release
-      - 'releases/**'
+      - 'release*'
       - gh-pages
 
 jobs:
