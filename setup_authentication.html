@@ -11,15 +11,6 @@
 <link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
 <link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
 <link rel="stylesheet" href="./prettify/prettify.css" />
-<!-- Google Plus Profile Page -->
-<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
-<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
-
-<!-- Google Plus One -->
-<link rel="canonical" href="http://gitblit.com" />
-<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
-<style type="text/css"> div.gplusone { margin-top:12px; } </style>
-
 <script src="./prettify/prettify.js"></script>
 <script src="./bootstrap/js/jquery.js"></script>
 <script src="./bootstrap/js/bootstrap.min.js"></script>
@@ -120,20 +111,21 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.8.0.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.8.0.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/manager-1.9.0.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/fedclient-1.9.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.8.0.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gbapi-1.9.0.zip'>API Library</a></li>
 <li class='divider'></li>
-<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0-1.8.0)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
 <li class='divider'></li>
 <li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
@@ -158,7 +150,7 @@
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
-<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+
 						</ul>
 					</div><!--/.nav-collapse -->
 				</div>
@@ -178,7 +170,7 @@
   <li>Servlet container authentication</li>
 </ul>
 <h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>LDAP Authentication</h3><p><em>SINCE 1.0.0</em></p><p>LDAP can be used to authenticate Users and optionally control Team memberships. When properly configured, Gitblit will delegate authentication to your LDAP server and will cache some user information in the usual users.conf file.</p><p>When using the LDAP User Service, new user accounts can not be manually created from Gitblit. Gitblit user accounts are automatically created for new users on their first succesful authentication through Gitblit against the LDAP server. It is also important to note that the LDAP User Service does not retrieve or store user passwords nor does it implement any LDAP-write functionality.</p><p>To use the <em>LdapUserService</em> set <em>realm.authenticationProviders=ldap</em> in your <code>gitblit.properties</code> file and then configure the <em>realm.ldap</em> settings appropriately for your LDAP environment.</p>
-<h4 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Example LDAP Layout</h4><p><img src="ldapSample.png"  alt="block diagram"/></p><p>Please see <a href="https://github.com/gitblit/gitblit/blob/master/tests/com/gitblit/tests/resources/ldapUserServiceSampleData.ldif">ldapUserServiceSampleData.ldif</a> to see the data in LDAP that reflects the above picture.</p>
+<h4 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Example LDAP Layout</h4><p><img src="ldapSample.png"  alt="block diagram"/></p><p>Please see <a href="https://github.com/gitblit/gitblit/blob/master/src/test/resources/ldap/sampledata.ldif">ldapUserServiceSampleData.ldif</a> to see the data in LDAP that reflects the above picture.</p>
 <h4 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit Settings for Example LDAP Layout</h4><p>The following are the settings required to configure Gitblit to authenticate against the example LDAP server with LDAP-controlled team memberships.</p>
 <table class="table">
 <thead>
@@ -257,7 +249,7 @@ realm.salesforce.orgId = 0
 <h2 class="section" id='H13'><a href="#H13" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Authentication</h2><p>This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations. This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.</p><p>Please subclass <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java">com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider</a>.</p><p>You may use your subclass by specifying its fully qualified classname in the <em>realm.authenticationProviders</em> setting.</p><p>Your subclass must be on Gitblit's classpath and must have a public default constructor. </p>
 <h3 class="section" id='H14'><a href="#H14" class="sectionlink"><i class="icon-share-alt"> </i></a>Custom Everything</h3><p>Instead of maintaining a <code>users.conf</code> file, you may want to integrate Gitblit into an existing environment.</p><p>You may use your own custom <em>com.gitblit.IUserService</em> implementation by specifying its fully qualified classname in the <em>realm.userService</em> setting.</p><p>Your user service class must be on Gitblit's classpath and must have a public default constructor.<br/>Please see the following interface definition <a href="https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/IUserService.java">com.gitblit.IUserService</a>.
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="administration.html">&larr; administration</a></li> <li class="next"><a href="setup_hooks.html">push hooks &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2016-06-22</p>
+<div ><ul class="pager"><li class="previous"><a href="administration.html">&larr; administration</a></li> <li class="next"><a href="setup_hooks.html">push hooks &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2020-02-01</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

@@ -1,6 +1,6 @@
 {
     "ring" : "0",
-    "name" : "gitblit 1.8.0",
+    "name" : "gitblit 1.9.0",
     "children" : [
     {
         "ring" : "1",
@@ -42,12 +42,12 @@
 ,
     {
         "ring" : "1",
-        "name" : "slf4j-api 1.7.12"
+        "name" : "slf4j-api 1.7.29"
     }
 ,
     {
         "ring" : "1",
-        "name" : "slf4j-log4j12 1.7.12"
+        "name" : "slf4j-log4j12 1.7.29"
     }
 ,
     {
@@ -82,26 +82,26 @@
 ,
     {
         "ring" : "1",
-        "name" : "lucene-core 4.10.4"
+        "name" : "lucene-core 5.5.2"
     }
 ,
     {
         "ring" : "1",
-        "name" : "lucene-analyzers-common 4.10.4"
+        "name" : "lucene-analyzers-common 5.5.2"
     }
 ,
     {
         "ring" : "1",
-        "name" : "lucene-highlighter 4.10.4"
+        "name" : "lucene-highlighter 5.5.2"
     }
 ,
     {
         "ring" : "1",
-        "name" : "lucene-memory 4.10.4",
+        "name" : "lucene-memory 5.5.2",
         "children" : [
         {
             "ring" : "2",
-            "name" : "lucene-queries 4.10.4"
+            "name" : "lucene-queries 5.5.2"
         }
     
         ]
@@ -110,11 +110,11 @@
 ,
     {
         "ring" : "1",
-        "name" : "lucene-queryparser 4.10.4",
+        "name" : "lucene-queryparser 5.5.2",
         "children" : [
         {
             "ring" : "2",
-            "name" : "lucene-sandbox 4.10.4",
+            "name" : "lucene-sandbox 5.5.2",
             "children" : [
             {
                 "ring" : "3",
@@ -202,7 +202,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "org.eclipse.jgit 4.1.1.201511131810-r",
+        "name" : "org.eclipse.jgit 4.5.7.201904151645-r",
         "children" : [
         {
             "ring" : "2",
@@ -238,45 +238,37 @@
 ,
     {
         "ring" : "1",
-        "name" : "commons-codec 1.7",
-        "children" : [
-        {
-            "ring" : "2",
-            "name" : "org.eclipse.jdt.annotation 1.1.0"
-        }
-    
-        ]
-    
+        "name" : "commons-codec 1.7"
     }
 ,
     {
         "ring" : "1",
-        "name" : "org.eclipse.jgit.http.server 4.1.1.201511131810-r"
+        "name" : "org.eclipse.jgit.http.server 4.5.7.201904151645-r"
     }
 ,
     {
         "ring" : "1",
-        "name" : "bcprov-jdk15on 1.52"
+        "name" : "bcprov-jdk15on 1.57"
     }
 ,
     {
         "ring" : "1",
-        "name" : "bcmail-jdk15on 1.52"
+        "name" : "bcmail-jdk15on 1.57"
     }
 ,
     {
         "ring" : "1",
-        "name" : "bcpkix-jdk15on 1.52"
+        "name" : "bcpkix-jdk15on 1.57"
     }
 ,
     {
         "ring" : "1",
-        "name" : "sshd-core 1.0.0"
+        "name" : "sshd-core 1.2.0"
     }
 ,
     {
         "ring" : "1",
-        "name" : "mina-core 2.0.9"
+        "name" : "mina-core 2.0.21"
     }
 ,
     {
@@ -419,7 +411,12 @@
 ,
     {
         "ring" : "1",
-        "name" : "junit 4.11",
+        "name" : "javax.activation 1.2.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "junit 4.12",
         "children" : [
         {
             "ring" : "2",

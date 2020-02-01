@@ -11,15 +11,6 @@
 <link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
 <link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
 <link rel="stylesheet" href="./prettify/prettify.css" />
-<!-- Google Plus Profile Page -->
-<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
-<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
-
-<!-- Google Plus One -->
-<link rel="canonical" href="http://gitblit.com" />
-<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
-<style type="text/css"> div.gplusone { margin-top:12px; } </style>
-
 <script src="./prettify/prettify.js"></script>
 <script src="./bootstrap/js/jquery.js"></script>
 <script src="./bootstrap/js/bootstrap.min.js"></script>
@@ -120,20 +111,21 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.8.0.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.8.0.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/manager-1.9.0.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/fedclient-1.9.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.8.0.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gbapi-1.9.0.zip'>API Library</a></li>
 <li class='divider'></li>
-<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0-1.8.0)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
 <li class='divider'></li>
 <li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
@@ -158,7 +150,7 @@
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
-<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+
 						</ul>
 					</div><!--/.nav-collapse -->
 				</div>
@@ -306,10 +298,25 @@
 <span style="color:#004000;"># SINCE 1.5.0</span><br/>
 <span style="color:#000080;">git.sshKeysFolder</span> = <span style="color:#800000;">${baseFolder}/ssh</span><br/>
 <br/>
-<span style="color:#004000;"># Use Kerberos5 (GSS) authentication</span><br/>
+<br/>
+<span style="color:#004000;"># Authentication methods offered by the SSH server.</span><br/>
+<span style="color:#004000;"># Space separated list of authentication method names that the</span><br/>
+<span style="color:#004000;"># server shall offer. The default is "publickey password".</span><br/>
 <span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># SINCE 1.7.0</span><br/>
-<span style="color:#000080;">git.sshWithKrb5</span> = <span style="color:#800000;">false</span><br/>
+<span style="color:#004000;"># Valid authentication method names are:</span><br/>
+<span style="color:#004000;"># publickey - authenticate with SSH public key</span><br/>
+<span style="color:#004000;"># password - authenticate with username, password</span><br/>
+<span style="color:#004000;"># keyboard-interactive - currently synonym to 'password'</span><br/>
+<span style="color:#004000;"># gssapi-with-mic - GSS API Kerberos 5 authentication</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># This setting obsoletes the "git.sshWithKrb5" setting. To enable</span><br/>
+<span style="color:#004000;"># Kerberos5 (GSS) authentication, add 'gssapi-with-mic' to the list.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.9.0</span><br/>
+<span style="color:#004000;"># RESTART REQUIRED</span><br/>
+<span style="color:#004000;"># SPACE-DELIMITED</span><br/>
+<span style="color:#000080;">git.sshAuthenticationMethods</span> = <span style="color:#800000;">publickey password</span><br/>
+<br/>
 <br/>
 <span style="color:#004000;"># The path to a Kerberos 5 keytab.</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -469,7 +476,7 @@
 <span style="color:#004000;"># the repository should be created with 'git init --shared' to make sure that</span><br/>
 <span style="color:#004000;"># it can be accessed e.g. via ssh (user git) and http (user www-data).</span><br/>
 <span style="color:#004000;"># </span><br/>
-<span style="color:#004000;"># Valid values are the values available for the '--shared' option. The the manual</span><br/>
+<span style="color:#004000;"># Valid values are the values available for the '--shared' option. See the manual</span><br/>
 <span style="color:#004000;"># page for 'git init' for more information on shared repositories.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 1.4.0</span><br/>
@@ -747,6 +754,21 @@
 <span style="color:#004000;"># SINCE 1.4.0</span><br/>
 <span style="color:#000080;">tickets.requireApproval</span> = <span style="color:#800000;">false</span><br/>
 <br/>
+<span style="color:#004000;"># Default setting to control how patchsets are merged to the integration branch.</span><br/>
+<span style="color:#004000;"># Valid values:</span><br/>
+<span style="color:#004000;"># MERGE_ALWAYS - Always merge with a merge commit. Every ticket will show up as a branch,</span><br/>
+<span style="color:#004000;"># even if it could have been fast-forward merged. This is the default.</span><br/>
+<span style="color:#004000;"># MERGE_IF_NECESSARY - If possible, fast-forward the integration branch,</span><br/>
+<span style="color:#004000;"># if not, merge with a merge commit.</span><br/>
+<span style="color:#004000;"># FAST_FORWARD_ONLY - Only merge when a fast-forward is possible. This produces a strictly</span><br/>
+<span style="color:#004000;"># linear history of the integration branch.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># This setting can be overriden per-repository.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># RESTART REQUIRED</span><br/>
+<span style="color:#004000;"># SINCE 1.9.0</span><br/>
+<span style="color:#000080;">tickets.mergeType</span> = <span style="color:#800000;">MERGE_ALWAYS</span><br/>
+<br/>
 <span style="color:#004000;"># The case-insensitive regular expression used to identify and close tickets on</span><br/>
 <span style="color:#004000;"># push to the integration branch for commits that are NOT already referenced as</span><br/>
 <span style="color:#004000;"># a patchset tip.</span><br/>
@@ -1019,12 +1041,14 @@
 <span style="color:#000080;">realm.authenticationProviders</span> = <span style="color:#800000;"></span><br/>
 <br/>
 <span style="color:#004000;"># How to store passwords.</span><br/>
-<span style="color:#004000;"># Valid values are plain, md5, or combined-md5. md5 is the hash of password.</span><br/>
+<span style="color:#004000;"># Valid values are plain, md5, combined-md5 or pbkdf2.</span><br/>
+<span style="color:#004000;"># md5 is the hash of password.</span><br/>
 <span style="color:#004000;"># combined-md5 is the hash of username.toLowerCase()+password.</span><br/>
-<span style="color:#004000;"># Default is md5.</span><br/>
+<span style="color:#004000;"># pbkdf2 implements the PBKDF2 algorithm, which is a secure, salted password hashing scheme.</span><br/>
+<span style="color:#004000;"># Default is pbkdf2. Using plain, md5 or combined-md5 is deprecated, as these are insecure schemes by now.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
-<span style="color:#000080;">realm.passwordStorage</span> = <span style="color:#800000;">md5</span><br/>
+<span style="color:#000080;">realm.passwordStorage</span> = <span style="color:#800000;">pbkdf2</span><br/>
 <br/>
 <span style="color:#004000;"># Minimum valid length for a plain text password.</span><br/>
 <span style="color:#004000;"># Default value is 5. Absolute minimum is 4.</span><br/>
@@ -1413,6 +1437,7 @@
 <span style="color:#004000;"># Choose how to present the repositories list.</span><br/>
 <span style="color:#004000;"># grouped = group nested/subfolder repositories together (no sorting)</span><br/>
 <span style="color:#004000;"># flat = flat list of repositories (sorting allowed)</span><br/>
+<span style="color:#004000;"># tree = group nested/subfolder repositories in a tree structure with folding branches</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 0.5.0</span><br/>
 <span style="color:#000080;">web.repositoryListType</span> = <span style="color:#800000;">grouped</span><br/>
@@ -1429,6 +1454,20 @@
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># SINCE 0.8.0</span><br/>
 <span style="color:#000080;">web.repositoryListSwatches</span> = <span style="color:#800000;">true</span><br/>
+<br/>
+<span style="color:#004000;"># Specify the behaviour of the Repository groups on the "Repositories"</span><br/>
+<span style="color:#004000;"># page, specifically whether they can be collapsed and expanded, and</span><br/>
+<span style="color:#004000;"># their default state on loading the page.</span><br/>
+<span style="color:#004000;"># Only on repositoryListType grouped</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># Values (case-insensitive):</span><br/>
+<span style="color:#004000;"># disabled - Repository groups cannot collapsed; maintains behaviour</span><br/>
+<span style="color:#004000;"># from previous versions of GitBlit.</span><br/>
+<span style="color:#004000;"># expanded - On loading the page all repository groups are expanded.</span><br/>
+<span style="color:#004000;"># collapsed - On loading the page all repository groups are collapsed.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.9.0</span><br/>
+<span style="color:#000080;">web.collapsibleRepositoryGroups</span> = <span style="color:#800000;">expanded</span><br/>
 <br/>
 <span style="color:#004000;"># Defines the default commit message renderer. This can be configured</span><br/>
 <span style="color:#004000;"># per-repository.</span><br/>
@@ -1977,6 +2016,10 @@
 <span style="color:#000080;">realm.ldap.server</span> = <span style="color:#800000;">ldap://localhost</span><br/>
 <br/>
 <span style="color:#004000;"># Login username for LDAP searches.</span><br/>
+<span style="color:#004000;"># This is usually a user with permissions to search LDAP users and groups.</span><br/>
+<span style="color:#004000;"># It must have at least have the permission to search users. If it does not</span><br/>
+<span style="color:#004000;"># have permission to search groups, the normal user logging in must have</span><br/>
+<span style="color:#004000;"># the permission in LDAP to search groups.</span><br/>
 <span style="color:#004000;"># If this value is unspecified, anonymous LDAP login will be used.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># e.g. mydomain\username</span><br/>
@@ -1989,8 +2032,14 @@
 <span style="color:#004000;"># SINCE 1.0.0</span><br/>
 <span style="color:#000080;">realm.ldap.password</span> = <span style="color:#800000;">password</span><br/>
 <br/>
-<span style="color:#004000;"># Bind pattern for Authentication.</span><br/>
-<span style="color:#004000;"># Allow to directly authenticate an user without LDAP Searches.</span><br/>
+<span style="color:#004000;"># Bind pattern for user authentication.</span><br/>
+<span style="color:#004000;"># Allow to directly authenticate an user without searching for it in LDAP.</span><br/>
+<span style="color:#004000;"># Use this if the LDAP server does not allow anonymous access and you don't</span><br/>
+<span style="color:#004000;"># want to use a specific account to run searches. When set, it will override</span><br/>
+<span style="color:#004000;"># the settings realm.ldap.username and realm.ldap.password.</span><br/>
+<span style="color:#004000;"># This requires that all relevant user entries are children to the same DN,</span><br/>
+<span style="color:#004000;"># and that logging users have permission to search for their groups in LDAP.</span><br/>
+<span style="color:#004000;"># This will disable synchronization as a specific LDAP account is needed for that.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># e.g. CN=${username},OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -2105,7 +2154,26 @@
 <span style="color:#004000;"># SINCE 1.0.0</span><br/>
 <span style="color:#000080;">realm.ldap.uid</span> = <span style="color:#800000;">uid</span><br/>
 <br/>
+<span style="color:#004000;"># Attribute on the USER record that indicates their public SSH key.</span><br/>
+<span style="color:#004000;"># Leave blank when public SSH keys shall not be retrieved from LDAP.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># This setting is only relevant when a public key manager is used that</span><br/>
+<span style="color:#004000;"># retrieves SSH keys from LDAP (e.g. com.gitblit.transport.ssh.LdapKeyManager).</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># The accepted format of the value is dependent on the public key manager used.</span><br/>
+<span style="color:#004000;"># Examples:</span><br/>
+<span style="color:#004000;"># sshPublicKey - Use the attribute 'sshPublicKey' on the user record.</span><br/>
+<span style="color:#004000;"># altSecurityIdentities:SshKey - Use the attribute 'altSecurityIdentities'</span><br/>
+<span style="color:#004000;"># on the user record, for which the record value</span><br/>
+<span style="color:#004000;"># starts with 'SshKey:', followed by the SSH key entry.</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.9.0</span><br/>
+<span style="color:#000080;">realm.ldap.sshPublicKey</span> = <span style="color:#800000;"></span><br/>
+<br/>
 <span style="color:#004000;"># Defines whether to synchronize all LDAP users and teams into the user service</span><br/>
+<span style="color:#004000;"># This requires either anonymous LDAP access or that a specific account is set</span><br/>
+<span style="color:#004000;"># in realm.ldap.username and realm.ldap.password, that has permission to read</span><br/>
+<span style="color:#004000;"># users and groups in LDAP.</span><br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># Valid values: true, false</span><br/>
 <span style="color:#004000;"># If left blank, false is assumed</span><br/>
@@ -2255,6 +2323,13 @@
 <span style="color:#004000;"># RESTART REQUIRED</span><br/>
 <span style="color:#000080;">server.shutdownPort</span> = <span style="color:#800000;">8081</span><br/>
 <br/>
+<span style="color:#004000;"># Http idle Timeout (in milliseconds) for http and https requests</span><br/>
+<span style="color:#004000;"># Increase this value if you get java.util.concurrent.TimeoutException errors</span><br/>
+<span style="color:#004000;"># </span><br/>
+<span style="color:#004000;"># SINCE 1.9.0</span><br/>
+<span style="color:#004000;"># RESTART REQUIRED</span><br/>
+<span style="color:#000080;">server.httpIdleTimeout</span> = <span style="color:#800000;">30000</span><br/>
+<br/>
 <span style="color:#004000;"># </span><br/>
 <span style="color:#004000;"># Gitblit Filestore Settings</span><br/>
 <span style="color:#004000;"># </span><br/>
@@ -2270,7 +2345,7 @@
 <span style="color:#000080;">filestore.maxUploadSize</span> = <span style="color:#800000;">-1</span><br/>
 
 <!-- End Markdown -->
-<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2016-06-22</p>
+<div ><ul class="pager"> <li class="next"><a href="faq.html">faq &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2020-02-01</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

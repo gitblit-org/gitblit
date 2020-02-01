@@ -11,15 +11,6 @@
 <link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
 <link rel='shortcut icon' type='image/png' href='./gitblt-favicon.png' />
 <link rel="stylesheet" href="./prettify/prettify.css" />
-<!-- Google Plus Profile Page -->
-<link rel="publisher" href="https://plus.google.com/114464678392593421684" />
-<style type="text/css"> a.gpluspage { margin-top:3px;text-decoration: none; } </style>
-
-<!-- Google Plus One -->
-<link rel="canonical" href="http://gitblit.com" />
-<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
-<style type="text/css"> div.gplusone { margin-top:12px; } </style>
-
 <script src="./prettify/prettify.js"></script>
 <script src="./bootstrap/js/jquery.js"></script>
 <script src="./bootstrap/js/bootstrap.min.js"></script>
@@ -120,20 +111,21 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gitblit-1.8.0.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/manager-1.8.0.zip'>Gitblit Manager</a></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/fedclient-1.8.0.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/manager-1.9.0.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/fedclient-1.9.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='http://dl.bintray.com/gitblit/releases/gbapi-1.8.0.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gbapi-1.9.0.zip'>API Library</a></li>
 <li class='divider'></li>
-<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0+)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
+<li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0-1.8.0)</a></li>
 <li><a href='https://code.google.com/p/gitblit/downloads/list?can=1'>GoogleCode (pre-1.4.0)</a></li>
 <li class='divider'></li>
 <li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
@@ -158,7 +150,7 @@
 <li><a href='https://twitter.com/JamesMoger'>@JamesMoger</a></li>
 </ul></li> <!-- End Menu -->
 <li class='divider-vertical'></li>
-<li><a href='https://plus.google.com/114464678392593421684?prsrc=3' class='gpluspage'><img src='https://ssl.gstatic.com/images/icons/gplus-16.png' width='16' height='16 style='order: 0;'/></a></li><li><div class='gplusone'><g:plusone size='small' href='http://gitblit.com'></g:plusone></div></li>
+
 						</ul>
 					</div><!--/.nav-collapse -->
 				</div>
@@ -203,6 +195,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
 <tr><td>Gitblit v1.3.1</td><td>6</td></tr>
 <tr><td>Gitblit v1.4.0</td><td>7</td></tr>
 <tr><td>Gitblit v1.6.0</td><td>8</td></tr>
+<tr><td>Gitblit v1.9.0</td><td>9</td></tr>
 </tbody>
 </table>
 <h4 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Protocol Version 5</h4>
@@ -217,7 +210,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
 <tr><td colspan='6'><em>web.enableRpcServlet=true</em></td></tr>
 <tr><td>GET_PROTOCOL</td><td>-</td><td>-</td><td>2</td><td>-</td><td>Integer</td></tr>
 <tr><td>LIST_REPOSITORIES</td><td>-</td><td>-</td><td>1</td><td>-</td><td>Map&lt;String, RepositoryModel&gt;</td></tr>
-<tr><td>LIST_BRANCHES</td><td>-</td><td>-</td><td>1</td><td>-</td><td>Map&lt;String, List&lt;String&gt;&gt;</td></tr>
+<tr><td>LIST_BRANCHES</td><td>[repository name]</td><td>-</td><td>9</td><td>-</td><td>Map&lt;String, List&lt;String&gt;&gt;</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>-</em></td><td>1</td><td>-</td><td>ServerSettings (basic keys)</td></tr>
 <tr><td>GET_USER</td><td>user name</td><td>-</td><td>6</td><td>-</td><td>UserModel</td></tr>
 <tr><td>FORK_REPOSITORY</td><td>repository name</td><td><em>-</em></td><td>8</td><td>-</td><td>-</td></tr>
@@ -401,7 +394,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
 }
 </pre>
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="design.html">&larr; design</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2016-06-22</p>
+<div ><ul class="pager"><li class="previous"><a href="design.html">&larr; design</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2020-02-01</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
