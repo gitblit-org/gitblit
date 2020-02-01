@@ -148,9 +148,11 @@ jobs:
         working-directory: gitblit-maven
         run: |
           . ${versinfo}
+          git diff -R -U2 -- artifacts.json | awk 'BEGIN{FS="\n" ; RS="@"; ORS="@"} { for (i=1;i<=NF;i++){if ($i ~ /description/) {print "Skip block";next;}} print $0 }' | sed -e 's/^@@ .* @@Skip block//' -e '/^@$/ d' | patch -p1 artifacts.json
+          git diff -- artifacts.json
           git add .
           git commit -m "Release $GB_RELEASE_VERSION artifacts"
-
+          
       - name: Update website
         working-directory: gitblit
         run: |
