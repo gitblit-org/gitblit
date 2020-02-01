@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.9.0 release
 #
 r30: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.9.0 released
+    id: 1.9.0
+    date: 2020-02-01
     note: ''
           Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. 
 
@@ -1949,6 +1949,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r30
-release: &r29
-releases: &r[1..29]
+snapshot: ~
+release: &r30
+releases: &r[1..30]
