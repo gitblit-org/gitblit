@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_test
     env:
-      GH_ORG: fzs
+      GH_ORG: gitblit
       moxie: moxie-0.9.4/bin/moxie
       versinfo: ../verinf.sh
 
