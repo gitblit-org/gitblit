@@ -8,7 +8,7 @@ Gitblit optionally allows a remote client to administer the Gitblit server.  Thi
     web.enableRpcManagement=false
     web.enableRpcAdministration=false
 
-**https** is strongly recommended because passwords are insecurely transmitted form your browser/rpc client using Basic authentication!
+**https** is strongly recommended because passwords are insecurely transmitted from your browser/rpc client using Basic authentication!
 
 The Gitblit JSON RPC mechanism, like the Gitblit JGit servlet, syndication/feed servlet, etc, supports request-based authentication.  Making an *admin* request will trigger Gitblit's basic authentication mechanism.  Listing of repositories, generally, will not trigger this authentication mechanism unless *web.authenticateViewPages=true*.  That means its possible to allow anonymous enumeration of repositories that are not *view restricted* or *clone restricted*.  Of course, if credentials are provided then all private repositories that are available to the user account will be enumerated in the JSON response.
 
