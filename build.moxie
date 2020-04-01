@@ -96,8 +96,8 @@ dependencyDirectory: ext
 registeredRepositories:
 - { id: central, url: 'https://repo1.maven.org/maven2' }
 - { id: mavencentral, url: 'https://repo1.maven.org/maven2' }
-- { id: eclipse, url: 'http://repo.eclipse.org/content/groups/releases' }
-- { id: eclipse-snapshots, url: 'http://repo.eclipse.org/content/groups/snapshots' }
+- { id: eclipse, url: 'https://repo.eclipse.org/content/groups/releases' }
+- { id: eclipse-snapshots, url: 'https://repo.eclipse.org/content/groups/snapshots' }
 - { id: gitblit, url: 'http://gitblit.github.io/gitblit-maven' }
 
 # Source all dependencies from the following repositories in the specified order
