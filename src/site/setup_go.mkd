@@ -17,7 +17,7 @@ Open `data/gitblit.properties` in your favorite text editor and make sure to rev
 	**NOTE:** You can only have **one** SSL certificate specified for a port.
 	4. exit the authority app
 4. Windows: Execute `gitblit.cmd` or `java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.GitBlitServer --baseFolder data` from a command-line
-   Linux/OSX: Execute `gitblit.sh` or `java -cp gitblit.jar;ext/* com.gitblit.GitBlitServer --baseFolder data` from a command-line
+   Linux/OSX: Execute `gitblit.sh` or `java -cp "gitblit.jar:ext/*"" com.gitblit.GitBlitServer --baseFolder data` from a command-line
 5. Open your browser to <http://localhost:8080> or <https://localhost:8443> depending on your chosen configuration.
 6. Enter the default administrator credentials: **admin / admin** and click the *Login* button    
     **NOTE:** Make sure to change the administrator username and/or password!! 

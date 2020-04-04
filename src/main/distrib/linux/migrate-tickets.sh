@@ -17,5 +17,5 @@ if [ -z $1 ] || [ -z $2 ]; then
     exit 1;
 fi
 
-java -cp gitblit.jar:./ext/* com.gitblit.MigrateTickets $1 --baseFolder $2
+java -cp "gitblit.jar:ext/*" com.gitblit.MigrateTickets $1 --baseFolder $2
 
