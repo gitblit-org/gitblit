@@ -8,7 +8,7 @@
 #
 # --------------------------------------------------------------------------
 
-if [[ -z $1 || -z $2 ]]; then
+if [ -z $1 ] || [ -z $2 ]; then
     echo "Please specify the output ticket service and your baseFolder!";
     echo "";
     echo "usage:";
