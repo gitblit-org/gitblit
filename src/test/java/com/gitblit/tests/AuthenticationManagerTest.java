@@ -19,13 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -654,16 +648,84 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 	public void testAuthenticate() throws Exception {
 		IAuthenticationManager auth = newAuthenticationManager();
 
+
+		String password = "pass word";
 		UserModel user = new UserModel("sunnyjim");
-		user.password = "password";
+		user.password = password;
 		users.updateUserModel(user);
 
-		assertNotNull(auth.authenticate(user.username, user.password.toCharArray(), null));
+		char[] pwd = password.toCharArray();
+		assertNotNull(auth.authenticate(user.username, pwd, null));
+
+		// validate that the passed in password has been zeroed out in memory
+		char[] zeroes = new char[pwd.length];
+		Arrays.fill(zeroes, Character.MIN_VALUE);
+		assertArrayEquals(zeroes, pwd);
+	}
+
+
+	@Test
+	public void testAuthenticateDisabledUser() throws Exception {
+		IAuthenticationManager auth = newAuthenticationManager();
+
+
+		String password = "password";
+		UserModel user = new UserModel("sunnyjim");
+		user.password = password;
 		user.disabled = true;
-
 		users.updateUserModel(user);
-		assertNull(auth.authenticate(user.username, user.password.toCharArray(), null));
-		users.deleteUserModel(user);
+
+		assertNull(auth.authenticate(user.username, password.toCharArray(), null));
+
+		user.disabled = false;
+		users.updateUserModel(user);
+		assertNotNull(auth.authenticate(user.username, password.toCharArray(), null));
+	}
+
+
+	@Test
+	public void testAuthenticateEmptyPassword() throws Exception {
+		IAuthenticationManager auth = newAuthenticationManager();
+
+
+		String password = "password";
+		UserModel user = new UserModel("sunnyjim");
+		user.password = password;
+		users.updateUserModel(user);
+
+		assertNull(auth.authenticate(user.username, "".toCharArray(), null));
+		assertNull(auth.authenticate(user.username, " 	 ".toCharArray(), null));
+		assertNull(auth.authenticate(user.username, new char[]{' ', '\u0010', '\u0015'}, null));
+	}
+
+
+
+
+	@Test
+	public void testAuthenticateWrongPassword() throws Exception {
+		IAuthenticationManager auth = newAuthenticationManager();
+
+
+		String password = "password";
+		UserModel user = new UserModel("sunnyjim");
+		user.password = password;
+		users.updateUserModel(user);
+
+		assertNull(auth.authenticate(user.username, "helloworld".toCharArray(), null));
+	}
+
+
+	@Test
+	public void testAuthenticateNoSuchUser() throws Exception {
+		IAuthenticationManager auth = newAuthenticationManager();
+
+
+		String password = "password";
+		UserModel user = new UserModel("sunnyjim");
+		user.password = password;
+		users.updateUserModel(user);
+
+		assertNull(auth.authenticate("rainyjoe", password.toCharArray(), null));
 	}
 
 

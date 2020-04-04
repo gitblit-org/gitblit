@@ -452,7 +452,6 @@ public class AuthenticationManager implements IAuthenticationManager {
 	/**
 	 * Authenticate a user based on a username and password.
 	 *
-	 * @see IUserService.authenticate(String, char[])
 	 * @param username
 	 * @param password
 	 * @return a user object or null
@@ -471,33 +470,38 @@ public class AuthenticationManager implements IAuthenticationManager {
 		}
 		
 		String usernameDecoded = StringUtils.decodeUsername(username);
-		String pw = new String(password);
-		if (StringUtils.isEmpty(pw)) {
+		if (StringUtils.isEmpty(password)) {
 			// can not authenticate empty password
 			return null;
 		}
 
 		UserModel user = userManager.getUserModel(usernameDecoded);
 
-		// try local authentication
-		if (user != null && user.isLocalAccount()) {
-			UserModel returnedUser = authenticateLocal(user, password);
-			if (returnedUser != null) {
-				// user authenticated
-				return returnedUser;
-			}
-		} else {
-			// try registered external authentication providers
-			for (AuthenticationProvider provider : authenticationProviders) {
-				if (provider instanceof UsernamePasswordAuthenticationProvider) {
-					UserModel returnedUser = provider.authenticate(usernameDecoded, password);
-					if (returnedUser != null) {
-						// user authenticated
-						returnedUser.accountType = provider.getAccountType();
-						return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+		try {
+			// try local authentication
+			if (user != null && user.isLocalAccount()) {
+				UserModel returnedUser = authenticateLocal(user, password);
+				if (returnedUser != null) {
+					// user authenticated
+					return returnedUser;
+				}
+			} else {
+				// try registered external authentication providers
+				for (AuthenticationProvider provider : authenticationProviders) {
+					if (provider instanceof UsernamePasswordAuthenticationProvider) {
+						UserModel returnedUser = provider.authenticate(usernameDecoded, password);
+						if (returnedUser != null) {
+							// user authenticated
+							returnedUser.accountType = provider.getAccountType();
+							return validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+						}
 					}
 				}
 			}
+		}
+		finally {
+			// Zero out password array to delete password from memory
+			Arrays.fill(password, Character.MIN_VALUE);
 		}
 
 		// could not authenticate locally or with a provider
