@@ -671,14 +671,18 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 	public void testAuthenticateUpgradePlaintext() throws Exception {
 		IAuthenticationManager auth = newAuthenticationManager();
 
+		String password = "topsecret";
 		UserModel user = new UserModel("sunnyjim");
-		user.password = "password";
+		user.password = password;
 		users.updateUserModel(user);
 
-		assertNotNull(auth.authenticate(user.username, user.password.toCharArray(), null));
+		assertNotNull(auth.authenticate(user.username, password.toCharArray(), null));
 
 		// validate that plaintext password was automatically updated to hashed one
 		assertTrue(user.password.startsWith(PasswordHash.getDefaultType().name() + ":"));
+
+		// validate that the password is still valid and the user can log in
+		assertNotNull(auth.authenticate(user.username, password.toCharArray(), null));
 	}
 
 
@@ -686,14 +690,18 @@ public class AuthenticationManagerTest extends GitblitUnitTest {
 	public void testAuthenticateUpgradeMD5() throws Exception {
 		IAuthenticationManager auth = newAuthenticationManager();
 
+		String password = "secretAndHashed";
 		UserModel user = new UserModel("sunnyjim");
-		user.password = "MD5:5F4DCC3B5AA765D61D8327DEB882CF99";
+		user.password = "MD5:BD95A1CFD00868B59B3564112D1E5847";
 		users.updateUserModel(user);
 
-		assertNotNull(auth.authenticate(user.username, "password".toCharArray(), null));
+		assertNotNull(auth.authenticate(user.username, password.toCharArray(), null));
 
 		// validate that MD5 password was automatically updated to hashed one
 		assertTrue(user.password.startsWith(PasswordHash.getDefaultType().name() + ":"));
+
+		// validate that the password is still valid and the user can log in
+		assertNotNull(auth.authenticate(user.username, password.toCharArray(), null));
 	}
 
 

@@ -18,10 +18,7 @@ package com.gitblit.manager;
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
@@ -520,21 +517,33 @@ public class AuthenticationManager implements IAuthenticationManager {
 	protected UserModel authenticateLocal(UserModel user, char [] password) {
 		UserModel returnedUser = null;
 
-		PasswordHash pwdHash = PasswordHash.instanceFor(user.password);
-		if (pwdHash != null) {
-			if (pwdHash.matches(user.password, password, user.username)) {
+		// Create a copy of the password that we can use to rehash to upgrade to a more secure hashing method.
+		// This is done to be independent from the implementation of the PasswordHash, which might already clear out
+		// the password it gets passed in. This looks a bit stupid, as we could simply clean up the mess, but this
+		// falls under "better safe than sorry".
+		char[] pwdToUpgrade = Arrays.copyOf(password, password.length);
+		try {
+			PasswordHash pwdHash = PasswordHash.instanceFor(user.password);
+			if (pwdHash != null) {
+				if (pwdHash.matches(user.password, password, user.username)) {
+					returnedUser = user;
+				}
+			} else if (user.password.equals(new String(password))) {
+				// plain-text password
 				returnedUser = user;
 			}
-		} else if (user.password.equals(new String(password))) {
-			// plain-text password
-			returnedUser = user;
-		} 
-		
-		// validate user
-		returnedUser = validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
-		
-		// try to upgrade the stored password hash to a stronger hash, if necessary
-		upgradeStoredPassword(returnedUser, password, pwdHash);
+
+			// validate user
+			returnedUser = validateAuthentication(returnedUser, AuthenticationType.CREDENTIALS);
+
+			// try to upgrade the stored password hash to a stronger hash, if necessary
+			upgradeStoredPassword(returnedUser, pwdToUpgrade, pwdHash);
+		}
+		finally {
+			// Now we make sure that the password is zeroed out in any case.
+			Arrays.fill(password, Character.MIN_VALUE);
+			Arrays.fill(pwdToUpgrade, Character.MIN_VALUE);
+		}
 
 		return returnedUser;
 	}
