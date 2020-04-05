@@ -19,7 +19,7 @@ GITBLIT_PATH=/opt/gitblit
 GITBLIT_BASE_FOLDER=/opt/gitblit/data
 GITBLIT_USER="gitblit"
 source ${GITBLIT_PATH}/java-proxy-config.sh
-ARGS="-server -Xmx1024M ${JAVA_PROXY_CONFIG} -Djava.awt.headless=true -jar gitblit.jar --baseFolder $GITBLIT_BASE_FOLDER --dailyLogFile"
+ARGS="-server -Xmx1024M ${JAVA_PROXY_CONFIG} -Djava.awt.headless=true -cp gitblit.jar:ext/* com.gitblit.GitBlitServer --baseFolder $GITBLIT_BASE_FOLDER --dailyLogFile"
 
 RETVAL=0
 

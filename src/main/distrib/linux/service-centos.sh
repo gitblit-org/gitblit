@@ -11,7 +11,7 @@ GITBLIT_HTTP_PORT=0
 GITBLIT_HTTPS_PORT=8443
 GITBLIT_LOG=/var/log/gitblit.log
 source ${GITBLIT_PATH}/java-proxy-config.sh
-JAVA="java -server -Xmx1024M ${JAVA_PROXY_CONFIG} -Djava.awt.headless=true -jar"
+JAVA="java -server -Xmx1024M ${JAVA_PROXY_CONFIG} -Djava.awt.headless=true -cp"
 
 RETVAL=0
 
@@ -21,7 +21,7 @@ case "$1" in
       then
       echo $"Starting gitblit server"
       cd $GITBLIT_PATH
-      $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER --dailyLogFile &
+      $JAVA "$GITBLIT_PATH/gitblit.jar:$GITBLIT_PATH/ext/*" com.gitblit.GitBlitServer --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER --dailyLogFile &
       echo "."
       exit $RETVAL
     fi
@@ -32,7 +32,7 @@ case "$1" in
       then
       echo $"Stopping gitblit server"
       cd $GITBLIT_PATH
-      $JAVA $GITBLIT_PATH/gitblit.jar --baseFolder $GITBLIT_BASE_FOLDER --stop > /dev/null &
+      $JAVA "$GITBLIT_PATH/gitblit.jar:$GITBLIT_PATH/ext/*" com.gitblit.GitBlitServer --baseFolder $GITBLIT_BASE_FOLDER --stop > /dev/null &
       echo "."
       exit $RETVAL
     fi
