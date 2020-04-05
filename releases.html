@@ -111,18 +111,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/manager-1.9.0.zip'>Gitblit Manager</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/fedclient-1.9.0.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/manager-1.9.1.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/fedclient-1.9.1.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gbapi-1.9.0.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gbapi-1.9.1.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0-1.8.0)</a></li>
@@ -165,6 +165,28 @@
 	<table class="table">
 		<tbody>
 		<!-- RELEASE HISTORY -->
+		<tr id="1.9.1">
+			<td style="width:100px" id="1.9.1">
+				<b><a href="#1.9.1">1.9.1</a></b><br/>
+				2020-04-05
+			</td>
+			<td>		<p class="lead">Gitblit 1.9.1 released</p>		
+	
+	
+		<blockquote><p>!! IMPORTANT BUG FIX FOR PASSWORD HASH UPGRADE !!<br /><br />There is a severe bug in version 1.9.0, which can lock users out from their accounts.<br />When updating from a previous version to 1.9.0, existing stored passwords are rehashed<br />with a more secure password hash mechanism when a user first logs in after the update.<br />This happens when the password hashing mechanism was left at default and not specifically<br />set in the configuration. An error in the implementation will destroy the stored password<br />instead and the user can no longer log in.<br /><br />Only certain circumstances will lead to this wrong behaviour. It will most likely<br />affect users of the Gitblit Docker container. If you did not encounter any problems,<br />update to 1.9.1 to be on the safe side. If you were hit by this bug, we are deeply sorry.<br />There is no way to fix the affected accounts other than to set a new password.<br /><br />This is fixed in 1.9.1. Updates of existing installations should be made to 1.9.1, not 1.9.0.<br /></p></blockquote>		
+
+		<div class="alert alert-info">
+			<h4>Note</h4>
+			When you have Gitblit installed as a service under Linux or Windows, you may need to edit your service script/definition. The command line to start Gitblit needs to be different, the classpath and class are speficied now.<p /><p />See notes for release 1.9.0.<p />
+		</div>
+
+   	<h4>fixes</h4>
+	<ul>
+		<li>Fixed broken password hash upgrade destroying existing stored passwords on update.</li>
+		<li>Fixed Linux service scripts to use `-cp` parameter instead of `-jar`.</li>
+	</ul>
+</td>
+		</tr>
 		<tr id="1.9.0">
 			<td style="width:100px" id="1.9.0">
 				<b><a href="#1.9.0">1.9.0</a></b><br/>
@@ -177,7 +199,7 @@
 
 		<div class="alert alert-info">
 			<h4>Note</h4>
-			Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. <p /><p />With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.<p /><p />The interface for the ITicketService changed. If you have your own derived implementation, rename `start` to `onStart`. (see <a href='https://github.com/gitblit/gitblit/commit/63dbdfda'>commit 63dbdfda</a>)<p /><p />To support Java 9+, Gitblit can no longer load JARs from the 'ext' folder by itself. In order to include the folder, it needs to be added to the classpath explicitly by changing the command line. Check the new start scripts to see the new required command line.<p /><p />The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.<p /><p />When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.<p /><p />Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in. <p />
+			Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. <p /><p />With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.<p /><p />The interface for the ITicketService changed. If you have your own derived implementation, rename `start` to `onStart`. (see <a href='https://github.com/gitblit/gitblit/commit/63dbdfda'>commit 63dbdfda</a>)<p /><p />To support Java 9+, Gitblit can no longer load JARs from the 'ext' folder by itself. In order to include the folder, it needs to be added to the classpath explicitly by changing the command line. Check the new start scripts to see the new required command line.<p /><p />The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.<p /><p />When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.<p /><p />Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in.<p />!! THIS IS BROKEN IN 1.9.0. DO NOT UPDATE TO 1.9.0. USE 1.9.1 INSTEAD !!<p />
 		</div>
 
    	<h4 style="color:red;">security</h4>
@@ -2654,7 +2676,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 	</table>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2020-02-01</p>
+<footer class="footer"><p class="pull-right">generated 2020-04-05</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

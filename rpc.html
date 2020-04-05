@@ -111,18 +111,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/manager-1.9.0.zip'>Gitblit Manager</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/fedclient-1.9.0.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/manager-1.9.1.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/fedclient-1.9.1.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gbapi-1.9.0.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gbapi-1.9.1.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0-1.8.0)</a></li>
@@ -162,7 +162,7 @@
 <pre><code>web.enableRpcServlet=true
 web.enableRpcManagement=false
 web.enableRpcAdministration=false
-</code></pre><p><strong>https</strong> is strongly recommended because passwords are insecurely transmitted form your browser/rpc client using Basic authentication!</p><p>The Gitblit JSON RPC mechanism, like the Gitblit JGit servlet, syndication/feed servlet, etc, supports request-based authentication. Making an <em>admin</em> request will trigger Gitblit's basic authentication mechanism. Listing of repositories, generally, will not trigger this authentication mechanism unless <em>web.authenticateViewPages=true</em>. That means its possible to allow anonymous enumeration of repositories that are not <em>view restricted</em> or <em>clone restricted</em>. Of course, if credentials are provided then all private repositories that are available to the user account will be enumerated in the JSON response.</p>
+</code></pre><p><strong>https</strong> is strongly recommended because passwords are insecurely transmitted from your browser/rpc client using Basic authentication!</p><p>The Gitblit JSON RPC mechanism, like the Gitblit JGit servlet, syndication/feed servlet, etc, supports request-based authentication. Making an <em>admin</em> request will trigger Gitblit's basic authentication mechanism. Listing of repositories, generally, will not trigger this authentication mechanism unless <em>web.authenticateViewPages=true</em>. That means its possible to allow anonymous enumeration of repositories that are not <em>view restricted</em> or <em>clone restricted</em>. Of course, if credentials are provided then all private repositories that are available to the user account will be enumerated in the JSON response.</p>
 <h3 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Gitblit Manager</h3><p>The Gitblit Manager is an example Java/Swing application that allows remote management (repository and user objects) and administration (server settings) of a Gitblit server.</p><p>This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the <a href="http://code.google.com/p/gitblit/downloads/detail?name=%API%">Gitblit API</a> library, to present live information from a Gitblit server. Some JSON RPC methods from the utility class <code>com.gitblit.utils.RpcUtils</code> are not currently used by the Gitblit Manager.</p><p><strong>NOTE:</strong><br/>Gitblit Manager stores your login credentials <strong>INSECURELY</strong> in homedir/.gitblit/config.</p>
 <h2 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>RSS Query Interface</h2><p>At present, Gitblit does not yet support retrieving Git objects (commits, etc) via the JSON RPC mechanism. However, the repository/branch RSS feeds can be used to extract log/history information from a repository branch.</p><p>The Gitblit API includes methods for retrieving and interpreting RSS feeds. The Gitblit Manager uses these methods to allow branch activity monitoring and repository searching.</p>
 <table class="table">
@@ -394,7 +394,7 @@ https://localhost:8443/feed/gitblit.git?l=50&amp;h=refs/heads/master&amp;s=james
 }
 </pre>
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="design.html">&larr; design</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2020-02-01</p>
+<div ><ul class="pager"><li class="previous"><a href="design.html">&larr; design</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2020-04-05</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

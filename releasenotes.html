@@ -111,18 +111,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/manager-1.9.0.zip'>Gitblit Manager</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/fedclient-1.9.0.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/manager-1.9.1.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/fedclient-1.9.1.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gbapi-1.9.0.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gbapi-1.9.1.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0-1.8.0)</a></li>
@@ -160,126 +160,24 @@
 <!-- Begin Markdown -->
 
 <!-- CURRENT RELEASE -->
-	<h3 id="1.9.0" class="section"><a href="#1.9.0" class="sectionlink"><i class="icon-share-alt"> </i></a>Current Release (1.9.0) <small>this is the current stable release</small></h3>
+	<h3 id="1.9.1" class="section"><a href="#1.9.1" class="sectionlink"><i class="icon-share-alt"> </i></a>Current Release (1.9.1) <small>this is the current stable release</small></h3>
 	<table class="table">
 		<tbody>
 			<tr>
-				<td style="background-color:inherit;width:100px">2020-02-01</td>
+				<td style="background-color:inherit;width:100px">2020-04-05</td>
 				<td style="background-color:inherit;">	
 	
-		<blockquote><p>Highlights:<br /><br />* Collapsible and nested repository groups on the repositories page<br />* Runs on Java 11<br />* Retrieve SSH keys from LDAP<br />* User language preference<br />* Option to merge ticket branches fast-forward or with merge commit<br /></p></blockquote>		
+		<blockquote><p>!! IMPORTANT BUG FIX FOR PASSWORD HASH UPGRADE !!<br /><br />There is a severe bug in version 1.9.0, which can lock users out from their accounts.<br />When updating from a previous version to 1.9.0, existing stored passwords are rehashed<br />with a more secure password hash mechanism when a user first logs in after the update.<br />This happens when the password hashing mechanism was left at default and not specifically<br />set in the configuration. An error in the implementation will destroy the stored password<br />instead and the user can no longer log in.<br /><br />Only certain circumstances will lead to this wrong behaviour. It will most likely<br />affect users of the Gitblit Docker container. If you did not encounter any problems,<br />update to 1.9.1 to be on the safe side. If you were hit by this bug, we are deeply sorry.<br />There is no way to fix the affected accounts other than to set a new password.<br /><br />This is fixed in 1.9.1. Updates of existing installations should be made to 1.9.1, not 1.9.0.<br /></p></blockquote>		
 
 		<div class="alert alert-info">
 			<h4>Note</h4>
-			Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. <p /><p />With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.<p /><p />The interface for the ITicketService changed. If you have your own derived implementation, rename `start` to `onStart`. (see <a href='https://github.com/gitblit/gitblit/commit/63dbdfda'>commit 63dbdfda</a>)<p /><p />To support Java 9+, Gitblit can no longer load JARs from the 'ext' folder by itself. In order to include the folder, it needs to be added to the classpath explicitly by changing the command line. Check the new start scripts to see the new required command line.<p /><p />The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.<p /><p />When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.<p /><p />Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in. <p />
+			When you have Gitblit installed as a service under Linux or Windows, you may need to edit your service script/definition. The command line to start Gitblit needs to be different, the classpath and class are speficied now.<p /><p />See notes for release 1.9.0.<p />
 		</div>
 
-   	<h4 style="color:red;">security</h4>
-	<ul>
-		<li>Change authentication cookie to use random value instead of user information (<a href='https://github.com/gitblit/gitblit/issues/1063'>issue 1063</a>, <a href='https://github.com/gitblit/gitblit/pull/1116'>pull request #1116</a>)</li>
-		<li>Increase cookie security (<a href='https://github.com/gitblit/gitblit/pull/1167'>pull request #1167</a>)</li>
-	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed wrong HTML entity (&amp;rt;) in HTML emails (<a href='https://github.com/gitblit/gitblit/pull/1105'>pull request #1105</a>)</li>
-		<li>Fixed Dutch translation (<a href='https://github.com/gitblit/gitblit/pull/1130'>pull request #1130</a>)</li>
-		<li>Changed LDAP binding strategies, to correctly find team membership (<a href='https://github.com/gitblit/gitblit/issues/833'>issue 833</a>, <a href='https://github.com/gitblit/gitblit/issues/920'>issue 920</a>, <a href='https://github.com/gitblit/gitblit/pull/247'>pull request #247</a>, <a href='https://github.com/gitblit/gitblit/pull/1149'>pull request #1149</a>)</li>
-		<li>Fixed disabled links in the PagerPanel to really be disabled (<a href='https://github.com/gitblit/gitblit/pull/1147'>pull request #1147</a>)</li>
-		<li>Set &quot;can admin&quot; permission on LDAP users and teams correctly (<a href='https://github.com/gitblit/gitblit/pull/1152'>pull request #1152</a>)</li>
-		<li>Fixed user mentions in tickets (<a href='https://github.com/gitblit/gitblit/issues/985'>issue 985</a>)</li>
-		<li>Fixed JEE Servlet 3.0 definition (<a href='https://github.com/gitblit/gitblit/issues/1132'>issue 1132</a>, <a href='https://github.com/gitblit/gitblit/pull/1178'>pull request #1178</a>)</li>
-		<li>Fixed proxy setup documentation (<a href='https://github.com/gitblit/gitblit/pull/1183'>pull request #1183</a>)</li>
-		<li>Fixed bug with reverse proxy when using a non-standard HTTPS port (<a href='https://github.com/gitblit/gitblit/issues/1114'>issue 1114</a>, <a href='https://github.com/gitblit/gitblit/pull/1201'>pull request #1201</a>)</li>
-		<li>Fixed wrapping of last column in tree page (<a href='https://github.com/gitblit/gitblit/pull/1202'>pull request #1202</a>)</li>
-		<li>Fixed NPE with unsupported transport URL protocol (<a href='https://github.com/gitblit/gitblit/pull/1238'>pull request #1238</a>)</li>
-		<li>Fixed unit tests by providing zipped local versions of external git repositories used for tests (<a href='https://github.com/gitblit/gitblit/issues/1275'>issue 1275</a>, <a href='https://github.com/gitblit/gitblit/pull/1309'>pull request #1309</a>)</li>
-		<li>Fixed NPE for symbolic links to repositories (<a href='https://github.com/gitblit/gitblit/issues/837'>issue 837</a>, <a href='https://github.com/gitblit/gitblit/issues/891'>issue 891</a>)</li>
-		<li>Fixed NPE for ticket milestones without due date (<a href='https://github.com/gitblit/gitblit/pull/1278'>pull request #1278</a>)</li>
-		<li>Fixed NPE with special characters in repository names (<a href='https://github.com/gitblit/gitblit/issues/999'>issue 999</a>, <a href='https://github.com/gitblit/gitblit/pull/1194'>pull request #1194</a>)</li>
-		<li>Fixed NPE when stopping GitBlit</li>
-		<li>Fixed exception due to MAC error on SSH connections (<a href='https://github.com/gitblit/gitblit/issues/1282'>issue 1282</a>)</li>
-		<li>Fixed link to LDAP sample LDIF file in documentation</li>
-		<li>Fixed NPE on unknown git commands. (<a href='https://github.com/gitblit/gitblit/issues/1092'>issue 1092</a>)</li>
-		<li>Fixed NPE for URLs to non-existing documents (<a href='https://github.com/gitblit/gitblit/pull/1324'>pull request #1324</a>)</li>
-	</ul>
-   	<h4>changes</h4>
-	<ul>
-		<li>Updated traditional Chinese translation (<a href='https://github.com/gitblit/gitblit/pull/1110'>pull request #1110</a>)</li>
-		<li>Load commit cache in the background to improve start-up time (<a href='https://github.com/gitblit/gitblit/pull/1140'>pull request #1140</a>)</li>
-		<li>Improved logging when sending emails fails, to assist in analysis (<a href='https://github.com/gitblit/gitblit/pull/1144'>pull request #1144</a>)</li>
-		<li>Support customized IUserService that can access application settings (<a href='https://github.com/gitblit/gitblit/pull/1171'>pull request #1171</a>)</li>
-		<li>Added feedback for invalid input on user SSH key form (<a href='https://github.com/gitblit/gitblit/pull/1239'>pull request #1239</a>)</li>
-		<li>Encode email sender's name with UTF-8 (<a href='https://github.com/gitblit/gitblit/pull/1206'>pull request #1206</a>)</li>
-		<li>Made Gitblit run on Java 9+ (<a href='https://github.com/gitblit/gitblit/issues/1262'>issue 1262</a>, <a href='https://github.com/gitblit/gitblit/issues/1294'>issue 1294</a>, <a href='https://github.com/gitblit/gitblit/pull/1266'>pull request #1266</a>)</li>
-		<li>The JRE version is reported upon starting</li>
-		<li>Add the `ext` directory to the classpath on the command-line to start Gitblit and related programs.</li>
-		<li>Report back that git command `clone.bundle` is unsupported instead of simply failing</li>
-	</ul>
-   	<h4>additions</h4>
-	<ul>
-		<li>Added option to merge a ticket branch to the integration branch fast-forward or with a merge commit (<a href='https://github.com/gitblit/gitblit/pull/1142'>pull request #1142</a>)</li>
-		<li>Added SSH key manager that retrieves keys from LDAP directory (<a href='https://github.com/gitblit/gitblit/pull/1160'>pull request #1160</a>)</li>
-		<li>Updated Korean translation (<a href='https://github.com/gitblit/gitblit/pull/1176'>pull request #1176</a>)</li>
-		<li>The list of SSH authentication methods accepted by the server was made configurable (<a href='https://github.com/gitblit/gitblit/pull/1159'>pull request #1159</a>)</li>
-		<li>User language preference setting (<a href='https://github.com/gitblit/gitblit/pull/1198'>pull request #1198</a>)</li>
-		<li>Gitblit Authority sends user certificate email based on user preferred language (<a href='https://github.com/gitblit/gitblit/pull/1198'>pull request #1198</a>)</li>
-		<li>List branches over RPC for a given repository (<a href='https://github.com/gitblit/gitblit/pull/1192'>pull request #1192</a>)</li>
-		<li>Added Czech translation (<a href='https://github.com/gitblit/gitblit/pull/1200'>pull request #1200</a>)</li>
-		<li>Added setting to set HTTP idle timeout to prevent timeouts when cloning large repositories over HTTP(S) (<a href='https://github.com/gitblit/gitblit/pull/1243'>pull request #1243</a>)</li>
-		<li>Made the repository groups on the repositories page collapsible (<a href='https://github.com/gitblit/gitblit/issues/527'>issue 527</a>, <a href='https://github.com/gitblit/gitblit/pull/1224'>pull request #1224</a>)</li>
-		<li>Made the repository groups on the repositories page nested (<a href='https://github.com/gitblit/gitblit/issues/725'>issue 725</a>, <a href='https://github.com/gitblit/gitblit/pull/1267'>pull request #1267</a>)</li>
-		<li>Added PBKDF2 as password hashing algorithm. Other password storage choices are deprecated (<a href='https://github.com/gitblit/gitblit/issues/1166'>issue 1166</a>, <a href='https://github.com/gitblit/gitblit/pull/1172'>pull request #1172</a>)</li>
-	</ul>
-   	<h4>new settings</h4>
-	<table class="table">
-		<tr>
-			<td><em>git.sshAuthenticationMethods</em></td><td>publickey password</td>
-		</tr>
-		<tr>
-			<td><em>realm.ldap.sshPublicKey</em></td><td></td>
-		</tr>
-		<tr>
-			<td><em>server.httpIdleTimeout</em></td><td>30,000</td>
-		</tr>
-		<tr>
-			<td><em>tickets.mergeType</em></td><td>MERGE_ALWAYS</td>
-		</tr>
-		<tr>
-			<td><em>web.collapsibleRepositoryGroups</em></td><td>expanded</td>
-		</tr>
-	</table>
-   	<h4>dependency changes</h4>
-	<ul>
-		<li>updated to Lucene 5.5.2 (<a href='https://github.com/gitblit/gitblit/pull/1168'>pull request #1168</a>)</li>
-		<li>updated to BouncyCastle 1.57 (<a href='https://github.com/gitblit/gitblit/issues/1166'>issue 1166</a>)</li>
-		<li>updated to MINA 2.0.21</li>
-		<li>updated to MINA SSHD 1.2.0 (<a href='https://github.com/gitblit/gitblit/issues/1282'>issue 1282</a>, <a href='https://github.com/gitblit/gitblit/pull/1322'>pull request #1322</a>)</li>
-		<li>updated to SLF4J 1.7.29</li>
-		<li>updated to JaCoCo 0.8.4</li>
-		<li>updated to JGit 4.5.7.201904151645-r (<a href='https://github.com/gitblit/gitblit/issues/1030'>issue 1030</a>, <a href='https://github.com/gitblit/gitblit/issues/1091'>issue 1091</a>)</li>
-	</ul>
-   	<h4>contributors</h4>
-	<ul>
-		<li>Bala Raman</li>
-		<li>Dongsu, Kim</li>
-		<li>Florian Zschocke</li>
-		<li>Fritz Schrogl</li>
-		<li>Glenn Matthys</li>
-		<li>Guilliam Xavier</li>
-		<li>Jan Breuer</li>
-		<li>Jia Zhi Wen</li>
-		<li>Lars Maes</li>
-		<li>Luca Milanesio</li>
-		<li>Markus Fömpe</li>
-		<li>Martin Spielmann</li>
-		<li>paladox</li>
-		<li>Rainer W</li>
-		<li>Rodrigo Andrade</li>
-		<li>Sebastiano Pilla</li>
-		<li>Thomas Wolf</li>
-		<li>Tue Ton</li>
-		<li>william</li>
-		<li>ybosy</li>
+		<li>Fixed broken password hash upgrade destroying existing stored passwords on update.</li>
+		<li>Fixed Linux service scripts to use `-cp` parameter instead of `-jar`.</li>
 	</ul>
 </td>
 			</tr>
@@ -295,7 +193,7 @@
 </div>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2020-02-01</p>
+<footer class="footer"><p class="pull-right">generated 2020-04-05</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

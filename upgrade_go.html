@@ -111,18 +111,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gitblit-1.9.0.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gitblit-1.9.1.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://registry.hub.docker.com/u/jmoger/gitblit/'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/manager-1.9.0.zip'>Gitblit Manager</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/fedclient-1.9.0.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/manager-1.9.1.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/fedclient-1.9.1.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.0/gbapi-1.9.0.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.1/gbapi-1.9.1.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
 <li><a href='https://bintray.com/gitblit/releases/gitblit'>Bintray (1.4.0-1.8.0)</a></li>
@@ -158,20 +158,24 @@
 		</div><!-- end Navigation Bar -->
 <div class='container'>
 <!-- Begin Markdown -->
-<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit GO (1.7.0+)</h2><p>The default <code>gitblit.properties</code> file has been split into two files: <code>gitblit.properties</code>, which is the recommended file for setting your configuration, and <code>defaults.properties</code> which are Gitblit's default settings.</p>
+<h2 class="section" id='H1'><a href="#H1" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit GO (1.9.1+)</h2><p>The command line to start Gitblit has changed from </p><p><pre>java -jar gitblit.jar --baseFolder data
+</pre></p><p>to</p><p><pre>java -cp &quot;gitblit.jar:ext/*&quot; com.gitblit.GitBlitServer --baseFolder data
+</pre></p><p>or on Windows to </p><p><pre>java -cp gitblit.jar;&quot;%CD%\ext\*&quot; com.gitblit.GitBlitServer --baseFolder data
+</pre></p><p>The class path and main class need to be specified now. If you have installed Gitblit as a service you will need to adjust the service scripts or definitions accordingly.</p>
+<h2 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit GO (1.7.0+)</h2><p>The default <code>gitblit.properties</code> file has been split into two files: <code>gitblit.properties</code>, which is the recommended file for setting your configuration, and <code>defaults.properties</code> which are Gitblit's default settings.</p>
 <pre><code># Include Gitblit&#39;s &#39;defaults.properties&#39; within your configuration.
 #
 # COMMA-DELIMITED
 # SINCE 1.7.0
 include = defaults.properties
 </code></pre><p>Notice that the default settings are <em>included</em> by your <code>gitblit.properties</code> file. The disadvantage to this approach is you must flip between discovering/reading the settings in <code>defaults.properties</code> and setting them in <code>gitblit.properties</code>, but there are some clear advantages too. This setup is not required. You may continue to keep all your settings in <code>gitblit.properties</code> like before.</p><p>Additionally you may find it useful if you are maintaining several Gitblit instances to share common properties files.</p>
-<h2 class="section" id='H2'><a href="#H2" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit GO (1.2.1+)</h2>
+<h2 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit GO (1.2.1+)</h2>
 <ol>
   <li>Unzip Gitblit GO to a new folder</li>
   <li>Set the <em>--baseFolder</em> argument to point to your old <code>data</code> folder</li>
   <li>Review and optionally apply any new settings as indicated in the <a href="releases.html">release log</a> to <code>data/gitblit.properties</code>.</li>
 </ol><p>In *nix systems or Windows Vista/7/8, there are other tricks you can play like symlinking the <code>data</code> folder or symlinking the GO folder.<br/>All platforms support the <em>--baseFolder</em> command-line argument.</p>
-<h2 class="section" id='H3'><a href="#H3" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit GO (pre-1.2.1)</h2>
+<h2 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Gitblit GO (pre-1.2.1)</h2>
 <ol>
   <li><p>Create a <code>data</code> folder and copy the following files and folders to it:</p>
   <ul>
@@ -203,9 +207,9 @@ include = defaults.properties
   <li>Copy your <code>data</code> folder and overwrite the folder of the same name in the just-unzipped version</li>
   <li>Review and optionally apply any new settings as indicated in the <a href="releases.html">release log</a> to <code>data/gitblit.properties</code>.</li>
 </ol><p><strong>NOTE:</strong> You may need to adjust your service definitions to include the <code>--baseFolder data</code> argument.</p>
-<h4 class="section" id='H4'><a href="#H4" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Windows Service</h4><p>You may need to delete your old service definition and install a new one depending on what has changed in the release.
+<h4 class="section" id='H5'><a href="#H5" class="sectionlink"><i class="icon-share-alt"> </i></a>Upgrading Windows Service</h4><p>You may need to delete your old service definition and install a new one depending on what has changed in the release.
 <!-- End Markdown -->
-<div ><ul class="pager"><li class="previous"><a href="setup_go.html">&larr; setup GO</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2020-02-01</p>
+<div ><ul class="pager"><li class="previous"><a href="setup_go.html">&larr; setup GO</a></li> </ul></div><footer class="footer"><p class="pull-right">generated 2020-04-05</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
