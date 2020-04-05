@@ -5,11 +5,33 @@ r31: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          When you have Gitblit installed as a service under Linux or Windows, you may need to edit your service script/definition. The command line to start Gitblit needs to be different, the classpath and class are speficied now.
+
+          See notes for release 1.9.0.
+          ''
     html: ~
-    text: ~
+    text: ''
+          !! IMPORTANT BUG FIX FOR PASSWORD HASH UPGRADE !!
+          
+          There is a severe bug in version 1.9.0, which can lock users out from their accounts.
+          When updating from a previous version to 1.9.0, existing stored passwords are rehashed
+          with a more secure password hash mechanism when a user first logs in after the update.
+          This happens when the password hashing mechanism was left at default and not specifically
+          set in the configuration. An error in the implementation will destroy the stored password
+          instead and the user can no longer log in.
+
+          Only certain circumstances will lead to this wrong behaviour. It will most likely
+          affect users of the Gitblit Docker container. If you did not encounter any problems,
+          update to 1.9.1 to be on the safe side. If you were hit by this bug, we are deeply sorry.
+          There is no way to fix the affected accounts other than to set a new password.
+
+          This is fixed in 1.9.1. Updates of existing installations should be made to 1.9.1, not 1.9.0.
+          ''
     security: ~
-    fixes: ~
+    fixes:
+      - Fixed broken password hash upgrade destroying existing stored passwords on update.
+      - Fixed Linux service scripts to use `-cp` parameter instead of `-jar`.
     changes: ~
     additions: ~
     dependencyChanges: ~
@@ -36,7 +58,8 @@ r30: {
 
           When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.
 
-          Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in. 
+          Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in.
+          !! THIS IS BROKEN IN 1.9.0. DO NOT UPDATE TO 1.9.0. USE 1.9.1 INSTEAD !!
           ''
     html: ~
     text: ''
