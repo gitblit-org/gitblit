@@ -57,6 +57,21 @@ public class StringUtils {
 	}
 
 	/**
+	 * Returns true if the character array represents an empty String.
+	 * An empty character sequence is defined as a sequence that
+	 * either has no characters at all, or no characters above
+	 * '\u0020' (space).
+	 *
+	 * @param value
+	 * @return true if value is null or represents an empty String
+	 */
+	public static boolean isEmpty(char[] value) {
+		if (value == null || value.length == 0) return true;
+		for ( char c : value) if (c > '\u0020') return false;
+		return true;
+	}
+
+	/**
 	 * Replaces carriage returns and line feeds with html line breaks.
 	 *
 	 * @param string

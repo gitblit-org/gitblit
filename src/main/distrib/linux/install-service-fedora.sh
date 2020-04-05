@@ -18,16 +18,16 @@ After=network.target
 [Service]
 User=gitblit
 Group=gitblit
-Environment="ARGS=-server -Xmx1024M -Djava.awt.headless=true -jar"
+Environment="ARGS=-server -Xmx1024M -Djava.awt.headless=true -cp"
 EnvironmentFile=-/etc/sysconfig/gitblit
 WorkingDirectory=/opt/gitblit
-ExecStart=/usr/bin/java \$ARGS gitblit.jar --httpsPort \$GITBLIT_HTTPS_PORT --httpPort \$GITBLIT_HTTP_PORT --baseFolder \$GITBLIT_BASE_FOLDER --dailyLogFile
-ExecStop=/usr/bin/java \$ARGS gitblit.jar --baseFolder \$GITBLIT_BASE_FOLDER --stop
+ExecStart=/usr/bin/java \$ARGS gitblit.jar:ext/* com.gitblit.GitBlitServer --httpsPort \$GITBLIT_HTTPS_PORT --httpPort \$GITBLIT_HTTP_PORT --baseFolder \$GITBLIT_BASE_FOLDER --dailyLogFile
+ExecStop=/usr/bin/java \$ARGS gitblit.jar:ext/* com.gitblit.GitBlitServer --baseFolder \$GITBLIT_BASE_FOLDER --stop
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
 # Finally copy the files to the destination and register the systemd unit.
-sudo su -c "cp /tmp/gitblit.defaults /etc/sysconfig/gitblit && cp /tmp/gitblit.service /etc/systemd/system/"
-sudo su -c "systemctl daemon-reload && systemctl enable gitblit.service && systemctl start gitblit.service"
+sudo sh -c "cp /tmp/gitblit.defaults /etc/sysconfig/gitblit && cp /tmp/gitblit.service /etc/systemd/system/"
+sudo sh -c "systemctl daemon-reload && systemctl enable gitblit.service && systemctl start gitblit.service"

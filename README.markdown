@@ -5,7 +5,7 @@ Gitblit is an open source, pure Java Git solution for managing, viewing, and ser
 
 More information about Gitblit can be found [here](http://gitblit.com).
 
-<a href='https://github.com/fzs/gitblit/releases/latest'><img src='https://img.shields.io/badge/dynamic/json?color=9cf&label=Download&query=%24.name&url=https%3A%2F%2Fapi.github.com%2Frepos%2Ffzs%2Fgitblit%2Freleases%2Flatest'></a>
+<a href='https://github.com/gitblit/gitblit/releases/latest'><img src='https://img.shields.io/badge/dynamic/json?color=9cf&label=Download&query=%24.name&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fgitblit%2Fgitblit%2Freleases%2Flatest'></a>
 
 License
 -------

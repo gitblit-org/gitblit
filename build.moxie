@@ -10,12 +10,12 @@ name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.9.0-SNAPSHOT
+version: 1.9.1-SNAPSHOT
 inceptionYear: 2011
 
 # Current stable release
-releaseVersion: 1.8.0
-releaseDate: 2016-06-22
+releaseVersion: 1.9.0
+releaseDate: 2020-02-01
 
 # Project urls
 url: 'http://gitblit.com'
@@ -96,8 +96,8 @@ dependencyDirectory: ext
 registeredRepositories:
 - { id: central, url: 'https://repo1.maven.org/maven2' }
 - { id: mavencentral, url: 'https://repo1.maven.org/maven2' }
-- { id: eclipse, url: 'http://repo.eclipse.org/content/groups/releases' }
-- { id: eclipse-snapshots, url: 'http://repo.eclipse.org/content/groups/snapshots' }
+- { id: eclipse, url: 'https://repo.eclipse.org/content/groups/releases' }
+- { id: eclipse-snapshots, url: 'https://repo.eclipse.org/content/groups/snapshots' }
 - { id: gitblit, url: 'http://gitblit.github.io/gitblit-maven' }
 
 # Source all dependencies from the following repositories in the specified order
