@@ -1,1 +1,1 @@
-@java -jar manager.jar
+@java -jar manager.jar %*

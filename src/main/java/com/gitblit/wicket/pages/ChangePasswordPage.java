@@ -28,14 +28,14 @@ import org.apache.wicket.protocol.http.WebResponse;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.PasswordHash;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.NonTrimmedPasswordTextField;
 
 public class ChangePasswordPage extends RootSubPage {
 
-	IModel<String> password = new Model<String>("");
-	IModel<String> confirmPassword = new Model<String>("");
+	private IModel<String> password = new Model<String>("");
+	private IModel<String> confirmPassword = new Model<String>("");
 
 	public ChangePasswordPage() {
 		super();
@@ -85,15 +85,11 @@ public class ChangePasswordPage extends RootSubPage {
 
 				UserModel user = GitBlitWebSession.get().getUser();
 
-				// convert to MD5 digest, if appropriate
-				String type = app().settings().getString(Keys.realm.passwordStorage, "md5");
-				if (type.equalsIgnoreCase("md5")) {
-					// store MD5 digest of password
-					password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
-				} else if (type.equalsIgnoreCase("combined-md5")) {
-					// store MD5 digest of username+password
-					password = StringUtils.COMBINED_MD5_TYPE
-							+ StringUtils.getMD5(user.username.toLowerCase() + password);
+				// convert to digest, if appropriate
+				String type = app().settings().getString(Keys.realm.passwordStorage, PasswordHash.getDefaultType().name());
+				PasswordHash pwdHash = PasswordHash.instanceOf(type);
+				if (pwdHash != null) {
+					password = pwdHash.toHashedEntry(password, user.username);
 				}
 
 				user.password = password;

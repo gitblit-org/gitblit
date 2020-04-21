@@ -44,9 +44,9 @@ public class SshDaemonTest extends SshUnitTest {
 	@Test
 	public void testPublicKeyAuthentication() throws Exception {
 		SshClient client = getClient();
-		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).await().getSession();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
 		session.addPublicKeyIdentity(rwKeyPair);
-		assertTrue(session.auth().await().isSuccess());
+		assertTrue(session.auth().await());
 	}
 
 	@Test
@@ -64,6 +64,7 @@ public class SshDaemonTest extends SshUnitTest {
 
 		// set clone restriction
 		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
+		assertNotNull("Could not get repository modle for ticgit.git", model);
 		model.accessRestriction = AccessRestrictionType.CLONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		repositories().updateRepositoryModel(model.name, model, false);

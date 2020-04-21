@@ -66,6 +66,26 @@
             <template src="releasehistory.ftl" data="${releaselog}" />
         </page>
     </menu>
+    <menu name="downloads">
+        <link name="Gitblit GO (Windows)" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.zip" />
+        <link name="Gitblit GO (Linux/OSX)" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.tar.gz" />
+        <link name="Gitblit WAR" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.war" />
+        <divider />
+        <link name="Gitblit GO (Docker)" src="https://registry.hub.docker.com/u/jmoger/gitblit/" />
+        <divider />
+        <link name="Plugins Registry" src="http://plugins.gitblit.com" />
+        <divider />
+        <link name="Gitblit Manager" src="${gc.url}${currentRelease.tag}/manager-${project.releaseVersion}.zip" />
+        <link name="Federation Client" src="${gc.url}${currentRelease.tag}/fedclient-${project.releaseVersion}.zip" />
+        <divider />
+        <link name="API Library" src="${gc.url}${currentRelease.tag}/gbapi-${project.releaseVersion}.zip" />
+        <divider />
+        <link name="GitHub (1.9.0+)" src="https://github.com/${gh.org}/gitblit/releases" />
+        <link name="Bintray (1.4.0-1.8.0)" src="https://bintray.com/gitblit/releases/gitblit" />
+        <link name="GoogleCode (pre-1.4.0)" src="https://code.google.com/p/gitblit/downloads/list?can=1" />
+        <divider />
+        <link name="Maven Repository" src="${project.mavenUrl}" />
+    </menu>
     <menu name="links">
         <link name="dev.gitblit.com (self-hosted)" src="https://dev.gitblit.com" />
         <divider />
@@ -74,6 +94,13 @@
         <link name="Github" src="${project.scmUrl}" />
         <link name="Issues" src="${project.issuesUrl}" />
         <link name="Discussion" src="${project.forumUrl}" />
+        <link name="Twitter" src="https://twitter.com/gitblit" />
         <link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+        <divider />
+        <link name="Gitblit Tickets screencast" src="https://vimeo.com/86164723" />
+        <link name="Gitblit SSH and Plugin Management asciicast" src="https://asciinema.org/a/9342" />
+        <link name="GitMinutes #29: James Moger on Gitblit" src="http://episodes.gitminutes.com/2014/05/gitminutes-29-james-moger-on-gitblit.html" />
+        <divider />
+        <link name="@JamesMoger" src="https://twitter.com/JamesMoger" />
     </menu>
 </structure>

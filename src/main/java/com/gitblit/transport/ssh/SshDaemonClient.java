@@ -17,7 +17,7 @@ package com.gitblit.transport.ssh;
 
 import java.net.SocketAddress;
 
-import org.apache.sshd.common.session.Session.AttributeKey;
+import org.apache.sshd.common.AttributeStore.AttributeKey;
 
 import com.gitblit.models.UserModel;
 

@@ -143,7 +143,7 @@ public class GitBlitServer {
 		if (parser != null) {
 			parser.printUsage(System.out);
 			System.out
-					.println("\nExample:\n  java -server -Xmx1024M -jar gitblit.jar --repositoriesFolder c:\\git --httpPort 80 --httpsPort 443");
+					.println("\nExample:\n  java -server -Xmx1024M -cp gitblit.jar:ext/* com.gitblit.GitBlitServer  --repositoriesFolder /srv/git --httpPort 80 --httpsPort 443");
 		}
 		System.exit(0);
 	}
@@ -224,6 +224,10 @@ public class GitBlitServer {
 		String osname = System.getProperty("os.name");
 		String osversion = System.getProperty("os.version");
 		logger.info("Running on " + osname + " (" + osversion + ")");
+
+		String javaversion = System.getProperty("java.version");
+		String javavendor = System.getProperty("java.vendor");
+		logger.info("JVM version " + javaversion + " (" + javavendor + ")");
 
 		QueuedThreadPool threadPool = new QueuedThreadPool();
 		int maxThreads = settings.getInteger(Keys.server.threadPoolSize, 50);

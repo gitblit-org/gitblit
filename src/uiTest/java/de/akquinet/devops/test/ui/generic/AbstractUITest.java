@@ -19,7 +19,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-//import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 
 import com.gitblit.GitBlitServer;
@@ -73,8 +73,8 @@ public abstract class AbstractUITest {
 				false);
 		System.out.println("Saving all attachments to: " + downloadDir);
 
-		driver = new FirefoxDriver(firefoxProfile); //Selenium 2
-		//driver = new FirefoxDriver(new FirefoxOptions().setProfile(firefoxProfile)); //Selenium 3, and JDK8+
+		//driver = new FirefoxDriver(firefoxProfile); //Selenium 2
+		driver = new FirefoxDriver(new FirefoxOptions().setProfile(firefoxProfile)); //Selenium 3, and JDK8+
 	}
 
 	/**

@@ -293,11 +293,13 @@ public class GitblitContext extends GuiceServletContextListener {
 		logger.info("Gitblit context destroyed by servlet container.");
 
 		IPluginManager pluginManager = getManager(IPluginManager.class);
-		for (LifeCycleListener listener : pluginManager.getExtensions(LifeCycleListener.class)) {
-			try {
-				listener.onShutdown();
-			} catch (Throwable t) {
-				logger.error(null, t);
+		if (pluginManager != null) {
+			for (LifeCycleListener listener : pluginManager.getExtensions(LifeCycleListener.class)) {
+				try {
+					listener.onShutdown();
+				} catch (Throwable t) {
+					logger.error(null, t);
+				}
 			}
 		}
 

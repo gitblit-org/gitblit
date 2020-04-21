@@ -62,6 +62,10 @@ public class DocsPage extends RepositoryPage {
 		final boolean userCanEdit = currentUser.canEdit(getRepositoryModel());
 		
 		RevCommit head = JGitUtils.getCommit(r, objectId);
+		if (head == null) {
+			setResponsePage(NoDocsPage.class, params);
+			return;
+		}
 		final String commitId = getBestCommitId(head);
 
 		List<String> extensions = processor.getAllExtensions();

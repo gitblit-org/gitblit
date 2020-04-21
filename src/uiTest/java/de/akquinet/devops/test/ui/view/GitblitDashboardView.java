@@ -16,11 +16,11 @@
 package de.akquinet.devops.test.ui.view;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
@@ -64,7 +64,7 @@ public class GitblitDashboardView extends GitblitPageView {
 
 	synchronized public void waitToLoadFor(int sec) {
 		WebDriverWait webDriverWait = new WebDriverWait(getDriver(), sec);
-		webDriverWait.until(new ExpectedCondition<Boolean>() {
+		webDriverWait.until(new Function<WebDriver, Boolean>() {
 			public Boolean apply(WebDriver d) {
 				return d.getTitle().toLowerCase()
 						.startsWith(GitblitDashboardView.TITLE_STARTS_WITH);

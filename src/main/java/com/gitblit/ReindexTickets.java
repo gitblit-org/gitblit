@@ -111,7 +111,7 @@ public class ReindexTickets {
 		if (parser != null) {
 			parser.printUsage(System.out);
 			System.out
-					.println("\nExample:\n  java -gitblit.jar com.gitblit.ReindexTickets --baseFolder c:\\gitblit-data");
+					.println("\nExample:\n  java -cp gitblit.jar;\"%CD%/ext/*\" com.gitblit.ReindexTickets --baseFolder c:\\gitblit-data");
 		}
 		System.exit(0);
 	}

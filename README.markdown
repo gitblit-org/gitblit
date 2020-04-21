@@ -43,7 +43,7 @@ Gitblit is an open source, pure Java Git solution for managing, viewing, and ser
 
 More information about Gitblit can be found [here](http://gitblit.com).
 
-<a href='https://bintray.com/gitblit/releases/gitblit/_latestVersion'><img src='https://api.bintray.com/packages/gitblit/releases/gitblit/images/download.png'></a>
+<a href='https://github.com/gitblit/gitblit/releases/latest'><img src='https://img.shields.io/badge/dynamic/json?color=9cf&label=Download&query=%24.name&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fgitblit%2Fgitblit%2Freleases%2Flatest'></a>
 
 License
 -------
@@ -64,7 +64,6 @@ Getting help
 | Documentation | [Gitblit website](http://gitblit.com)                  |
 | Forums        | [Google Groups](https://groups.google.com/forum/#!forum/gitblit) |
 | Twitter       | @gitblit or @jamesmoger                                |
-| Google+       | +gitblit or +jamesmoger                                |
 
 Contributing
 ------------

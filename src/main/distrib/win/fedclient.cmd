@@ -1,1 +1,1 @@
-@java -jar fedclient.jar
+@java -jar fedclient.jar %*

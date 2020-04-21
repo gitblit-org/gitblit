@@ -91,11 +91,11 @@ public class JGitUtilsTest extends RepoUnitTest {
 		Path symlink = null;
 		Path alink = null;
 		try {
-			Path link = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(),  "test-rln.git");
+			Path link = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(), "test-rln.git");
 			Path target = Paths.get("../" + reposdirName,repositoryName);
 			symlink = Files.createSymbolicLink(link, target);
 
-			link = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(),  "test-ln.git");
+			link = Paths.get(GitBlitTestConfig.REPOSITORIES.toString(), "test-ln.git");
 			target = Paths.get(extrepodir.getCanonicalPath(), repositoryName);
 			alink = Files.createSymbolicLink(link, target);
 		}

@@ -3,7 +3,7 @@ repositories {
     mavenCentral()
     jcenter()
     maven {
-        url = 'http://gitblit.github.io/moxie/maven'
+        url = 'https://gitblit.github.io/moxie/maven'
     }
 }
 

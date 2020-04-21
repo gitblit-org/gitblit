@@ -1,7 +1,7 @@
 #
 # ${project.version} release
 #
-r30: {
+r31: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
@@ -14,6 +14,123 @@ r30: {
     additions: ~
     dependencyChanges: ~
     contributors: ~
+}
+
+#
+# 1.9.0 release
+#
+r30: {
+    title: Gitblit 1.9.0 released
+    id: 1.9.0
+    date: 2020-02-01
+    note: ''
+          Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. 
+
+          With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.
+
+          The interface for the ITicketService changed. If you have your own derived implementation, rename `start` to `onStart`. (see commit-63dbdfda)
+
+          To support Java 9+, Gitblit can no longer load JARs from the 'ext' folder by itself. In order to include the folder, it needs to be added to the classpath explicitly by changing the command line. Check the new start scripts to see the new required command line.
+
+          The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.
+
+          When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.
+
+          Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in. 
+          ''
+    html: ~
+    text: ''
+          Highlights:
+          
+          * Collapsible and nested repository groups on the repositories page
+          * Runs on Java 11
+          * Retrieve SSH keys from LDAP
+          * User language preference
+          * Option to merge ticket branches fast-forward or with merge commit
+          ''
+    security:
+      - Change authentication cookie to use random value instead of user information (issue-1063, pr-1116)
+      - Increase cookie security (pr-1167)
+    fixes:
+      - Fixed wrong HTML entity (&rt;) in HTML emails (pr-1105)
+      - Fixed Dutch translation (pr-1130)
+      - Changed LDAP binding strategies, to correctly find team membership (issue-833, issue-920, pr-247, pr-1149)
+      - Fixed disabled links in the PagerPanel to really be disabled (pr-1147)
+      - Set "can admin" permission on LDAP users and teams correctly (pr-1152)
+      - Fixed user mentions in tickets (issue-985)
+      - Fixed JEE Servlet 3.0 definition (issue-1132, pr-1178)
+      - Fixed proxy setup documentation (pr-1183)
+      - Fixed bug with reverse proxy when using a non-standard HTTPS port (issue-1114, pr-1201)
+      - Fixed wrapping of last column in tree page (pr-1202)
+      - Fixed NPE with unsupported transport URL protocol (pr-1238)
+      - Fixed unit tests by providing zipped local versions of external git repositories used for tests (issue-1275, pr-1309)
+      - Fixed NPE for symbolic links to repositories (issue-837, issue-891)
+      - Fixed NPE for ticket milestones without due date (pr-1278)
+      - Fixed NPE with special characters in repository names (issue-999, pr-1194)
+      - Fixed NPE when stopping GitBlit
+      - Fixed exception due to MAC error on SSH connections (issue-1282)
+      - Fixed link to LDAP sample LDIF file in documentation
+      - Fixed NPE on unknown git commands. (issue-1092)
+      - Fixed NPE for URLs to non-existing documents (pr-1324)
+    changes:
+      - Updated traditional Chinese translation (pr-1110)
+      - Load commit cache in the background to improve start-up time (pr-1140)
+      - Improved logging when sending emails fails, to assist in analysis (pr-1144)
+      - Support customized IUserService that can access application settings (pr-1171)
+      - Added feedback for invalid input on user SSH key form (pr-1239)
+      - Encode email sender's name with UTF-8 (pr-1206)
+      - Made Gitblit run on Java 9+ (issue-1262, issue-1294, pr-1266)
+      - The JRE version is reported upon starting
+      - Add the `ext` directory to the classpath on the command-line to start Gitblit and related programs.
+      - Report back that git command `clone.bundle` is unsupported instead of simply failing
+    additions:
+      - Added option to merge a ticket branch to the integration branch fast-forward or with a merge commit (pr-1142)
+      - Added SSH key manager that retrieves keys from LDAP directory (pr-1160)
+      - Updated Korean translation (pr-1176)
+      - The list of SSH authentication methods accepted by the server was made configurable (pr-1159)
+      - User language preference setting (pr-1198)
+      - Gitblit Authority sends user certificate email based on user preferred language (pr-1198)
+      - List branches over RPC for a given repository (pr-1192)
+      - Added Czech translation (pr-1200)
+      - Added setting to set HTTP idle timeout to prevent timeouts when cloning large repositories over HTTP(S) (pr-1243)
+      - Made the repository groups on the repositories page collapsible (issue-527, pr-1224)
+      - Made the repository groups on the repositories page nested (issue-725, pr-1267)
+      - Added PBKDF2 as password hashing algorithm. Other password storage choices are deprecated (issue-1166, pr-1172)
+    dependencyChanges:
+      - updated to Lucene 5.5.2 (pr-1168)
+      - updated to BouncyCastle 1.57 (issue-1166)
+      - updated to MINA 2.0.21
+      - updated to MINA SSHD 1.2.0 (issue-1282, pr-1322)
+      - updated to SLF4J 1.7.29
+      - updated to JaCoCo 0.8.4
+      - updated to JGit 4.5.7.201904151645-r (issue-1030, issue-1091)
+    contributors:
+      - Guilliam Xavier
+      - william
+      - Lars Maes
+      - Thomas Wolf
+      - Florian Zschocke
+      - Glenn Matthys
+      - Rodrigo Andrade
+      - Dongsu, Kim
+      - Martin Spielmann
+      - Bala Raman
+      - Rainer W
+      - Markus Fömpe
+      - Jan Breuer
+      - Luca Milanesio
+      - Sebastiano Pilla
+      - Tue Ton
+      - Fritz Schrogl
+      - ybosy
+      - paladox
+      - Jia Zhi Wen
+    settings:
+      - { name: 'git.sshAuthenticationMethods', defaultValue: 'publickey password' }
+      - { name: 'realm.ldap.sshPublicKey', defaultValue: ' ' }
+      - { name: 'server.httpIdleTimeout', defaultValue: 30000 }
+      - { name: 'tickets.mergeType', defaultValue: 'MERGE_ALWAYS' }
+      - { name: 'web.collapsibleRepositoryGroups', defaultValue: 'expanded' }
 }
 
 #
@@ -82,9 +199,9 @@ r28: {
     text: ~
     security: ~
     fixes:
-    - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-521, ticket-212)
-    - Fix exception when deleting a repository using the FileTicketService (issue-522, ticket-213)
-    - Do not inject team repository permissions as explicit user permissions when editing a user (issue-462, ticket-214)
+    - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-817, ticket-212)
+    - Fix exception when deleting a repository using the FileTicketService (issue-818, ticket-213)
+    - Do not inject team repository permissions as explicit user permissions when editing a user (issue-758, ticket-214)
     - Whitelist the target link attribute in the XSS filter (ticket-216)    
     - Strip line breaks from pasted SSH keys (ticket-245)
     - Fix project sorting (pr-287)
@@ -193,9 +310,9 @@ r27: {
     text: ~
     security: ~
     fixes:
-    - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-521, ticket-212)
-    - Fix exception when deleting a repository using the FileTicketService (issue-522, ticket-213)
-    - Do not inject team repository permissions as explicit user permissions when editing a user (issue-462, ticket-214)
+    - Fix exception when viewing a ticket with a patchset where the integration branch does not exist (issue-817, ticket-212)
+    - Fix exception when deleting a repository using the FileTicketService (issue-818, ticket-213)
+    - Do not inject team repository permissions as explicit user permissions when editing a user (issue-758, ticket-214)
     - Whitelist the target link attribute in the XSS filter (ticket-216)    
     - Strip line breaks from pasted SSH keys (ticket-245)
     - Fix project sorting (pr-287)
@@ -327,7 +444,7 @@ r25: {
           The next major release (v1.7.0) will focus on:
           * ticket-75: making projects more useful including the concept of project ownership
           
-          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RpeositoryModel to the UserModel
+          This improvement will require a NON-BACKWARDS-COMPATIBLE migration of repository ownership from the RepositoryModel to the UserModel
           
           * ticket-55: facilitating usage of tickets & git-flow in the web ui
           ''
@@ -340,59 +457,59 @@ r25: {
           * GITBLIT_HOME environment variable support
           ''
     security:
-    - Sanitize page parameters, form fields, and markup for XSS vulnerabilities (issue-496, ticket-164)
-    - Fix flash security risk (issue-498, ticket-165)
-    - Fix XRF vulnerability (issue-500, ticket-166)
-    - Prohibit new forks from inadvertently disclosing view-restricted contents (issue-495, ticket-167)
-    - Restrict Gitblit's cookie to the context path (issue-507, ticket-187)
+    - Sanitize page parameters, form fields, and markup for XSS vulnerabilities (issue-792, ticket-164)
+    - Fix flash security risk (issue-794, ticket-165)
+    - Fix XRF vulnerability (issue-796, ticket-166)
+    - Prohibit new forks from inadvertently disclosing view-restricted contents (issue-791, ticket-167)
+    - Restrict Gitblit's cookie to the context path (issue-803, ticket-187)
     fixes:
     - Fix NPE when two repository names differ only in case (pr-204, ticket-108)
-    - Fix API documentation links (issue-449, ticket-111)
+    - Fix API documentation links (issue-745, ticket-111)
     - Fix internal error when specifying a blob url without a path (ticket-113)
     - Fix milestone queries for hyphentated names (ticket-115)
-    - Fix duplicate repositories on dashboards (issue-454, ticket-117)
-    - Fix lower-case project names in RepositoryNamePanel (issue-509, ticket-118)
-    - Fix ticket notifications not sent when author doesn't have an email address (issue-423, ticket-132)
+    - Fix duplicate repositories on dashboards (issue-750, ticket-117)
+    - Fix lower-case project names in RepositoryNamePanel (issue-805, ticket-118)
+    - Fix ticket notifications not sent when author doesn't have an email address (issue-719, ticket-132)
     - Fix regression in create-ticket-on-push & clarify reported explanation (ticket-135)
-    - Fix redirects after ajax form submissions with Tomcat (issue-455, ticket-136)
+    - Fix redirects after ajax form submissions with Tomcat (issue-751, ticket-136)
     - Fix potential NPE in Raw servlet (ticket-137)
     - Fix Raw link path generation that does not respect web.forwardSlashCharacter (ticket-139)
     - Do not log query parameter passwords when Redmine authentication fails (pr-215, ticket-466)
-    - Fix NPE in RepositoryNamePanel for anonymous admins (issue-490, ticket-147)
-    - Fix repo creation with initial commit when the creator does not have an email address (issue-458, ticket-149)
-    - Fix Edit Repository page missing owners from owners list (issue-480, ticket-150)
+    - Fix NPE in RepositoryNamePanel for anonymous admins (issue-786, ticket-147)
+    - Fix repo creation with initial commit when the creator does not have an email address (issue-754, ticket-149)
+    - Fix Edit Repository page missing owners from owners list (issue-776, ticket-150)
     - Fix NPEs when handling tickets with non-existent milestones (ticket-152)
-    - Quote all Lucene query args that have non-alphanumberic characters (issue-483, issue-469, ticket-153)
-    - Fix 0-length files from raw servlet when file does not exist (issue-489, ticket-154)
-    - Fix raw servlet failures with long project names (issue-478, ticket-163)
-    - New ticket responsible selections are missing users with RW access (issue-476, ticket-170)
-    - Fix NPE in TicketListPanel due to missing repository (issue-451, ticket-171)
-    - Fix MigrateTickets failure for view-restricted repositories (issue-475, ticket-173)
-    - Fix repository deletion bug where the Lucene ticket index was not purged (issue-468, ticket-174)
+    - Quote all Lucene query args that have non-alphanumberic characters (issue-779, issue-765, ticket-153)
+    - Fix 0-length files from raw servlet when file does not exist (issue-785, ticket-154)
+    - Fix raw servlet failures with long project names (issue-774, ticket-163)
+    - New ticket responsible selections are missing users with RW access (issue-772, ticket-170)
+    - Fix NPE in TicketListPanel due to missing repository (issue-747, ticket-171)
+    - Fix MigrateTickets failure for view-restricted repositories (issue-771, ticket-173)
+    - Fix repository deletion bug where the Lucene ticket index was not purged (issue-764, ticket-174)
     - Fix Jenkins post-receive script repository url (pr-219, ticket-175)
-    - Fix potential NPE in retrieving a ticket comment (issue-503, ticket-179)
-    - Fix bug in migrating tickets to the BranchTicketService (issue-474, ticket-183)
-    - Fix failure to clear/delete a ticket topic and description (issue-505, ticket-188)
+    - Fix potential NPE in retrieving a ticket comment (issue-799, ticket-179)
+    - Fix bug in migrating tickets to the BranchTicketService (issue-770, ticket-183)
+    - Fix failure to clear/delete a ticket topic and description (issue-801, ticket-188)
     - Fix cropped ticket status indicators (ticket-197)
     - Fix bug in raw servlet extracting repository out of the path (pr-222, ticket-203)
-    - Improve relative path determiniation using Java 7 Paths (issue-511, ticket-204)
+    - Improve relative path determiniation using Java 7 Paths (issue-807, ticket-204)
     changes:
     - Remove git.streamFileThreshold setting and documentation (ticket-119)    
     - Update Korean translation (pr-206, ticket-120)
-    - Add additional documentation for web.canonicalUrl (pr-205, issue-453, ticket-121)
+    - Add additional documentation for web.canonicalUrl (pr-205, issue-749, ticket-121)
     - Remove Wicket references from non-Wicket packages (ticket-129)
-    - LDAP user accounts now clear email address when unset in LDAP (issue-456, ticket-134)
+    - LDAP user accounts now clear email address when unset in LDAP (issue-752, ticket-134)
     - Update French translation (pr-210, ticket-140)
     - Update authentication documentation (pr-213, ticket-142)
     - Pretty print Perl modules (pr-216, ticket-144)
     - Pretty print C/C++ headers (pr-207, ticket-145)
-    - Do not stamp raw servlet responses with cache-control headers (issue-489, ticket-148)
-    - Treat UTF-9 and UTF-18 (both fake encodings) as UTF-8 (issue-486, ticket-151)
+    - Do not stamp raw servlet responses with cache-control headers (issue-785, ticket-148)
+    - Treat UTF-9 and UTF-18 (both fake encodings) as UTF-8 (issue-782, ticket-151)
     - Allow Lucene indexing period to be configurable (ticket-161)
     - Do not display stacktraces for bad requests in servlets (issue-497, ticket-169)
-    - Preserve branch ref in commits, tree, and docs navbar links (issue-501, ticket-176)
-    - Disable Edit User Page permission checkboxes if admin/fork/create permission is inherited (issue-196, ticket-177)
-    - Explicitly declare page subclasses that reference commits (issue-503, ticket-180)
+    - Preserve branch ref in commits, tree, and docs navbar links (issue-797, ticket-176)
+    - Disable Edit User Page permission checkboxes if admin/fork/create permission is inherited (issue-492, ticket-177)
+    - Explicitly declare page subclasses that reference commits (issue-799, ticket-180)
     - Explicitly attempt to register BouncyCastle as a JCE provider (ticket-194)
     - Treat .ico and .jpeg files as images (pr-221, ticket-202)
     additions:
@@ -465,20 +582,20 @@ r24: {
           ''
     security: ~
     fixes:
-    - Allow ticket responsible selection if anonymous push is enabled (issue-425, ticket-71)
-    - Fix failure to generate SSH server keys on ARM (issue-426, ticket-70)
+    - Allow ticket responsible selection if anonymous push is enabled (issue-721, ticket-71)
+    - Fix failure to generate SSH server keys on ARM (issue-722, ticket-70)
     - Fix flotr2 chart generation failure if a label contained a single-quote (ticket-77)
-    - Fix repository cache refresh after ref deletion/addition (issue-433, ticket-82)
+    - Fix repository cache refresh after ref deletion/addition (issue-729, ticket-82)
     - Fixed cache miss on repository model retrieval (pr-185, ticket-83)
-    - Fixed GitBlit static singleton reference in localclone.groovy (issue-436, ticket-84)
+    - Fixed GitBlit static singleton reference in localclone.groovy (issue-732, ticket-84)
     - Removed Ticket responsible team permission exclusion (ticket-87)
     - Fixed SSH daemon thread exhaustion (ticket-89)
     - Fixed Ticket responsible selections not considering the AUTHENTICATED authorization control (ticket-91)
-    - Fixed invalid generated SSH url for port 22 (issue-444, ticket-98)
-    - Fix cloning repositories with `+` in their names. (revert pr-136, issue-362, ticket-100)
+    - Fixed invalid generated SSH url for port 22 (issue-740, ticket-98)
+    - Fix cloning repositories with `+` in their names. (revert pr-136, issue-658, ticket-100)
     - Fixed NPE in GitblitClient (ticket-102)
     changes:
-    - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-413, ticket-49)
+    - Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (issue-709, ticket-49)
     - Drop deprecated --set-upstream syntax for -u (ticket-59)
     - BARNUM: Prune deleted branches on fetch (git fetch -p) (ticket-60)
     - BARNUM: Create ticket/N instead of topic/N for pt start N (ticket-61)
@@ -490,25 +607,25 @@ r24: {
     - Process bugtraq links in the ticket description and comments (ticket-78)
     - Exclude personal repositories from the repositories list, by default (issue-419, ticket-95)
     additions:
-    - Add My Tickets page (issue-215, ticket-15)
+    - Add My Tickets page (issue-511, ticket-15)
     - Added CRUD functionality for Ticket Milestones (ticket-17)
     - Implemented Ticket migration tool to move between backends (ticket-19)
     - Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (ticket-23)
-    - Added an editor panel in the user profile page to manipulate preferences (issue-108, issue-424, ticket-64)
+    - Added an editor panel in the user profile page to manipulate preferences (issue-404, issue-720, ticket-64)
     - Added an editor panel in the user profile page to manipulate public SSH keys (ticket-64)
-    - Add FORK_REPOSITORY RPC request type (issue-371, pr-161, ticket-65)
+    - Add FORK_REPOSITORY RPC request type (issue-667, pr-161, ticket-65)
     - Add object type (ot) parameter for RSS queries to retrieve tag details (pr-165, ticket-66)
     - Add setting to allow STARTTLS without requiring SMTPS (pr-183)
     - Simplified repository creation, offer simple README generation, and insertion of a pre-defined .gitignore file (ticket-76)
     - Added an extension point for monitoring onStartup and onShutdown (ticket-79)
-    - Tag server-side merges when incremental push tags are enabled (issue-432, ticket-85)
+    - Tag server-side merges when incremental push tags are enabled (issue-728, ticket-85)
     - Add a user preference for the clone transport (ticket-90)
     - Add setting to control default thread pool size for miscellaneous background tasks (ticket-92)
     - Add Norwegian transation (pr-186)
     - Add German translation (pr-192)
     - Add Italian translation (pr-196)
     dependencyChanges:
-    - Update to javax.mail 1.5.1 (issue-417, ticket-58)
+    - Update to javax.mail 1.5.1 (issue-713, ticket-58)
     contributors:
     - James Moger
     - David Ostrovsky
@@ -549,23 +666,23 @@ r23: {
     text: ~
     security: ~
     fixes:
-    - Fix subdirectory links in pages servlet (issue-411)
-    - Fix subdirectory navigation in pages servlet (issue-412)
+    - Fix subdirectory links in pages servlet (issue-707)
+    - Fix subdirectory navigation in pages servlet (issue-708)
     - Fix bug in adding invalid or empty SSH keys (ticket-50)
     - Fix forcing default locale to en or LANG_CC for web ui (ticket-51)
     - Fix inconsistency with repository ownership permission checking (ticket-52)
     - Prevent submission from New|Edit ticket page with empty titles (ticket-53)
     - Ensure the repository model ref list is refreshed on ref creation or deletion (ticket-54)
-    - Fix case-sensitivity error in determining fork network (issue-420, ticket-62)
-    - Fix transport determination for SSH urls served on port 22 (issue-421, ticket-63)
+    - Fix case-sensitivity error in determining fork network (issue-716, ticket-62)
+    - Fix transport determination for SSH urls served on port 22 (issue-717, ticket-63)
     changes:
     - improve French translation (pr-176)
     - simplify current plugin release detection and ignore the currentRelease registry field
-    - split pages servlet into two servlets (issue-413)
+    - split pages servlet into two servlets (issue-709)
     additions: ~
     dependencyChanges:
-    - update to Apache MINA/SSHD 0.11.0 (issue-410)
-    - added Apache Tiki 1.5 (issue-413)
+    - update to Apache MINA/SSHD 0.11.0 (issue-706)
+    - added Apache Tiki 1.5 (issue-709)
     contributors:
     - James Moger
     - Julien Kirch
@@ -597,19 +714,19 @@ r22: {
           ''
     security: ~
     fixes:
-    - Repository mailing lists could not be reset from the Edit Repository page (issue-399)
-    - Fix intermittent NPE in determining commit date in RefModel (issue-401)
-    - Fix closing ticket on push by parsing commit messages for closes|fixes (issue-404)
-    - Fix diffstat display for a ticket with a pending submodule change (issue-407)
+    - Repository mailing lists could not be reset from the Edit Repository page (issue-695)
+    - Fix intermittent NPE in determining commit date in RefModel (issue-697)
+    - Fix closing ticket on push by parsing commit messages for closes|fixes (issue-700)
+    - Fix diffstat display for a ticket with a pending submodule change (issue-703)
     - Ensure the Lucene ticket index is updated on repository deletion.
     - Fixed failure to properly determine hasTicket in RedisTicketService
     - Fixed handling of pushing ticket branch deletions
     changes:
-    - Switch from GoogleCharts to self-hosted flotr2 charts (issue-283, ticket-43, pr-166)
-    - Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (issue-348)
-    - Improve logging for missing LDAP uid attribute when synchronizing (issue-394)
-    - The ticket close-on-push commit message regular expression is now configurable by a setting (issue-404)
-    - Redirect to summary page on edit repository (issue-405)
+    - Switch from GoogleCharts to self-hosted flotr2 charts (issue-579, ticket-43, pr-166)
+    - Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (issue-644)
+    - Improve logging for missing LDAP uid attribute when synchronizing (issue-690)
+    - The ticket close-on-push commit message regular expression is now configurable by a setting (issue-700)
+    - Redirect to summary page on edit repository (issue-701)
     - Option to allow LDAP users to directly authenticate without performing LDAP searches (pr-162)
     - Replace JCommander with args4j to be consistent with other tools (ticket-28)
     - Sort repository urls by descending permissions and by transport security within equal permissions
@@ -618,11 +735,11 @@ r22: {
     - dropped settings: server.useNio, server.ajpPort, server.ajpBindInterface
     - dropped GO parameters: --ajpPort, --useNio
     additions:
-    - Added an SSH daemon with public key authentication (issue-369, ticket-6)
-    - Added beginnings of a plugin framework for extending Gitblit (issue-381, ticket-23)
+    - Added an SSH daemon with public key authentication (issue-665, ticket-6)
+    - Added beginnings of a plugin framework for extending Gitblit (issue-677, ticket-23)
     - Added a French translation (pr-163)
     - Added a setting to control what transports may be used for pushes
-    - Expose JGit 3.x receive pack settings (issue-408)
+    - Expose JGit 3.x receive pack settings (issue-704)
     dependencyChanges:
     - Java 7
     - Jetty 9.1.4
@@ -680,10 +797,10 @@ r21: {
           
           Due to the enormity of these changes, please make a backup copy of users.conf before updating.''
     security:
-    - Fix major authentication security hole when using external authentication providers (issue-387, ticket-35)
+    - Fix major authentication security hole when using external authentication providers (issue-683, ticket-35)
     fixes:
-    - Fixed incorrect branch ref in Ticket page for symlinks (issue-383, ticket-32)
-    - Fix NPE in FileTicketService (issue-386, ticket-34)
+    - Fixed incorrect branch ref in Ticket page for symlinks (issue-679, ticket-32)
+    - Fix NPE in FileTicketService (issue-682, ticket-34)
     - Watch list push parameters were now always honored (ticket-30)
     - Watch list push parameters were not always validated (ticket-29)
     - Truncated tag messages in the tag panel did not have proper tooltips (ticket-31)
@@ -725,18 +842,18 @@ r20: {
           
           Due to the enormity of these changes, please make a backup copy of users.conf before updating.''
     security:
-	- issue-361: Cookies were not reset on administrative password change of a user account. This allowed accounts with changed passwords to continue authenticating. Cookies are now reset on password changes, they are validated on each page request, AND they will now expire 7 days after generation.
+	- issue-657: Cookies were not reset on administrative password change of a user account. This allowed accounts with changed passwords to continue authenticating. Cookies are now reset on password changes, they are validated on each page request, AND they will now expire 7 days after generation.
     fixes:
-	- Fixed incorrect tagger attribution in the dashboard (issue-276)
-	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
-	- Fixed injection of unnecessary explicit CLONE permissions for a fork when users or teams already had implied regex permissions (issue-320)
-	- Bind LDAP connection after establishing TLS initialization (issue-343)
-	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
-	- Invalidate all cached repository data on "clear cache" (issue-346)
-	- Fix chart failures when an apostrophe is in a user display name (issue-350, pr-128)
-	- Fix exception in create repository when not selecting a garbage collection period (issue-366)
-	- Stop setting admin permission based on undocumented Redmine REST API behavior (issue-368)
-	- Fix compage page failure when a submodule is changed in the commit range (issue-375)
+	- Fixed incorrect tagger attribution in the dashboard (issue-572)
+	- Fixed support for implied SSH urls in web.otherUrls (issue-607)
+	- Fixed injection of unnecessary explicit CLONE permissions for a fork when users or teams already had implied regex permissions (issue-616)
+	- Bind LDAP connection after establishing TLS initialization (issue-639)
+	- Fixed NPE when attempting to add a permission without a registrant (issue-640)
+	- Invalidate all cached repository data on "clear cache" (issue-642)
+	- Fix chart failures when an apostrophe is in a user display name (issue-646, pr-128)
+	- Fix exception in create repository when not selecting a garbage collection period (issue-662)
+	- Stop setting admin permission based on undocumented Redmine REST API behavior (issue-664)
+	- Fix compage page failure when a submodule is changed in the commit range (issue-671)
 	- Fix support url decoding with non-ascii characters (pr-136)
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
@@ -744,14 +861,14 @@ r20: {
 	- Fix raw page content type of binaries when running behind a reverse proxy
 	- Fix author search links from compare pages
     changes:
-	- Gitblit now rejects pushes to identified mirror repositories (issue-5)
-	- Personal repository prefix (~) is now configurable (issue-265)
-	- Refactored user services and separated authentication into providers (issue-281)
-	- Reversed line links in blob view (issue-309)
-	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-310)
-	- Do not log passwords on failed authentication attempts (issue-316)
-	- LDAP synchronization is now scheduled rather than on-demand (issue-336)
-	- Show displayname and username in palettes (issue-364)
+	- Gitblit now rejects pushes to identified mirror repositories (issue-301)
+	- Personal repository prefix (~) is now configurable (issue-561)
+	- Refactored user services and separated authentication into providers (issue-577)
+	- Reversed line links in blob view (issue-605)
+	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-606)
+	- Do not log passwords on failed authentication attempts (issue-612)
+	- LDAP synchronization is now scheduled rather than on-demand (issue-632)
+	- Show displayname and username in palettes (issue-660)
 	- Updated default binary and Lucene ignore extensions
 	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
 	- Removed internal Gitblit ref exclusions in the upload pack
@@ -773,19 +890,19 @@ r20: {
 	- Updated Dutch translation
 	- Updated Korean translation
     additions:
-	- Added color modes for the blame page (issue-2)
-	- Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
-	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
-	- Added option to render Markdown commit messages (issue-203)
-	- Added Ticket tracker and Patchset collaboration feature (issue-215) 
-	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
-	- Set Link: <url>; rel="canonical" http header for SEO (issue-304)
-	- Added raw links to the commit, commitdiff, and compare pages (issue-319)
-	- Support intradocument linking in Markdown content using [[WikiLinks]] syntax (issue-324)
-	- Support Markdown image links relative to the repository root (issue-324)
-	- Added filesystem write permission check (issue-345)
-	- Added GO launch parameter for redirecting logging to a rolling, daily log file (issue-348)
-	- Added settings to Windows authentication provider to permit/prohibit BUILTIN\Administrators from being Gitblit Admins (issue-354)
+	- Added color modes for the blame page (issue-298)
+	- Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (issue-301).  Repositories must be manually cloned using native git and "--mirror".
+	- Added branch graph image servlet based on EGit's branch graph renderer (issue-490)
+	- Added option to render Markdown commit messages (issue-499)
+	- Added Ticket tracker and Patchset collaboration feature (issue-511) 
+	- Added setting to control creating a repository as --shared on Unix servers (issue-559)
+	- Set Link: <url>; rel="canonical" http header for SEO (issue-600)
+	- Added raw links to the commit, commitdiff, and compare pages (issue-615)
+	- Support intradocument linking in Markdown content using [[WikiLinks]] syntax (issue-620)
+	- Support Markdown image links relative to the repository root (issue-620)
+	- Added filesystem write permission check (issue-641)
+	- Added GO launch parameter for redirecting logging to a rolling, daily log file (issue-644)
+	- Added settings to Windows authentication provider to permit/prohibit BUILTIN\Administrators from being Gitblit Admins (issue-650)
 	- Added canonical url setting for email notifications and web display
 	- Support rendering confluence, mediawiki, textile, tracwiki, and twiki markup documents
 	- Added setting to globally disable anonymous pushes in the receive pack
@@ -794,7 +911,7 @@ r20: {
 	- Automatically display common repository root documents as tabs on the docs page
 	- Support bugtraq configuration in collaboration with Syntevo,  the regex.* config keys are now DEPRECATED
 	- Added FishEye hook script (pr-137)
-	- Added Redmine Fetch hook script (issue-359)
+	- Added Redmine Fetch hook script (issue-655)
 	- Added Subgit hook contributed by TMate Software
 	- Added function to retain a user account but prohibit authentication. This is an alternative to deleting a user account.
 	- Added setting to hide the top-level navigation header to facilitate embedding Gitblit in something else.
@@ -885,10 +1002,10 @@ r19: {
     text: ~
     security: ~
     fixes:
-    - Fixed Gitblit Authority startup failures when using alternate user services (issue-280)
-    - Manually redirect after branch deletion (issue 282)
-    - Simplify when repository size is calculated to ensure we have one IF we want one (issue-295)
-    - Fixed anonymous LDAP connections (issue-297)
+    - Fixed Gitblit Authority startup failures when using alternate user services (issue-576)
+    - Manually redirect after branch deletion (issue 578)
+    - Simplify when repository size is calculated to ensure we have one IF we want one (issue-591)
+    - Fixed anonymous LDAP connections (issue-593)
     - Improved branch deletion-reflog interaction
     - Encode page url parameters as UTF-8
     - Encode filename for binary files on RawPage according to browser
@@ -928,9 +1045,9 @@ r18: {
     text: ~
     security: ~
     fixes:
-	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
-	- Fixed incorrect tagger in the dashboard pages (issue-276)
-	- Automatically decode %7E in repository names from git clients that encode ~ (issue-278)
+	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 565)
+	- Fixed incorrect tagger in the dashboard pages (issue-572)
+	- Automatically decode %7E in repository names from git clients that encode ~ (issue-574)
 	- Fixed missing Keys class in WAR and Express builds
 	- Fixed missing model class dependencies in Gitblit Manager build
 	- Fix for IE10 compatibility mode
@@ -948,8 +1065,8 @@ r18: {
 	- Updated Korean translation
 	- Updated Brazilian Portuguese translation
     additions:
-	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages (issue-274)
-	- Added a GET_USER request type for the RPC mechanism (issue-275)
+	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages (issue-570)
+	- Added a GET_USER request type for the RPC mechanism (issue-571)
 	- Added PAMUserService to authenticate against a local Linux/Unix/MacOSX server
     dependencyChanges:
     - Added libpam4j 1.7
@@ -1004,30 +1121,30 @@ r17: {
           If you have forked repositories and your are upgrading to 1.3.0, please DO NOT RELOCATE your repositories folder when running 1.3.0 the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
           ''
 	security:
-	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 198)
+	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 494)
     fixes:
-	 - Use bash instead of sh in Linux/OSX shell scripts (issue 154)
-	 - Fix NPE when getting user's fork without repository list caching (issue 182)
-	 - Fix internal error on folder history links (issue 192)
-	 - Fix NPE in repositories panel when viewing a federation proposal (issue 195)
-	 - Fix NPEs when initializing the context on a servlet containers which returns a null contextFolder (issue 199)
-	 - Fixed incorrect icon file name for .doc files (issue 200)
-	 - Do not queue emails with no recipients (issue 201)
-	 - Disable view and blame links for deleted blobs (issue 216)
-	 - Fixed 1.2.x regression with individually symlinked repositories (issue 217)
-	 - Fixed UTF-8 encoding errors in email notifications (issue 218)
-	 - Fixed NPE in 1.2.1 Federation Client (issue 219)
-	 - Fixed extracting Groovy scripts on Express installs (issue 220)
-	 - Ensure Redmine url is properly formatted (issue 223)
-	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
-	 - Switch commit message back to a pre and ensure that it is properly escaped when combined with commit message regex substitution (issue 242)
-	 - Fixed AddIndexedBranch tool --branch parameter (issue 247)  
-	 - Improve NPE handling for hook script enumeration (issue-253)
-	 - Workaround missing commit information in blame page (JGit bug 374382, issue-254) 
-	 - Ignore orphan ".git" folder in the repositories root folder (issue-256)
-	 - Fixed bug where a null permission was added to a user model on a repository rename when the permission had really been inherited from a team membership (issue-259)
-	 - Fixed committer verification with merge commits (issue-264)
-	 - Fixed bug in submodule repository linking (issue-266)
+	 - Use bash instead of sh in Linux/OSX shell scripts (issue 450)
+	 - Fix NPE when getting user's fork without repository list caching (issue 478)
+	 - Fix internal error on folder history links (issue 488)
+	 - Fix NPE in repositories panel when viewing a federation proposal (issue 491)
+	 - Fix NPEs when initializing the context on a servlet containers which returns a null contextFolder (issue 495)
+	 - Fixed incorrect icon file name for .doc files (issue 496)
+	 - Do not queue emails with no recipients (issue 497)
+	 - Disable view and blame links for deleted blobs (issue 512)
+	 - Fixed 1.2.x regression with individually symlinked repositories (issue 513)
+	 - Fixed UTF-8 encoding errors in email notifications (issue 514)
+	 - Fixed NPE in 1.2.1 Federation Client (issue 515)
+	 - Fixed extracting Groovy scripts on Express installs (issue 516)
+	 - Ensure Redmine url is properly formatted (issue 519)
+	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 520)
+	 - Switch commit message back to a pre and ensure that it is properly escaped when combined with commit message regex substitution (issue 538)
+	 - Fixed AddIndexedBranch tool --branch parameter (issue 543)
+	 - Improve NPE handling for hook script enumeration (issue-549)
+	 - Workaround missing commit information in blame page (JGit bug 374382, issue-550) 
+	 - Ignore orphan ".git" folder in the repositories root folder (issue-552)
+	 - Fixed bug where a null permission was added to a user model on a repository rename when the permission had really been inherited from a team membership (issue-555)
+	 - Fixed committer verification with merge commits (issue-560)
+	 - Fixed bug in submodule repository linking (issue-562)
      - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
 	 - Added more error checking to blob page and blame page
 	 - Disable SNI extensions for client SSL connections
@@ -1037,11 +1154,11 @@ r17: {
 	 - Fixed submodule diff display
 
 	changes:
-	 - Retrieve summary and metric graphs from Google over https (issue-61)
-	 - Persist originRepository (for forks) in the repository config instead of relying on parsing origin urls which are susceptible to filesystem relocation (issue 190) 
-	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
-	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
-	 - Display full commit message on commitdiff page (issue-258)
+	 - Retrieve summary and metric graphs from Google over https (issue-357)
+	 - Persist originRepository (for forks) in the repository config instead of relying on parsing origin urls which are susceptible to filesystem relocation (issue 486)
+	 - Improved error logging for servlet containers which provide a null contextFolder (issue 495)
+	 - Improve Gerrit change ref decoration in the refs panel (issue 502)
+	 - Display full commit message on commitdiff page (issue-554)
 	 - Improved the repository url display.  This display now indicates your repository access permission, per-protocol.
 	 - Automatically encode/decode usernames for urls using %XX notation on space, @, and \
  	 - Disable Gson's pretty printing which has a huge performance gain
@@ -1054,16 +1171,16 @@ r17: {
 	 - Updated Japanese translation
 	 
     additions: 
-	 - Added a ui for the ref log introduced in 1.2.1 (issue-177)
-	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
-	 - Support setting a custom header logo (issue 208)
-	 - Support header color customizations (issue 209)
-	 - Support username substitution in web.otherUrls (issue 213)
-	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
-	 - Set author as tooltip of last change column in the repositories panel (issue-238)
-	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
-	 - Added WindowsUserService to authenticate users against Windows accounts (issue-250)
-	 - Global and per-repository setting to exclude authors from metrics (issue-251)
+	 - Added a ui for the ref log introduced in 1.2.1 (issue-473)
+	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 495)
+	 - Support setting a custom header logo (issue 504)
+	 - Support header color customizations (issue 505)
+	 - Support username substitution in web.otherUrls (issue 509)
+	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 518)
+	 - Set author as tooltip of last change column in the repositories panel (issue-534)
+	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-542)
+	 - Added WindowsUserService to authenticate users against Windows accounts (issue-546)
+	 - Global and per-repository setting to exclude authors from metrics (issue-547)
 	 - Added commit cache to improve Activity, Dashboard, and Project page generation times
 	 - Added SalesForce.com user service
      - Added simple star/unstar function to flag or bookmark interesting repositories
@@ -1169,21 +1286,21 @@ r16: {
           ''
     fixes:
     - Fixed nullpointer on recursively calculating folder sizes when there is a named pipe or symlink in the hierarchy
-    - Added nullchecking when concurrently forking a repository and trying to display the fork network (issue-187)
-    - Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (issue-186)
-    - Fixed nullpointer on creating a repository with mixed case (issue 185)
-    - Include missing model classes in api library (issue-184)
-    - Fixed nullpointer when using *web.allowForking = true* && *git.cacheRepositoryList = false* (issue 182)
-    - Likely fix for commit and commitdiff page failures when a submodule reference changes (issue 178)
-    - Build project models from the repository model cache, when possible, to reduce page load time (issue 172)
+    - Added nullchecking when concurrently forking a repository and trying to display the fork network (issue-483)
+    - Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (issue-482)
+    - Fixed nullpointer on creating a repository with mixed case (issue 481)
+    - Include missing model classes in api library (issue-480)
+    - Fixed nullpointer when using *web.allowForking = true* && *git.cacheRepositoryList = false* (issue 478)
+    - Likely fix for commit and commitdiff page failures when a submodule reference changes (issue 474)
+    - Build project models from the repository model cache, when possible, to reduce page load time (issue 468)
     - Fixed loading of Brazilian Portuguese translation from *nix server
 
     additions:
     - ''Fanout PubSub service for self-hosted [Sparkleshare](http://sparkleshare.org) notifications.
       This service is disabled by default.''
-    - ''Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (issue 177)
+    - ''Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (issue 473)
       The push log is not currently visible in the ui, but the data will be collected and it will be exposed to the ui in the next release.''
-    - Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (issue 183)
+    - Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (issue 479)
     - Added Dutch translation
 
     changes:
@@ -1221,24 +1338,24 @@ r15: {
           If you are updating your server, you must also update any Gitblit Manager and Federation Client installs to 1.2.0 as well.  The data model used by the RPC mechanism has changed slightly for the new permissions infrastructure.
           ''
     fixes:
-    - Fixed regression in *isFrozen* (issue 181)
-    - Author metrics can be broken by newlines in email addresses from converted repositories (issue 176)
-    - Set subjectAlternativeName on generated SSL cert if CN is an ip address (issue 170)
-    - Fixed incorrect links on history page for files not in the current/active commit (issue 166)
-    - Empty repository page failed to handle missing repository (issue 160)
-    - Fixed broken ticgit urls (issue 157)
-    - Exclude submodules from zip downloads (issue 151)
+    - Fixed regression in *isFrozen* (issue 477)
+    - Author metrics can be broken by newlines in email addresses from converted repositories (issue 472)
+    - Set subjectAlternativeName on generated SSL cert if CN is an ip address (issue 466)
+    - Fixed incorrect links on history page for files not in the current/active commit (issue 462)
+    - Empty repository page failed to handle missing repository (issue 456)
+    - Fixed broken ticgit urls (issue 453)
+    - Exclude submodules from zip downloads (issue 447)
     - Fixed bug where repository ownership was not updated on rename user
-    - Fixed bug in create/rename repository if you explicitly specified the alias for the root group (e.g. main/myrepo) (issue 143)
-    - Wrapped Markdown parser with improved exception handler (issue 142)
-    - Fixed duplicate entries in repository cache (issue 140)
-    - Fixed connection leak in LDAPUserService (issue 139)
-    - Fixed bug in commit page where changes to a submodule threw a null pointer exception (issue 132)
-    - Fixed bug in the diff view for filenames that have non-ASCII characters (issue 128)
+    - Fixed bug in create/rename repository if you explicitly specified the alias for the root group (e.g. main/myrepo) (issue 439)
+    - Wrapped Markdown parser with improved exception handler (issue 438)
+    - Fixed duplicate entries in repository cache (issue 436)
+    - Fixed connection leak in LDAPUserService (issue 435)
+    - Fixed bug in commit page where changes to a submodule threw a null pointer exception (issue 428)
+    - Fixed bug in the diff view for filenames that have non-ASCII characters (issue 424)
 
     additions:
     - ''
-      Implemented discrete repository permissions (issue 36)
+      Implemented discrete repository permissions (issue 332)
       
         - V (view in web ui, RSS feeds, download zip)
         - R (clone)
@@ -1249,48 +1366,48 @@ r15: {
         
       While not as sophisticated as Gitolite, this does give finer access controls.  These permissions fit in cleanly with the existing users.conf and users.properties files.  In Gitblit <= 1.1.0, all your existing user accounts have RW+ access.   If you are upgrading to 1.2.0, the RW+ access is *preserved* and you will have to lower/adjust accordingly.
       ''
-    - ''Implemented *case-insensitive* regex repository permission matching (issue 36)
+    - ''Implemented *case-insensitive* regex repository permission matching (issue 332)
 
       This allows you to specify a permission like `RW:mygroup/.*` to grant push privileges to all repositories within the *mygroup* project/folder.''
     - Added DELETE, CREATE, and NON-FAST-FORWARD ref change logging
     - ''Added support for personal repositories.
       Personal repositories can be created by accounts with the *create* permission and are stored in *git.repositoriesFolder/~username*.  Each user with personal repositories will have a user page, something like the GitHub profile page.  Personal repositories have all the same features as common repositories, except personal repositories can be renamed by their owner.''
-    - ''Added support for server-side forking of a repository to a personal repository (issue 137)
+    - ''Added support for server-side forking of a repository to a personal repository (issue 433)
       In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access list of its origin.  i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required <u>however</u> it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back to Gitblit.''
     - Added optional *create-on-push* support
     - Added **experimental** JGit-based garbage collection service.  This service is disabled by default.
-    - ''Added support for X509 client certificate authentication.  (issue 106)
+    - ''Added support for X509 client certificate authentication.  (issue 402)
       You can require all git servlet access be authenticated by a client certificate.  You may also specify the OID fingerprint to use for mapping a certificate to a username.  It should be noted that the user account MUST already exist in Gitblit for this authentication mechanism to work; this mechanism can not be used to automatically create user accounts from a certificate.''
     - Revised clean install certificate generation to create a Gitblit GO Certificate Authority certificate; an SSL certificate signed by the CA certificate; and to create distinct server key and server trust stores.  <u>The store files have been renamed!</u>
     - Added support for Gitblit GO to require usage of client certificates to access the entire server.
     - Added **Gitblit Certificate Authority**, an x509 PKI management tool for Gitblit GO to encourage use of x509 client certificate authentication.
     - Added web.shortCommitId setting to control length of shortened commit ids
-    - Added alternate compressed download formats: tar.gz, tar.xz, tar.bzip2 (issue 174)
+    - Added alternate compressed download formats: tar.gz, tar.xz, tar.bzip2 (issue 470)
     - Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
-    - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
-    - Delete branch feature (issue 121)
-    - Added line links to blob view (issue 130)
+    - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 431)
+    - Delete branch feature (issue 417)
+    - Added line links to blob view (issue 426)
     - Added HTML sendmail hook script and Gitblit.sendHtmlMail method
     - Added RedmineUserService
     - Support for committer verification.  Requires use of *--no-ff* when merging branches or pull requests.  See setup page for details.
     - Added Brazilian Portuguese translation
 
     changes:
-    - Added server setting to specify keystore alias for ssl certificate (issue 98)
-    - Added optional global and per-repository activity page commit contribution throttle to help tame *really* active repositories (issue 173)
-    - Added support for symlinks in tree page and commit page (issue 171)
+    - Added server setting to specify keystore alias for ssl certificate (issue 394)
+    - Added optional global and per-repository activity page commit contribution throttle to help tame *really* active repositories (issue 469)
+    - Added support for symlinks in tree page and commit page (issue 467)
     - All access restricted servlets (e.g. DownloadZip, RSS, etc) will try to authenticate using X509 certificates, container principals, cookies, and BASIC headers, in that order.
     - Added *groovy* and *scala* to *web.prettyPrintExtensions*
-    - Added short commit id column to log and history tables (issue 168)
+    - Added short commit id column to log and history tables (issue 464)
     - Teams can now specify the *admin*, *create*, and *fork* roles to simplify user administration
     - Use https Gravatar urls to avoid browser complaints
-    - Added frm to default pretty print extensions (issue 156)
-    - Expose ReceivePack to Groovy push hooks (issue 125)
-    - Redirect to summary page when refreshing the empty repository page on a repository that is not empty (issue 129)
-    - Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (issue 126)
+    - Added frm to default pretty print extensions (issue 452)
+    - Expose ReceivePack to Groovy push hooks (issue 421)
+    - Redirect to summary page when refreshing the empty repository page on a repository that is not empty (issue 425)
+    - Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (issue 422)
     - ''LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list.
       If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, then User.canAdmin() is controlled by LDAP administrative team membership.  Otherwise, User.canAdmin() is controlled by Gitblit.''
-    - Support servlet container authentication for existing UserModels (issue 68)
+    - Support servlet container authentication for existing UserModels (issue 364)
 
 	settings:
 	- { name: web.allowForking, defaultValue: 'true' }
@@ -1342,22 +1459,22 @@ r14: {
     - Fixed MailExecutor's failure to cope with mail server connection troubles resulting in 100% CPU usage
     - Fixed generated urls in Groovy *sendmail* hook script for grouped repositories
     - Fixed generated urls in RSS feeds for grouped repositories
-    - Fixed nullpointer exception in git servlet security filter (issue 123)
-    - Eliminated an unnecessary repository enumeration call on the root page which should result in faster page loads (issue 103)
+    - Fixed nullpointer exception in git servlet security filter (issue 419)
+    - Eliminated an unnecessary repository enumeration call on the root page which should result in faster page loads (issue 399)
     - Gitblit could not delete a Lucene index in a working copy on index upgrade
-    - Do not index submodule links (issue 119)
-    - Restore original user or team object on failure to update (issue 118)
-    - Fixes to relative path determination in repository search algorithm for symlinks (issue 116)
-    - Fix to GitServlet to allow pushing to symlinked repositories (issue 116)
-    - Repository URL now uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (issue 115)
-    - Output real RAW content, not simulated RAW content (issue 114)
-    - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
-    - Fixed search box linking to Lucene page for grouped repository on Tomcat (issue 111)
-    - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)
-    - Really fixed failure to update a GO setting from the manager (issue 85)
+    - Do not index submodule links (issue 415)
+    - Restore original user or team object on failure to update (issue 414)
+    - Fixes to relative path determination in repository search algorithm for symlinks (issue 412)
+    - Fix to GitServlet to allow pushing to symlinked repositories (issue 412)
+    - Repository URL now uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (issue 411)
+    - Output real RAW content, not simulated RAW content (issue 410)
+    - Fixed Lucene charset encoding bug when reindexing a repository (issue 408)
+    - Fixed search box linking to Lucene page for grouped repository on Tomcat (issue 407)
+    - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 406)
+    - Really fixed failure to update a GO setting from the manager (issue 381)
 
     additions:
-    - Identified repository list is now cached by default to reduce disk io and to improve performance (issue 103)
+    - Identified repository list is now cached by default to reduce disk io and to improve performance (issue 399)
     - Preliminary bare repository submodule support
     - ''
       *git.submoduleUrlPatterns* is a space-delimited list of regular expressions for extracting a repository name from a submodule url.
@@ -1368,17 +1485,17 @@ r14: {
         - Submodule references in a working copy will be properly identified as gitlinks, but Gitblit will not traverse into the working copy submodule repository.
       ''
     - ''
-      Added a repository setting to control authorization as AUTHENTICATED or NAMED. (issue 117)
+      Added a repository setting to control authorization as AUTHENTICATED or NAMED. (issue 413)
 
       NAMED is the original behavior for authorizing against a list of permitted users or permitted teams.
       AUTHENTICATED allows restricted access for any authenticated user.  This is a looser authorization control.
       ''
     - Added default authorization control setting (AUTHENTICATED or NAMED)
-    - Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 103)
-    - Added setting to specify regex exclusions for repositories (issue 103)
-    - Blob page now supports displaying images (issue 6)
+    - Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 399)
+    - Added setting to specify regex exclusions for repositories (issue 399)
+    - Blob page now supports displaying images (issue 302)
     - Non-image binary files can now be downloaded using the RAW link
-    - Support StartTLS in LdapUserService (issue 122)
+    - Support StartTLS in LdapUserService (issue 418)
     - Added Korean translation
 
     changes:
@@ -1410,28 +1527,28 @@ r13: {
 
     fixes:
     - Fixed bug in Lucene search where old/stale blobs were never properly deleted during incremental updates.  This resulted in duplicate blob entries in the index.
-    - Fixed intermittent bug in identifying line numbers in Lucene search (issue 105)
-    - Adjust repository identification algorithm to handle the scenario where a repository name collides with a group/folder name (e.g. foo.git and foo/bar.git) (issue 104)
-    - Fixed bug where a repository set as *authenticated push* did not have anonymous clone access (issue 96)
+    - Fixed intermittent bug in identifying line numbers in Lucene search (issue 401)
+    - Adjust repository identification algorithm to handle the scenario where a repository name collides with a group/folder name (e.g. foo.git and foo/bar.git) (issue 400)
+    - Fixed bug where a repository set as *authenticated push* did not have anonymous clone access (issue 392)
     - Fixed bug in Basic authentication if passwords had a colon
-    - Fixed bug where the Gitblit Manager could not update a setting that was not referenced in reference.properties (issue 85)
+    - Fixed bug where the Gitblit Manager could not update a setting that was not referenced in reference.properties (issue 381)
 
     changes:
     - ''**Updated Lucene index version which will force a rebuild of ALL your Lucene indexes**
-      Make sure to properly set *web.blobEncodings* before starting Gitblit if you are updating!  (issue 97)''
-    - Changed default layout for web ui from Fixed-Width layout to Responsive layout (issue 101)
-    - ''IUserService interface has changed to better accomodate custom authentication and/or custom authorization<
+      Make sure to properly set *web.blobEncodings* before starting Gitblit if you are updating!  (issue 393)''
+    - Changed default layout for web ui from Fixed-Width layout to Responsive layout (issue 397)
+    - ''IUserService interface has changed to better accomodate custom authentication and/or custom authorization.
       The default `users.conf` now supports persisting display names and email addresses.''
     - Updated Japanese translation
 
     additions:
-    - Added setting to allow specification of a robots.txt file (issue 99)
-    - ''Added setting to control Responsive layout or Fixed-Width layout (issue 101)
+    - Added setting to allow specification of a robots.txt file (issue 395)
+    - ''Added setting to control Responsive layout or Fixed-Width layout (issue 397)
       Responsive layout is now the default.  This layout gracefully scales the web ui from a desktop layout to a mobile layout by hiding page components.  It is easy to try, just resize your browser or point your Android/iOS device to the url of your Gitblit install.''
-    - Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and the server default charset. (issue 97)      
-    - ''Exposed JGit internal configuration settings in gitblit.properties/web.xml (issue 93)
+    - Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and the server default charset. (issue 393)      
+    - ''Exposed JGit internal configuration settings in gitblit.properties/web.xml (issue 389)
       Review your `gitblit.properties` or `web.xml` for detailed explanations of these settings.''
-    - Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (issue 88)
+    - Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (issue 384)
     - Added Ivy 2.2.0 dependency which enables Groovy Grapes, a mechanism to resolve and retrieve library dependencies from a Maven 2 repository within a Groovy push hook script
     - ''Added setting to control Groovy Grape root folder (location where resolved dependencies are stored)
       [Grape](http://groovy.codehaus.org/Grape) allows you to add Maven dependencies to your pre-/post-receive hook script classpath.''
@@ -1484,7 +1601,7 @@ r12: {
     date: 2012-04-11
 
     fixes:
-    - Fixed bug where you could not remove all selections from a RepositoryModel list (permitted users, permitted teams, hook scripts, federation sets, etc) (issue 81)
+    - Fixed bug where you could not remove all selections from a RepositoryModel list (permitted users, permitted teams, hook scripts, federation sets, etc) (issue 377)
     - Automatically set *java.awt.headless=true* for Gitblit GO
 
     contributors:
@@ -1503,10 +1620,10 @@ r11: {
     - Added *clientLogger* bound variable to Groovy hook mechanism to allow custom info and error messages to be returned to the client
 
    fixes:
-    - Fixed absolute path/canonical path discrepancy between Gitblit and JGit regarding use of symlinks (issue 78)
-    - Fixed row layout on activity page (issue 79)
+    - Fixed absolute path/canonical path discrepancy between Gitblit and JGit regarding use of symlinks (issue 374)
+    - Fixed row layout on activity page (issue 375)
     - Fixed Centos service script
-    - Fixed EditRepositoryPage for IE8; missing save button (issue 80)
+    - Fixed EditRepositoryPage for IE8; missing save button (issue 376)
 
     contributors:
 	- James Moger
@@ -1539,46 +1656,46 @@ r9: {
     date: 2012-03-27
 
     security:
-    - Fixed session fixation vulnerability where the session identifier was not reset during the login process (issue 62)
+    - Fixed session fixation vulnerability where the session identifier was not reset during the login process (issue 358)
 
     changes:
-    - Reject pushes to a repository with a working copy (i.e. non-bare repository) (issue-49)
-    - Changed default web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (issue 50)
-    - Expanded commit age coloring from 2 days to 30 days (issue 57)
+    - Reject pushes to a repository with a working copy (i.e. non-bare repository) (issue-345)
+    - Changed default web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (issue 346)
+    - Expanded commit age coloring from 2 days to 30 days (issue 353)
 
     additions:
-    - ''Added optional Lucene branch indexing (issue 16)
+    - ''Added optional Lucene branch indexing (issue 312)
       Repository branches may be optionally indexed by Lucene for improved searching.  To use this feature you must specify which branches to index within the *Edit Repository* page; _no repositories are automatically indexed_.  Gitblit will build or incrementally update enrolled repositories on a 2 minute cycle. (i.e you will have to wait 2-3 minutes after respecifying indexed branches or pushing new commits before Gitblit will build/update the repository Lucene index.)
       If a repository has Lucene-indexed branches the *search* form on the repository pages will redirect to the root-level Lucene search page and only the content of those branches can be searched.<br/>
       If the repository does not specify any indexed branches then repository commit-traversal search is used.
 
       **Note:** Initial indexing of an existing repository can be memory-exhaustive. Be sure to provide your Gitblit server adequate heap space to index your repositories (e.g. -Xmx1024M).<br/>
       See the [setup](setup.html) page for additional details.''
-    - Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (issue 54)
-    - Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (issue 59)
-    - ''On the Repositories page show a bang *!* character in the color swatch of a repository with a working copy (issue 49)
+    - Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (issue 350)
+    - Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (issue 355)
+    - ''On the Repositories page show a bang *!* character in the color swatch of a repository with a working copy (issue 345)
       Push requests to these repositories will be rejected.''
-    - On all non-bare Repository pages show *WORKING COPY* in the upper right corner (issue 49)
+    - On all non-bare Repository pages show *WORKING COPY* in the upper right corner (issue 345)
     - New setting to prevent display/serving non-bare repositories
     - Added *protect-refs.groovy*
     - Allow setting default branch (relinking HEAD) to a branch or a tag
-    - Added Ubuntu service init script (issue 72)
+    - Added Ubuntu service init script (issue 368)
     - Added partial Japanese translation
 
     fixes:
-    - Ensure that Welcome message is parsed using UTF-8 encoding (issue 74)
-    - Activity page chart layout broken by Google (issue 73)
-    - Uppercase repositories not selectable in edit palettes (issue 71)
-    - Not all git notes were properly displayed on the commit page (issue 70)
-    - Activity page now displays all local branches (issue 65)
-    - Fixed (harmless) nullpointer on pushing to an empty repository (issue 69)
-    - Fixed possible nullpointer from the servlet container on startup (issue 67)
-    - Fixed UTF-8 encoding bug on diff page (issue 66)
-    - Fixed timezone bugs on the activity page (issue 54)
-    - Prevent add/edit team with no selected repositories (issue 56)
+    - Ensure that Welcome message is parsed using UTF-8 encoding (issue 370)
+    - Activity page chart layout broken by Google (issue 369)
+    - Uppercase repositories not selectable in edit palettes (issue 367)
+    - Not all git notes were properly displayed on the commit page (issue 366)
+    - Activity page now displays all local branches (issue 361)
+    - Fixed (harmless) nullpointer on pushing to an empty repository (issue 365)
+    - Fixed possible nullpointer from the servlet container on startup (issue 363)
+    - Fixed UTF-8 encoding bug on diff page (issue 362)
+    - Fixed timezone bugs on the activity page (issue 350)
+    - Prevent add/edit team with no selected repositories (issue 352)
     - Disallow browser autocomplete on add/edit user/team/repository pages
-    - Fixed username case-sensitivity issues (issue 43)
-    - Disregard searching a subfolder if Gitblit does not have filesystem permissions (issue 51)
+    - Fixed username case-sensitivity issues (issue 339)
+    - Disregard searching a subfolder if Gitblit does not have filesystem permissions (issue 347)
 
     settings:
     - { name: web.allowLuceneIndexing, defaultValue: 'true' }
@@ -1595,7 +1712,7 @@ r9: {
     - Wicket 1.4.20
 
     contributors:
-	- James Moger
+    - James Moger
     - github/lemval
     - github/zakki
     - github/plm
@@ -1610,7 +1727,7 @@ r8: {
     date: 2012-01-13
 
     fixes:
-    - Fixed bug when upgrading from users.properties to users.conf (issue 41)
+    - Fixed bug when upgrading from users.properties to users.conf (issue 337)
 
     contributors:
 	- James Moger
@@ -1625,7 +1742,7 @@ r7: {
     date: 2012-01-11
 
     fixes:
-    - Include missing icon resource for the manager (issue 40)
+    - Include missing icon resource for the manager (issue 336)
     - Fixed sendmail.groovy message content with incorrect tag/branch labels
 
     contributors:
@@ -1654,22 +1771,22 @@ r6: {
     - Teams for specifying user-repository access in bulk.  Teams may also specify mailing lists addresses and pre- & post- receive hook scripts.
     - Gravatar integration
     - Activity page for aggregated repository activity.  This is a timeline of commit activity over the last N days for one or more repositories.
-    - *Filters* menu for the Repositories page and Activity page.  You can filter by federation set, team, and simple custom regular expressions.  Custom expressions can be stored in `gitblit.properties` or `web.xml` or directly defined in your url (issue 27)
+    - *Filters* menu for the Repositories page and Activity page.  You can filter by federation set, team, and simple custom regular expressions.  Custom expressions can be stored in `gitblit.properties` or `web.xml` or directly defined in your url (issue 323)
     - Flash-based 1-step *copy to clipboard* of the primary repository url based on Clippy
     - JavaScript-based 3-step (click, ctrl+c, enter) *copy to clipboard* of the primary repository url in the event that you do not want to use Flash on your installation
-    - Empty repositories now link to an *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
+    - Empty repositories now link to an *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 327)
     - Repositories with a *gh-pages* branch will now have a *pages* link which will serve the content of this branch.  All resource requests are against the repository, Gitblit does not checkout/export this branch to a temporary filesystem.  Jekyll templating is not supported.
     - Gitblit Express bundle to get started running Gitblit on RedHat OpenShift cloud <span class="label label-warning">BETA</span>
 
     changes:
     - Dropped display of trailing .git from repository names
-    - ''Gitblit GO is now monolithic like the WAR build. (issue 30)
+    - ''Gitblit GO is now monolithic like the WAR build. (issue 326)
       This change helps adoption of GO in environments without an internet connection or with a restricted connection.''
     - Unit testing framework has been migrated to JUnit4 syntax and the test suite has been redesigned to run all unit tests, including rpc, federation, and git push/clone tests
 
     fixes:
     - Several a bugs in FileUserService related to cleaning up old repository permissions on a rename or delete
-    - Renaming a repository into a new subfolder failed (issue 33)
+    - Renaming a repository into a new subfolder failed (issue 329)
 
     settings:
     - { name: groovy.scriptsFolder, defaultValue: groovy }
@@ -1702,24 +1819,24 @@ r5: {
     date: 2011-11-11
 
     security:
-    - fixed security hole when cloning clone-restricted repository with TortoiseGit (issue 28)
+    - fixed security hole when cloning clone-restricted repository with TortoiseGit (issue 324)
 
     fixes:
     - ''federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.
       **This breaks 0.6.0 federation clients/servers.**''
     - collision on rename for repositories and users
-    - Gitblit can now browse the Linux kernel repository (issue 25)
-    - Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (issue 23)
-    - Set the RSS content type of syndication feeds for Firefox 4 (issue 22)
+    - Gitblit can now browse the Linux kernel repository (issue 321)
+    - Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (issue 319)
+    - Set the RSS content type of syndication feeds for Firefox 4 (issue 318)
     - RSS feeds are now properly encoded to UTF-8
     - RSS feeds now properly generate parameterized links if *web.mountParameters=false*
-    - Null pointer exception if did not set federation strategy (issue 20)
+    - Null pointer exception if did not set federation strategy (issue 316)
     - Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
         
     changes:
     - updated ui with Twitter Bootstrap CSS toolkit
-    - repositories list performance by caching repository sizes (issue 27)
-    - summary page performance by caching metric calculations (issue 25)
+    - repositories list performance by caching repository sizes (issue 323)
+    - summary page performance by caching metric calculations (issue 321)
     
     additions:
     - authenticated JSON RPC mechanism
@@ -1796,15 +1913,15 @@ r3: {
     date: 2011-07-27
 
     fixes:
-    - active repositories with a HEAD that pointed to an empty branch caused internal errors (issue 14)
-    - bare-cloned repositories were listed as (empty) and were not clickable (issue 13)
-    - default port for Gitblit GO is now 8443 to be more linux/os x friendly (issue 12)
-    - repositories can now be reliably deleted and renamed (issue 10)
-    - users can now change their passwords (issue 1)
+    - active repositories with a HEAD that pointed to an empty branch caused internal errors (issue 310)
+    - bare-cloned repositories were listed as (empty) and were not clickable (issue 309)
+    - default port for Gitblit GO is now 8443 to be more linux/os x friendly (issue 308)
+    - repositories can now be reliably deleted and renamed (issue 306)
     - always show root repository group first, i.e. do not sort root group with other groups
     - tone-down repository group header color
     
     additions:
+    - users can now change their passwords (issue 297)
     - optionally display repository on-disk size on repositories page
     - forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers
     
@@ -1850,6 +1967,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r30
-release: &r29
-releases: &r[1..29]
+snapshot: &r31
+release: &r30
+releases: &r[1..30]

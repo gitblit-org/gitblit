@@ -332,9 +332,9 @@ If you are pulling from a Gitblit with a self-signed SSL certificate you will ne
 ### Command-Line Parameters
 Instead of using `federation.properties` you may directly specify a Gitblit instance to pull from with command-line parameters.
 
-    java -jar fedclient.jar --url https://go.gitblit.com --mirror --bare --token 123456789
+    java -cp fedclient.jar;"%CD%/ext/*" com.gitblit.FederationClient --url https://go.gitblit.com --mirror --bare --token 123456789
          --repositoriesFolder c:/mymirror
     
-    java -jar fedclient.jar --url https://go.gitblit.com --mirror --bare --token 123456789
-         --repositoriesFolder c:/mymirror --daemon --frequency "24 hours"
+    java -cp fedclient.jar:ext/* com.gitblit.FederationClient --url https://go.gitblit.com --mirror --bare --token 123456789
+         --repositoriesFolder /srv/mymirror --daemon --frequency "24 hours"
     

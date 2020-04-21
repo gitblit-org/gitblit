@@ -25,6 +25,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
@@ -928,4 +933,65 @@ public class GitServletTest extends GitblitUnitTest {
 		GitBlitSuite.close(repository);
 		assertTrue("Repository has an empty push log!", pushes.size() > 0);
 	}
+
+
+
+	@Test
+	public void testInvalidURLNoRepoName() throws IOException {
+		final String testURL = GitBlitSuite.gitServletUrl + "/?service=git-upload-pack";
+
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet request = new HttpGet(testURL);
+
+		HttpResponse response = client.execute(request);
+		assertEquals("Expected BAD REQUEST due to missing repository string", 400, response.getStatusLine().getStatusCode());
+	}
+
+	@Test
+	public void testInvalidURLNoRepoName2() throws IOException {
+		final String testURL = GitBlitSuite.gitServletUrl + "//info/refs";
+
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet request = new HttpGet(testURL);
+
+		HttpResponse response = client.execute(request);
+		assertEquals("Expected BAD REQUEST due to missing repository string", 400, response.getStatusLine().getStatusCode());
+	}
+
+
+	@Test
+	public void testURLUnknownRepo() throws IOException {
+		final String testURL = GitBlitSuite.url + "/r/foobar.git/info/refs";
+
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet request = new HttpGet(testURL);
+
+		HttpResponse response = client.execute(request);
+		assertEquals(401, response.getStatusLine().getStatusCode());
+	}
+
+	@Test
+	public void testURLUnknownAction() throws IOException {
+		final String testURL = GitBlitSuite.gitServletUrl + "/helloworld.git/something/unknown";
+
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet request = new HttpGet(testURL);
+
+		HttpResponse response = client.execute(request);
+		assertEquals(400, response.getStatusLine().getStatusCode());
+	}
+
+	@Test
+	public void testInvalidURLCloneBundle() throws IOException {
+		final String testURL = GitBlitSuite.gitServletUrl + "/helloworld.git/clone.bundle";
+
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet request = new HttpGet(testURL);
+
+		HttpResponse response = client.execute(request);
+		assertEquals(501, response.getStatusLine().getStatusCode());
+		String content = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
+		assertNotNull(content);
+	}
+
 }

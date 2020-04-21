@@ -3,23 +3,18 @@ plugins {
     id 'war'
     id 'checkstyle'
     id 'jacoco'
-    id 'eclipse'
     id 'org.kordamp.markdown.convert' version '1.2.0'
     id 'org.unbroken-dome.test-sets' version '2.1.1'
 }
 
 group = 'com.gitblit'
-version = '1.9.0-SNAPSHOT'
+version = '1.9.1-SNAPSHOT'
 description = 'Gitblit'
 
 //compiles build artefacts to
-//run under Java7 and later versions
-sourceCompatibility = '1.7'
-targetCompatibility = '1.7'
-
-if (project == rootProject) {
-  eclipse.project.name = rootProject.name + '-' + project.version
-}
+//run under Java 1.8 and later versions
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 ext {
     // Project Metadata
@@ -33,21 +28,40 @@ ext {
     snapshotDate = new Date().format('yyyy-MM-dd')
     
     // Current stable release
-    releaseVersion = '1.8.0'
-    releaseDate = '2016-06-22'
+    releaseVersion = '1.9.0'
+    releaseDate = '2020-02-01'
 
     // Project urls
     url = 'http://gitblit.com'
-    issuesUrl = 'https://github.com/gitblit/gitblit'
+    forumUrl = 'https://groups.google.com/group/gitblit'
+    issuesUrl = 'https://github.com/gitblit/gitblit/issues'
     scmUrl = 'https://github.com/gitblit/gitblit'
-    forumUrl = 'http://groups.google.com/group/gitblit'
-    mavenUrl = 'http://gitblit.github.io/gitblit-maven'
-    releaseUrl = 'http://dl.bintray.com/gitblit/releases/'
+    mavenUrl = 'https://gitblit.github.io/gitblit-maven'
 
+    // GitHub user/organization name
+    ghOrg = "gitblit"
+    gcUrl = "https://github.com/$ghOrg/gitblit/releases/download/"
+
+    // release properties
+    currentReleaseTag = "v$releaseVersion"
+
+    // dependencies' versions
+    activationVersion = '1.2.0'
+    args4jVersion = '2.0.29'
+    bouncycastleVersion = '1.57'
     freeMarkerVersion = '2.3.22'
-
-    //path to local JDK7 installation
-    jdk7home = 'C:/dev/jdk1.7.0_80'
+    gsonVersion = '2.3.1'
+    guavaVersion = '18.0'
+    guiceVersion = '4.0'
+    jgitVersion = '4.5.7.201904151645-r'
+    log4jVersion = '1.2.17'
+    luceneVersion = '5.5.2'
+    romeVersion = '0.9'
+    seleniumVersion = '3.141.59'
+    servletApiVersion = '3.1.0'
+    slf4jVersion = '1.7.29'
+    wicketVersion = '1.4.22'
+    wikitextVersion = '1.4'
 
     sourceDistribDir = 'src/main/distrib'
     tmpBuildDir = "$buildDir/tmp"
@@ -56,13 +70,6 @@ ext {
 //Settings during compilation in Java and Test classes
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
-
-    //use JDK7 to compile the project
-/*
-    options.fork = true
-    options.forkOptions.executable = "$jdk7home/bin/javac"
-    options.bootstrapClasspath = files("$jdk7home/jre/lib/rt.jar", "$jdk7home/jre/lib/jce.jar")
-*/
 }
 tasks.withType(Test) {
 	systemProperty 'file.encoding', 'UTF-8'
@@ -156,38 +163,42 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.inject:guice:4.0'
-    implementation 'com.google.inject.extensions:guice-servlet:4.0-gb2'
-    implementation 'com.google.guava:guava:18.0'
+    implementation "com.google.inject:guice:$guiceVersion"
+    // Gitblit maintains a fork of guice-servlet
+    implementation "com.google.inject.extensions:guice-servlet:$guiceVersion-gb2"
+    implementation "com.google.guava:guava:$guavaVersion"
     implementation 'com.intellij:annotations:12.0'
-    implementation 'log4j:log4j:1.2.17'
-    implementation 'org.slf4j:slf4j-api:1.7.12'
-    implementation 'org.slf4j:slf4j-log4j12:1.7.12'
-    implementation 'com.sun.mail:javax.mail:1.5.1'
-    implementation 'org.apache.wicket:wicket:1.4.22'
-    implementation 'org.apache.wicket:wicket-auth-roles:1.4.22'
-    implementation 'org.apache.wicket:wicket-extensions:1.4.22'
-    implementation 'org.apache.lucene:lucene-core:5.5.2'
-    implementation 'org.apache.lucene:lucene-analyzers-common:5.5.2'
-    implementation 'org.apache.lucene:lucene-highlighter:5.5.2'
-    implementation 'org.apache.lucene:lucene-memory:5.5.2'
-    implementation 'org.apache.lucene:lucene-queryparser:5.5.2'
+    implementation "log4j:log4j:$log4jVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+    implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    implementation ('com.sun.mail:javax.mail:1.5.1') {
+        exclude group: 'javax.activation', module: 'activation'
+    }
+    implementation "com.sun.activation:javax.activation:$activationVersion"
+    implementation "org.apache.wicket:wicket:$wicketVersion"
+    implementation "org.apache.wicket:wicket-auth-roles:$wicketVersion"
+    implementation "org.apache.wicket:wicket-extensions:$wicketVersion"
+    implementation "org.apache.lucene:lucene-core:$luceneVersion"
+    implementation "org.apache.lucene:lucene-analyzers-common:$luceneVersion"
+    implementation "org.apache.lucene:lucene-highlighter:$luceneVersion"
+    implementation "org.apache.lucene:lucene-memory:$luceneVersion"
+    implementation "org.apache.lucene:lucene-queryparser:$luceneVersion"
     implementation 'org.pegdown:pegdown:1.5.0'
-    implementation 'org.fusesource.wikitext:wikitext-core:1.4'
-    implementation 'org.fusesource.wikitext:twiki-core:1.4'
-    implementation 'org.fusesource.wikitext:textile-core:1.4'
-    implementation 'org.fusesource.wikitext:tracwiki-core:1.4'
-    implementation 'org.fusesource.wikitext:mediawiki-core:1.4'
-    implementation 'org.fusesource.wikitext:confluence-core:1.4'
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:4.1.1.201511131810-r'
-    implementation 'org.eclipse.jgit:org.eclipse.jgit.http.server:4.1.1.201511131810-r'
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.52'
-    implementation 'org.bouncycastle:bcmail-jdk15on:1.52'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.52'
-    implementation 'org.apache.sshd:sshd-core:1.0.0'
-    implementation 'org.apache.mina:mina-core:2.0.9'
-    implementation 'rome:rome:0.9'
-    implementation 'com.google.code.gson:gson:2.3.1'
+    implementation "org.fusesource.wikitext:wikitext-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:twiki-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:textile-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:tracwiki-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:mediawiki-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:confluence-core:$wikitextVersion"
+    implementation "org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
+    implementation "org.eclipse.jgit:org.eclipse.jgit.http.server:$jgitVersion"
+    implementation "org.bouncycastle:bcprov-jdk15on:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcmail-jdk15on:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcpkix-jdk15on:$bouncycastleVersion"
+    implementation 'org.apache.sshd:sshd-core:1.2.0'
+    implementation 'org.apache.mina:mina-core:2.0.21'
+    implementation "rome:rome:$romeVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
     implementation 'org.codehaus.groovy:groovy-all:2.4.4'
     implementation 'com.unboundid:unboundid-ldapsdk:2.3.8'
     implementation 'org.apache.ivy:ivy:2.2.0'
@@ -198,14 +209,14 @@ dependencies {
     implementation "org.freemarker:freemarker:$freeMarkerVersion"
     implementation 'com.github.dblock.waffle:waffle-jna:1.7.3'
     implementation 'org.kohsuke:libpam4j:1.8'
-    implementation 'args4j:args4j:2.0.29'
+    implementation "args4j:args4j:$args4jVersion"
     implementation 'commons-codec:commons-codec:1.7'
     implementation 'redis.clients:jedis:2.6.2'
     implementation 'ro.fortsoft.pf4j:pf4j:0.9.0'
     implementation 'org.apache.tika:tika-core:1.5'
     implementation 'org.jsoup:jsoup:1.7.3'
 
-    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
     providedCompile 'org.eclipse.jetty.aggregate:jetty-all:9.2.13.v20150730'
 
     testImplementation 'org.mockito:mockito-core:1.10.19'
@@ -221,14 +232,10 @@ dependencies {
 
     //uiTest has compile dependency on 'test' source, and other 3rd-party libraries
     uiTestImplementation sourceSets.test.output
-    //Selenium 2.x libraries, for JDK7 (and an old web driver)
-    uiTestImplementation 'org.seleniumhq.selenium:selenium-java:2.28.0'
-    uiTestImplementation 'org.seleniumhq.selenium:selenium-support:2.28.0'
-    uiTestImplementation 'org.seleniumhq.selenium:selenium-firefox-driver:2.28.0'
-    //Selenium 3.x libraries, for JDK8 and above (and latest web driver)
-    //uiTestImplementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
-    //uiTestImplementation 'org.seleniumhq.selenium:selenium-support:3.141.59'
-    //uiTestImplementation 'org.seleniumhq.selenium:selenium-firefox-driver:3.141.59'
+    //Selenium 3.x libraries, for JDK8 and above (to use with latest Firefox's web driver)
+    uiTestImplementation "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
+    uiTestImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    uiTestImplementation "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
 }
 
 checkstyle {
@@ -315,12 +322,16 @@ task copyMkd(type: Copy) {
         filter { String line ->
             line.replace("\${project.name}", "$project.ext.name")
                 .replace("\${project.version}", "$version")
+                .replace("\${project.forumUrl}", "$forumUrl")
+                .replace("\${project.issuesUrl}", "$issuesUrl")
+                .replace("\${project.mavenUrl}", "$mavenUrl")
                 .replace("\${project.releaseVersion}", "$releaseVersion")
                 .replace("\${project.releaseDate}", "$releaseDate")
                 .replace("\${project.scmUrl}", "$scmUrl")
-                .replace("\${project.issuesUrl}", "$issuesUrl")
-                .replace("\${project.forumUrl}", "$forumUrl")
-                .replace("%GCURL%", "$releaseUrl")
+                .replace("%GCURL%", "$gcUrl$currentReleaseTag/")
+                .replace("\${gh.org}", "$ghOrg")
+                .replace("\${gc.url}", "$gcUrl")
+                .replace("\${currentRelease.tag}", "$currentReleaseTag")
         }
         filteringCharset = 'UTF-8'
     }
@@ -395,12 +406,17 @@ task buildSite(type: Copy) {
         eachFile { FileCopyDetails details ->
             def newText = details.file.getText('UTF-8')
                 .replace('<p>%PRETTYPRINTHINT%</p>', '<?prettify?>')
+                .replaceAll(/\b(commit)(\s*[#]?|-){0,1}([0-9a-fA-F]{5,})\b/,
+                            '<a href="https://github.com/gitblit/gitblit/commit/$3">commit $3</a>')
                 .replaceAll(/\b(issue)(\s*[#]?|-){0,1}(\d+)\b/,
-                            '<a href="http://code.google.com/p/gitblit/issues/detail?id=$3">issue $3</a>')
+                            '<a href="https://github.com/gitblit/gitblit/issues/$3">issue $3</a>')
                 .replaceAll(/\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b/,
                             '<a href="https://github.com/gitblit/gitblit/pull/$3">pull request #$3</a>')
                 .replaceAll(/\b(ticket)(\s*[#]?|-){0,1}(\d+)\b/,
                             '<a href="https://dev.gitblit.com/tickets/gitblit.git/$3">ticket $3</a>')
+                //fix a markdown conversion bug
+                .replace('https://github.com/github/git-lfs/blob/master/docs/spec.html',
+                         'https://github.com/github/git-lfs/blob/master/docs/spec.md')
             details.file.setText(headerText + newText + footerText, 'UTF-8')
         }
     }
@@ -531,7 +547,7 @@ task copyFedClientDependencyClasses(type: com.gitblit.gradle.ClassDependencyCopi
 
     dependsOn compileJava
 
-    classNames = [ "com.gitblit.FederationClient",
+    classNames = [ "com.gitblit.FederationClientLauncher",
                    "com.gitblit.Keys",
                    "com.gitblit.models.Menu"
                  ]
@@ -628,7 +644,7 @@ task jarFederationClient(type: Jar) {
             'Launcher-Agent-Class': 'com.gitblit.Agent',
             'Agent-Class': 'com.gitblit.Agent',
             'Premain-Class': 'com.gitblit.Agent',
-            'Main-Class': 'com.gitblit.FederationClient'
+            'Main-Class': 'com.gitblit.FederationClientLauncher'
         )
     }
 
@@ -830,13 +846,14 @@ task zipGitblitManager(type: Zip) {
     from (configurations.compileClasspath) {
         into 'ext'
         //hard-code the libraries' names and versions for now
-        //(they will be specified as dependencies in the manager's own subproject later,
+        //(TODO: they will be specified as dependencies in the manager's own subproject later,
         //and thus they won't be specified explicitly as hard-coded includes like here)
-        include 'commons-logging-1.1.3.jar', 'gson-2.3.1.jar', 'httpclient-4.3.6.jar', 'httpcore-4.3.3.jar',
-                'JavaEWAH-0.7.9.jar', 'jdom-1.0.jar', 'jsch-0.1.53.jar', 'log4j-1.2.17.jar',
-                'org.eclipse.jdt.annotation-1.1.0.jar', 'org.eclipse.jgit.http.server-4.1.1.201511131810-r.jar',
-                'org.eclipse.jgit-4.1.1.201511131810-r.jar', 'rome-0.9.jar',
-                'slf4j-api-1.7.12.jar', 'slf4j-log4j12-1.7.12.jar'
+        include 'commons-logging-1.1.3.jar', "gson-${gsonVersion}.jar", 'httpclient-4.3.6.jar',
+                'httpcore-4.3.3.jar', 'JavaEWAH-0.7.9.jar',
+                "javax.activation-${activationVersion}.jar", 'jdom-1.0.jar', 'jsch-0.1.53.jar',
+                "log4j-${log4jVersion}.jar", "org.eclipse.jgit.http.server-${jgitVersion}.jar",
+                "org.eclipse.jgit-${jgitVersion}.jar", "rome-${romeVersion}.jar",
+                "slf4j-api-${slf4jVersion}.jar", "slf4j-log4j12-${slf4jVersion}.jar"
     }
 }
 
@@ -863,15 +880,19 @@ task zipFederationClient(type: Zip) {
     from (configurations.compileClasspath) {
         into 'ext'
         //hard-code the libraries' names and versions for now
-        //(they will be specified as dependencies in the fedclient's own subproject later,
+        //(TODO: they will be specified as dependencies in the fedclient's own subproject later,
         //and thus they won't be specified explicitly as hard-coded includes like here)
-        include 'aopalliance-1.0.jar', 'args4j-2.0.29.jar', 'commons-logging-1.1.3.jar', 'gson-2.3.1.jar',
-                'guava-18.0.jar', 'guice-4.0.jar', 'httpclient-4.3.6.jar', 'httpcore-4.3.3.jar',
-                'JavaEWAH-0.7.9.jar', 'javax.inject-1.jar', 'javax.servlet-api-3.1.0.jar', 'jsch-0.1.53.jar',
-                'log4j-1.2.17.jar', 'lucene-analyzers-common-5.5.2.jar', 'lucene-core-5.5.2.jar',
-                'lucene-highlighter-5.5.2.jar', 'lucene-memory-5.5.2.jar', 'lucene-queries-5.5.2.jar',
-                'lucene-queryparser-5.5.2.jar', 'lucene-sandbox-5.5.2.jar', 'org.eclipse.jdt.annotation-1.1.0.jar',
-                'org.eclipse.jgit-4.1.1.201511131810-r.jar', 'slf4j-api-1.7.12.jar', 'slf4j-log4j12-1.7.12.jar'
+        include 'aopalliance-1.0.jar', "args4j-${args4jVersion}.jar", 'commons-logging-1.1.3.jar',
+                "gson-${gsonVersion}.jar", "guava-${guavaVersion}.jar", "guice-${guiceVersion}.jar",
+                'httpclient-4.3.6.jar', 'httpcore-4.3.3.jar', 'JavaEWAH-0.7.9.jar',
+                "javax.activation-${activationVersion}.jar", 'javax.inject-1.jar',
+                "javax.servlet-api-${servletApiVersion}.jar", 'jsch-0.1.53.jar',
+                "log4j-${log4jVersion}.jar", "lucene-analyzers-common-${luceneVersion}.jar",
+                "lucene-core-${luceneVersion}.jar", "lucene-highlighter-${luceneVersion}.jar",
+                "lucene-memory-${luceneVersion}.jar", "lucene-queries-${luceneVersion}.jar",
+                "lucene-queryparser-${luceneVersion}.jar", "lucene-sandbox-${luceneVersion}.jar",
+                "org.eclipse.jgit-${jgitVersion}.jar", "slf4j-api-${slf4jVersion}.jar",
+                "slf4j-log4j12-${slf4jVersion}.jar"
     }
 }
 
@@ -894,7 +915,9 @@ task javadocGitblitApiSources(type: Javadoc) {
     description = "Building Gitblit API $version javadocs"
     group = 'documentation'
 
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
     destinationDir = file("$tmpBuildDir/apiJavadocs")
+
     source files('src/main/java') {
         include "com/gitblit/Constants.java",
                 "com/gitblit/GitBlitException.java",
@@ -903,7 +926,11 @@ task javadocGitblitApiSources(type: Javadoc) {
                 "com/gitblit/models/**/*.java",
                 "com/gitblit/utils/**/*.java"
     }
-	options.encoding = "UTF-8"
+
+    options.encoding = "UTF-8"
+    //turn off doclint errors/warnings output (but some warnings are still output)
+    options.addStringOption('Xdoclint:none', '-quiet')
+    //don't fail the task if errors occur
     failOnError = false
 }
 
@@ -953,7 +980,7 @@ task buildApiLibrary(type: Zip) {
     from (configurations.compileClasspath) {
         into 'ext'
         //hard-code the libraries' names and versions for now
-        include 'gson-2.3.1.jar', 'jdom-1.0.jar', 'rome-0.9.jar'
+        include "gson-${gsonVersion}.jar", 'jdom-1.0.jar', "rome-${romeVersion}.jar"
     }
 }
 

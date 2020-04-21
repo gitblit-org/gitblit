@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar manager.jar
+java -jar manager.jar $*
