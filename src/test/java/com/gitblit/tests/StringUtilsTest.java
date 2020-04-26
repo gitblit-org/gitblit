@@ -28,10 +28,23 @@ public class StringUtilsTest {
 
 	@Test
 	public void testIsEmpty() throws Exception {
-		assertTrue(StringUtils.isEmpty(null));
+		assertTrue(StringUtils.isEmpty((String)null));
 		assertTrue(StringUtils.isEmpty(""));
 		assertTrue(StringUtils.isEmpty("  "));
 		assertFalse(StringUtils.isEmpty("A"));
+	}
+
+	@Test
+	public void testIsEmptyCharArray() throws Exception {
+		assertTrue(StringUtils.isEmpty((char[])null));
+		assertTrue(StringUtils.isEmpty(new char[0]));
+		assertTrue(StringUtils.isEmpty(new char[]{ ' ' }));
+		assertTrue(StringUtils.isEmpty(new char[]{ '	'}));
+		assertTrue(StringUtils.isEmpty(new char[]{ ' ', ' ' }));
+		assertTrue(StringUtils.isEmpty(new char[]{ '	',  ' ', '	' }));
+		assertFalse(StringUtils.isEmpty(new char[]{ '\u0020', 'f' }));
+		assertFalse(StringUtils.isEmpty(new char[]{ '\u0148', '\u0020' }));
+		assertFalse(StringUtils.isEmpty(new char[]{ 'A' }));
 	}
 
 	@Test

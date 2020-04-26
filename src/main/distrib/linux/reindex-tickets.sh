@@ -11,7 +11,7 @@
 #
 # --------------------------------------------------------------------------
 
-if [[ -z $1 ]]; then
+if [ -z $1 ] ; then
     echo "Please specify your baseFolder!";
     echo "";
     echo "usage:";
@@ -20,5 +20,5 @@ if [[ -z $1 ]]; then
     exit 1;
 fi
 
-java -cp gitblit.jar:./ext/* com.gitblit.ReindexTickets --baseFolder $1
+java -cp "gitblit.jar:ext/*" com.gitblit.ReindexTickets --baseFolder $1
 

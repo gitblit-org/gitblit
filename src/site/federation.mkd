@@ -335,6 +335,6 @@ Instead of using `federation.properties` you may directly specify a Gitblit inst
     java -cp fedclient.jar;"%CD%/ext/*" com.gitblit.FederationClient --url https://go.gitblit.com --mirror --bare --token 123456789
          --repositoriesFolder c:/mymirror
     
-    java -cp fedclient.jar:ext/* com.gitblit.FederationClient --url https://go.gitblit.com --mirror --bare --token 123456789
+    java -cp "fedclient.jar:ext/*" com.gitblit.FederationClient --url https://go.gitblit.com --mirror --bare --token 123456789
          --repositoriesFolder /srv/mymirror --daemon --frequency "24 hours"
     

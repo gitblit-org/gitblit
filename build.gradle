@@ -7,8 +7,9 @@ plugins {
     id 'org.unbroken-dome.test-sets' version '2.1.1'
 }
 
+//current development release
 group = 'com.gitblit'
-version = '1.9.1-SNAPSHOT'
+version = '1.9.2-SNAPSHOT'
 description = 'Gitblit'
 
 //compiles build artefacts to
@@ -24,12 +25,13 @@ ext {
     artifactId = 'gitblit'
     inceptionYear = 2011
 
-    // Development release
+    // build date for current development release
     snapshotDate = new Date().format('yyyy-MM-dd')
     
-    // Current stable release
-    releaseVersion = '1.9.0'
-    releaseDate = '2020-02-01'
+    // Current stable release's properties
+    releaseVersion = '1.9.1'
+    releaseDate = '2020-04-05'
+    currentReleaseTag = "v$releaseVersion"
 
     // Project urls
     url = 'http://gitblit.com'
@@ -41,9 +43,6 @@ ext {
     // GitHub user/organization name
     ghOrg = "gitblit"
     gcUrl = "https://github.com/$ghOrg/gitblit/releases/download/"
-
-    // release properties
-    currentReleaseTag = "v$releaseVersion"
 
     // dependencies' versions
     activationVersion = '1.2.0'
@@ -157,6 +156,7 @@ uiTest {
 repositories {
     mavenLocal()
     mavenCentral()
+    // Gitblit maintains a fork of guice-servlet
     maven {
         url = "$mavenUrl"
     }
