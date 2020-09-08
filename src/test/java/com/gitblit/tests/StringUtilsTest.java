@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +24,7 @@ import org.junit.Test;
 
 import com.gitblit.utils.StringUtils;
 
-public class StringUtilsTest extends GitblitUnitTest {
+public class StringUtilsTest {
 
 	@Test
 	public void testIsEmpty() throws Exception {

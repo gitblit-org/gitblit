@@ -15,11 +15,13 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import com.gitblit.utils.Base64;
 
-public class Base64Test extends GitblitUnitTest {
+public class Base64Test {
 
 	@Test
 	public void testBase64() {

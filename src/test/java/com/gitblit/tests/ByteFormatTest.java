@@ -15,13 +15,15 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.util.Locale;
 
 import org.junit.Test;
 
 import com.gitblit.utils.ByteFormat;
 
-public class ByteFormatTest extends GitblitUnitTest {
+public class ByteFormatTest {
 
 	@Test
 	public void testByteFormat() throws Exception {

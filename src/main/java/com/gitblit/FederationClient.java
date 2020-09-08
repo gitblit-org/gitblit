@@ -58,6 +58,13 @@ public class FederationClient {
 
 		System.out.println("Gitblit Federation Client v" + Constants.getVersion() + " (" + Constants.getBuildDate() + ")");
 
+		// Load the JARs in the ext folder, with no splash screen
+		int numberOfJars = LibraryLoader.loadLibraries("ext", false, null);
+		if (numberOfJars == 0) {
+			System.err.println("Failed to find any JARs in 'ext' folder!");
+			System.exit(-1);
+		}
+
 		// command-line specified base folder
 		File baseFolder = new File(System.getProperty("user.dir"));
 		if (!StringUtils.isEmpty(params.baseFolder)) {

@@ -15,13 +15,15 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.util.Date;
 
 import org.junit.Test;
 
 import com.gitblit.utils.ObjectCache;
 
-public class ObjectCacheTest extends GitblitUnitTest {
+public class ObjectCacheTest {
 
 	@Test
 	public void testCache() throws Exception {

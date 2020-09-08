@@ -1,2 +1,2 @@
 #!/bin/bash
-java -cp "gitblit.jar:ext/*" com.gitblit.authority.GitblitAuthority --baseFolder data
+java -javaagent:gitblit.jar -splash:splash.png -cp gitblit.jar com.gitblit.authority.Launcher --baseFolder data $*

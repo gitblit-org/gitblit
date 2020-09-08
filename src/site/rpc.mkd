@@ -16,7 +16,7 @@ The Gitblit JSON RPC mechanism, like the Gitblit JGit servlet, syndication/feed 
 
 The Gitblit Manager is an example Java/Swing application that allows remote management (repository and user objects) and administration (server settings) of a Gitblit server.
   
-This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the [Gitblit API](http://code.google.com/p/gitblit/downloads/detail?name=%API%) library, to present live information from a Gitblit server.  Some JSON RPC methods from the utility class `com.gitblit.utils.RpcUtils` are not currently used by the Gitblit Manager.
+This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the [Gitblit API](%GCURL%gbapi-${project.releaseVersion}.zip) library, to present live information from a Gitblit server.  Some JSON RPC methods from the utility class `com.gitblit.utils.RpcUtils` are not currently used by the Gitblit Manager.
 
 **NOTE:**  
 Gitblit Manager stores your login credentials **INSECURELY** in homedir/.gitblit/config.
@@ -135,50 +135,51 @@ Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 **url**: https://localhost/rpc/?req=LIST_REPOSITORIES  
 **response body**: Map&lt;String, RepositoryModel&gt; where the map key is the clone url of the repository
 
-```json
-{
-  "https://localhost/git/libraries/xmlapache.git": {
-    "name": "libraries/xmlapache.git",
-    "description": "apache xmlrpc client and server",
-    "owner": "admin",
-    "lastChange": "2010-01-28T22:12:06Z",
-    "hasCommits": true,
-    "showRemoteBranches": false,
-    "useTickets": false,
-    "useDocs": false,
-    "accessRestriction": "VIEW",
-    "isFrozen": false,
-    "showReadme": false,
-    "federationStrategy": "FEDERATE_THIS",
-    "federationSets": [
-      "libraries"
-    ],
-    "isFederated": false,
-    "skipSizeCalculation": false,
-    "skipSummaryMetrics": false,
-    "size": "102 KB"
-  },
-  "https://localhost/git/libraries/smack.git": {
-    "name": "libraries/smack.git",
-    "description": "smack xmpp client",
-    "owner": "admin",
-    "lastChange": "2009-01-28T18:38:14Z",
-    "hasCommits": true,
-    "showRemoteBranches": false,
-    "useTickets": false,
-    "useDocs": false,
-    "accessRestriction": "VIEW",
-    "isFrozen": false,
-    "showReadme": false,
-    "federationStrategy": "FEDERATE_THIS",
-    "federationSets": [],
-    "isFederated": false,
-    "skipSizeCalculation": false,
-    "skipSummaryMetrics": false,
-    "size": "4.8 MB"
-  }
-}
-```
+%PRETTYPRINTHINT%
+
+    {
+        "https://localhost/git/libraries/xmlapache.git": {
+            "name": "libraries/xmlapache.git",
+            "description": "apache xmlrpc client and server",
+            "owner": "admin",
+            "lastChange": "2010-01-28T22:12:06Z",
+            "hasCommits": true,
+            "showRemoteBranches": false,
+            "useTickets": false,
+            "useDocs": false,
+            "accessRestriction": "VIEW",
+            "isFrozen": false,
+            "showReadme": false,
+            "federationStrategy": "FEDERATE_THIS",
+            "federationSets": [
+                "libraries"
+            ],
+            "isFederated": false,
+            "skipSizeCalculation": false,
+            "skipSummaryMetrics": false,
+            "size": "102 KB"
+        },
+        "https://localhost/git/libraries/smack.git": {
+            "name": "libraries/smack.git",
+            "description": "smack xmpp client",
+            "owner": "admin",
+            "lastChange": "2009-01-28T18:38:14Z",
+            "hasCommits": true,
+            "showRemoteBranches": false,
+            "useTickets": false,
+            "useDocs": false,
+            "accessRestriction": "VIEW",
+            "isFrozen": false,
+            "showReadme": false,
+            "federationStrategy": "FEDERATE_THIS",
+            "federationSets": [],
+            "isFederated": false,
+            "skipSizeCalculation": false,
+            "skipSummaryMetrics": false,
+            "size": "4.8 MB"
+        }
+    }
+
 
 ### Example: EDIT_REPOSITORY (rename)
 
@@ -187,116 +188,120 @@ The original repository name is specified in the *name* url parameter.  The new 
 **url**: https://localhost/rpc/?req=EDIT_REPOSITORY&name=libraries/xmlapache.git  
 **post body**: RepositoryModel
 
-```json
-{
-    "name": "libraries/xmlapache-renamed.git",
-    "description": "apache xmlrpc client and server",
-    "owner": "admin",
-    "lastChange": "2010-01-28T22:12:06Z",
-    "hasCommits": true,
-    "showRemoteBranches": false,
-    "useTickets": false,
-    "useDocs": false,
-    "accessRestriction": "VIEW",
-    "isFrozen": false,
-    "showReadme": false,
-    "federationStrategy": "FEDERATE_THIS",
-    "federationSets": [
-      "libraries"
-    ],
-    "isFederated": false,
-    "skipSizeCalculation": false,
-    "skipSummaryMetrics": false,
-    "size": "102 KB"
-}
-```
+%PRETTYPRINTHINT%
+
+    {
+        "name": "libraries/xmlapache-renamed.git",
+        "description": "apache xmlrpc client and server",
+        "owner": "admin",
+        "lastChange": "2010-01-28T22:12:06Z",
+        "hasCommits": true,
+        "showRemoteBranches": false,
+        "useTickets": false,
+        "useDocs": false,
+        "accessRestriction": "VIEW",
+        "isFrozen": false,
+        "showReadme": false,
+        "federationStrategy": "FEDERATE_THIS",
+        "federationSets": [
+            "libraries"
+        ],
+        "isFederated": false,
+        "skipSizeCalculation": false,
+        "skipSummaryMetrics": false,
+        "size": "102 KB"
+    }
+
 
 ### Example: LIST_USERS
 **url**: https://localhost/rpc/?req=LIST_USERS  
 **response body**: List&lt;UserModel&gt;
 
-```json
-[
-  {
-    "username": "admin",
-    "password": "admin",
-    "canAdmin": true,
-    "excludeFromFederation": true,
-    "repositories": []
-  },
-  {
-    "username": "test",
-    "password": "test",
-    "canAdmin": false,
-    "excludeFromFederation": false,
-    "repositories": [
-      "libraries/xmlapache.git",
-      "libraries/smack.git"
+%PRETTYPRINTHINT%
+
+    [
+        {
+            "username": "admin",
+            "password": "admin",
+            "canAdmin": true,
+            "excludeFromFederation": true,
+            "repositories": []
+        },
+        {
+            "username": "test",
+            "password": "test",
+            "canAdmin": false,
+            "excludeFromFederation": false,
+            "repositories": [
+                "libraries/xmlapache.git",
+                "libraries/smack.git"
+            ]
+        }
     ]
-  }
-]
-```
+
 
 ### Example: LIST_SETTINGS
 **url**: https://localhost/rpc/?req=LIST_SETTINGS  
 **response body**: ServerSettings
 
-```json
-{
-  "settings": {
-      "web.siteName": {
-        "name": "web.siteName",
-        "currentValue": "",
-        "defaultValue": "",
-        "description": "Gitblit Web Settings\nIf blank Gitblit is displayed.",
-        "since": "0.5.0",
-        "caseSensitive": false,
-        "restartRequired": false,
-        "spaceDelimited": false
-      },
-      "web.summaryCommitCount": {
-        "name": "web.summaryCommitCount",
-        "currentValue": "16",
-        "defaultValue": "16",
-        "description": "The number of commits to display on the summary page\nValue must exceed 0 else default of 16 is used",
-        "since": "0.5.0",
-        "caseSensitive": false,
-        "restartRequired": false,
-        "spaceDelimited": false
-      }
-  }
-}
-```
+%PRETTYPRINTHINT%
+
+    {
+        "settings": {
+            "web.siteName": {
+                "name": "web.siteName",
+                "currentValue": "",
+                "defaultValue": "",
+                "description": "Gitblit Web Settings\nIf blank Gitblit is displayed.",
+                "since": "0.5.0",
+                "caseSensitive": false,
+                "restartRequired": false,
+                "spaceDelimited": false
+            },
+            "web.summaryCommitCount": {
+                "name": "web.summaryCommitCount",
+                "currentValue": "16",
+                "defaultValue": "16",
+                "description": "The number of commits to display on the summary page\nValue must exceed 0 else default of 16 is used",
+                "since": "0.5.0",
+                "caseSensitive": false,
+                "restartRequired": false,
+                "spaceDelimited": false
+            }
+        }
+    }
+
 
 ### Example: LIST_STATUS
 **url**: https://localhost/rpc/?req=LIST_STATUS  
 **response body**: ServerStatus
 
-```json
-{
-  "bootDate": "2011-10-22T12:13:00Z",
-  "version": "0.7.0-SNAPSHOT",
-  "releaseDate": "PENDING",
-  "isGO": true,
-  "systemProperties": {
-    "file.encoding": "Cp1252",
-    "java.home": "C:\\Program Files\\Java\\jdk1.6.0_26\\jre",
-    "java.io.tmpdir": "C:\\Users\\JAMESM~1\\AppData\\Local\\Temp\\",
-    "java.runtime.name": "Java(TM) SE Runtime Environment",
-    "java.runtime.version": "1.6.0_26-b03",
-    "java.vendor": "Sun Microsystems Inc.",
-    "java.version": "1.6.0_26",
-    "java.vm.info": "mixed mode",
-    "java.vm.name": "Java HotSpot(TM) 64-Bit Server VM",
-    "java.vm.vendor": "Sun Microsystems Inc.",
-    "java.vm.version": "20.1-b02",
-    "os.arch": "amd64",
-    "os.name": "Windows 7",
-    "os.version": "6.1"
-  },
-  "heapAllocated": 128057344,
-  "heapFree": 120399168,
-  "heapSize": 1899560960,
-  "servletContainer": "jetty/7.4.3.v20110701"
-}
-```
+%PRETTYPRINTHINT%
+
+    {
+        "bootDate": "2011-10-22T12:13:00Z",
+        "version": "0.7.0-SNAPSHOT",
+        "releaseDate": "PENDING",
+        "isGO": true,
+        "systemProperties": {
+            "file.encoding": "Cp1252",
+            "java.home": "C:\\Program Files\\Java\\jdk1.6.0_26\\jre",
+            "java.io.tmpdir": "C:\\Users\\JAMESM~1\\AppData\\Local\\Temp\\",
+            "java.runtime.name": "Java(TM) SE Runtime Environment",
+            "java.runtime.version": "1.6.0_26-b03",
+            "java.vendor": "Sun Microsystems Inc.",
+            "java.version": "1.6.0_26",
+            "java.vm.info": "mixed mode",
+            "java.vm.name": "Java HotSpot(TM) 64-Bit Server VM",
+            "java.vm.vendor": "Sun Microsystems Inc.",
+            "java.vm.version": "20.1-b02",
+            "os.arch": "amd64",
+            "os.name": "Windows 7",
+            "os.version": "6.1"
+        },
+        "heapAllocated": 128057344,
+        "heapFree": 120399168,
+        "heapSize": 1899560960,
+        "servletContainer": "jetty/7.4.3.v20110701"
+    }
+

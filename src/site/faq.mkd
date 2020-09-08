@@ -22,7 +22,7 @@ Value = <em>false</em></pre>
 5. The repository is clone-restricted and your password changed.
 6. A regression in Gitblit.  :(
 
-### I can not push using git:// protocol on Windows using native Git
+### I cannot push using git:// protocol on Windows using native Git
 
 This is a long-standing, known bug in the native Git for Windows implementation.
 
@@ -116,7 +116,7 @@ No.  Gitblit stores its repository configuration information within the `.git/co
 Yes.  You can manually manipulate all of them and (most) changes will be immediately available to Gitblit.<br/>Exceptions to this are noted in `gitblit.properties`.
 
 **NOTE:**  
-Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](/setup.html) page for details.
+Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](administration.html) page for details.
 
 ### Can I restrict access to branches or paths within a repository?
 No, not yet.  Access restrictions apply to the repository as a whole.

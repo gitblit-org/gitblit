@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ import com.gitblit.Keys;
 import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.utils.MarkdownUtils;
 
-public class MarkdownUtilsTest extends GitblitUnitTest {
+public class MarkdownUtilsTest {
 
 	@Test
 	public void testMarkdown() throws Exception {

@@ -15,12 +15,14 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import com.gitblit.utils.PathUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-public class PathUtilsTest extends GitblitUnitTest {
+public class PathUtilsTest {
 
 	private static final String[][][] testData = {
 

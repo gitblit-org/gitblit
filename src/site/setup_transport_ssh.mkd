@@ -94,18 +94,19 @@ You can also remove all your public keys from your account.
 
 You may control the access permission for each SSH key.  This is more of a safety feature than a security measure.
 
-| Permission | Description                                     |
-| ---------- | ----------------------------------------------- |
-| V          | SSH key may not be used for clone/fetch or push |
-| R          | SSH key may be used to clone/fetch              |
-| RW         | SSH key may be used to clone/fetch and push     |
+<table class="table">
+<tr><th>Permission</th><th>Description</th></tr>
+<tr><td>V</td><td>SSH key may not be used for clone/fetch or push</td></tr>
+<tr><td>R</td><td>SSH key may be used to clone/fetch</td></tr>
+<tr><td>RW</td><td>SSH key may be used to clone/fetch and push</td></tr>
+</table>
 
 ### Mac OSX Fonts
 
 Many of Gitblit's SSH commands rely on ANSI border characters to provide a pretty presentation of data.  Unfortunately, the fonts provided by Apple - while very nice - don't work well with ANSI border characters.  The following public domain fixed-width, fixed-point, bitmapped fonts work very nicely.  I find the 6x12 font with a line spacing of ~0.8 to be quite acceptable.
 
-[6x12.dfont](6x12.dfont)
-[6x13.dfont](6x13.dfont)
-[7x13.dfont](7x13.dfont)
-[7x14.dfont](7x14.dfont)
+[6x12.dfont](6x12.dfont)  
+[6x13.dfont](6x13.dfont)  
+[7x13.dfont](7x13.dfont)  
+[7x14.dfont](7x14.dfont)  
 

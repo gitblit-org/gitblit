@@ -2,27 +2,23 @@
 
 The command line to start Gitblit has changed from 
 
-```
-java -jar gitblit.jar --baseFolder data
-```
+	java -jar gitblit.jar --baseFolder data
 
 to
 
-```
-java -cp "gitblit.jar:ext/*" com.gitblit.GitBlitServer --baseFolder data
-```
+	java -cp "gitblit.jar:ext/*" com.gitblit.GitBlitServer --baseFolder data
 
 or on Windows to 
 
-```
-java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.GitBlitServer --baseFolder data
-```
+	java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.GitBlitServer --baseFolder data
 
 The class path and main class need to be specified now. If you have installed Gitblit as a service you will need to adjust the service scripts or definitions accordingly.
 
 ## Upgrading Gitblit GO (1.7.0+)
 
 The default `gitblit.properties` file has been split into two files: `gitblit.properties`, which is the recommended file for setting your configuration, and `defaults.properties` which are Gitblit's default settings.
+
+%PRETTYPRINTHINT%
 
     # Include Gitblit's 'defaults.properties' within your configuration.
     #

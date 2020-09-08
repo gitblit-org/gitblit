@@ -1,5 +1,7 @@
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import com.gitblit.AvatarGenerator;
@@ -17,7 +19,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class GravatarTest extends GitblitUnitTest {
+public class GravatarTest {
 
 	public static  class AvatarModule extends AbstractModule {
 		private final IStoredSettings settings;

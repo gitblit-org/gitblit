@@ -8,42 +8,43 @@ You can define new client integrations and deactivate/remove the default integra
 
 ### Example definitions
 
-```json
-[
-    {
-        "name": "SmartGit/Hg",
-        "title": "syntevo SmartGit/Hg\u2122",
-        "description": "a Git client for Windows, Mac, & Linux",
-        "legal": "\u00a9 2013 syntevo GmbH. All rights reserved.",
-        "cloneUrl": "smartgit://cloneRepo/${repoUrl}",
-        "productUrl": "http://www.syntevo.com/smartgithg",
-        "platforms": [ "windows", "macintosh", "linux" ],
-        "icon": "smartgithg_32x32.png",
-        "isActive": true
-    },
-    {
-        "name": "GitHub",
-        "title": "GitHub\u2122 for Windows",
-        "description": "a free Git client for Windows",
-        "legal": "\u00a9 2013 GitHub. All rights reserved.",
-        "cloneUrl": "github-windows://openRepo/${repoUrl}",
-        "productUrl": "http://windows.github.com",
-        "transports": [ "http", "https" ],
-        "platforms": [ "windows" ],
-        "icon": "github_32x32.png",
-        "isActive": true
-    },
-    {
-        "name": "SparkleShare",
-        "title": "SparkleShare\u2122",
-        "description": "an open source collaboration and sharing tool",
-        "legal": "released under the GPLv3 open source license",
-        "cloneUrl": "sparkleshare://addProject/${baseUrl}/sparkleshare/${repoUrl}.xml",
-        "productUrl": "http://sparkleshare.org",
-        "platforms": [ "windows", "macintosh", "linux" ],
-        "icon": "sparkleshare_32x32.png",
-        "minimumPermission" : "RW+",
-        "isActive": false
-    }
-]
-```
+%PRETTYPRINTHINT%
+
+    [
+        {
+            "name": "SmartGit/Hg",
+            "title": "syntevo SmartGit/Hg\u2122",
+            "description": "a Git client for Windows, Mac, & Linux",
+            "legal": "\u00a9 2013 syntevo GmbH. All rights reserved.",
+            "cloneUrl": "smartgit://cloneRepo/${repoUrl}",
+            "productUrl": "http://www.syntevo.com/smartgithg",
+            "platforms": [ "windows", "macintosh", "linux" ],
+            "icon": "smartgithg_32x32.png",
+            "isActive": true
+        },
+        {
+            "name": "GitHub",
+            "title": "GitHub\u2122 for Windows",
+            "description": "a free Git client for Windows",
+            "legal": "\u00a9 2013 GitHub. All rights reserved.",
+            "cloneUrl": "github-windows://openRepo/${repoUrl}",
+            "productUrl": "http://windows.github.com",
+            "transports": [ "http", "https" ],
+            "platforms": [ "windows" ],
+            "icon": "github_32x32.png",
+            "isActive": true
+        },
+        {
+            "name": "SparkleShare",
+            "title": "SparkleShare\u2122",
+            "description": "an open source collaboration and sharing tool",
+            "legal": "released under the GPLv3 open source license",
+            "cloneUrl": "sparkleshare://addProject/${baseUrl}/sparkleshare/${repoUrl}.xml",
+            "productUrl": "http://sparkleshare.org",
+            "platforms": [ "windows", "macintosh", "linux" ],
+            "icon": "sparkleshare_32x32.png",
+            "minimumPermission" : "RW+",
+            "isActive": false
+        }
+    ]
+

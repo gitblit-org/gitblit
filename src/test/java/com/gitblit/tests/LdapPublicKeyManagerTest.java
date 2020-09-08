@@ -86,7 +86,7 @@ public class LdapPublicKeyManagerTest extends LdapBasedUnitTest {
 
 		List<SshKey> keys = kmgr.getKeys("UserOne");
 		assertNotNull(keys);
-		assertTrue(keys.size() == 1);
+		assertEquals(1, keys.size());
 		assertEquals(keyRsaOne, keys.get(0).getRawData());
 
 

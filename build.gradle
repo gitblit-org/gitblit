@@ -1,0 +1,1001 @@
+
+plugins {
+    id 'war'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'org.kordamp.markdown.convert' version '1.2.0'
+    id 'org.unbroken-dome.test-sets' version '2.1.1'
+}
+
+//current development release
+group = 'com.gitblit'
+version = '1.9.2-SNAPSHOT'
+description = 'Gitblit'
+
+//compiles build artefacts to
+//run under Java 1.8 and later versions
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+ext {
+    // Project Metadata
+    name = 'Gitblit'
+    description = 'pure Java Git solution'
+    groupId = 'com.gitblit'
+    artifactId = 'gitblit'
+    inceptionYear = 2011
+
+    // build date for current development release
+    snapshotDate = new Date().format('yyyy-MM-dd')
+    
+    // Current stable release's properties
+    releaseVersion = '1.9.1'
+    releaseDate = '2020-04-05'
+    currentReleaseTag = "v$releaseVersion"
+
+    // Project urls
+    url = 'http://gitblit.com'
+    forumUrl = 'https://groups.google.com/group/gitblit'
+    issuesUrl = 'https://github.com/gitblit/gitblit/issues'
+    scmUrl = 'https://github.com/gitblit/gitblit'
+    mavenUrl = 'https://gitblit.github.io/gitblit-maven'
+
+    // GitHub user/organization name
+    ghOrg = "gitblit"
+    gcUrl = "https://github.com/$ghOrg/gitblit/releases/download/"
+
+    // dependencies' versions
+    activationVersion = '1.2.0'
+    args4jVersion = '2.0.29'
+    bouncycastleVersion = '1.57'
+    freeMarkerVersion = '2.3.22'
+    gsonVersion = '2.3.1'
+    guavaVersion = '18.0'
+    guiceVersion = '4.0'
+    jgitVersion = '4.5.7.201904151645-r'
+    log4jVersion = '1.2.17'
+    luceneVersion = '5.5.2'
+    romeVersion = '0.9'
+    seleniumVersion = '3.141.59'
+    servletApiVersion = '3.1.0'
+    slf4jVersion = '1.7.29'
+    wicketVersion = '1.4.22'
+    wikitextVersion = '1.4'
+
+    sourceDistribDir = 'src/main/distrib'
+    tmpBuildDir = "$buildDir/tmp"
+}
+
+//Settings during compilation in Java and Test classes
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+tasks.withType(Test) {
+	systemProperty 'file.encoding', 'UTF-8'
+
+    // Make all tests use JUnit 4
+    //useJUnit()
+    // Make all tests use JUnit 5, at least at test runtime
+    useJUnitPlatform()
+
+    // show standard out and standard error of the test JVM(s) on the console
+    testLogging.showStandardStreams = true
+}
+
+// SourceSets Configuration
+sourceSets {
+	main {
+		java {
+            //additional main source code
+			srcDir 'src/main/bugtraq'
+		}
+        resources {
+            //initialize the srcDirs property to remove the default src/main/resources,
+            //and add other resources from src/main/java (excluding *.java by default)
+			srcDirs = ['src/main/java']
+            //exclude the WEB-INF files, as they need token replacements (to be done later)
+            exclude "WEB-INF/**"
+        }
+	}
+	test {
+		java {
+            //additional test source code
+            srcDir 'src/test/bugtraq'
+        }
+	}
+}
+
+task copyToRunDir(type: Copy) {
+    description = "Copy main classes and resources to the 'run' directory"
+    group = 'Run'
+
+    into "$tmpBuildDir/run"
+    from (sourceSets.main.output)
+    from ('src/main/resources')
+    from ('src/main/java') {
+        include "WEB-INF/**"
+    }
+}
+
+//define more Test SourceSets (using org.unbroken-dome.test-sets plugin)
+testSets {
+    extServiceTest
+    repoTest
+    serverTest
+    uiTest
+}
+
+serverTest {
+    description = 'Runs server tests using the GitBlitSuite test suite.'
+
+    filter {
+        //specific test suite class
+        includeTestsMatching "com.gitblit.servertests.GitBlitSuite"
+    }
+
+    //prepend the 'run' directory's files to the serverTest classpath
+    classpath = copyToRunDir.outputs.files + classpath
+}
+
+uiTest {
+    description = 'Runs Gitblit Web UI tests using the TestUISuite test suite.'
+
+    filter {
+        //specific test suite class
+        includeTestsMatching "de.akquinet.devops.test.ui.TestUISuite"
+    }
+
+    //prepend the 'run' directory's files to the uiTest classpath
+    classpath = copyToRunDir.outputs.files + classpath
+
+    //set a system path to the local Gecko web driver
+    //(this latest driver requires Selenium 3 and JDK8+)
+	systemProperty 'webdriver.gecko.driver', 'D:/dev/geckodriver-v0.24.0-win64/geckodriver.exe'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    // Gitblit maintains a fork of guice-servlet
+    maven {
+        url = "$mavenUrl"
+    }
+}
+
+dependencies {
+    implementation "com.google.inject:guice:$guiceVersion"
+    // Gitblit maintains a fork of guice-servlet
+    implementation "com.google.inject.extensions:guice-servlet:$guiceVersion-gb2"
+    implementation "com.google.guava:guava:$guavaVersion"
+    implementation 'com.intellij:annotations:12.0'
+    implementation "log4j:log4j:$log4jVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+    implementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    implementation ('com.sun.mail:javax.mail:1.5.1') {
+        exclude group: 'javax.activation', module: 'activation'
+    }
+    implementation "com.sun.activation:javax.activation:$activationVersion"
+    implementation "org.apache.wicket:wicket:$wicketVersion"
+    implementation "org.apache.wicket:wicket-auth-roles:$wicketVersion"
+    implementation "org.apache.wicket:wicket-extensions:$wicketVersion"
+    implementation "org.apache.lucene:lucene-core:$luceneVersion"
+    implementation "org.apache.lucene:lucene-analyzers-common:$luceneVersion"
+    implementation "org.apache.lucene:lucene-highlighter:$luceneVersion"
+    implementation "org.apache.lucene:lucene-memory:$luceneVersion"
+    implementation "org.apache.lucene:lucene-queryparser:$luceneVersion"
+    implementation 'org.pegdown:pegdown:1.5.0'
+    implementation "org.fusesource.wikitext:wikitext-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:twiki-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:textile-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:tracwiki-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:mediawiki-core:$wikitextVersion"
+    implementation "org.fusesource.wikitext:confluence-core:$wikitextVersion"
+    implementation "org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
+    implementation "org.eclipse.jgit:org.eclipse.jgit.http.server:$jgitVersion"
+    implementation "org.bouncycastle:bcprov-jdk15on:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcmail-jdk15on:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcpkix-jdk15on:$bouncycastleVersion"
+    implementation 'org.apache.sshd:sshd-core:1.2.0'
+    implementation 'org.apache.mina:mina-core:2.0.21'
+    implementation "rome:rome:$romeVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation 'org.codehaus.groovy:groovy-all:2.4.4'
+    implementation 'com.unboundid:unboundid-ldapsdk:2.3.8'
+    implementation 'org.apache.ivy:ivy:2.2.0'
+    implementation 'com.toedter:jcalendar:1.3.2'
+    implementation 'org.apache.commons:commons-compress:1.4.1'
+    implementation 'commons-io:commons-io:2.2'
+    implementation 'com.force.api:force-partner-api:24.0.0'
+    implementation "org.freemarker:freemarker:$freeMarkerVersion"
+    implementation 'com.github.dblock.waffle:waffle-jna:1.7.3'
+    implementation 'org.kohsuke:libpam4j:1.8'
+    implementation "args4j:args4j:$args4jVersion"
+    implementation 'commons-codec:commons-codec:1.7'
+    implementation 'redis.clients:jedis:2.6.2'
+    implementation 'ro.fortsoft.pf4j:pf4j:0.9.0'
+    implementation 'org.apache.tika:tika-core:1.5'
+    implementation 'org.jsoup:jsoup:1.7.3'
+
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+    providedCompile 'org.eclipse.jetty.aggregate:jetty-all:9.2.13.v20150730'
+
+    testImplementation 'org.mockito:mockito-core:1.10.19'
+    testImplementation 'junit:junit:4.12'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.4.2'
+
+    //repoTest and serverTest have compile dependency on 'test' source
+    repoTestImplementation sourceSets.test.output
+    serverTestImplementation sourceSets.test.output
+
+    //extServiceTest has compile dependency on 'test' and 'repoTest' source
+    extServiceTestImplementation sourceSets.test.output, sourceSets.repoTest.output
+
+    //uiTest has compile dependency on 'test' source, and other 3rd-party libraries
+    uiTestImplementation sourceSets.test.output
+    //Selenium 3.x libraries, for JDK8 and above (to use with latest Firefox's web driver)
+    uiTestImplementation "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
+    uiTestImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    uiTestImplementation "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+}
+
+checkstyle {
+    configFile = file('src/main/config/checkstyle.xml')
+    ignoreFailures = true
+    //sourceSets = [sourceSets.main, sourceSets.test]
+    //showViolations = true
+    //reportsDir = file("$project.buildDir/checkstyleReports")
+    dependencies {
+        checkstyle 'com.puppycrawl.tools:checkstyle:8.20'
+    }
+}
+
+task copyProjectData(type: Copy) {
+	description = 'Copy distrib/data to project data directory'
+    group = 'build'
+
+    from "$sourceDistribDir/data"
+    into 'data'
+    duplicatesStrategy 'exclude'
+}
+
+task copyBeforeCompile(type: Copy) {
+	description = 'Copy defaults.properties, clientapps.json to the source directory'
+    group = 'build'
+
+    from ("$sourceDistribDir/data/defaults.properties") {
+        duplicatesStrategy 'include'
+    }
+	//copy clientapps.json to the source directory;
+	//this file is only used if a local file is not provided.
+    from ("$sourceDistribDir/data/clientapps.json") {
+        duplicatesStrategy 'include'
+    }
+    into 'src/main/java'
+}
+
+task generateKeysClass(type: com.gitblit.gradle.KeysGenerator) {
+    description = 'Generate the Keys class from the defaults.properties file'
+    group = 'build'
+
+    propertiesFile file("$sourceDistribDir/data/defaults.properties")
+    outputClass 'com.gitblit.Keys'
+    toDir file('src/main/java')
+}
+
+task generateHelloworldKeysClass(type: com.gitblit.gradle.KeysGenerator) {
+    description = 'Generate the HelloworldKeys class from the hello-world.properties file'
+    group = 'build'
+
+    propertiesFile file('src/test/data/hello-world.properties')
+    outputClass 'com.gitblit.tests.HelloworldKeys'
+    toDir file('src/test/java')
+}
+
+compileJava.dependsOn copyProjectData, copyBeforeCompile, generateKeysClass, generateHelloworldKeysClass
+
+task processMenuStructure(type: com.gitblit.gradle.SiteMenuProcessor) {
+    description = 'Process the menu-structure file and Copy *.mkd files as specified,\n' \
+        + "Generate 'releasenotes.html' and 'releases.html' files, from the 'releases.moxie' input file"
+    group = 'documentation'
+
+    menuStructureFile = file('src/site/menu-structure.xml')
+    markdownDir = file('src/site')
+    freeMarkerVersion = project.freeMarkerVersion
+    releaseLogFile = file('releases.moxie')
+    templatesDir = file('src/site/templates')
+    def releaseDate = new Date().parse("yyyy-MM-dd", "$releaseDate")
+    templateSubstitutions = ['reference.releaseDate' : releaseDate,
+                             'project.releaseVersion' : "$releaseVersion",
+                             'project.version' : "$version"]
+    outputDir = file("$tmpBuildDir/mkd")
+}
+
+task copyMkd(type: Copy) {
+    description = 'Copy *.mkd files and rename to *.md, with token replacements'
+    group = 'documentation'
+
+    from (processMenuStructure) {
+        rename { String fileName ->
+            fileName.replace(".mkd", ".md")
+        }
+        // Substitute property tokens in files
+        filter { String line ->
+            line.replace("\${project.name}", "$project.ext.name")
+                .replace("\${project.version}", "$version")
+                .replace("\${project.forumUrl}", "$forumUrl")
+                .replace("\${project.issuesUrl}", "$issuesUrl")
+                .replace("\${project.mavenUrl}", "$mavenUrl")
+                .replace("\${project.releaseVersion}", "$releaseVersion")
+                .replace("\${project.releaseDate}", "$releaseDate")
+                .replace("\${project.scmUrl}", "$scmUrl")
+                .replace("%GCURL%", "$gcUrl$currentReleaseTag/")
+                .replace("\${gh.org}", "$ghOrg")
+                .replace("\${gc.url}", "$gcUrl")
+                .replace("\${currentRelease.tag}", "$currentReleaseTag")
+        }
+        filteringCharset = 'UTF-8'
+    }
+    into "$tmpBuildDir/md"
+}
+
+markdownToHtml {
+    description = 'Convert *.md files to *.html files, using the org.kordamp.markdown.convert plugin'
+    group = 'documentation'
+
+    dependsOn copyMkd
+    sourceDir = copyMkd.destinationDir
+    outputDir = file("$tmpBuildDir/html")
+}
+
+task propertiesToHtml(type: com.gitblit.gradle.PropertiesSyntaxHighlighter) {
+    description = 'Fix the %PROPERTIES% token in the (generated) properties.html file'
+    group = 'documentation'
+
+    dependsOn markdownToHtml
+    propertiesFile = file("$sourceDistribDir/data/defaults.properties")
+    outputFile = file("$markdownToHtml.outputDir/properties.html")
+}
+
+task generateScreenshotThumbnails(type: com.gitblit.gradle.ImageThumbnailer) {
+    description = 'Generate thumbnails of screenshots'
+    group = 'documentation'
+
+    inputType = 'png'
+    outputType = 'png'
+    maxDimension = 250
+    sourceDir = file('src/site/screenshots')
+    destDir = file("$tmpBuildDir/thumbs")
+}
+
+task buildSite(type: Copy) {
+    description = 'Build the Gitblit Website'
+    group = 'documentation'
+
+    into "$buildDir/site"
+
+    //copy and process the .mkd files separately into .html files,
+    //fix the %PROPERTIES% token in the generated properties.html file
+    dependsOn propertiesToHtml
+
+    //prepare the page header and footer text
+    def headerText, footerText
+    doFirst {
+        headerText = file("$markdownToHtml.outputDir/pageHeader.html").getText('UTF-8')
+        footerText = file("$markdownToHtml.outputDir/pageFooter.html").getText('UTF-8')
+    }
+
+    //copy site files except the .mkd ones (and some) into flat structure
+    from fileTree('src/site') {
+        include "resources/**"
+        exclude ".gitignore", "*.mkd", "*.odg", "*.ods", "*.xcf"
+        exclude "fancybox/**", "screenshots/**", "templates/**"
+    }.files
+
+    //copy other site files into their own structures
+    from ('src/site') {
+        include "fancybox/**", "screenshots/**"
+    }
+    from ('buildSrc/src/site/resources') {
+        include "bootstrap/**", "d3/**", "prettify/**"
+    }
+
+    //prepend and append each generated *.html file with header and footer text
+    //after doing some regex replacements
+    from (markdownToHtml.outputDir) {
+        exclude 'pageHeader.html', 'pageFooter.html'
+        eachFile { FileCopyDetails details ->
+            def newText = details.file.getText('UTF-8')
+                .replace('<p>%PRETTYPRINTHINT%</p>', '<?prettify?>')
+                .replaceAll(/\b(commit)(\s*[#]?|-){0,1}([0-9a-fA-F]{5,})\b/,
+                            '<a href="https://github.com/gitblit/gitblit/commit/$3">commit $3</a>')
+                .replaceAll(/\b(issue)(\s*[#]?|-){0,1}(\d+)\b/,
+                            '<a href="https://github.com/gitblit/gitblit/issues/$3">issue $3</a>')
+                .replaceAll(/\b(pr|pull request)(\s*[#]?|-){0,1}(\d+)\b/,
+                            '<a href="https://github.com/gitblit/gitblit/pull/$3">pull request #$3</a>')
+                .replaceAll(/\b(ticket)(\s*[#]?|-){0,1}(\d+)\b/,
+                            '<a href="https://dev.gitblit.com/tickets/gitblit.git/$3">ticket $3</a>')
+                //fix a markdown conversion bug
+                .replace('https://github.com/github/git-lfs/blob/master/docs/spec.html',
+                         'https://github.com/github/git-lfs/blob/master/docs/spec.md')
+            details.file.setText(headerText + newText + footerText, 'UTF-8')
+        }
+    }
+
+    from (generateScreenshotThumbnails) {
+        into 'thumbs'
+    }
+
+    //extra image files from src/main/resources
+    from ('src/main/resources') {
+        include 'arrow_page.png', 'blank.png', 'book_16x16.png', 'bug_16x16.png', 'cold_16x16.png',
+                'federated_16x16.png', 'gitblt_25_white.png', 'gitblt-favicon.png', 'lock_go_16x16.png',
+                'lock_pull_16x16.png', 'shield_16x16.png'
+    }
+}
+
+task prepareDataDirectory(type: Copy) {
+    description = 'Create a pristine data directory for the target build'
+    group = 'build Gitblit jars'
+
+    into "$buildDir/data"
+
+    from ("$sourceDistribDir/data") {
+        include 'defaults.properties', 'gitblit.properties', 'projects.conf', 'users.conf'
+        duplicatesStrategy 'exclude'
+    }
+
+    from ("$sourceDistribDir/data/git") {
+        include 'project.mkd'
+        into 'git'
+        duplicatesStrategy 'exclude'
+    }
+
+    from ("$sourceDistribDir/data/groovy") {
+        include 'blockpush.groovy',
+                'fisheye.groovy',
+                'fogbugz.groovy',
+                'jenkins.groovy',
+                'localclone.groovy',
+                'protect-refs.groovy',
+                'redmine-fetch.groovy',
+                'sendmail.groovy',
+                'sendmail-html.groovy',
+                'subgit.groovy',
+                'thebuggenie.groovy'
+        into 'groovy'
+        duplicatesStrategy 'include'
+    }
+
+    from ("$sourceDistribDir/data/gitignore") {
+        include "*.gitignore"
+        into 'gitignore'
+        duplicatesStrategy 'include'
+    }
+}
+
+task jarForGitblitWar(type: Jar) {
+    description = "Building Gitblit jar for WAR package"
+    group = 'build Gitblit jars'
+
+    from sourceSets.main.output
+
+    manifest {
+        attributes(
+            'Implementation-Title': project.description ?: project.name,
+            'Implementation-Version': version,
+            'Created-By': 'Gradle ' + getGradle().getGradleVersion(),
+            'Build-Date': snapshotDate,
+            'Build-Jdk': System.getProperty('java.version')
+        )
+    }
+}
+
+task jarForGitblitGO(type: Jar) {
+    description = "Building Gitblit jar for GO package"
+    group = 'build Gitblit jars'
+
+    archiveName = 'gitblit.jar'
+
+    manifest {
+        attributes(
+            'Implementation-Title': project.description ?: project.name,
+            'Implementation-Version': version,
+            'Created-By': 'Gradle ' + getGradle().getGradleVersion(),
+            'Build-Date': snapshotDate,
+            'Build-Jdk': System.getProperty('java.version'),
+            'Launcher-Agent-Class': 'com.gitblit.Agent',
+            'Agent-Class': 'com.gitblit.Agent',
+            'Premain-Class': 'com.gitblit.Agent',
+            'Main-Class': 'com.gitblit.Launcher'
+        )
+    }
+
+    from sourceSets.main.output
+
+    //copy the web.xml from the prototype web.xml
+    from ('src/main/java') {
+        include "WEB-INF/**"
+        filter { String line ->
+            line.replace("@gb.version@", "$version")
+        }
+        filteringCharset = 'UTF-8'
+    }
+
+    //add resource file-sets to the root of the archive
+    from ('src/main/resources') {
+        exclude "*.mkd"
+    }
+}
+
+task copyManagerDependencyClasses(type: com.gitblit.gradle.ClassDependencyCopier) {
+    description = "Copying Gitblit Manager's dependency classes (of com.gitblit namespace)"
+    group = 'build Gitblit jars'
+
+    dependsOn compileJava
+
+    classNames = [ "com.gitblit.client.GitblitManagerLauncher",
+                   "com.gitblit.Keys"
+                 ]
+    filteredPackages = ['com.gitblit', 'com.syntevo']
+    classesDir = sourceSets.main.java.outputDir
+    outputDir = file("$tmpBuildDir/gitblitManagerClasses")
+}
+
+task copyFedClientDependencyClasses(type: com.gitblit.gradle.ClassDependencyCopier) {
+    description = "Copying Gitblit Federation Client's dependency classes (of com.gitblit namespace)"
+    group = 'build Gitblit jars'
+
+    dependsOn compileJava
+
+    classNames = [ "com.gitblit.FederationClientLauncher",
+                   "com.gitblit.Keys",
+                   "com.gitblit.models.Menu"
+                 ]
+    filteredPackages = ['com.gitblit', 'com.syntevo']
+    classesDir = sourceSets.main.java.outputDir
+    outputDir = file("$tmpBuildDir/fedClientClasses")
+}
+
+task copyGitblitApiDependencyClasses(type: com.gitblit.gradle.ClassDependencyCopier) {
+    description = "Copying Gitblit API's dependency classes (of com.gitblit namespace)"
+    group = 'build Gitblit jars'
+
+    dependsOn compileJava
+
+    classNames = [ "com.gitblit.client.GitblitClient",
+                   "com.gitblit.Keys"
+                 ]
+    filteredPackages = ['com.gitblit', 'com.syntevo']
+    classesDir = sourceSets.main.java.outputDir
+    outputDir = file("$tmpBuildDir/gitblitApiClasses")
+}
+
+task jarGitblitManager(type: Jar) {
+    description = "Building Gitblit manager.jar"
+    group = 'build Gitblit jars'
+
+    archiveName = 'manager.jar'
+    includeEmptyDirs = false
+
+    manifest {
+        attributes(
+            'Implementation-Title': project.description ?: project.name,
+            'Implementation-Version': version,
+            'Created-By': 'Gradle ' + getGradle().getGradleVersion(),
+            'Build-Date': snapshotDate,
+            'Build-Jdk': System.getProperty('java.version'),
+            'Launcher-Agent-Class': 'com.gitblit.Agent',
+            'Agent-Class': 'com.gitblit.Agent',
+            'Premain-Class': 'com.gitblit.Agent',
+            'Main-Class': 'com.gitblit.client.GitblitManagerLauncher',
+            'SplashScreen-Image': 'splash.png'
+        )
+    }
+
+    from (copyManagerDependencyClasses)
+
+    from fileTree('src/main/java') {
+        include 'com/gitblit/client/splash.png'
+        //include all translations
+        include "com/gitblit/wicket/*.properties"
+    }.files
+
+    from ('src/main/resources') {
+        include 'blank.png',
+                'book_16x16.png',
+                'bug_16x16.png',
+                'bullet_feed.png',
+                'cold_16x16.png',
+                'commit_changes_16x16.png',
+                'commit_divide_16x16.png',
+                'commit_merge_16x16.png',
+                'federated_16x16.png',
+                'feed_16x16.png',
+                'gitblt-favicon.png',
+                'gitweb-favicon.png',
+                'git-orange-16x16.png',
+                'health_16x16.png',
+                'lock_go_16x16.png',
+                'lock_pull_16x16.png',
+                'mirror_16x16.png',
+                'search-icon.png',
+                'settings_16x16.png',
+                'shield_16x16.png',
+                'star_16x16.png',
+                'user_16x16.png',
+                'users_16x16.png'                
+    }
+}
+
+task jarFederationClient(type: Jar) {
+    description = "Building Gitblit fedclient.jar"
+    group = 'build Gitblit jars'
+
+    archiveName = 'fedclient.jar'
+    includeEmptyDirs = false
+
+    manifest {
+        attributes(
+            'Implementation-Title': project.description ?: project.name,
+            'Implementation-Version': version,
+            'Created-By': 'Gradle ' + getGradle().getGradleVersion(),
+            'Build-Date': snapshotDate,
+            'Build-Jdk': System.getProperty('java.version'),
+            'Launcher-Agent-Class': 'com.gitblit.Agent',
+            'Agent-Class': 'com.gitblit.Agent',
+            'Premain-Class': 'com.gitblit.Agent',
+            'Main-Class': 'com.gitblit.FederationClientLauncher'
+        )
+    }
+
+    from (copyFedClientDependencyClasses) {
+        exclude "com/gitblit/wicket/**"
+    }
+
+    from (sourceSets.main.resources) {
+        exclude "**/*.html", "**/*.mkd", "**/*.md", "**/*.css", "com/gitblit/wicket/**"
+    }
+
+    from ("$projectDir") {
+        include 'LICENSE'
+    }
+}
+
+task jarGitblitApiClasses(type: Jar) {
+    description = "Building Gitblit API $version"
+    group = 'build Gitblit jars'
+
+    archiveBaseName = 'gbapi'
+    includeEmptyDirs = false
+
+    manifest {
+        attributes(
+            'Implementation-Title': project.description ?: project.name,
+            'Implementation-Version': version,
+            'Created-By': 'Gradle ' + getGradle().getGradleVersion(),
+            'Build-Date': snapshotDate,
+            'Build-Jdk': System.getProperty('java.version'),
+            //'Main-Class': 'com.gitblit.client.GitblitClient'
+        )
+    }
+
+    from (copyGitblitApiDependencyClasses)
+}
+
+war {
+    description = "Building Gitblit WAR $version"
+    group = 'build Gitblit distributions'
+
+    //override the default destination directory (build/libs)
+    destinationDirectory = file("$buildDir/$distsDirName")
+
+    //add file-sets to the root of the archive
+    from ('src/main/resources') {
+        exclude "*.mkd"
+    }
+
+    //don't include the class files of main's sourceSet;
+    //instead, they would be in the output jar of the jarForGitblitWar task
+    //(to be included in WEB-INF/lib)
+    classpath = classpath - sourceSets.main.output
+
+    //add file-sets to the WEB-INF dir
+    webInf {
+        //dependency libraries are automatically included in 'lib' dir by default;
+        //also include the jarForGitblitWar task's output in 'lib' dir
+        //(and thus implicit dependence on the jarForGitblitWar task)
+        from (jarForGitblitWar) {
+            into 'lib'
+        }
+
+        from ("$projectDir") {
+            include 'LICENSE', 'NOTICE'
+        }
+
+        //build the WAR web.xml from the prototype web.xml
+        from ('src/main/java/WEB-INF') {
+            filter { String line ->
+                line.replace("@gb.version@", "$version")
+            }
+            filteringCharset = 'UTF-8'
+        }
+
+        from (prepareDataDirectory) {
+            into 'data'
+        }
+
+        //are the site docs needed in the WAR package?
+        //from (buildSite) {
+        //    into 'docs'
+        //}
+    }
+}
+
+//Create GitblitGO Windows Zip deployment
+task zipGitblitGOWindows(type: Zip) {
+    description = "Building Gitblit GO $version for Windows"
+    group = 'build Gitblit distributions'
+
+    def folder = archivesBaseName + '-' + version
+
+    into folder
+
+    //include the jarForGitblitGO task's output
+    //(and therefore implicit dependence on the jarForGitblitGO task)
+    from (jarForGitblitGO)
+
+    //Windows distrib files
+    from ("$sourceDistribDir/win") {
+        exclude 'fedclient.cmd', 'manager.cmd'
+    }
+
+    //LICENSE and NOTICE
+    from ("$projectDir") {
+        include 'LICENSE', 'NOTICE'
+    }
+    from ('src/main/java/com/gitblit/client/splash.png')
+
+    //dependency libraries
+    from (configurations.compileClasspath) {
+        into 'ext'
+    }
+
+    from (prepareDataDirectory) {
+        into 'data'
+    }
+
+    //Gitblit Authority data
+    from ("$sourceDistribDir/data") {
+        include "certs/**"
+        into 'data'
+    }
+
+    from (buildSite) {
+        into 'docs'
+    }
+}
+
+//Create GitblitGO Linux/OSX tar.gz deployment
+task tarGitblitGOLinux(type: Tar) {
+    description = "Building Gitblit GO $version for Linux/OSX"
+    group = 'build Gitblit distributions'
+
+    compression = Compression.GZIP
+    archiveExtension = 'tar.gz'
+    def folder = archivesBaseName + '-' + version
+
+    into folder
+
+    //include the jarForGitblitGO task's output
+    //(and therefore implicit dependence on the jarForGitblitGO task)
+    from (jarForGitblitGO)
+
+    //Linux/OSX distrib files
+    from ("$sourceDistribDir/linux") {
+        exclude 'fedclient.sh', 'manager.sh'
+        fileMode = 755
+    }
+
+    //LICENSE and NOTICE
+    from ("$projectDir") {
+        include 'LICENSE', 'NOTICE'
+    }
+    from ('src/main/java/com/gitblit/client/splash.png')
+
+    //dependency libraries
+    from (configurations.compileClasspath) {
+        into 'ext'
+    }
+
+    from (prepareDataDirectory) {
+        into 'data'
+    }
+
+    //Gitblit Authority data
+    from ("$sourceDistribDir/data") {
+        include "certs/**"
+        into 'data'
+    }
+
+    from (buildSite) {
+        into 'docs'
+    }
+}
+
+//Build the stand-alone, Gitblit Manager
+task zipGitblitManager(type: Zip) {
+    description = "Building Gitblit Manager $version"
+    group = 'build Gitblit distributions'
+
+    archiveBaseName = 'manager'
+
+    from (jarGitblitManager)
+
+    from ("$projectDir") {
+        include 'LICENSE', 'NOTICE'
+    }
+
+    from ("$sourceDistribDir/win") {
+        include 'manager.cmd'
+    }
+    from ("$sourceDistribDir/linux") {
+        include 'manager.sh'
+    }
+
+    //dependency libraries
+    from (configurations.compileClasspath) {
+        into 'ext'
+        //hard-code the libraries' names and versions for now
+        //(TODO: they will be specified as dependencies in the manager's own subproject later,
+        //and thus they won't be specified explicitly as hard-coded includes like here)
+        include 'commons-logging-1.1.3.jar', "gson-${gsonVersion}.jar", 'httpclient-4.3.6.jar',
+                'httpcore-4.3.3.jar', 'JavaEWAH-0.7.9.jar',
+                "javax.activation-${activationVersion}.jar", 'jdom-1.0.jar', 'jsch-0.1.53.jar',
+                "log4j-${log4jVersion}.jar", "org.eclipse.jgit.http.server-${jgitVersion}.jar",
+                "org.eclipse.jgit-${jgitVersion}.jar", "rome-${romeVersion}.jar",
+                "slf4j-api-${slf4jVersion}.jar", "slf4j-log4j12-${slf4jVersion}.jar"
+    }
+}
+
+//Build the stand-alone, command-line Gitblit Federation Client
+task zipFederationClient(type: Zip) {
+    description = "Building Gitblit Federation Client $version"
+    group = 'build Gitblit distributions'
+
+    archiveBaseName = 'fedclient'
+
+    from (jarFederationClient)
+
+    from ("$projectDir") {
+        include 'LICENSE', 'NOTICE'
+    }
+
+    from fileTree("$sourceDistribDir") {
+        include 'federation.properties'
+        include 'linux/fedclient.sh'
+        include 'win/fedclient.cmd'
+    }.files
+
+    //dependency libraries
+    from (configurations.compileClasspath) {
+        into 'ext'
+        //hard-code the libraries' names and versions for now
+        //(TODO: they will be specified as dependencies in the fedclient's own subproject later,
+        //and thus they won't be specified explicitly as hard-coded includes like here)
+        include 'aopalliance-1.0.jar', "args4j-${args4jVersion}.jar", 'commons-logging-1.1.3.jar',
+                "gson-${gsonVersion}.jar", "guava-${guavaVersion}.jar", "guice-${guiceVersion}.jar",
+                'httpclient-4.3.6.jar', 'httpcore-4.3.3.jar', 'JavaEWAH-0.7.9.jar',
+                "javax.activation-${activationVersion}.jar", 'javax.inject-1.jar',
+                "javax.servlet-api-${servletApiVersion}.jar", 'jsch-0.1.53.jar',
+                "log4j-${log4jVersion}.jar", "lucene-analyzers-common-${luceneVersion}.jar",
+                "lucene-core-${luceneVersion}.jar", "lucene-highlighter-${luceneVersion}.jar",
+                "lucene-memory-${luceneVersion}.jar", "lucene-queries-${luceneVersion}.jar",
+                "lucene-queryparser-${luceneVersion}.jar", "lucene-sandbox-${luceneVersion}.jar",
+                "org.eclipse.jgit-${jgitVersion}.jar", "slf4j-api-${slf4jVersion}.jar",
+                "slf4j-log4j12-${slf4jVersion}.jar"
+    }
+}
+
+task jarGitblitApiSources(type: Jar) {
+    description = "Building Gitblit API $version sources"
+    group = 'build Gitblit jars'
+
+    archiveName = 'gbapi-' + version + '-sources.jar'
+    from ('src/main/java') {
+        include "com/gitblit/Constants.java",
+                "com/gitblit/GitBlitException.java",
+                "com/gitblit/Keys.java",
+                "com/gitblit/client/**/*.java",
+                "com/gitblit/models/**/*.java",
+                "com/gitblit/utils/**/*.java"
+    }
+}
+
+task javadocGitblitApiSources(type: Javadoc) {
+    description = "Building Gitblit API $version javadocs"
+    group = 'documentation'
+
+    classpath = sourceSets.main.compileClasspath + sourceSets.main.output
+    destinationDir = file("$tmpBuildDir/apiJavadocs")
+
+    source files('src/main/java') {
+        include "com/gitblit/Constants.java",
+                "com/gitblit/GitBlitException.java",
+                "com/gitblit/Keys.java",
+                "com/gitblit/client/**/*.java",
+                "com/gitblit/models/**/*.java",
+                "com/gitblit/utils/**/*.java"
+    }
+
+    options.encoding = "UTF-8"
+    //turn off doclint errors/warnings output (but some warnings are still output)
+    options.addStringOption('Xdoclint:none', '-quiet')
+    //don't fail the task if errors occur
+    failOnError = false
+}
+
+task jarGitblitApiJavadocs(type: Jar) {
+    description = "Building Gitblit API $version javadoc jar"
+    group = 'documentation'
+
+    archiveName = 'gbapi-' + version + '-javadoc.jar'
+    from (javadocGitblitApiSources)
+}
+
+task runGO(type: JavaExec) {
+    description = 'Run Gitblit GO'
+    group = 'Run'
+
+    workingDir = projectDir
+    //append the 'run' directory's files to the main's classpath
+    classpath sourceSets.main.compileClasspath, copyToRunDir
+    main = 'com.gitblit.GitBlitServer'
+    //Gitblit server will listen on https port 8443 for web UI connection
+//    args '--baseFolder', 'data'
+///* or, use same args as those of the Gitblit server instance during serverTest run:
+    args '--httpPort', '8280',
+         '--httpsPort', '0',
+         '--shutdownPort', '8281',
+         '--gitPort', '8300',
+         '--sshPort', '39418',
+         '--repositoriesFolder', file('data/git').getAbsolutePath(),
+         '--userService', file('src/test/config/test-users.conf').getAbsolutePath(),
+         '--settings', file('src/test/config/test-gitblit.properties').getAbsolutePath(),
+         '--baseFolder', file('data').getAbsolutePath()
+//*/
+}
+
+task buildApiLibrary(type: Zip) {
+    description = "Build the Gitblit API client library $version"
+    group = 'build Gitblit distributions'
+
+    archiveBaseName = 'gbapi'
+    from (jarGitblitApiClasses)
+    from (jarGitblitApiSources)
+    from (jarGitblitApiJavadocs)
+    from ("$projectDir") {
+        include 'LICENSE', 'NOTICE'
+    }
+    //dependency libraries
+    from (configurations.compileClasspath) {
+        into 'ext'
+        //hard-code the libraries' names and versions for now
+        include "gson-${gsonVersion}.jar", 'jdom-1.0.jar', "rome-${romeVersion}.jar"
+    }
+}
+
+task buildGO {
+    description = "Building Gitblit GO $version distributions"
+    group = 'build Gitblit distributions'
+    dependsOn zipGitblitGOWindows, tarGitblitGOLinux
+    //...and the resulting distributions will be in the default build/distributions directory.
+}
+
+//Build all binaries and site
+task buildAll {
+    description = "Building all Gitblit $version artefacts"
+    group = 'build Gitblit distributions'
+    dependsOn buildSite, war, buildGO, zipGitblitManager, zipFederationClient, buildApiLibrary
+    //...and the resulting distributions will be in the default build/distributions directory.
+}
+

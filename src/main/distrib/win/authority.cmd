@@ -1,1 +1,1 @@
-@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.authority.GitblitAuthority --baseFolder data %*
+@java -javaagent:gitblit.jar -splash:splash.png -cp gitblit.jar com.gitblit.authority.Launcher --baseFolder data %*

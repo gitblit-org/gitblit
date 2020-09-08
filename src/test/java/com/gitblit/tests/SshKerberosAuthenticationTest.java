@@ -31,7 +31,7 @@ import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.transport.ssh.SshDaemonClient;
 import com.gitblit.transport.ssh.SshKrbAuthenticator;
 
-public class SshKerberosAuthenticationTest extends GitblitUnitTest {
+public class SshKerberosAuthenticationTest {
 
 	private static class UserModelWrapper {
 		public UserModel um;

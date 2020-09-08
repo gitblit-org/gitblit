@@ -7,57 +7,57 @@ Here is a sample configuration that works on Debian 7.0 (Wheezy), your distribut
 
 ### Make sure we have Apache's proxy modules
 
-```
-sudo su
-cd /etc/apache2/mods-enabled
-ln -s ../mods-available/proxy.load proxy.load
-ln -s ../mods-available/proxy_balancer.load proxy_balancer.load
-ln -s ../mods-available/proxy_http.load proxy_http.load
-```
+    sudo su
+    cd /etc/apache2/mods-enabled
+    ln -s ../mods-available/proxy.load proxy.load
+    ln -s ../mods-available/proxy_balancer.load proxy_balancer.load
+    ln -s ../mods-available/proxy_http.load proxy_http.load
+
 ### Configuring Apache to use the proxy modules
 
 Now we must configure Apache to use the proxy modules and  the proxied connection from Apache to Gitblit GO or from Apache to your chosen servlet container.  The following snippet is stored as `/etc/apache2/conf.d/gitblit`.  
 
-```
-# Turn off support for true Proxy behaviour as we are acting as 
-# a transparent proxy
-ProxyRequests Off
+%PRETTYPRINTHINT%
 
-# Turn off VIA header as we know where the requests are proxied
-ProxyVia Off
- 
-# Turn on Host header preservation so that the servlet container
-# can write links with the correct host and rewriting can be avoided.
-#
-# This is important for all git push/pull/clone operations.
-ProxyPreserveHost On
- 
-# Set the permissions for the proxy
-<Proxy>
-	AddDefaultCharset off
-	Order deny,allow
-	Allow from all
-</Proxy>
- 
-# The proxy context path must match the Gitblit context path.
-# For Gitblit GO, see server.contextPath in gitblit.properties.
+    # Turn off support for true Proxy behaviour as we are acting as 
+    # a transparent proxy
+    ProxyRequests Off
+    
+    # Turn off VIA header as we know where the requests are proxied
+    ProxyVia Off
+    
+    # Turn on Host header preservation so that the servlet container
+    # can write links with the correct host and rewriting can be avoided.
+    #
+    # This is important for all git push/pull/clone operations.
+    ProxyPreserveHost On
+    
+    # Set the permissions for the proxy
+    <Proxy>
+        AddDefaultCharset off
+        Order deny,allow
+        Allow from all
+    </Proxy>
+    
+    # The proxy context path must match the Gitblit context path.
+    # For Gitblit GO, see server.contextPath in gitblit.properties.
+    
+    #ProxyPass /gitblit http://localhost:8080/gitblit
+    #ProxyPassreverse /gitblit http://localhost:8080/gitblit
+    
+    # If your httpd frontend is https but you are proxying http Gitblit WAR or GO
+    #Header edit Location ^http://([^/]+)/gitblit/ https://$1/gitblit/
+    #Header edit Ajax-Location ^http://([^/]+)/gitblit/ https://$1/gitblit/
+    
+    # Additionally you will want to tell Gitblit the original scheme and port
+    #RequestHeader set X-Forwarded-Proto https
+    #RequestHeader set X-Forwarded-Port 443
+    
+    # If you are using subdomain proxying then you will want to tell Gitblit the appropriate
+    # context path for your repository url.
+    # If you are not using subdomain proxying, then ignore this setting.
+    #RequestHeader set X-Forwarded-Context /
 
-#ProxyPass /gitblit http://localhost:8080/gitblit
-#ProxyPassreverse /gitblit http://localhost:8080/gitblit
-
-# If your httpd frontend is https but you are proxying http Gitblit WAR or GO
-#Header edit Location ^http://([^/]+)/gitblit/ https://$1/gitblit/
-#Header edit Ajax-Location ^http://([^/]+)/gitblit/ https://$1/gitblit/
-
-# Additionally you will want to tell Gitblit the original scheme and port
-#RequestHeader set X-Forwarded-Proto https
-#RequestHeader set X-Forwarded-Port 443
-
-# If you are using subdomain proxying then you will want to tell Gitblit the appropriate
-# context path for your repository url.
-# If you are not using subdomain proxying, then ignore this setting.
-#RequestHeader set X-Forwarded-Context /
-```
 
 **Please** make sure to:  
     1. Review the security of these settings as appropriate for your deployment
@@ -74,19 +74,10 @@ You can control the url that Gitblit generates by setting X-Forwarded headers in
 
 *X-Forwarded-Proto*://servername(:*X-Forwarded-Port*)(/*X-Forwarded-Context*)
 
----X:MEDIAWIKI---
-{| class="table table-bordered"
-! Header
-! Description
-|-
-| X-Forwarded-Port
-| The port to use in generated repository http/https urls
-|-
-| X-Forwarded-Proto
-| The protocol/scheme to use in generated repository http/https urls
-|-
-| X-Forwarded-Context
-| The context to use in generated repository http/https urls
-|}
----X:MEDIAWIKI---
+<table class="table table-bordered">
+<tr><th>Header</th><th>Description</th></tr>
+<tr><td>X-Forwarded-Port</td><td>The port to use in generated repository http/https urls</td></tr>
+<tr><td>X-Forwarded-Proto</td><td>The protocol/scheme to use in generated repository http/https urls</td></tr>
+<tr><td>X-Forwarded-Context</td><td>The context to use in generated repository http/https urls</td></tr>
+</table>
 

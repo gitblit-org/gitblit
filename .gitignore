@@ -1,3 +1,7 @@
+/.classpath
+/.checkstyle
+/.project
+gitblit.iml
 tags
 /temp
 /lib
@@ -9,7 +13,6 @@ tags
 /build.properties
 /federation.properties
 /mailtest.properties
-/test-users.conf
 /.settings/
 /src/main/java/reference.properties
 /src/main/java/WEB-INF/reference.properties

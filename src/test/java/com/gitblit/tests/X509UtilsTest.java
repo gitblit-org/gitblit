@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.PrivateKey;
@@ -42,7 +44,7 @@ import com.gitblit.utils.X509Utils.X509Metadata;
  * @author James Moger
  *
  */
-public class X509UtilsTest extends GitblitUnitTest {
+public class X509UtilsTest {
 
 	// passwords are case-sensitive and may be length-limited
 	// based on the JCE policy files

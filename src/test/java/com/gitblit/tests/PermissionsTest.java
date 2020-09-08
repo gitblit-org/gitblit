@@ -15,6 +15,8 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.*;
+
 import java.util.Date;
 
 import org.junit.Test;
@@ -32,7 +34,7 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-public class PermissionsTest extends GitblitUnitTest {
+public class PermissionsTest {
 
 	/**
 	 * Admin access rights/permissions

@@ -27,22 +27,23 @@ Hook contributions and improvements are welcome.
 
 *SINCE 1.0.0*
 
-[Grape](http://groovy.codehaus.org/Grape) lets you quickly add maven repository dependencies to your Groovy hook script.  
+[Grape](http://docs.groovy-lang.org/latest/html/documentation/grape.html) lets you quickly add maven repository dependencies to your Groovy hook script.  
 
 <blockquote>Grape (The Groovy Adaptable Packaging Engine or Groovy Advanced Packaging Engine) is the infrastructure enabling the grab() calls in Groovy, a set of classes leveraging <a href="http://ant.apache.org/ivy">Ivy</a> to allow for a repository driven module system for Groovy. This allows a developer to write a script with an essentially arbitrary library requirement, and ship just the script. Grape will, at runtime, download as needed and link the named libraries and all dependencies forming a transitive closure when the script is run from existing repositories such as Ibiblio, Codehaus, and java.net.</blockquote>
 
-```java
-// create and use a primitive array
-import org.apache.commons.collections.primitives.ArrayIntList
+%PRETTYPRINTHINT%
 
-@Grab(group='commons-primitives', module='commons-primitives', version='1.0')
-def createEmptyInts() { new ArrayIntList() }
+    // create and use a primitive array
+    import org.apache.commons.collections.primitives.ArrayIntList
 
-def ints = createEmptyInts()
-ints.add(0, 42)
-assert ints.size() == 1
-assert ints.get(0) == 42
-```
+    @Grab(group='commons-primitives', module='commons-primitives', version='1.0')
+    def createEmptyInts() { new ArrayIntList() }
+
+    def ints = createEmptyInts()
+    ints.add(0, 42)
+    assert ints.size() == 1
+    assert ints.get(0) == 42
+
 
 ### Custom Fields
 
