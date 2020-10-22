@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="gitblit" default="compile" xmlns:mx="antlib:org.moxie">
+<project name="gitblit" default="compile" xmlns:mx="antlib:org.moxie" xmlns:jacoco="antlib:org.jacoco.ant">
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,7 +160,22 @@
 		
 		<!-- Run unit tests -->
 		<mx:test failonerror="true" />
-		
+
+		<!-- Create JaCoCo single XML report file for code coverage service. -->
+		<jacoco:report>
+			<executiondata>
+				<file file="${project.outputDirectory}/jacoco.exec"/>
+			</executiondata>
+			<structure name="${project.name}">
+				<classfiles>
+					<fileset dir="${project.outputDirectory}/classes"/>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${project.src.dir}"/>
+				</sourcefiles>
+			</structure>
+			<xml destfile="${project.targetDirectory}/reports/coverage/jacoco.xml"/>
+		</jacoco:report>
 	</target>
 
 
