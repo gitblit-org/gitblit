@@ -21,7 +21,7 @@ gbsteps: &gbsteps
         path:  build/target/reports
 
 
-version: 2
+version: 2.1
 
 jobs:
   buildJ8:
@@ -46,6 +46,10 @@ workflows:
   version: 2
   build:
     jobs:
-      - "buildJ8"
+      - "buildJ8":
+          post-steps:
+            - run:
+                name: Upload coverage to Codecov
+                command: bash <(curl -s https://codecov.io/bash)
       - "buildJ9"
       - "buildJ11"
