@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="gitblit" default="compile" xmlns:mx="antlib:org.moxie">
+<project name="gitblit" default="compile" xmlns:mx="antlib:org.moxie" xmlns:jacoco="antlib:org.jacoco.ant">
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,7 +12,9 @@
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
-	
+
+	<property name="jacoco.version" value="0.8.4" />
+
 	<!-- Download Moxie from it's Maven repository to user.home -->
 	<mkdir dir="${moxie.dir}" />
 	<get src="${moxie.url}/com/gitblit/moxie/moxie-toolkit/${moxie.version}/${moxie.jar}"
@@ -46,7 +48,12 @@
 		     If it exists, build.properties is automatically loaded.
 		     Explicitly set mxroot allowing CI servers to override the default. -->
 		<mx:init verbose="no" mxroot="${moxie.dir}" />
-				
+
+		<!-- Register JaCoCo tasks -->
+		<taskdef uri="antlib:org.jacoco.ant">
+			<classpath location="${moxie.dir}/remote/repo1.maven.org_maven2/org/jacoco/org.jacoco.ant/${jacoco.version}/org.jacoco.ant-${jacoco.version}-nodeps.jar" />
+		</taskdef>
+
 		<!-- Set Ant project properties -->
 		<property name="release.tag" value="v${project.version}" />
 		<property name="currentRelease.tag" value="v${project.releaseVersion}" />
@@ -160,7 +167,22 @@
 		
 		<!-- Run unit tests -->
 		<mx:test failonerror="true" />
-		
+
+		<!-- Create JaCoCo single XML report file for code coverage service. -->
+		<jacoco:report>
+			<executiondata>
+				<file file="${project.outputDirectory}/jacoco.exec"/>
+			</executiondata>
+			<structure name="${project.name}">
+				<classfiles>
+					<fileset dir="${project.outputDirectory}/classes"/>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${project.src.dir}"/>
+				</sourcefiles>
+			</structure>
+			<xml destfile="${project.targetDirectory}/reports/coverage/jacoco.xml"/>
+		</jacoco:report>
 	</target>
 
 
