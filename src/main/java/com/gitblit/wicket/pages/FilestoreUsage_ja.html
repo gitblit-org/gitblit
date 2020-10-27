@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+      xml:lang="en"
+      lang="en">
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+<div class="span10 offset1">
+
+  <div class="alert alert-danger">
+  <h3><center>ファイルストアの使用方法</center></h3>
+  <p>
+    <strong>ファイルストアを使う場合、先ずは <a href="https://git-lfs.github.com/">Git-LFS Client</a> をインストールし、<code>git lfs install</code></strong> を実行しておかなければなりません。<br/>
+    <p>
+    その際、パスワード認証を使うのであれば、<a href="https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage">git credential storage</a> を設定するのがお勧めです。
+     Git-LFS が各ファイルに対してパスワードを要求するのを避けることが出来ます。<br/>
+    Windows での例: <code>git config --global credential.helper wincred</code>
+    </p>
+  </p>
+  </div>
+
+  <h3>クローン</h3>
+  <p>
+  既定の Git-LFS に繋いで <code>{repository}/info/lfs/objects/</code> を参照するには、単に <code>git clone</code> とするだけです。それ以上の操作は必要ありません。<br/>
+  <i>リポジトリがサードパーティの Git-LFS サーバーを使っている場合、<a href="https://github.com/github/git-lfs/blob/master/docs/spec.md#the-server"> 手動での設定する必要が有ります。</a></i>
+  </p>
+
+  <h3>追加</h3>
+  <p><code>git lfs track "*.bin"</code> を使ってファイルタイプやパスの設定を行った後ならば、単に <code>git add</code> コマンドでファイルの追加が行えます。<br/>
+  <i>追跡されたファイルもまた、<code>.gitattributes</code> ファイルを使うことで手動で設定できます。</i></p>
+
+  <h3>削除</h3>
+  <p>Git-LFS からファイルを削除した際には、リンクファイルがリポジトリから削除されるだけです。<br/>
+  <i>全てのファイルは、以前のバージョンとしてチェックアウト出来るよう、サーバーに残っています。</i>
+  </p>
+
+  <h3>詳細は...</h3>
+  <p><a href="https://github.com/github/git-lfs/blob/master/docs/spec.md">より詳しい最新の Git-LFS の仕様</a>を参照してください。</p>
+  <br />
+
+
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>
+</body>
+</html>
