@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+      xml:lang="en"
+      lang="en">
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+<div class="span10 offset1">
+  <h3><center>空のリポジトリ</center></h3>
+  <div class="alert alert-info">
+    <span wicket:id="repository" style="font-weight: bold;">[repository]</span> は空のリポジトリです。表示するものはありません。
+    <p></p>
+    下記の URL にプッシュしてください。 <span wicket:id="pushurl"></span>
+    <hr/>
+    プッシュ完了後、このリポジトリページを<b>再読み込み</b>してください。
+  </div>
+
+  <h3><center>新規リポジトリの作成コマンド</center></h3>
+
+  <pre wicket:id="createSyntax"></pre>
+
+  <h3><center>既存リポジトリのプッシュコマンド</center></h3>
+
+  <pre wicket:id="existingSyntax"></pre>
+
+  <div class="span8 offset1">
+    <h2><center>Git の学習</center></h2>
+    <p>ここで紹介した情報に不案内でしたら、<a href="http://book.git-scm.com">Git Community Book</a> で Git の使い方をより理解してみませんか？</p>
+
+    <h4>ソース公開版 Git クライアント</h4>
+    <table>
+    <tbody>
+      <tr><td><a href="http://git-scm.com">Git</a></td><td>本家コマンドライン版 Git</td></tr>
+      <tr><td><a href="http://tortoisegit.googlecode.com">TortoiseGit</a></td><td>Windows エクスプローラ統合型 GUI (要 本家コマンドライン版 Git)</td></tr>
+      <tr><td><a href="http://eclipse.org/egit">Eclipse/EGit</a></td><td>エクリプス IDE 向け Git (Gitblit に似た JGit 使用 )</td></tr>
+      <tr><td><a href="https://code.google.com/p/gitextensions/">Git Extensions</a></td><td>Windows エクスプローラとVisual Studio に統合された、Git の C# 製 UI</td></tr>
+      <tr><td><a href="http://rowanj.github.io/gitx/">GitX-dev</a></td><td>Mac OS X 向け Git クライアント</td></tr>
+    </tbody>
+    </table>
+
+    <h4>商用/非ソース公開 Git クライアント</h4>
+    <table>
+    <tbody>
+      <tr><td><a href="http://www.syntevo.com/smartgithg">SmartGit/Hg</a></td><td>Windows, Mac, Linux 向け、Java製 Git &amp; Mercurial クライアント</td></tr>
+      <tr><td><a href="http://www.sourcetreeapp.com/">SourceTree</a></td><td>フリーの Windows, Mac 向け Git &amp; Mercurial クライアント</td></tr>
+      <tr><td><a href="http://www.git-tower.com/">Tower</a></td><td>Mac OS X 向け Git クライアント</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>
+</body>
+</html>
