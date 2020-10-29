@@ -35,7 +35,7 @@ Gitblit's ticket data is based on a ridiculously simple concept: a ticket is the
 
 All ticket services inherit from the same base class which handles most of the high level logic for ticket management including caching, milestones (stored in .git/config), indexing, queries, and searches.
 
-You can find descriptions of the available persistence services in [[tickets setup]].
+You can find descriptions of the available persistence services in [tickets setup](tickets_setup.html).
 
 #### Limitations
 
