@@ -91,8 +91,10 @@
 	<classpathentry kind="lib" path="ext/selenium-api-2.28.0.jar" sourcepath="ext/src/selenium-api-2.28.0.jar" />
 	<classpathentry kind="lib" path="ext/commons-exec-1.1.jar" sourcepath="ext/src/commons-exec-1.1.jar" />
 	<classpathentry kind="lib" path="ext/platform-3.4.0.jar" sourcepath="ext/src/platform-3.4.0.jar" />
-	<classpathentry kind="lib" path="ext/mockito-core-1.10.19.jar" sourcepath="ext/src/mockito-core-1.10.19.jar" />
-	<classpathentry kind="lib" path="ext/objenesis-2.1.jar" sourcepath="ext/src/objenesis-2.1.jar" />
+	<classpathentry kind="lib" path="ext/mockito-core-2.28.2.jar" sourcepath="ext/src/mockito-core-2.28.2.jar" />
+	<classpathentry kind="lib" path="ext/byte-buddy-1.9.10.jar" sourcepath="ext/src/byte-buddy-1.9.10.jar" />
+	<classpathentry kind="lib" path="ext/byte-buddy-agent-1.9.10.jar" sourcepath="ext/src/byte-buddy-agent-1.9.10.jar" />
+	<classpathentry kind="lib" path="ext/objenesis-2.6.jar" sourcepath="ext/src/objenesis-2.6.jar" />
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
 	<classpathentry kind="output" path="bin/classes" />
 </classpath>
