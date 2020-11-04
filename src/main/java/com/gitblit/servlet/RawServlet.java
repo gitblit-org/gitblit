@@ -99,6 +99,12 @@ public class RawServlet extends HttpServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
+		if (repository.length() > 0 && repository.charAt(repository.length() - 1) == '/') {
+			repository = repository.substring(0, repository.length() - 1);
+		}
+		if (repository.length() > 0 && repository.charAt(0) == '/') {
+			repository = repository.substring(1);
+		}
 
 		char fsc = '!';
 		char c = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
@@ -109,6 +115,9 @@ public class RawServlet extends HttpServlet {
 			branch = Repository.shortenRefName(branch).replace('/', fsc);
 		}
 
+		if (path != null && path.length() > 0 && path.charAt(0) == '/') {
+			path = path.substring(1);
+		}
 		String encodedPath = path == null ? "" : path.replace('/', fsc);
 		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + encodedPath));
 	}
