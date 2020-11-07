@@ -124,6 +124,7 @@ public class RawServlet extends HttpServlet {
 
 	protected String getBranch(String repository, HttpServletRequest request) {
 		String pi = request.getPathInfo();
+		if (pi == null || pi.isEmpty() || pi.equals("/")) return "";
 		String branch = pi.substring(pi.indexOf(repository) + repository.length() + 1);
 		int fs = branch.indexOf('/');
 		if (fs > -1) {
@@ -135,7 +136,9 @@ public class RawServlet extends HttpServlet {
 
 	protected String getPath(String repository, String branch, HttpServletRequest request) {
 		String base = repository + "/" + branch;
-		String pi = request.getPathInfo().substring(1);
+		String pi = request.getPathInfo();
+		if (pi == null || pi.isEmpty() || pi.equals("/")) return "";
+		pi = pi.substring(1);
 		if (pi.equals(base)) {
 			return "";
 		}

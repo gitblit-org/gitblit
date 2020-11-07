@@ -3,6 +3,7 @@ package com.gitblit.servlet;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.tests.mock.MockGitblitContext;
 import com.gitblit.tests.mock.MockRuntimeManager;
 import org.junit.Before;
@@ -10,20 +11,28 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
+import javax.servlet.http.HttpServletRequest;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RawServletTest
 {
     private final static String FSC = "!";
 
+    private static MockRuntimeManager mockRuntimeManager = new MockRuntimeManager();
     private static IStoredSettings settings;
+
+    private IRepositoryManager repositoryMngr;
+
+    private RawServlet rawServlet;
 
 
     @BeforeClass
     public static void init()
     {
         MockGitblitContext gitblitContext = new MockGitblitContext();
-        MockRuntimeManager mockRuntimeManager = new MockRuntimeManager();
         gitblitContext.addManager(mockRuntimeManager);
         settings = mockRuntimeManager.getSettings();
     }
@@ -32,6 +41,9 @@ public class RawServletTest
     public void setUp()
     {
         settings.overrideSetting(Keys.web.forwardSlashCharacter, "/");
+
+        repositoryMngr = mock(IRepositoryManager.class);
+        rawServlet = new RawServlet(mockRuntimeManager, repositoryMngr);
     }
 
 
@@ -672,4 +684,102 @@ public class RawServletTest
     public void getPath()
     {
     }
+
+    @Test
+    public void getBranch_Repo()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/test.git/");
+
+        String branch = rawServlet.getBranch("test.git", request);
+
+        assertEquals("Branch was supposed to be empty as no branch was given.", "", branch);
+    }
+
+    @Test
+    public void getBranch_RepoNoTrailingSlash()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/test.git");
+
+        String branch = rawServlet.getBranch("test.git", request);
+
+        assertEquals("Branch was supposed to be empty as no branch was given.", "", branch);
+    }
+
+    @Test
+    public void getBranch_PiNull()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn(null);
+
+        String branch = rawServlet.getBranch("test.git", request);
+
+        assertEquals("Branch was supposed to be empty as path info is null.", "", branch);
+    }
+
+
+    @Test
+    public void getBranch_PiEmpty()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("");
+
+        String branch = rawServlet.getBranch("test.git", request);
+
+        assertEquals("Branch was supposed to be empty as no path info exists.", "", branch);
+    }
+
+
+
+
+
+
+    
+    
+    @Test
+    public void getPath_Repo()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/test.git/");
+
+        String path = rawServlet.getPath("test.git", "", request);
+
+        assertEquals("Path was supposed to be empty as no path was given.", "", path);
+    }
+
+    @Test
+    public void getPath_RepoNoTrailingSlash()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("/test.git");
+
+        String path = rawServlet.getPath("test.git", "", request);
+
+        assertEquals("Path was supposed to be empty as no path was given.", "", path);
+    }
+
+    @Test
+    public void getPath_PiNull()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn(null);
+
+        String path = rawServlet.getPath("test.git", "", request);
+
+        assertEquals("Path was supposed to be empty as path info is null.", "", path);
+    }
+
+
+    @Test
+    public void getPath_PiEmpty()
+    {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn("");
+
+        String path = rawServlet.getPath("test.git", "", request);
+
+        assertEquals("Path was supposed to be empty as no path info exists.", "", path);
+    }
+
 }
