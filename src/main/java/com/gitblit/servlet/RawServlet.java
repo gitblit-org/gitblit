@@ -122,10 +122,23 @@ public class RawServlet extends HttpServlet {
 		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + encodedPath));
 	}
 
-	protected String getBranch(String repository, HttpServletRequest request) {
-		String pi = request.getPathInfo();
-		if (pi == null || pi.isEmpty() || pi.equals("/")) return "";
-		String branch = pi.substring(pi.indexOf(repository) + repository.length() + 1);
+
+	/**
+	 * Find and return the name of a branch from a given repository in a HTTP request path info.
+	 * The branch name returned is transformed to the form in the repository, i.e. a transformation
+	 * of the forward slash character in the URL is reversed.
+	 *
+	 * @param repository
+	 * 				Path of repository, no leading slash, no trailing slash
+	 * @param pathInfo
+	 * 				The sanitised path info from a HTTP request, i.e. without the leading slash.
+	 *
+	 * @return	The name of the branch from the path info, unescaped.
+	 */
+	String getBranch(String repository, String pathInfo)
+	{
+		if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) return "";
+		String branch = pathInfo.substring(pathInfo.indexOf(repository) + repository.length() + 1);
 		int fs = branch.indexOf('/');
 		if (fs > -1) {
 			branch = branch.substring(0, fs);
@@ -134,15 +147,28 @@ public class RawServlet extends HttpServlet {
 		return branch.replace('!', '/').replace(c, '/');
 	}
 
-	protected String getPath(String repository, String branch, HttpServletRequest request) {
+	/**
+	 * Find and return the path from a given repository and given branch in a HTTP request path info.
+	 * The path string returned is transformed to the form in the repository, i.e. a transformation
+	 * of the forward slash character in the URL is reversed.
+	 *
+	 * @param repository
+	 * 				Path of repository, no leading slash, no trailing slash
+	 * @param branch
+	 * 				Branch name from the repository, i.e. with forward slash character, no leading slash, no trailing slash.
+	 * @param pathInfo
+	 * 				The sanitised path info from a HTTP request, i.e. without the leading slash.
+	 *
+	 * @return	The file/folder path part from the path info, in unescaped form.
+	 */
+	String getPath(String repository, String branch, String pathInfo)
+	{
+		if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) return "";
 		String base = repository + "/" + branch;
-		String pi = request.getPathInfo();
-		if (pi == null || pi.isEmpty() || pi.equals("/")) return "";
-		pi = pi.substring(1);
-		if (pi.equals(base)) {
+		if (pathInfo.equals(base)) {
 			return "";
 		}
-		String path = pi.substring(pi.indexOf(base) + base.length() + 1);
+		String path = pathInfo.substring(pathInfo.indexOf(base) + base.length() + 1);
 		if (path.endsWith("/")) {
 			path = path.substring(0, path.length() - 1);
 		}
@@ -200,7 +226,7 @@ public class RawServlet extends HttpServlet {
 			}
 
 			// identify the branch
-			String branch = getBranch(repository, request);
+			String branch = getBranch(repository, path);
 			if (StringUtils.isEmpty(branch)) {
 				branch = r.getBranch();
 				if (branch == null) {
@@ -219,7 +245,7 @@ public class RawServlet extends HttpServlet {
 			}
 
 			// identify the requested path
-			String requestedPath = getPath(repository, branch, request);
+			String requestedPath = getPath(repository, branch, path);
 
 			// identify the commit
 			RevCommit commit = JGitUtils.getCommit(r, branch);

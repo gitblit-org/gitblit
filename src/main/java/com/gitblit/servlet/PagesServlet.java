@@ -69,13 +69,14 @@ public class PagesServlet extends RawServlet {
 	}
 
 	@Override
-	protected String getBranch(String repository, HttpServletRequest request) {
+	String getBranch(String repository, String pathInfo)
+	{
 		return "gh-pages";
 	}
 
 	@Override
-	protected String getPath(String repository, String branch, HttpServletRequest request) {
-		String pi = request.getPathInfo().substring(1);
+	String getPath(String repository, String branch, String pi)
+	{
 		if (pi.equals(repository)) {
 			return "";
 		}
