@@ -69,6 +69,9 @@ import com.google.inject.Singleton;
 @Singleton
 public class RawServlet extends HttpServlet {
 
+	// Forward slash character
+	static final char FSC = '!';
+
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(RawServlet.class);
@@ -99,23 +102,45 @@ public class RawServlet extends HttpServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
+		if (repository.length() > 0 && repository.charAt(repository.length() - 1) == '/') {
+			repository = repository.substring(0, repository.length() - 1);
+		}
+		if (repository.length() > 0 && repository.charAt(0) == '/') {
+			repository = repository.substring(1);
+		}
 
-		char fsc = '!';
-		char c = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-		if (c != '/') {
-			fsc = c;
+		char fsc = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		if (fsc == '/') {
+			fsc = FSC;
 		}
 		if (branch != null) {
 			branch = Repository.shortenRefName(branch).replace('/', fsc);
 		}
 
+		if (path != null && path.length() > 0 && path.charAt(0) == '/') {
+			path = path.substring(1);
+		}
 		String encodedPath = path == null ? "" : path.replace('/', fsc);
 		return baseURL + Constants.RAW_PATH + repository + "/" + (branch == null ? "" : (branch + "/" + encodedPath));
 	}
 
-	protected String getBranch(String repository, HttpServletRequest request) {
-		String pi = request.getPathInfo();
-		String branch = pi.substring(pi.indexOf(repository) + repository.length() + 1);
+
+	/**
+	 * Find and return the name of a branch from a given repository in a HTTP request path info.
+	 * The branch name returned is transformed to the form in the repository, i.e. a transformation
+	 * of the forward slash character in the URL is reversed.
+	 *
+	 * @param repository
+	 * 				Path of repository, no leading slash, no trailing slash
+	 * @param pathInfo
+	 * 				The sanitised path info from a HTTP request, i.e. without the leading slash.
+	 *
+	 * @return	The name of the branch from the path info, unescaped.
+	 */
+	String getBranch(String repository, String pathInfo)
+	{
+		if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) return "";
+		String branch = pathInfo.substring(pathInfo.indexOf(repository) + repository.length() + 1);
 		int fs = branch.indexOf('/');
 		if (fs > -1) {
 			branch = branch.substring(0, fs);
@@ -124,18 +149,53 @@ public class RawServlet extends HttpServlet {
 		return branch.replace('!', '/').replace(c, '/');
 	}
 
-	protected String getPath(String repository, String branch, HttpServletRequest request) {
-		String base = repository + "/" + branch;
-		String pi = request.getPathInfo().substring(1);
-		if (pi.equals(base)) {
+	/**
+	 * Find and return the path from a given repository and given branch in a HTTP request path info.
+	 * The path string returned is transformed to the form in the repository, i.e. a transformation
+	 * of the forward slash character in the URL is reversed.
+	 *
+	 * @param repository
+	 * 				Path of repository, no leading slash, no trailing slash
+	 * @param branch
+	 * 				Branch name from the repository, i.e. with forward slash character, no leading slash, no trailing slash.
+	 * @param pathInfo
+	 * 				The sanitised path info from a HTTP request, i.e. without the leading slash.
+	 *
+	 * @return	The file/folder path part from the path info, in unescaped form.
+	 */
+	String getPath(String repository, String branch, String pathInfo)
+	{
+		if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) return "";
+
+		// Make the branch look like in the URL, or else it won't match later in the `indexOf`.
+		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		char fsc = (c == '/') ? FSC : c;
+		String base = repository + "/" + Repository.shortenRefName(branch).replace('/', fsc);
+
+		// 'repository/' or 'repository/branch' or 'repository/branch/'
+		if (pathInfo.equals(base)) {
 			return "";
 		}
-		String path = pi.substring(pi.indexOf(base) + base.length() + 1);
+		// I have no idea why 'indexOf(base)' is used, which assumes something could come before 'base' in
+		// the pathInfo string. But since it is here, we handle it until we completly refactor the paths used
+		// in Gitblit to something sensible.
+		// 'leadin/repository/'
+		// 'leadin/repository/branch'
+		int pathStart = pathInfo.indexOf(base) + base.length();
+		// 'leadin/repository/branch/'
+		if (pathStart < pathInfo.length() && pathInfo.charAt(pathStart) == '/') pathStart++;
+		if (pathInfo.length() == pathStart) return "";
+		// 'leadin/repository/branch/path'
+		String path = pathInfo.substring(pathStart);
+
+		path =  path.replace('!', '/').replace(c, '/');
+
+		// 'repository/branch/path/'
+		// 'leadin/repository/branch/path/'
 		if (path.endsWith("/")) {
 			path = path.substring(0, path.length() - 1);
 		}
-		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-		return path.replace('!', '/').replace(c, '/');
+		return path;
 	}
 
 	protected boolean renderIndex() {
@@ -188,7 +248,7 @@ public class RawServlet extends HttpServlet {
 			}
 
 			// identify the branch
-			String branch = getBranch(repository, request);
+			String branch = getBranch(repository, path);
 			if (StringUtils.isEmpty(branch)) {
 				branch = r.getBranch();
 				if (branch == null) {
@@ -207,7 +267,7 @@ public class RawServlet extends HttpServlet {
 			}
 
 			// identify the requested path
-			String requestedPath = getPath(repository, branch, request);
+			String requestedPath = getPath(repository, branch, path);
 
 			// identify the commit
 			RevCommit commit = JGitUtils.getCommit(r, branch);

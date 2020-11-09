@@ -9,7 +9,8 @@ r32: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+      - Fix raw links broken for branches with a forward slash in the name (issue-1290, issue-1234, issue-813)
     changes: ~
     additions: ~
     dependencyChanges: ~
