@@ -165,13 +165,26 @@ public class RawServlet extends HttpServlet {
 	{
 		if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) return "";
 		String base = repository + "/" + branch;
+
+		// 'repository/' or 'repository/branch' or 'repository/branch/'
 		if (pathInfo.equals(base)) {
 			return "";
 		}
-		String path = pathInfo.substring(pathInfo.indexOf(base) + base.length() + 1);
+		// I have no idea why 'indexOf(base)' is used, which assumes something could come before 'base' in
+		// the pathInfo string. But since it is here, we handle it until we completly refactor the paths used
+		// in Gitblit to something sensible.
+		// 'leadin/repository/'
+		// 'leadin/repository/branch'
+		int pathStart = pathInfo.indexOf(base) + base.length();
+		// 'leadin/repository/branch/'
+		if (pathStart < pathInfo.length() && pathInfo.charAt(pathStart) == '/') pathStart++;
+		if (pathInfo.length() == pathStart) return "";
+		String path = pathInfo.substring(pathStart);
+		// 'leadin/repository/branch/path/'
 		if (path.endsWith("/")) {
 			path = path.substring(0, path.length() - 1);
 		}
+		// 'leadin/repository/branch/path'
 		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
 		return path.replace('!', '/').replace(c, '/');
 	}
