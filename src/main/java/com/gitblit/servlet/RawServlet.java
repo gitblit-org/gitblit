@@ -69,6 +69,9 @@ import com.google.inject.Singleton;
 @Singleton
 public class RawServlet extends HttpServlet {
 
+	// Forward slash character
+	static final char FSC = '!';
+
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(RawServlet.class);
@@ -106,10 +109,9 @@ public class RawServlet extends HttpServlet {
 			repository = repository.substring(1);
 		}
 
-		char fsc = '!';
-		char c = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-		if (c != '/') {
-			fsc = c;
+		char fsc = GitblitContext.getManager(IRuntimeManager.class).getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		if (fsc == '/') {
+			fsc = FSC;
 		}
 		if (branch != null) {
 			branch = Repository.shortenRefName(branch).replace('/', fsc);
@@ -164,7 +166,11 @@ public class RawServlet extends HttpServlet {
 	String getPath(String repository, String branch, String pathInfo)
 	{
 		if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) return "";
-		String base = repository + "/" + branch;
+
+		// Make the branch look like in the URL, or else it won't match later in the `indexOf`.
+		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		char fsc = (c == '/') ? FSC : c;
+		String base = repository + "/" + Repository.shortenRefName(branch).replace('/', fsc);
 
 		// 'repository/' or 'repository/branch' or 'repository/branch/'
 		if (pathInfo.equals(base)) {
@@ -182,7 +188,6 @@ public class RawServlet extends HttpServlet {
 		// 'leadin/repository/branch/path'
 		String path = pathInfo.substring(pathStart);
 
-		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
 		path =  path.replace('!', '/').replace(c, '/');
 
 		// 'repository/branch/path/'

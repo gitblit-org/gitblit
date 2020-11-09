@@ -17,7 +17,7 @@ import static org.mockito.Mockito.mock;
 
 public class RawServletTest
 {
-    private static final String FSC = "!";
+    private static final char FSC = RawServlet.FSC;
 
     private static MockRuntimeManager mockRuntimeManager = new MockRuntimeManager();
     private static IStoredSettings settings;
@@ -170,7 +170,7 @@ public class RawServletTest
         String link = RawServlet.asLink(baseUrl, repository, branch, path);
 
         assertNotNull(link);
-        assertEquals(baseUrl + Constants.RAW_PATH + repository + "/" + branch.replaceAll("/", FSC) + "/", link);
+        assertEquals(baseUrl + Constants.RAW_PATH + repository + "/" + branch.replace('/', FSC) + "/", link);
     }
 
     @Test
@@ -185,7 +185,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl.substring(0, baseUrl.length()-1) + Constants.RAW_PATH + repository + "/"
-                + branch.replaceAll("/", FSC) + "/", link);
+                + branch.replace('/', FSC) + "/", link);
     }
 
     @Test
@@ -200,7 +200,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl + Constants.RAW_PATH + repository.substring(1) + "/"
-                + branch.replaceAll("/", FSC) + "/", link);
+                + branch.replace('/', FSC) + "/", link);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl.substring(0, baseUrl.length()-1) + Constants.RAW_PATH + repository.substring(1) + "/"
-                + branch.replaceAll("/", FSC) + "/", link);
+                + branch.replace('/', FSC) + "/", link);
     }
 
 
@@ -245,7 +245,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl.substring(0, baseUrl.length()-1) + Constants.RAW_PATH + repository + "/"
-                + branch + "/" + path.replaceAll("/", FSC), link);
+                + branch + "/" + path.replace('/', FSC), link);
     }
 
     @Test
@@ -274,7 +274,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl.substring(0, baseUrl.length()-1) + Constants.RAW_PATH + repository.substring(1) + "/"
-                + branch + "/" + path.replaceAll("/", FSC), link);
+                + branch + "/" + path.replace('/', FSC), link);
     }
 
 
@@ -290,7 +290,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl + Constants.RAW_PATH + repository + "/"
-                + branch.replaceAll("/", FSC) + "/" + path, link);
+                + branch.replace('/', FSC) + "/" + path, link);
     }
 
     @Test
@@ -305,7 +305,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl.substring(0, baseUrl.length()-1) + Constants.RAW_PATH + repository + "/"
-                + branch.replaceAll("/", FSC) + "/" + path.replaceAll("/", FSC), link);
+                + branch.replace('/', FSC) + "/" + path.replace('/', FSC), link);
     }
 
     @Test
@@ -320,7 +320,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl + Constants.RAW_PATH + repository.substring(1) + "/"
-                + branch.replaceAll("/", FSC) + "/" + path, link);
+                + branch.replace('/', FSC) + "/" + path, link);
     }
 
     @Test
@@ -335,7 +335,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl.substring(0, baseUrl.length()-1) + Constants.RAW_PATH + repository.substring(1) + "/"
-                + branch.replaceAll("/", FSC) + "/" + path.replaceAll("/", FSC), link);
+                + branch.replace('/', FSC) + "/" + path.replace('/', FSC), link);
     }
 
     @Test
@@ -393,7 +393,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl + Constants.RAW_PATH + repository + "/"
-                 + branch.replaceAll("/", FSC) + "/", link);
+                 + branch.replace('/', FSC) + "/", link);
     }
 
     @Test
@@ -423,7 +423,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl + Constants.RAW_PATH + repository.substring(1) + "/"
-                + branch.replaceAll("/", FSC) + "/" + path.replaceAll("/", FSC), link);
+                + branch.replace('/', FSC) + "/" + path.replace('/', FSC), link);
     }
 
     @Test
@@ -541,7 +541,7 @@ public class RawServletTest
 
         assertNotNull(link);
         assertEquals(baseUrl + Constants.RAW_PATH + repository + "/"
-                + branch + "/" + path.replaceAll("/", FSC), link);
+                + branch + "/" + path.replace('/', FSC), link);
     }
 
     @Test
@@ -1289,7 +1289,7 @@ public class RawServletTest
     @Test
     public void getPath_RepoBranchWithFsc_explicitFscSameAsDefault()
     {
-        settings.overrideSetting(Keys.web.forwardSlashCharacter, FSC);
+        settings.overrideSetting(Keys.web.forwardSlashCharacter, String.valueOf(FSC));
 
         String path = rawServlet.getPath("git.git", "some/feature", "git.git/some" + FSC + "feature");
 
@@ -1309,7 +1309,7 @@ public class RawServletTest
     @Test
     public void getPath_LeadindRepoBranchWithFscFolderFile_explicitFscSameAsDefault()
     {
-        settings.overrideSetting(Keys.web.forwardSlashCharacter, FSC);
+        settings.overrideSetting(Keys.web.forwardSlashCharacter, String.valueOf(FSC));
 
         String path = rawServlet.getPath("git.git", "some/feature", "IBM/git.git/some" + FSC + "feature/some" + FSC + "folder" + FSC + "file.dot");
 
