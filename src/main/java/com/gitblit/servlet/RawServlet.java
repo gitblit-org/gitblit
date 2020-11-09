@@ -179,14 +179,18 @@ public class RawServlet extends HttpServlet {
 		// 'leadin/repository/branch/'
 		if (pathStart < pathInfo.length() && pathInfo.charAt(pathStart) == '/') pathStart++;
 		if (pathInfo.length() == pathStart) return "";
+		// 'leadin/repository/branch/path'
 		String path = pathInfo.substring(pathStart);
+
+		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
+		path =  path.replace('!', '/').replace(c, '/');
+
+		// 'repository/branch/path/'
 		// 'leadin/repository/branch/path/'
 		if (path.endsWith("/")) {
 			path = path.substring(0, path.length() - 1);
 		}
-		// 'leadin/repository/branch/path'
-		char c = runtimeManager.getSettings().getChar(Keys.web.forwardSlashCharacter, '/');
-		return path.replace('!', '/').replace(c, '/');
+		return path;
 	}
 
 	protected boolean renderIndex() {
