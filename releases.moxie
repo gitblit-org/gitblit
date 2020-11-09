@@ -206,6 +206,7 @@ r29: {
     - Improve logic of handling dot files in the raw servlet (pr-983)
     - Change Jenkins Groovy script to support any protocol (pr-986)
     - Remove empty catch blocks swallowing exceptions during authentication (pr-979)
+    - Use longest match when searching for repositories, to find a/b/c.git repo if also a/b.git exists. (issue-879)
     - Various documentation improvements
     additions:
     - Delete patchset feature (pr-1039)
