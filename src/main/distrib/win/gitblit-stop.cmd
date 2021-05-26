@@ -1,1 +1,1 @@
-@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.GitBlitServer --stop --baseFolder data %*
+@java -cp "%~dp0gitblit.jar";"%~dp0ext\*" com.gitblit.GitBlitServer --stop  %*
