@@ -10,7 +10,7 @@
 @REM --------------------------------------------------------------------------
 @if [%1]==[] goto nobasefolder
 
-@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.ReindexTickets --baseFolder %1
+@java -cp "%~dp0gitblit.jar";"%~dp0ext\*" com.gitblit.ReindexTickets --baseFolder %1
 @goto end
 
 :nobasefolder
