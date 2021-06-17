@@ -9,11 +9,16 @@ r32: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+      - Fix raw links broken for branches with a forward slash in the name (issue-1290, issue-1234, issue-813)
+      - Fix markdown links to files in subfolders (issue-1358)
     changes: ~
-    additions: ~
-    dependencyChanges: ~
-    contributors: ~
+    additions:
+      - Add service scripts for FreeBSD (pr-1345)
+    dependencyChanges:
+      - update to Mockito 2.28.2
+    contributors:
+      - David Hofmann
 }
 
 #
@@ -205,6 +210,7 @@ r29: {
     - Improve logic of handling dot files in the raw servlet (pr-983)
     - Change Jenkins Groovy script to support any protocol (pr-986)
     - Remove empty catch blocks swallowing exceptions during authentication (pr-979)
+    - Use longest match when searching for repositories, to find a/b/c.git repo if also a/b.git exists. (issue-879)
     - Various documentation improvements
     additions:
     - Delete patchset feature (pr-1039)

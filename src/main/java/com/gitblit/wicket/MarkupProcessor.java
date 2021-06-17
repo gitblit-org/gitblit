@@ -47,6 +47,7 @@ import org.pegdown.LinkRenderer;
 import org.pegdown.ToHtmlSerializer;
 import org.pegdown.VerbatimSerializer;
 import org.pegdown.ast.ExpImageNode;
+import org.pegdown.ast.ExpLinkNode;
 import org.pegdown.ast.RefImageNode;
 import org.pegdown.ast.WikiLinkNode;
 import org.pegdown.plugins.ToHtmlSerializerPlugin;
@@ -355,6 +356,13 @@ public class MarkupProcessor {
 				String name = getDocumentName(path);
 				String url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
 				return new Rendering(url, name);
+			}
+
+			@Override
+			public Rendering render(ExpLinkNode node, String text) {
+				String path = doc.getRelativePath(node.url);
+				String url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
+				return new Rendering(url, text);
 			}
 		};
 
