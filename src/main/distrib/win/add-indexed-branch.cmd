@@ -17,4 +17,6 @@
 @SET FOLDER=data/git
 @SET EXCLUSIONS=--skip test.git --skip group/test*
 @SET BRANCH=default
+@PUSHD %~dp0
 @java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.AddIndexedBranch --repositoriesFolder %FOLDER% --branch %BRANCH% %EXCLUSIONS% %*
+@POPD

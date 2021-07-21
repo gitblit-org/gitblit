@@ -9,7 +9,7 @@
 
 @if [%2]==[] goto help
 
-@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.MigrateTickets %1 --baseFolder %2
+@java -cp "%~dp0gitblit.jar";"%~dp0ext\*" com.gitblit.MigrateTickets %1 --baseFolder %2
 @goto end
 
 :help
