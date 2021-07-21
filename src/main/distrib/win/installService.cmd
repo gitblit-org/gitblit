@@ -8,6 +8,8 @@
 @REM
 @REM http://commons.apache.org/daemon/procrun.html
 
+@SETLOCAL
+
 @REM arch = x86, amd64, or ia32
 SET ARCH=amd64
 
@@ -38,4 +40,5 @@ SET ARCH=amd64
 		 --Classpath="%gbhome%\gitblit.jar;%gbhome%\ext\*" ^
 		 --Jvm=auto ^
 		 --JvmMx=1024
-		 
+
+@ENDLOCAL
