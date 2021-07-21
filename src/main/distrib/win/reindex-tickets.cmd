@@ -14,9 +14,9 @@
 @goto end
 
 :nobasefolder
-@echo "Please specify your baseFolder!"
-@echo
-@echo "    reindex-tickets c:/gitblit-data"
-@echo
+@echo Please specify your baseFolder!
+@echo.
+@echo     reindex-tickets c:/gitblit-data
+@echo.
 
 :end
