@@ -8,31 +8,37 @@
 @REM
 @REM http://commons.apache.org/daemon/procrun.html
 
+@SETLOCAL
+
 @REM arch = x86, amd64, or ia32
 SET ARCH=amd64
 
+@SET gbhome=%~dp0
+@SET gbhome=%gbhome:~0,-1%
+
 @REM Be careful not to introduce trailing whitespace after the ^ characters.
 @REM Use ; or # to separate values in the --StartParams parameter.
-"%CD%\%ARCH%\gitblit.exe"  //IS//gitblit ^
+"%gbhome%\%ARCH%\gitblit.exe"  //IS//gitblit ^
 		 --DisplayName="gitblit" ^
 		 --Description="a pure Java Git solution" ^
 		 --Startup=auto ^
-		 --LogPath="%CD%\logs" ^
+		 --LogPath="%gbhome%\logs" ^
 		 --LogLevel=INFO ^
 		 --LogPrefix=gitblit ^
 		 --StdOutput=auto ^
 		 --StdError=auto ^
-		 --StartPath="%CD%" ^
+		 --StartPath="%gbhome%" ^
 		 --StartClass=com.gitblit.GitBlitServer ^
 		 --StartMethod=main ^
-		 --StartParams="--storePassword;gitblit;--baseFolder;%CD%\data" ^
+		 --StartParams="--storePassword;gitblit;--baseFolder;%gbhome%\data" ^
 		 --StartMode=jvm ^
-		 --StopPath="%CD%" ^
+		 --StopPath="%gbhome%" ^
 		 --StopClass=com.gitblit.GitBlitServer ^
 		 --StopMethod=main ^
-		 --StopParams="--stop;--baseFolder;%CD%\data" ^
+		 --StopParams="--stop;--baseFolder;%gbhome%\data" ^
 		 --StopMode=jvm ^
-		 --Classpath="%CD%\gitblit.jar;%CD%\ext\*" ^
+		 --Classpath="%gbhome%\gitblit.jar;%gbhome%\ext\*" ^
 		 --Jvm=auto ^
 		 --JvmMx=1024
-		 
+
+@ENDLOCAL

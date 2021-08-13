@@ -9,13 +9,13 @@
 
 @if [%2]==[] goto help
 
-@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.MigrateTickets %1 --baseFolder %2
+@java -cp "%~dp0gitblit.jar";"%~dp0ext\*" com.gitblit.MigrateTickets %1 --baseFolder %2
 @goto end
 
 :help
-@echo "Please specify the output ticket service and your baseFolder!"
-@echo
-@echo "    migrate-tickets com.gitblit.tickets.RedisTicketService c:/gitblit-data"
-@echo
+@echo Please specify the output ticket service and your baseFolder!
+@echo.
+@echo    e.g.: migrate-tickets com.gitblit.tickets.RedisTicketService "c:/gitblit data"
+@echo.
 
 :end

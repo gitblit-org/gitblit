@@ -10,13 +10,13 @@
 @REM --------------------------------------------------------------------------
 @if [%1]==[] goto nobasefolder
 
-@java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.ReindexTickets --baseFolder %1
+@java -cp "%~dp0gitblit.jar";"%~dp0ext\*" com.gitblit.ReindexTickets --baseFolder %1
 @goto end
 
 :nobasefolder
-@echo "Please specify your baseFolder!"
-@echo
-@echo "    reindex-tickets c:/gitblit-data"
-@echo
+@echo Please specify your baseFolder!
+@echo.
+@echo     reindex-tickets c:/gitblit-data
+@echo.
 
 :end
