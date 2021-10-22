@@ -27,11 +27,14 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.RefUpdate.Result;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.ReceiveCommand;
 import org.eclipse.jgit.transport.ReceiveCommand.Type;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +149,12 @@ public class MirrorService implements Runnable {
 				logger.debug("checking {} remote {} for ref updates", repositoryName, mirror.getName());
 				final boolean testing = false;
 				Git git = new Git(repository);
-				FetchResult result = git.fetch().setRemote(mirror.getName()).setDryRun(testing).call();
+				CredentialsProvider creds = null;
+				URIish fetchUri = mirror.getURIs().get(0);
+				if (fetchUri.getUser() != null && fetchUri.getPass() != null) {
+				    creds = new UsernamePasswordCredentialsProvider(fetchUri.getUser(), fetchUri.getPass());
+				}
+				FetchResult result = git.fetch().setCredentialsProvider(creds).setRemote(mirror.getName()).setDryRun(testing).call();
 				Collection<TrackingRefUpdate> refUpdates = result.getTrackingRefUpdates();
 				if (refUpdates.size() > 0) {
 					ReceiveCommand ticketBranchCmd = null;
