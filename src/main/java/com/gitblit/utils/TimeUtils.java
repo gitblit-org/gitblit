@@ -197,6 +197,57 @@ public class TimeUtils {
 		return days;
 	}
 
+
+
+	/**
+	 * Return the difference in calendar days between a given timestamp and the date.
+	 * Calendar days means that the difference is calculated between
+	 * calendar days, not 24 hour increments.
+	 *
+	 * This means the result is dependent on the timezone. Only the local
+	 * time's time zone is used, i.e. both time stamps are interpreted in
+	 * the given time zone.
+	 *
+	 * E.g. if now is 10:00 on 20.10.2020 GMT and the date given is for
+	 * either 6:00 or 20:00 on 18.10.2020 GMT then the result is two days
+	 * in both cases.
+	 *
+	 *
+	 * @param date
+	 * 			Date in the past
+	 * @param now
+	 * 			Timestamp representing current time (used for unit tests)
+	 * @return calendar days ago
+	 */
+	static int calendarDaysAgo(Date date, TimeZone timezone, long now) {
+		Calendar cal;
+		if (timezone == null) {
+			cal = Calendar.getInstance();
+		} else {
+			cal = Calendar.getInstance(timezone);
+		}
+
+		cal.setTimeInMillis(now);
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 12);
+		long today = cal.getTime().getTime();
+
+		cal.clear();
+		cal.setTime(date);
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 12);
+		long day = cal.getTime().getTime();
+
+		long diff = today - day;
+		int days = (int) (diff / ONEDAY);
+		return days;
+	}
+
+
 	public String today() {
 		return translate("gb.time.today", "today");
 	}
@@ -262,7 +313,7 @@ public class TimeUtils {
 			}
 			return translate("gb.time.justNow", "just now");
 		} else {
-			int days = daysAgo(date, now);
+			int days = calendarDaysAgo(date, timezone, now);
 			if (css) {
 				if (days <= 7) {
 					return "age2";

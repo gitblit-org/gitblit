@@ -263,4 +263,428 @@ public class TimeUtilsTest extends GitblitUnitTest
 		assertEquals("4 days ago", timeUtils.timeAgo(offset(now,95 * TimeUtils.ONEHOUR), false, now));
 	}
 
+
+
+	/*
+	 * Test if time difference is correctly calculated in full calendar days relative to GMT.
+	 */
+	@Test
+	public void testCalendarDaysAgoToGmt() {
+		TimeZone myTimezone = TimeZone.getTimeZone("GMT");
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(2021, Calendar.AUGUST, 19, 12, 0, 5);
+		long now = myCal.getTime().getTime();
+		// Date from the same time zone
+		assertEquals(0, TimeUtils.calendarDaysAgo(offset(now, 11 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(0, TimeUtils.calendarDaysAgo(offset(now, 12 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now, 12 * TimeUtils.ONEHOUR + 1 * TimeUtils.MIN), myTimezone, now));
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now, 24 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now, 36 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now,  36 * TimeUtils.ONEHOUR + 10 * 1000), myTimezone, now));
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now,  48 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now,  60 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(3, TimeUtils.calendarDaysAgo(offset(now,  61 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+
+		// What if we get passed a date created from a UTC timestamp that came from a different time zone?
+		// CET in August is +2 hours from GMT (CEST). So the day border is shifted two hours forward
+
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+
+		cal.set(2021, Calendar.AUGUST, 19, 8, 0, 5);
+		Date date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 19, 2, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2021, Calendar.AUGUST, 19, 1, 30, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 18, 12, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 18, 2, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2021, Calendar.AUGUST, 18, 0, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 17, 23, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 17, 3, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2021, Calendar.AUGUST, 17, 1, 0, 5);
+		date = cal.getTime();
+		assertEquals(3, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		// Now we travel westwards.
+		// PST in August is -7 hours from GMT (PDT). So the day border is shifted seven hours back
+
+		cal = Calendar.getInstance(TimeZone.getTimeZone("PST"));
+		cal.clear();
+
+		cal.set(2021, Calendar.AUGUST, 19, 5, 0, 0);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 19, 0, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 18, 17, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2021, Calendar.AUGUST, 18, 16, 55, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 18, 12, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 17, 17, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2021, Calendar.AUGUST, 17, 16, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 17, 1, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2021, Calendar.AUGUST, 16, 17, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2021, Calendar.AUGUST, 16, 14, 0, 5);
+		date = cal.getTime();
+		assertEquals(3, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+	}
+
+
+	/*
+	 * Test if time difference is correctly calculated in full calendar days relative to CET.
+	 */
+	@Test
+	public void testCalendarDaysAgoToCet() {
+		TimeZone myTimezone = TimeZone.getTimeZone("CET");
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(2020, Calendar.JUNE, 5, 12, 0, 5);
+		long now = myCal.getTime().getTime();
+
+		// Date from the same time zone
+		assertEquals(0, TimeUtils.calendarDaysAgo(offset(now, 11 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(0, TimeUtils.calendarDaysAgo(offset(now, 12 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now, 12 * TimeUtils.ONEHOUR + 1 * TimeUtils.MIN), myTimezone, now));
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now, 24 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now, 36 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now, 36 * TimeUtils.ONEHOUR + 10 * 1000), myTimezone, now));
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now, 48 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now, 60 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(3, TimeUtils.calendarDaysAgo(offset(now, 61 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+
+		// What if we get passed a date created from a UTC timestamp that came from a different time zone?
+		// IST in June is +3:30 hours from CEST. So the day border is shifted three and a half hours forward
+
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("IST"));
+
+		cal.set(2020, Calendar.JUNE, 5, 13, 0, 5);
+		Date date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 5, 3, 30, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2020, Calendar.JUNE, 5, 3, 29, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 5, 0, 0, 0);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 4, 10, 0, 0);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 4, 4, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2020, Calendar.JUNE, 4, 3, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 3, 12, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 3, 4, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2020, Calendar.JUNE, 3, 3, 20, 5);
+		date = cal.getTime();
+		assertEquals(3, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		// Now we travel westwards to New York.
+		// EST in June is -6 hours from CEST (EDT). So the day border is shifted six hours back
+
+		cal = Calendar.getInstance(TimeZone.getTimeZone("EST5EDT"));
+		cal.clear();
+
+		cal.set(2020, Calendar.JUNE, 5, 5, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 5, 0, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 4, 18, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2020, Calendar.JUNE, 4, 17, 59, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 4, 12, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 3, 19, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2020, Calendar.JUNE, 3, 17, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 3, 8, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2020, Calendar.JUNE, 2, 18, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2020, Calendar.JUNE, 2, 17, 20, 5);
+		date = cal.getTime();
+		assertEquals(3, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+	}
+
+
+	/*
+	 * Test if time difference is correctly calculated in full calendar days relative to AET (Australia).
+	 */
+	@Test
+	public void testCalendarDaysAgoToAet() {
+		TimeZone myTimezone = TimeZone.getTimeZone("AET");
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(2022, Calendar.FEBRUARY, 22, 12, 0, 5);
+		long now = myCal.getTime().getTime();
+
+		// Date from the same time zone
+		assertEquals(0, TimeUtils.calendarDaysAgo(offset(now, 11 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(0, TimeUtils.calendarDaysAgo(offset(now,  12 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now,  12 * TimeUtils.ONEHOUR + 1 * TimeUtils.MIN), myTimezone, now));
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now,  24 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(1, TimeUtils.calendarDaysAgo(offset(now,  36 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now,  36 * TimeUtils.ONEHOUR + 10 * 1000), myTimezone, now));
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now,  48 * TimeUtils.ONEHOUR ), myTimezone, now));
+		assertEquals(2, TimeUtils.calendarDaysAgo(offset(now,  60 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+		assertEquals(3, TimeUtils.calendarDaysAgo(offset(now,  61 * TimeUtils.ONEHOUR ), myTimezone, now));
+
+
+		// What if we get passed a date created from a UTC timestamp that came from a different time zone?
+		// NZ in February is +2 hours from AEDT. So the day border is shifted two hours forward
+
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("NZ"));
+
+		cal.set(2022, Calendar.FEBRUARY, 22, 12, 0, 5);
+		Date date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 22, 2, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 22, 1, 45, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 22, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 12, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 2, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 1, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 10, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 2, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 1, 0, 5);
+		date = cal.getTime();
+		assertEquals(3, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		// Now we travel westwards to Europe.
+		// CET in February is -10 hours from AEDT. So the day border is shifted ten hours back
+
+		cal = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+		cal.clear();
+
+		cal.set(2022, Calendar.FEBRUARY, 22, 2, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 22, 0, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 14, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 13, 30, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 7, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 15, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 13, 59, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 1, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 19, 14, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 19, 9, 0, 5);
+		date = cal.getTime();
+		assertEquals(3, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		// Lets continue even further west.
+		// AST in February is -15 hours from AEDT. So the day border is shifted fifteen hours back
+
+		cal = Calendar.getInstance(TimeZone.getTimeZone("America/Curacao"));
+		cal.clear();
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 21, 0, 0);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 12, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 9, 0, 5);
+		date = cal.getTime();
+		assertEquals(0, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 21, 8, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 19, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 10, 0, 5);
+		date = cal.getTime();
+		assertEquals(1, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 20, 8, 50, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 19, 17, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+		cal.set(2022, Calendar.FEBRUARY, 19, 9, 0, 5);
+		date = cal.getTime();
+		assertEquals(2, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+
+
+		cal.set(2022, Calendar.FEBRUARY, 19, 7, 0, 5);
+		date = cal.getTime();
+		assertEquals(3, TimeUtils.calendarDaysAgo(date, myTimezone, now));
+	}
+
 }
