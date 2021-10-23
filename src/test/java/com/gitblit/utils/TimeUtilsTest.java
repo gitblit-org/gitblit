@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.tests;
+package com.gitblit.utils;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.gitblit.tests.GitblitUnitTest;
 import org.junit.Test;
 
-import com.gitblit.utils.TimeUtils;
 
-public class TimeUtilsTest extends GitblitUnitTest {
+public class TimeUtilsTest extends GitblitUnitTest
+{
 
 	private Date offset(long subtract) {
 		return new Date(System.currentTimeMillis() - subtract);

@@ -63,7 +63,7 @@ public class TimeUtils {
 	}
 
 
-	public static boolean isToday(Date date, TimeZone timezone, Date now) {
+	static boolean isToday(Date date, TimeZone timezone, Date now) {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 		if (timezone != null) {
 			df.setTimeZone(timezone);
@@ -82,7 +82,7 @@ public class TimeUtils {
 	}
 
 
-	public static boolean isYesterday(Date date, TimeZone timezone, Date now) {
+	static boolean isYesterday(Date date, TimeZone timezone, Date now) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(now);
 		cal.add(Calendar.DATE, -1);
@@ -170,7 +170,7 @@ public class TimeUtils {
 	}
 
 
-	public static int hoursAgo(Date date, long now, boolean roundup) {
+	static int hoursAgo(Date date, long now, boolean roundup) {
 		long diff = now - date.getTime();
 		int hours = (int) (diff / ONEHOUR);
 		if (roundup && (diff % ONEHOUR) >= HALFHOUR) {
@@ -189,7 +189,7 @@ public class TimeUtils {
 		return daysAgo(date, System.currentTimeMillis());
 	}
 
-	public static int daysAgo(Date date, long now) {
+	static int daysAgo(Date date, long now) {
 		long today = ONEDAY * (now/ONEDAY);
 		long day = ONEDAY * (date.getTime()/ONEDAY);
 		long diff = today - day;
@@ -239,7 +239,7 @@ public class TimeUtils {
 	}
 
 
-	public String timeAgo(Date date, boolean css, long now) {
+	String timeAgo(Date date, boolean css, long now) {
 		Date dNow = new Date(now);
 		if (isToday(date, timezone, dNow) || isYesterday(date, timezone, dNow)) {
 			int mins = minutesAgo(date, now, true);
