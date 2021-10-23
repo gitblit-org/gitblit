@@ -15,7 +15,9 @@
  */
 package com.gitblit.tests;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -25,6 +27,10 @@ public class TimeUtilsTest extends GitblitUnitTest {
 
 	private Date offset(long subtract) {
 		return new Date(System.currentTimeMillis() - subtract);
+	}
+
+	private Date offset(long now, long subtract) {
+		return new Date(now - subtract);
 	}
 
 	@Test
@@ -89,13 +95,85 @@ public class TimeUtilsTest extends GitblitUnitTest {
 		assertEquals("1 year ago", timeUtils.timeAgo(offset(365 * TimeUtils.ONEDAY)));
 		assertEquals("13 months ago", timeUtils.timeAgo(offset(395 * TimeUtils.ONEDAY)));
 		assertEquals("2 years ago", timeUtils.timeAgo(offset((2 * 365 + 30) * TimeUtils.ONEDAY)));
+	}
 
+	@Test
+	public void testTimeAgoCss() throws Exception {
 		// css class tests
+		TimeUtils timeUtils = new TimeUtils();
 		assertEquals("age0", timeUtils.timeAgoCss(offset(1 * TimeUtils.MIN)));
 		assertEquals("age0", timeUtils.timeAgoCss(offset(60 * TimeUtils.MIN)));
 		assertEquals("age1", timeUtils.timeAgoCss(offset(120 * TimeUtils.MIN)));
 		assertEquals("age1", timeUtils.timeAgoCss(offset(24 * TimeUtils.ONEHOUR)));
 		assertEquals("age2", timeUtils.timeAgoCss(offset(2 * TimeUtils.ONEDAY)));
+	}
+
+
+	@Test
+	public void testTimeAgoYesterday() throws Exception {
+		TimeZone myTimezone = TimeZone.getTimeZone("GMT");
+		TimeUtils timeUtils = new TimeUtils(null, myTimezone);
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(Calendar.HOUR_OF_DAY, 12);
+		myCal.set(Calendar.MINUTE, 0);
+		long now = myCal.getTime().getTime();
+
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,23 * TimeUtils.ONEHOUR), false, now));
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,(23 * TimeUtils.ONEHOUR) + (29 * TimeUtils.MIN)), false, now));
+
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,(23 * TimeUtils.ONEHOUR) + (31 * TimeUtils.MIN)), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,24 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,35 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,36 * TimeUtils.ONEHOUR), false, now));
+
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,37 * TimeUtils.ONEHOUR), false, now));
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,44 * TimeUtils.ONEHOUR), false, now));
+	}
+
+	@Test
+	public void testTimeAgoYesterdayCET() throws Exception {
+		TimeZone myTimezone = TimeZone.getTimeZone("CET");
+		TimeUtils timeUtils = new TimeUtils(null, myTimezone);
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(Calendar.HOUR_OF_DAY, 22);
+		myCal.set(Calendar.MINUTE, 0);
+		long now = myCal.getTime().getTime();
+
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,23 * TimeUtils.ONEHOUR), false, now));
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,(23 * TimeUtils.ONEHOUR) + (29 * TimeUtils.MIN)), false, now));
+
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,(23 * TimeUtils.ONEHOUR) + (31 * TimeUtils.MIN)), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,24 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,36 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,46 * TimeUtils.ONEHOUR), false, now));
+
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,47 * TimeUtils.ONEHOUR), false, now));
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,56 * TimeUtils.ONEHOUR), false, now));
+	}
+
+
+	@Test
+	public void testTimeAgoYesterdayPST() throws Exception {
+		TimeZone myTimezone = TimeZone.getTimeZone("PST");
+		TimeUtils timeUtils = new TimeUtils(null, myTimezone);
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(Calendar.HOUR_OF_DAY, 8);
+		myCal.set(Calendar.MINUTE, 0);
+		long now = myCal.getTime().getTime();
+
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,23 * TimeUtils.ONEHOUR), false, now));
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,(23 * TimeUtils.ONEHOUR) + (29 * TimeUtils.MIN)), false, now));
+
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,(23 * TimeUtils.ONEHOUR) + (31 * TimeUtils.MIN)), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,24 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,30 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,32 * TimeUtils.ONEHOUR), false, now));
+
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,33 * TimeUtils.ONEHOUR), false, now));
+		assertNotEquals("yesterday", timeUtils.timeAgo(offset(now,48 * TimeUtils.ONEHOUR), false, now));
 	}
 
 	@Test
@@ -105,4 +183,83 @@ public class TimeUtilsTest extends GitblitUnitTest {
 		assertEquals(600, TimeUtils.convertFrequencyToMinutes("10 hours", 5));
 		assertEquals(14400, TimeUtils.convertFrequencyToMinutes(" 10 days ", 5));
 	}
+
+
+	@Test
+	public void testTimeAgoDaysAgo() throws Exception {
+		TimeZone myTimezone = TimeZone.getTimeZone("GMT");
+		TimeUtils timeUtils = new TimeUtils(null, myTimezone);
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(Calendar.HOUR_OF_DAY, 12);
+		myCal.set(Calendar.MINUTE, 0);
+		long now = myCal.getTime().getTime();
+
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,24 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,36 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,37 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,48 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,60 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,61 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,72 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,84 * TimeUtils.ONEHOUR), false, now));
+
+ 		assertEquals("4 days ago", timeUtils.timeAgo(offset(now,85 * TimeUtils.ONEHOUR), false, now));
+	}
+
+
+
+	@Test
+	public void testTimeAgoDaysAgoCET() throws Exception {
+		TimeZone myTimezone = TimeZone.getTimeZone("CET");
+		TimeUtils timeUtils = new TimeUtils(null, myTimezone);
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(Calendar.HOUR_OF_DAY, 8);
+		myCal.set(Calendar.MINUTE, 0);
+		long now = myCal.getTime().getTime();
+
+
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,24 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,32 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,33 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,48 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,56 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,57 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,72 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,80 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("4 days ago", timeUtils.timeAgo(offset(now,81 * TimeUtils.ONEHOUR), false, now));
+	}
+
+
+
+	@Test
+	public void testTimeAgoDaysAgoPST() throws Exception {
+		TimeZone myTimezone = TimeZone.getTimeZone("PST");
+		TimeUtils timeUtils = new TimeUtils(null, myTimezone);
+
+		Calendar myCal = Calendar.getInstance(myTimezone);
+		myCal.set(Calendar.HOUR_OF_DAY, 22);
+		myCal.set(Calendar.MINUTE, 0);
+		long now = myCal.getTime().getTime();
+
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,24 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("yesterday", timeUtils.timeAgo(offset(now,46 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,47 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,48 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("2 days ago", timeUtils.timeAgo(offset(now,70 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,71 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,72 * TimeUtils.ONEHOUR), false, now));
+		assertEquals("3 days ago", timeUtils.timeAgo(offset(now,94 * TimeUtils.ONEHOUR), false, now));
+
+		assertEquals("4 days ago", timeUtils.timeAgo(offset(now,95 * TimeUtils.ONEHOUR), false, now));
+	}
+
 }
