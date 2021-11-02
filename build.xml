@@ -37,6 +37,11 @@
 	<!-- GitHub user/organization name -->
 	<property name="gh.org" value="gitblit" />
 
+	<!-- Avoid ant 'includeantruntime' not set warning (ant>1.10) -->
+	<presetdef name="javac">
+		<javac includeantruntime="false" />
+	</presetdef>
+  
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Initialize Moxie and setup build properties
@@ -74,9 +79,10 @@
 
 		<!-- Report Java version -->
 		<echo>JDK version: ${ant.java.version}</echo>
-		<exec executable="javac">
-			<arg value="-version" />
-		</exec>
+		<echo>Calling compiler to show version:</echo>
+		<javac srcdir="./" includes="empty.java">
+			<compilerarg value="-version"/>			
+		</javac>
 		<echo>Java/JVM version: ${java.version}</echo>
 	</target>
 
