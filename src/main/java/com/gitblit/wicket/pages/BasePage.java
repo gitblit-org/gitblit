@@ -69,6 +69,10 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
+/**
+	Wicket WebPage page providing common services
+	for GitBlit purposes.
+*/
 public abstract class BasePage extends SessionPage {
 
 	private transient Logger logger;
@@ -85,6 +89,13 @@ public abstract class BasePage extends SessionPage {
 		customizeHeader();
 	}
 
+	/**
+		Returns logger associated with <code>this.getClass()</code>
+		If logger is not specified creates it at first invocation.
+		@return a logger instance. The underlying library is <u>not specifiying</u>
+			if it may return null or not, but at least one of underlying 
+			implementations is said to never return a null.
+	*/
 	protected Logger logger() {
 		if (logger == null) {
 			logger = LoggerFactory.getLogger(getClass());
