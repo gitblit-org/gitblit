@@ -26,7 +26,8 @@
 	</taskdef>
 	
 	<!-- Project directories -->
-	<property name="project.src.dir" value="${basedir}/src/main/java" />	
+	<property name="project.src.dir" value="${basedir}/src/main/java" />
+	<property name="project.src.javadoc.dir" value="${basedir}/javadoc" />	
 	<property name="project.resources.dir" value="${basedir}/src/main/resources" />	
 	<property name="project.distrib.dir" value="${basedir}/src/main/distrib" />
 
@@ -1302,4 +1303,36 @@ GB_RELEASE_TAG=${project.tag}
 		</exec>
 	</target>
 	
+	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build javadocs for GitBlit source code
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<!-- Note: This target requires that JAVA_HOME enviromental variable is
+	     set to point to main JDK folder, ie:
+	     
+	     Windows:
+	     	set JAVA_HOME=c:\jdk8
+	-->
+	<target name="javadoc">                
+		<javadoc
+                        maxmemory="480m"
+			sourcepath="${project.src.dir}"
+			destdir="${project.src.javadoc.dir}"
+			additionalparam=" -version"
+			linksource="yes"
+			includenosourcepackages="yes"
+			charset="UTF-8"
+			access="private"
+			encoding="UTF-8"	
+			Use="yes"
+			>                        
+			<arg value="-Xmaxwarns"/>
+			<arg value="1800"/>
+			<arg value="-Xmaxerrs"/>
+			<arg value="800"/>
+		</javadoc>
+	</target>
+
 </project>

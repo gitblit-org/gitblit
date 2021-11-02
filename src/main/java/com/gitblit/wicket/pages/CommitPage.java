@@ -58,6 +58,7 @@ import com.gitblit.wicket.panels.RefsPanel;
 @CacheControl(LastModified.BOOT)
 public class CommitPage extends RepositoryPage {
 
+	
 	public CommitPage(PageParameters params) {
 		super(params);
 

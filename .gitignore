@@ -30,3 +30,9 @@ tags
 /**/init.lua
 /**/session
 /nbproject/private
+# backup files from most of editors
+*.java~
+*.html~
+*.xml~
+# Generated javadoc files for "javadoc" target.
+/javadoc
