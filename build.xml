@@ -1333,6 +1333,5 @@ GB_RELEASE_TAG=${project.tag}
 			<arg value="-Xmaxerrs"/>
 			<arg value="800"/>
 		</javadoc>
-	</target>
-
+	</target>	
 </project>

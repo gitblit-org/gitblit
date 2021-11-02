@@ -33,6 +33,7 @@ tags
 # backup files from most of editors
 *.java~
 *.html~
+*.properties~
 *.xml~
 # Generated javadoc files for "javadoc" target.
 /javadoc

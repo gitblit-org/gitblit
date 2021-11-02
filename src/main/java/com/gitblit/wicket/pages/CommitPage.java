@@ -58,12 +58,16 @@ import com.gitblit.wicket.panels.RefsPanel;
 @CacheControl(LastModified.BOOT)
 public class CommitPage extends RepositoryPage {
 
-	
+		
 	public CommitPage(PageParameters params) {
 		super(params);
 
+		
+		
 		Repository r = getRepository();
 		RevCommit c = getCommit();
+		
+		logger().trace("Building commits page for:"+r+" commit "+c);
 
 		List<String> parents = new ArrayList<String>();
 		if (c.getParentCount() > 0) {
