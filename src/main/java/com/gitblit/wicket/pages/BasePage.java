@@ -75,8 +75,26 @@ import com.gitblit.wicket.WicketUtils;
 */
 public abstract class BasePage extends SessionPage {
 
-	private transient Logger logger;
+	/** Lazy initialized with {@link #logger} */
+	private transient Logger logger;	//Note: this class could be static final which would be 
+						//possibly faster and better, but might get into
+						//initialization ordering problem since GitBlitServer
+						//do re-configure logs in constructor, rather than
+						//in static constructor. The entire logger facility could
+						//be the faster, since JIT could optimize out const calls.
+	/** Keeps TRACE logging status. Set up in {@link #getLogger}
+	first call. Zero means "unknown", "1" disabled and "2" enabled */
+	private transient byte is_Trace_Enabled;
+	/** See {@link #is_Trace_Enabled} */
+	private transient byte is_Debug_Enabled;
+	/** See {@link #is_Trace_Enabled} */
+	private transient byte is_Info_Enabled;
+	/** See {@link #is_Trace_Enabled} */
+	private transient byte is_Warn_Enabled;
+	/** See {@link #is_Trace_Enabled} */
+	private transient byte is_Error_Enabled;
 
+	/** Lazy initialized with {@link #getTimeUtils} */
 	private transient TimeUtils timeUtils;
 
 	public BasePage() {
@@ -91,17 +109,139 @@ public abstract class BasePage extends SessionPage {
 
 	/**
 		Returns logger associated with <code>this.getClass()</code>
-		If logger is not specified creates it at first invocation.
+		If logger is not already present it creates it at first invocation.
+		<p>
+		Notes about logging performance.
+		<p>
+		Use below pattern for WARN and ERROR levels.
+		<pre>
+			logger().warn("message");
+			logger().error("message");
+		</pre>
+		<p>
+		Logging at level WARN or ERROR is usually rare and even a costly
+		process of formulating text does not impact performance.
+		Logging at levels TRACE, DEBUG, and INFO are few order of magnitudes
+		denser and especially trace may harm performance.
+		<p>
+		To maximize the performance creation of log message must be avoided
+		if log level is not enabled. User may use:
+		<pre>
+			if (logger().isTraceEnabled()) logger().trace("xxx");
+		</pre>
+		but this will cost at least a sequence of 5 interface calls which 
+		are not very fast.
+		<p>
+		To avoid this burden and ecourage users to use extensive logging
+		this class is providing own {@link #isTraceEnabled},
+		{@link #isDebugEnabled}, {@link #isInfoEnabled}, {@link #isWarnEnabled},
+		{@link #isErrorEnabled} methods which are effectively a single field read.
+		<p>
+		Following pattern is recommended:
+		<pre>
+			if (isTraceEnable()) logger().trace(<i>complex message</i>);
+		</prE>
+		
 		@return a logger instance. The underlying library is <u>not specifiying</u>
 			if it may return null or not, but at least one of underlying 
-			implementations is said to never return a null.
+			implementations is said to never return a null. Life time constant.
 	*/
 	protected Logger logger() {
 		if (logger == null) {
 			logger = LoggerFactory.getLogger(getClass());
+			assert(logger!=null);
+			is_Trace_Enabled = logger.isTraceEnabled() ? (byte)2 : (byte)1;
+			is_Debug_Enabled = logger.isDebugEnabled() ? (byte)2 : (byte)1;
+			is_Info_Enabled = logger.isInfoEnabled() ? (byte)2 : (byte)1;
+			is_Warn_Enabled = logger.isWarnEnabled() ? (byte)2 : (byte)1;
+			is_Error_Enabled = logger.isErrorEnabled() ? (byte)2 : (byte)1;
 		}
 		return logger;
 	}
+	/** A fastest possible test if TRACE logging is enabled
+	@return true if enable, false if not. Life time constant.
+	@see #logger
+	*/
+	protected final boolean isTraceEnabled()
+	{
+		switch(is_Trace_Enabled)
+		{
+			case 1: return false;
+			case 2: return true;
+			default:
+				logger();
+				assert(	(is_Trace_Enabled==1)||(is_Trace_Enabled==2));
+				return isTraceEnabled();
+		}
+	};
+	
+	/** A fastest possible test if Debug logging is enabled
+	@return true if enable, false if not. Life time constant.
+	@see #logger
+	*/
+	protected final boolean isDebugEnabled()
+	{
+		switch(is_Debug_Enabled)
+		{
+			case 1: return false;
+			case 2: return true;
+			default:
+				logger();
+				assert(	(is_Debug_Enabled==1)||(is_Debug_Enabled==2));
+				return isDebugEnabled();
+		}
+	};
+	
+	/** A fastest possible test if Info logging is enabled
+	@return true if enable, false if not. Life time constant.
+	@see #logger
+	*/
+	protected final boolean isInfoEnabled()
+	{
+		switch(is_Info_Enabled)
+		{
+			case 1: return false;
+			case 2: return true;
+			default:
+				logger();
+				assert(	(is_Info_Enabled==1)||(is_Info_Enabled==2));
+				return isInfoEnabled();
+		}
+	};
+	
+	/** A fastest possible test if Warn logging is enabled
+	@return true if enable, false if not. Life time constant.
+	@see #logger
+	*/
+	protected final boolean isWarnEnabled()
+	{
+		switch(is_Warn_Enabled)
+		{
+			case 1: return false;
+			case 2: return true;
+			default:
+				logger();
+				assert(	(is_Warn_Enabled==1)||(is_Warn_Enabled==2));
+				return isWarnEnabled();
+		}
+	};
+	
+	/** A fastest possible test if Error logging is enabled
+	@return true if enable, false if not. Life time constant.
+	@see #logger
+	*/
+	protected final boolean isErrorEnabled()
+	{
+		switch(is_Error_Enabled)
+		{
+			case 1: return false;
+			case 2: return true;
+			default:
+				logger();
+				assert(	(is_Error_Enabled==1)||(is_Error_Enabled==2));
+				return isErrorEnabled();
+		}
+	};
 
 	private void customizeHeader() {
 		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
