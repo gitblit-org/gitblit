@@ -83,29 +83,11 @@ import com.unboundid.ldif.LDIFReader;
  */
 public class GitBlitServer {
 
-	/* Design notes:
 	
-		The logger initialization in classes along this application must
-		have a well behaved policy and either use static initialization:
-			
-			static final Logger logger =...
-		
-		or dynamic, per instance
-		
-			final Logger logger = ....
-			
-		Since I did observe that both policies are mixed server MUST
-		initialize all logging facilities BEFORE any other class is 
-		REFERENCED (by touching any field or etc.). If it is done
-		differently there is a possibility that static loaders will
-		pick-up loggers BEFORE server will have a chance to initialize
-		static field.
-	*/	
-	private static final Logger logger;
+	private static Logger logger;
+	
 
 	public static void main(String... args) {
-		GitBlitServer server = new GitBlitServer();
-
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
 		String folder = "data";
@@ -123,23 +105,44 @@ public class GitBlitServer {
 				filtered.add(arg);
 			}
 		}
-
+		//parse parameters
 		Params.baseFolder = folder;
 		Params params = new Params();
 		CmdLineParser parser = new CmdLineParser(params);
 		try {
 			parser.parseArgument(filtered);
 			if (params.help) {
-				server.usage(parser, null);
+				usage(parser, null);
 			}
 		} catch (CmdLineException t) {
-			server.usage(parser, t);
+			usage(parser, t);
 		}
-
+		
+		
 		if (params.stop) {
-			server.stop(params);
+			stop(params);
 		} else {
-			server.start(params);
+			//Set up log services BEFORE any class which may use logs is touched.
+			//The logging system initialization in classes along this application
+			//	uses mixed policy:
+			//		static final Logger logger =...		
+			//	or dynamic, per instance		
+			//		final Logger logger = ....
+			//	So we need to configure logging as quickly as possible so that
+			//	class loaders would not create misconfigured loggers.
+			
+			//Load file settings, since pieces of them do configure logging.
+			FileSettings settings = params.FILESETTINGS;
+			if (!StringUtils.isEmpty(params.settingsfile)) {
+				if (new File(params.settingsfile).exists()) {
+					settings = new FileSettings(params.settingsfile);
+				}
+			}
+			//Set up logging.
+			setUpLogging(settings, params);
+			
+			GitBlitServer server = new GitBlitServer();
+			server.start(params, settings);
 		}
 	}
 
@@ -149,7 +152,7 @@ public class GitBlitServer {
 	 * @param parser
 	 * @param t
 	 */
-	protected final void usage(CmdLineParser parser, CmdLineException t) {
+	protected final static void usage(CmdLineParser parser, CmdLineException t) {
 		System.out.println(Constants.BORDER);
 		System.out.println(Constants.getGitBlitVersion());
 		System.out.println(Constants.BORDER);
@@ -166,7 +169,7 @@ public class GitBlitServer {
 		System.exit(0);
 	}
 
-	protected File getBaseFolder(Params params) {
+	protected static File getBaseFolder(Params params) {
 		String path = System.getProperty("GITBLIT_HOME", Params.baseFolder);
 		if (!StringUtils.isEmpty(System.getenv("GITBLIT_HOME"))) {
 			path = System.getenv("GITBLIT_HOME");
@@ -178,7 +181,7 @@ public class GitBlitServer {
 	/**
 	 * Stop Gitblt GO.
 	 */
-	public void stop(Params params) {
+	public static void stop(Params params) {
 		try {
 			Socket s = new Socket(InetAddress.getByName("127.0.0.1"), params.shutdownPort);
 			OutputStream out = s.getOutputStream();
@@ -195,15 +198,12 @@ public class GitBlitServer {
 
 	/**
 	 * Start Gitblit GO.
+	 @param params command line parameters, parsed
+	 @param settings loaded settings from properties fiels.
 	 */
-	protected final void start(Params params) {
+	protected final void start(Params params, FileSettings settings) {
 		final File baseFolder = getBaseFolder(params);
-		FileSettings settings = params.FILESETTINGS;
-		if (!StringUtils.isEmpty(params.settingsfile)) {
-			if (new File(params.settingsfile).exists()) {
-				settings = new FileSettings(params.settingsfile);
-			}
-		}
+		
 		/* -------- set up logging ---------*/
 		setUpLogging(settings,params);		
 		
@@ -473,7 +473,7 @@ public class GitBlitServer {
 	private boolean isWindows() {
 		return System.getProperty("os.name").toLowerCase().indexOf("windows") > -1;
 	}
-
+	
 	/**
 		A routine responsible for setting up log4j/slf4j logging 
 		environment. This method should be called inside {@link #start}
@@ -497,7 +497,7 @@ public class GitBlitServer {
 		@param settings content of "default.properties" file and/or it's overrides.
 		@param params parsed command-line parameters
 	*/
-	private void setUpLogging(final FileSettings settings, final Params params)
+	private static void setUpLogging(final FileSettings settings, final Params params)
 	{
 		final File baseFolder = getBaseFolder(params);
 		//Note:
@@ -531,7 +531,7 @@ public class GitBlitServer {
 		{
 			InputStream is = null;
 			try{
-				is = getClass().getResourceAsStream("/log4j.properties");
+				is = GitBlitServer.class.getResourceAsStream("/log4j.properties");
 				assert(is!=null);	//this resource is always present.
 				loggingProperties.load(is);
 			 }catch (Exception e) 
