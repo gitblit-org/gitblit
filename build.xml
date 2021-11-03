@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="gitblit" default="compile" xmlns:mx="antlib:org.moxie" xmlns:jacoco="antlib:org.jacoco.ant">
-
+<!--
+	Note: 1.Some of targets do require that JAVA_HOME environment variable
+	      is set to point to JDK home folder, ie:
+	     
+	     Windows:
+	     	set JAVA_HOME=c:\jdk7
+		
+	     2.There are compatibility issues with SSL and git hub if jdk7 pre 1.171 
+	     release is used. See setEnv.bat for information which environement
+	     variables needs to be set to enable compilation in mixed environments
+	     when different JRE is used to run ANT and build processing code
+-->
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Retrieve Moxie Toolkit
@@ -1310,10 +1321,7 @@ GB_RELEASE_TAG=${project.tag}
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<!-- Note: This target requires that JAVA_HOME enviromental variable is
-	     set to point to main JDK folder, ie:
-	     
-	     Windows:
-	     	set JAVA_HOME=c:\jdk8
+	     set to point to main JDK folder
 	-->
 	<target name="javadoc">                
 		<javadoc
