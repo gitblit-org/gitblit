@@ -180,6 +180,7 @@ public class UserPage extends RootPage {
 				new Language("Norsk", "no"),
 				new Language("Język Polski", "pl"),
 				new Language("Português", "pt_BR"),
+				new Language("Русский","ru"),
 				new Language("簡體中文", "zh_CN"),
 				new Language("正體中文", "zh_TW"));
 	}
