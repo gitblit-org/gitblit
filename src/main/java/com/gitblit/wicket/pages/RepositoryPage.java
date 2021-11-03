@@ -78,7 +78,7 @@ import com.google.common.base.Optional;
 
 public abstract class RepositoryPage extends RootPage {
 
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	//protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final String PARAM_STAR = "star";
 
