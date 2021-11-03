@@ -151,8 +151,8 @@
 
 		<!-- Compile project -->
 		<mx:javac scope="compile" clean="true" />
-		<!-- Comment above, uncoment below for faster, repetitive compilation
-		<mx:javac scope="compile" clean="false" /> -->		
+		<!-- Comment above, uncoment below for faster, repetitive compilation 
+		<mx:javac scope="compile" clean="false" /> -->
 	</target>
 
 		
@@ -1330,6 +1330,7 @@ GB_RELEASE_TAG=${project.tag}
                         maxmemory="480m"
 			sourcepath="${project.src.dir}"
 			destdir="${project.src.javadoc.dir}"
+			classpath="${basedir}/ext/*;${basedir}/build/classes"
 			additionalparam=" -version"
 			linksource="yes"
 			includenosourcepackages="yes"

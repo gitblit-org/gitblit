@@ -31,6 +31,27 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 
+/**
+	A base of "wicket" web pages.
+	
+	<h2>Thread safety</h2>
+	As it seems that wickets ensure that page exists
+	only during a duration of a session and is handled
+	in only one thread no thread safety measures are
+	necessay since page instance code is never run concurrently.
+	<p>
+	<a href="https://livebook.manning.com/book/wicket-in-action/chapter-2/62">
+	Is saying:</a>
+	<ul>
+		<li>Never share component object instances, models, 
+		and behaviors between pages that are in several page maps.
+		Although the chance that a user will trigger two pages in different 
+		page maps at the same time is slight, it’s possible, 
+		especially with pages that take a while to render.</li>
+		<li>Application objects, session objects, and session stores aren’t
+		thread-safe.</li>
+	</ul>
+*/
 public abstract class SessionPage extends WebPage {
 
 	public SessionPage() {
