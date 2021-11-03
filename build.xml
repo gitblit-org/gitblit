@@ -151,7 +151,8 @@
 
 		<!-- Compile project -->
 		<mx:javac scope="compile" clean="true" />
-		
+		<!-- Comment above, uncoment below for faster, repetitive compilation
+		<mx:javac scope="compile" clean="false" /> -->		
 	</target>
 
 		
@@ -1103,7 +1104,8 @@ GB_RELEASE_TAG=${project.tag}
 					<include name="users.conf" />
 					<include name="projects.conf" />
 					<include name="defaults.properties" />
-					<include name="gitblit.properties" />					
+					<include name="gitblit.properties" />
+					<include name="log4j*.properties" />						
 				</fileset>
 			</copy>
 			<mkdir dir="@{toDir}/git" />

@@ -73,7 +73,7 @@ import com.unboundid.ldif.LDIFReader;
 /**
  * GitBlitServer is the embedded Jetty server for Gitblit GO. This class starts
  * and stops an instance of Jetty that is configured from a combination of the
- * gitblit.properties file and command line parameters. JCommander is used to
+ * gitblit.properties file and command line parameters. Args4j is used to
  * simplify command line parameter processing. This class also automatically
  * generates a self-signed certificate for localhost, if the keystore does not
  * already exist.
@@ -186,149 +186,8 @@ public class GitBlitServer {
 				settings = new FileSettings(params.settingsfile);
 			}
 		}
-		//Note:
-		//	The loging set-up is using quite a tricky dependency
-		//	since (in pre 2.0 on which GitBlit depends) it is
-		//	relying on presence of some specific implementation classes on a class path.
-		//	
-		//	This type of dependency results in very tricky, but totally transparent
-		//	logging settings. The presence of slf4j "slf4j-log4j12-xxx.jar" sets up
-		//	what type of loging service will be in use.
-		//
-		//	This makes however tricky to validate what setting is really used.
-		//	Gitblit devs assumed that log4j is used, so we need to validate it. 
-		//
-		assert(LoggerFactory.getILoggerFactory() instanceof org.slf4j.impl.Log4jLoggerFactory):
-					"Runtime environment is not configured correctly for log4j use";
-		//	Originally GITBlit assumed, that debug level configuration is possible
-		//	with "web.debugMode" option in "data/default.properties" only if server is run 
-		//	with --dailyLogFile parameter what, effectively, confused users which were running
-		//	it with log to console.
-		
-		{
-			//Since we know we are using log4j we can configure it from a "hidden" file
-			//This file is by default in "gitblit.jar" what makes it problematic for user
-			//to load. Thous we will first load it from that file and THEN make an attempt
-			//to override/append data by loading from a baseFolder/log4j.properties
-			
-			Properties loggingProperties = new Properties();	//<--- log4j configuration will be here.
-			//Internally stored settings.
-			{
-				InputStream is = null;
-				try {
-					is = getClass().getResourceAsStream("/log4j.properties");
-					assert(is!=null);	//this resource is always present.
-					loggingProperties.load(is);
-					} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					try {
-						if (is != null) {
-							is.close();
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			};
-			//Externally
-			boolean display_logging_configuration = false;
-			{
-				final File f = new File(params.baseFolder+"/log4j.properties");
-				if (f.exists())
-				{
-					System.out.println("Using "+f+" to configure logging");
-					display_logging_configuration=true;
-					InputStream is = null;
-					try{
-						try{
-							is =  new java.io.FileInputStream(f);
-							loggingProperties.load(is);
-						}catch(Exception e)
-						{
-							e.printStackTrace();
-						};
-					}finally{
-						try{
-							if (is!=null) is.close();
-						}catch(IOException ex){ ex.printStackTrace(); };
-					};
-				};
-			};
-			//Decide on debug level overrides.
-			{
-				if (settings.getBoolean(Keys.web.debugMode, false)) 
-				{
-					System.out.println("Using web.debugMode to override debug levels.");
-					display_logging_configuration=true;
-					
-					//user requested debugging. Check if we can override settings.
-					if ("INFO".equals(loggingProperties.get("log4j.logger.com.gitblit")))
-					{
-						loggingProperties.put("log4j.logger.com.gitblit", "DEBUG");								
-					};
-					//and we need to override root settings. We need to check if settings
-					//are default and override them.
-					{
-						String logger_setup = loggingProperties.getProperty("log4j.rootLogger");
-						if ((logger_setup!=null) && (logger_setup.startsWith("INFO")))
-						{
-							loggingProperties.put("log4j.rootLogger","DEBUG"+logger_setup.substring("INFO".length()));							
-						};
-					};
-				}
-			};
-			//Decide of daily file overrides. Basically we can override appender file and the appender itself.	
-			if (params.dailyLogFile) {
-				System.out.println("Using --dailyLogFile to override log output.");
-				display_logging_configuration=true;
-				//We start from validating if appender selection is default.
-				String logger_setup = loggingProperties.getProperty("log4j.rootLogger");
-				if (logger_setup!=null)
-				{
-					//We may have many appenders and only one level.
-					//Basically we check, if appenders specs do match defaults:
-					logger_setup=logger_setup.trim();
-					final int n = logger_setup.length();
-					if (n>=2)
-					{
-						if (( logger_setup.charAt(n-1)=='S')
-							&&
-						    (
-						    ( logger_setup.charAt(n-2)==',')
-						    ||
-						    ( Character.isWhitespace(logger_setup.charAt(n-2)))
-						    ))
-						    {
-							    //we can replace it.
-							   loggingProperties.put("log4j.rootLogger",logger_setup.substring(0,n-1)+"R");
-							   //And only now if we can replace a target file.
-							   if ("logs/gitblit.log".equals(loggingProperties.get("log4j.appender.R.File")))
-							   {
-								//yes, it does, we can override it
-								loggingProperties.put("log4j.appender.R.File", new File(baseFolder, "logs/gitblit.log").getAbsolutePath());
-							   };
-						    }
-					}
-				}				
-			};
-			//Now apply them to log4j.	
-			try{
-				if (display_logging_configuration)
-				{
-					System.out.println("Logging configuration data:");
-					for(Object S:loggingProperties.keySet())
-					{
-						System.out.println("\t"+S+"="+loggingProperties.get(S));
-					};
-				};
-				PropertyConfigurator.configure(loggingProperties);
-			}catch(Exception ex)
-			{
-				ex.printStackTrace();
-			};
-		};
-		
+		/* -------- set up logging ---------*/
+		setUpLogging(settings,params);		
 		
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info("\n" + Constants.getASCIIArt());
@@ -597,6 +456,178 @@ public class GitBlitServer {
 		return System.getProperty("os.name").toLowerCase().indexOf("windows") > -1;
 	}
 
+	/**
+		A routine responsible for setting up log4j/slf4j logging 
+		environment. This method should be called inside {@link #start}
+		before {@link #logger} is initialized.
+		<p>
+		If {@link #logger} is already initialized this method does not do 
+		anything.
+		<p>
+		This method is using data stored in:
+		<ul>
+			<li><code>/log4j.properties</code> in jar properties file;</li>
+			<li><code>/log4j.properties</code> stored in base folder
+			as an override to internal jar properties file;</li>
+			<li><code>web.debugMode</code> setting in <code>defaults.properties</code>
+			and <code>gitblit.properties</code> files;</li>
+			<li><code>--dailyLogFile</code> command line option.</li>
+		</ul>
+		All errors are printed to <code>System.err</code> and ignored.
+		If any override of jar <code>/log4j.properties</code> is applied
+		apropriate informations are printed to </code>System.out<code>.
+		@param settings content of "default.properties" file and/or it's overrides.
+		@param params parsed command-line parameters
+	*/
+	private void setUpLogging(final FileSettings settings, final Params params)
+	{
+		final File baseFolder = getBaseFolder(params);
+		//Note:
+		//	The loging set-up is using quite a tricky dependency
+		//	since slf4j (in pre 2.0 on which GitBlit depends) is
+		//	relying on presence of some specific implementation classes on a class path.
+		//	
+		//	This type of dependency results in invisible in code 
+		//	but totally transparent logging engine selection.
+		//	The presence of slf4j "slf4j-log4j12-xxx.jar" sets up
+		//	what type of loging service will be in use.
+		//
+		//	This makes however tricky to validate what setting is really used.
+		//	Gitblit devs assumed that log4j is used, so we need to validate it. 
+		//
+		assert(LoggerFactory.getILoggerFactory() instanceof org.slf4j.impl.Log4jLoggerFactory):
+					"Runtime environment is not configured correctly for log4j use";
+		
+		//	Originally GITBlit assumed, that debug level configuration is possible
+		//	with "web.debugMode" option in "data/default.properties" only if server is run 
+		//	with --dailyLogFile parameter what, effectively, confused users which were running
+		//	it with log to console.
+		
+		//Since we know we are using log4j we can configure it from a "hidden" file
+		//This file is by default in "gitblit.jar" what makes it problematic for user
+		//to load. Thous we will first load it from that file and THEN make an attempt
+		//to override/append data by loading from a baseFolder/log4j.properties
+		
+		Properties loggingProperties = new Properties();	//<--- log4j configuration will be here.
+		//Internally stored settings.
+		{
+			InputStream is = null;
+			try{
+				is = getClass().getResourceAsStream("/log4j.properties");
+				assert(is!=null);	//this resource is always present.
+				loggingProperties.load(is);
+			 }catch (Exception e) 
+			 {
+				e.printStackTrace();
+				System.err.println("Could not set up logging services. Logging services are running in default mode."); 
+				return;	//Nothing else to do
+			 }finally
+			 {
+				try{
+					if (is != null) is.close(); 
+				} catch (IOException e) {
+					e.printStackTrace();
+					//This exception should not prevent us from continouing.					
+				}
+			}
+		};
+		//Now pick up default setting so we could later detect if user have overriden it.
+		//Both defaults cannot be null. Since this is an internal file assertions are fine.
+		final String default_gitblit_level = loggingProperties.getProperty("log4j.logger.com.gitblit");
+		assert(default_gitblit_level!=null):"invalid content of jar stored log4j.properties file, missing log4j.logger.com.gitblit";
+		final String default_root_level = loggingProperties.getProperty("log4j.rootLogger");
+		assert(default_root_level!=null):"invalid content of jar stored log4j.properties file, missing log4j.rootLogger";
+		final String default_log_file = loggingProperties.getProperty("log4j.appender.R.File");
+		assert(default_log_file!=null):"invalid content of jar stored log4j.properties file, missing log4j.appender.R.File";
+		
+		//Load overrides from file 
+		boolean display_logging_configuration = false; //<-- this variable will keep track if any override is 
+							       //applied so we can later show overrides to user.
+		{
+			final File f = new File(params.baseFolder+"/log4j.properties");
+			if (f.exists())
+			{
+				display_logging_configuration=true;
+				System.out.println("Using "+f+" to override logging configuration.");				
+				InputStream is = null;
+				try{
+					try{
+						is =  new java.io.FileInputStream(f);
+						loggingProperties.load(is);
+					}catch(Exception e)
+					{
+						System.err.println("Failed to load user defined logging settings due to "+e);
+						e.printStackTrace();
+						//this does not stop us from continuing.
+					};
+				}finally{
+					try{
+						if (is!=null) is.close();
+					}catch(IOException ex){ ex.printStackTrace(); }; //<-- again we can continue
+				};
+			};
+		};
+		//Now apply overrides to level controlled by web.debugMode option.
+		//These overrides are applied ONLY if default level setting were not overriden
+		//by custom log4j.properties file.
+		if (settings.getBoolean(Keys.web.debugMode, false)) 
+		{
+			display_logging_configuration=true;
+			System.out.println("Using web.debugMode to override debug levels.");
+			if (default_gitblit_level.equals(loggingProperties.getProperty("log4j.logger.com.gitblit")))
+			{
+				loggingProperties.setProperty("log4j.logger.com.gitblit", "DEBUG");
+			}else	
+				System.out.println("web.debugMode requested, but ignored due to log4j.properties file was used to override log4j.logger.com.gitblit setup");
+			if (default_root_level.equals(loggingProperties.getProperty("log4j.rootLogger")))
+			{
+				//Now the override needs to be partial only,
+				int i = default_root_level.indexOf(',');
+				assert(i!=-1):"internal log4j.properties log4j.rootLogger="+default_root_level+", missing default appender.";
+				loggingProperties.setProperty("log4j.rootLogger", "DEBUG"+default_root_level.substring(i));
+			}else
+				System.out.println("web.debugMode requested, but ignored due to log4j.properties file was used to override log4j.rootLogger setup");
+		}
+		//Decide of daily file overrides. Basically we can override appender file and the appender itself.	
+		if (params.dailyLogFile) 
+		{
+			display_logging_configuration=true;
+			System.out.println("Using --dailyLogFile to override log output.");
+			//We start from validating if appender selection is default.			
+			if (default_root_level.equals(loggingProperties.getProperty("log4j.rootLogger")))
+			{
+				int i = default_root_level.indexOf(',');
+				assert(i!=-1):"internal log4j.properties log4j.rootLogger="+default_root_level+", missing default appender.";
+				loggingProperties.setProperty("log4j.rootLogger", default_root_level.substring(0,i)+",R");				
+			}else	
+				System.out.println("--dailyLogFile requested, but ignored due to log4j.properties file was used to override log4j.rootLogger setup");
+			//And now check if we can replace a target file.
+			if (default_log_file.equals(loggingProperties.get("log4j.appender.R.File")))
+			{
+				//yes, it does, we can override it
+				loggingProperties.setProperty("log4j.appender.R.File", new File(baseFolder, default_log_file).getAbsolutePath());
+			}else
+				System.out.println("--dailyLogFile requested, but ignored due to log4j.properties file was used to override log4j.appender.R.File setup");
+		};
+		//All overrides are applied. If any overrides were requested we need to show them since due to multiple
+		//ways of defining configurations it may be tricky.		
+		if (display_logging_configuration)
+		{
+			System.out.println("Combined logging setup data are:");
+			for(Object S:loggingProperties.keySet())
+			{
+				System.out.println("\t"+S+"="+loggingProperties.get(S));
+			};
+		};
+		//Now apply them to log4j.
+		try{
+			PropertyConfigurator.configure(loggingProperties);
+		}catch(Exception ex)
+		{
+			System.err.println("Failed to apply log4j configuration due to "+ex);
+			ex.printStackTrace();
+		};
+	};
 	/**
 	 * The ShutdownMonitorThread opens a socket on a specified port and waits
 	 * for an incoming connection. When that connection is accepted a shutdown
