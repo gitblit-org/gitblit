@@ -126,6 +126,16 @@ public class GitBlitWebAppResourceBundleTest
         assertEquals("Português", bundle.getString("gb.loadLang"));
     }
 
+
+    @Test
+    public void testRuResource() throws Exception
+    {
+        Locale l = Locale.forLanguageTag("ru");
+        ResourceBundle bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", l);
+        assertNotNull(bundle);
+        assertEquals("Русский", bundle.getString("gb.loadLang"));
+    }
+
     @Test
     public void testZhCnResource() throws Exception
     {
