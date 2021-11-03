@@ -83,7 +83,25 @@ import com.unboundid.ldif.LDIFReader;
  */
 public class GitBlitServer {
 
-	private static Logger logger;
+	/* Design notes:
+	
+		The logger initialization in classes along this application must
+		have a well behaved policy and either use static initialization:
+			
+			static final Logger logger =...
+		
+		or dynamic, per instance
+		
+			final Logger logger = ....
+			
+		Since I did observe that both policies are mixed server MUST
+		initialize all logging facilities BEFORE any other class is 
+		REFERENCED (by touching any field or etc.). If it is done
+		differently there is a possibility that static loaders will
+		pick-up loggers BEFORE server will have a chance to initialize
+		static field.
+	*/	
+	private static final Logger logger;
 
 	public static void main(String... args) {
 		GitBlitServer server = new GitBlitServer();
