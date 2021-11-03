@@ -62,12 +62,10 @@ public class CommitPage extends RepositoryPage {
 	public CommitPage(PageParameters params) {
 		super(params);
 
-		
-		
 		Repository r = getRepository();
 		RevCommit c = getCommit();
 		
-		logger().trace("Building commits page for:"+r+" commit "+c);
+		if (isTraceEnabled()) logger().trace("Building commits page for:"+r+" commit "+c);
 
 		List<String> parents = new ArrayList<String>();
 		if (c.getParentCount() > 0) {
@@ -155,8 +153,9 @@ public class CommitPage extends RepositoryPage {
 		add(notesView.setVisible(notes.size() > 0));
 
 		// changed paths list
+		if (isTraceEnabled()) logger().trace("Loading changed paths");
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
-
+		if (isTraceEnabled()) logger().trace("Finished loading changed paths");
 		// add commit diffstat
 		int insertions = 0;
 		int deletions = 0;
@@ -335,6 +334,8 @@ public class CommitPage extends RepositoryPage {
 			}
 		};
 		add(pathsView);
+		
+		if (isTraceEnabled()) logger().trace("Building commits page for:"+r+" commit "+c+" finished.");
 	}
 
 	@Override
