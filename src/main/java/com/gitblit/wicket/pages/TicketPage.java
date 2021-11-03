@@ -1451,7 +1451,7 @@ public class TicketPage extends RepositoryPage {
 											} else {
 												// merge failure
 												String msg = MessageFormat.format("Failed to merge ticket {0,number,0}: {1}", ticket.number, result.name());
-												logger.error(msg);
+												logger().error(msg);
 												GitBlitWebSession.get().cacheErrorMessage(msg);
 											}
 										}
@@ -1461,13 +1461,13 @@ public class TicketPage extends RepositoryPage {
 									String msg = MessageFormat.format("Can not merge ticket {0,number,0}, patchset {1,number,0} has been vetoed!",
 											ticket.number, patchset.number);
 									GitBlitWebSession.get().cacheErrorMessage(msg);
-									logger.error(msg);
+									logger().error(msg);
 								}
 							} else {
 								// not current patchset
 								String msg = MessageFormat.format("Can not merge ticket {0,number,0}, the patchset has been updated!", ticket.number);
 								GitBlitWebSession.get().cacheErrorMessage(msg);
-								logger.error(msg);
+								logger().error(msg);
 							}
 							
 							redirectTo(TicketsPage.class, getPageParameters());

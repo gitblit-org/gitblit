@@ -144,7 +144,7 @@ public abstract class RepositoryPage extends RootPage {
 				try {
 					app().gitblit().reviseUser(user.username, user);
 				} catch (GitBlitException e) {
-					logger.error("Failed to update user " + user.username, e);
+					logger().error("Failed to update user " + user.username, e);
 					error(getString("gb.failedToUpdateUser"), false);
 				}
 			}
