@@ -14,44 +14,8 @@ import com.gitblit.servlet.GitblitContext;
 
 public class GitBlitServer4UITests extends GitBlitServer {
 
-	public static void main(String... args) {
-		GitBlitServer4UITests server = new GitBlitServer4UITests();
-
-		// filter out the baseFolder parameter
-		List<String> filtered = new ArrayList<String>();
-		String folder = "data";
-		for (int i = 0; i < args.length; i++) {
-			String arg = args[i];
-			if (arg.equals("--baseFolder")) {
-				if (i + 1 == args.length) {
-					System.out.println("Invalid --baseFolder parameter!");
-					System.exit(-1);
-				} else if (args[i + 1] != ".") {
-					folder = args[i + 1];
-				}
-				i = i + 1;
-			} else {
-				filtered.add(arg);
-			}
-		}
-
-		Params.baseFolder = folder;
-		Params params = new Params();
-		CmdLineParser parser = new CmdLineParser(params);
-		try {
-			parser.parseArgument(filtered);
-			if (params.help) {
-				server.usage(parser, null);
-			}
-		} catch (CmdLineException t) {
-			server.usage(parser, t);
-		}
-
-		if (params.stop) {
-			server.stop(params);
-		} else {
-			server.start(params);
-		}
+	public static void main(String... args)throws Exception {
+		GitBlitServer.main(GitBlitServer4UITests.class, args);
 	}
 
 	@Override

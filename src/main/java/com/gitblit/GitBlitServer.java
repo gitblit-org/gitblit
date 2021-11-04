@@ -86,8 +86,19 @@ public class GitBlitServer {
 	
 	private static Logger logger;
 	
-
-	public static void main(String... args) {
+	public static void main(String... args)throws Exception {
+		main(GitBlitServer.class, args);
+	}
+	/**
+		A main method which is declated in such a way, that
+		exactly the same per-processing of parameters can
+		be used in subclasses which are designed for testing
+		purposes.
+		
+		@see de.akquinet.devops.GitBlitServer4UITests
+	*/
+	protected static void main( Class<? extends GitBlitServer> impl, String... args)throws Exception
+	{
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
 		String folder = "data";
@@ -141,10 +152,12 @@ public class GitBlitServer {
 			//Set up logging.
 			setUpLogging(settings, params);
 			
-			GitBlitServer server = new GitBlitServer();
+			GitBlitServer server = impl.newInstance();
 			server.start(params, settings);
 		}
-	}
+	};
+
+	
 
 	/**
 	 * Display the command line usage of Gitblit GO.

@@ -89,7 +89,7 @@ public class CommitLegendPanel extends Panel {
 			}
 		};
 		//Note: There is a known problem which I can't handle, that is "moreChanges" do appear
-		//on web BEFORE "legend".
+		//on web BEFORE "legend" if in html is AFTER "description".
 		add(new Label("moreChanges",getString("gb.CommitLegendPanel.moreChanges")).setVisible(approx));
 		add(legendsView);		
 		
