@@ -86,7 +86,7 @@ public class GitBlitServer {
 	
 	private static Logger logger;
 	
-	public static void main(String... args)throws Exception {
+	public static void main(String... args) {
 		main(GitBlitServer.class, args);
 	}
 	/**
@@ -97,7 +97,7 @@ public class GitBlitServer {
 		
 		@see de.akquinet.devops.GitBlitServer4UITests
 	*/
-	protected static void main( Class<? extends GitBlitServer> impl, String... args)throws Exception
+	protected static void main( Class<? extends GitBlitServer> impl, String... args)
 	{
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
@@ -151,9 +151,11 @@ public class GitBlitServer {
 			}
 			//Set up logging.
 			setUpLogging(settings, params);
-			
-			GitBlitServer server = impl.newInstance();
-			server.start(params, settings);
+			try{
+				GitBlitServer server = impl.newInstance();
+				server.start(params, settings);
+			}catch(InstantiationException ex){ throw new RuntimeException(ex); }
+			catch(IllegalAccessException ex){ throw new RuntimeException(ex); }
 		}
 	};
 

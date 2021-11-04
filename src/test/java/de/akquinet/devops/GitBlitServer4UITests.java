@@ -14,7 +14,7 @@ import com.gitblit.servlet.GitblitContext;
 
 public class GitBlitServer4UITests extends GitBlitServer {
 
-	public static void main(String... args)throws Exception {
+	public static void main(String... args) {
 		GitBlitServer.main(GitBlitServer4UITests.class, args);
 	}
 
