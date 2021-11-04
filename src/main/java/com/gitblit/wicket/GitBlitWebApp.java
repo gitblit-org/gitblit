@@ -190,8 +190,10 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		}
 
 		// configure the resource cache duration to 90 days for deployment
+		// and enable resources to fall back to defaults if not found
 		if (!isDebugMode()) {
 			getResourceSettings().setDefaultCacheDuration(90 * 86400);
+			getResourceSettings().setUseDefaultOnMissingResource(true);
 		}
 
 		// setup the standard gitweb-ish urls
