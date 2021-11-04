@@ -43,6 +43,7 @@ public class CommitLegendPanel extends Panel {
 	static final boolean TRACE = LOGGER.isTraceEnabled();
 	static final boolean DEBUG = LOGGER.isDebugEnabled();
 	
+	
 	public CommitLegendPanel(String id, List<PathChangeModel> paths) {
 		super(id);
 		final Map<ChangeType, AtomicInteger> stats = getChangedPathsStats(paths);
@@ -82,9 +83,7 @@ public class CommitLegendPanel extends Panel {
 		};
 		add(legendsView);
 	}
-	//Question: why AtomicInterger? Wicket is NOT using threads, especially not in that place.
-	//Is only reason of Atomic here is that it is mutable? If yes, it is a pure loss of resources
-	//since each atomic access do case a hell of cache flushes.
+	
 	protected Map<ChangeType, AtomicInteger> getChangedPathsStats(List<PathChangeModel> paths) {
 		Map<ChangeType, AtomicInteger> stats = new HashMap<ChangeType, AtomicInteger>();
 		for (PathChangeModel path : paths) {
