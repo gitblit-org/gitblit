@@ -203,10 +203,7 @@ public class GitBlitServer {
 	 */
 	protected final void start(Params params, FileSettings settings) {
 		final File baseFolder = getBaseFolder(params);
-		
-		/* -------- set up logging ---------*/
-		setUpLogging(settings,params);		
-		
+	
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info("\n" + Constants.getASCIIArt());
 

@@ -36,6 +36,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Keys;
 import com.gitblit.Constants;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -139,6 +140,7 @@ public class CommitPage extends RepositoryPage {
 
 			@Override
 			public void populateItem(final Item<GitNote> item) {
+				if (isTraceEnabled()) logger().trace("Polulating note item "+item.getModelObject());
 				GitNote entry = item.getModelObject();
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
 				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(),
@@ -154,8 +156,25 @@ public class CommitPage extends RepositoryPage {
 
 		// changed paths list
 		if (isTraceEnabled()) logger().trace("Loading changed paths");
-		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
-		if (isTraceEnabled()) logger().trace("Finished loading changed paths");
+		
+		final List<PathChangeModel> paths;
+		final boolean commit_is_trimmed;
+		{
+			//pick up processing limit from server settings
+			int paths_limit = app().settings().getInteger(Keys.web.maxCommitPaths,-1);
+			if (!((paths_limit>=0)||(paths_limit==-1)))
+			{
+				logger().warn("web.maxCommitPaths is set to "+paths_limit+" what is not -1 or any positive number. Using -1 instead");
+				paths_limit=-1;
+			};
+			//compute with diffs.
+			paths = JGitUtils.getFilesInCommit(r, c, true,paths_limit);
+			//check if limit is touched.
+			//Yes, i know, there is a boundary case when EXACTLY limit files were in commit, but I do ignore it
+			//because otherwise getFilesInCommit API would have to be changed.
+			commit_is_trimmed =  (paths.size()==paths_limit);
+		};
+		if (isTraceEnabled()) logger().trace("Finished loading changed paths "+paths.size()+" paths, "+(commit_is_trimmed ? " commit list is TRIMMED to web.maxCommitPaths":""));
 		// add commit diffstat
 		int insertions = 0;
 		int deletions = 0;
@@ -163,9 +182,9 @@ public class CommitPage extends RepositoryPage {
 			insertions += pcm.insertions;
 			deletions += pcm.deletions;
 		}
-		add(new DiffStatPanel("diffStat", insertions, deletions));
+		add(new DiffStatPanel("diffStat", insertions, deletions, false, commit_is_trimmed));
 
-		add(new CommitLegendPanel("commitLegend", paths));
+		add(new CommitLegendPanel("commitLegend", paths, commit_is_trimmed));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -173,6 +192,7 @@ public class CommitPage extends RepositoryPage {
 
 			@Override
 			public void populateItem(final Item<PathChangeModel> item) {
+				if (isTraceEnabled()) logger().trace("Polulating commit path item "+item.getModelObject());
 				final PathChangeModel entry = item.getModelObject();
 				
 				Label changeType = new Label("changeType", "");

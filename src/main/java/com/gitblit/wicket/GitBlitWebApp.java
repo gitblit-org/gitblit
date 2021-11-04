@@ -194,6 +194,7 @@ public class GitBlitWebApp extends WebApplication implements GitblitWicketApp {
 		if (!isDebugMode()) {
 			getResourceSettings().setDefaultCacheDuration(90 * 86400);
 			getResourceSettings().setUseDefaultOnMissingResource(true);
+			getResourceSettings().setThrowExceptionOnMissingResource(false);
 		}
 
 		// setup the standard gitweb-ish urls

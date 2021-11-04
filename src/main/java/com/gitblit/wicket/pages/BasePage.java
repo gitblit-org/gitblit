@@ -76,12 +76,15 @@ import com.gitblit.wicket.WicketUtils;
 public abstract class BasePage extends SessionPage {
 
 	/** Lazy initialized with {@link #logger} */
-	private transient Logger logger;	//Note: this class could be static final which would be 
-						//possibly faster and better, but might get into
-						//initialization ordering problem since GitBlitServer
-						//do re-configure logs in constructor, rather than
-						//in static constructor. The entire logger facility could
-						//be the faster, since JIT could optimize out const calls.
+	private transient Logger logger;	//Note: this field could be static final which would be 
+						//possibly faster and better, but in such case loggers
+						//would be bound with BasePage.class and there would
+						//be no possibility to filter log data on per-class.
+						//It might be better (faster) but some code: 
+						//	private static final Logger logger = LoggerFactory.getLogger(x.class)
+						//	private static final boolean TRACE = logger.isTraceEnabled();
+						//should be copied into each class. I think, it would be better, but it is 
+						//a matter of personal choice.
 	/** Keeps TRACE logging status. Set up in {@link #getLogger}
 	first call. Zero means "unknown", "1" disabled and "2" enabled */
 	private transient byte is_Trace_Enabled;

@@ -123,7 +123,8 @@ import com.google.common.base.Strings;
 public class JGitUtils {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
-
+	static final boolean TRACE = LOGGER.isTraceEnabled();
+	static final boolean DEBUG = LOGGER.isDebugEnabled();
 	/**
 	 * Log an error message and exception.
 	 *
@@ -997,9 +998,29 @@ public class JGitUtils {
 	 *            if true, each PathChangeModel will have insertions/deletions
 	 * @return list of files changed in a commit
 	 */
-	public static List<PathChangeModel> getFilesInCommit(Repository repository, RevCommit commit, boolean calculateDiffStat) {
+	public static List<PathChangeModel> getFilesInCommit(Repository repository, RevCommit commit, boolean calculateDiffStat)
+	{
+		return getFilesInCommit(repository,commit,calculateDiffStat,-1);
+	};
+	/**
+	 * Returns the list of files changed in a specified commit. If the
+	 * repository does not exist or is empty, an empty list is returned.
+	 *
+	 * @param repository
+	 * @param commit
+	 *            if null, HEAD is assumed.
+	 * @param calculateDiffStat
+	 *            if true, each PathChangeModel will have insertions/deletions
+	   @param files_limit maximum number of files to process. If there are more files
+	   	in commit remaning files are ignored. -1 to disable this limit
+	 * @return list of files changed in a commit. This list will be up to <code>files_limit</code> in size.
+	 */	
+	public static List<PathChangeModel> getFilesInCommit(Repository repository, RevCommit commit, boolean calculateDiffStat, int files_limit) {
+		if (TRACE) LOGGER.trace("computing changed files in commit "+commit+" repository "+repository+" with calculateDiffStat="+calculateDiffStat+" files_limit="+files_limit);
+		assert((files_limit>=0)||(files_limit==-1));
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
 		if (!hasCommits(repository)) {
+			if (TRACE) LOGGER.trace("No commits.");
 			return list;
 		}
 		RevWalk rw = new RevWalk(repository);
@@ -1010,6 +1031,8 @@ public class JGitUtils {
 			}
 
 			if (commit.getParentCount() == 0) {
+				if (TRACE) LOGGER.trace("Commit has no parent, faking diffs.");
+				int counted_files = 0;
 				TreeWalk tw = new TreeWalk(repository);
 				tw.reset();
 				tw.setRecursive(true);
@@ -1035,15 +1058,24 @@ public class JGitUtils {
 					list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(),filestoreItem, size, tw
 							.getRawMode(0), objectId.getName(), commit.getId().getName(),
 							ChangeType.ADD));
+					counted_files++;
+					if (TRACE) LOGGER.trace("Processed "+counted_files+" commit files");
+					if ((files_limit>=0) && (counted_files>=files_limit))
+					{
+						if (TRACE) LOGGER.trace("too many files, stopping computations");
+						break;
+					};
 				}
 				tw.close();
 			} else {
+				if (TRACE) LOGGER.trace("Commit has parent some parent, computing diffs");
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
 				DiffStatFormatter df = new DiffStatFormatter(commit.getName(), repository);
 				df.setRepository(repository);
 				df.setDiffComparator(RawTextComparator.DEFAULT);
 				df.setDetectRenames(true);
 				List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
+				int counted_files=0;
 				for (DiffEntry diff : diffs) {
 					// create the path change model
 					PathChangeModel pcm = PathChangeModel.from(diff, commit.getName(), repository);
@@ -1058,6 +1090,13 @@ public class JGitUtils {
 						}
 					}
 					list.add(pcm);
+					counted_files++;
+					if (TRACE) LOGGER.trace("Processed "+counted_files+" commit files");
+					if ((files_limit>=0) && (counted_files>=files_limit))
+					{
+						if (TRACE) LOGGER.trace("too many files, stopping computations");
+						break;
+					};
 				}
 			}
 		} catch (Throwable t) {
@@ -1065,6 +1104,7 @@ public class JGitUtils {
 		} finally {
 			rw.dispose();
 		}
+		if (TRACE) LOGGER.trace("Finished computing commit data");
 		return list;
 	}
 
@@ -2357,7 +2397,7 @@ public class JGitUtils {
 				try {
 					rc.save();
 					rc.load();
-					LOGGER.debug("repaired {} invalid fetch refspecs for {}", repairedSpecs, repository.getDirectory());
+					if (DEBUG) LOGGER.debug("repaired {} invalid fetch refspecs for {}", repairedSpecs, repository.getDirectory());
 					return true;
 				} catch (Exception e) {
 					LOGGER.error(null, e);

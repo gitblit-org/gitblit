@@ -43,9 +43,16 @@ public class CommitLegendPanel extends Panel {
 	static final boolean TRACE = LOGGER.isTraceEnabled();
 	static final boolean DEBUG = LOGGER.isDebugEnabled();
 	
-	
-	public CommitLegendPanel(String id, List<PathChangeModel> paths) {
+	public CommitLegendPanel(String id, List<PathChangeModel> paths) { this(id, paths, false) ;};
+	/** Creates
+	@param id wicket idendtifier
+	@param paths list of changed paths
+	@param approx true if <code>paths</code> do not represent a full set of changes
+		present in commit due to, for an example, some limits.
+	*/
+	public CommitLegendPanel(String id, List<PathChangeModel> paths, final boolean approx) {
 		super(id);
+		if (TRACE) LOGGER.trace("new CommitLegendPanel("+id+",paths.size()="+paths.size()+", approx="+approx+")");
 		final Map<ChangeType, AtomicInteger> stats = getChangedPathsStats(paths);
 		ListDataProvider<ChangeType> legendDp = new ListDataProvider<ChangeType>(
 				new ArrayList<ChangeType>(stats.keySet()));
@@ -81,7 +88,11 @@ public class CommitLegendPanel extends Panel {
 				item.add(new Label("description", description));
 			}
 		};
-		add(legendsView);
+		//Note: There is a known problem which I can't handle, that is "moreChanges" do appear
+		//on web BEFORE "legend".
+		add(new Label("moreChanges",getString("gb.CommitLegendPanel.moreChanges")).setVisible(approx));
+		add(legendsView);		
+		
 	}
 	
 	protected Map<ChangeType, AtomicInteger> getChangedPathsStats(List<PathChangeModel> paths) {
