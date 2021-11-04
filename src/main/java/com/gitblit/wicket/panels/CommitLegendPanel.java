@@ -29,13 +29,20 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.wicket.WicketUtils;
 
 public class CommitLegendPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-
+	static final Logger LOGGER = LoggerFactory.getLogger(CommitLegendPanel.class);
+	static final boolean TRACE = LOGGER.isTraceEnabled();
+	static final boolean DEBUG = LOGGER.isDebugEnabled();
+	
 	public CommitLegendPanel(String id, List<PathChangeModel> paths) {
 		super(id);
 		final Map<ChangeType, AtomicInteger> stats = getChangedPathsStats(paths);
@@ -75,7 +82,9 @@ public class CommitLegendPanel extends Panel {
 		};
 		add(legendsView);
 	}
-
+	//Question: why AtomicInterger? Wicket is NOT using threads, especially not in that place.
+	//Is only reason of Atomic here is that it is mutable? If yes, it is a pure loss of resources
+	//since each atomic access do case a hell of cache flushes.
 	protected Map<ChangeType, AtomicInteger> getChangedPathsStats(List<PathChangeModel> paths) {
 		Map<ChangeType, AtomicInteger> stats = new HashMap<ChangeType, AtomicInteger>();
 		for (PathChangeModel path : paths) {
