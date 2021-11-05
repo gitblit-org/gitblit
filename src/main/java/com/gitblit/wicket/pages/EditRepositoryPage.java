@@ -570,7 +570,23 @@ public class EditRepositoryPage extends RootSubPage {
 				getString("gb.skipSummaryMetricsDescription"),
 				new PropertyModel<Boolean>(repositoryModel, "skipSummaryMetrics")));
 
+		//We need to prepare list of pre-defined values and include the currently stored value.
 		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500);
+		{
+			Integer current = repositoryModel.maxActivityCommits;
+			if (!maxActivityCommits.contains(current))
+			{
+				//insert it in a apropriate location. The easiest by laughably costly way
+				//is to just add and sort. This is is not a problem, since this type of
+				//action will be necessary only when server setup was modified in such a way,
+				//that default value of web.maxActivityCommits is not on the allowed above
+				//list. Why? Bite me.
+				maxActivityCommits = new ArrayList<Integer>(maxActivityCommits);
+				maxActivityCommits.add(current);
+				Collections.sort(maxActivityCommits);
+			};
+		};
+		
 		form.add(new ChoiceOption<Integer>("maxActivityCommits",
 				getString("gb.maxActivityCommits"),
 				getString("gb.maxActivityCommitsDescription"),
