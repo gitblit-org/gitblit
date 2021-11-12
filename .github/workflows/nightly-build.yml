@@ -1,0 +1,180 @@
+# Nightly build of a snapshot version
+# and a docker image which is pushed
+# to a docker registry
+
+name: Nightly image build and push
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '33 1 * * *'
+
+
+jobs:
+
+# Check if new commits were added since the last time this workflow ran.
+# The Github cache is used for this, using the SHA as the key.
+
+  check_commits:
+    name: Check for new commits
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.cache-sha.outputs.cache-hit == false }}
+
+    steps:
+
+      - name: Cache marker for latest commit
+        uses: actions/cache@v2
+        id: cache-sha
+        with:
+          key: sha-${{ github.sha }}
+          path: timestamp.txt
+
+      - name: Register latest commit
+        if: ${{ steps.cache-sha.outputs.cache-hit == false }}
+        run: |
+          echo "Current commit $GITHUB_SHA has no cache hit."
+          date > timestamp.txt
+          echo "Build job should be triggered now"
+          cat timestamp.txt
+
+      - name: Stop on no new commit
+        if: ${{ steps.cache-sha.outputs.cache-hit }}
+        run: |
+          echo "Current commit $GITHUB_SHA was already seen."
+          echo "Build job should be skipped."
+          [ -f timestamp.txt ] && cat timestamp.txt
+
+
+
+# Build Gitblit GO so that it can be packed into a docker image.
+# The built tarball is saved as an artefact, it can be downloaded
+# by interested parties.
+# We could even do better and check if paths of source files changed,
+# but that is not that easy, so we build on any commit.
+
+  build:
+    name: build GO
+    runs-on: ubuntu-latest
+    needs: check_commits
+    if: ${{ needs.check_commits.outputs.build == 'true' }}
+
+    steps:
+
+      - name: Checkout Gitblit
+        uses: actions/checkout@v1
+        with:
+          submodules: true
+
+      - name: Setup Java 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Report Java version
+        run: |
+          java -version
+          javac -version
+
+      - name: Build GO with Ant
+        run: ant buildGO
+
+      - name: Save built Gitblit package
+        if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: gitblit-nightly
+          path: build/target/gitblit-*-SNAPSHOT.tar.gz
+
+
+
+# This is a gating job, which checks if the secrets necessary for pushing an image
+# to the docker hub are present in the repository. This way this workflow can be
+# present in repos which cannot upload to the docker hub.
+
+  secret-gate:
+    name: Gate job checking for docker hub secret
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      build_docker: ${{steps.check-dh-login.outputs.secrets_present}}
+
+    steps:
+      - name: Check if we have the necessary data for docker
+        id: check-dh-login
+        run: |
+          if [[ -n "${{secrets.DOCKERHUB_GB_TOKEN}}" && -n "${{secrets.DOCKERHUB_GB_USER}}" ]] ; then
+            echo "::set-output name=secrets_present::true"
+          fi
+
+
+
+# Only if the gating job signals success will this job run and build and push the docker image
+# built for the current snapshot version of Gitblit.
+
+  docker:
+    name: Build and push nightly docker image
+    runs-on: ubuntu-latest
+    if: ${{needs.secret-gate.outputs.build_docker == 'true'}} && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+    needs: secret-gate
+    env:
+      GH_ORG: gitblit
+      GITBLIT_VERSION: SNAPSHOT
+
+    steps:
+      - name: Checkout gitblit-docker
+        uses: actions/checkout@v1
+        with:
+          repository: ${{ env.GH_ORG }}/gitblit-docker
+          ref: master
+          fetch-depth: 2
+
+      - name: Download Gitblit nightly build
+        uses: actions/download-artifact@v2
+        id: get-gb
+        with:
+          name: gitblit-nightly
+          path: ../gitblit-docker
+
+      # Delete the artifact unless this is the official Gitblit repo
+      - uses: geekyeggo/delete-artifact@v1
+        if: ${{ github.repository != 'gitblit/gitblit' }}
+        with:
+          name: gitblit-nightly
+          failOnError: false
+
+      - name: Extract snapshot version
+        id: gb-version
+        working-directory: ../gitblit-docker
+        run: |
+          for file in $(ls -1 ${{steps.get-gb.outputs.download-path}}) ; do
+            if [[ "$file" = gitblit-*.gz ]] ; then gbver=$file ; fi
+          done
+          gbver=${gbver%.tar.gz}
+          gbver=${gbver##*gitblit-}
+          echo "Version detected: $gbver"
+          echo "GITBLIT_VERSION=$gbver" >> "${GITHUB_ENV}"
+          echo "::set-output name=gb-version::$gbver"
+
+      - name: Generate Dockerfile for snapshot image
+        working-directory: ../gitblit-docker
+        run: |
+          generate/generate_dockerfile.sh -v ${{ steps.gb-version.outputs.gb-version }} > generate/Dockerfile
+          echo "BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S)" >> "${GITHUB_ENV}"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_GB_USER }}
+          password: ${{ secrets.DOCKERHUB_GB_TOKEN }}
+
+      - name: Build snapshot docker image
+        uses: docker/build-push-action@v2
+        with:
+          file: ../gitblit-docker/generate/Dockerfile
+          context: ../gitblit-docker
+          push: true
+          tags: gitblit/gitblit:nightly
+          labels: |
+            org.label-schema.vcs-ref=${{github.sha}}
+            org.label-schema.build-date=${{env.BUILD_DATE}}
