@@ -6,6 +6,12 @@ name: Nightly image build and push
 
 on:
   workflow_dispatch:
+    inputs:
+      forced:
+        description: 'Force run, independent of new commits'
+        required: false
+        default: 'false'
+
   schedule:
     - cron:  '33 1 * * *'
 
@@ -169,6 +175,53 @@ jobs:
           password: ${{ secrets.DOCKERHUB_GB_TOKEN }}
 
       - name: Build snapshot docker image
+        uses: docker/build-push-action@v2
+        with:
+          file: ../gitblit-docker/generate/Dockerfile
+          context: ../gitblit-docker
+          load: true
+          tags: gitblit/gitblit:nightly
+          labels: |
+            org.label-schema.vcs-ref=${{github.sha}}
+            org.label-schema.build-date=${{env.BUILD_DATE}}
+
+      - name: Install Goss for testing the docker image
+        uses: e1himself/goss-installation-action@v1.0.4
+        with:
+          version: 'v0.3.16'
+
+      - name: Test docker container - normal mode
+        working-directory: ../gitblit-docker
+        env:
+          GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
+        run: |
+          dgoss run  -p 8080:8080  -p 8443:8443  gitblit/gitblit:nightly
+
+      - name: Test docker container - bind mount
+        working-directory: ../gitblit-docker
+        env:
+          GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
+        run: |
+          mkdir gitblit-data
+          mkdir gitblit-data/etc
+          echo "This should not be overwritten" > gitblit-data/etc/gitblit.properties
+          echo "include = gitblit-docker.properties" >> gitblit-data/etc/gitblit.properties
+          sed -e '/mode: / d' -e '/group: / d' goss.yaml > gitblit-data/goss.yaml
+          cp goss_wait.yaml gitblit-data/
+          GOSS_FILES_PATH=gitblit-data dgoss run -p 8080:8080  -p 8443:8443 -v "$PWD/gitblit-data":/var/opt/gitblit gitblit/gitblit:nightly
+          [ -d gitblit-data/srv/git ] || exit 1
+          [ -f gitblit-data/etc/defaults.properties ] || exit 1
+          grep --quiet "This should not be overwritten"  gitblit-data/etc/gitblit.properties || exit 1
+          sudo rm -rf gitblit-data
+
+      - name: Test docker container - tmpfs
+        working-directory: ../gitblit-docker
+        env:
+          GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
+        run: |
+          dgoss run  -p 8080:8080  -p 8443:8443 --tmpfs /var/opt/gitblit/temp gitblit/gitblit:nightly
+
+      - name: Push docker image to registry
         uses: docker/build-push-action@v2
         with:
           file: ../gitblit-docker/generate/Dockerfile
