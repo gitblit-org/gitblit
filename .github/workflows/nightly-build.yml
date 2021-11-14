@@ -63,7 +63,7 @@ jobs:
     name: build GO
     runs-on: ubuntu-latest
     needs: check_commits
-    if: ${{ needs.check_commits.outputs.build == 'true' }}
+    if: ${{ needs.check_commits.outputs.build == 'true' || github.event.inputs.forced == 'true' }}
 
     steps:
 
