@@ -5,20 +5,40 @@ r32: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.
+          ''
     html: ~
     text: ~
     security: ~
     fixes:
       - Fix raw links broken for branches with a forward slash in the name (issue-1290, issue-1234, issue-813)
-      - Fix markdown links to files in subfolders (issue-1358)
-    changes: ~
+      - Fix markdown links to files in subfolders (issue-1358, pr-1392 by @TomaszSzt)
+      - Fix high CPU load when saving huge users.conf file (pr-1364 by @Curly060)
+      - Fix broken encoding in Norwegian language file (issue-834, pr-1379)
+      - Fix various issues (typos, broken and duplicate keys) in language properties files (pr-1380 by @flaix)
+      - Fix mirrored HTTP(S) with a user name and password (issue-1059, pr-1381 by @edram)
+      - Fix relative time display being off on activity page (issue-800, issue-1248, pr-1382)
+      - Fix URL encoding for links to raw view for files (issue-1375, pr-1383)
+      - Resolve StackOverflowErrors on page serialization (issue-1011, pr-1141 by @tomaswolf)
+    changes:
+      - Updated traditional Chinese translation (pr-1367 by @YMNNs)
+      - Make it possible to call the Windows batch commands on the command line from a different folder (pr-1370 by @Zwixx)
     additions:
-      - Add service scripts for FreeBSD (pr-1345)
+      - Add service scripts for FreeBSD (pr-1345 by @davehofmann)
+      - Add Russian translation (pr-1343 by @vhot2076)
     dependencyChanges:
       - update to Mockito 2.28.2
     contributors:
+      - Florian Zschocke
       - David Hofmann
+      - @YMNNs
+      - Ingo Lafrenz
+      - Christian
+      - @edram
+      - Vladimir A.
+      - Tomas Wolf
+      - Tomasz Szt
 }
 
 #
