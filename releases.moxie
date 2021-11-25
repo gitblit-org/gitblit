@@ -29,6 +29,7 @@ r32: {
       - Add Russian translation (pr-1343 by @vhot2076)
     dependencyChanges:
       - update to Mockito 2.28.2
+      - update to Jetty 9.2.30.v20200428
     contributors:
       - Florian Zschocke
       - David Hofmann
