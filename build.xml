@@ -627,7 +627,7 @@
 					<link name="Issues" src="${project.issuesUrl}" />
 					<link name="Discussion" src="${project.forumUrl}" />
 					<link name="Twitter" src="https://twitter.com/gitblit" />
-					<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+					<link name="OpenHub" src="https://www.openhub.net/p/gitblit" />
                     <divider />
 					<link name="Gitblit Tickets screencast" src="https://vimeo.com/86164723" />
 					<link name="Gitblit SSH and Plugin Management asciicast" src="https://asciinema.org/a/9342" />
@@ -1037,7 +1037,7 @@ GB_RELEASE_TAG=${project.tag}
 						<link name="Issues" src="${project.issuesUrl}" />
 						<link name="Discussion" src="${project.forumUrl}" />
 						<link name="Twitter" src="https://twitter.com/gitblit" />
-						<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+						<link name="OpenHub" src="https://www.openhub.net/p/gitblit" />
 					</menu>
 				</structure>
 
