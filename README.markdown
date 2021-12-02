@@ -32,6 +32,9 @@ Contributing
 
 GitHub pull requests are preferred.  Any contributions must be distributed under the terms of the [Apache Software Foundation license, version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
+Please see the [CONTRIBUTING file](CONTRIBUTING.md) for suggestions and guidelines on contributing to Gitblit. Thank you!
+
+
 Building Gitblit
 ----------------
 
