@@ -391,11 +391,6 @@ public class MarkupProcessor {
 	private String getWicketUrl(Class<? extends Page> pageClass, final String repositoryName, final String commitId, final String document) {
 		String fsc = settings.getString(Keys.web.forwardSlashCharacter, "/");
 		String encodedPath = document.replace(' ', '-');
-		try {
-			encodedPath = URLEncoder.encode(encodedPath, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.error(null, e);
-		}
 		encodedPath = encodedPath.replace("/", fsc).replace("%2F", fsc);
 
 		String url = RequestCycle.get().urlFor(pageClass, WicketUtils.newPathParameter(repositoryName, commitId, encodedPath)).toString();
