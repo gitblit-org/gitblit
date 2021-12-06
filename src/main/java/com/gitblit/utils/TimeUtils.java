@@ -59,7 +59,11 @@ public class TimeUtils {
 	 * @return true if date is today
 	 */
 	public static boolean isToday(Date date, TimeZone timezone) {
-		Date now = new Date();
+		return isToday(date, timezone, new Date());
+	}
+
+
+	static boolean isToday(Date date, TimeZone timezone, Date now) {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 		if (timezone != null) {
 			df.setTimeZone(timezone);
@@ -74,8 +78,13 @@ public class TimeUtils {
 	 * @return true if date is yesterday
 	 */
 	public static boolean isYesterday(Date date, TimeZone timezone) {
+		return isYesterday(date, timezone, new Date());
+	}
+
+
+	static boolean isYesterday(Date date, TimeZone timezone, Date now) {
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date());
+		cal.setTime(now);
 		cal.add(Calendar.DATE, -1);
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 		if (timezone != null) {
@@ -157,7 +166,12 @@ public class TimeUtils {
 	 * @return hours ago
 	 */
 	public static int hoursAgo(Date date, boolean roundup) {
-		long diff = System.currentTimeMillis() - date.getTime();
+		return hoursAgo(date, System.currentTimeMillis(), roundup);
+	}
+
+
+	static int hoursAgo(Date date, long now, boolean roundup) {
+		long diff = now - date.getTime();
 		int hours = (int) (diff / ONEHOUR);
 		if (roundup && (diff % ONEHOUR) >= HALFHOUR) {
 			hours++;
@@ -172,12 +186,67 @@ public class TimeUtils {
 	 * @return days ago
 	 */
 	public static int daysAgo(Date date) {
-		long today = ONEDAY * (System.currentTimeMillis()/ONEDAY);
+		return daysAgo(date, System.currentTimeMillis());
+	}
+
+	static int daysAgo(Date date, long now) {
+		long today = ONEDAY * (now/ONEDAY);
 		long day = ONEDAY * (date.getTime()/ONEDAY);
 		long diff = today - day;
 		int days = (int) (diff / ONEDAY);
 		return days;
 	}
+
+
+
+	/**
+	 * Return the difference in calendar days between a given timestamp and the date.
+	 * Calendar days means that the difference is calculated between
+	 * calendar days, not 24 hour increments.
+	 *
+	 * This means the result is dependent on the timezone. Only the local
+	 * time's time zone is used, i.e. both time stamps are interpreted in
+	 * the given time zone.
+	 *
+	 * E.g. if now is 10:00 on 20.10.2020 GMT and the date given is for
+	 * either 6:00 or 20:00 on 18.10.2020 GMT then the result is two days
+	 * in both cases.
+	 *
+	 *
+	 * @param date
+	 * 			Date in the past
+	 * @param now
+	 * 			Timestamp representing current time (used for unit tests)
+	 * @return calendar days ago
+	 */
+	static int calendarDaysAgo(Date date, TimeZone timezone, long now) {
+		Calendar cal;
+		if (timezone == null) {
+			cal = Calendar.getInstance();
+		} else {
+			cal = Calendar.getInstance(timezone);
+		}
+
+		cal.setTimeInMillis(now);
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 12);
+		long today = cal.getTime().getTime();
+
+		cal.clear();
+		cal.setTime(date);
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 12);
+		long day = cal.getTime().getTime();
+
+		long diff = today - day;
+		int days = (int) (diff / ONEDAY);
+		return days;
+	}
+
 
 	public String today() {
 		return translate("gb.time.today", "today");
@@ -217,13 +286,19 @@ public class TimeUtils {
 	 * @return the string representation of the duration OR the css class
 	 */
 	private String timeAgo(Date date, boolean css) {
-		if (isToday(date, timezone) || isYesterday(date, timezone)) {
-			int mins = minutesAgo(date, true);
+		return timeAgo(date, css, System.currentTimeMillis());
+	}
+
+
+	String timeAgo(Date date, boolean css, long now) {
+		Date dNow = new Date(now);
+		if (isToday(date, timezone, dNow) || isYesterday(date, timezone, dNow)) {
+			int mins = minutesAgo(date, now, true);
 			if (mins >= 120) {
 				if (css) {
 					return "age1";
 				}
-				int hours = hoursAgo(date, true);
+				int hours = hoursAgo(date, now, true);
 				if (hours > 23) {
 					return yesterday();
 				} else {
@@ -238,7 +313,7 @@ public class TimeUtils {
 			}
 			return translate("gb.time.justNow", "just now");
 		} else {
-			int days = daysAgo(date);
+			int days = calendarDaysAgo(date, timezone, now);
 			if (css) {
 				if (days <= 7) {
 					return "age2";

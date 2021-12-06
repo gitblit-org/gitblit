@@ -676,7 +676,7 @@ public class ConfigUserService implements IUserService {
 		// Write a temporary copy of the users file
 		File realmFileCopy = new File(realmFile.getAbsolutePath() + ".tmp");
 
-		StoredConfig config = new FileBasedConfig(realmFileCopy, FS.detect());
+		StoredUserConfig config = new StoredUserConfig(realmFileCopy);
 
 		// write users
 		for (UserModel model : users.values()) {

@@ -15,6 +15,7 @@
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="%GCURL%gitblit-${project.releaseVersion}.tar.gz">Download Gitblit GO (Linux/OSX)</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="%GCURL%gitblit-${project.releaseVersion}.war">Download Gitblit WAR</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="%GCURL%manager-${project.releaseVersion}.zip">Download Gitblit Manager</a></div>
+<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="%DOCKERURL%">Gitblit GO Docker image</a></div>
 </div>
 <div data-manifest="http://1c57d83a4c5f3a21ec25c050d4c5e37b.app.jelastic.com/xssu/cross/download/RDYYHABkAFJbUVlMMVU7RUtDARgATExFCEBuGS4jdQJKRUsEDwIBQmNTTEBI" data-width="280" data-theme="flat-blue" data-text="Get it hosted now!" data-tx-empty="Type your email and click the button" data-tx-invalid-email="Invalid email, please check the spelling" data-tx-error="An error has occurred, please try again later" data-tx-success="Check your email" class="je-app" ></div>
 	<div style="padding-top:5px;">
@@ -25,7 +26,7 @@
 		<tr><th>Issues</th><td><a href="${project.issuesUrl}">GitHub</a></td></tr>
 		<tr><th>Discussion</th><td><a href="${project.forumUrl}">Gitblit Group</a></td></tr>
 		<tr><th>Twitter</th><td><a href="https://twitter.com/gitblit">@gitblit</a></td></tr>
-		<tr><th>Ohloh</th><td><a target="_top" href="http://www.ohloh.net/p/gitblit"><img border="0" width="100" height="16" src="http://www.ohloh.net/p/gitblit/widgets/project_thin_badge.gif" alt="Ohloh project report for Gitblit" /></a></td></tr>
+		<tr><th>Open Hub</th><td><a target="_top" href="https://www.openhub.net/p/gitblit"><img border="0" width="100" height="16" src="https://www.openhub.net/p/gitblit/widgets/project_thin_badge.gif" alt="Open Hub project report for Gitblit" /></a></td></tr>
 		</tbody>
 		</table>
 	</div>

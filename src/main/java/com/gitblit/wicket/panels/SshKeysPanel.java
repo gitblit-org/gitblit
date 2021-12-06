@@ -118,7 +118,7 @@ public class SshKeysPanel extends BasePanel {
 
 		final IModel<String> keyComment = Model.of("");
 		addKeyForm.add(new TextOption("addKeyComment",
-				getString("gb.comment"),
+				getString("gb.sshKeyComment"),
 				getString("gb.sshKeyCommentDescription"),
 				"span5",
 				keyComment));

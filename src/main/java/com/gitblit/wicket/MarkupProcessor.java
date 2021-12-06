@@ -47,6 +47,7 @@ import org.pegdown.LinkRenderer;
 import org.pegdown.ToHtmlSerializer;
 import org.pegdown.VerbatimSerializer;
 import org.pegdown.ast.ExpImageNode;
+import org.pegdown.ast.ExpLinkNode;
 import org.pegdown.ast.RefImageNode;
 import org.pegdown.ast.WikiLinkNode;
 import org.pegdown.plugins.ToHtmlSerializerPlugin;
@@ -355,6 +356,29 @@ public class MarkupProcessor {
 				String name = getDocumentName(path);
 				String url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
 				return new Rendering(url, name);
+			}
+
+			@Override
+			public Rendering render(ExpLinkNode node, String text) {
+				// Relative file-like MD links needs to be re-mapped to be relative to 
+				// repository name so that they display correctly sub-folder files
+				// Absolute links must be left un-touched.
+				
+				// Note: The absolute lack of comments in ExpLinkNode is... well...
+				// I assume, that getRelativePath is handling "file like" links
+				// like "/xx/tt"  or "../somefolder". What needs to be captured
+				// is a full URL link. The easiest is to ask java to parse URL
+				// and let it fail. Shame java.net.URL has no method to validate URL without
+				// throwing.
+				try {
+					new java.net.URL(node.url);
+					// This is URL, fallback to superclass.
+					return super.render(node,text);
+				} catch (java.net.MalformedURLException ignored) {};
+				// repository-relative link
+				String path = doc.getRelativePath(node.url);
+				String url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
+				return new Rendering(url, text);
 			}
 		};
 

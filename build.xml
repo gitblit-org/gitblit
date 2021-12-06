@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="gitblit" default="compile" xmlns:mx="antlib:org.moxie">
+<project name="gitblit" default="compile" xmlns:mx="antlib:org.moxie" xmlns:jacoco="antlib:org.jacoco.ant">
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,7 +12,9 @@
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
-	
+
+	<property name="jacoco.version" value="0.8.4" />
+
 	<!-- Download Moxie from it's Maven repository to user.home -->
 	<mkdir dir="${moxie.dir}" />
 	<get src="${moxie.url}/com/gitblit/moxie/moxie-toolkit/${moxie.version}/${moxie.jar}"
@@ -46,7 +48,12 @@
 		     If it exists, build.properties is automatically loaded.
 		     Explicitly set mxroot allowing CI servers to override the default. -->
 		<mx:init verbose="no" mxroot="${moxie.dir}" />
-				
+
+		<!-- Register JaCoCo tasks -->
+		<taskdef uri="antlib:org.jacoco.ant">
+			<classpath location="${moxie.dir}/remote/repo1.maven.org_maven2/org/jacoco/org.jacoco.ant/${jacoco.version}/org.jacoco.ant-${jacoco.version}-nodeps.jar" />
+		</taskdef>
+
 		<!-- Set Ant project properties -->
 		<property name="release.tag" value="v${project.version}" />
 		<property name="currentRelease.tag" value="v${project.releaseVersion}" />
@@ -64,6 +71,7 @@
 
 		<!-- Download links -->
 		<property name="gc.url" value="https://github.com/${gh.org}/gitblit/releases/download/" />
+		<property name="docker.url" value="https://hub.docker.com/r/gitblit/gitblit" />
 
 		<!-- Report Java version -->
 		<echo>JDK version: ${ant.java.version}</echo>
@@ -160,7 +168,22 @@
 		
 		<!-- Run unit tests -->
 		<mx:test failonerror="true" />
-		
+
+		<!-- Create JaCoCo single XML report file for code coverage service. -->
+		<jacoco:report>
+			<executiondata>
+				<file file="${project.outputDirectory}/jacoco.exec"/>
+			</executiondata>
+			<structure name="${project.name}">
+				<classfiles>
+					<fileset dir="${project.outputDirectory}/classes"/>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${project.src.dir}"/>
+				</sourcefiles>
+			</structure>
+			<xml destfile="${project.targetDirectory}/reports/coverage/jacoco.xml"/>
+		</jacoco:report>
 	</target>
 
 
@@ -580,7 +603,7 @@
 					<link name="Gitblit GO (Linux/OSX)" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.tar.gz" />
 					<link name="Gitblit WAR" src="${gc.url}${currentRelease.tag}/gitblit-${project.releaseVersion}.war" />
 					<divider />
-					<link name="Gitblit GO (Docker)" src="https://registry.hub.docker.com/u/jmoger/gitblit/" />
+					<link name="Gitblit GO (Docker)" src="${docker.url}" />
 					<divider />
 					<link name="Plugins Registry" src="http://plugins.gitblit.com" />
 					<divider />
@@ -605,7 +628,7 @@
 					<link name="Issues" src="${project.issuesUrl}" />
 					<link name="Discussion" src="${project.forumUrl}" />
 					<link name="Twitter" src="https://twitter.com/gitblit" />
-					<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+					<link name="OpenHub" src="https://www.openhub.net/p/gitblit" />
                     <divider />
 					<link name="Gitblit Tickets screencast" src="https://vimeo.com/86164723" />
 					<link name="Gitblit SSH and Plugin Management asciicast" src="https://asciinema.org/a/9342" />
@@ -615,9 +638,10 @@
 				</menu>
 				<divider />
 			</structure>
-			
+
 			<replace token="%GCURL%" value="${gc.url}${currentRelease.tag}/" />
-			
+			<replace token="%DOCKERURL%" value="${docker.url}" />
+
 			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 
 			<regex searchPattern="\b(commit)(\s*[#]?|-){0,1}([0-9a-fA-F]{5,})\b" replacePattern="&lt;a href='https://github.com/gitblit/gitblit/commit/$3'&gt;commit $3&lt;/a&gt;" />
@@ -1015,11 +1039,12 @@ GB_RELEASE_TAG=${project.tag}
 						<link name="Issues" src="${project.issuesUrl}" />
 						<link name="Discussion" src="${project.forumUrl}" />
 						<link name="Twitter" src="https://twitter.com/gitblit" />
-						<link name="Ohloh" src="http://www.ohloh.net/p/gitblit" />
+						<link name="OpenHub" src="https://www.openhub.net/p/gitblit" />
 					</menu>
 				</structure>
 
 				<replace token="%GCURL%" value="${gc.url}${currentRelease.tag}/" />
+				<replace token="%DOCKERURL%" value="${docker.url}" />
 
 				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 

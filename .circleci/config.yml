@@ -21,7 +21,8 @@ gbsteps: &gbsteps
         path:  build/target/reports
 
 
-version: 2
+version: 2.1
+
 
 jobs:
   buildJ8:
@@ -46,6 +47,25 @@ workflows:
   version: 2
   build:
     jobs:
-      - "buildJ8"
+      - buildJ8:
+          post-steps:
+            - run:
+                name: Upload coverage to Codecov
+                command: bash <(curl -s https://codecov.io/bash)
+            - run:
+                name: Prepare Code Climate coverage reporter
+                command: |
+                  curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+                  chmod +x ./cc-test-reporter
+                  ./cc-test-reporter before-build
+            - run:
+                name: Upload coverage to Code Climate
+                command: |
+                  JACOCO_SOURCE_PATH=src/main/java ./cc-test-reporter format-coverage ./build/target/reports/coverage/jacoco.xml --input-type jacoco
+                  ./cc-test-reporter upload-coverage
+                when: on_success
+            - run:
+                name: Upload coverage to Codacy
+                command: bash <(curl -Ls https://coverage.codacy.com/get.sh) report
       - "buildJ9"
       - "buildJ11"
