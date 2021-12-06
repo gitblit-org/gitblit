@@ -19,8 +19,6 @@ import static org.pegdown.FastEncoder.encode;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +47,7 @@ import org.pegdown.VerbatimSerializer;
 import org.pegdown.ast.ExpImageNode;
 import org.pegdown.ast.ExpLinkNode;
 import org.pegdown.ast.RefImageNode;
+import org.pegdown.ast.RefLinkNode;
 import org.pegdown.ast.WikiLinkNode;
 import org.pegdown.plugins.ToHtmlSerializerPlugin;
 import org.slf4j.Logger;
@@ -266,7 +265,7 @@ public class MarkupProcessor {
 			@Override
 			public void image(Attributes attributes, String imagePath) {
 				String url;
-				if (imagePath.indexOf("://") == -1) {
+				if (! isFullUrl(imagePath)) {
 					// relative image
 					String path = doc.getRelativePath(imagePath);
 					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
@@ -282,7 +281,7 @@ public class MarkupProcessor {
 			public void link(Attributes attributes, String hrefOrHashName, String text) {
 				String url;
 				if (hrefOrHashName.charAt(0) != '#') {
-					if (hrefOrHashName.indexOf("://") == -1) {
+					if (! isFullUrl(hrefOrHashName)) {
 						// relative link
 						String path = doc.getRelativePath(hrefOrHashName);
 						url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
@@ -323,7 +322,7 @@ public class MarkupProcessor {
 
 			@Override
 			public Rendering render(ExpImageNode node, String text) {
-				if (node.url.indexOf("://") == -1) {
+				if (! isFullUrl(node.url)) {
 					// repository-relative image link
 					String path = doc.getRelativePath(node.url);
 					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
@@ -337,7 +336,7 @@ public class MarkupProcessor {
 			@Override
 			public Rendering render(RefImageNode node, String url, String title, String alt) {
 				Rendering rendering;
-				if (url.indexOf("://") == -1) {
+				if (! isFullUrl(url)) {
 					// repository-relative image link
 					String path = doc.getRelativePath(url);
 					String contextUrl = RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot();
@@ -363,22 +362,30 @@ public class MarkupProcessor {
 				// Relative file-like MD links needs to be re-mapped to be relative to 
 				// repository name so that they display correctly sub-folder files
 				// Absolute links must be left un-touched.
-				
+
 				// Note: The absolute lack of comments in ExpLinkNode is... well...
 				// I assume, that getRelativePath is handling "file like" links
-				// like "/xx/tt"  or "../somefolder". What needs to be captured
-				// is a full URL link. The easiest is to ask java to parse URL
-				// and let it fail. Shame java.net.URL has no method to validate URL without
-				// throwing.
-				try {
-					new java.net.URL(node.url);
+				// like "/xx/tt"  or "../somefolder".
+				if (isFullUrl(node.url)) {
 					// This is URL, fallback to superclass.
 					return super.render(node,text);
-				} catch (java.net.MalformedURLException ignored) {};
+				}
 				// repository-relative link
 				String path = doc.getRelativePath(node.url);
 				String url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
 				return new Rendering(url, text);
+			}
+
+			@Override
+			public Rendering render(RefLinkNode node, String url, String title, String text) {
+				if (isFullUrl(url)) {
+					// This is URL, fallback to superclass.
+					return super.render(node, url, title, text);
+				}
+				// repository-relative link
+				String path = doc.getRelativePath(url);
+				String local_url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
+				return super.render(node, local_url, title, text);
 			}
 		};
 
@@ -387,6 +394,24 @@ public class MarkupProcessor {
 
 		doc.html = safeContent;
 	}
+
+	private boolean isFullUrl(String url)
+	{
+		// Relative file-like links needs to be re-mapped to be relative to
+		// repository name so that they display correctly sub-folder files
+		// Absolute links must be left un-touched.
+		// Check if given string is a full URL link. The easiest is to ask java to parse URL
+		// and let it fail. Shame java.net.URL has no method to validate URL without
+		// throwing.
+		try {
+			new java.net.URL(url);
+			// Success, this is a URL
+			return true;
+		} catch (java.net.MalformedURLException ignored) {};
+		// This is a relative link
+		return false;
+	}
+
 
 	private String getWicketUrl(Class<? extends Page> pageClass, final String repositoryName, final String commitId, final String document) {
 		String fsc = settings.getString(Keys.web.forwardSlashCharacter, "/");

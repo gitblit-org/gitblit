@@ -217,7 +217,7 @@ public class MarkupProcessorTest
 		MarkupDocument mdoc = mp.parse("testrepo", "12345abcde", "main.md", markup);
 		Document doc = Jsoup.parseBodyFragment(mdoc.html);
 		String href = doc.getElementsByAttribute("href").attr("href");
-		assertEquals("Incorrect link rendered","doc/testrepo/12345abcde/%65%E5%67%2C%8A%Ee.md", href);
+		assertEquals("Incorrect link rendered","doc/testrepo/12345abcde/%E6%97%A5%E6%9C%AC%E8%AA%9E.md", href);
 	}
 
 	@Test
