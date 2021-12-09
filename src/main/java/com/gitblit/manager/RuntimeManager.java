@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.gitblit.utils.ContainerDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +79,7 @@ public class RuntimeManager implements IRuntimeManager {
 		logTimezone("App timezone: ", getTimezone());
 		logger.info("JVM locale  : " + Locale.getDefault());
 		logger.info("App locale  : " +  (getLocale() == null ? "<client>" : getLocale()));
+		ContainerDetector.report(logger, true);
 		return this;
 	}
 
