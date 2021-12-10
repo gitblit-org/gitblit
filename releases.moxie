@@ -6,7 +6,7 @@ r32: {
     id: ${project.version}
     date: ${project.buildDate}
     note: ''
-          The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.
+          The 1.9 minor version is the last to support Java 7. From 1.10 on Gitblit will require Java 8.
           ''
     html: ~
     text: ~
@@ -21,9 +21,11 @@ r32: {
       - Fix relative time display being off on activity page (issue-800, issue-1248, pr-1382)
       - Fix URL encoding for links to raw view for files (issue-1375, pr-1383)
       - Resolve StackOverflowErrors on page serialization (issue-1011, pr-1141 by @tomaswolf)
+      - Fix double encoding links in Markdown/Wiki pages (issue-864)
     changes:
       - Updated traditional Chinese translation (pr-1367 by @YMNNs)
       - Make it possible to call the Windows batch commands on the command line from a different folder (pr-1370 by @Zwixx)
+      - Updated Japanese translation (pr-1398 by @TakehideMorimoto)
     additions:
       - Add service scripts for FreeBSD (pr-1345 by @davehofmann)
       - Add Russian translation (pr-1343 by @vhot2076)
@@ -40,6 +42,7 @@ r32: {
       - Vladimir A.
       - Tomas Wolf
       - Tomasz Szt
+      - Takehide Morimoto
 }
 
 #
