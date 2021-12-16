@@ -52,8 +52,11 @@
 # * OK_SH_MARKDOWN=${OK_SH_MARKDOWN}
 #   Output some text in Markdown format.
 
-export NAME=$(basename "$0")
-export VERSION='0.5.1'
+# shellcheck disable=SC2039,SC2220
+
+NAME=$(basename "$0")
+export NAME
+export VERSION='0.7.0'
 
 export OK_SH_URL=${OK_SH_URL:-'https://api.github.com'}
 export OK_SH_ACCEPT=${OK_SH_ACCEPT:-'application/vnd.github.v3+json'}
@@ -205,8 +208,8 @@ __main() {
     local OPTARG
     local OPTIND
     local quiet=0
-    local temp_dir="${TMPDIR-/tmp}/${NAME}.${$}.$(awk \
-        'BEGIN {srand(); printf "%d\n", rand() * 10^10}')"
+    local temp_dir
+    temp_dir="${TMPDIR-/tmp}/${NAME}.${$}.$(awk 'BEGIN {srand(); printf "%d\n", rand() * 10^10}')"
     local summary_fifo="${temp_dir}/oksh_summary.fifo"
 
     # shellcheck disable=SC2154
@@ -403,8 +406,11 @@ _format_json() {
     function isnum(x){ return (x == x + 0) }
     function isnull(x){ return (x == "null" ) }
     function isbool(x){ if (x == "true" || x == "false") return 1 }
-    function isnested(x) { if (substr(x, 0, 1) == "[" \
-        || substr(x, 0, 1) == "{") return 1 }
+    function isnested(x) {
+      if (substr(x, 0, 1) == "[" || substr(x, 0, 1) == "{") {
+        return 1
+      }
+    }
     function castOrQuote(val) {
         if (!isbool(val) && !isnum(val) && !isnull(val) && !isnested(val)) {
             sub(/^('\''|")/, "", val) # Remove surrounding quotes
@@ -509,8 +515,7 @@ _filter_json() {
         return
     fi
 
-    "${OK_SH_JQ_BIN}" -c -r "${_filter}"
-    [ $? -eq 0 ] || printf 'jq parse error; invalid JSON.\n' 1>&2
+    "${OK_SH_JQ_BIN}" -c -r "${_filter}" || printf 'jq parse error; invalid JSON.\n' 1>&2
 }
 
 _get_mime_type() {
@@ -625,7 +630,8 @@ _opts_qs() {
     #     _opts_qs "$@"
     #     _get "/some/path${qs}"
 
-    local querystring=$(_format_urlencode "$@")
+    local querystring
+    querystring=$(_format_urlencode "$@")
     qs="${querystring:+?$querystring}"
 }
 
@@ -784,36 +790,39 @@ _response() {
         fi
     done
 
-    headers="http_version: ${http_version}
-status_code: ${status_code}
-status_text: ${status_text}
+    headers="HTTP_VERSION: ${http_version}
+STATUS_CODE: ${status_code}
+STATUS_TEXT: ${status_text}
 "
     while IFS=": " read -r hdr val; do
         # Headers stop at the first blank line.
         [ "$hdr" = "$crlf" ] && break
         val="${val%${crlf}}"
 
+        # Headers are case insensitive
+        hdr="$(printf '%s' "$hdr" | awk '{print toupper($0)}')"
+
         # Process each header; reformat some to work better with sh tools.
         case "$hdr" in
             # Update the GitHub rate limit trackers.
-            X-RateLimit-Remaining)
+            X-RATELIMIT-REMAINING)
                 printf 'GitHub remaining requests: %s\n' "$val" 1>&$LSUMMARY ;;
-            X-RateLimit-Reset)
+            X-RATELIMIT-RESET)
                 awk -v gh_reset="$val" 'BEGIN {
                     srand(); curtime = srand()
                     print "GitHub seconds to reset: " gh_reset - curtime
                 }' 1>&$LSUMMARY ;;
 
             # Remove quotes from the etag header.
-            ETag) val="${val#\"}"; val="${val%\"}" ;;
+            ETAG) val="${val#\"}"; val="${val%\"}" ;;
 
             # Split the URLs in the Link header into separate pseudo-headers.
-            Link) headers="${headers}$(printf '%s' "$val" | awk '
+            LINK) headers="${headers}$(printf '%s' "$val" | awk '
                 BEGIN { RS=", "; FS="; "; OFS=": " }
                 {
                     sub(/^rel="/, "", $2); sub(/"$/, "", $2)
                     sub(/^ *</, "", $1); sub(/>$/, "", $1)
-                    print "Link_" $2, $1
+                    print "LINK_" toupper($2), $1
                 }')
 "  # need trailing newline
             ;;
@@ -827,6 +836,7 @@ status_text: ${status_text}
     # Output requested headers in deterministic order.
     for arg in "$@"; do
         _log debug "Outputting requested header '${arg}'."
+        arg="$(printf '%s' "$arg" | awk '{print toupper($0)}')"
         output=$(printf '%s' "$headers" | while IFS=": " read -r hdr val; do
             [ "$hdr" = "$arg" ] && printf '%s' "$val"
         done)
@@ -1125,12 +1135,68 @@ org_members() {
     local _filter='.[] | "\(.login)\t\(.id)"'
     #   A jq filter to apply to the return data.
 
+    local qs
+
     shift 1
 
     _opts_filter "$@"
+    _opts_qs "$@"
 
-    _get "/orgs/${org}/members" \
-        | _filter_json "${_filter}"
+    _get "/orgs/${org}/members${qs}" | _filter_json "${_filter}"
+}
+
+org_collaborators() {
+    # List organization outside collaborators
+    #
+    # Usage:
+    #
+    #     org_collaborators org
+    #
+    # Positional arguments
+    #
+    local org="${1:?Org name required.}"
+    #   Organization GitHub login or id.
+    #
+    # Keyword arguments
+    #
+    local _filter='.[] | "\(.login)\t\(.id)"'
+    #   A jq filter to apply to the return data.
+
+    local qs
+
+    shift 1
+
+    _opts_filter "$@"
+    _opts_qs "$@"
+
+    _get "/orgs/${org}/outside_collaborators${qs}" | _filter_json "${_filter}"
+}
+
+org_auditlog() {
+    # Interact with the Github Audit Log
+    #
+    # Usage:
+    #
+    #     org_auditlog org
+    #
+    # Positional arguments
+    #
+    local org="${1:?Org name required.}"
+    #   Organization GitHub login or id.
+    #
+    # Keyword arguments
+    #
+    local _filter='.[] | "\(.actor)\t\(.action)"'
+    #   A jq filter to apply to the return data.
+
+    local qs
+
+    shift 1
+
+    _opts_filter "$@"
+    _opts_qs "$@"
+
+    _get "/orgs/${org}/audit-log${qs}" | _filter_json "${_filter}"
 }
 
 team_members() {
@@ -1184,8 +1250,10 @@ list_repos() {
     # * `sort`
     # * `type`
 
+    # User is optional; is this a keyword arg?
+    case "$user" in *=*) user='' ;; esac
+    if [ -n "$user" ]; then shift 1; fi
 
-    shift 1
     local qs
 
     _opts_filter "$@"
@@ -1235,6 +1303,47 @@ list_branches() {
     _opts_qs "$@"
 
     url="/repos/${user}/${repo}/branches"
+
+    _get "${url}${qs}" | _filter_json "${_filter}"
+}
+
+list_commits() {
+    # List commits of a specified repository.
+    # ( https://developer.github.com/v3/repos/commits/#list-commits-on-a-repository )
+    #
+    # Usage:
+    #
+    #     list_commits user repo
+    #
+    # Positional arguments
+    #
+    #   GitHub user login or id for which to list branches
+    #   Name of the repo for which to list branches
+    #
+
+    local user="${1:?User name required.}"
+    local repo="${2:?Repo name required.}"
+    shift 2
+
+    #   A jq filter to apply to the return data.
+    #
+
+    local _filter='.[] | "\(.sha) \(.author.login) \(.commit.author.email) \(.committer.login) \(.commit.committer.email)"'
+
+    # Querystring arguments may also be passed as keyword arguments:
+    #
+    # * `sha` 
+    # * `path`
+    # * `author`
+    # * `since` Only commits after this date will be returned. This is a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+    # * `until`     
+
+    local qs
+
+    _opts_filter "$@"
+    _opts_qs "$@"
+
+    url="/repos/${user}/${repo}/commits"
 
     _get "${url}${qs}" | _filter_json "${_filter}"
 }
@@ -1541,6 +1650,7 @@ create_repo() {
         url='/user/repos'
     fi
 
+    export OK_SH_ACCEPT="application/vnd.github.nebula-preview+json"
     _format_json "name=${name}" "$@" | _post "$url" | _filter_json "${_filter}"
 }
 
@@ -1888,6 +1998,54 @@ upload_asset() {
         | _filter_json "$_filter"
 }
 
+delete_asset() {
+    # Delete a release asset
+    #
+    # https://docs.github.com/en/rest/reference/releases#delete-a-release-asset
+    #
+    # Usage:
+    #
+    #     delete_asset user repo 51955388
+    #
+    # Example of deleting release assets:
+    #
+    #     ok.sh release_assets <user> <repo> <release_id> \
+    #             _filter='.[] | .id' \
+    #         | xargs -L1 ./ok.sh delete_asset "$myuser" "$myrepo"
+    #
+    # Example of the multi-step process for grabbing the release ID for
+    # a specific version, then grabbing the release asset IDs, and then
+    # deleting all the release assets (whew!):
+    #
+    #     username='myuser'
+    #     repo='myrepo'
+    #     release_tag='v1.2.3'
+    #     ok.sh list_releases "$myuser" "$myrepo" \
+    #         | awk -F'\t' -v tag="$release_tag" '$2 == tag { print $3 }' \
+    #         | xargs -I{} ./ok.sh release_assets "$myuser" "$myrepo" {} \
+    #             _filter='.[] | .id' \
+    #         | xargs -L1 ./ok.sh -y delete_asset "$myuser" "$myrepo"
+    #
+    # Positional arguments
+    #
+    local owner="${1:?Owner name required.}"
+    #   A GitHub user or organization.
+    local repo="${2:?Repo name required.}"
+    #   A GitHub repository.
+    local asset_id="${3:?Release asset ID required.}"
+    #   The unique ID of the release asset; see release_assets.
+
+    shift 3
+
+    local confirm
+
+    _get_confirm 'This will permanently delete a release asset. Continue?'
+    [ "$confirm" -eq 1 ] || exit 0
+
+    _delete "/repos/${owner}/${repo}/releases/assets/${asset_id}"
+    exit $?
+}
+
 # ### Issues
 # Create, update, edit, delete, list issues and milestones.
 
@@ -1969,6 +2127,47 @@ create_milestone() {
         | _filter_json "$_filter"
 }
 
+list_issue_comments() {
+    # List comments of a specified issue.
+    # ( https://developer.github.com/v3/issues/comments/#list-issue-comments )
+    #
+    # Usage:
+    #
+    #     list_issue_comments someuser/somerepo number
+    #
+    # Positional arguments
+    #
+    #   GitHub owner login or id for which to list branches
+    #   Name of the repo for which to list branches
+    #   Issue number
+    #
+    local repo="${1:?Repo name required.}"
+    local number="${2:?Issue number is required.}"
+    shift 2
+
+    local _follow_next
+    #   Automatically look for a 'Links' header and follow any 'next' URLs.
+    local _follow_next_limit
+    #   Maximum number of 'next' URLs to follow before stopping.
+    local _filter='.[] | "\(.body)"'
+    #   A jq filter to apply to the return data.
+
+    _opts_pagination "$@"
+
+    #   A jq filter to apply to the return data.
+    #
+    # Querystring arguments may also be passed as keyword arguments:
+    #
+    # * `direction`
+    # * `sort`
+    # * `since`
+    local qs
+    _opts_filter "$@"
+    _opts_qs "$@"
+    url="/repos/${repo}/issues/${number}/comments"
+    _get "${url}${qs}" | _filter_json "${_filter}"
+}
+
 add_comment() {
     # Add a comment to an issue
     #
@@ -1997,6 +2196,48 @@ add_comment() {
         | _post "/repos/${repository}/issues/${number}/comments" \
         | _filter_json "${_filter}"
 }
+
+list_commit_comments() {
+    # List comments of a specified commit.
+    # ( https://developer.github.com/v3/repos/comments/#list-commit-comments )
+    #
+    # Usage:
+    #
+    #     list_commit_comments someuser/somerepo sha
+    #
+    # Positional arguments
+    #
+    #   GitHub owner login or id for which to list branches
+    #   Name of the repo for which to list branches
+    #   Commit SHA
+    #
+    local repo="${1:?Repo name required.}"
+    local sha="${2:?Commit SHA is required.}"
+    shift 2
+
+    local _follow_next
+    #   Automatically look for a 'Links' header and follow any 'next' URLs.
+    local _follow_next_limit
+    #   Maximum number of 'next' URLs to follow before stopping.
+    local _filter='.[] | "\(.body)"'
+    #   A jq filter to apply to the return data.
+
+    _opts_pagination "$@"
+
+    #   A jq filter to apply to the return data.
+    #
+    # Querystring arguments may also be passed as keyword arguments:
+    #
+    # * `direction`
+    # * `sort`
+    # * `since`
+    local qs
+    _opts_filter "$@"
+    _opts_qs "$@"
+    url="/repos/${repo}/commits/${sha}/comments"
+    _get "${url}${qs}" | _filter_json "${_filter}"
+}
+
 
 add_commit_comment() {
     # Add a comment to a commit
@@ -2227,6 +2468,49 @@ org_issues() {
     _get "/orgs/${org}/issues${qs}" | _filter_json "$_filter"
 }
 
+list_starred() {
+    # List starred repositories
+    #
+    # Usage:
+    #
+    #     list_starred
+    #     list_starred user
+    #
+    # Positional arguments
+    #
+    local user="$1"
+    #   Optional GitHub user login or id for which to list the starred repos.
+    #
+    # Keyword arguments
+    #
+    local _filter='.[] | "\(.name)\t\(.html_url)"'
+    #   A jq filter to apply to the return data.
+    #
+    # Querystring arguments may also be passed as keyword arguments:
+    #
+    # * `direction`
+    # * `per_page`
+    # * `sort`
+    # * `type`
+
+    # User is optional; is this a keyword arg?
+    case "$user" in *=*) user='' ;; esac
+    if [ -n "$user" ]; then shift 1; fi
+
+    local qs
+
+    _opts_filter "$@"
+    _opts_qs "$@"
+
+    if [ -n "$user" ] ; then
+        url="/users/${user}/starred"
+    else
+        url='/user/starred'
+    fi
+
+    _get "${url}${qs}" | _filter_json "${_filter}"
+}
+
 list_my_orgs() {
     # List your organizations
     #
@@ -2275,6 +2559,30 @@ list_orgs() {
     _opts_qs "$@"
 
     _get "/organizations" | _filter_json "$_filter"
+}
+
+list_users() {
+    # List all users
+    #
+    # Usage:
+    #
+    #     list_users
+    #
+    # Keyword arguments
+    #
+    local _follow_next
+    #   Automatically look for a 'Links' header and follow any 'next' URLs.
+    local _follow_next_limit
+    #   Maximum number of 'next' URLs to follow before stopping.
+    local _filter='.[] | "\(.login)\t\(.id)"'
+    #   A jq filter to apply to the return data.
+
+    local qs
+
+    _opts_pagination "$@"
+    _opts_filter "$@"
+    _opts_qs "$@"
+    _get "/users" | _filter_json "$_filter"
 }
 
 labels() {

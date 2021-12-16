@@ -36,6 +36,8 @@
 
 	<!-- GitHub user/organization name -->
 	<property name="gh.org" value="gitblit" />
+	<!-- GitHub project name -->
+	<property name="gh.repo" value="gitblit" />
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,6 +81,7 @@
 			<arg value="-version" />
 		</exec>
 		<echo>Java/JVM version: ${java.version}</echo>
+		<echo>Github coordinates: ${gh.org}/${gh.repo}</echo>
 	</target>
 
 	
@@ -826,7 +829,7 @@
 			releaseVersion="${project.version}"/>
 		<exec executable="bash" logError="true" >
 			<arg value="-c" />
-			<arg value="${octokit} -q edit_release ${gh.org} gitblit ${ghrelease.id} tag_name='${release.tag}'"></arg>
+			<arg value="${octokit} -q edit_release ${gh.org} ${gh.repo} ${ghrelease.id} tag_name='${release.tag}'"></arg>
 		</exec>
 		<ghPublishReleaseDraft
 			releaseid="${ghrelease.id}"/>
@@ -1208,14 +1211,27 @@ GBLT_RELEASE_TAG=${project.tag}
 		<attribute name="releaselog" />
 		<attribute name="releasetag" />
 		<sequential>
-			<echo>creating release ${release.tag} draft on GitHub</echo>
-			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
-				<arg value="-c" />
-				<arg value="${octokit} create_release ${gh.org} gitblit @{releasetag} name=${project.version} draft=true | cut -f2"></arg>
-			</exec>
+			<mx:if>
+				<isset property="updateRelease" />
+				<then>
+					<echo>updating release @{releasetag} draft on GitHub</echo>
+					<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
+						<arg value="-c" />
+						<arg value="${octokit} list_releases ${gh.org} ${gh.repo}  _filter='.[] | &quot;\(.name)\t\(.id)&quot;' | grep ${project.version} | cut -f2"></arg>
+					</exec>
+				</then>
+				<else>
+					<echo>creating release @{releasetag} draft on GitHub</echo>
+					<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
+						<arg value="-c" />
+						<arg value="${octokit} create_release ${gh.org} ${gh.repo}  @{releasetag} name=${project.version} draft=true | cut -f2"></arg>
+					</exec>
+				</else>
+			</mx:if>
+
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.upldUrl">
 				<arg value="-c" />
-				<arg value="${octokit} release ${gh.org} gitblit ${ghrelease.id} _filter=.upload_url | sed 's/{.*$/?name=/'"></arg>
+				<arg value="${octokit} release ${gh.org} ${gh.repo}  ${ghrelease.id} _filter=.upload_url | sed 's/{.*$/?name=/'"></arg>
 			</exec>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.notes">
 				<arg value="-c" />
@@ -1223,7 +1239,7 @@ GBLT_RELEASE_TAG=${project.tag}
 			</exec>
 			<exec executable="bash" logError="true" >
 				<arg value="-c" />
-				<arg value="${octokit} -q edit_release ${gh.org} gitblit ${ghrelease.id} body='${ghrelease.notes}'"></arg>
+				<arg value="${octokit} -q edit_release ${gh.org} ${gh.repo} ${ghrelease.id} tag_name='@{releasetag}' body='${ghrelease.notes}'"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
@@ -1237,6 +1253,18 @@ GBLT_RELEASE_TAG=${project.tag}
 		<attribute name="source"/>
 		<attribute name="target"/>
 		<sequential>
+			<mx:if>
+				<isset property="updateRelease" />
+				<then>
+					<echo>removing @{target} on GitHub from release ${ghrelease.id}</echo>
+					<exec executable="bash" logError="true" failonerror="true">
+						<arg value="-c" />
+						<arg value="${octokit} release_assets ${gh.org} ${gh.repo} ${ghrelease.id} | grep @{target} | cut -f1 | xargs -L1 ${octokit} -y delete_asset ${gh.org} ${gh.repo}"></arg>
+					</exec>
+				</then>
+				<else>
+				</else>
+			</mx:if>
 			<echo>uploading @{source} to GitHub release ${ghrelease.id}</echo>
 			<exec executable="bash" logError="true" failonerror="true" >
 				<arg value="-c" />
@@ -1256,7 +1284,7 @@ GBLT_RELEASE_TAG=${project.tag}
 			<echo>publishing GitHub release draft @{releaseid}</echo>
 			<exec executable="bash" logError="true" >
 				<arg value="-c" />
-				<arg value="${octokit} -q edit_release ${gh.org} gitblit @{releaseid} draft=false"></arg>
+				<arg value="${octokit} -q edit_release ${gh.org} ${gh.repo} @{releaseid} draft=false"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
@@ -1271,7 +1299,7 @@ GBLT_RELEASE_TAG=${project.tag}
 		<sequential>
 			<exec executable="bash" logError="true" failonerror="true" outputproperty="ghrelease.id">
 				<arg value="-c" />
-				<arg value="${octokit} list_releases ${gh.org} gitblit _filter='.[] | &quot;\(.name)\t\(.tag_name)\t\(.id)&quot;' | grep @{releaseVersion} | cut -f3"></arg>
+				<arg value="${octokit} list_releases ${gh.org} ${gh.repo} _filter='.[] | &quot;\(.name)\t\(.tag_name)\t\(.id)&quot;' | grep @{releaseVersion} | cut -f3"></arg>
 			</exec>
 		</sequential>
 	</macrodef>
