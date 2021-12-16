@@ -863,6 +863,34 @@
 	</target>
 
 
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Determine the release version and tag name.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	-->
+	<target name="determineReleaseVersion" depends="prepare" description="determine the release version and tag name">
+		<!-- release -->
+		<property name="dryrun" value="true" />
+		<mx:version stage="release" dryrun="${dryrun}" />
+		<property name="project.tag" value="v${project.version}" />
+
+		<!-- output version information for other scripts/programs to pick up -->
+		<mx:if>
+			<and>
+				<isset property="versionInfo" />
+				<not><equals arg1="${versionInfo}" arg2="" trim="true"/></not>
+			</and>
+			<then>
+				<echo file="${basedir}/${versionInfo}">
+GBLT_RELEASE_VERSION=${project.version}
+GBLT_RELEASE_TAG=${project.tag}
+</echo>
+			</then>
+		</mx:if>
+	</target>
+
+
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Tag a new version and prepare for the next development cycle.
@@ -889,8 +917,8 @@
 			</and>
 			<then>
 				<echo file="${basedir}/${versionInfo}">
-GB_RELEASE_VERSION=${project.version}
-GB_RELEASE_TAG=${project.tag}
+GBLT_RELEASE_VERSION=${project.version}
+GBLT_RELEASE_TAG=${project.tag}
 </echo>
 			</then>
 		</mx:if>
