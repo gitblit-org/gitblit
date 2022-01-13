@@ -873,10 +873,13 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 	-->
 	<target name="determineReleaseVersion" depends="prepare" description="determine the release version and tag name">
-		<!-- release -->
-		<property name="dryrun" value="true" />
-		<mx:version stage="release" dryrun="${dryrun}" />
-		<property name="project.tag" value="v${project.version}" />
+		<exec executable="bash" logError="true" outputproperty="determined_release.version">
+			<arg value="-c" />
+			<arg value="grep '^version:' build.moxie | sed -e 's/version:  *//' -e 's/-SNAPSHOT//'"></arg>
+		</exec>
+		<property name="determined_release.tag" value="v${determined_release.version}" />
+		<echo>Release version: ${determined_release.version}</echo>
+		<echo>Release tag: ${determined_release.tag}</echo>
 
 		<!-- output version information for other scripts/programs to pick up -->
 		<mx:if>
@@ -886,8 +889,8 @@
 			</and>
 			<then>
 				<echo file="${basedir}/${versionInfo}">
-GBLT_RELEASE_VERSION=${project.version}
-GBLT_RELEASE_TAG=${project.tag}
+GBLT_RELEASE_VERSION=${determined_release.version}
+GBLT_RELEASE_TAG=${determined_release.tag}
 </echo>
 			</then>
 		</mx:if>
