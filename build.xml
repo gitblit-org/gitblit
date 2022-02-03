@@ -616,8 +616,7 @@
 					<link name="API Library" src="${gc.url}${currentRelease.tag}/gbapi-${project.releaseVersion}.zip" />
 					<divider />
 					<link name="GitHub (1.9.0+)" src="https://github.com/${gh.org}/gitblit/releases" />
-					<link name="Bintray (1.4.0-1.8.0)" src="https://bintray.com/gitblit/releases/gitblit" />
-					<link name="GoogleCode (pre-1.4.0)" src="https://code.google.com/p/gitblit/downloads/list?can=1" />
+					<link name="Cloudsmith (1.3.0-1.8.0)" src="https://cloudsmith.io/~gitblit/repos/gitblit/groups/" />
 					<divider />
 					<link name="Maven Repository" src="${project.mavenUrl}" />
 				</menu>

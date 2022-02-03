@@ -30,6 +30,8 @@
 		</tbody>
 		</table>
 	</div>
+	<div><a href="https://cloudsmith.com"><img src="https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=for-the-badge" alt="Hosted By: Cloudsmith"></a><br>
+         Package repository hosting is graciously provided by  <a href="https://cloudsmith.com">Cloudsmith</a>.</div>
 </div>
 
 ## What is Gitblit?
