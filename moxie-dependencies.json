@@ -1,6 +1,6 @@
 {
     "ring" : "0",
-    "name" : "gitblit 1.9.1",
+    "name" : "gitblit 1.9.2",
     "children" : [
     {
         "ring" : "1",
@@ -62,7 +62,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "jetty-all 9.2.13.v20150730"
+        "name" : "jetty-all 9.2.30.v20200428"
     }
 ,
     {
@@ -483,11 +483,21 @@
 ,
     {
         "ring" : "1",
-        "name" : "mockito-core 1.10.19",
+        "name" : "mockito-core 2.28.2",
         "children" : [
         {
             "ring" : "2",
-            "name" : "objenesis 2.1"
+            "name" : "byte-buddy 1.9.10"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "byte-buddy-agent 1.9.10"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "objenesis 2.6"
         }
     
         ]
