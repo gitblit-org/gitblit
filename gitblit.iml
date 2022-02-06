@@ -114,13 +114,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="javax.mail-1.5.1.jar">
+      <library name="javax.mail-1.5.6.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/javax.mail-1.5.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/javax.mail-1.5.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/javax.mail-1.5.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/javax.mail-1.5.6.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="activation-1.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/activation-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/activation-1.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

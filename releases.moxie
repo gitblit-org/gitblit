@@ -15,8 +15,10 @@ r33: {
     changes:
       - Minimum Java required increased to Java 8
     additions: ~
-    dependencyChanges: ~
-    contributors: ~
+    dependencyChanges:
+      - update to JavaMail 1.5.6 (pr-1217 by @paladox)
+    contributors:
+      - paladox
 }
 
 #
