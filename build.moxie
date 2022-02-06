@@ -77,7 +77,7 @@ tasks: {
         compiler: javac1.8
         encoding: UTF-8
         # stop complaints about bootstrap classpath when compiling with Java 7
-        compilerArgs: '-Xlint:-options'
+        # compilerArgs: '-Xlint:-options'
     }
 }
 
