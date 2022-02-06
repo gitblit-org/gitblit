@@ -5,12 +5,15 @@ r33: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          From 1.10.0 on Gitblit requires Java 8 as minimun Java version.
+          ''
     html: ~
     text: ~
     security: ~
     fixes: ~
-    changes: ~
+    changes:
+      - Minimum Java required increased to Java 8
     additions: ~
     dependencyChanges: ~
     contributors: ~
