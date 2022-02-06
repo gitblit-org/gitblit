@@ -91,7 +91,7 @@ Gitblit includes a backup mechanism (*federation*) which can be used to backup r
 
 ### Java Runtime Requirement
 
-Gitblit requires a Java 7 Runtime Environment (JRE) or a Java 7 Development Kit (JDK).
+Gitblit requires a Java 8 Runtime Environment (JRE) or a Java 8 Development Kit (JDK).
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
