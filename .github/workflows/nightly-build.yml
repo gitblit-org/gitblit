@@ -184,6 +184,8 @@ jobs:
           labels: |
             org.label-schema.vcs-ref=${{github.sha}}
             org.label-schema.build-date=${{env.BUILD_DATE}}
+            org.opencontainers.image.revision=${{ env.GITBLIT_GIT_SHA }}
+            org.opencontainers.image.created=${{ env.BUILD_DATE }}
 
       - name: Install Goss for testing the docker image
         uses: e1himself/goss-installation-action@v1.0.4
