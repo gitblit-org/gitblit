@@ -73,7 +73,12 @@ public class StoredUserConfig {
 	}
 
 	private static void writeSection(PrintWriter printWriter, String key, Section section) {
-		printWriter.printf("[%s \"%s\"]\n", section.getName(), section.getSubSection());
+		if (section.getSubSection() == null) {
+			printWriter.printf("[%s]\n", section.getName());
+		}
+		else {
+			printWriter.printf("[%s \"%s\"]\n", section.getName(), section.getSubSection());
+		}
 		for (Entry entry : section.getEntries().values()) {
 			writeEntry(printWriter, entry.getKey(), entry.getValue());
 		}
@@ -90,7 +95,7 @@ public class StoredUserConfig {
 	}
 
 	private static String generateKey(String key, String subKey) {
-		return "k:" + key + "s:" + subKey;
+		return "k:" + key + "s:" + (subKey == null ? "" : subKey);
 	}
 
 	private static class Section {
