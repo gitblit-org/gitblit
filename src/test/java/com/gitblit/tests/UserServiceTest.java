@@ -222,4 +222,129 @@ public class UserServiceTest extends GitblitUnitTest {
 		assertEquals(1, team.mailingLists.size());
 		assertTrue(team.mailingLists.contains("admins@localhost.com"));
 	}
+
+
+	@Test
+	public void testConfigUserServiceEmailExploit() throws IOException
+	{
+		File file = new File("us-test.conf");
+		file.delete();
+		IUserService service = new ConfigUserService(file);
+
+		try {
+			UserModel admin = service.getUserModel("admin");
+			assertTrue(admin == null);
+
+			// add admin
+			admin = new UserModel("admin");
+			admin.password = "secret";
+			admin.canAdmin = true;
+			admin.excludeFromFederation = true;
+
+			service.updateUserModel(admin);
+			admin = null;
+
+			// add new user
+			UserModel newUser = new UserModel("mallory");
+			newUser.password = "password";
+			newUser.emailAddress = "mallory@example.com";
+			newUser.addRepositoryPermission("repo1");
+			service.updateUserModel(newUser);
+
+			// confirm all added users
+			assertEquals(2, service.getAllUsernames().size());
+			assertTrue(service.getUserModel("admin") != null);
+			assertTrue(service.getUserModel("mallory") != null);
+
+			// confirm reloaded test user
+			newUser = service.getUserModel("mallory");
+			assertEquals("password", newUser.password);
+			assertEquals(1, newUser.permissions.size());
+			assertTrue(newUser.hasRepositoryPermission("repo1"));
+			assertFalse(newUser.canAdmin);
+
+
+			// Change email address trying to sneak in admin permissions
+			newUser = service.getUserModel("mallory");
+			newUser.emailAddress = "mallory@example.com\n\tpassword = easy\n\trole = \"#admin\"\n[user \"other\"]";
+			service.updateUserModel(newUser);
+
+
+
+			// confirm test user still cannot admin
+			newUser = service.getUserModel("mallory");
+			assertFalse(newUser.canAdmin);
+			assertEquals("password", newUser.password);
+
+			assertEquals(2, service.getAllUsernames().size());
+
+		}
+		finally {
+			file.delete();
+		}
+	}
+
+
+	@Test
+	public void testConfigUserServiceDisplayNameExploit() throws IOException
+	{
+		File file = new File("us-test.conf");
+		file.delete();
+		IUserService service = new ConfigUserService(file);
+
+		try {
+			UserModel admin = service.getUserModel("admin");
+			assertTrue(admin == null);
+
+			// add admin
+			admin = new UserModel("admin");
+			admin.password = "secret";
+			admin.canAdmin = true;
+			admin.excludeFromFederation = true;
+
+			service.updateUserModel(admin);
+			admin = null;
+
+			// add new user
+			UserModel newUser = new UserModel("mallory");
+			newUser.password = "password";
+			newUser.emailAddress = "mallory@example.com";
+			newUser.addRepositoryPermission("repo1");
+			service.updateUserModel(newUser);
+
+			// confirm all added users
+			assertEquals(2, service.getAllUsernames().size());
+			assertTrue(service.getUserModel("admin") != null);
+			assertTrue(service.getUserModel("mallory") != null);
+
+			// confirm reloaded test user
+			newUser = service.getUserModel("mallory");
+			assertEquals("password", newUser.password);
+			assertEquals(1, newUser.permissions.size());
+			assertTrue(newUser.hasRepositoryPermission("repo1"));
+			assertFalse(newUser.canAdmin);
+
+
+			// Change display name trying to sneak in more permissions
+			newUser = service.getUserModel("mallory");
+			newUser.displayName = "Attacker\n\tpassword = easy\n\trepository = RW+:repo1\n\trepository = RW+:repo2\n[user \"noone\"]";
+			service.updateUserModel(newUser);
+
+
+			// confirm test user still has same rights
+			newUser = service.getUserModel("mallory");
+			assertEquals("password", newUser.password);
+			assertEquals(1, newUser.permissions.size());
+			assertTrue(newUser.hasRepositoryPermission("repo1"));
+			assertFalse(newUser.canAdmin);
+
+			assertEquals(2, service.getAllUsernames().size());
+		}
+		finally {
+			file.delete();
+		}
+	}
+
+
 }
+
