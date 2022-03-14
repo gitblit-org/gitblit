@@ -5,10 +5,31 @@ r33: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          The 1.9 minor version is the last to support Java 7. From 1.10 on Gitblit will require Java 8.
+          ''
     html: ~
-    text: ~
-    security: ~
+    text: ''
+          !! IMPORTANT SECURITY FIX FOR CONFIG USER SERVICE !!
+
+          There is a security vulnerability in version 1.9.2, which allows an attacker to gain
+          elevated access rights. This is present when the Config User Service is used as the
+          user service, which is the default.
+
+          Version 1.9.2 introduced a new implementation to store user data in the user config file
+          which holds user name, password, access rights etc. This was done to solve problems with
+          very large user bases (pr-1364). This new implementation does not properly escape all
+          control characters, like newline and tab. As a result, a normal user, when logged into
+          Gitblit, can edit his profile data and enter values in e.g. the email address that are
+          interpreted as control characters in the text file stored on disk. This allows the malicious
+          user to give themselves e.g. elevated access rights on their account.
+
+          This is fixed in 1.9.3. Updates of existing installations should be made to 1.9.3, not 1.9.2.
+
+          Many thanks to Github user @YYHYlh for finding and reporting this issue (issue-1410).
+          ''
+    security:
+      - Fix escaping control characters in config user service, resolving a security vulnerability. (issue-1410)
     fixes: ~
     changes: ~
     additions: ~
