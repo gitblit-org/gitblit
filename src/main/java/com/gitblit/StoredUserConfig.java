@@ -73,7 +73,12 @@ public class StoredUserConfig {
 	}
 
 	private static void writeSection(PrintWriter printWriter, String key, Section section) {
-		printWriter.printf("[%s \"%s\"]\n", section.getName(), section.getSubSection());
+		if (section.getSubSection() == null) {
+			printWriter.printf("[%s]\n", section.getName());
+		}
+		else {
+			printWriter.printf("[%s \"%s\"]\n", section.getName(), section.getSubSection());
+		}
 		for (Entry entry : section.getEntries().values()) {
 			writeEntry(printWriter, entry.getKey(), entry.getValue());
 		}
@@ -84,13 +89,52 @@ public class StoredUserConfig {
 	}
 
 	private static String escape(String value) {
-		String fixedValue = '#' == value.charAt(0) ? "\"" + value + "\"" : value;
-		fixedValue = fixedValue.replace("\\", "\\\\");
-		return fixedValue;
+		boolean quoteIt = false;
+		StringBuilder fixedValue = new StringBuilder(value.length() + 20);
+
+		for (char c : value.toCharArray()) {
+			switch (c) {
+				case '\n':
+					fixedValue.append("\\n");
+					break;
+
+				case '\t':
+					fixedValue.append("\\t");
+					break;
+
+				case '\b':
+					fixedValue.append("\\b");
+					break;
+
+				case '\\':
+					fixedValue.append("\\\\");
+					break;
+
+				case '"':
+					fixedValue.append("\\\"");
+					break;
+
+				case ';':
+				case '#':
+					quoteIt = true;
+					fixedValue.append(c);
+					break;
+
+				default:
+					fixedValue.append(c);
+					break;
+			}
+		}
+
+		if (quoteIt) {
+			fixedValue.insert(0,"\"");
+			fixedValue.append("\"");
+		}
+		return fixedValue.toString();
 	}
 
 	private static String generateKey(String key, String subKey) {
-		return "k:" + key + "s:" + subKey;
+		return "k:" + key + "s:" + (subKey == null ? "" : subKey);
 	}
 
 	private static class Section {
