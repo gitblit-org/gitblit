@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.9.3 release
 #
 r33: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.9.3 released
+    id: 1.9.3
+    date: 2022-04-09
     note: ''
           The 1.9 minor version is the last to support Java 7. From 1.10 on Gitblit will require Java 8.
           ''
@@ -2077,6 +2077,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r33
-release: &r32
-releases: &r[1..32]
+snapshot: ~
+release: &r33
+releases: &r[1..33]
