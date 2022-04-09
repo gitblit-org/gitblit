@@ -16,7 +16,7 @@ The Gitblit JSON RPC mechanism, like the Gitblit JGit servlet, syndication/feed 
 
 The Gitblit Manager is an example Java/Swing application that allows remote management (repository and user objects) and administration (server settings) of a Gitblit server.
   
-This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the [Gitblit API](http://code.google.com/p/gitblit/downloads/detail?name=%API%) library, to present live information from a Gitblit server.  Some JSON RPC methods from the utility class `com.gitblit.utils.RpcUtils` are not currently used by the Gitblit Manager.
+This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the [Gitblit API](https://github.com/gitblit/gitblit/releases/latest) library, to present live information from a Gitblit server.  Some JSON RPC methods from the utility class `com.gitblit.utils.RpcUtils` are not currently used by the Gitblit Manager.
 
 **NOTE:**  
 Gitblit Manager stores your login credentials **INSECURELY** in homedir/.gitblit/config.
