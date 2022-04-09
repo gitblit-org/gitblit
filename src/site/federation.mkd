@@ -17,7 +17,7 @@ The *Gitblit 0.8.0* federation protocol adds retrieval of teams and referenced p
 
 The *Gitblit 0.7.0* federation protocol is incompatible with the 0.6.0 federation protocol because of a change in the way timestamps are formatted.
 
-Gitblit 0.6.0 uses the default [google-gson](http://google-gson.googlecode.com) timestamp serializer which generates locally formatted timestamps.  Unfortunately, this creates problems for distributed repositories and distributed developers.  Gitblit 0.7.0 corrects this error by serializing dates to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  As a result 0.7.0 is not compatible with 0.6.0.  A partial backwards-compatibility fallback was considered but it would only work one direction and since the federation mechanism is bidirectional it was not implemented.
+Gitblit 0.6.0 uses the default [google-gson](https://github.com/google/gson) timestamp serializer which generates locally formatted timestamps.  Unfortunately, this creates problems for distributed repositories and distributed developers.  Gitblit 0.7.0 corrects this error by serializing dates to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  As a result 0.7.0 is not compatible with 0.6.0.  A partial backwards-compatibility fallback was considered but it would only work one direction and since the federation mechanism is bidirectional it was not implemented.
 
 ### Origin Gitblit Instance Requirements
 
@@ -132,7 +132,7 @@ Origin Gitblit instances can not directly track the success or failure status of
 
 ### How does it work? (Origin Gitblit Instances)
 
-A pulling Gitblit instance will periodically contact your Gitblit instance and will provide the token as proof that you have granted it federation access.  Your Gitblit instance will decide, based on the supplied token, if the requested data should be returned to the pulling Gitblit instance.  Gitblit data (user accounts, repository metadata, and server settings) are serialized as [JSON](http://json.org) using [google-gson](http://google-gson.googlecode.com) and returned to the pulling Gitblit instance.  Standard Git clone and pull operations are used to transfer commits.
+A pulling Gitblit instance will periodically contact your Gitblit instance and will provide the token as proof that you have granted it federation access.  Your Gitblit instance will decide, based on the supplied token, if the requested data should be returned to the pulling Gitblit instance.  Gitblit data (user accounts, repository metadata, and server settings) are serialized as [JSON](http://json.org) using [google-gson](https://github.com/google/gson) and returned to the pulling Gitblit instance.  Standard Git clone and pull operations are used to transfer commits.
 
 The federation process executes using an internal administrator account, *$gitblit*.  All the normal authentication and authorization processes are used for federation requests. For example, Git commands are authenticated as *$gitblit / token*.
 
