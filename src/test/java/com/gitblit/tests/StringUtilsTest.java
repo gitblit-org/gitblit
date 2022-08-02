@@ -61,9 +61,27 @@ public class StringUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testEscapeForHtml() throws Exception {
-		String input = "& < > \"";
-		String outputNoChange = "&amp; &lt; &gt; &quot;";
-		String outputChange = "&amp;&nbsp;&lt;&nbsp;&gt;&nbsp;&quot;";
+		String input = "\t & < > \"";
+		String outputNoChange = "\t &amp; &lt; &gt; &quot;";
+		String outputChange = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;&nbsp;&lt;&nbsp;&gt;&nbsp;&quot;";
+		assertEquals(outputNoChange, StringUtils.escapeForHtml(input, false));
+		assertEquals(outputChange, StringUtils.escapeForHtml(input, true));
+
+		input = "a\tb";
+		outputNoChange = "a\tb";
+		outputChange = "a&nbsp;&nbsp;&nbsp;b";
+		assertEquals(outputNoChange, StringUtils.escapeForHtml(input, false));
+		assertEquals(outputChange, StringUtils.escapeForHtml(input, true));
+
+		input = "\ta b\t";
+		outputNoChange = "\ta b\t";
+		outputChange = "&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;b&nbsp;";
+		assertEquals(outputNoChange, StringUtils.escapeForHtml(input, false));
+		assertEquals(outputChange, StringUtils.escapeForHtml(input, true));
+
+		input = "\t <> \t";
+		outputNoChange = "\t &lt;&gt; \t";
+		outputChange = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 		assertEquals(outputNoChange, StringUtils.escapeForHtml(input, false));
 		assertEquals(outputChange, StringUtils.escapeForHtml(input, true));
 
