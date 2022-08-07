@@ -15,9 +15,14 @@
  */
 package com.gitblit.tests;
 
+import com.gitblit.Constants;
+import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.TeamModel;
 import org.junit.Test;
 
 import com.gitblit.models.UserModel;
+
+import java.util.List;
 
 /**
  * @author Alfred Schmid
@@ -47,6 +52,50 @@ public class UserModelTest extends GitblitUnitTest {
 		UserModel userModel = new UserModel("test");
 		userModel.displayName = displayName;
 		assertEquals("When displayName is not empty its value has to be returnd from getDisplayName().", displayName, userModel.getDisplayName());
+	}
+
+
+	@Test
+	public void getRepositoryPermissionsMultipleTeams()
+	{
+
+		TeamModel aTeam = new TeamModel("A team");
+		aTeam.addRepositoryPermission("RW+:acerepo.git");
+		aTeam.addRepositoryPermission("V:boobrepo.git");
+
+		TeamModel bTeam = new TeamModel("Team B");
+		bTeam.addRepositoryPermission("R:acerepo.git");
+		bTeam.addRepositoryPermission("RWC:boobrepo.git");
+
+		UserModel user = new UserModel("tessiur");
+		user.teams.add(aTeam);
+		user.teams.add(bTeam);
+		user.addRepositoryPermission("RW+:myrepo.git");
+
+		List<RegistrantAccessPermission> repoPerms = user.getRepositoryPermissions();
+		int found = 0;
+		for (RegistrantAccessPermission p : repoPerms) {
+			switch (p.registrant) {
+				case "acerepo.git":
+					assertEquals("Expected REWIND(RW+) permission for " + p.registrant, Constants.AccessPermission.REWIND, p.permission);
+					found++;
+					break;
+				case "boobrepo.git":
+					assertEquals("Expected CREATE(RWC) permission for " + p.registrant, Constants.AccessPermission.CREATE, p.permission);
+					found++;
+					break;
+				case "myrepo.git":
+					assertEquals("Expected REWIND(RW+) permission for " + p.registrant, Constants.AccessPermission.REWIND, p.permission);
+					found++;
+					break;
+				default:
+					fail("Unknown repository registrant " + p.registrant);
+					break;
+			}
+		}
+
+		assertEquals("Repostory permissions missing in list.", 3, found);
+
 	}
 
 }

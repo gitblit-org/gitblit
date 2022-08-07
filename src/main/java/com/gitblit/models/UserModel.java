@@ -110,7 +110,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 * @return the user's list of permissions
 	 */
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
-		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
+		List<RegistrantAccessPermission> list = new ArrayList<>();
 		if (canAdmin()) {
 			// user has REWIND access to all repositories
 			return list;
@@ -135,7 +135,6 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		Collections.sort(list);
 
 		// include immutable team permissions, being careful to preserve order
-		Set<RegistrantAccessPermission> set = new LinkedHashSet<RegistrantAccessPermission>(list);
 		for (TeamModel team : teams) {
 			for (RegistrantAccessPermission teamPermission : team.getRepositoryPermissions()) {
 				// we can not change an inherited team permission, though we can override
@@ -143,10 +142,17 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				teamPermission.permissionType = PermissionType.TEAM;
 				teamPermission.source = team.name;
 				teamPermission.mutable = false;
-				set.add(teamPermission);
+				int i = list.indexOf(teamPermission);
+				if (i < 0) list.add(teamPermission);
+				else {
+					RegistrantAccessPermission lp = list.get(i);
+					if (teamPermission.permission.exceeds(lp.permission)) {
+						list.set(i, teamPermission);
+					}
+				}
 			}
 		}
-		return new ArrayList<RegistrantAccessPermission>(set);
+		return list;
 	}
 
 	/**
