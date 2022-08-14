@@ -57,6 +57,7 @@ import org.kohsuke.args4j.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.TlsClientCertPolicy;
 import com.gitblit.authority.GitblitAuthority;
 import com.gitblit.authority.NewCertificateConfig;
 import com.gitblit.servlet.GitblitContext;
@@ -289,10 +290,15 @@ public class GitBlitServer {
 				logger.info("Setting up HTTPS transport on port " + params.securePort);
 				GitblitSslContextFactory factory = new GitblitSslContextFactory(params.alias,
 						serverKeyStore, serverTrustStore, params.storePassword, caRevocationList);
-				if (params.requireClientCertificates) {
+				TlsClientCertPolicy clientCertPolicy = TlsClientCertPolicy.fromString(params.requireClientCertificates);
+				if (clientCertPolicy == TlsClientCertPolicy.REQUIRED) {
 					factory.setNeedClientAuth(true);
-				} else {
+				} else if (clientCertPolicy == TlsClientCertPolicy.OPTIONAL) {
+					factory.setNeedClientAuth(false);
 					factory.setWantClientAuth(true);
+				} else {
+					factory.setNeedClientAuth(false);
+					factory.setWantClientAuth(false);
 				}
 
 				ServerConnector connector = new ServerConnector(server, factory);
@@ -600,7 +606,7 @@ public class GitBlitServer {
 		public Integer shutdownPort = FILESETTINGS.getInteger(Keys.server.shutdownPort, 8081);
 
 		@Option(name = "--requireClientCertificates", usage = "Require client X509 certificates for https connections.")
-		public Boolean requireClientCertificates = FILESETTINGS.getBoolean(Keys.server.requireClientCertificates, false);
+		public String requireClientCertificates = FILESETTINGS.getString(Keys.server.requireClientCertificates, "optional");
 
 		/*
 		 * Setting overrides
