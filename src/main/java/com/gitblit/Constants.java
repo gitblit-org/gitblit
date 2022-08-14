@@ -645,6 +645,28 @@ public class Constants {
 		}
 	}
 
+	public enum TlsClientCertPolicy {
+		REQUIRED, TRUE, OPTIONAL, FALSE, DISABLED, NONE;
+
+		public static TlsClientCertPolicy fromString(String value) {
+			for (TlsClientCertPolicy t : values()) {
+				if (t.name().equalsIgnoreCase(value)) {
+					switch(t) {
+						case TRUE:
+							return REQUIRED;
+						case FALSE:
+							return OPTIONAL;
+						case NONE:
+							return DISABLED;
+						default:
+							return t;
+					}
+				}
+			}
+			return TlsClientCertPolicy.OPTIONAL;
+		}
+	}
+
 	/**
 	 * The type of merge Gitblit will use when merging a ticket to the integration branch.
 	 * <p>
