@@ -69,11 +69,15 @@ logger.info("jenkins hook triggered by ${user.username} for ${repository.name}")
 // gitblit.properties or web.xml
 def jenkinsUrl = gitblit.getString('groovy.jenkinsServer', 'http://yourserver/jenkins')
 
+// define your jenkins access token here or set groovy.jenkinsToken in 
+// gitblit.properties or web.xml (https://github.com/jenkinsci/git-plugin/#push-notification-from-repository)
+def jenkinsToken = gitblit.getString('groovy.jenkinsToken', 'yourtoken')
+
 // define the repository base url
 def jenkinsGitbaseurl = gitblit.getString('groovy.jenkinsGitbaseurl', "${url}/r")
 
 // define the trigger url
-def triggerUrl = jenkinsUrl + "/git/notifyCommit?url=" + jenkinsGitbaseurl + "/${repository.name}"
+def triggerUrl = jenkinsUrl + "/git/notifyCommit?url=" + jenkinsGitbaseurl + "/${repository.name}" + "&token=" + jenkinsToken
 
 // trigger the build
 new URL(triggerUrl).getContent()
