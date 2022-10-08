@@ -36,7 +36,7 @@ import org.apache.sshd.client.future.AuthFuture;
 import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
-import org.apache.sshd.common.util.SecurityUtils;
+import org.apache.sshd.common.util.security.SecurityUtils;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;

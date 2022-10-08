@@ -95,10 +95,13 @@ public class SshDaemon {
 
 		// Ensure that Bouncy Castle is our JCE provider
 		SecurityUtils.registerSecurityProvider(new BouncyCastleSecurityProviderRegistrar());
-		// Add support for ED25519_SHA512
-		SecurityUtils.registerSecurityProvider(new EdDSASecurityProviderRegistrar());
 		if (SecurityUtils.isBouncyCastleRegistered()) {
 			log.info("BouncyCastle is registered as a JCE provider");
+		}
+		// Add support for ED25519_SHA512
+		SecurityUtils.registerSecurityProvider(new EdDSASecurityProviderRegistrar());
+		if (SecurityUtils.isProviderRegistered("EdDSA")) {
+			log.info("EdDSA is registered as a JCE provider");
 		}
 
 		// Generate host RSA and DSA keypairs and create the host keypair provider
@@ -164,7 +167,7 @@ public class SshDaemon {
 
 		sshd.setSessionFactory(new SshServerSessionFactory(sshd));
 		sshd.setFileSystemFactory(new DisabledFilesystemFactory());
-		sshd.setTcpipForwardingFilter(new NonForwardingFilter());
+		sshd.setForwardingFilter(new NonForwardingFilter());
 		sshd.setCommandFactory(new SshCommandFactory(gitblit, workQueue));
 		sshd.setShellFactory(new WelcomeShell(gitblit));
 
