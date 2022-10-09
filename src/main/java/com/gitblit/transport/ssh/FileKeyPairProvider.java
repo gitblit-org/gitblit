@@ -31,7 +31,6 @@ import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.PasswordFinder;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
@@ -46,7 +45,6 @@ import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 public class FileKeyPairProvider extends AbstractKeyPairProvider {
 
     private String[] files;
-    private PasswordFinder passwordFinder;
 
     public FileKeyPairProvider() {
     }
@@ -55,25 +53,12 @@ public class FileKeyPairProvider extends AbstractKeyPairProvider {
         this.files = files;
     }
 
-    public FileKeyPairProvider(String[] files, PasswordFinder passwordFinder) {
-        this.files = files;
-        this.passwordFinder = passwordFinder;
-    }
-
     public String[] getFiles() {
         return files;
     }
 
     public void setFiles(String[] files) {
         this.files = files;
-    }
-
-    public PasswordFinder getPasswordFinder() {
-        return passwordFinder;
-    }
-
-    public void setPasswordFinder(PasswordFinder passwordFinder) {
-        this.passwordFinder = passwordFinder;
     }
 
     public Iterable<KeyPair> loadKeys() {
@@ -130,12 +115,6 @@ public class FileKeyPairProvider extends AbstractKeyPairProvider {
 
                 JcaPEMKeyConverter pemConverter = new JcaPEMKeyConverter();
                 pemConverter.setProvider("BC");
-                if (passwordFinder != null && o instanceof PEMEncryptedKeyPair) {
-                    JcePEMDecryptorProviderBuilder decryptorBuilder = new JcePEMDecryptorProviderBuilder();
-                    PEMDecryptorProvider pemDecryptor = decryptorBuilder.build(passwordFinder.getPassword());
-                    o = pemConverter.getKeyPair(((PEMEncryptedKeyPair) o).decryptKeyPair(pemDecryptor));
-                }
-
                 if (o instanceof PEMKeyPair) {
                     o = pemConverter.getKeyPair((PEMKeyPair)o);
                     return (KeyPair) o;
