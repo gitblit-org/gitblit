@@ -541,13 +541,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="sshd-core-1.2.0.jar">
+      <library name="eddsa-0.2.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/sshd-core-1.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/eddsa-0.2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-1.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/eddsa-0.2.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="sshd-core-1.7.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/sshd-core-1.7.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/sshd-core-1.7.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
