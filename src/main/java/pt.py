@@ -88,7 +88,7 @@ def checkout(args):
         else:
             branches.append(branch.strip())
 
-    if args.patchset is None or args.patchset is 0:
+    if args.patchset is None or args.patchset == 0:
         branch = 'ticket/{:d}'.format(args.id)
         illegals = set(branches) & {'ticket'}
     else:
@@ -104,7 +104,7 @@ def checkout(args):
             print('  ' + illegal)
         exit(errno.EINVAL)
 
-    if args.patchset is None or args.patchset is 0:
+    if args.patchset is None or args.patchset == 0:
         # checkout the current ticket patchset
         if args.force:
             __call(['git', 'checkout', '-B', branch, '{}/{}'.format(args.remote, branch)])
@@ -131,7 +131,7 @@ def pull(args):
     __call(['git', 'reset', '--hard'])
 
     # pull the patchset from the remote repository
-    if args.patchset is None or args.patchset is 0:
+    if args.patchset is None or args.patchset == 0:
         print("Pulling ticket {} from the '{}' repository".format(args.id, args.remote))
         patchset_ref = 'ticket/{:d}'.format(args.id)
     else:
@@ -550,11 +550,11 @@ def __checkout(remote, ticket, patchset, branch, force=False):
         else:
             # try to merge the existing ref with the FETCH_HEAD
             merge = __call(['git', 'merge', '--ff-only', branch, 'FETCH_HEAD'], echo=True, fail=False)
-            if len(merge) is 1:
+            if len(merge) == 1:
                 up_to_date = merge[0].lower().index('up-to-date') > 0
                 if up_to_date:
                     return
-            elif len(merge) is 0:
+            elif len(merge) == 0:
                 print('')
                 print("Your '{}' branch has diverged from patchset {} on the '{}' repository.".format(branch, patchset, remote))
                 print('')
@@ -617,13 +617,13 @@ def __call(cmd_args, echo=False, fail=True, err=None):
     lines = []
     for line in iter(p.stdout.readline, b''):
         line_str = str(line).strip()
-        if len(line_str) is 0:
+        if len(line_str) == 0:
             break
         lines.append(line_str)
         if echo:
             print(line_str)
     p.wait()
-    if fail and p.returncode is not 0:
+    if fail and p.returncode != 0:
         exit(p.returncode)
 
     return lines
