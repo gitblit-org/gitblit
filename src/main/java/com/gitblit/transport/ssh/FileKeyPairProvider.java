@@ -27,57 +27,67 @@ import java.util.NoSuchElementException;
 
 import org.apache.sshd.common.keyprovider.AbstractKeyPairProvider;
 import org.apache.sshd.common.util.security.SecurityUtils;
-import org.bouncycastle.openssl.PEMDecryptorProvider;
-import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
 /**
  * This host key provider loads private keys from the specified files.
- *
+ * <p>
  * Note that this class has a direct dependency on BouncyCastle and won't work
  * unless it has been correctly registered as a security provider.
  *
  * @author <a href="mailto:dev@mina.apache.org">Apache MINA SSHD Project</a>
  */
-public class FileKeyPairProvider extends AbstractKeyPairProvider {
+public class FileKeyPairProvider extends AbstractKeyPairProvider
+{
 
     private String[] files;
 
-    public FileKeyPairProvider() {
+    public FileKeyPairProvider()
+    {
     }
 
-    public FileKeyPairProvider(String[] files) {
+    public FileKeyPairProvider(String[] files)
+    {
         this.files = files;
     }
 
-    public String[] getFiles() {
+    public String[] getFiles()
+    {
         return files;
     }
 
-    public void setFiles(String[] files) {
+    public void setFiles(String[] files)
+    {
         this.files = files;
     }
 
-    public Iterable<KeyPair> loadKeys() {
+    public Iterable<KeyPair> loadKeys()
+    {
         if (!SecurityUtils.isBouncyCastleRegistered()) {
             throw new IllegalStateException("BouncyCastle must be registered as a JCE provider");
         }
-        return new Iterable<KeyPair>() {
+        return new Iterable<KeyPair>()
+        {
             @Override
-			public Iterator<KeyPair> iterator() {
-                return new Iterator<KeyPair>() {
+            public Iterator<KeyPair> iterator()
+            {
+                return new Iterator<KeyPair>()
+                {
                     private final Iterator<String> iterator = Arrays.asList(files).iterator();
                     private KeyPair nextKeyPair;
                     private boolean nextKeyPairSet = false;
+
                     @Override
-					public boolean hasNext() {
+                    public boolean hasNext()
+                    {
                         return nextKeyPairSet || setNextObject();
                     }
+
                     @Override
-					public KeyPair next() {
+                    public KeyPair next()
+                    {
                         if (!nextKeyPairSet) {
                             if (!setNextObject()) {
                                 throw new NoSuchElementException();
@@ -86,11 +96,15 @@ public class FileKeyPairProvider extends AbstractKeyPairProvider {
                         nextKeyPairSet = false;
                         return nextKeyPair;
                     }
+
                     @Override
-					public void remove() {
+                    public void remove()
+                    {
                         throw new UnsupportedOperationException();
                     }
-                    private boolean setNextObject() {
+
+                    private boolean setNextObject()
+                    {
                         while (iterator.hasNext()) {
                             String file = iterator.next();
                             nextKeyPair = doLoadKey(file);
@@ -107,7 +121,8 @@ public class FileKeyPairProvider extends AbstractKeyPairProvider {
         };
     }
 
-    protected KeyPair doLoadKey(String file) {
+    protected KeyPair doLoadKey(String file)
+    {
         try {
             PEMParser r = new PEMParser(new InputStreamReader(new FileInputStream(file)));
             try {
@@ -117,14 +132,17 @@ public class FileKeyPairProvider extends AbstractKeyPairProvider {
                 pemConverter.setProvider("BC");
                 if (o instanceof PEMKeyPair) {
                     o = pemConverter.getKeyPair((PEMKeyPair)o);
-                    return (KeyPair) o;
-                } else if (o instanceof KeyPair) {
-                    return (KeyPair) o;
+                    return (KeyPair)o;
                 }
-            } finally {
+                else if (o instanceof KeyPair) {
+                    return (KeyPair)o;
+                }
+            }
+            finally {
                 r.close();
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.warn("Unable to read key " + file, e);
         }
         return null;
