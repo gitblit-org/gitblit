@@ -18,6 +18,7 @@
  */
 package com.gitblit.transport.ssh;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
@@ -122,6 +123,11 @@ public class FileKeyPairProvider extends AbstractKeyPairProvider
                     {
                         while (iterator.hasNext()) {
                             String file = iterator.next();
+                            File f = new File(file);
+                            if (!f.isFile()) {
+                                log.debug("File does not exist, skipping {}", file);
+                                continue;
+                            }
                             nextKeyPair = doLoadKey(file);
                             if (nextKeyPair != null) {
                                 nextKeyPairSet = true;
