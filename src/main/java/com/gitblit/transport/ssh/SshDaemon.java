@@ -15,6 +15,7 @@
  */
 package com.gitblit.transport.ssh;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,19 +23,28 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import org.apache.sshd.common.config.keys.KeyEntryResolver;
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
 import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.security.bouncycastle.BouncyCastleSecurityProviderRegistrar;
 import org.apache.sshd.common.util.security.eddsa.EdDSASecurityProviderRegistrar;
+import org.apache.sshd.common.util.security.eddsa.OpenSSHEd25519PrivateKeyEntryDecoder;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.pubkey.CachingPublicKeyAuthenticator;
-import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +66,7 @@ import com.google.common.io.Files;
  */
 public class SshDaemon {
 
-	private final Logger log = LoggerFactory.getLogger(SshDaemon.class);
+	private static final Logger log = LoggerFactory.getLogger(SshDaemon.class);
 
 	private static final String AUTH_PUBLICKEY = "publickey";
 	private static final String AUTH_PASSWORD = "password";
@@ -107,10 +117,14 @@ public class SshDaemon {
 		// Generate host RSA and DSA keypairs and create the host keypair provider
 		File rsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-rsa-hostkey.pem");
 		File dsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-dsa-hostkey.pem");
+		File ecdsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-ecdsa-hostkey.pem");
+		File eddsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-eddsa-hostkey.pem");
+		File ed25519KeyStore = new File(gitblit.getBaseFolder(), "ssh-ed25519-hostkey.pem");
 		generateKeyPair(rsaKeyStore, "RSA", 2048);
-		generateKeyPair(dsaKeyStore, "DSA", 0);
+		generateKeyPair(ecdsaKeyStore, "ECDSA", 256);
+		generateKeyPair(eddsaKeyStore, "EdDSA", 0);
 		FileKeyPairProvider hostKeyPairProvider = new FileKeyPairProvider();
-		hostKeyPairProvider.setFiles(new String [] { rsaKeyStore.getPath(), dsaKeyStore.getPath(), dsaKeyStore.getPath() });
+		hostKeyPairProvider.setFiles(new String [] { ecdsaKeyStore.getPath(), eddsaKeyStore.getPath(), ed25519KeyStore.getPath(), rsaKeyStore.getPath(), dsaKeyStore.getPath() });
 
 
 		// Configure the preferred SSHD backend
@@ -244,7 +258,7 @@ public class SshDaemon {
 		}
 	}
 
-    private void generateKeyPair(File file, String algorithm, int keySize) {
+    static void generateKeyPair(File file, String algorithm, int keySize) {
     	if (file.exists()) {
     		return;
     	}
@@ -267,13 +281,42 @@ public class SshDaemon {
             }
 
             FileOutputStream os = new FileOutputStream(file);
-            PEMWriter w = new PEMWriter(new OutputStreamWriter(os));
-            w.writeObject(kp);
+            PemWriter w = new PemWriter(new OutputStreamWriter(os));
+            if (algorithm.equals("ED25519")) {
+            	// This generates a proper OpenSSH formatted ed25519 private key file.
+				// It is currently unused because the SSHD library in play doesn't work with proper keys.
+				// This is kept in the hope that in the future the library offers proper support.
+            	AsymmetricKeyParameter keyParam = PrivateKeyFactory.createKey(kp.getPrivate().getEncoded());
+				byte[] encKey = OpenSSHPrivateKeyUtil.encodePrivateKey(keyParam);
+				w.writeObject(new PemObject("OPENSSH PRIVATE KEY", encKey));
+			}
+			else if (algorithm.equals("EdDSA")) {
+				// This saves the ed25519 key in a file format that the current SSHD library can work with.
+				// We call it EDDSA PRIVATE KEY, but that string is given by us and nothing official.
+				PrivateKey privateKey = kp.getPrivate();
+				if (privateKey instanceof EdDSAPrivateKey) {
+					OpenSSHEd25519PrivateKeyEntryDecoder encoder = (OpenSSHEd25519PrivateKeyEntryDecoder)SecurityUtils.getOpenSSHEDDSAPrivateKeyEntryDecoder();
+					EdDSAPrivateKey dsaPrivateKey = (EdDSAPrivateKey)privateKey;
+					// Jumping through some hoops here, because the decoder expects the key type as a string at the
+					// start, but the encoder doesn't put it in. So we have to put it in ourselves.
+					ByteArrayOutputStream encos = new ByteArrayOutputStream();
+					String type = encoder.encodePrivateKey(encos, dsaPrivateKey);
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					KeyEntryResolver.encodeString(bos, type);
+					encos.writeTo(bos);
+					w.writeObject(new PemObject("EDDSA PRIVATE KEY", bos.toByteArray()));
+				}
+				else {
+					log.warn("Unable to encode EdDSA key, got key type " + privateKey.getClass().getCanonicalName());
+				}
+			}
+            else {
+				w.writeObject(new JcaMiscPEMGenerator(kp));
+			}
             w.flush();
             w.close();
         } catch (Exception e) {
             log.warn(MessageFormat.format("Unable to generate {0} keypair", algorithm), e);
-            return;
         }
     }
 }

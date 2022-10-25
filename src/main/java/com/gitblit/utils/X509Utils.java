@@ -72,7 +72,7 @@ import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.X509CRLHolder;
 import org.bouncycastle.cert.X509v2CRLBuilder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -82,7 +82,6 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
 import org.bouncycastle.openssl.PEMEncryptor;
-import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.bouncycastle.operator.ContentSigner;
@@ -445,9 +444,9 @@ public class X509Utils {
 			boolean asPem = targetFile.getName().toLowerCase().endsWith(".pem");
 			if (asPem) {
 				// PEM encoded X509
-				PEMWriter pemWriter = null;
+				JcaPEMWriter pemWriter = null;
 				try {
-					pemWriter = new PEMWriter(new FileWriter(tmpFile));
+					pemWriter = new JcaPEMWriter(new FileWriter(tmpFile));
 					pemWriter.writeObject(cert);
 					pemWriter.flush();
 				} finally {
@@ -560,9 +559,9 @@ public class X509Utils {
 					pair.getPublic());
 
 			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
-			certBuilder.addExtension(X509Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(pair.getPublic()));
-			certBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
-			certBuilder.addExtension(X509Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caCert.getPublicKey()));
+			certBuilder.addExtension(Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(pair.getPublic()));
+			certBuilder.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
+			certBuilder.addExtension(Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caCert.getPublicKey()));
 
 			// support alternateSubjectNames for SSL certificates
 			List<GeneralName> altNames = new ArrayList<GeneralName>();
@@ -571,7 +570,7 @@ public class X509Utils {
 			}
 			if (altNames.size() > 0) {
 				GeneralNames subjectAltName = new GeneralNames(altNames.toArray(new GeneralName [altNames.size()]));
-				certBuilder.addExtension(X509Extension.subjectAlternativeName, false, subjectAltName);
+				certBuilder.addExtension(Extension.subjectAlternativeName, false, subjectAltName);
 			}
 
 			ContentSigner caSigner = new JcaContentSignerBuilder(SIGNING_ALGORITHM)
@@ -629,10 +628,10 @@ public class X509Utils {
 					caPair.getPublic());
 
 			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
-			caBuilder.addExtension(X509Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(caPair.getPublic()));
-			caBuilder.addExtension(X509Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caPair.getPublic()));
-			caBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(true));
-			caBuilder.addExtension(X509Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyCertSign | KeyUsage.cRLSign));
+			caBuilder.addExtension(Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(caPair.getPublic()));
+			caBuilder.addExtension(Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caPair.getPublic()));
+			caBuilder.addExtension(Extension.basicConstraints, false, new BasicConstraints(true));
+			caBuilder.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyCertSign | KeyUsage.cRLSign));
 
 			JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider(BC);
 			X509Certificate cert = converter.getCertificate(caBuilder.build(caSigner));
@@ -862,14 +861,14 @@ public class X509Utils {
 					pair.getPublic());
 
 			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils();
-			certBuilder.addExtension(X509Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(pair.getPublic()));
-			certBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
-			certBuilder.addExtension(X509Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caCert.getPublicKey()));
-			certBuilder.addExtension(X509Extension.keyUsage, true, new KeyUsage(KeyUsage.keyEncipherment | KeyUsage.digitalSignature));
+			certBuilder.addExtension(Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(pair.getPublic()));
+			certBuilder.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
+			certBuilder.addExtension(Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caCert.getPublicKey()));
+			certBuilder.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.keyEncipherment | KeyUsage.digitalSignature));
 			if (!StringUtils.isEmpty(clientMetadata.emailAddress)) {
 				GeneralNames subjectAltName = new GeneralNames(
                     new GeneralName(GeneralName.rfc822Name, clientMetadata.emailAddress));
-				certBuilder.addExtension(X509Extension.subjectAlternativeName, false, subjectAltName);
+				certBuilder.addExtension(Extension.subjectAlternativeName, false, subjectAltName);
 			}
 
 			ContentSigner signer = new JcaContentSignerBuilder(SIGNING_ALGORITHM).setProvider(BC).build(caPrivateKey);
