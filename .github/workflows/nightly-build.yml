@@ -111,7 +111,7 @@ jobs:
         id: check-dh-login
         run: |
           if [[ -n "${{secrets.DOCKERHUB_GB_TOKEN}}" && -n "${{secrets.DOCKERHUB_GB_USER}}" ]] ; then
-            echo "::set-output name=secrets_present::true"
+            echo "secrets_present=true" >> $GITHUB_OUTPUT
           else
             echo "No Docker Hub login data found. Skipping Docker."
           fi
@@ -163,7 +163,7 @@ jobs:
           gbver=${gbver##*gitblit-}
           echo "Version detected: $gbver"
           echo "GITBLIT_VERSION=$gbver" >> "${GITHUB_ENV}"
-          echo "::set-output name=gb-version::$gbver"
+          echo "gb-version=$gbver" >> $GITHUB_OUTPUT
 
       - name: Generate Dockerfile for snapshot image
         working-directory: ../gitblit-docker
