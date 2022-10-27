@@ -30,7 +30,7 @@ jobs:
     steps:
 
       - name: Cache marker for latest commit
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache-sha
         with:
           key: sha-${{ github.sha }}
@@ -68,14 +68,15 @@ jobs:
     steps:
 
       - name: Checkout Gitblit
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           submodules: true
 
       - name: Setup Java 8
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: 8
+          distribution: 'temurin'
 
       - name: Report Java version
         run: |
@@ -87,7 +88,7 @@ jobs:
 
       - name: Save built Gitblit package
         if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: gitblit-nightly
           path: build/target/gitblit-*-SNAPSHOT.tar.gz
@@ -110,7 +111,7 @@ jobs:
         id: check-dh-login
         run: |
           if [[ -n "${{secrets.DOCKERHUB_GB_TOKEN}}" && -n "${{secrets.DOCKERHUB_GB_USER}}" ]] ; then
-            echo "::set-output name=secrets_present::true"
+            echo "secrets_present=true" >> $GITHUB_OUTPUT
           else
             echo "No Docker Hub login data found. Skipping Docker."
           fi
@@ -131,21 +132,21 @@ jobs:
 
     steps:
       - name: Checkout gitblit-docker
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           repository: ${{ env.GH_ORG }}/gitblit-docker
           ref: master
           fetch-depth: 2
 
       - name: Download Gitblit nightly build
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         id: get-gb
         with:
           name: gitblit-nightly
           path: ../gitblit-docker
 
       # Delete the artifact unless this is the official Gitblit repo
-      - uses: geekyeggo/delete-artifact@v1
+      - uses: geekyeggo/delete-artifact@v2
         if: ${{ github.repository != 'gitblit/gitblit' }}
         with:
           name: gitblit-nightly
@@ -162,7 +163,7 @@ jobs:
           gbver=${gbver##*gitblit-}
           echo "Version detected: $gbver"
           echo "GITBLIT_VERSION=$gbver" >> "${GITHUB_ENV}"
-          echo "::set-output name=gb-version::$gbver"
+          echo "gb-version=$gbver" >> $GITHUB_OUTPUT
 
       - name: Generate Dockerfile for snapshot image
         working-directory: ../gitblit-docker
@@ -171,13 +172,13 @@ jobs:
           echo "BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S)" >> "${GITHUB_ENV}"
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_GB_USER }}
           password: ${{ secrets.DOCKERHUB_GB_TOKEN }}
 
       - name: Build snapshot docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           file: ../gitblit-docker/generate/Dockerfile
           context: ../gitblit-docker
@@ -226,7 +227,7 @@ jobs:
           dgoss run  -p 8080:8080  -p 8443:8443 --tmpfs /var/opt/gitblit/temp gitblit/gitblit:nightly
 
       - name: Push docker image to registry
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           file: ../gitblit-docker/generate/Dockerfile
           context: ../gitblit-docker
