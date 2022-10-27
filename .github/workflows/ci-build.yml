@@ -1,7 +1,11 @@
-name: Continous build on every push
+name: Continous integration
 
 on:
   push:
+    branches-ignore:
+      - 'release*'
+      - gh-pages
+  pull_request:
     branches-ignore:
       - 'release*'
       - gh-pages
