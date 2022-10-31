@@ -116,9 +116,9 @@ properties: {
   wikitext.version : 1.4
   sshd.version: 1.7.0
   mina.version: 2.0.21
-  guice.version : 4.0
+  guice.version : 5.1.0
   # Gitblit maintains a fork of guice-servlet
-  guice-servlet.version : 4.0-gb2
+  guice-servlet.version : 5.1.0-gb2
   }
 
 # Dependencies
@@ -135,7 +135,7 @@ properties: {
 dependencies:
 - compile 'com.google.inject:guice:${guice.version}' :war :fedclient
 - compile 'com.google.inject.extensions:guice-servlet:${guice-servlet.version}' :war
-- compile 'com.google.guava:guava:18.0' :war :fedclient
+- compile 'com.google.guava:guava:27.0.1-jre' :war :fedclient
 - compile 'com.intellij:annotations:12.0' :war
 - compile 'log4j:log4j:1.2.17' :war :fedclient :manager
 - compile 'org.slf4j:slf4j-api:${slf4j.version}' :war :fedclient :manager

@@ -15,13 +15,13 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="guice-4.0.jar">
+      <library name="guice-5.1.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guice-4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/guice-5.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guice-4.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/guice-5.1.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -48,24 +48,99 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="guava-18.0.jar">
+      <library name="guava-27.0.1-jre.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guava-18.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/guava-27.0.1-jre.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guava-18.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/guava-27.0.1-jre.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="guice-servlet-4.0-gb2.jar">
+      <library name="failureaccess-1.0.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guice-servlet-4.0-gb2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/failureaccess-1.0.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guice-servlet-4.0-gb2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/failureaccess-1.0.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jsr305-3.0.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jsr305-3.0.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jsr305-3.0.2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="checker-qual-2.5.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/checker-qual-2.5.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/checker-qual-2.5.2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="error_prone_annotations-2.2.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/error_prone_annotations-2.2.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/error_prone_annotations-2.2.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="j2objc-annotations-1.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/j2objc-annotations-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/j2objc-annotations-1.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="guice-servlet-5.1.0-gb2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/guice-servlet-5.1.0-gb2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/guice-servlet-5.1.0-gb2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="animal-sniffer-annotations-1.17.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/animal-sniffer-annotations-1.17.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/animal-sniffer-annotations-1.17.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -17,6 +17,8 @@ r34: {
     additions: ~
     dependencyChanges:
       - update to JavaMail 1.5.6 (pr-1217 by @paladox)
+      - update Google Guice to 5.1.0
+      - update Google Guava to 27.0.1-jre
     contributors:
       - paladox
 }
