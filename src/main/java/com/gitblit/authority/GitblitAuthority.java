@@ -299,7 +299,11 @@ public class GitblitAuthority extends JFrame implements X509Log {
 					List<UserCertificateModel> list = UserCertificateConfig.KEY.parse(config).list;
 					for (UserCertificateModel ucm : list) {
 						ucm.user = userService.getUserModel(ucm.user.username);
-						map.put(ucm.user.username, ucm);
+						// Users may have been deleted, but are still present in authority.conf.
+						// TODO: Currently this only keeps the app from crashing. It should provide means to show obsolete user entries and delete them.
+						if (ucm.user != null) {
+							map.put(ucm.user.username, ucm);
+						}
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

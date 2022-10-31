@@ -11,7 +11,8 @@ r34: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+      - Fix crash in Gitblit Authority when users were deleted from Gitblit but still had entries (certificates) in the Authority.
     changes:
       - Minimum Java required increased to Java 8
     additions: ~
