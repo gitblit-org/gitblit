@@ -227,6 +227,9 @@ public class FileSettings extends IStoredSettings {
 
 	@Override
 	public String toString() {
+		if (propertiesFile == null) {
+			return "[empty]";
+		}
 		return propertiesFile.getAbsolutePath();
 	}
 }
