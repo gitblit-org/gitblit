@@ -143,7 +143,6 @@ jobs:
         id: get-gb
         with:
           name: gitblit-nightly
-          path: ../gitblit-docker
 
       # Delete the artifact unless this is the official Gitblit repo
       - uses: geekyeggo/delete-artifact@v2
@@ -154,7 +153,6 @@ jobs:
 
       - name: Extract snapshot version
         id: gb-version
-        working-directory: ../gitblit-docker
         run: |
           for file in $(ls -1 ${{steps.get-gb.outputs.download-path}}) ; do
             if [[ "$file" = gitblit-*.gz ]] ; then gbver=$file ; fi
@@ -166,7 +164,6 @@ jobs:
           echo "gb-version=$gbver" >> $GITHUB_OUTPUT
 
       - name: Generate Dockerfile for snapshot image
-        working-directory: ../gitblit-docker
         run: |
           generate/generate_dockerfile.sh -v ${{ steps.gb-version.outputs.gb-version }} > generate/Dockerfile
           echo "BUILD_DATE=$(date +%Y-%m-%dT%H:%M:%S)" >> "${GITHUB_ENV}"
@@ -180,8 +177,8 @@ jobs:
       - name: Build snapshot docker image
         uses: docker/build-push-action@v3
         with:
-          file: ../gitblit-docker/generate/Dockerfile
-          context: ../gitblit-docker
+          file: generate/Dockerfile
+          context: .
           load: true
           tags: gitblit/gitblit:nightly
           labels: |
@@ -196,14 +193,12 @@ jobs:
           version: 'v0.3.16'
 
       - name: Test docker container - normal mode
-        working-directory: ../gitblit-docker
         env:
           GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
         run: |
           dgoss run  -p 8080:8080  -p 8443:8443  gitblit/gitblit:nightly
 
       - name: Test docker container - bind mount
-        working-directory: ../gitblit-docker
         env:
           GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
         run: |
@@ -220,7 +215,6 @@ jobs:
           sudo rm -rf gitblit-data
 
       - name: Test docker container - tmpfs
-        working-directory: ../gitblit-docker
         env:
           GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
         run: |
@@ -229,8 +223,8 @@ jobs:
       - name: Push docker image to registry
         uses: docker/build-push-action@v3
         with:
-          file: ../gitblit-docker/generate/Dockerfile
-          context: ../gitblit-docker
+          file: generate/Dockerfile
+          context: .
           push: true
           tags: gitblit/gitblit:nightly
           labels: |
