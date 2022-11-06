@@ -583,13 +583,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-4.5.7.201904151645-r.jar">
+      <library name="org.eclipse.jgit-4.6.1.201703071140-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-4.5.7.201904151645-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-4.6.1.201703071140-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-4.5.7.201904151645-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-4.6.1.201703071140-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -605,13 +605,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="JavaEWAH-0.7.9.jar">
+      <library name="JavaEWAH-1.1.6.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/JavaEWAH-0.7.9.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/JavaEWAH-1.1.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/JavaEWAH-0.7.9.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/JavaEWAH-1.1.6.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -660,13 +660,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-4.5.7.201904151645-r.jar">
+      <library name="org.eclipse.jgit.http.server-4.6.1.201703071140-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-4.5.7.201904151645-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-4.6.1.201703071140-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-4.5.7.201904151645-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-4.6.1.201703071140-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
