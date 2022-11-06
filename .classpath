@@ -25,7 +25,15 @@
 	<classpathentry kind="lib" path="ext/javax.mail-1.5.6.jar" sourcepath="ext/src/javax.mail-1.5.6.jar" />
 	<classpathentry kind="lib" path="ext/activation-1.1.jar" sourcepath="ext/src/activation-1.1.jar" />
 	<classpathentry kind="lib" path="ext/javax.servlet-api-3.1.0.jar" sourcepath="ext/src/javax.servlet-api-3.1.0.jar" />
-	<classpathentry kind="lib" path="ext/jetty-all-9.2.30.v20200428.jar" sourcepath="ext/src/jetty-all-9.2.30.v20200428.jar" />
+	<classpathentry kind="lib" path="ext/jetty-servlet-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-servlet-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-security-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-security-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-server-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-server-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-continuation-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-continuation-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-http-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-http-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-io-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-io-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-util-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-util-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-webapp-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-webapp-9.3.16.v20170120.jar" />
+	<classpathentry kind="lib" path="ext/jetty-xml-9.3.16.v20170120.jar" sourcepath="ext/src/jetty-xml-9.3.16.v20170120.jar" />
 	<classpathentry kind="lib" path="ext/wicket-1.4.22.jar" sourcepath="ext/src/wicket-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.22.jar" sourcepath="ext/src/wicket-auth-roles-1.4.22.jar" />
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.22.jar" sourcepath="ext/src/wicket-extensions-1.4.22.jar" />
