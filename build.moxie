@@ -148,6 +148,7 @@ dependencies:
 - compile 'org.eclipse.jetty:jetty-io:${jetty.version}' @jar
 - compile 'org.eclipse.jetty:jetty-util:${jetty.version}' @jar
 - compile 'org.eclipse.jetty:jetty-webapp:${jetty.version}' @jar
+- compile 'org.eclipse.jetty:jetty-xml:${jetty.version}' @jar
 - compile 'org.apache.wicket:wicket:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-auth-roles:${wicket.version}' :war !org.mockito
 - compile 'org.apache.wicket:wicket-extensions:${wicket.version}' :war !org.mockito
