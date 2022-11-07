@@ -144,13 +144,6 @@ jobs:
         with:
           name: gitblit-nightly
 
-      # Delete the artifact unless this is the official Gitblit repo
-      - uses: geekyeggo/delete-artifact@v2
-        if: ${{ github.repository != 'gitblit/gitblit' }}
-        with:
-          name: gitblit-nightly
-          failOnError: false
-
       - name: Extract snapshot version
         id: gb-version
         run: |
@@ -219,6 +212,13 @@ jobs:
           GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
         run: |
           dgoss run  -p 8080:8080  -p 8443:8443 --tmpfs /var/opt/gitblit/temp gitblit/gitblit:nightly
+
+      # Delete the artifact unless this is the official Gitblit repo
+      - uses: geekyeggo/delete-artifact@v2
+        if: ${{ github.repository != 'gitblit/gitblit' }}
+        with:
+          name: gitblit-nightly
+          failOnError: false
 
       - name: Push docker image to registry
         uses: docker/build-push-action@v3
