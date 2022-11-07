@@ -29,22 +29,37 @@
  */
 package com.syntevo.bugtraq;
 
+import java.util.*;
+
 import org.jetbrains.annotations.*;
 
-public final class BugtraqEntry {
+public final class BugtraqConfigEntry {
 
 	// Fields =================================================================
 
 	private final String url;
-	private final String logLinkText;
-	private final BugtraqParser parser;
+	private final List<String> projects;
+	private final List<BugtraqEntry> entries;
 
 	// Setup ==================================================================
 
-	public BugtraqEntry(@NotNull String url, @NotNull String logIdRegex, @Nullable String logLinkRegex, @Nullable String logFilterRegex, @Nullable String logLinkText) throws BugtraqException {
+	public BugtraqConfigEntry(@NotNull String url, @NotNull String logIdRegex, @Nullable String logLinkRegex, @Nullable String logFilterRegex, @Nullable String logLinkText, @Nullable List<String> projects) throws BugtraqException {
 		this.url = url;
-		this.logLinkText = logLinkText;
-		this.parser = BugtraqParser.createInstance(logIdRegex, logLinkRegex, logFilterRegex);
+		this.projects = projects;
+		this.entries = new ArrayList<>();
+		if (projects == null) {
+			entries.add(new BugtraqEntry(url, logIdRegex, logLinkRegex, logFilterRegex, logLinkText));
+		}
+		else {
+			for (String project : projects) {
+				final String projectUrl = this.url.replace("%PROJECT%", project);
+				final String projectLogIdRegex = logIdRegex.replace("%PROJECT%", project);
+				final String projectLogLinkRegex = logLinkRegex != null ? logLinkRegex.replace("%PROJECT%", project) : null;
+				final String projectLogFilterRegex = logFilterRegex != null ? logFilterRegex.replace("%PROJECT%", project) : null;
+				final String projectLogLinkText = logLinkText != null ? logLinkText.replace("%PROJECT%", project) : null;
+				entries.add(new BugtraqEntry(projectUrl, projectLogIdRegex, projectLogLinkRegex, projectLogFilterRegex, projectLogLinkText));
+			}
+		}
 	}
 
 	// Accessing ==============================================================
@@ -55,12 +70,11 @@ public final class BugtraqEntry {
 	}
 
 	@Nullable
-	public String getLogLinkText() {
-		return logLinkText;
+	public List<String> getProjects() {
+		return projects != null ? Collections.unmodifiableList(projects) : null;
 	}
 
-	@NotNull
-	public BugtraqParser getParser() {
-		return parser;
+	public List<BugtraqEntry> getEntries() {
+		return entries;
 	}
 }

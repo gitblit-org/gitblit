@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Config;
@@ -69,6 +70,7 @@ public final class BugtraqConfig {
 	private static final String LOG_FILTERREGEX = "logfilterregex";
 	private static final String LOG_LINKREGEX = "loglinkregex";
 	private static final String LOG_LINKTEXT = "loglinktext";
+	private static final String PROJECTS = "projects";
 
 	// Static =================================================================
 
@@ -91,6 +93,7 @@ public final class BugtraqConfig {
 			}
 			throw ex;
 		}
+
 		if (getString(null, URL, config, baseConfig) != null) {
 			allNames.add(null);
 		}
@@ -101,7 +104,7 @@ public final class BugtraqConfig {
 			}
 		}
 
-		final List<BugtraqEntry> entries = new ArrayList<BugtraqEntry>();
+		final List<BugtraqConfigEntry> entries = new ArrayList<>();
 		for (String name : allNames) {
 			final String url = getString(name, URL, config, baseConfig);
 			if (url == null) {
@@ -149,8 +152,26 @@ public final class BugtraqConfig {
 				}
 			}
 
+			final String projectsList = getString(name, PROJECTS, config, baseConfig);
+			final List<String> projects;
+			if (projectsList != null) {
+				projects = new ArrayList<>();
+
+				final StringTokenizer tokenizer = new StringTokenizer(projectsList, ",", false);
+				while (tokenizer.hasMoreTokens()) {
+					projects.add(tokenizer.nextToken().trim());
+				}
+
+				if (projects.isEmpty()) {
+					throw new ConfigInvalidException("'" + name + ".projects' must specify at least one project or be not present at all.");
+				}
+			}
+			else {
+				projects = null;
+			}
+
 			final String linkText = getString(name, LOG_LINKTEXT, config, baseConfig);
-			entries.add(new BugtraqEntry(url, idRegex, linkRegex, filterRegex, linkText));
+			entries.add(new BugtraqConfigEntry(url, idRegex, linkRegex, filterRegex, linkText, projects));
 		}
 
 		if (entries.isEmpty()) {
@@ -163,18 +184,18 @@ public final class BugtraqConfig {
 	// Fields =================================================================
 
 	@NotNull
-	private final List<BugtraqEntry> entries;
+	private final List<BugtraqConfigEntry> entries;
 
 	// Setup ==================================================================
 
-	BugtraqConfig(@NotNull List<BugtraqEntry> entries) {
+	BugtraqConfig(@NotNull List<BugtraqConfigEntry> entries) {
 		this.entries = entries;
 	}
 
 	// Accessing ==============================================================
 
 	@NotNull
-	public List<BugtraqEntry> getEntries() {
+	public List<BugtraqConfigEntry> getEntries() {
 		return Collections.unmodifiableList(entries);
 	}
 
@@ -199,6 +220,7 @@ public final class BugtraqConfig {
 				if (headId == null || ObjectId.zeroId().equals(headId)) {
 					return null;
 				}
+
 				RevCommit commit = rw.parseCommit(headId);
 				RevTree tree = commit.getTree();
 				tw.reset(tree);
@@ -254,8 +276,8 @@ public final class BugtraqConfig {
 			return trimMaybeNull(baseConfig.getString(BUGTRAQ, subsection, key));
 		}
 
-			return value;
-		}
+		return value;
+	}
 
 	@Nullable
 	private static String trimMaybeNull(@Nullable String string) {

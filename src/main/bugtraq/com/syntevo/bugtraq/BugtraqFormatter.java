@@ -57,10 +57,12 @@ public final class BugtraqFormatter {
 			}
 		});
 
-		for (BugtraqEntry entry : config.getEntries()) {
-			final List<BugtraqParserIssueId> ids = entry.getParser().parse(message);
-			for (BugtraqParserIssueId id : ids) {
-				allIds.add(new IssueId(entry, id));
+		for (BugtraqConfigEntry configEntry : config.getEntries()) {
+			for (BugtraqEntry entry : configEntry.getEntries()) {
+				final List<BugtraqParserIssueId> ids = entry.getParser().parse(message);
+				for (BugtraqParserIssueId id : ids) {
+					allIds.add(new IssueId(entry, id));
+				}
 			}
 		}
 

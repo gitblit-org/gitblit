@@ -32,6 +32,7 @@ package com.syntevo.bugtraq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
 
@@ -43,28 +44,28 @@ public class BugtraqFormatterTest extends TestCase {
 	// Accessing ==============================================================
 
 	public void testSimpleWithExtendedLink() throws BugtraqException {
-		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/JRA-%BUGID%", null, "JRA-\\d+", "\\d+", null));
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/JRA-%BUGID%", null, "JRA-\\d+", "\\d+", null, null));
 		doTest(formatter, "JRA-7399: Email subject formatting", l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(": Email subject formatting"));
 		doTest(formatter, " JRA-7399, JRA-7398: Email subject formatting", t(" "), l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(", "), l("JRA-7398", "https://jira.atlassian.com/browse/JRA-7398"), t(": Email subject formatting"));
 		doTest(formatter, "Fixed JRA-7399", t("Fixed "), l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"));
 	}
 
 	public void testLinkText() throws BugtraqException {
-		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/JRA-%BUGID%", null, "JRA-\\d+", "\\d+", "JIRA-%BUGID%"));
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/JRA-%BUGID%", null, "JRA-\\d+", "\\d+", "JIRA-%BUGID%", null));
 		doTest(formatter, " JRA-7399, JRA is text, JRA-7398: Email subject formatting", t(" "), l("JIRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(", JRA is text, "), l("JIRA-7398", "https://jira.atlassian.com/browse/JRA-7398"), t(": Email subject formatting"));
 	}
 
 	public void testTwoNonIntersectingConfigurations() throws BugtraqException {
-		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/%BUGID%", null, null, "JRA-\\d+", null),
-		                                                   createEntry("https://issues.apache.org/jira/browse/%BUGID%", null, null, "VELOCITY-\\d+", null));
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/%BUGID%", null, null, "JRA-\\d+", null, null),
+		                                                   createEntry("https://issues.apache.org/jira/browse/%BUGID%", null, null, "VELOCITY-\\d+", null, null));
 		doTest(formatter, "JRA-7399, VELOCITY-847: fix", l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(", "), l("VELOCITY-847", "https://issues.apache.org/jira/browse/VELOCITY-847"), t(": fix"));
 		doTest(formatter, " JRA-7399: fix/VELOCITY-847", t(" "), l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(": fix/"), l("VELOCITY-847", "https://issues.apache.org/jira/browse/VELOCITY-847"));
 		doTest(formatter, "JRA-7399VELOCITY-847", l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), l("VELOCITY-847", "https://issues.apache.org/jira/browse/VELOCITY-847"));
 	}
 
 	public void testTwoIntersectingConfigurations() throws BugtraqException {
-		final BugtraqFormatter formatter = createFormatter(createEntry("https://host1/%BUGID%", null, null, "A[AB]", null),
-		                                                   createEntry("https://host2/%BUGID%", null, null, "BA[A]?", null));
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://host1/%BUGID%", null, null, "A[AB]", null, null),
+		                                                   createEntry("https://host2/%BUGID%", null, null, "BA[A]?", null, null));
 		doTest(formatter, "AA: fix", l("AA", "https://host1/AA"), t(": fix"));
 		doTest(formatter, "AB: fix", l("AB", "https://host1/AB"), t(": fix"));
 		doTest(formatter, "BA: fix", l("BA", "https://host2/BA"), t(": fix"));
@@ -79,14 +80,34 @@ public class BugtraqFormatterTest extends TestCase {
 		doTest(formatter, "BAABBA: fix", l("BAA", "https://host2/BAA"), t("B"), l("BA", "https://host2/BA"), t(": fix"));
 	}
 
-	// Utils ==================================================================
-
-	private BugtraqFormatter createFormatter(BugtraqEntry ... entries) {
-		return new BugtraqFormatter(new BugtraqConfig(Arrays.asList(entries)));
+	public void testMultipleProjects() throws BugtraqException {
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/%PROJECT%-%BUGID%", null, "%PROJECT%-\\d+", "\\d+", null, "JRA,JRB,JRC"));
+		doTest(formatter, "JRA-7399: Email subject formatting", l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(": Email subject formatting"));
+		doTest(formatter, " JRA-7399, JRB-7398: Email subject formatting", t(" "), l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(", "), l("JRB-7398", "https://jira.atlassian.com/browse/JRB-7398"), t(": Email subject formatting"));
+		doTest(formatter, "Fixed JRC-7399", t("Fixed "), l("JRC-7399", "https://jira.atlassian.com/browse/JRC-7399"));
 	}
 
-	private BugtraqEntry createEntry(String url, @Nullable String filterRegex, @Nullable String linkRegex, @NotNull String idRegex, @Nullable String linkText) throws BugtraqException {
-		return new BugtraqEntry(url, idRegex, linkRegex, filterRegex, linkText);
+	// Utils ==================================================================
+
+	private BugtraqFormatter createFormatter(BugtraqConfigEntry ... entries) {
+		return new BugtraqFormatter(new BugtraqConfig(Arrays.asList(entries)));
+	}
+	
+	private BugtraqConfigEntry createEntry(String url, @Nullable String filterRegex, @Nullable String linkRegex, @NotNull String idRegex, @Nullable String linkText, @Nullable String projectsList) throws BugtraqException {
+		final List<String> projects;
+		if (projectsList != null) {
+			projects = new ArrayList<>();
+
+			final StringTokenizer tokenizer = new StringTokenizer(projectsList, ",", false);
+			while (tokenizer.hasMoreTokens()) {
+				projects.add(tokenizer.nextToken());
+			}
+		}
+		else {
+			projects = null;
+		}
+
+		return new BugtraqConfigEntry(url, idRegex, linkRegex, filterRegex, linkText, projects);
 	}
 
 	private Text t(String text) {
