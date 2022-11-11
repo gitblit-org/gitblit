@@ -31,6 +31,9 @@ package com.syntevo.bugtraq;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,6 +57,8 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class BugtraqConfig {
 
@@ -229,7 +234,7 @@ public final class BugtraqConfig {
 					FileMode entmode = tw.getFileMode(0);
 					if (FileMode.REGULAR_FILE == entmode) {
 						ObjectLoader ldr = repository.open(entid, Constants.OBJ_BLOB);
-						content = new String(ldr.getCachedBytes(), commit.getEncoding());
+						content = new String(ldr.getCachedBytes(), guessEncoding(commit));
 						break;
 					}
 				}
@@ -263,6 +268,15 @@ public final class BugtraqConfig {
 			}
 		}
 		return baseConfig;
+	}
+
+	@NotNull
+	private static Charset guessEncoding(RevCommit commit) {
+		try {
+			return commit.getEncoding();
+		} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+			return UTF_8;
+		}
 	}
 
 	@Nullable
