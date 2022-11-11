@@ -583,13 +583,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-4.8.0.201706111038-r.jar">
+      <library name="org.eclipse.jgit-4.11.9.201909030838-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-4.8.0.201706111038-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-4.11.9.201909030838-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-4.8.0.201706111038-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-4.11.9.201909030838-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -605,6 +605,17 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="jzlib-1.1.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jzlib-1.1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jzlib-1.1.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="JavaEWAH-1.1.6.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/JavaEWAH-1.1.6.jar!/" />
@@ -616,57 +627,57 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="httpclient-4.3.6.jar">
+      <library name="httpclient-4.5.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/httpclient-4.3.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/httpclient-4.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/httpclient-4.3.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/httpclient-4.5.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="httpcore-4.3.3.jar">
+      <library name="httpcore-4.4.4.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/httpcore-4.3.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/httpcore-4.4.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/httpcore-4.3.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/httpcore-4.4.4.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="commons-logging-1.1.3.jar">
+      <library name="commons-logging-1.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-logging-1.1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/commons-logging-1.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-logging-1.1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/commons-logging-1.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="commons-codec-1.7.jar">
+      <library name="commons-codec-1.9.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-codec-1.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/commons-codec-1.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-codec-1.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/commons-codec-1.9.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-4.8.0.201706111038-r.jar">
+      <library name="org.eclipse.jgit.http.server-4.11.9.201909030838-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-4.8.0.201706111038-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-4.11.9.201909030838-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-4.8.0.201706111038-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-4.11.9.201909030838-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -770,13 +781,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="gson-2.3.1.jar">
+      <library name="gson-2.8.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/gson-2.3.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/gson-2.8.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/gson-2.3.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/gson-2.8.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -823,24 +834,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="commons-compress-1.4.1.jar">
+      <library name="commons-compress-1.15.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.4.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.15.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.4.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.15.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="xz-1.0.jar">
+      <library name="objenesis-2.6.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/xz-1.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/objenesis-2.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/xz-1.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/objenesis-2.6.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -1171,17 +1182,6 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/byte-buddy-agent-1.9.10.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library name="objenesis-2.6.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/objenesis-2.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/objenesis-2.6.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
