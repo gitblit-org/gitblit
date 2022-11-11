@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,7 +52,6 @@ import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
-import org.eclipse.jgit.util.RawParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1943,20 +1941,6 @@ public class RepositoryManager implements IRepositoryManager {
 			logger.debug(MessageFormat.format("{0} = {1}", Keys.git.packedGitMmap, cfg.isPackedGitMMAP()));
 		} catch (IllegalArgumentException e) {
 			logger.error("Failed to configure JGit parameters!", e);
-		}
-
-		try {
-			// issue-486/ticket-151: UTF-9 & UTF-18
-			// issue-560/ticket-237: 'UTF8'
-			Field field = RawParseUtils.class.getDeclaredField("encodingAliases");
-			field.setAccessible(true);
-			Map<String, Charset> encodingAliases = (Map<String, Charset>) field.get(null);
-			encodingAliases.put("'utf8'", RawParseUtils.UTF8_CHARSET);
-			encodingAliases.put("utf-9", RawParseUtils.UTF8_CHARSET);
-			encodingAliases.put("utf-18", RawParseUtils.UTF8_CHARSET);
-			logger.info("Alias 'UTF8', UTF-9 & UTF-18 encodings as UTF-8 in JGit");
-		} catch (Throwable t) {
-			logger.error("Failed to inject UTF-9 & UTF-18 encoding aliases into JGit", t);
 		}
 	}
 

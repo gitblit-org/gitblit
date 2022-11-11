@@ -155,10 +155,10 @@ public class BugtraqProcessor {
 				formatter.formatLogMessage(text, new BugtraqOutputHandler(sb));
 				text = sb.toString();
 			}
-		} catch (IOException e) {
-			logger.error(MessageFormat.format("Bugtraq config for {0} is invalid!", repositoryName), e);
 		} catch (ConfigInvalidException e) {
-			logger.error(MessageFormat.format("Bugtraq config for {0} is invalid!", repositoryName), e);
+			logger.warn("Bugtraq config for {} is invalid!", repositoryName, e);
+		} catch (Exception e) {
+			logger.warn("Failed to parse message through Bugtraq.", e);
 		}
 
 		return text;
