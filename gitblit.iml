@@ -222,101 +222,101 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-servlet-9.3.16.v20170120.jar">
+      <library name="jetty-servlet-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-servlet-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-servlet-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-servlet-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-servlet-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-security-9.3.16.v20170120.jar">
+      <library name="jetty-security-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-security-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-security-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-security-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-security-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-server-9.3.16.v20170120.jar">
+      <library name="jetty-server-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-server-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-server-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-server-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-server-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-continuation-9.3.16.v20170120.jar">
+      <library name="jetty-continuation-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-continuation-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-continuation-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-continuation-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-continuation-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-http-9.3.16.v20170120.jar">
+      <library name="jetty-http-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-http-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-http-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-http-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-http-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-io-9.3.16.v20170120.jar">
+      <library name="jetty-io-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-io-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-io-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-io-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-io-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-util-9.3.16.v20170120.jar">
+      <library name="jetty-util-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-util-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-util-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-util-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-util-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-webapp-9.3.16.v20170120.jar">
+      <library name="jetty-webapp-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-webapp-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-webapp-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-xml-9.3.16.v20170120.jar">
+      <library name="jetty-xml-9.4.49.v20220914.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-xml-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-xml-9.4.49.v20220914.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-xml-9.3.16.v20170120.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-xml-9.4.49.v20220914.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
