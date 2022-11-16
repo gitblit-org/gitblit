@@ -67,7 +67,29 @@ public class SshKeysPanel extends BasePanel {
 
 		final IModel<String> keyFeedback = Model.of("");
 		final List<SshKey> keys = new ArrayList<SshKey>(app().keys().getKeys(user.username));
-		final ListDataProvider<SshKey> dp = new ListDataProvider<SshKey>(keys);
+		// Create list data provider that gets rid of the (not serializable EdDSA) PublicKey.
+		final ListDataProvider<SshKey> dp = new ListDataProvider<SshKey>(keys) {
+			@Override
+			public IModel<SshKey> model(final SshKey key) {
+				return new IModel<SshKey>() {
+					@Override
+					public SshKey getObject() {
+						return key;
+					}
+
+					@Override
+					public void setObject(SshKey object) {
+						// Cannot get set
+					}
+
+					@Override
+					public void detach() {
+						key.detachPublicKey();
+					}
+				};
+			}
+
+		};
 		final DataView<SshKey> keysView = new DataView<SshKey>("keys", dp) {
 			private static final long serialVersionUID = 1L;
 

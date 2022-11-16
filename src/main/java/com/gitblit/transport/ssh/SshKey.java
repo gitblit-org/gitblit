@@ -81,6 +81,15 @@ public class SshKey implements Serializable {
 		return publicKey;
 	}
 
+	public void detachPublicKey()
+	{
+		if (rawData == null) {
+			// Make sure the raw data is available
+			getRawData();
+		}
+		publicKey = null;
+	}
+
 	public String getAlgorithm() {
 		return getPublicKey().getAlgorithm();
 	}
