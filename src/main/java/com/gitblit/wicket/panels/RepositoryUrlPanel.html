@@ -85,17 +85,9 @@
     	</span>
     </wicket:fragment>
     
-    <!-- flash-based button-press copy & paste -->
+    <!-- JavaScript automatic copy to clipboard -->
     <wicket:fragment wicket:id="clippyPanel">
-   		<object wicket:message="title:gb.copyToClipboard" style="vertical-align:middle;"
-   			wicket:id="clippy"
-   			width="14" 
-   			height="14"
-   			bgcolor="#ffffff" 
-       		quality="high"
-       		wmode="transparent"
-       		scale="noscale"
-       		allowScriptAccess="sameDomain"></object>
+		<img class="ctcbtn" data-clipboard-action="copy" wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard" />
 	</wicket:fragment>
 
 	<wicket:fragment wicket:id="workingCopyFragment">

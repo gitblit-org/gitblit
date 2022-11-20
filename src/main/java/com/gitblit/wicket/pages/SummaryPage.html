@@ -61,7 +61,14 @@
 	<wicket:fragment wicket:id="ownersFragment">
 		
 	</wicket:fragment>
-	
-</wicket:extend>	
+
+	<!-- load clipboard library to copy repository URL -->
+	<script type="text/javascript" src="clipboard/clipboard.min.js"></script>
+	<!-- instantiate clipboard -->
+	<script>
+        var clipboard = new ClipboardJS('.ctcbtn');
+    </script>
+
+</wicket:extend>
 </body>
 </html>
