@@ -586,20 +586,14 @@ pt push</pre>
   		<img wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard"></img>
   	</span>
 </wicket:fragment>
-    
 
-<!-- flash-based button-press copy & paste -->
-<wicket:fragment wicket:id="clippyPanel">
-	<object wicket:message="title:gb.copyToClipboard" style="vertical-align:middle;"
-   			wicket:id="clippy"
-   			width="14" 
-   			height="14"
-   			bgcolor="#ffffff" 
-       		quality="high"
-       		wmode="transparent"
-       		scale="noscale"
-       		allowScriptAccess="sameDomain"></object>
-</wicket:fragment>
+
+	<!-- JavaScript automatic copy to clipboard -->
+	<wicket:fragment wicket:id="clippyPanel">
+		<span class="tooltipped tooltipped-n">
+			<img class="ctcbtn" wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard" />
+		</span>
+	</wicket:fragment>
 	
 </wicket:extend>    
 </body>
