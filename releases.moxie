@@ -7,6 +7,11 @@ r34: {
     date: ${project.buildDate}
     note: ''
           From 1.10.0 on Gitblit requires Java 8 as minimum Java version.
+
+          Should you have disabled the Flash-based copy-to-clipboard function because it wasn't working anymore
+          (web.allowFlashCopyToClipboard = false), you may want to rethink this and enable it again. The configuration
+          property has the same name, but the mechanism was exchanged. Flash is gone, and a modern JavaScript solution
+          is now used to copy text directly to the clipboard (via clipboard.js).
           ''
     html: ~
     text: ~
@@ -14,7 +19,8 @@ r34: {
     fixes:
       - Fix crash in Gitblit Authority when users were deleted from Gitblit but still had entries (certificates) in the Authority.
     changes:
-      - Minimum Java required increased to Java 8
+      - Minimum Java required increased to Java 8.
+      - Replaced the Flash-based approach to copy text to the clipboard with a modern JavaScript solution. (issue-1241)
     additions: ~
     dependencyChanges:
       - update to JavaMail 1.5.6 (pr-1217 by @paladox)
@@ -24,6 +30,7 @@ r34: {
       - update to Apache commons-io 2.11.0
       - update to Apache commons-compress 1.22
       - update to libpam4j 1.11
+      - added clipboard.js, replacing clippy.swf
     contributors:
       - paladox
 }
