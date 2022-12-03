@@ -171,6 +171,11 @@ public abstract class RepositoryPage extends RootPage {
 		add(searchForm);
 		searchForm.setTranslatedAttributes();
 
+		// load clipboard library to copy repository URL
+		addBottomScript("../../clipboard/clipboard.min.js");
+		// instantiate clipboard
+		addBottomScript("../../clipboard/gitblit-ctcbtn.js");
+
 		// set stateless page preference
 		setStatelessHint(true);
 	}

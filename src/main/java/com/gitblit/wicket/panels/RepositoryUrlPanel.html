@@ -12,12 +12,14 @@
 	
 	<wicket:fragment wicket:id="repositoryUrlFragment">
 		<div class="btn-toolbar" style="margin: 0px;">
-			<div class="btn-group repositoryUrlContainer">
+			<div class="btn-group repositoryUrlContainer tooltipped tooltipped-w">
 				<img style="vertical-align: middle;padding: 0px 0px 1px 3px;" wicket:id="accessRestrictionIcon"></img>
 				<span wicket:id="menu"></span>
    				<div class="repositoryUrl">
    					<span wicket:id="primaryUrl">[repository primary url]</span>
-   					<span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
+					<span class="tooltipped tooltipped-n">
+ 	  					<span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
+					</span>
    				</div>
    				<span class="hidden-phone hidden-tablet repositoryUrlRightCap" wicket:id="primaryUrlPermission">[repository primary url permission]</span>
    			</div>
@@ -33,7 +35,7 @@
 	
 	<wicket:fragment wicket:id="applicationMenusFragment">
 		<div class="btn-toolbar" style="margin: 4px 0px 0px 0px;">
-			<div class="btn-group" wicket:id="appMenus">
+			<div class="btn-group tooltipped tooltipped-w" wicket:id="appMenus">
 				<span wicket:id="appMenu"></span>
    			</div>
 		</div>
@@ -85,17 +87,9 @@
     	</span>
     </wicket:fragment>
     
-    <!-- flash-based button-press copy & paste -->
+    <!-- JavaScript automatic copy to clipboard -->
     <wicket:fragment wicket:id="clippyPanel">
-   		<object wicket:message="title:gb.copyToClipboard" style="vertical-align:middle;"
-   			wicket:id="clippy"
-   			width="14" 
-   			height="14"
-   			bgcolor="#ffffff" 
-       		quality="high"
-       		wmode="transparent"
-       		scale="noscale"
-       		allowScriptAccess="sameDomain"></object>
+		<img class="ctcbtn" wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard" />
 	</wicket:fragment>
 
 	<wicket:fragment wicket:id="workingCopyFragment">

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -140,8 +141,7 @@ public class RepositoryUrlPanel extends BasePanel {
 					RepositoryUrl repoUrl = item.getModelObject();
 					// repository url
 					Fragment fragment = new Fragment("repoUrl", "actionFragment", this);
-					Component content = new Label("content", repoUrl.url).setRenderBodyOnly(true);
-					WicketUtils.setCssClass(content, "commandMenuItem");
+					Component content = new Label("content", repoUrl.url).setOutputMarkupId(true);
 					fragment.add(content);
 					item.add(fragment);
 
@@ -150,7 +150,7 @@ public class RepositoryUrlPanel extends BasePanel {
 					String tooltip = getProtocolPermissionDescription(repository, repoUrl);
 					WicketUtils.setHtmlTooltip(permissionLabel, tooltip);
 					fragment.add(permissionLabel);
-					fragment.add(createCopyFragment(repoUrl.url));
+					fragment.add(createCopyFragment(repoUrl.url, content.getMarkupId()));
 				}
 			};
 
@@ -199,13 +199,15 @@ public class RepositoryUrlPanel extends BasePanel {
 			}
 		}
 
-		urlPanel.add(new Label("primaryUrl", primaryUrl.url).setRenderBodyOnly(true));
+		Label primaryUrlLabel = new Label("primaryUrl", primaryUrl.url);
+		primaryUrlLabel.setOutputMarkupId(true);
+		urlPanel.add(primaryUrlLabel);
 
 		Label permissionLabel = new Label("primaryUrlPermission", primaryUrl.hasPermission() ? primaryUrl.permission.toString() : externalPermission);
 		String tooltip = getProtocolPermissionDescription(repository, primaryUrl);
 		WicketUtils.setHtmlTooltip(permissionLabel, tooltip);
 		urlPanel.add(permissionLabel);
-		urlPanel.add(createCopyFragment(primaryUrl.url));
+		urlPanel.add(createCopyFragment(primaryUrl.url, primaryUrlLabel.getMarkupId()));
 
 		return urlPanel;
 	}
@@ -317,12 +319,13 @@ public class RepositoryUrlPanel extends BasePanel {
 							// command-line
 							String command = substitute(clientApp.command, repoUrl.url, baseURL, user.username, repository.name);
 							Label content = new Label("content", command);
+							content.setOutputMarkupId(true);
 							WicketUtils.setCssClass(content, "commandMenuItem");
 							fragment.add(content);
 							repoLinkItem.add(fragment);
 
 							// copy function for command
-							fragment.add(createCopyFragment(command));
+							fragment.add(createCopyFragment(command, content.getMarkupId()));
 						}
 					}};
 					appMenu.add(actionItems);
@@ -346,16 +349,17 @@ public class RepositoryUrlPanel extends BasePanel {
 		return permissionLabel;
 	}
 
-	protected Fragment createCopyFragment(String text) {
+	protected Fragment createCopyFragment(String text, String target) {
 		if (app().settings().getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
-			// clippy: flash-based copy & paste
+			// javascript: browser JS API based copy to clipboard
 			Fragment copyFragment = new Fragment("copyFunction", "clippyPanel", this);
-			String baseUrl = WicketUtils.getGitblitURL(getRequest());
-			ShockWaveComponent clippy = new ShockWaveComponent("clippy", baseUrl + "/clippy.swf");
-			clippy.setValue("flashVars", "text=" + StringUtils.encodeURL(text));
-			copyFragment.add(clippy);
+			ContextImage img = WicketUtils.newImage("copyIcon", "clippy.png");
+			// Add the ID of the target element that holds the text to copy to clipboard
+			img.add(new SimpleAttributeModifier("data-clipboard-target", "#"+target));
+			copyFragment.add(img);
 			return copyFragment;
-		} else {
+		}
+		else {
 			// javascript: manual copy & paste with modal browser prompt dialog
 			Fragment copyFragment = new Fragment("copyFunction", "jsPanel", this);
 			ContextImage img = WicketUtils.newImage("copyIcon", "clippy.png");
