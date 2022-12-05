@@ -13,7 +13,7 @@
 	<wicket:fragment wicket:id="repositoryUrlFragment">
 		<div class="btn-toolbar" style="margin: 0px;">
 			<div class="btn-group repositoryUrlContainer tooltipped tooltipped-w">
-				<img style="vertical-align: middle;padding: 0px 0px 1px 3px;" wicket:id="accessRestrictionIcon"></img>
+				<img style="max-width:inherit; vertical-align: middle;padding: 0px 0px 1px 3px;" wicket:id="accessRestrictionIcon"></img>
 				<span wicket:id="menu"></span>
    				<div class="repositoryUrl">
    					<span wicket:id="primaryUrl">[repository primary url]</span>
@@ -89,7 +89,7 @@
     
     <!-- JavaScript automatic copy to clipboard -->
     <wicket:fragment wicket:id="clippyPanel">
-		<img class="ctcbtn" wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard" />
+		<img class="ctcbtn" style="max-width:inherit;" wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard" />
 	</wicket:fragment>
 
 	<wicket:fragment wicket:id="workingCopyFragment">
