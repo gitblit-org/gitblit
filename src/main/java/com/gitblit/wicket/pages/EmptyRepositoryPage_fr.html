@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="fr"
+      lang="fr">
+
+<body>
+<wicket:extend>
+<div class="container">
+<div class="markdown">
+<div class="row">
+<div class="span10 offset1">	
+	<h3><center>D&eacute;p&ocirc;t vide</center></h3>
+	<div class="alert alert-info">
+		<span wicket:id="repository" style="font-weight: bold;">[repository]</span> est un d&eacute;p&ocirc;t vide, Gitblit ne peut pas le visualiser.
+		<p></p>		
+		S'il vous pla&icirc;t, envoyer quelques commits dans <span wicket:id="pushurl"></span>
+		<hr/>
+		Après avoir envoy&eacute; (push) des commits, vous pouvez <b>rafra&icirc;chir</b> cette page pour visualiser votre d&eacute;p&ocirc;t.
+	</div>
+		
+	<h3><center>Cr&eacute;er un nouveau r&eacute;f&eacute;rentiel en ligne de commande</center></h3>
+
+	<pre wicket:id="createSyntax"></pre>
+
+	<h3><center>D&eacute;poser un d&eacute;p&ocirc;t existant en ligne de commande</center></h3>
+
+	<pre wicket:id="existingSyntax"></pre>
+	
+	<div class="span8 offset1">
+		<h2><center>Apprendre Git</center></h2>
+		 <p>Si vous n'&ecirc;tes pas sûr de vous sur l'utilisation de ces commandes, envisagez de consulter le <a href="http://book.git-scm.com">Git Community Book (Livre de la communaut&eacute; Git)</a> pour mieux comprendre comment utiliser Git.</p>
+
+		<h4>Clients Git "Open Source"</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://git-scm.com">Git</a></td><td>Version officielle de Git, en ligne de commande</td></tr>
+			<tr><td><a href="http://tortoisegit.googlecode.com">TortoiseGit</a></td><td>Int&eacute;gration de Git dans l'explorateur de fichiers Windows (n&eacute;cessite l'application officielle Git, en ligne de commande)</td></tr>
+			<tr><td><a href="http://eclipse.org/egit">Eclipse/EGit</a></td><td>Module Git pour l'IDE Eclipse (bas&eacute; sur JGit, comme Gitblit)</td></tr>
+			<tr><td><a href="http://gitextensions.github.io">Git Extensions</a></td><td>Client pour Git &eacute;crit en C#, int&eacute;gr&eacute; &agrave; l'Explorateur de fichier de Windows et &agrave; Visual Studio</td></tr>
+			<tr><td><a href="http://rowanj.github.io/gitx/">GitX-dev</a></td><td>Client Git pour Mac OS X</td></tr>
+		</tbody>			
+		</table>
+
+		<h4>Clients Git propri&eacute;taire</h4>
+		<table>
+		<tbody>
+			<tr><td><a href="http://www.syntevo.com/smartgithg">SmartGit/Hg</a></td><td>Un client Git et Mercurial &eacute;crit Java pour Windows, Mac, et Linux</td></tr>
+			<tr><td><a href="http://www.sourcetreeapp.com/">SourceTree</a></td><td>Un client Git et Mercurial gratuit pour Windows et Mac</td></tr>
+			<tr><td><a href="http://www.git-tower.com/">Tower</a></td><td>Client Git pour Mac OS</td></tr>
+		</tbody>
+		</table>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</wicket:extend>	
+</body>
+</html>
