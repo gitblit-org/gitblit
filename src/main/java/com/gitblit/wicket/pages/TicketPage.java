@@ -1561,7 +1561,7 @@ public class TicketPage extends RepositoryPage {
 		// pt instructions
 		String ptStep = MessageFormat.format("pt pull {0,number,0}", ticket.number);
 		cmd.add(new Label("ptMergeStep", ptStep));
-		cmd.add(createCopyFragment("ptMergeCopyStep", step1.replace("\n", " && ")));
+		cmd.add(createCopyFragment("ptMergeCopyStep", ptStep.replace("\n", " && ")));
 		return cmd;
 	}
 
