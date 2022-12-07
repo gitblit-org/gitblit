@@ -106,7 +106,7 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	public PatchsetCommand(String username, Patchset patchset) {
 		super(patchset.isFF() ? ObjectId.fromString(patchset.parent) : ObjectId.zeroId(),
-				ObjectId.fromString(patchset.tip), null);
+				ObjectId.fromString(patchset.tip), getPatchsetBranch(patchset.ticketId, patchset.number));
 		this.change = new Change(username);
 		this.change.patchset = patchset;
 	}

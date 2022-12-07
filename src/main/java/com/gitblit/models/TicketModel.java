@@ -1163,6 +1163,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		private static final long serialVersionUID = 1L;
 
+		public long ticketId;
 		public int number;
 		public int rev;
 		public String tip;

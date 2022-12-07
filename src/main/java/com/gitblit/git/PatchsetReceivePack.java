@@ -774,6 +774,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 			// assign new id
 			long ticketId = ticketService.assignNewId(repository);
+			patchset.ticketId = ticketId;
 
 			// create the patchset command
 			psCmd = new PatchsetCommand(user.username, patchset);
@@ -1102,6 +1103,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		newPatchset.tip = tip;
 		newPatchset.base = mergeBase;
 		newPatchset.commits = totalCommits;
+		newPatchset.ticketId = ticket == null ? 0 : ticket.number;
 
 		Patchset currPatchset = ticket == null ? null : ticket.getCurrentPatchset();
 		if (currPatchset == null) {
@@ -1196,12 +1198,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	}
 
 	private RefUpdate updateRef(String ref, ObjectId newId, PatchsetType type) {
-		ObjectId ticketRefId = ObjectId.zeroId();
+		ObjectId ticketRefId = null;
 		try {
 			ticketRefId = getRepository().resolve(ref);
-		} catch (Exception e) {
-			// ignore
-		}
+		} catch (Exception ignored) {}
 
 		try {
 			RefUpdate ru = getRepository().updateRef(ref,  false);
@@ -1217,7 +1217,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				break;
 			}
 
-			ru.setExpectedOldObjectId(ticketRefId);
+			ru.setExpectedOldObjectId((ticketRefId == null) ? ObjectId.zeroId() : ticketRefId);
 			ru.setNewObjectId(newId);
 			RefUpdate.Result result = ru.update(getRevWalk());
 			if (result == RefUpdate.Result.LOCK_FAILURE) {
@@ -1254,7 +1254,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					ru.getResult(), ru.getName()));
 			return;
 		}
-		ReceiveCommand cmd = new ReceiveCommand(ru.getOldObjectId(), ru.getNewObjectId(), ru.getName(), type);
+		ObjectId oldId = (ru.getOldObjectId() == null) ? ObjectId.zeroId() : ru.getOldObjectId();
+		ReceiveCommand cmd = new ReceiveCommand(oldId, ru.getNewObjectId(), ru.getName(), type);
 		RefLogUtils.updateRefLog(user, getRepository(), Arrays.asList(cmd));
 	}
 
