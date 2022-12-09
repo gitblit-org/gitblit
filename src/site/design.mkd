@@ -87,6 +87,5 @@ Contributions must be your own original work and must licensed under the [Apache
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
-[gitbltsrc]: http://github.com/gitblit "gitblit git repository"
-[googlecode]: http://code.google.com/p/gitblit "gitblit project management"
+[gitbltsrc]: http://github.com/gitblit-org/gitblit "gitblit git repository"
 [apachelicense]: http://www.apache.org/licenses/LICENSE-2.0 "Apache License, Version 2.0"

@@ -2,7 +2,7 @@
 
 Gitblit offers several extension points for enhancing and customizing it's runtime behavior.
 
-Each available extension point has a sample implementation in the [gitblit-cookbook-plugin (Maven project)](https://github.com/gitblit/gitblit-cookbook-plugin).
+Each available extension point has a sample implementation in the [gitblit-cookbook-plugin (Maven project)](https://github.com/gitblit-org/gitblit-cookbook-plugin).
 
 **NOTE:**
 Gitblit does not yet offer a comprehensize dependency injection architecture.  This will be addressed in a subsequent release.  For now you may access all of Gitblit's core managers through a static singleton app context:

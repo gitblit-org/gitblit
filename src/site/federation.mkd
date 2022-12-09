@@ -313,7 +313,7 @@ The repositories will be put in *git.repositoriesFolder*/example4.
     
 ## Federation Client
 
-Instead of setting up a full-blown pulling Gitblit instance, you can also use the [federation client](https://github.com/gitblit/gitblit/releases/latest) command-line utility.  This is a packaged subset of the federation feature in a smaller, simpler command-line only tool.
+Instead of setting up a full-blown pulling Gitblit instance, you can also use the [federation client](https://github.com/gitblit-org/gitblit/releases/latest) command-line utility.  This is a packaged subset of the federation feature in a smaller, simpler command-line only tool.
 
 The *federation client* relies on many of the same dependencies as Gitblit and will download them on first execution.
 

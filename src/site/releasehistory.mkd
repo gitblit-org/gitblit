@@ -139,7 +139,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 - Preliminary bare repository submodule support<br/>
     **New:** *git.submoduleUrlPatterns=*
     - *git.submoduleUrlPatterns* is a space-delimited list of regular expressions for extracting a repository name from a submodule url.<br/>
-    For example, `git.submoduleUrlPatterns = .*?://github.com/(.*)` would extract *gitblit/gitblit.git* from *git://github.git/gitblit/gitblit.git*<br/>
+    For example, `git.submoduleUrlPatterns = .*?://github.com/(.*)` would extract *gitblit-org/gitblit.git* from *git://github.git/gitblit-org/gitblit.git*<br/>
     **Note:** You may not need this control to work with submodules, but it is there if you do.
     - If there are no matches from *git.submoduleUrlPatterns* then the repository name is assumed to be whatever comes after the last `/` character *(e.g. gitblit.git)*
     - Gitblit will try to locate this repository relative to the current repository *(e.g. myfolder/myrepo.git, myfolder/mysubmodule.git)* and then at the root level *(mysubmodule.git)* if that fails.

@@ -5,9 +5,9 @@ Gitblit is an open source, pure Java Git solution for managing, viewing, and ser
 
 More information about Gitblit can be found [here](http://gitblit.com).
 
-<a href='https://github.com/gitblit/gitblit/releases/latest' title='Download'><img alt='download badge' src='https://img.shields.io/badge/dynamic/json?color=9cf&label=Download&query=%24.name&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fgitblit%2Fgitblit%2Freleases%2Flatest'></a>
+<a href='https://github.com/gitblit-org/gitblit/releases/latest' title='Download'><img alt='download badge' src='https://img.shields.io/badge/dynamic/json?color=9cf&label=Download&query=%24.name&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fgitblit-org%2Fgitblit%2Freleases%2Flatest'></a>
 <a title='nightly docker' href='https://hub.docker.com/r/gitblit/gitblit/tags?page=1&name=nightly'><img alt='nightly docker badge' src='https://img.shields.io/badge/dynamic/json?color=2496ed&label=Nightly Docker&query=%24.tag_last_pushed&cacheSeconds=43200&url=https%3A%2F%2Fhub.docker.com%2Fv2%2Frepositories%2Fgitblit%2Fgitblit%2Ftags%2Fnightly'></a>
-![License](https://img.shields.io/github/license/gitblit/gitblit?color=%23f29024)
+![License](https://img.shields.io/github/license/gitblit-org/gitblit?color=%23f29024)
 
 License
 -------
@@ -18,7 +18,7 @@ The text of the license is included in the file LICENSE in the root of the proje
 Java Runtime Requirement
 ------------------------------------
 
-Gitblit requires at Java 8 Runtime Environment (JRE) or a Java 8 Development Kit (JDK).
+Gitblit requires a Java 8 Runtime Environment (JRE) or a Java 8 Development Kit (JDK).
 
 Getting help
 ------------

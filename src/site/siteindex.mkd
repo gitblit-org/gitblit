@@ -68,7 +68,7 @@ Gitblit blends elements of GitHub, BitBucket, and Gerrit to provide a streamline
 
 Administrators can create and manage all repositories, user accounts, and teams from the *Web UI*.  
 Administrators can create and manage all repositories, user accounts, and teams from the *JSON RPC interface* using the [Gitblit Manager](%GCURL%manager-${project.releaseVersion}.zip) or your own custom tooling. 
-Administrators can create and manage all repositories, user accounts, and teams from the *command-line* using SSH & the [Powertools plugin](https://github.com/gitblit/gitblit-powertools-plugin).
+Administrators can create and manage all repositories, user accounts, and teams from the *command-line* using SSH & the [Powertools plugin](https://github.com/gitblit-org/gitblit-powertools-plugin).
 
 ### Integration with Your Infrastructure
 

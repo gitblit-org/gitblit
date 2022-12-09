@@ -27,4 +27,4 @@ Due to limited authentication options when using the YouTrack REST API, you have
 
 ## Attribution
 
-Much of this script was cobbled together from the example receive hooks in the official [GitBlit](https://github.com/gitblit/gitblit) distribution.
+Much of this script was cobbled together from the example receive hooks in the official [GitBlit](https://github.com/gitblit-org/gitblit) distribution.

@@ -19,10 +19,10 @@ releaseDate: 2022-02-05
 
 # Project urls
 url: 'http://gitblit.com'
-issuesUrl: 'https://github.com/gitblit/gitblit'
+issuesUrl: 'https://github.com/gitblit-org/gitblit'
 socialNetworkUrl: 'https://plus.google.com/114464678392593421684'
 forumUrl: 'http://groups.google.com/group/gitblit'
-mavenUrl: 'http://gitblit.github.io/gitblit-maven'
+mavenUrl: 'http://gitblit-org.github.io/gitblit-maven'
 
 # Licenses section included for POM generation
 licenses:
@@ -44,9 +44,9 @@ developers:
 
 # SCM section included for POM generation
 scm: {
-  connection: 'scm:git:git://github.com/gitblit/gitblit.git'
-  developerConnection: 'scm:git:https://github.com/gitblit/gitblit.git'
-  url: 'https://github.com/gitblit/gitblit'
+  connection: 'scm:git:git://github.com/gitblit-org/gitblit.git'
+  developerConnection: 'scm:git:https://github.com/gitblit-org/gitblit.git'
+  url: 'https://github.com/gitblit-org/gitblit'
   tag: HEAD
   }
 
@@ -98,7 +98,7 @@ registeredRepositories:
 - { id: mavencentral, url: 'https://repo1.maven.org/maven2' }
 - { id: eclipse, url: 'https://repo.eclipse.org/content/groups/releases' }
 - { id: eclipse-snapshots, url: 'https://repo.eclipse.org/content/groups/snapshots' }
-- { id: gitblit, url: 'http://gitblit.github.io/gitblit-maven' }
+- { id: gitblit, url: 'http://gitblit-org.github.io/gitblit-maven' }
 
 # Source all dependencies from the following repositories in the specified order
 repositories: central, eclipse-snapshots, eclipse, gitblit

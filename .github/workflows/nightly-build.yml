@@ -127,7 +127,7 @@ jobs:
     if: needs.secret-gate.outputs.build_docker == 'true' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
     needs: secret-gate
     env:
-      GH_ORG: gitblit
+      GH_ORG: gitblit-org
       GITBLIT_VERSION: SNAPSHOT
 
     steps:
@@ -215,7 +215,7 @@ jobs:
 
       # Delete the artifact unless this is the official Gitblit repo
       - uses: geekyeggo/delete-artifact@v2
-        if: ${{ github.repository != 'gitblit/gitblit' }}
+        if: ${{ github.repository != 'gitblit-org/gitblit' }}
         with:
           name: gitblit-nightly
           failOnError: false

@@ -25,7 +25,7 @@ To use the *LdapUserService* set *realm.authenticationProviders=ldap* in your `g
 #### Example LDAP Layout
 ![block diagram](ldapSample.png "LDAP Sample")
 
-Please see [ldapUserServiceSampleData.ldif](https://github.com/gitblit/gitblit/blob/master/src/test/resources/ldap/sampledata.ldif) to see the data in LDAP that reflects the above picture.
+Please see [ldapUserServiceSampleData.ldif](https://github.com/gitblit-org/gitblit/blob/master/src/test/resources/ldap/sampledata.ldif) to see the data in LDAP that reflects the above picture.
 
 #### Gitblit Settings for Example LDAP Layout
 The following are the settings required to configure Gitblit to authenticate against the example LDAP server with LDAP-controlled team memberships.
@@ -137,7 +137,7 @@ If you are using the WAR variant and deploying into your own servlet container w
 
 This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations.  This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.
 
-Please subclass [com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider](https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java).
+Please subclass [com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider](https://github.com/gitblit-org/gitblit/blob/master/src/main/java/com/gitblit/auth/AuthenticationProvider.java).
 
 You may use your subclass by specifying its fully qualified classname in the *realm.authenticationProviders* setting.
 
@@ -150,5 +150,5 @@ Instead of maintaining a `users.conf` file, you may want to integrate Gitblit in
 You may use your own custom *com.gitblit.IUserService* implementation by specifying its fully qualified classname in the *realm.userService* setting.
 
 Your user service class must be on Gitblit's classpath and must have a public default constructor.  
-Please see the following interface definition [com.gitblit.IUserService](https://github.com/gitblit/gitblit/blob/master/src/main/java/com/gitblit/IUserService.java).
+Please see the following interface definition [com.gitblit.IUserService](https://github.com/gitblit-org/gitblit/blob/master/src/main/java/com/gitblit/IUserService.java).
 

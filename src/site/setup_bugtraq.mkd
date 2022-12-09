@@ -28,7 +28,7 @@ This file is formatted like a standard Git config file.  Here are some quick exa
         logregex = (JRA-\\d+)
 
     [bugtraq "github"]
-        url = "https://github.com/gitblit/gitblit/pull/%BUGID%"
+        url = "https://github.com/gitblit-org/gitblit/pull/%BUGID%"
         loglinkregex = "(?:pull request|pull|pr)\\s*[-#]?[0-9]+"
         logregex = "\\d+"
         loglinktext = "pull request #%BUGID%"

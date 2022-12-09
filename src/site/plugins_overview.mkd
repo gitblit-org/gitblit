@@ -53,7 +53,7 @@ Gitblit provides a simple default registry of plugins. The registry is a JSON fi
 
     plugins.registry = http://plugins.gitblit.com/plugins.json
 
-The [default plugins registry](http://plugins.gitblit.com) is currently hosted in a [Git repository on Github](https://github.com/gitblit/gitblit-registry).  You can view the default registry file [here](http://plugins.gitblit.com/plugins.json).  The default plugin registry is also a Maven-2 compatible repository.
+The [default plugins registry](http://plugins.gitblit.com) is currently hosted in a [Git repository on Github](https://github.com/gitblit-org/gitblit-registry).  You can view the default registry file [here](http://plugins.gitblit.com/plugins.json).  The default plugin registry is also a Maven-2 compatible repository.
 
 ### Contributing Plugins to the Default Registry
 
