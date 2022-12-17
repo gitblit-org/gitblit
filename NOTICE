@@ -21,7 +21,7 @@ google-code-prettify
    google-code-prettify, released under the
    Apache Software License, Version 2.0.
 
-   http://code.google.com/p/google-code-prettify
+   https://github.com/googlearchive/code-prettify
 
 ---------------------------------------------------------------------------
 Commons Daemon
@@ -125,7 +125,7 @@ google-gson
    google-gson, released under the
    Apache-style Software License.
 
-   http://code.google.com/p/google-gson
+   https://github.com/google/gson
 
 ---------------------------------------------------------------------------
 javamail
@@ -365,8 +365,8 @@ google-guice
    google-guice, release under the 
    Apache License 2.0
 
-   https://code.google.com/p/google-guice
-   
+   https://github.com/google/guice
+
 ---------------------------------------------------------------------------
 clipboard.js
 ---------------------------------------------------------------------------
