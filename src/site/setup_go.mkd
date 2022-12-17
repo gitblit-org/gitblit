@@ -151,5 +151,5 @@ You can override Gitblit GO's default Log4j configuration with a command-line pa
 
     java -Dlog4j.configuration=file:///home/james/log4j.properties -cp gitblit.jar:"ext/*" com.gitblit.GitBlitServer <optional_gitblit_args>
 
-You can not use override the default log4j configuration *AND* specify the `--dailyLogFile` parameter.  For reference, here is [Gitblit's default Log4j configuration](https://github.com/gitblit-org/gitblit/blob/master/src/log4j.properties).  It includes some file appenders that are disabled by default. 
+You can not use override the default log4j configuration *AND* specify the `--dailyLogFile` parameter.  For reference, here is [Gitblit's default Log4j configuration](%GBLOG4JURL%).  It includes some file appenders that are disabled by default. 
 

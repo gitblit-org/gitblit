@@ -72,7 +72,8 @@
 
 
 		<!-- Download links -->
-		<property name="gc.url" value="https://github.com/${gh.org}/gitblit/releases/download/" />
+		<property name="gh.url" value="https://github.com/${gh.org}" />
+		<property name="gc.url" value="${gh.url}/gitblit/releases/download/" />
 		<property name="docker.url" value="https://hub.docker.com/r/gitblit/gitblit" />
 
 		<!-- Report Java version -->
@@ -643,6 +644,7 @@
 
 			<replace token="%GCURL%" value="${gc.url}${currentRelease.tag}/" />
 			<replace token="%DOCKERURL%" value="${docker.url}" />
+			<replace token="%GBLOG4JURL%" value="${gh.url}/${gh.repo}/blob/master/src/main/java/log4j.properties" />
 
 			<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 
@@ -1111,6 +1113,7 @@ GBLT_RELEASE_TAG=${project.tag}
 
 				<replace token="%GCURL%" value="${gc.url}${currentRelease.tag}/" />
 				<replace token="%DOCKERURL%" value="${docker.url}" />
+				<replace token="%GBLOG4JURL%" value="${gh.url}/${gh.repo}/blob/master/src/main/java/log4j.properties" />
 
 				<properties token="%PROPERTIES%" file="${project.distrib.dir}/data/defaults.properties" />
 
