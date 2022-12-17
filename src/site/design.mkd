@@ -14,7 +14,7 @@ The following dependencies are bundled with Gitblit.
 - [GLYPHICONS](http://glyphicons.com) (Creative Commons CC-BY)
 - [Iconic](http://somerandomdude.com/work/iconic) (Creative Commons Share Alike 3.0)
 - [AngularJS](http://angularjs.org) (MIT)
-- [Clippy](https://github.com/mojombo/clippy) (MIT)
+- [clipboard.js](https://github.com/zenorocha/clipboard.js) (MIT)
 - [google-code-prettify](https://github.com/googlearchive/code-prettify) (Apache 2.0)
 - [Commons Daemon](http://commons.apache.org/daemon) (Apache 2.0)
 - [jQuery](https://jquery.org) (MIT)
