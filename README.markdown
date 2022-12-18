@@ -36,6 +36,13 @@ GitHub pull requests are preferred.  Any contributions must be distributed under
 
 Please see the [CONTRIBUTING file](CONTRIBUTING.md) for suggestions and guidelines on contributing to Gitblit. Thank you!
 
+### tl;dr
+1.  [Fork](https://github.com/gitblit-org/gitblit/fork) (and then `git clone https://github.com/gitblit-org/gitblit.git`).
+2.  Create a branch (`git checkout -b branch_name`).
+3.  Commit your changes (`git commit -a`).
+4.  Push to the branch (`git push origin branch_name`).
+5.  Open a Pull Request.
+
 
 Building Gitblit
 ----------------
