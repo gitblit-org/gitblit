@@ -5,11 +5,11 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Retrieve Moxie Toolkit
 		
-		documentation @ http://gitblit.github.io/moxie
+		documentation @ http://gitblit-org.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<property name="moxie.version" value="0.9.4" />
-	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
+	<property name="moxie.url" value="http://gitblit-org.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
 
