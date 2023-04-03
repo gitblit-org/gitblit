@@ -32,9 +32,9 @@ jobs:
 
       - name: Setup Moxie
         run: |
-          wget http://gitblit-org.github.io/moxie/maven/com/gitblit/moxie/moxie+ant/0.9.4/moxie+ant-0.9.4.tar.gz
-          tar -xzf moxie+ant-0.9.4.tar.gz
-          moxie-0.9.4/bin/moxie -version
+          wget http://gitblit-org.github.io/moxie/maven/com/gitblit/moxie/moxie+ant/0.10.0/moxie+ant-0.10.0.tar.gz
+          tar -xzf moxie+ant-0.10.0.tar.gz
+          moxie-0.10.0/bin/moxie -version
 
       - name: Report Java version
         run: |
@@ -42,7 +42,7 @@ jobs:
           javac -version
 
       - name: Build with Moxie
-        run: moxie-0.9.4/bin/moxie test
+        run: moxie-0.10.0/bin/moxie test
 
 
   build_windows:
