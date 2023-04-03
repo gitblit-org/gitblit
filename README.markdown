@@ -57,5 +57,5 @@ Make sure to clone using `--recursive` OR to execute `git submodule update --ini
 Building Tips & Tricks
 ----------------------
 1. If you are running Ant from an ANSI-capable console, consider setting the `MX_COLOR` environment variable before executing Ant.<pre>set MX_COLOR=true</pre>
-2. The build script will honor your Maven proxy settings.  If you need to fine-tune this, please review the [settings.moxie](http://gitblit.github.io/moxie/settings.html) documentation.
+2. The build script will honor your Maven proxy settings.  If you need to fine-tune this, please review the [settings.moxie](http://gitblit-org.github.io/moxie/settings.html) documentation.
 

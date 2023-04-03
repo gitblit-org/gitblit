@@ -315,7 +315,7 @@ public class PluginManager implements IPluginManager, PluginStateListener {
 
 	@Override
 	public synchronized boolean refreshRegistry(boolean verifyChecksum) {
-		String dr = "http://gitblit.github.io/gitblit-registry/plugins.json";
+		String dr = "http://gitblit-org.github.io/gitblit-registry/plugins.json";
 		String url = runtimeManager.getSettings().getString(Keys.plugins.registry, dr);
 		try {
 			File file = download(url, verifyChecksum);
