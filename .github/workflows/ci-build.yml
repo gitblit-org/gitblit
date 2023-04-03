@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup Moxie
         run: |
-          wget http://gitblit.github.io/moxie/maven/com/gitblit/moxie/moxie+ant/0.9.4/moxie+ant-0.9.4.tar.gz
+          wget http://gitblit-org.github.io/moxie/maven/com/gitblit/moxie/moxie+ant/0.9.4/moxie+ant-0.9.4.tar.gz
           tar -xzf moxie+ant-0.9.4.tar.gz
           moxie-0.9.4/bin/moxie -version
 
