@@ -1,10 +1,10 @@
 {
     "ring" : "0",
-    "name" : "gitblit 1.9.3",
+    "name" : "gitblit 1.10.0-SNAPSHOT",
     "children" : [
     {
         "ring" : "1",
-        "name" : "guice 4.0",
+        "name" : "guice 5.1.0",
         "children" : [
         {
             "ring" : "2",
@@ -22,12 +22,45 @@
 ,
     {
         "ring" : "1",
-        "name" : "guava 18.0"
+        "name" : "guava 31.1-jre",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "failureaccess 1.0.1"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "listenablefuture 9999.0-empty-to-avoid-conflict-with-guava"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "jsr305 3.0.2"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "checker-qual 3.12.0"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "error_prone_annotations 2.11.0"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "j2objc-annotations 1.3"
+        }
+    
+        ]
+    
     }
 ,
     {
         "ring" : "1",
-        "name" : "guice-servlet 4.0-gb2"
+        "name" : "guice-servlet 5.1.0-gb2"
     }
 ,
     {
@@ -52,7 +85,15 @@
 ,
     {
         "ring" : "1",
-        "name" : "javax.mail 1.5.1"
+        "name" : "javax.mail 1.5.6",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "activation 1.1"
+        }
+    
+        ]
+    
     }
 ,
     {
@@ -62,7 +103,47 @@
 ,
     {
         "ring" : "1",
-        "name" : "jetty-all 9.2.30.v20200428"
+        "name" : "jetty-servlet 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-security 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-server 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-continuation 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-http 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-io 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-util 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-webapp 9.4.49.v20220914"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "jetty-xml 9.4.49.v20220914"
     }
 ,
     {
@@ -202,30 +283,35 @@
 ,
     {
         "ring" : "1",
-        "name" : "org.eclipse.jgit 4.5.7.201904151645-r",
+        "name" : "org.eclipse.jgit 4.11.9.201909030838-r",
         "children" : [
         {
             "ring" : "2",
-            "name" : "jsch 0.1.53"
+            "name" : "jsch 0.1.54"
         }
     ,
         {
             "ring" : "2",
-            "name" : "JavaEWAH 0.7.9"
+            "name" : "jzlib 1.1.1"
         }
     ,
         {
             "ring" : "2",
-            "name" : "httpclient 4.3.6",
+            "name" : "JavaEWAH 1.1.6"
+        }
+    ,
+        {
+            "ring" : "2",
+            "name" : "httpclient 4.5.2",
             "children" : [
             {
                 "ring" : "3",
-                "name" : "httpcore 4.3.3"
+                "name" : "httpcore 4.4.4"
             }
         ,
             {
                 "ring" : "3",
-                "name" : "commons-logging 1.1.3"
+                "name" : "commons-logging 1.2"
             }
         
             ]
@@ -238,32 +324,45 @@
 ,
     {
         "ring" : "1",
-        "name" : "commons-codec 1.7"
+        "name" : "commons-codec 1.9"
     }
 ,
     {
         "ring" : "1",
-        "name" : "org.eclipse.jgit.http.server 4.5.7.201904151645-r"
+        "name" : "org.eclipse.jgit.http.server 4.11.9.201909030838-r"
     }
 ,
     {
         "ring" : "1",
-        "name" : "bcprov-jdk15on 1.57"
+        "name" : "bcprov-jdk15on 1.69"
     }
 ,
     {
         "ring" : "1",
-        "name" : "bcmail-jdk15on 1.57"
+        "name" : "bcmail-jdk15on 1.69",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "bcutil-jdk15on 1.69"
+        }
+    
+        ]
+    
     }
 ,
     {
         "ring" : "1",
-        "name" : "bcpkix-jdk15on 1.57"
+        "name" : "bcpkix-jdk15on 1.69"
     }
 ,
     {
         "ring" : "1",
-        "name" : "sshd-core 1.2.0"
+        "name" : "eddsa 0.2.0"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "sshd-core 1.7.0"
     }
 ,
     {
@@ -286,7 +385,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "gson 2.3.1"
+        "name" : "gson 2.10"
     }
 ,
     {
@@ -311,20 +410,12 @@
 ,
     {
         "ring" : "1",
-        "name" : "commons-compress 1.4.1",
-        "children" : [
-        {
-            "ring" : "2",
-            "name" : "xz 1.0"
-        }
-    
-        ]
-    
+        "name" : "commons-compress 1.22"
     }
 ,
     {
         "ring" : "1",
-        "name" : "commons-io 2.2"
+        "name" : "commons-io 2.11.0"
     }
 ,
     {
@@ -373,7 +464,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "libpam4j 1.8"
+        "name" : "libpam4j 1.11"
     }
 ,
     {

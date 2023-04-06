@@ -111,23 +111,23 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gitblit-1.9.3.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gitblit-1.9.3.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gitblit-1.9.3.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://hub.docker.com/r/gitblit/gitblit'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/manager-1.9.3.zip'>Gitblit Manager</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/fedclient-1.9.3.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/manager-1.9.3.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/fedclient-1.9.3.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gbapi-1.9.3.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gbapi-1.9.3.zip'>API Library</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases'>GitHub (1.9.0+)</a></li>
 <li><a href='https://cloudsmith.io/~gitblit/repos/gitblit/groups/'>Cloudsmith (1.3.0-1.8.0)</a></li>
 <li class='divider'></li>
-<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+<li><a href='http://gitblit-org.github.io/gitblit-maven'>Maven Repository</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
@@ -136,8 +136,8 @@
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit'>Github</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='https://www.openhub.net/p/gitblit'>OpenHub</a></li>
@@ -172,7 +172,7 @@
 			<td>		<p class="lead">Gitblit 1.9.3 released</p>		
 	
 	
-		<blockquote><p>!! IMPORTANT SECURITY FIX FOR CONFIG USER SERVICE !!<br /><br />There is a security vulnerability in version 1.9.2, which allows an attacker to gain<br />elevated access rights. This is present when the Config User Service is used as the<br />user service, which is the default.<br /><br />Version 1.9.2 introduced a new implementation to store user data in the user config file<br />which holds user name, password, access rights etc. This was done to solve problems with<br />very large user bases (<a href='https://github.com/gitblit/gitblit/pull/1364'>pull request #1364</a>). This new implementation does not properly escape all<br />control characters, like newline and tab. As a result, a normal user, when logged into<br />Gitblit, can edit his profile data and enter values in e.g. the email address that are<br />interpreted as control characters in the text file stored on disk. This allows the malicious<br />user to give themselves e.g. elevated access rights on their account.<br /><br />This is fixed in 1.9.3. Updates of existing installations should be made to 1.9.3, not 1.9.2.<br /><br />Many thanks to Github user @YYHYlh for finding and reporting this issue (<a href='https://github.com/gitblit/gitblit/issues/1410'>issue 1410</a>).<br /></p></blockquote>		
+		<blockquote><p>!! IMPORTANT SECURITY FIX FOR CONFIG USER SERVICE !!<br /><br />There is a security vulnerability in version 1.9.2, which allows an attacker to gain<br />elevated access rights. This is present when the Config User Service is used as the<br />user service, which is the default.<br /><br />Version 1.9.2 introduced a new implementation to store user data in the user config file<br />which holds user name, password, access rights etc. This was done to solve problems with<br />very large user bases (<a href='https://github.com/gitblit-org/gitblit/pull/1364'>pull request #1364</a>). This new implementation does not properly escape all<br />control characters, like newline and tab. As a result, a normal user, when logged into<br />Gitblit, can edit his profile data and enter values in e.g. the email address that are<br />interpreted as control characters in the text file stored on disk. This allows the malicious<br />user to give themselves e.g. elevated access rights on their account.<br /><br />This is fixed in 1.9.3. Updates of existing installations should be made to 1.9.3, not 1.9.2.<br /><br />Many thanks to Github user @YYHYlh for finding and reporting this issue (<a href='https://github.com/gitblit-org/gitblit/issues/1410'>issue 1410</a>).<br /></p></blockquote>		
 
 		<div class="alert alert-info">
 			<h4>Note</h4>
@@ -181,7 +181,7 @@
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>Fix escaping control characters in config user service, resolving a security vulnerability. (<a href='https://github.com/gitblit/gitblit/issues/1410'>issue 1410</a>)</li>
+		<li>Fix escaping control characters in config user service, resolving a security vulnerability. (<a href='https://github.com/gitblit-org/gitblit/issues/1410'>issue 1410</a>)</li>
 	</ul>
 </td>
 		</tr>
@@ -201,27 +201,27 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix raw links broken for branches with a forward slash in the name (<a href='https://github.com/gitblit/gitblit/issues/1290'>issue 1290</a>, <a href='https://github.com/gitblit/gitblit/issues/1234'>issue 1234</a>, <a href='https://github.com/gitblit/gitblit/issues/813'>issue 813</a>)</li>
-		<li>Fix markdown links to files in subfolders (<a href='https://github.com/gitblit/gitblit/issues/1358'>issue 1358</a>, <a href='https://github.com/gitblit/gitblit/pull/1392'>pull request #1392</a> by @TomaszSzt)</li>
-		<li>Fix high CPU load when saving huge users.conf file (<a href='https://github.com/gitblit/gitblit/pull/1364'>pull request #1364</a> by @Curly060)</li>
-		<li>Fix broken encoding in Norwegian language file (<a href='https://github.com/gitblit/gitblit/issues/834'>issue 834</a>, <a href='https://github.com/gitblit/gitblit/pull/1379'>pull request #1379</a>)</li>
-		<li>Fix various issues (typos, broken and duplicate keys) in language properties files (<a href='https://github.com/gitblit/gitblit/pull/1380'>pull request #1380</a> by @flaix)</li>
-		<li>Fix mirrored HTTP(S) with a user name and password (<a href='https://github.com/gitblit/gitblit/issues/1059'>issue 1059</a>, <a href='https://github.com/gitblit/gitblit/pull/1381'>pull request #1381</a> by @edram)</li>
-		<li>Fix relative time display being off on activity page (<a href='https://github.com/gitblit/gitblit/issues/800'>issue 800</a>, <a href='https://github.com/gitblit/gitblit/issues/1248'>issue 1248</a>, <a href='https://github.com/gitblit/gitblit/pull/1382'>pull request #1382</a>)</li>
-		<li>Fix URL encoding for links to raw view for files (<a href='https://github.com/gitblit/gitblit/issues/1375'>issue 1375</a>, <a href='https://github.com/gitblit/gitblit/pull/1383'>pull request #1383</a>)</li>
-		<li>Resolve StackOverflowErrors on page serialization (<a href='https://github.com/gitblit/gitblit/issues/1011'>issue 1011</a>, <a href='https://github.com/gitblit/gitblit/pull/1141'>pull request #1141</a> by @tomaswolf)</li>
-		<li>Fix double encoding links in Markdown/Wiki pages (<a href='https://github.com/gitblit/gitblit/issues/864'>issue 864</a>)</li>
+		<li>Fix raw links broken for branches with a forward slash in the name (<a href='https://github.com/gitblit-org/gitblit/issues/1290'>issue 1290</a>, <a href='https://github.com/gitblit-org/gitblit/issues/1234'>issue 1234</a>, <a href='https://github.com/gitblit-org/gitblit/issues/813'>issue 813</a>)</li>
+		<li>Fix markdown links to files in subfolders (<a href='https://github.com/gitblit-org/gitblit/issues/1358'>issue 1358</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1392'>pull request #1392</a> by @TomaszSzt)</li>
+		<li>Fix high CPU load when saving huge users.conf file (<a href='https://github.com/gitblit-org/gitblit/pull/1364'>pull request #1364</a> by @Curly060)</li>
+		<li>Fix broken encoding in Norwegian language file (<a href='https://github.com/gitblit-org/gitblit/issues/834'>issue 834</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1379'>pull request #1379</a>)</li>
+		<li>Fix various issues (typos, broken and duplicate keys) in language properties files (<a href='https://github.com/gitblit-org/gitblit/pull/1380'>pull request #1380</a> by @flaix)</li>
+		<li>Fix mirrored HTTP(S) with a user name and password (<a href='https://github.com/gitblit-org/gitblit/issues/1059'>issue 1059</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1381'>pull request #1381</a> by @edram)</li>
+		<li>Fix relative time display being off on activity page (<a href='https://github.com/gitblit-org/gitblit/issues/800'>issue 800</a>, <a href='https://github.com/gitblit-org/gitblit/issues/1248'>issue 1248</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1382'>pull request #1382</a>)</li>
+		<li>Fix URL encoding for links to raw view for files (<a href='https://github.com/gitblit-org/gitblit/issues/1375'>issue 1375</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1383'>pull request #1383</a>)</li>
+		<li>Resolve StackOverflowErrors on page serialization (<a href='https://github.com/gitblit-org/gitblit/issues/1011'>issue 1011</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1141'>pull request #1141</a> by @tomaswolf)</li>
+		<li>Fix double encoding links in Markdown/Wiki pages (<a href='https://github.com/gitblit-org/gitblit/issues/864'>issue 864</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Updated traditional Chinese translation (<a href='https://github.com/gitblit/gitblit/pull/1367'>pull request #1367</a> by @YMNNs)</li>
-		<li>Make it possible to call the Windows batch commands on the command line from a different folder (<a href='https://github.com/gitblit/gitblit/pull/1370'>pull request #1370</a> by @Zwixx)</li>
-		<li>Updated Japanese translation (<a href='https://github.com/gitblit/gitblit/pull/1398'>pull request #1398</a> by @TakehideMorimoto)</li>
+		<li>Updated traditional Chinese translation (<a href='https://github.com/gitblit-org/gitblit/pull/1367'>pull request #1367</a> by @YMNNs)</li>
+		<li>Make it possible to call the Windows batch commands on the command line from a different folder (<a href='https://github.com/gitblit-org/gitblit/pull/1370'>pull request #1370</a> by @Zwixx)</li>
+		<li>Updated Japanese translation (<a href='https://github.com/gitblit-org/gitblit/pull/1398'>pull request #1398</a> by @TakehideMorimoto)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Add service scripts for FreeBSD (<a href='https://github.com/gitblit/gitblit/pull/1345'>pull request #1345</a> by @davehofmann)</li>
-		<li>Add Russian translation (<a href='https://github.com/gitblit/gitblit/pull/1343'>pull request #1343</a> by @vhot2076)</li>
+		<li>Add service scripts for FreeBSD (<a href='https://github.com/gitblit-org/gitblit/pull/1345'>pull request #1345</a> by @davehofmann)</li>
+		<li>Add Russian translation (<a href='https://github.com/gitblit-org/gitblit/pull/1343'>pull request #1343</a> by @vhot2076)</li>
 	</ul>
    	<h4>dependency changes</h4>
 	<ul>
@@ -255,7 +255,7 @@
 
 		<div class="alert alert-info">
 			<h4>Note</h4>
-			When you have Gitblit installed as a service under Linux or Windows, you may need to edit your service script/definition. The command line to start Gitblit needs to be different, the classpath and class are speficied now.<p /><p />See notes for release 1.9.0.<p />
+			When you have Gitblit installed as a service under Linux or Windows, you may need to edit your service script/definition. The command line to start Gitblit needs to be different, the classpath and class are specified now.<p /><p />See notes for release 1.9.0.<p />
 		</div>
 
    	<h4>fixes</h4>
@@ -277,64 +277,64 @@
 
 		<div class="alert alert-info">
 			<h4>Note</h4>
-			Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. <p /><p />With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.<p /><p />The interface for the ITicketService changed. If you have your own derived implementation, rename `start` to `onStart`. (see <a href='https://github.com/gitblit/gitblit/commit/63dbdfda'>commit 63dbdfda</a>)<p /><p />To support Java 9+, Gitblit can no longer load JARs from the 'ext' folder by itself. In order to include the folder, it needs to be added to the classpath explicitly by changing the command line. Check the new start scripts to see the new required command line.<p /><p />The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.<p /><p />When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.<p /><p />Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in.<p />!! THIS IS BROKEN IN 1.9.0. DO NOT UPDATE TO 1.9.0. USE 1.9.1 INSTEAD !!<p />
+			Gitblit uses Servlet 3.0 and thus drops support for Tomcat 6. Run on Tomcat 6 at your own risk. <p /><p />With the update to Lucene 5.5.2 reindexing of the tickets is necessary. This is done automatically during the first server start after an upgrade. Depending on the amount of tickets you have, this could take a little while. The old index is kept, so that a downgrade is still possible without losing information. The old index can be deleted, when a downgrade is no longer required.<p /><p />The interface for the ITicketService changed. If you have your own derived implementation, rename `start` to `onStart`. (see <a href='https://github.com/gitblit-org/gitblit/commit/63dbdfda'>commit 63dbdfda</a>)<p /><p />To support Java 9+, Gitblit can no longer load JARs from the 'ext' folder by itself. In order to include the folder, it needs to be added to the classpath explicitly by changing the command line. Check the new start scripts to see the new required command line.<p /><p />The 1.9 minor version will be the last to support Java 7. From 1.10 on Gitblit will require Java 8.<p /><p />When the `realm.ldap.bindpattern` property is set, GitBlit will only bind as the user to LDAP, not to a manager account or anonymously.<p /><p />Older password storage mechanisms are deprecated, PBKDF2 is the new default. When you switch from plaintext to a hashed scheme, or from the older hashed to the new PBKDF2 scheme, the stored password of a user will be rehashed with the more secure mechanism when the user logs in.<p />!! THIS IS BROKEN IN 1.9.0. DO NOT UPDATE TO 1.9.0. USE 1.9.1 INSTEAD !!<p />
 		</div>
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>Change authentication cookie to use random value instead of user information (<a href='https://github.com/gitblit/gitblit/issues/1063'>issue 1063</a>, <a href='https://github.com/gitblit/gitblit/pull/1116'>pull request #1116</a>)</li>
-		<li>Increase cookie security (<a href='https://github.com/gitblit/gitblit/pull/1167'>pull request #1167</a>)</li>
+		<li>Change authentication cookie to use random value instead of user information (<a href='https://github.com/gitblit-org/gitblit/issues/1063'>issue 1063</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1116'>pull request #1116</a>)</li>
+		<li>Increase cookie security (<a href='https://github.com/gitblit-org/gitblit/pull/1167'>pull request #1167</a>)</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed wrong HTML entity (&amp;rt;) in HTML emails (<a href='https://github.com/gitblit/gitblit/pull/1105'>pull request #1105</a>)</li>
-		<li>Fixed Dutch translation (<a href='https://github.com/gitblit/gitblit/pull/1130'>pull request #1130</a>)</li>
-		<li>Changed LDAP binding strategies, to correctly find team membership (<a href='https://github.com/gitblit/gitblit/issues/833'>issue 833</a>, <a href='https://github.com/gitblit/gitblit/issues/920'>issue 920</a>, <a href='https://github.com/gitblit/gitblit/pull/247'>pull request #247</a>, <a href='https://github.com/gitblit/gitblit/pull/1149'>pull request #1149</a>)</li>
-		<li>Fixed disabled links in the PagerPanel to really be disabled (<a href='https://github.com/gitblit/gitblit/pull/1147'>pull request #1147</a>)</li>
-		<li>Set &quot;can admin&quot; permission on LDAP users and teams correctly (<a href='https://github.com/gitblit/gitblit/pull/1152'>pull request #1152</a>)</li>
-		<li>Fixed user mentions in tickets (<a href='https://github.com/gitblit/gitblit/issues/985'>issue 985</a>)</li>
-		<li>Fixed JEE Servlet 3.0 definition (<a href='https://github.com/gitblit/gitblit/issues/1132'>issue 1132</a>, <a href='https://github.com/gitblit/gitblit/pull/1178'>pull request #1178</a>)</li>
-		<li>Fixed proxy setup documentation (<a href='https://github.com/gitblit/gitblit/pull/1183'>pull request #1183</a>)</li>
-		<li>Fixed bug with reverse proxy when using a non-standard HTTPS port (<a href='https://github.com/gitblit/gitblit/issues/1114'>issue 1114</a>, <a href='https://github.com/gitblit/gitblit/pull/1201'>pull request #1201</a>)</li>
-		<li>Fixed wrapping of last column in tree page (<a href='https://github.com/gitblit/gitblit/pull/1202'>pull request #1202</a>)</li>
-		<li>Fixed NPE with unsupported transport URL protocol (<a href='https://github.com/gitblit/gitblit/pull/1238'>pull request #1238</a>)</li>
-		<li>Fixed unit tests by providing zipped local versions of external git repositories used for tests (<a href='https://github.com/gitblit/gitblit/issues/1275'>issue 1275</a>, <a href='https://github.com/gitblit/gitblit/pull/1309'>pull request #1309</a>)</li>
-		<li>Fixed NPE for symbolic links to repositories (<a href='https://github.com/gitblit/gitblit/issues/837'>issue 837</a>, <a href='https://github.com/gitblit/gitblit/issues/891'>issue 891</a>)</li>
-		<li>Fixed NPE for ticket milestones without due date (<a href='https://github.com/gitblit/gitblit/pull/1278'>pull request #1278</a>)</li>
-		<li>Fixed NPE with special characters in repository names (<a href='https://github.com/gitblit/gitblit/issues/999'>issue 999</a>, <a href='https://github.com/gitblit/gitblit/pull/1194'>pull request #1194</a>)</li>
+		<li>Fixed wrong HTML entity (&amp;rt;) in HTML emails (<a href='https://github.com/gitblit-org/gitblit/pull/1105'>pull request #1105</a>)</li>
+		<li>Fixed Dutch translation (<a href='https://github.com/gitblit-org/gitblit/pull/1130'>pull request #1130</a>)</li>
+		<li>Changed LDAP binding strategies, to correctly find team membership (<a href='https://github.com/gitblit-org/gitblit/issues/833'>issue 833</a>, <a href='https://github.com/gitblit-org/gitblit/issues/920'>issue 920</a>, <a href='https://github.com/gitblit-org/gitblit/pull/247'>pull request #247</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1149'>pull request #1149</a>)</li>
+		<li>Fixed disabled links in the PagerPanel to really be disabled (<a href='https://github.com/gitblit-org/gitblit/pull/1147'>pull request #1147</a>)</li>
+		<li>Set &quot;can admin&quot; permission on LDAP users and teams correctly (<a href='https://github.com/gitblit-org/gitblit/pull/1152'>pull request #1152</a>)</li>
+		<li>Fixed user mentions in tickets (<a href='https://github.com/gitblit-org/gitblit/issues/985'>issue 985</a>)</li>
+		<li>Fixed JEE Servlet 3.0 definition (<a href='https://github.com/gitblit-org/gitblit/issues/1132'>issue 1132</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1178'>pull request #1178</a>)</li>
+		<li>Fixed proxy setup documentation (<a href='https://github.com/gitblit-org/gitblit/pull/1183'>pull request #1183</a>)</li>
+		<li>Fixed bug with reverse proxy when using a non-standard HTTPS port (<a href='https://github.com/gitblit-org/gitblit/issues/1114'>issue 1114</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1201'>pull request #1201</a>)</li>
+		<li>Fixed wrapping of last column in tree page (<a href='https://github.com/gitblit-org/gitblit/pull/1202'>pull request #1202</a>)</li>
+		<li>Fixed NPE with unsupported transport URL protocol (<a href='https://github.com/gitblit-org/gitblit/pull/1238'>pull request #1238</a>)</li>
+		<li>Fixed unit tests by providing zipped local versions of external git repositories used for tests (<a href='https://github.com/gitblit-org/gitblit/issues/1275'>issue 1275</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1309'>pull request #1309</a>)</li>
+		<li>Fixed NPE for symbolic links to repositories (<a href='https://github.com/gitblit-org/gitblit/issues/837'>issue 837</a>, <a href='https://github.com/gitblit-org/gitblit/issues/891'>issue 891</a>)</li>
+		<li>Fixed NPE for ticket milestones without due date (<a href='https://github.com/gitblit-org/gitblit/pull/1278'>pull request #1278</a>)</li>
+		<li>Fixed NPE with special characters in repository names (<a href='https://github.com/gitblit-org/gitblit/issues/999'>issue 999</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1194'>pull request #1194</a>)</li>
 		<li>Fixed NPE when stopping GitBlit</li>
-		<li>Fixed exception due to MAC error on SSH connections (<a href='https://github.com/gitblit/gitblit/issues/1282'>issue 1282</a>)</li>
+		<li>Fixed exception due to MAC error on SSH connections (<a href='https://github.com/gitblit-org/gitblit/issues/1282'>issue 1282</a>)</li>
 		<li>Fixed link to LDAP sample LDIF file in documentation</li>
-		<li>Fixed NPE on unknown git commands. (<a href='https://github.com/gitblit/gitblit/issues/1092'>issue 1092</a>)</li>
-		<li>Fixed NPE for URLs to non-existing documents (<a href='https://github.com/gitblit/gitblit/pull/1324'>pull request #1324</a>)</li>
+		<li>Fixed NPE on unknown git commands. (<a href='https://github.com/gitblit-org/gitblit/issues/1092'>issue 1092</a>)</li>
+		<li>Fixed NPE for URLs to non-existing documents (<a href='https://github.com/gitblit-org/gitblit/pull/1324'>pull request #1324</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Updated traditional Chinese translation (<a href='https://github.com/gitblit/gitblit/pull/1110'>pull request #1110</a>)</li>
-		<li>Load commit cache in the background to improve start-up time (<a href='https://github.com/gitblit/gitblit/pull/1140'>pull request #1140</a>)</li>
-		<li>Improved logging when sending emails fails, to assist in analysis (<a href='https://github.com/gitblit/gitblit/pull/1144'>pull request #1144</a>)</li>
-		<li>Support customized IUserService that can access application settings (<a href='https://github.com/gitblit/gitblit/pull/1171'>pull request #1171</a>)</li>
-		<li>Added feedback for invalid input on user SSH key form (<a href='https://github.com/gitblit/gitblit/pull/1239'>pull request #1239</a>)</li>
-		<li>Encode email sender's name with UTF-8 (<a href='https://github.com/gitblit/gitblit/pull/1206'>pull request #1206</a>)</li>
-		<li>Made Gitblit run on Java 9+ (<a href='https://github.com/gitblit/gitblit/issues/1262'>issue 1262</a>, <a href='https://github.com/gitblit/gitblit/issues/1294'>issue 1294</a>, <a href='https://github.com/gitblit/gitblit/pull/1266'>pull request #1266</a>)</li>
+		<li>Updated traditional Chinese translation (<a href='https://github.com/gitblit-org/gitblit/pull/1110'>pull request #1110</a>)</li>
+		<li>Load commit cache in the background to improve start-up time (<a href='https://github.com/gitblit-org/gitblit/pull/1140'>pull request #1140</a>)</li>
+		<li>Improved logging when sending emails fails, to assist in analysis (<a href='https://github.com/gitblit-org/gitblit/pull/1144'>pull request #1144</a>)</li>
+		<li>Support customized IUserService that can access application settings (<a href='https://github.com/gitblit-org/gitblit/pull/1171'>pull request #1171</a>)</li>
+		<li>Added feedback for invalid input on user SSH key form (<a href='https://github.com/gitblit-org/gitblit/pull/1239'>pull request #1239</a>)</li>
+		<li>Encode email sender's name with UTF-8 (<a href='https://github.com/gitblit-org/gitblit/pull/1206'>pull request #1206</a>)</li>
+		<li>Made Gitblit run on Java 9+ (<a href='https://github.com/gitblit-org/gitblit/issues/1262'>issue 1262</a>, <a href='https://github.com/gitblit-org/gitblit/issues/1294'>issue 1294</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1266'>pull request #1266</a>)</li>
 		<li>The JRE version is reported upon starting</li>
 		<li>Add the `ext` directory to the classpath on the command-line to start Gitblit and related programs.</li>
 		<li>Report back that git command `clone.bundle` is unsupported instead of simply failing</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Added option to merge a ticket branch to the integration branch fast-forward or with a merge commit (<a href='https://github.com/gitblit/gitblit/pull/1142'>pull request #1142</a>)</li>
-		<li>Added SSH key manager that retrieves keys from LDAP directory (<a href='https://github.com/gitblit/gitblit/pull/1160'>pull request #1160</a>)</li>
-		<li>Updated Korean translation (<a href='https://github.com/gitblit/gitblit/pull/1176'>pull request #1176</a>)</li>
-		<li>The list of SSH authentication methods accepted by the server was made configurable (<a href='https://github.com/gitblit/gitblit/pull/1159'>pull request #1159</a>)</li>
-		<li>User language preference setting (<a href='https://github.com/gitblit/gitblit/pull/1198'>pull request #1198</a>)</li>
-		<li>Gitblit Authority sends user certificate email based on user preferred language (<a href='https://github.com/gitblit/gitblit/pull/1198'>pull request #1198</a>)</li>
-		<li>List branches over RPC for a given repository (<a href='https://github.com/gitblit/gitblit/pull/1192'>pull request #1192</a>)</li>
-		<li>Added Czech translation (<a href='https://github.com/gitblit/gitblit/pull/1200'>pull request #1200</a>)</li>
-		<li>Added setting to set HTTP idle timeout to prevent timeouts when cloning large repositories over HTTP(S) (<a href='https://github.com/gitblit/gitblit/pull/1243'>pull request #1243</a>)</li>
-		<li>Made the repository groups on the repositories page collapsible (<a href='https://github.com/gitblit/gitblit/issues/527'>issue 527</a>, <a href='https://github.com/gitblit/gitblit/pull/1224'>pull request #1224</a>)</li>
-		<li>Made the repository groups on the repositories page nested (<a href='https://github.com/gitblit/gitblit/issues/725'>issue 725</a>, <a href='https://github.com/gitblit/gitblit/pull/1267'>pull request #1267</a>)</li>
-		<li>Added PBKDF2 as password hashing algorithm. Other password storage choices are deprecated (<a href='https://github.com/gitblit/gitblit/issues/1166'>issue 1166</a>, <a href='https://github.com/gitblit/gitblit/pull/1172'>pull request #1172</a>)</li>
+		<li>Added option to merge a ticket branch to the integration branch fast-forward or with a merge commit (<a href='https://github.com/gitblit-org/gitblit/pull/1142'>pull request #1142</a>)</li>
+		<li>Added SSH key manager that retrieves keys from LDAP directory (<a href='https://github.com/gitblit-org/gitblit/pull/1160'>pull request #1160</a>)</li>
+		<li>Updated Korean translation (<a href='https://github.com/gitblit-org/gitblit/pull/1176'>pull request #1176</a>)</li>
+		<li>The list of SSH authentication methods accepted by the server was made configurable (<a href='https://github.com/gitblit-org/gitblit/pull/1159'>pull request #1159</a>)</li>
+		<li>User language preference setting (<a href='https://github.com/gitblit-org/gitblit/pull/1198'>pull request #1198</a>)</li>
+		<li>Gitblit Authority sends user certificate email based on user preferred language (<a href='https://github.com/gitblit-org/gitblit/pull/1198'>pull request #1198</a>)</li>
+		<li>List branches over RPC for a given repository (<a href='https://github.com/gitblit-org/gitblit/pull/1192'>pull request #1192</a>)</li>
+		<li>Added Czech translation (<a href='https://github.com/gitblit-org/gitblit/pull/1200'>pull request #1200</a>)</li>
+		<li>Added setting to set HTTP idle timeout to prevent timeouts when cloning large repositories over HTTP(S) (<a href='https://github.com/gitblit-org/gitblit/pull/1243'>pull request #1243</a>)</li>
+		<li>Made the repository groups on the repositories page collapsible (<a href='https://github.com/gitblit-org/gitblit/issues/527'>issue 527</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1224'>pull request #1224</a>)</li>
+		<li>Made the repository groups on the repositories page nested (<a href='https://github.com/gitblit-org/gitblit/issues/725'>issue 725</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1267'>pull request #1267</a>)</li>
+		<li>Added PBKDF2 as password hashing algorithm. Other password storage choices are deprecated (<a href='https://github.com/gitblit-org/gitblit/issues/1166'>issue 1166</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1172'>pull request #1172</a>)</li>
 	</ul>
    	<h4>new settings</h4>
 	<table class="table">
@@ -356,13 +356,13 @@
 	</table>
    	<h4>dependency changes</h4>
 	<ul>
-		<li>updated to Lucene 5.5.2 (<a href='https://github.com/gitblit/gitblit/pull/1168'>pull request #1168</a>)</li>
-		<li>updated to BouncyCastle 1.57 (<a href='https://github.com/gitblit/gitblit/issues/1166'>issue 1166</a>)</li>
+		<li>updated to Lucene 5.5.2 (<a href='https://github.com/gitblit-org/gitblit/pull/1168'>pull request #1168</a>)</li>
+		<li>updated to BouncyCastle 1.57 (<a href='https://github.com/gitblit-org/gitblit/issues/1166'>issue 1166</a>)</li>
 		<li>updated to MINA 2.0.21</li>
-		<li>updated to MINA SSHD 1.2.0 (<a href='https://github.com/gitblit/gitblit/issues/1282'>issue 1282</a>, <a href='https://github.com/gitblit/gitblit/pull/1322'>pull request #1322</a>)</li>
+		<li>updated to MINA SSHD 1.2.0 (<a href='https://github.com/gitblit-org/gitblit/issues/1282'>issue 1282</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1322'>pull request #1322</a>)</li>
 		<li>updated to SLF4J 1.7.29</li>
 		<li>updated to JaCoCo 0.8.4</li>
-		<li>updated to JGit 4.5.7.201904151645-r (<a href='https://github.com/gitblit/gitblit/issues/1030'>issue 1030</a>, <a href='https://github.com/gitblit/gitblit/issues/1091'>issue 1091</a>)</li>
+		<li>updated to JGit 4.5.7.201904151645-r (<a href='https://github.com/gitblit-org/gitblit/issues/1030'>issue 1030</a>, <a href='https://github.com/gitblit-org/gitblit/issues/1091'>issue 1091</a>)</li>
 	</ul>
    	<h4>contributors</h4>
 	<ul>
@@ -401,38 +401,38 @@
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>Fixed bug in My Tickets which would expose ticket metadata (title, type, etc) for private repos. (<a href='https://github.com/gitblit/gitblit/pull/1040'>pull request #1040</a>)</li>
+		<li>Fixed bug in My Tickets which would expose ticket metadata (title, type, etc) for private repos. (<a href='https://github.com/gitblit-org/gitblit/pull/1040'>pull request #1040</a>)</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix HTML5 date input support (<a href='https://github.com/gitblit/gitblit/pull/982'>pull request #982</a>)</li>
-		<li>Honor disable ticket repository setting (<a href='https://github.com/gitblit/gitblit/pull/1045'>pull request #1045</a>)</li>
-		<li>Fix paging on filestore items (<a href='https://github.com/gitblit/gitblit/pull/1070'>pull request #1070</a>)</li>
-		<li>Fix redirects on session loss (<a href='https://github.com/gitblit/gitblit/pull/1087'>pull request #1087</a>)</li>
-		<li>Fix always searching all repositories (<a href='https://github.com/gitblit/gitblit/pull/1060'>pull request #1060</a>)</li>
-		<li>Fix RPC list branches for requests without admin powers (<a href='https://github.com/gitblit/gitblit/pull/994'>pull request #994</a>)</li>
-		<li>Fix baseURL handling when generating urls (<a href='https://github.com/gitblit/gitblit/pull/1086'>pull request #1086</a>)</li>
-		<li>Fix my tickets ignoring repo read permissions (<a href='https://github.com/gitblit/gitblit/pull/1040'>pull request #1040</a>)</li>
-		<li>Fix bug where jgit.packedGitOpenFiles was not properly set (<a href='https://github.com/gitblit/gitblit/pull/1049'>pull request #1049</a>)</li>
+		<li>Fix HTML5 date input support (<a href='https://github.com/gitblit-org/gitblit/pull/982'>pull request #982</a>)</li>
+		<li>Honor disable ticket repository setting (<a href='https://github.com/gitblit-org/gitblit/pull/1045'>pull request #1045</a>)</li>
+		<li>Fix paging on filestore items (<a href='https://github.com/gitblit-org/gitblit/pull/1070'>pull request #1070</a>)</li>
+		<li>Fix redirects on session loss (<a href='https://github.com/gitblit-org/gitblit/pull/1087'>pull request #1087</a>)</li>
+		<li>Fix always searching all repositories (<a href='https://github.com/gitblit-org/gitblit/pull/1060'>pull request #1060</a>)</li>
+		<li>Fix RPC list branches for requests without admin powers (<a href='https://github.com/gitblit-org/gitblit/pull/994'>pull request #994</a>)</li>
+		<li>Fix baseURL handling when generating urls (<a href='https://github.com/gitblit-org/gitblit/pull/1086'>pull request #1086</a>)</li>
+		<li>Fix my tickets ignoring repo read permissions (<a href='https://github.com/gitblit-org/gitblit/pull/1040'>pull request #1040</a>)</li>
+		<li>Fix bug where jgit.packedGitOpenFiles was not properly set (<a href='https://github.com/gitblit-org/gitblit/pull/1049'>pull request #1049</a>)</li>
 		<li>Fix encoding of JavaDoc</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Sort filestore by most recent first (<a href='https://github.com/gitblit/gitblit/pull/1061'>pull request #1061</a>)</li>
-		<li>Improve the document editor tablet support (<a href='https://github.com/gitblit/gitblit/pull/1062'>pull request #1062</a>)</li>
-		<li>Improve HTTP header authentication (<a href='https://github.com/gitblit/gitblit/pull/980'>pull request #980</a>)</li>
-		<li>Improve authentication logging (<a href='https://github.com/gitblit/gitblit/pull/981'>pull request #981</a>)</li>
-		<li>Improve logic of handling dot files in the raw servlet (<a href='https://github.com/gitblit/gitblit/pull/983'>pull request #983</a>)</li>
-		<li>Change Jenkins Groovy script to support any protocol (<a href='https://github.com/gitblit/gitblit/pull/986'>pull request #986</a>)</li>
-		<li>Remove empty catch blocks swallowing exceptions during authentication (<a href='https://github.com/gitblit/gitblit/pull/979'>pull request #979</a>)</li>
-		<li>Use longest match when searching for repositories, to find a/b/c.git repo if also a/b.git exists. (<a href='https://github.com/gitblit/gitblit/issues/879'>issue 879</a>)</li>
+		<li>Sort filestore by most recent first (<a href='https://github.com/gitblit-org/gitblit/pull/1061'>pull request #1061</a>)</li>
+		<li>Improve the document editor tablet support (<a href='https://github.com/gitblit-org/gitblit/pull/1062'>pull request #1062</a>)</li>
+		<li>Improve HTTP header authentication (<a href='https://github.com/gitblit-org/gitblit/pull/980'>pull request #980</a>)</li>
+		<li>Improve authentication logging (<a href='https://github.com/gitblit-org/gitblit/pull/981'>pull request #981</a>)</li>
+		<li>Improve logic of handling dot files in the raw servlet (<a href='https://github.com/gitblit-org/gitblit/pull/983'>pull request #983</a>)</li>
+		<li>Change Jenkins Groovy script to support any protocol (<a href='https://github.com/gitblit-org/gitblit/pull/986'>pull request #986</a>)</li>
+		<li>Remove empty catch blocks swallowing exceptions during authentication (<a href='https://github.com/gitblit-org/gitblit/pull/979'>pull request #979</a>)</li>
+		<li>Use longest match when searching for repositories, to find a/b/c.git repo if also a/b.git exists. (<a href='https://github.com/gitblit-org/gitblit/issues/879'>issue 879</a>)</li>
 		<li>Various documentation improvements</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Delete patchset feature (<a href='https://github.com/gitblit/gitblit/pull/1039'>pull request #1039</a>)</li>
-		<li>Support ticket references from tickets and commits on other branches (<a href='https://github.com/gitblit/gitblit/pull/1048'>pull request #1048</a>)</li>
-		<li>YouTrack Groovy push hook (<a href='https://github.com/gitblit/gitblit/pull/1084'>pull request #1084</a>)</li>
+		<li>Delete patchset feature (<a href='https://github.com/gitblit-org/gitblit/pull/1039'>pull request #1039</a>)</li>
+		<li>Support ticket references from tickets and commits on other branches (<a href='https://github.com/gitblit-org/gitblit/pull/1048'>pull request #1048</a>)</li>
+		<li>YouTrack Groovy push hook (<a href='https://github.com/gitblit-org/gitblit/pull/1084'>pull request #1084</a>)</li>
 	</ul>
    	<h4>dependency changes</h4>
 	<ul>
@@ -471,47 +471,47 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix exception when viewing a ticket with a patchset where the integration branch does not exist (<a href='https://github.com/gitblit/gitblit/issues/817'>issue 817</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/212'>ticket 212</a>)</li>
-		<li>Fix exception when deleting a repository using the FileTicketService (<a href='https://github.com/gitblit/gitblit/issues/818'>issue 818</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/213'>ticket 213</a>)</li>
-		<li>Do not inject team repository permissions as explicit user permissions when editing a user (<a href='https://github.com/gitblit/gitblit/issues/758'>issue 758</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/214'>ticket 214</a>)</li>
+		<li>Fix exception when viewing a ticket with a patchset where the integration branch does not exist (<a href='https://github.com/gitblit-org/gitblit/issues/817'>issue 817</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/212'>ticket 212</a>)</li>
+		<li>Fix exception when deleting a repository using the FileTicketService (<a href='https://github.com/gitblit-org/gitblit/issues/818'>issue 818</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/213'>ticket 213</a>)</li>
+		<li>Do not inject team repository permissions as explicit user permissions when editing a user (<a href='https://github.com/gitblit-org/gitblit/issues/758'>issue 758</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/214'>ticket 214</a>)</li>
 		<li>Whitelist the target link attribute in the XSS filter (<a href='https://dev.gitblit.com/tickets/gitblit.git/216'>ticket 216</a>)</li>
 		<li>Strip line breaks from pasted SSH keys (<a href='https://dev.gitblit.com/tickets/gitblit.git/245'>ticket 245</a>)</li>
-		<li>Fix project sorting (<a href='https://github.com/gitblit/gitblit/pull/287'>pull request #287</a>)</li>
-		<li>Fix Lucene indexing of tags (<a href='https://github.com/gitblit/gitblit/pull/291'>pull request #291</a>)</li>
-		<li>Prevent session fixation for external authentication (<a href='https://github.com/gitblit/gitblit/pull/908'>pull request #908</a>)</li>
-		<li>Encode email subject as UTF-8 (<a href='https://github.com/gitblit/gitblit/pull/929'>pull request #929</a>)</li>
-		<li>Do not automatically trim passwords (<a href='https://github.com/gitblit/gitblit/pull/932'>pull request #932</a>)</li>
-		<li>Fix nested repository detection in raw servlet (<a href='https://github.com/gitblit/gitblit/pull/950'>pull request #950</a>)</li>
+		<li>Fix project sorting (<a href='https://github.com/gitblit-org/gitblit/pull/287'>pull request #287</a>)</li>
+		<li>Fix Lucene indexing of tags (<a href='https://github.com/gitblit-org/gitblit/pull/291'>pull request #291</a>)</li>
+		<li>Prevent session fixation for external authentication (<a href='https://github.com/gitblit-org/gitblit/pull/908'>pull request #908</a>)</li>
+		<li>Encode email subject as UTF-8 (<a href='https://github.com/gitblit-org/gitblit/pull/929'>pull request #929</a>)</li>
+		<li>Do not automatically trim passwords (<a href='https://github.com/gitblit-org/gitblit/pull/932'>pull request #932</a>)</li>
+		<li>Fix nested repository detection in raw servlet (<a href='https://github.com/gitblit-org/gitblit/pull/950'>pull request #950</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
 		<li>Replaced Dagger with Guice (<a href='https://dev.gitblit.com/tickets/gitblit.git/80'>ticket 80</a>)</li>
 		<li>Use release name as root directory in Gitblit GO artifacts (<a href='https://dev.gitblit.com/tickets/gitblit.git/109'>ticket 109</a>)</li>
 		<li>Split gitblit.properties into gitblit.properties &amp; defaults.properties (<a href='https://dev.gitblit.com/tickets/gitblit.git/110'>ticket 110</a>)</li>
-		<li>Show team type in teams page (<a href='https://github.com/gitblit/gitblit/pull/217'>pull request #217</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/168'>ticket 168</a>)</li>
+		<li>Show team type in teams page (<a href='https://github.com/gitblit-org/gitblit/pull/217'>pull request #217</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/168'>ticket 168</a>)</li>
 		<li>Relocate the repository Delete button (<a href='https://dev.gitblit.com/tickets/gitblit.git/225'>ticket 225</a>)</li>
-		<li>Improve diff performance by gracefully limiting large diffs (<a href='https://github.com/gitblit/gitblit/pull/226'>pull request #226</a>)</li>
-		<li>Add granular settings to disable display of git transport urls (<a href='https://github.com/gitblit/gitblit/pull/274'>pull request #274</a>)</li>
-		<li>Use author date to be consistent with other tools (<a href='https://github.com/gitblit/gitblit/pull/919'>pull request #919</a>)</li>
+		<li>Improve diff performance by gracefully limiting large diffs (<a href='https://github.com/gitblit-org/gitblit/pull/226'>pull request #226</a>)</li>
+		<li>Add granular settings to disable display of git transport urls (<a href='https://github.com/gitblit-org/gitblit/pull/274'>pull request #274</a>)</li>
+		<li>Use author date to be consistent with other tools (<a href='https://github.com/gitblit-org/gitblit/pull/919'>pull request #919</a>)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
 		<li>Add GitHub Octicons (<a href='https://dev.gitblit.com/tickets/gitblit.git/106'>ticket 106</a>)</li>
 		<li>Support for chain-loading properties files (<a href='https://dev.gitblit.com/tickets/gitblit.git/110'>ticket 110</a>)</li>
-		<li>Add Priority &amp; Severity fields for tickets (<a href='https://github.com/gitblit/gitblit/pull/220'>pull request #220</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/157'>ticket 157</a>)</li>
-		<li>Add Maintenance ticket type (<a href='https://github.com/gitblit/gitblit/pull/223'>pull request #223</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/206'>ticket 206</a>)</li>
+		<li>Add Priority &amp; Severity fields for tickets (<a href='https://github.com/gitblit-org/gitblit/pull/220'>pull request #220</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/157'>ticket 157</a>)</li>
+		<li>Add Maintenance ticket type (<a href='https://github.com/gitblit-org/gitblit/pull/223'>pull request #223</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/206'>ticket 206</a>)</li>
 		<li>Add commitdiff option to ignore whitespace (<a href='https://dev.gitblit.com/tickets/gitblit.git/233'>ticket 233</a>)</li>
 		<li>Add configurable tab length for blob views (<a href='https://dev.gitblit.com/tickets/gitblit.git/253'>ticket 253</a>)</li>
-		<li>Implement image diffs (<a href='https://github.com/gitblit/gitblit/pull/229'>pull request #229</a>)</li>
-		<li>Add support for configurable HTTP proxy host/port in PluginManager (<a href='https://github.com/gitblit/gitblit/pull/235'>pull request #235</a>)</li>
-		<li>Implement collapsed empty folder navigation (<a href='https://github.com/gitblit/gitblit/pull/241'>pull request #241</a>)</li>
-		<li>Implement hashing to detect usermodel changes and reduce users.conf file I/O (<a href='https://github.com/gitblit/gitblit/pull/246'>pull request #246</a>)</li>
-		<li>Add support for Kerberos5/GSS authentication to SSH (<a href='https://github.com/gitblit/gitblit/pull/254'>pull request #254</a>)</li>
-		<li>Allow extraction of additional user metadata in request headers when using external or container authentication (<a href='https://github.com/gitblit/gitblit/pull/255'>pull request #255</a>)</li>
-		<li>Allow custom host &amp; port specification for advertised SSH urls (<a href='https://github.com/gitblit/gitblit/pull/268'>pull request #268</a>)</li>
-		<li>Improve logging for fail2ban usage (<a href='https://github.com/gitblit/gitblit/pull/296'>pull request #296</a>)</li>
-		<li>Initial implementation of Git-LFS (<a href='https://github.com/gitblit/gitblit/pull/921'>pull request #921</a>)</li>
-		<li>Add &quot;all&quot; repositories parameter to Search page (<a href='https://github.com/gitblit/gitblit/pull/935'>pull request #935</a>)</li>
+		<li>Implement image diffs (<a href='https://github.com/gitblit-org/gitblit/pull/229'>pull request #229</a>)</li>
+		<li>Add support for configurable HTTP proxy host/port in PluginManager (<a href='https://github.com/gitblit-org/gitblit/pull/235'>pull request #235</a>)</li>
+		<li>Implement collapsed empty folder navigation (<a href='https://github.com/gitblit-org/gitblit/pull/241'>pull request #241</a>)</li>
+		<li>Implement hashing to detect usermodel changes and reduce users.conf file I/O (<a href='https://github.com/gitblit-org/gitblit/pull/246'>pull request #246</a>)</li>
+		<li>Add support for Kerberos5/GSS authentication to SSH (<a href='https://github.com/gitblit-org/gitblit/pull/254'>pull request #254</a>)</li>
+		<li>Allow extraction of additional user metadata in request headers when using external or container authentication (<a href='https://github.com/gitblit-org/gitblit/pull/255'>pull request #255</a>)</li>
+		<li>Allow custom host &amp; port specification for advertised SSH urls (<a href='https://github.com/gitblit-org/gitblit/pull/268'>pull request #268</a>)</li>
+		<li>Improve logging for fail2ban usage (<a href='https://github.com/gitblit-org/gitblit/pull/296'>pull request #296</a>)</li>
+		<li>Initial implementation of Git-LFS (<a href='https://github.com/gitblit-org/gitblit/pull/921'>pull request #921</a>)</li>
+		<li>Add &quot;all&quot; repositories parameter to Search page (<a href='https://github.com/gitblit-org/gitblit/pull/935'>pull request #935</a>)</li>
 	</ul>
    	<h4>new settings</h4>
 	<table class="table">
@@ -640,47 +640,47 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix exception when viewing a ticket with a patchset where the integration branch does not exist (<a href='https://github.com/gitblit/gitblit/issues/817'>issue 817</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/212'>ticket 212</a>)</li>
-		<li>Fix exception when deleting a repository using the FileTicketService (<a href='https://github.com/gitblit/gitblit/issues/818'>issue 818</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/213'>ticket 213</a>)</li>
-		<li>Do not inject team repository permissions as explicit user permissions when editing a user (<a href='https://github.com/gitblit/gitblit/issues/758'>issue 758</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/214'>ticket 214</a>)</li>
+		<li>Fix exception when viewing a ticket with a patchset where the integration branch does not exist (<a href='https://github.com/gitblit-org/gitblit/issues/817'>issue 817</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/212'>ticket 212</a>)</li>
+		<li>Fix exception when deleting a repository using the FileTicketService (<a href='https://github.com/gitblit-org/gitblit/issues/818'>issue 818</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/213'>ticket 213</a>)</li>
+		<li>Do not inject team repository permissions as explicit user permissions when editing a user (<a href='https://github.com/gitblit-org/gitblit/issues/758'>issue 758</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/214'>ticket 214</a>)</li>
 		<li>Whitelist the target link attribute in the XSS filter (<a href='https://dev.gitblit.com/tickets/gitblit.git/216'>ticket 216</a>)</li>
 		<li>Strip line breaks from pasted SSH keys (<a href='https://dev.gitblit.com/tickets/gitblit.git/245'>ticket 245</a>)</li>
-		<li>Fix project sorting (<a href='https://github.com/gitblit/gitblit/pull/287'>pull request #287</a>)</li>
-		<li>Fix Lucene indexing of tags (<a href='https://github.com/gitblit/gitblit/pull/291'>pull request #291</a>)</li>
-		<li>Prevent session fixation for external authentication (<a href='https://github.com/gitblit/gitblit/pull/908'>pull request #908</a>)</li>
-		<li>Encode email subject as UTF-8 (<a href='https://github.com/gitblit/gitblit/pull/929'>pull request #929</a>)</li>
-		<li>Do not automatically trim passwords (<a href='https://github.com/gitblit/gitblit/pull/932'>pull request #932</a>)</li>
-		<li>Fix nested repository detection in raw servlet (<a href='https://github.com/gitblit/gitblit/pull/950'>pull request #950</a>)</li>
+		<li>Fix project sorting (<a href='https://github.com/gitblit-org/gitblit/pull/287'>pull request #287</a>)</li>
+		<li>Fix Lucene indexing of tags (<a href='https://github.com/gitblit-org/gitblit/pull/291'>pull request #291</a>)</li>
+		<li>Prevent session fixation for external authentication (<a href='https://github.com/gitblit-org/gitblit/pull/908'>pull request #908</a>)</li>
+		<li>Encode email subject as UTF-8 (<a href='https://github.com/gitblit-org/gitblit/pull/929'>pull request #929</a>)</li>
+		<li>Do not automatically trim passwords (<a href='https://github.com/gitblit-org/gitblit/pull/932'>pull request #932</a>)</li>
+		<li>Fix nested repository detection in raw servlet (<a href='https://github.com/gitblit-org/gitblit/pull/950'>pull request #950</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
 		<li>Replaced Dagger with Guice (<a href='https://dev.gitblit.com/tickets/gitblit.git/80'>ticket 80</a>)</li>
 		<li>Use release name as root directory in Gitblit GO artifacts (<a href='https://dev.gitblit.com/tickets/gitblit.git/109'>ticket 109</a>)</li>
 		<li>Split gitblit.properties into gitblit.properties &amp; defaults.properties (<a href='https://dev.gitblit.com/tickets/gitblit.git/110'>ticket 110</a>)</li>
-		<li>Show team type in teams page (<a href='https://github.com/gitblit/gitblit/pull/217'>pull request #217</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/168'>ticket 168</a>)</li>
+		<li>Show team type in teams page (<a href='https://github.com/gitblit-org/gitblit/pull/217'>pull request #217</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/168'>ticket 168</a>)</li>
 		<li>Relocate the repository Delete button (<a href='https://dev.gitblit.com/tickets/gitblit.git/225'>ticket 225</a>)</li>
-		<li>Improve diff performance by gracefully limiting large diffs (<a href='https://github.com/gitblit/gitblit/pull/226'>pull request #226</a>)</li>
-		<li>Add granular settings to disable display of git transport urls (<a href='https://github.com/gitblit/gitblit/pull/274'>pull request #274</a>)</li>
-		<li>Use author date to be consistent with other tools (<a href='https://github.com/gitblit/gitblit/pull/919'>pull request #919</a>)</li>
+		<li>Improve diff performance by gracefully limiting large diffs (<a href='https://github.com/gitblit-org/gitblit/pull/226'>pull request #226</a>)</li>
+		<li>Add granular settings to disable display of git transport urls (<a href='https://github.com/gitblit-org/gitblit/pull/274'>pull request #274</a>)</li>
+		<li>Use author date to be consistent with other tools (<a href='https://github.com/gitblit-org/gitblit/pull/919'>pull request #919</a>)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
 		<li>Add GitHub Octicons (<a href='https://dev.gitblit.com/tickets/gitblit.git/106'>ticket 106</a>)</li>
 		<li>Support for chain-loading properties files (<a href='https://dev.gitblit.com/tickets/gitblit.git/110'>ticket 110</a>)</li>
-		<li>Add Priority &amp; Severity fields for tickets (<a href='https://github.com/gitblit/gitblit/pull/220'>pull request #220</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/157'>ticket 157</a>)</li>
-		<li>Add Maintenance ticket type (<a href='https://github.com/gitblit/gitblit/pull/223'>pull request #223</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/206'>ticket 206</a>)</li>
+		<li>Add Priority &amp; Severity fields for tickets (<a href='https://github.com/gitblit-org/gitblit/pull/220'>pull request #220</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/157'>ticket 157</a>)</li>
+		<li>Add Maintenance ticket type (<a href='https://github.com/gitblit-org/gitblit/pull/223'>pull request #223</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/206'>ticket 206</a>)</li>
 		<li>Add commitdiff option to ignore whitespace (<a href='https://dev.gitblit.com/tickets/gitblit.git/233'>ticket 233</a>)</li>
 		<li>Add configurable tab length for blob views (<a href='https://dev.gitblit.com/tickets/gitblit.git/253'>ticket 253</a>)</li>
-		<li>Implement image diffs (<a href='https://github.com/gitblit/gitblit/pull/229'>pull request #229</a>)</li>
-		<li>Add support for configurable HTTP proxy host/port in PluginManager (<a href='https://github.com/gitblit/gitblit/pull/235'>pull request #235</a>)</li>
-		<li>Implement collapsed empty folder navigation (<a href='https://github.com/gitblit/gitblit/pull/241'>pull request #241</a>)</li>
-		<li>Implement hashing to detect usermodel changes and reduce users.conf file I/O (<a href='https://github.com/gitblit/gitblit/pull/246'>pull request #246</a>)</li>
-		<li>Add support for Kerberos5/GSS authentication to SSH (<a href='https://github.com/gitblit/gitblit/pull/254'>pull request #254</a>)</li>
-		<li>Allow extraction of additional user metadata in request headers when using external or container authentication (<a href='https://github.com/gitblit/gitblit/pull/255'>pull request #255</a>)</li>
-		<li>Allow custom host &amp; port specification for advertised SSH urls (<a href='https://github.com/gitblit/gitblit/pull/268'>pull request #268</a>)</li>
-		<li>Improve logging for fail2ban usage (<a href='https://github.com/gitblit/gitblit/pull/296'>pull request #296</a>)</li>
-		<li>Initial implementation of Git-LFS (<a href='https://github.com/gitblit/gitblit/pull/921'>pull request #921</a>)</li>
-		<li>Add &quot;all&quot; repositories parameter to Search page (<a href='https://github.com/gitblit/gitblit/pull/935'>pull request #935</a>)</li>
+		<li>Implement image diffs (<a href='https://github.com/gitblit-org/gitblit/pull/229'>pull request #229</a>)</li>
+		<li>Add support for configurable HTTP proxy host/port in PluginManager (<a href='https://github.com/gitblit-org/gitblit/pull/235'>pull request #235</a>)</li>
+		<li>Implement collapsed empty folder navigation (<a href='https://github.com/gitblit-org/gitblit/pull/241'>pull request #241</a>)</li>
+		<li>Implement hashing to detect usermodel changes and reduce users.conf file I/O (<a href='https://github.com/gitblit-org/gitblit/pull/246'>pull request #246</a>)</li>
+		<li>Add support for Kerberos5/GSS authentication to SSH (<a href='https://github.com/gitblit-org/gitblit/pull/254'>pull request #254</a>)</li>
+		<li>Allow extraction of additional user metadata in request headers when using external or container authentication (<a href='https://github.com/gitblit-org/gitblit/pull/255'>pull request #255</a>)</li>
+		<li>Allow custom host &amp; port specification for advertised SSH urls (<a href='https://github.com/gitblit-org/gitblit/pull/268'>pull request #268</a>)</li>
+		<li>Improve logging for fail2ban usage (<a href='https://github.com/gitblit-org/gitblit/pull/296'>pull request #296</a>)</li>
+		<li>Initial implementation of Git-LFS (<a href='https://github.com/gitblit-org/gitblit/pull/921'>pull request #921</a>)</li>
+		<li>Add &quot;all&quot; repositories parameter to Search page (<a href='https://github.com/gitblit-org/gitblit/pull/935'>pull request #935</a>)</li>
 	</ul>
    	<h4>new settings</h4>
 	<table class="table">
@@ -809,7 +809,7 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix French translation (<a href='https://github.com/gitblit/gitblit/pull/224'>pull request #224</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/210'>ticket 210</a>)</li>
+		<li>Fix French translation (<a href='https://github.com/gitblit-org/gitblit/pull/224'>pull request #224</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/210'>ticket 210</a>)</li>
 		<li>Fix raw servlet trashing paths with spaces (<a href='https://dev.gitblit.com/tickets/gitblit.git/211'>ticket 211</a>)</li>
 		<li>Fix PluginManager not properly respecting --noverify (<a href='https://dev.gitblit.com/tickets/gitblit.git/209'>ticket 209</a>)</li>
 	</ul>
@@ -838,71 +838,71 @@
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>Sanitize page parameters, form fields, and markup for XSS vulnerabilities (<a href='https://github.com/gitblit/gitblit/issues/792'>issue 792</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/164'>ticket 164</a>)</li>
-		<li>Fix flash security risk (<a href='https://github.com/gitblit/gitblit/issues/794'>issue 794</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/165'>ticket 165</a>)</li>
-		<li>Fix XRF vulnerability (<a href='https://github.com/gitblit/gitblit/issues/796'>issue 796</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/166'>ticket 166</a>)</li>
-		<li>Prohibit new forks from inadvertently disclosing view-restricted contents (<a href='https://github.com/gitblit/gitblit/issues/791'>issue 791</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/167'>ticket 167</a>)</li>
-		<li>Restrict Gitblit's cookie to the context path (<a href='https://github.com/gitblit/gitblit/issues/803'>issue 803</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/187'>ticket 187</a>)</li>
+		<li>Sanitize page parameters, form fields, and markup for XSS vulnerabilities (<a href='https://github.com/gitblit-org/gitblit/issues/792'>issue 792</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/164'>ticket 164</a>)</li>
+		<li>Fix flash security risk (<a href='https://github.com/gitblit-org/gitblit/issues/794'>issue 794</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/165'>ticket 165</a>)</li>
+		<li>Fix XRF vulnerability (<a href='https://github.com/gitblit-org/gitblit/issues/796'>issue 796</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/166'>ticket 166</a>)</li>
+		<li>Prohibit new forks from inadvertently disclosing view-restricted contents (<a href='https://github.com/gitblit-org/gitblit/issues/791'>issue 791</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/167'>ticket 167</a>)</li>
+		<li>Restrict Gitblit's cookie to the context path (<a href='https://github.com/gitblit-org/gitblit/issues/803'>issue 803</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/187'>ticket 187</a>)</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix NPE when two repository names differ only in case (<a href='https://github.com/gitblit/gitblit/pull/204'>pull request #204</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/108'>ticket 108</a>)</li>
-		<li>Fix API documentation links (<a href='https://github.com/gitblit/gitblit/issues/745'>issue 745</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/111'>ticket 111</a>)</li>
+		<li>Fix NPE when two repository names differ only in case (<a href='https://github.com/gitblit-org/gitblit/pull/204'>pull request #204</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/108'>ticket 108</a>)</li>
+		<li>Fix API documentation links (<a href='https://github.com/gitblit-org/gitblit/issues/745'>issue 745</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/111'>ticket 111</a>)</li>
 		<li>Fix internal error when specifying a blob url without a path (<a href='https://dev.gitblit.com/tickets/gitblit.git/113'>ticket 113</a>)</li>
 		<li>Fix milestone queries for hyphentated names (<a href='https://dev.gitblit.com/tickets/gitblit.git/115'>ticket 115</a>)</li>
-		<li>Fix duplicate repositories on dashboards (<a href='https://github.com/gitblit/gitblit/issues/750'>issue 750</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/117'>ticket 117</a>)</li>
-		<li>Fix lower-case project names in RepositoryNamePanel (<a href='https://github.com/gitblit/gitblit/issues/805'>issue 805</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/118'>ticket 118</a>)</li>
-		<li>Fix ticket notifications not sent when author doesn't have an email address (<a href='https://github.com/gitblit/gitblit/issues/719'>issue 719</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/132'>ticket 132</a>)</li>
+		<li>Fix duplicate repositories on dashboards (<a href='https://github.com/gitblit-org/gitblit/issues/750'>issue 750</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/117'>ticket 117</a>)</li>
+		<li>Fix lower-case project names in RepositoryNamePanel (<a href='https://github.com/gitblit-org/gitblit/issues/805'>issue 805</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/118'>ticket 118</a>)</li>
+		<li>Fix ticket notifications not sent when author doesn't have an email address (<a href='https://github.com/gitblit-org/gitblit/issues/719'>issue 719</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/132'>ticket 132</a>)</li>
 		<li>Fix regression in create-ticket-on-push &amp; clarify reported explanation (<a href='https://dev.gitblit.com/tickets/gitblit.git/135'>ticket 135</a>)</li>
-		<li>Fix redirects after ajax form submissions with Tomcat (<a href='https://github.com/gitblit/gitblit/issues/751'>issue 751</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/136'>ticket 136</a>)</li>
+		<li>Fix redirects after ajax form submissions with Tomcat (<a href='https://github.com/gitblit-org/gitblit/issues/751'>issue 751</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/136'>ticket 136</a>)</li>
 		<li>Fix potential NPE in Raw servlet (<a href='https://dev.gitblit.com/tickets/gitblit.git/137'>ticket 137</a>)</li>
 		<li>Fix Raw link path generation that does not respect web.forwardSlashCharacter (<a href='https://dev.gitblit.com/tickets/gitblit.git/139'>ticket 139</a>)</li>
-		<li>Do not log query parameter passwords when Redmine authentication fails (<a href='https://github.com/gitblit/gitblit/pull/215'>pull request #215</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/466'>ticket 466</a>)</li>
-		<li>Fix NPE in RepositoryNamePanel for anonymous admins (<a href='https://github.com/gitblit/gitblit/issues/786'>issue 786</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/147'>ticket 147</a>)</li>
-		<li>Fix repo creation with initial commit when the creator does not have an email address (<a href='https://github.com/gitblit/gitblit/issues/754'>issue 754</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/149'>ticket 149</a>)</li>
-		<li>Fix Edit Repository page missing owners from owners list (<a href='https://github.com/gitblit/gitblit/issues/776'>issue 776</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/150'>ticket 150</a>)</li>
+		<li>Do not log query parameter passwords when Redmine authentication fails (<a href='https://github.com/gitblit-org/gitblit/pull/215'>pull request #215</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/466'>ticket 466</a>)</li>
+		<li>Fix NPE in RepositoryNamePanel for anonymous admins (<a href='https://github.com/gitblit-org/gitblit/issues/786'>issue 786</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/147'>ticket 147</a>)</li>
+		<li>Fix repo creation with initial commit when the creator does not have an email address (<a href='https://github.com/gitblit-org/gitblit/issues/754'>issue 754</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/149'>ticket 149</a>)</li>
+		<li>Fix Edit Repository page missing owners from owners list (<a href='https://github.com/gitblit-org/gitblit/issues/776'>issue 776</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/150'>ticket 150</a>)</li>
 		<li>Fix NPEs when handling tickets with non-existent milestones (<a href='https://dev.gitblit.com/tickets/gitblit.git/152'>ticket 152</a>)</li>
-		<li>Quote all Lucene query args that have non-alphanumberic characters (<a href='https://github.com/gitblit/gitblit/issues/779'>issue 779</a>, <a href='https://github.com/gitblit/gitblit/issues/765'>issue 765</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/153'>ticket 153</a>)</li>
-		<li>Fix 0-length files from raw servlet when file does not exist (<a href='https://github.com/gitblit/gitblit/issues/785'>issue 785</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/154'>ticket 154</a>)</li>
-		<li>Fix raw servlet failures with long project names (<a href='https://github.com/gitblit/gitblit/issues/774'>issue 774</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/163'>ticket 163</a>)</li>
-		<li>New ticket responsible selections are missing users with RW access (<a href='https://github.com/gitblit/gitblit/issues/772'>issue 772</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/170'>ticket 170</a>)</li>
-		<li>Fix NPE in TicketListPanel due to missing repository (<a href='https://github.com/gitblit/gitblit/issues/747'>issue 747</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/171'>ticket 171</a>)</li>
-		<li>Fix MigrateTickets failure for view-restricted repositories (<a href='https://github.com/gitblit/gitblit/issues/771'>issue 771</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/173'>ticket 173</a>)</li>
-		<li>Fix repository deletion bug where the Lucene ticket index was not purged (<a href='https://github.com/gitblit/gitblit/issues/764'>issue 764</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/174'>ticket 174</a>)</li>
-		<li>Fix Jenkins post-receive script repository url (<a href='https://github.com/gitblit/gitblit/pull/219'>pull request #219</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/175'>ticket 175</a>)</li>
-		<li>Fix potential NPE in retrieving a ticket comment (<a href='https://github.com/gitblit/gitblit/issues/799'>issue 799</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/179'>ticket 179</a>)</li>
-		<li>Fix bug in migrating tickets to the BranchTicketService (<a href='https://github.com/gitblit/gitblit/issues/770'>issue 770</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/183'>ticket 183</a>)</li>
-		<li>Fix failure to clear/delete a ticket topic and description (<a href='https://github.com/gitblit/gitblit/issues/801'>issue 801</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/188'>ticket 188</a>)</li>
+		<li>Quote all Lucene query args that have non-alphanumberic characters (<a href='https://github.com/gitblit-org/gitblit/issues/779'>issue 779</a>, <a href='https://github.com/gitblit-org/gitblit/issues/765'>issue 765</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/153'>ticket 153</a>)</li>
+		<li>Fix 0-length files from raw servlet when file does not exist (<a href='https://github.com/gitblit-org/gitblit/issues/785'>issue 785</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/154'>ticket 154</a>)</li>
+		<li>Fix raw servlet failures with long project names (<a href='https://github.com/gitblit-org/gitblit/issues/774'>issue 774</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/163'>ticket 163</a>)</li>
+		<li>New ticket responsible selections are missing users with RW access (<a href='https://github.com/gitblit-org/gitblit/issues/772'>issue 772</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/170'>ticket 170</a>)</li>
+		<li>Fix NPE in TicketListPanel due to missing repository (<a href='https://github.com/gitblit-org/gitblit/issues/747'>issue 747</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/171'>ticket 171</a>)</li>
+		<li>Fix MigrateTickets failure for view-restricted repositories (<a href='https://github.com/gitblit-org/gitblit/issues/771'>issue 771</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/173'>ticket 173</a>)</li>
+		<li>Fix repository deletion bug where the Lucene ticket index was not purged (<a href='https://github.com/gitblit-org/gitblit/issues/764'>issue 764</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/174'>ticket 174</a>)</li>
+		<li>Fix Jenkins post-receive script repository url (<a href='https://github.com/gitblit-org/gitblit/pull/219'>pull request #219</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/175'>ticket 175</a>)</li>
+		<li>Fix potential NPE in retrieving a ticket comment (<a href='https://github.com/gitblit-org/gitblit/issues/799'>issue 799</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/179'>ticket 179</a>)</li>
+		<li>Fix bug in migrating tickets to the BranchTicketService (<a href='https://github.com/gitblit-org/gitblit/issues/770'>issue 770</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/183'>ticket 183</a>)</li>
+		<li>Fix failure to clear/delete a ticket topic and description (<a href='https://github.com/gitblit-org/gitblit/issues/801'>issue 801</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/188'>ticket 188</a>)</li>
 		<li>Fix cropped ticket status indicators (<a href='https://dev.gitblit.com/tickets/gitblit.git/197'>ticket 197</a>)</li>
-		<li>Fix bug in raw servlet extracting repository out of the path (<a href='https://github.com/gitblit/gitblit/pull/222'>pull request #222</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/203'>ticket 203</a>)</li>
-		<li>Improve relative path determiniation using Java 7 Paths (<a href='https://github.com/gitblit/gitblit/issues/807'>issue 807</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/204'>ticket 204</a>)</li>
+		<li>Fix bug in raw servlet extracting repository out of the path (<a href='https://github.com/gitblit-org/gitblit/pull/222'>pull request #222</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/203'>ticket 203</a>)</li>
+		<li>Improve relative path determiniation using Java 7 Paths (<a href='https://github.com/gitblit-org/gitblit/issues/807'>issue 807</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/204'>ticket 204</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
 		<li>Remove git.streamFileThreshold setting and documentation (<a href='https://dev.gitblit.com/tickets/gitblit.git/119'>ticket 119</a>)</li>
-		<li>Update Korean translation (<a href='https://github.com/gitblit/gitblit/pull/206'>pull request #206</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/120'>ticket 120</a>)</li>
-		<li>Add additional documentation for web.canonicalUrl (<a href='https://github.com/gitblit/gitblit/pull/205'>pull request #205</a>, <a href='https://github.com/gitblit/gitblit/issues/749'>issue 749</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/121'>ticket 121</a>)</li>
+		<li>Update Korean translation (<a href='https://github.com/gitblit-org/gitblit/pull/206'>pull request #206</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/120'>ticket 120</a>)</li>
+		<li>Add additional documentation for web.canonicalUrl (<a href='https://github.com/gitblit-org/gitblit/pull/205'>pull request #205</a>, <a href='https://github.com/gitblit-org/gitblit/issues/749'>issue 749</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/121'>ticket 121</a>)</li>
 		<li>Remove Wicket references from non-Wicket packages (<a href='https://dev.gitblit.com/tickets/gitblit.git/129'>ticket 129</a>)</li>
-		<li>LDAP user accounts now clear email address when unset in LDAP (<a href='https://github.com/gitblit/gitblit/issues/752'>issue 752</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/134'>ticket 134</a>)</li>
-		<li>Update French translation (<a href='https://github.com/gitblit/gitblit/pull/210'>pull request #210</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/140'>ticket 140</a>)</li>
-		<li>Update authentication documentation (<a href='https://github.com/gitblit/gitblit/pull/213'>pull request #213</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/142'>ticket 142</a>)</li>
-		<li>Pretty print Perl modules (<a href='https://github.com/gitblit/gitblit/pull/216'>pull request #216</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/144'>ticket 144</a>)</li>
-		<li>Pretty print C/C++ headers (<a href='https://github.com/gitblit/gitblit/pull/207'>pull request #207</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/145'>ticket 145</a>)</li>
-		<li>Do not stamp raw servlet responses with cache-control headers (<a href='https://github.com/gitblit/gitblit/issues/785'>issue 785</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/148'>ticket 148</a>)</li>
-		<li>Treat UTF-9 and UTF-18 (both fake encodings) as UTF-8 (<a href='https://github.com/gitblit/gitblit/issues/782'>issue 782</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/151'>ticket 151</a>)</li>
+		<li>LDAP user accounts now clear email address when unset in LDAP (<a href='https://github.com/gitblit-org/gitblit/issues/752'>issue 752</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/134'>ticket 134</a>)</li>
+		<li>Update French translation (<a href='https://github.com/gitblit-org/gitblit/pull/210'>pull request #210</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/140'>ticket 140</a>)</li>
+		<li>Update authentication documentation (<a href='https://github.com/gitblit-org/gitblit/pull/213'>pull request #213</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/142'>ticket 142</a>)</li>
+		<li>Pretty print Perl modules (<a href='https://github.com/gitblit-org/gitblit/pull/216'>pull request #216</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/144'>ticket 144</a>)</li>
+		<li>Pretty print C/C++ headers (<a href='https://github.com/gitblit-org/gitblit/pull/207'>pull request #207</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/145'>ticket 145</a>)</li>
+		<li>Do not stamp raw servlet responses with cache-control headers (<a href='https://github.com/gitblit-org/gitblit/issues/785'>issue 785</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/148'>ticket 148</a>)</li>
+		<li>Treat UTF-9 and UTF-18 (both fake encodings) as UTF-8 (<a href='https://github.com/gitblit-org/gitblit/issues/782'>issue 782</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/151'>ticket 151</a>)</li>
 		<li>Allow Lucene indexing period to be configurable (<a href='https://dev.gitblit.com/tickets/gitblit.git/161'>ticket 161</a>)</li>
-		<li>Do not display stacktraces for bad requests in servlets (<a href='https://github.com/gitblit/gitblit/issues/497'>issue 497</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/169'>ticket 169</a>)</li>
-		<li>Preserve branch ref in commits, tree, and docs navbar links (<a href='https://github.com/gitblit/gitblit/issues/797'>issue 797</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/176'>ticket 176</a>)</li>
-		<li>Disable Edit User Page permission checkboxes if admin/fork/create permission is inherited (<a href='https://github.com/gitblit/gitblit/issues/492'>issue 492</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/177'>ticket 177</a>)</li>
-		<li>Explicitly declare page subclasses that reference commits (<a href='https://github.com/gitblit/gitblit/issues/799'>issue 799</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/180'>ticket 180</a>)</li>
+		<li>Do not display stacktraces for bad requests in servlets (<a href='https://github.com/gitblit-org/gitblit/issues/497'>issue 497</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/169'>ticket 169</a>)</li>
+		<li>Preserve branch ref in commits, tree, and docs navbar links (<a href='https://github.com/gitblit-org/gitblit/issues/797'>issue 797</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/176'>ticket 176</a>)</li>
+		<li>Disable Edit User Page permission checkboxes if admin/fork/create permission is inherited (<a href='https://github.com/gitblit-org/gitblit/issues/492'>issue 492</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/177'>ticket 177</a>)</li>
+		<li>Explicitly declare page subclasses that reference commits (<a href='https://github.com/gitblit-org/gitblit/issues/799'>issue 799</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/180'>ticket 180</a>)</li>
 		<li>Explicitly attempt to register BouncyCastle as a JCE provider (<a href='https://dev.gitblit.com/tickets/gitblit.git/194'>ticket 194</a>)</li>
-		<li>Treat .ico and .jpeg files as images (<a href='https://github.com/gitblit/gitblit/pull/221'>pull request #221</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/202'>ticket 202</a>)</li>
+		<li>Treat .ico and .jpeg files as images (<a href='https://github.com/gitblit-org/gitblit/pull/221'>pull request #221</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/202'>ticket 202</a>)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Add support for GITBLIT_HOME as a -D system property (<a href='https://github.com/gitblit/gitblit/pull/212'>pull request #212</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/141'>ticket 141</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/185'>ticket 185</a>)</li>
+		<li>Add support for GITBLIT_HOME as a -D system property (<a href='https://github.com/gitblit-org/gitblit/pull/212'>pull request #212</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/141'>ticket 141</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/185'>ticket 185</a>)</li>
 		<li>Add support for GITBLIT_HOME as an environment variable (<a href='https://dev.gitblit.com/tickets/gitblit.git/193'>ticket 193</a>)</li>
-		<li>Add install script for Fedora (<a href='https://github.com/gitblit/gitblit/pull/207'>pull request #207</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/146'>ticket 146</a>)</li>
+		<li>Add install script for Fedora (<a href='https://github.com/gitblit-org/gitblit/pull/207'>pull request #207</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/146'>ticket 146</a>)</li>
 		<li>Add NO CHANGE REQUIRED ticket status (<a href='https://dev.gitblit.com/tickets/gitblit.git/182'>ticket 182</a>)</li>
 	</ul>
    	<h4>dependency changes</h4>
@@ -960,52 +960,52 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Allow ticket responsible selection if anonymous push is enabled (<a href='https://github.com/gitblit/gitblit/issues/721'>issue 721</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/71'>ticket 71</a>)</li>
-		<li>Fix failure to generate SSH server keys on ARM (<a href='https://github.com/gitblit/gitblit/issues/722'>issue 722</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/70'>ticket 70</a>)</li>
+		<li>Allow ticket responsible selection if anonymous push is enabled (<a href='https://github.com/gitblit-org/gitblit/issues/721'>issue 721</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/71'>ticket 71</a>)</li>
+		<li>Fix failure to generate SSH server keys on ARM (<a href='https://github.com/gitblit-org/gitblit/issues/722'>issue 722</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/70'>ticket 70</a>)</li>
 		<li>Fix flotr2 chart generation failure if a label contained a single-quote (<a href='https://dev.gitblit.com/tickets/gitblit.git/77'>ticket 77</a>)</li>
-		<li>Fix repository cache refresh after ref deletion/addition (<a href='https://github.com/gitblit/gitblit/issues/729'>issue 729</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/82'>ticket 82</a>)</li>
-		<li>Fixed cache miss on repository model retrieval (<a href='https://github.com/gitblit/gitblit/pull/185'>pull request #185</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/83'>ticket 83</a>)</li>
-		<li>Fixed GitBlit static singleton reference in localclone.groovy (<a href='https://github.com/gitblit/gitblit/issues/732'>issue 732</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/84'>ticket 84</a>)</li>
+		<li>Fix repository cache refresh after ref deletion/addition (<a href='https://github.com/gitblit-org/gitblit/issues/729'>issue 729</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/82'>ticket 82</a>)</li>
+		<li>Fixed cache miss on repository model retrieval (<a href='https://github.com/gitblit-org/gitblit/pull/185'>pull request #185</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/83'>ticket 83</a>)</li>
+		<li>Fixed GitBlit static singleton reference in localclone.groovy (<a href='https://github.com/gitblit-org/gitblit/issues/732'>issue 732</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/84'>ticket 84</a>)</li>
 		<li>Removed Ticket responsible team permission exclusion (<a href='https://dev.gitblit.com/tickets/gitblit.git/87'>ticket 87</a>)</li>
 		<li>Fixed SSH daemon thread exhaustion (<a href='https://dev.gitblit.com/tickets/gitblit.git/89'>ticket 89</a>)</li>
 		<li>Fixed Ticket responsible selections not considering the AUTHENTICATED authorization control (<a href='https://dev.gitblit.com/tickets/gitblit.git/91'>ticket 91</a>)</li>
-		<li>Fixed invalid generated SSH url for port 22 (<a href='https://github.com/gitblit/gitblit/issues/740'>issue 740</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/98'>ticket 98</a>)</li>
-		<li>Fix cloning repositories with `+` in their names. (revert <a href='https://github.com/gitblit/gitblit/pull/136'>pull request #136</a>, <a href='https://github.com/gitblit/gitblit/issues/658'>issue 658</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/100'>ticket 100</a>)</li>
+		<li>Fixed invalid generated SSH url for port 22 (<a href='https://github.com/gitblit-org/gitblit/issues/740'>issue 740</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/98'>ticket 98</a>)</li>
+		<li>Fix cloning repositories with `+` in their names. (revert <a href='https://github.com/gitblit-org/gitblit/pull/136'>pull request #136</a>, <a href='https://github.com/gitblit-org/gitblit/issues/658'>issue 658</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/100'>ticket 100</a>)</li>
 		<li>Fixed NPE in GitblitClient (<a href='https://dev.gitblit.com/tickets/gitblit.git/102'>ticket 102</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (<a href='https://github.com/gitblit/gitblit/issues/709'>issue 709</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/49'>ticket 49</a>)</li>
+		<li>Split the pages servlet into a raw servlet and a pages servlet. All raw links now use the raw servlet (<a href='https://github.com/gitblit-org/gitblit/issues/709'>issue 709</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/49'>ticket 49</a>)</li>
 		<li>Drop deprecated --set-upstream syntax for -u (<a href='https://dev.gitblit.com/tickets/gitblit.git/59'>ticket 59</a>)</li>
 		<li>BARNUM: Prune deleted branches on fetch (git fetch -p) (<a href='https://dev.gitblit.com/tickets/gitblit.git/60'>ticket 60</a>)</li>
 		<li>BARNUM: Create ticket/N instead of topic/N for pt start N (<a href='https://dev.gitblit.com/tickets/gitblit.git/61'>ticket 61</a>)</li>
-		<li>Move repository deletion functions to the edit repository page AND allow deletion to be disabled (<a href='https://github.com/gitblit/gitblit/pull/180'>pull request #180</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/67'>ticket 67</a>)</li>
-		<li>Update the Korean translation (<a href='https://github.com/gitblit/gitblit/pull/184'>pull request #184</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/69'>ticket 69</a>)</li>
-		<li>Update the Dutch translation (<a href='https://github.com/gitblit/gitblit/pull/191'>pull request #191</a>)</li>
+		<li>Move repository deletion functions to the edit repository page AND allow deletion to be disabled (<a href='https://github.com/gitblit-org/gitblit/pull/180'>pull request #180</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/67'>ticket 67</a>)</li>
+		<li>Update the Korean translation (<a href='https://github.com/gitblit-org/gitblit/pull/184'>pull request #184</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/69'>ticket 69</a>)</li>
+		<li>Update the Dutch translation (<a href='https://github.com/gitblit-org/gitblit/pull/191'>pull request #191</a>)</li>
 		<li>Overhaul the EmptyRepositoryPage (<a href='https://dev.gitblit.com/tickets/gitblit.git/73'>ticket 73</a>)</li>
 		<li>Overhauled the edit repository page (<a href='https://dev.gitblit.com/tickets/gitblit.git/76'>ticket 76</a>)</li>
 		<li>Process bugtraq links in the ticket description and comments (<a href='https://dev.gitblit.com/tickets/gitblit.git/78'>ticket 78</a>)</li>
-		<li>Exclude personal repositories from the repositories list, by default (<a href='https://github.com/gitblit/gitblit/issues/419'>issue 419</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/95'>ticket 95</a>)</li>
+		<li>Exclude personal repositories from the repositories list, by default (<a href='https://github.com/gitblit-org/gitblit/issues/419'>issue 419</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/95'>ticket 95</a>)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Add My Tickets page (<a href='https://github.com/gitblit/gitblit/issues/511'>issue 511</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/15'>ticket 15</a>)</li>
+		<li>Add My Tickets page (<a href='https://github.com/gitblit-org/gitblit/issues/511'>issue 511</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/15'>ticket 15</a>)</li>
 		<li>Added CRUD functionality for Ticket Milestones (<a href='https://dev.gitblit.com/tickets/gitblit.git/17'>ticket 17</a>)</li>
 		<li>Implemented Ticket migration tool to move between backends (<a href='https://dev.gitblit.com/tickets/gitblit.git/19'>ticket 19</a>)</li>
 		<li>Added extension points for top nav links, root-level pages, repository nav links, user menu links, and http request filters (<a href='https://dev.gitblit.com/tickets/gitblit.git/23'>ticket 23</a>)</li>
-		<li>Added an editor panel in the user profile page to manipulate preferences (<a href='https://github.com/gitblit/gitblit/issues/404'>issue 404</a>, <a href='https://github.com/gitblit/gitblit/issues/720'>issue 720</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/64'>ticket 64</a>)</li>
+		<li>Added an editor panel in the user profile page to manipulate preferences (<a href='https://github.com/gitblit-org/gitblit/issues/404'>issue 404</a>, <a href='https://github.com/gitblit-org/gitblit/issues/720'>issue 720</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/64'>ticket 64</a>)</li>
 		<li>Added an editor panel in the user profile page to manipulate public SSH keys (<a href='https://dev.gitblit.com/tickets/gitblit.git/64'>ticket 64</a>)</li>
-		<li>Add FORK_REPOSITORY RPC request type (<a href='https://github.com/gitblit/gitblit/issues/667'>issue 667</a>, <a href='https://github.com/gitblit/gitblit/pull/161'>pull request #161</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/65'>ticket 65</a>)</li>
-		<li>Add object type (ot) parameter for RSS queries to retrieve tag details (<a href='https://github.com/gitblit/gitblit/pull/165'>pull request #165</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/66'>ticket 66</a>)</li>
-		<li>Add setting to allow STARTTLS without requiring SMTPS (<a href='https://github.com/gitblit/gitblit/pull/183'>pull request #183</a>)</li>
+		<li>Add FORK_REPOSITORY RPC request type (<a href='https://github.com/gitblit-org/gitblit/issues/667'>issue 667</a>, <a href='https://github.com/gitblit-org/gitblit/pull/161'>pull request #161</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/65'>ticket 65</a>)</li>
+		<li>Add object type (ot) parameter for RSS queries to retrieve tag details (<a href='https://github.com/gitblit-org/gitblit/pull/165'>pull request #165</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/66'>ticket 66</a>)</li>
+		<li>Add setting to allow STARTTLS without requiring SMTPS (<a href='https://github.com/gitblit-org/gitblit/pull/183'>pull request #183</a>)</li>
 		<li>Simplified repository creation, offer simple README generation, and insertion of a pre-defined .gitignore file (<a href='https://dev.gitblit.com/tickets/gitblit.git/76'>ticket 76</a>)</li>
 		<li>Added an extension point for monitoring onStartup and onShutdown (<a href='https://dev.gitblit.com/tickets/gitblit.git/79'>ticket 79</a>)</li>
-		<li>Tag server-side merges when incremental push tags are enabled (<a href='https://github.com/gitblit/gitblit/issues/728'>issue 728</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/85'>ticket 85</a>)</li>
+		<li>Tag server-side merges when incremental push tags are enabled (<a href='https://github.com/gitblit-org/gitblit/issues/728'>issue 728</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/85'>ticket 85</a>)</li>
 		<li>Add a user preference for the clone transport (<a href='https://dev.gitblit.com/tickets/gitblit.git/90'>ticket 90</a>)</li>
 		<li>Add setting to control default thread pool size for miscellaneous background tasks (<a href='https://dev.gitblit.com/tickets/gitblit.git/92'>ticket 92</a>)</li>
-		<li>Add Norwegian transation (<a href='https://github.com/gitblit/gitblit/pull/186'>pull request #186</a>)</li>
-		<li>Add German translation (<a href='https://github.com/gitblit/gitblit/pull/192'>pull request #192</a>)</li>
-		<li>Add Italian translation (<a href='https://github.com/gitblit/gitblit/pull/196'>pull request #196</a>)</li>
+		<li>Add Norwegian transation (<a href='https://github.com/gitblit-org/gitblit/pull/186'>pull request #186</a>)</li>
+		<li>Add German translation (<a href='https://github.com/gitblit-org/gitblit/pull/192'>pull request #192</a>)</li>
+		<li>Add Italian translation (<a href='https://github.com/gitblit-org/gitblit/pull/196'>pull request #196</a>)</li>
 	</ul>
    	<h4>new settings</h4>
 	<table class="table">
@@ -1027,7 +1027,7 @@
 	</table>
    	<h4>dependency changes</h4>
 	<ul>
-		<li>Update to javax.mail 1.5.1 (<a href='https://github.com/gitblit/gitblit/issues/713'>issue 713</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/58'>ticket 58</a>)</li>
+		<li>Update to javax.mail 1.5.1 (<a href='https://github.com/gitblit-org/gitblit/issues/713'>issue 713</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/58'>ticket 58</a>)</li>
 	</ul>
    	<h4>contributors</h4>
 	<ul>
@@ -1065,26 +1065,26 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fix subdirectory links in pages servlet (<a href='https://github.com/gitblit/gitblit/issues/707'>issue 707</a>)</li>
-		<li>Fix subdirectory navigation in pages servlet (<a href='https://github.com/gitblit/gitblit/issues/708'>issue 708</a>)</li>
+		<li>Fix subdirectory links in pages servlet (<a href='https://github.com/gitblit-org/gitblit/issues/707'>issue 707</a>)</li>
+		<li>Fix subdirectory navigation in pages servlet (<a href='https://github.com/gitblit-org/gitblit/issues/708'>issue 708</a>)</li>
 		<li>Fix bug in adding invalid or empty SSH keys (<a href='https://dev.gitblit.com/tickets/gitblit.git/50'>ticket 50</a>)</li>
 		<li>Fix forcing default locale to en or LANG_CC for web ui (<a href='https://dev.gitblit.com/tickets/gitblit.git/51'>ticket 51</a>)</li>
 		<li>Fix inconsistency with repository ownership permission checking (<a href='https://dev.gitblit.com/tickets/gitblit.git/52'>ticket 52</a>)</li>
 		<li>Prevent submission from New|Edit ticket page with empty titles (<a href='https://dev.gitblit.com/tickets/gitblit.git/53'>ticket 53</a>)</li>
 		<li>Ensure the repository model ref list is refreshed on ref creation or deletion (<a href='https://dev.gitblit.com/tickets/gitblit.git/54'>ticket 54</a>)</li>
-		<li>Fix case-sensitivity error in determining fork network (<a href='https://github.com/gitblit/gitblit/issues/716'>issue 716</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/62'>ticket 62</a>)</li>
-		<li>Fix transport determination for SSH urls served on port 22 (<a href='https://github.com/gitblit/gitblit/issues/717'>issue 717</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/63'>ticket 63</a>)</li>
+		<li>Fix case-sensitivity error in determining fork network (<a href='https://github.com/gitblit-org/gitblit/issues/716'>issue 716</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/62'>ticket 62</a>)</li>
+		<li>Fix transport determination for SSH urls served on port 22 (<a href='https://github.com/gitblit-org/gitblit/issues/717'>issue 717</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/63'>ticket 63</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>improve French translation (<a href='https://github.com/gitblit/gitblit/pull/176'>pull request #176</a>)</li>
+		<li>improve French translation (<a href='https://github.com/gitblit-org/gitblit/pull/176'>pull request #176</a>)</li>
 		<li>simplify current plugin release detection and ignore the currentRelease registry field</li>
-		<li>split pages servlet into two servlets (<a href='https://github.com/gitblit/gitblit/issues/709'>issue 709</a>)</li>
+		<li>split pages servlet into two servlets (<a href='https://github.com/gitblit-org/gitblit/issues/709'>issue 709</a>)</li>
 	</ul>
    	<h4>dependency changes</h4>
 	<ul>
-		<li>update to Apache MINA/SSHD 0.11.0 (<a href='https://github.com/gitblit/gitblit/issues/706'>issue 706</a>)</li>
-		<li>added Apache Tiki 1.5 (<a href='https://github.com/gitblit/gitblit/issues/709'>issue 709</a>)</li>
+		<li>update to Apache MINA/SSHD 0.11.0 (<a href='https://github.com/gitblit-org/gitblit/issues/706'>issue 706</a>)</li>
+		<li>added Apache Tiki 1.5 (<a href='https://github.com/gitblit-org/gitblit/issues/709'>issue 709</a>)</li>
 	</ul>
    	<h4>contributors</h4>
 	<ul>
@@ -1116,22 +1116,22 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Repository mailing lists could not be reset from the Edit Repository page (<a href='https://github.com/gitblit/gitblit/issues/695'>issue 695</a>)</li>
-		<li>Fix intermittent NPE in determining commit date in RefModel (<a href='https://github.com/gitblit/gitblit/issues/697'>issue 697</a>)</li>
-		<li>Fix closing ticket on push by parsing commit messages for closes|fixes (<a href='https://github.com/gitblit/gitblit/issues/700'>issue 700</a>)</li>
-		<li>Fix diffstat display for a ticket with a pending submodule change (<a href='https://github.com/gitblit/gitblit/issues/703'>issue 703</a>)</li>
+		<li>Repository mailing lists could not be reset from the Edit Repository page (<a href='https://github.com/gitblit-org/gitblit/issues/695'>issue 695</a>)</li>
+		<li>Fix intermittent NPE in determining commit date in RefModel (<a href='https://github.com/gitblit-org/gitblit/issues/697'>issue 697</a>)</li>
+		<li>Fix closing ticket on push by parsing commit messages for closes|fixes (<a href='https://github.com/gitblit-org/gitblit/issues/700'>issue 700</a>)</li>
+		<li>Fix diffstat display for a ticket with a pending submodule change (<a href='https://github.com/gitblit-org/gitblit/issues/703'>issue 703</a>)</li>
 		<li>Ensure the Lucene ticket index is updated on repository deletion.</li>
 		<li>Fixed failure to properly determine hasTicket in RedisTicketService</li>
 		<li>Fixed handling of pushing ticket branch deletions</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Switch from GoogleCharts to self-hosted flotr2 charts (<a href='https://github.com/gitblit/gitblit/issues/579'>issue 579</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/43'>ticket 43</a>, <a href='https://github.com/gitblit/gitblit/pull/166'>pull request #166</a>)</li>
-		<li>Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (<a href='https://github.com/gitblit/gitblit/issues/644'>issue 644</a>)</li>
-		<li>Improve logging for missing LDAP uid attribute when synchronizing (<a href='https://github.com/gitblit/gitblit/issues/690'>issue 690</a>)</li>
-		<li>The ticket close-on-push commit message regular expression is now configurable by a setting (<a href='https://github.com/gitblit/gitblit/issues/700'>issue 700</a>)</li>
-		<li>Redirect to summary page on edit repository (<a href='https://github.com/gitblit/gitblit/issues/701'>issue 701</a>)</li>
-		<li>Option to allow LDAP users to directly authenticate without performing LDAP searches (<a href='https://github.com/gitblit/gitblit/pull/162'>pull request #162</a>)</li>
+		<li>Switch from GoogleCharts to self-hosted flotr2 charts (<a href='https://github.com/gitblit-org/gitblit/issues/579'>issue 579</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/43'>ticket 43</a>, <a href='https://github.com/gitblit-org/gitblit/pull/166'>pull request #166</a>)</li>
+		<li>Specify the --dailyLogFile option for the Ubuntu and CentOS service scripts (<a href='https://github.com/gitblit-org/gitblit/issues/644'>issue 644</a>)</li>
+		<li>Improve logging for missing LDAP uid attribute when synchronizing (<a href='https://github.com/gitblit-org/gitblit/issues/690'>issue 690</a>)</li>
+		<li>The ticket close-on-push commit message regular expression is now configurable by a setting (<a href='https://github.com/gitblit-org/gitblit/issues/700'>issue 700</a>)</li>
+		<li>Redirect to summary page on edit repository (<a href='https://github.com/gitblit-org/gitblit/issues/701'>issue 701</a>)</li>
+		<li>Option to allow LDAP users to directly authenticate without performing LDAP searches (<a href='https://github.com/gitblit-org/gitblit/pull/162'>pull request #162</a>)</li>
 		<li>Replace JCommander with args4j to be consistent with other tools (<a href='https://dev.gitblit.com/tickets/gitblit.git/28'>ticket 28</a>)</li>
 		<li>Sort repository urls by descending permissions and by transport security within equal permissions</li>
 		<li>Move to Java 7 &amp; updated to Jetty 9.1.4</li>
@@ -1141,11 +1141,11 @@
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Added an SSH daemon with public key authentication (<a href='https://github.com/gitblit/gitblit/issues/665'>issue 665</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/6'>ticket 6</a>)</li>
-		<li>Added beginnings of a plugin framework for extending Gitblit (<a href='https://github.com/gitblit/gitblit/issues/677'>issue 677</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/23'>ticket 23</a>)</li>
-		<li>Added a French translation (<a href='https://github.com/gitblit/gitblit/pull/163'>pull request #163</a>)</li>
+		<li>Added an SSH daemon with public key authentication (<a href='https://github.com/gitblit-org/gitblit/issues/665'>issue 665</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/6'>ticket 6</a>)</li>
+		<li>Added beginnings of a plugin framework for extending Gitblit (<a href='https://github.com/gitblit-org/gitblit/issues/677'>issue 677</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/23'>ticket 23</a>)</li>
+		<li>Added a French translation (<a href='https://github.com/gitblit-org/gitblit/pull/163'>pull request #163</a>)</li>
 		<li>Added a setting to control what transports may be used for pushes</li>
-		<li>Expose JGit 3.x receive pack settings (<a href='https://github.com/gitblit/gitblit/issues/704'>issue 704</a>)</li>
+		<li>Expose JGit 3.x receive pack settings (<a href='https://github.com/gitblit-org/gitblit/issues/704'>issue 704</a>)</li>
 	</ul>
    	<h4>new settings</h4>
 	<table class="table">
@@ -1235,12 +1235,12 @@
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>Fix major authentication security hole when using external authentication providers (<a href='https://github.com/gitblit/gitblit/issues/683'>issue 683</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/35'>ticket 35</a>)</li>
+		<li>Fix major authentication security hole when using external authentication providers (<a href='https://github.com/gitblit-org/gitblit/issues/683'>issue 683</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/35'>ticket 35</a>)</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed incorrect branch ref in Ticket page for symlinks (<a href='https://github.com/gitblit/gitblit/issues/679'>issue 679</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/32'>ticket 32</a>)</li>
-		<li>Fix NPE in FileTicketService (<a href='https://github.com/gitblit/gitblit/issues/682'>issue 682</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/34'>ticket 34</a>)</li>
+		<li>Fixed incorrect branch ref in Ticket page for symlinks (<a href='https://github.com/gitblit-org/gitblit/issues/679'>issue 679</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/32'>ticket 32</a>)</li>
+		<li>Fix NPE in FileTicketService (<a href='https://github.com/gitblit-org/gitblit/issues/682'>issue 682</a>, <a href='https://dev.gitblit.com/tickets/gitblit.git/34'>ticket 34</a>)</li>
 		<li>Watch list push parameters were now always honored (<a href='https://dev.gitblit.com/tickets/gitblit.git/30'>ticket 30</a>)</li>
 		<li>Watch list push parameters were not always validated (<a href='https://dev.gitblit.com/tickets/gitblit.git/29'>ticket 29</a>)</li>
 		<li>Truncated tag messages in the tag panel did not have proper tooltips (<a href='https://dev.gitblit.com/tickets/gitblit.git/31'>ticket 31</a>)</li>
@@ -1282,21 +1282,21 @@
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li><a href='https://github.com/gitblit/gitblit/issues/657'>issue 657</a>: Cookies were not reset on administrative password change of a user account. This allowed accounts with changed passwords to continue authenticating. Cookies are now reset on password changes, they are validated on each page request, AND they will now expire 7 days after generation.</li>
+		<li><a href='https://github.com/gitblit-org/gitblit/issues/657'>issue 657</a>: Cookies were not reset on administrative password change of a user account. This allowed accounts with changed passwords to continue authenticating. Cookies are now reset on password changes, they are validated on each page request, AND they will now expire 7 days after generation.</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed incorrect tagger attribution in the dashboard (<a href='https://github.com/gitblit/gitblit/issues/572'>issue 572</a>)</li>
-		<li>Fixed support for implied SSH urls in web.otherUrls (<a href='https://github.com/gitblit/gitblit/issues/607'>issue 607</a>)</li>
-		<li>Fixed injection of unnecessary explicit CLONE permissions for a fork when users or teams already had implied regex permissions (<a href='https://github.com/gitblit/gitblit/issues/616'>issue 616</a>)</li>
-		<li>Bind LDAP connection after establishing TLS initialization (<a href='https://github.com/gitblit/gitblit/issues/639'>issue 639</a>)</li>
-		<li>Fixed NPE when attempting to add a permission without a registrant (<a href='https://github.com/gitblit/gitblit/issues/640'>issue 640</a>)</li>
-		<li>Invalidate all cached repository data on &quot;clear cache&quot; (<a href='https://github.com/gitblit/gitblit/issues/642'>issue 642</a>)</li>
-		<li>Fix chart failures when an apostrophe is in a user display name (<a href='https://github.com/gitblit/gitblit/issues/646'>issue 646</a>, <a href='https://github.com/gitblit/gitblit/pull/128'>pull request #128</a>)</li>
-		<li>Fix exception in create repository when not selecting a garbage collection period (<a href='https://github.com/gitblit/gitblit/issues/662'>issue 662</a>)</li>
-		<li>Stop setting admin permission based on undocumented Redmine REST API behavior (<a href='https://github.com/gitblit/gitblit/issues/664'>issue 664</a>)</li>
-		<li>Fix compage page failure when a submodule is changed in the commit range (<a href='https://github.com/gitblit/gitblit/issues/671'>issue 671</a>)</li>
-		<li>Fix support url decoding with non-ascii characters (<a href='https://github.com/gitblit/gitblit/pull/136'>pull request #136</a>)</li>
+		<li>Fixed incorrect tagger attribution in the dashboard (<a href='https://github.com/gitblit-org/gitblit/issues/572'>issue 572</a>)</li>
+		<li>Fixed support for implied SSH urls in web.otherUrls (<a href='https://github.com/gitblit-org/gitblit/issues/607'>issue 607</a>)</li>
+		<li>Fixed injection of unnecessary explicit CLONE permissions for a fork when users or teams already had implied regex permissions (<a href='https://github.com/gitblit-org/gitblit/issues/616'>issue 616</a>)</li>
+		<li>Bind LDAP connection after establishing TLS initialization (<a href='https://github.com/gitblit-org/gitblit/issues/639'>issue 639</a>)</li>
+		<li>Fixed NPE when attempting to add a permission without a registrant (<a href='https://github.com/gitblit-org/gitblit/issues/640'>issue 640</a>)</li>
+		<li>Invalidate all cached repository data on &quot;clear cache&quot; (<a href='https://github.com/gitblit-org/gitblit/issues/642'>issue 642</a>)</li>
+		<li>Fix chart failures when an apostrophe is in a user display name (<a href='https://github.com/gitblit-org/gitblit/issues/646'>issue 646</a>, <a href='https://github.com/gitblit-org/gitblit/pull/128'>pull request #128</a>)</li>
+		<li>Fix exception in create repository when not selecting a garbage collection period (<a href='https://github.com/gitblit-org/gitblit/issues/662'>issue 662</a>)</li>
+		<li>Stop setting admin permission based on undocumented Redmine REST API behavior (<a href='https://github.com/gitblit-org/gitblit/issues/664'>issue 664</a>)</li>
+		<li>Fix compage page failure when a submodule is changed in the commit range (<a href='https://github.com/gitblit-org/gitblit/issues/671'>issue 671</a>)</li>
+		<li>Fix support url decoding with non-ascii characters (<a href='https://github.com/gitblit-org/gitblit/pull/136'>pull request #136</a>)</li>
 		<li>Fix potential NPE on removing uncached repository from cache</li>
 		<li>Ignore the default contents of .git/description file</li>
 		<li>Fix error on generating activity page when there is no activity</li>
@@ -1305,14 +1305,14 @@
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Gitblit now rejects pushes to identified mirror repositories (<a href='https://github.com/gitblit/gitblit/issues/301'>issue 301</a>)</li>
-		<li>Personal repository prefix (~) is now configurable (<a href='https://github.com/gitblit/gitblit/issues/561'>issue 561</a>)</li>
-		<li>Refactored user services and separated authentication into providers (<a href='https://github.com/gitblit/gitblit/issues/577'>issue 577</a>)</li>
-		<li>Reversed line links in blob view (<a href='https://github.com/gitblit/gitblit/issues/605'>issue 605</a>)</li>
-		<li>Dashboard and Activity pages now obey the web.generateActivityGraph setting (<a href='https://github.com/gitblit/gitblit/issues/606'>issue 606</a>)</li>
-		<li>Do not log passwords on failed authentication attempts (<a href='https://github.com/gitblit/gitblit/issues/612'>issue 612</a>)</li>
-		<li>LDAP synchronization is now scheduled rather than on-demand (<a href='https://github.com/gitblit/gitblit/issues/632'>issue 632</a>)</li>
-		<li>Show displayname and username in palettes (<a href='https://github.com/gitblit/gitblit/issues/660'>issue 660</a>)</li>
+		<li>Gitblit now rejects pushes to identified mirror repositories (<a href='https://github.com/gitblit-org/gitblit/issues/301'>issue 301</a>)</li>
+		<li>Personal repository prefix (~) is now configurable (<a href='https://github.com/gitblit-org/gitblit/issues/561'>issue 561</a>)</li>
+		<li>Refactored user services and separated authentication into providers (<a href='https://github.com/gitblit-org/gitblit/issues/577'>issue 577</a>)</li>
+		<li>Reversed line links in blob view (<a href='https://github.com/gitblit-org/gitblit/issues/605'>issue 605</a>)</li>
+		<li>Dashboard and Activity pages now obey the web.generateActivityGraph setting (<a href='https://github.com/gitblit-org/gitblit/issues/606'>issue 606</a>)</li>
+		<li>Do not log passwords on failed authentication attempts (<a href='https://github.com/gitblit-org/gitblit/issues/612'>issue 612</a>)</li>
+		<li>LDAP synchronization is now scheduled rather than on-demand (<a href='https://github.com/gitblit-org/gitblit/issues/632'>issue 632</a>)</li>
+		<li>Show displayname and username in palettes (<a href='https://github.com/gitblit-org/gitblit/issues/660'>issue 660</a>)</li>
 		<li>Updated default binary and Lucene ignore extensions</li>
 		<li>Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments</li>
 		<li>Removed internal Gitblit ref exclusions in the upload pack</li>
@@ -1323,7 +1323,7 @@
 		<li>By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.</li>
 		<li>Removed docs indicator on the repositories page</li>
 		<li>Removed the repository setting to enable Markdown document enumeration, this is now automatic and expanded</li>
-		<li>Retrieve LDAP groups with dereferencing aliases (<a href='https://github.com/gitblit/gitblit/pull/122'>pull request #122</a>)</li>
+		<li>Retrieve LDAP groups with dereferencing aliases (<a href='https://github.com/gitblit-org/gitblit/pull/122'>pull request #122</a>)</li>
 		<li>Revised committer verification to require a matching displayname or account name AND the email address</li>
 		<li>Serve repositories on both /r and /git, displaying /r because it is shorter</li>
 		<li>Eliminate HEAD from the blob, blame, and tree pages. That assumed a resource was available in HEAD and it may not be.</li>
@@ -1336,19 +1336,19 @@
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Added color modes for the blame page (<a href='https://github.com/gitblit/gitblit/issues/298'>issue 298</a>)</li>
-		<li>Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (<a href='https://github.com/gitblit/gitblit/issues/301'>issue 301</a>).  Repositories must be manually cloned using native git and &quot;--mirror&quot;.</li>
-		<li>Added branch graph image servlet based on EGit's branch graph renderer (<a href='https://github.com/gitblit/gitblit/issues/490'>issue 490</a>)</li>
-		<li>Added option to render Markdown commit messages (<a href='https://github.com/gitblit/gitblit/issues/499'>issue 499</a>)</li>
-		<li>Added Ticket tracker and Patchset collaboration feature (<a href='https://github.com/gitblit/gitblit/issues/511'>issue 511</a>)</li>
-		<li>Added setting to control creating a repository as --shared on Unix servers (<a href='https://github.com/gitblit/gitblit/issues/559'>issue 559</a>)</li>
-		<li>Set Link: &lt;url&gt;; rel=&quot;canonical&quot; http header for SEO (<a href='https://github.com/gitblit/gitblit/issues/600'>issue 600</a>)</li>
-		<li>Added raw links to the commit, commitdiff, and compare pages (<a href='https://github.com/gitblit/gitblit/issues/615'>issue 615</a>)</li>
-		<li>Support intradocument linking in Markdown content using [[WikiLinks]] syntax (<a href='https://github.com/gitblit/gitblit/issues/620'>issue 620</a>)</li>
-		<li>Support Markdown image links relative to the repository root (<a href='https://github.com/gitblit/gitblit/issues/620'>issue 620</a>)</li>
-		<li>Added filesystem write permission check (<a href='https://github.com/gitblit/gitblit/issues/641'>issue 641</a>)</li>
-		<li>Added GO launch parameter for redirecting logging to a rolling, daily log file (<a href='https://github.com/gitblit/gitblit/issues/644'>issue 644</a>)</li>
-		<li>Added settings to Windows authentication provider to permit/prohibit BUILTIN\Administrators from being Gitblit Admins (<a href='https://github.com/gitblit/gitblit/issues/650'>issue 650</a>)</li>
+		<li>Added color modes for the blame page (<a href='https://github.com/gitblit-org/gitblit/issues/298'>issue 298</a>)</li>
+		<li>Added an optional MirrorService which will periodically fetch ref updates from source repositories for mirrors (<a href='https://github.com/gitblit-org/gitblit/issues/301'>issue 301</a>).  Repositories must be manually cloned using native git and &quot;--mirror&quot;.</li>
+		<li>Added branch graph image servlet based on EGit's branch graph renderer (<a href='https://github.com/gitblit-org/gitblit/issues/490'>issue 490</a>)</li>
+		<li>Added option to render Markdown commit messages (<a href='https://github.com/gitblit-org/gitblit/issues/499'>issue 499</a>)</li>
+		<li>Added Ticket tracker and Patchset collaboration feature (<a href='https://github.com/gitblit-org/gitblit/issues/511'>issue 511</a>)</li>
+		<li>Added setting to control creating a repository as --shared on Unix servers (<a href='https://github.com/gitblit-org/gitblit/issues/559'>issue 559</a>)</li>
+		<li>Set Link: &lt;url&gt;; rel=&quot;canonical&quot; http header for SEO (<a href='https://github.com/gitblit-org/gitblit/issues/600'>issue 600</a>)</li>
+		<li>Added raw links to the commit, commitdiff, and compare pages (<a href='https://github.com/gitblit-org/gitblit/issues/615'>issue 615</a>)</li>
+		<li>Support intradocument linking in Markdown content using [[WikiLinks]] syntax (<a href='https://github.com/gitblit-org/gitblit/issues/620'>issue 620</a>)</li>
+		<li>Support Markdown image links relative to the repository root (<a href='https://github.com/gitblit-org/gitblit/issues/620'>issue 620</a>)</li>
+		<li>Added filesystem write permission check (<a href='https://github.com/gitblit-org/gitblit/issues/641'>issue 641</a>)</li>
+		<li>Added GO launch parameter for redirecting logging to a rolling, daily log file (<a href='https://github.com/gitblit-org/gitblit/issues/644'>issue 644</a>)</li>
+		<li>Added settings to Windows authentication provider to permit/prohibit BUILTIN\Administrators from being Gitblit Admins (<a href='https://github.com/gitblit-org/gitblit/issues/650'>issue 650</a>)</li>
 		<li>Added canonical url setting for email notifications and web display</li>
 		<li>Support rendering confluence, mediawiki, textile, tracwiki, and twiki markup documents</li>
 		<li>Added setting to globally disable anonymous pushes in the receive pack</li>
@@ -1356,8 +1356,8 @@
 		<li>Added GO setting to automatically redirect all http requests to the secure https connector</li>
 		<li>Automatically display common repository root documents as tabs on the docs page</li>
 		<li>Support bugtraq configuration in collaboration with Syntevo,  the regex.* config keys are now DEPRECATED</li>
-		<li>Added FishEye hook script (<a href='https://github.com/gitblit/gitblit/pull/137'>pull request #137</a>)</li>
-		<li>Added Redmine Fetch hook script (<a href='https://github.com/gitblit/gitblit/issues/655'>issue 655</a>)</li>
+		<li>Added FishEye hook script (<a href='https://github.com/gitblit-org/gitblit/pull/137'>pull request #137</a>)</li>
+		<li>Added Redmine Fetch hook script (<a href='https://github.com/gitblit-org/gitblit/issues/655'>issue 655</a>)</li>
 		<li>Added Subgit hook contributed by TMate Software</li>
 		<li>Added function to retain a user account but prohibit authentication. This is an alternative to deleting a user account.</li>
 		<li>Added setting to hide the top-level navigation header to facilitate embedding Gitblit in something else.</li>
@@ -1501,10 +1501,10 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed Gitblit Authority startup failures when using alternate user services (<a href='https://github.com/gitblit/gitblit/issues/576'>issue 576</a>)</li>
-		<li>Manually redirect after branch deletion (<a href='https://github.com/gitblit/gitblit/issues/578'>issue 578</a>)</li>
-		<li>Simplify when repository size is calculated to ensure we have one IF we want one (<a href='https://github.com/gitblit/gitblit/issues/591'>issue 591</a>)</li>
-		<li>Fixed anonymous LDAP connections (<a href='https://github.com/gitblit/gitblit/issues/593'>issue 593</a>)</li>
+		<li>Fixed Gitblit Authority startup failures when using alternate user services (<a href='https://github.com/gitblit-org/gitblit/issues/576'>issue 576</a>)</li>
+		<li>Manually redirect after branch deletion (<a href='https://github.com/gitblit-org/gitblit/issues/578'>issue 578</a>)</li>
+		<li>Simplify when repository size is calculated to ensure we have one IF we want one (<a href='https://github.com/gitblit-org/gitblit/issues/591'>issue 591</a>)</li>
+		<li>Fixed anonymous LDAP connections (<a href='https://github.com/gitblit-org/gitblit/issues/593'>issue 593</a>)</li>
 		<li>Improved branch deletion-reflog interaction</li>
 		<li>Encode page url parameters as UTF-8</li>
 		<li>Encode filename for binary files on RawPage according to browser</li>
@@ -1560,9 +1560,9 @@
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Gitblit-as-viewer with no repository urls failed to display summary page (<a href='https://github.com/gitblit/gitblit/issues/565'>issue 565</a>)</li>
-		<li>Fixed incorrect tagger in the dashboard pages (<a href='https://github.com/gitblit/gitblit/issues/572'>issue 572</a>)</li>
-		<li>Automatically decode %7E in repository names from git clients that encode ~ (<a href='https://github.com/gitblit/gitblit/issues/574'>issue 574</a>)</li>
+		<li>Gitblit-as-viewer with no repository urls failed to display summary page (<a href='https://github.com/gitblit-org/gitblit/issues/565'>issue 565</a>)</li>
+		<li>Fixed incorrect tagger in the dashboard pages (<a href='https://github.com/gitblit-org/gitblit/issues/572'>issue 572</a>)</li>
+		<li>Automatically decode %7E in repository names from git clients that encode ~ (<a href='https://github.com/gitblit-org/gitblit/issues/574'>issue 574</a>)</li>
 		<li>Fixed missing Keys class in WAR and Express builds</li>
 		<li>Fixed missing model class dependencies in Gitblit Manager build</li>
 		<li>Fix for IE10 compatibility mode</li>
@@ -1584,8 +1584,8 @@
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages (<a href='https://github.com/gitblit/gitblit/issues/570'>issue 570</a>)</li>
-		<li>Added a GET_USER request type for the RPC mechanism (<a href='https://github.com/gitblit/gitblit/issues/571'>issue 571</a>)</li>
+		<li>Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages (<a href='https://github.com/gitblit-org/gitblit/issues/570'>issue 570</a>)</li>
+		<li>Added a GET_USER request type for the RPC mechanism (<a href='https://github.com/gitblit-org/gitblit/issues/571'>issue 571</a>)</li>
 		<li>Added PAMUserService to authenticate against a local Linux/Unix/MacOSX server</li>
 	</ul>
    	<h4>new settings</h4>
@@ -1657,32 +1657,32 @@ Thank you to <a href="http://syntevo.com">syntevo</a>, <a href="http://atlassian
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (<a href='https://github.com/gitblit/gitblit/issues/494'>issue 494</a>)</li>
+		<li>Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (<a href='https://github.com/gitblit-org/gitblit/issues/494'>issue 494</a>)</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Use bash instead of sh in Linux/OSX shell scripts (<a href='https://github.com/gitblit/gitblit/issues/450'>issue 450</a>)</li>
-		<li>Fix NPE when getting user's fork without repository list caching (<a href='https://github.com/gitblit/gitblit/issues/478'>issue 478</a>)</li>
-		<li>Fix internal error on folder history links (<a href='https://github.com/gitblit/gitblit/issues/488'>issue 488</a>)</li>
-		<li>Fix NPE in repositories panel when viewing a federation proposal (<a href='https://github.com/gitblit/gitblit/issues/491'>issue 491</a>)</li>
-		<li>Fix NPEs when initializing the context on a servlet containers which returns a null contextFolder (<a href='https://github.com/gitblit/gitblit/issues/495'>issue 495</a>)</li>
-		<li>Fixed incorrect icon file name for .doc files (<a href='https://github.com/gitblit/gitblit/issues/496'>issue 496</a>)</li>
-		<li>Do not queue emails with no recipients (<a href='https://github.com/gitblit/gitblit/issues/497'>issue 497</a>)</li>
-		<li>Disable view and blame links for deleted blobs (<a href='https://github.com/gitblit/gitblit/issues/512'>issue 512</a>)</li>
-		<li>Fixed 1.2.x regression with individually symlinked repositories (<a href='https://github.com/gitblit/gitblit/issues/513'>issue 513</a>)</li>
-		<li>Fixed UTF-8 encoding errors in email notifications (<a href='https://github.com/gitblit/gitblit/issues/514'>issue 514</a>)</li>
-		<li>Fixed NPE in 1.2.1 Federation Client (<a href='https://github.com/gitblit/gitblit/issues/515'>issue 515</a>)</li>
-		<li>Fixed extracting Groovy scripts on Express installs (<a href='https://github.com/gitblit/gitblit/issues/516'>issue 516</a>)</li>
-		<li>Ensure Redmine url is properly formatted (<a href='https://github.com/gitblit/gitblit/issues/519'>issue 519</a>)</li>
-		<li>Use standard ServletRequestWrapper instead of custom wrapper (<a href='https://github.com/gitblit/gitblit/issues/520'>issue 520</a>)</li>
-		<li>Switch commit message back to a pre and ensure that it is properly escaped when combined with commit message regex substitution (<a href='https://github.com/gitblit/gitblit/issues/538'>issue 538</a>)</li>
-		<li>Fixed AddIndexedBranch tool --branch parameter (<a href='https://github.com/gitblit/gitblit/issues/543'>issue 543</a>)</li>
-		<li>Improve NPE handling for hook script enumeration (<a href='https://github.com/gitblit/gitblit/issues/549'>issue 549</a>)</li>
-		<li>Workaround missing commit information in blame page (JGit bug 374382, <a href='https://github.com/gitblit/gitblit/issues/550'>issue 550</a>)</li>
-		<li>Ignore orphan &quot;.git&quot; folder in the repositories root folder (<a href='https://github.com/gitblit/gitblit/issues/552'>issue 552</a>)</li>
-		<li>Fixed bug where a null permission was added to a user model on a repository rename when the permission had really been inherited from a team membership (<a href='https://github.com/gitblit/gitblit/issues/555'>issue 555</a>)</li>
-		<li>Fixed committer verification with merge commits (<a href='https://github.com/gitblit/gitblit/issues/560'>issue 560</a>)</li>
-		<li>Fixed bug in submodule repository linking (<a href='https://github.com/gitblit/gitblit/issues/562'>issue 562</a>)</li>
+		<li>Use bash instead of sh in Linux/OSX shell scripts (<a href='https://github.com/gitblit-org/gitblit/issues/450'>issue 450</a>)</li>
+		<li>Fix NPE when getting user's fork without repository list caching (<a href='https://github.com/gitblit-org/gitblit/issues/478'>issue 478</a>)</li>
+		<li>Fix internal error on folder history links (<a href='https://github.com/gitblit-org/gitblit/issues/488'>issue 488</a>)</li>
+		<li>Fix NPE in repositories panel when viewing a federation proposal (<a href='https://github.com/gitblit-org/gitblit/issues/491'>issue 491</a>)</li>
+		<li>Fix NPEs when initializing the context on a servlet containers which returns a null contextFolder (<a href='https://github.com/gitblit-org/gitblit/issues/495'>issue 495</a>)</li>
+		<li>Fixed incorrect icon file name for .doc files (<a href='https://github.com/gitblit-org/gitblit/issues/496'>issue 496</a>)</li>
+		<li>Do not queue emails with no recipients (<a href='https://github.com/gitblit-org/gitblit/issues/497'>issue 497</a>)</li>
+		<li>Disable view and blame links for deleted blobs (<a href='https://github.com/gitblit-org/gitblit/issues/512'>issue 512</a>)</li>
+		<li>Fixed 1.2.x regression with individually symlinked repositories (<a href='https://github.com/gitblit-org/gitblit/issues/513'>issue 513</a>)</li>
+		<li>Fixed UTF-8 encoding errors in email notifications (<a href='https://github.com/gitblit-org/gitblit/issues/514'>issue 514</a>)</li>
+		<li>Fixed NPE in 1.2.1 Federation Client (<a href='https://github.com/gitblit-org/gitblit/issues/515'>issue 515</a>)</li>
+		<li>Fixed extracting Groovy scripts on Express installs (<a href='https://github.com/gitblit-org/gitblit/issues/516'>issue 516</a>)</li>
+		<li>Ensure Redmine url is properly formatted (<a href='https://github.com/gitblit-org/gitblit/issues/519'>issue 519</a>)</li>
+		<li>Use standard ServletRequestWrapper instead of custom wrapper (<a href='https://github.com/gitblit-org/gitblit/issues/520'>issue 520</a>)</li>
+		<li>Switch commit message back to a pre and ensure that it is properly escaped when combined with commit message regex substitution (<a href='https://github.com/gitblit-org/gitblit/issues/538'>issue 538</a>)</li>
+		<li>Fixed AddIndexedBranch tool --branch parameter (<a href='https://github.com/gitblit-org/gitblit/issues/543'>issue 543</a>)</li>
+		<li>Improve NPE handling for hook script enumeration (<a href='https://github.com/gitblit-org/gitblit/issues/549'>issue 549</a>)</li>
+		<li>Workaround missing commit information in blame page (JGit bug 374382, <a href='https://github.com/gitblit-org/gitblit/issues/550'>issue 550</a>)</li>
+		<li>Ignore orphan &quot;.git&quot; folder in the repositories root folder (<a href='https://github.com/gitblit-org/gitblit/issues/552'>issue 552</a>)</li>
+		<li>Fixed bug where a null permission was added to a user model on a repository rename when the permission had really been inherited from a team membership (<a href='https://github.com/gitblit-org/gitblit/issues/555'>issue 555</a>)</li>
+		<li>Fixed committer verification with merge commits (<a href='https://github.com/gitblit-org/gitblit/issues/560'>issue 560</a>)</li>
+		<li>Fixed bug in submodule repository linking (<a href='https://github.com/gitblit-org/gitblit/issues/562'>issue 562</a>)</li>
 		<li>Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped</li>
 		<li>Added more error checking to blob page and blame page</li>
 		<li>Disable SNI extensions for client SSL connections</li>
@@ -1693,11 +1693,11 @@ Thank you to <a href="http://syntevo.com">syntevo</a>, <a href="http://atlassian
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Retrieve summary and metric graphs from Google over https (<a href='https://github.com/gitblit/gitblit/issues/357'>issue 357</a>)</li>
-		<li>Persist originRepository (for forks) in the repository config instead of relying on parsing origin urls which are susceptible to filesystem relocation (<a href='https://github.com/gitblit/gitblit/issues/486'>issue 486</a>)</li>
-		<li>Improved error logging for servlet containers which provide a null contextFolder (<a href='https://github.com/gitblit/gitblit/issues/495'>issue 495</a>)</li>
-		<li>Improve Gerrit change ref decoration in the refs panel (<a href='https://github.com/gitblit/gitblit/issues/502'>issue 502</a>)</li>
-		<li>Display full commit message on commitdiff page (<a href='https://github.com/gitblit/gitblit/issues/554'>issue 554</a>)</li>
+		<li>Retrieve summary and metric graphs from Google over https (<a href='https://github.com/gitblit-org/gitblit/issues/357'>issue 357</a>)</li>
+		<li>Persist originRepository (for forks) in the repository config instead of relying on parsing origin urls which are susceptible to filesystem relocation (<a href='https://github.com/gitblit-org/gitblit/issues/486'>issue 486</a>)</li>
+		<li>Improved error logging for servlet containers which provide a null contextFolder (<a href='https://github.com/gitblit-org/gitblit/issues/495'>issue 495</a>)</li>
+		<li>Improve Gerrit change ref decoration in the refs panel (<a href='https://github.com/gitblit-org/gitblit/issues/502'>issue 502</a>)</li>
+		<li>Display full commit message on commitdiff page (<a href='https://github.com/gitblit-org/gitblit/issues/554'>issue 554</a>)</li>
 		<li>Improved the repository url display.  This display now indicates your repository access permission, per-protocol.</li>
 		<li>Automatically encode/decode usernames for urls using %XX notation on space, @, and \</li>
 		<li>Disable Gson's pretty printing which has a huge performance gain</li>
@@ -1711,16 +1711,16 @@ Thank you to <a href="http://syntevo.com">syntevo</a>, <a href="http://atlassian
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Added a ui for the ref log introduced in 1.2.1 (<a href='https://github.com/gitblit/gitblit/issues/473'>issue 473</a>)</li>
-		<li>Added weblogic.xml to WAR for deployment on WebLogic (<a href='https://github.com/gitblit/gitblit/issues/495'>issue 495</a>)</li>
-		<li>Support setting a custom header logo (<a href='https://github.com/gitblit/gitblit/issues/504'>issue 504</a>)</li>
-		<li>Support header color customizations (<a href='https://github.com/gitblit/gitblit/issues/505'>issue 505</a>)</li>
-		<li>Support username substitution in web.otherUrls (<a href='https://github.com/gitblit/gitblit/issues/509'>issue 509</a>)</li>
-		<li>Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (<a href='https://github.com/gitblit/gitblit/issues/518'>issue 518</a>)</li>
-		<li>Set author as tooltip of last change column in the repositories panel (<a href='https://github.com/gitblit/gitblit/issues/534'>issue 534</a>)</li>
-		<li>Setting to automatically create an user account based on an authenticated user principal from the servlet container (<a href='https://github.com/gitblit/gitblit/issues/542'>issue 542</a>)</li>
-		<li>Added WindowsUserService to authenticate users against Windows accounts (<a href='https://github.com/gitblit/gitblit/issues/546'>issue 546</a>)</li>
-		<li>Global and per-repository setting to exclude authors from metrics (<a href='https://github.com/gitblit/gitblit/issues/547'>issue 547</a>)</li>
+		<li>Added a ui for the ref log introduced in 1.2.1 (<a href='https://github.com/gitblit-org/gitblit/issues/473'>issue 473</a>)</li>
+		<li>Added weblogic.xml to WAR for deployment on WebLogic (<a href='https://github.com/gitblit-org/gitblit/issues/495'>issue 495</a>)</li>
+		<li>Support setting a custom header logo (<a href='https://github.com/gitblit-org/gitblit/issues/504'>issue 504</a>)</li>
+		<li>Support header color customizations (<a href='https://github.com/gitblit-org/gitblit/issues/505'>issue 505</a>)</li>
+		<li>Support username substitution in web.otherUrls (<a href='https://github.com/gitblit-org/gitblit/issues/509'>issue 509</a>)</li>
+		<li>Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (<a href='https://github.com/gitblit-org/gitblit/issues/518'>issue 518</a>)</li>
+		<li>Set author as tooltip of last change column in the repositories panel (<a href='https://github.com/gitblit-org/gitblit/issues/534'>issue 534</a>)</li>
+		<li>Setting to automatically create an user account based on an authenticated user principal from the servlet container (<a href='https://github.com/gitblit-org/gitblit/issues/542'>issue 542</a>)</li>
+		<li>Added WindowsUserService to authenticate users against Windows accounts (<a href='https://github.com/gitblit-org/gitblit/issues/546'>issue 546</a>)</li>
+		<li>Global and per-repository setting to exclude authors from metrics (<a href='https://github.com/gitblit-org/gitblit/issues/547'>issue 547</a>)</li>
 		<li>Added commit cache to improve Activity, Dashboard, and Project page generation times</li>
 		<li>Added SalesForce.com user service</li>
 		<li>Added simple star/unstar function to flag or bookmark interesting repositories</li>
@@ -1881,13 +1881,13 @@ You will need to move a few files around when upgrading.  Please review the <a h
    	<h4>fixes</h4>
 	<ul>
 		<li>Fixed nullpointer on recursively calculating folder sizes when there is a named pipe or symlink in the hierarchy</li>
-		<li>Added nullchecking when concurrently forking a repository and trying to display the fork network (<a href='https://github.com/gitblit/gitblit/issues/483'>issue 483</a>)</li>
-		<li>Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (<a href='https://github.com/gitblit/gitblit/issues/482'>issue 482</a>)</li>
-		<li>Fixed nullpointer on creating a repository with mixed case (<a href='https://github.com/gitblit/gitblit/issues/481'>issue 481</a>)</li>
-		<li>Include missing model classes in api library (<a href='https://github.com/gitblit/gitblit/issues/480'>issue 480</a>)</li>
-		<li>Fixed nullpointer when using *web.allowForking = true* &amp;&amp; *git.cacheRepositoryList = false* (<a href='https://github.com/gitblit/gitblit/issues/478'>issue 478</a>)</li>
-		<li>Likely fix for commit and commitdiff page failures when a submodule reference changes (<a href='https://github.com/gitblit/gitblit/issues/474'>issue 474</a>)</li>
-		<li>Build project models from the repository model cache, when possible, to reduce page load time (<a href='https://github.com/gitblit/gitblit/issues/468'>issue 468</a>)</li>
+		<li>Added nullchecking when concurrently forking a repository and trying to display the fork network (<a href='https://github.com/gitblit-org/gitblit/issues/483'>issue 483</a>)</li>
+		<li>Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (<a href='https://github.com/gitblit-org/gitblit/issues/482'>issue 482</a>)</li>
+		<li>Fixed nullpointer on creating a repository with mixed case (<a href='https://github.com/gitblit-org/gitblit/issues/481'>issue 481</a>)</li>
+		<li>Include missing model classes in api library (<a href='https://github.com/gitblit-org/gitblit/issues/480'>issue 480</a>)</li>
+		<li>Fixed nullpointer when using *web.allowForking = true* &amp;&amp; *git.cacheRepositoryList = false* (<a href='https://github.com/gitblit-org/gitblit/issues/478'>issue 478</a>)</li>
+		<li>Likely fix for commit and commitdiff page failures when a submodule reference changes (<a href='https://github.com/gitblit-org/gitblit/issues/474'>issue 474</a>)</li>
+		<li>Build project models from the repository model cache, when possible, to reduce page load time (<a href='https://github.com/gitblit-org/gitblit/issues/468'>issue 468</a>)</li>
 		<li>Fixed loading of Brazilian Portuguese translation from *nix server</li>
 	</ul>
    	<h4>changes</h4>
@@ -1902,8 +1902,8 @@ You will need to move a few files around when upgrading.  Please review the <a h
    	<h4>additions</h4>
 	<ul>
 		<li>Fanout PubSub service for self-hosted [Sparkleshare](http://sparkleshare.org) notifications. This service is disabled by default.</li>
-		<li>Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (<a href='https://github.com/gitblit/gitblit/issues/473'>issue 473</a>) The push log is not currently visible in the ui, but the data will be collected and it will be exposed to the ui in the next release.</li>
-		<li>Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (<a href='https://github.com/gitblit/gitblit/issues/479'>issue 479</a>)</li>
+		<li>Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (<a href='https://github.com/gitblit-org/gitblit/issues/473'>issue 473</a>) The push log is not currently visible in the ui, but the data will be collected and it will be exposed to the ui in the next release.</li>
+		<li>Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (<a href='https://github.com/gitblit-org/gitblit/issues/479'>issue 479</a>)</li>
 		<li>Added Dutch translation</li>
 	</ul>
    	<h4>new settings</h4>
@@ -1947,57 +1947,57 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed regression in *isFrozen* (<a href='https://github.com/gitblit/gitblit/issues/477'>issue 477</a>)</li>
-		<li>Author metrics can be broken by newlines in email addresses from converted repositories (<a href='https://github.com/gitblit/gitblit/issues/472'>issue 472</a>)</li>
-		<li>Set subjectAlternativeName on generated SSL cert if CN is an ip address (<a href='https://github.com/gitblit/gitblit/issues/466'>issue 466</a>)</li>
-		<li>Fixed incorrect links on history page for files not in the current/active commit (<a href='https://github.com/gitblit/gitblit/issues/462'>issue 462</a>)</li>
-		<li>Empty repository page failed to handle missing repository (<a href='https://github.com/gitblit/gitblit/issues/456'>issue 456</a>)</li>
-		<li>Fixed broken ticgit urls (<a href='https://github.com/gitblit/gitblit/issues/453'>issue 453</a>)</li>
-		<li>Exclude submodules from zip downloads (<a href='https://github.com/gitblit/gitblit/issues/447'>issue 447</a>)</li>
+		<li>Fixed regression in *isFrozen* (<a href='https://github.com/gitblit-org/gitblit/issues/477'>issue 477</a>)</li>
+		<li>Author metrics can be broken by newlines in email addresses from converted repositories (<a href='https://github.com/gitblit-org/gitblit/issues/472'>issue 472</a>)</li>
+		<li>Set subjectAlternativeName on generated SSL cert if CN is an ip address (<a href='https://github.com/gitblit-org/gitblit/issues/466'>issue 466</a>)</li>
+		<li>Fixed incorrect links on history page for files not in the current/active commit (<a href='https://github.com/gitblit-org/gitblit/issues/462'>issue 462</a>)</li>
+		<li>Empty repository page failed to handle missing repository (<a href='https://github.com/gitblit-org/gitblit/issues/456'>issue 456</a>)</li>
+		<li>Fixed broken ticgit urls (<a href='https://github.com/gitblit-org/gitblit/issues/453'>issue 453</a>)</li>
+		<li>Exclude submodules from zip downloads (<a href='https://github.com/gitblit-org/gitblit/issues/447'>issue 447</a>)</li>
 		<li>Fixed bug where repository ownership was not updated on rename user</li>
-		<li>Fixed bug in create/rename repository if you explicitly specified the alias for the root group (e.g. main/myrepo) (<a href='https://github.com/gitblit/gitblit/issues/439'>issue 439</a>)</li>
-		<li>Wrapped Markdown parser with improved exception handler (<a href='https://github.com/gitblit/gitblit/issues/438'>issue 438</a>)</li>
-		<li>Fixed duplicate entries in repository cache (<a href='https://github.com/gitblit/gitblit/issues/436'>issue 436</a>)</li>
-		<li>Fixed connection leak in LDAPUserService (<a href='https://github.com/gitblit/gitblit/issues/435'>issue 435</a>)</li>
-		<li>Fixed bug in commit page where changes to a submodule threw a null pointer exception (<a href='https://github.com/gitblit/gitblit/issues/428'>issue 428</a>)</li>
-		<li>Fixed bug in the diff view for filenames that have non-ASCII characters (<a href='https://github.com/gitblit/gitblit/issues/424'>issue 424</a>)</li>
+		<li>Fixed bug in create/rename repository if you explicitly specified the alias for the root group (e.g. main/myrepo) (<a href='https://github.com/gitblit-org/gitblit/issues/439'>issue 439</a>)</li>
+		<li>Wrapped Markdown parser with improved exception handler (<a href='https://github.com/gitblit-org/gitblit/issues/438'>issue 438</a>)</li>
+		<li>Fixed duplicate entries in repository cache (<a href='https://github.com/gitblit-org/gitblit/issues/436'>issue 436</a>)</li>
+		<li>Fixed connection leak in LDAPUserService (<a href='https://github.com/gitblit-org/gitblit/issues/435'>issue 435</a>)</li>
+		<li>Fixed bug in commit page where changes to a submodule threw a null pointer exception (<a href='https://github.com/gitblit-org/gitblit/issues/428'>issue 428</a>)</li>
+		<li>Fixed bug in the diff view for filenames that have non-ASCII characters (<a href='https://github.com/gitblit-org/gitblit/issues/424'>issue 424</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Added server setting to specify keystore alias for ssl certificate (<a href='https://github.com/gitblit/gitblit/issues/394'>issue 394</a>)</li>
-		<li>Added optional global and per-repository activity page commit contribution throttle to help tame *really* active repositories (<a href='https://github.com/gitblit/gitblit/issues/469'>issue 469</a>)</li>
-		<li>Added support for symlinks in tree page and commit page (<a href='https://github.com/gitblit/gitblit/issues/467'>issue 467</a>)</li>
+		<li>Added server setting to specify keystore alias for ssl certificate (<a href='https://github.com/gitblit-org/gitblit/issues/394'>issue 394</a>)</li>
+		<li>Added optional global and per-repository activity page commit contribution throttle to help tame *really* active repositories (<a href='https://github.com/gitblit-org/gitblit/issues/469'>issue 469</a>)</li>
+		<li>Added support for symlinks in tree page and commit page (<a href='https://github.com/gitblit-org/gitblit/issues/467'>issue 467</a>)</li>
 		<li>All access restricted servlets (e.g. DownloadZip, RSS, etc) will try to authenticate using X509 certificates, container principals, cookies, and BASIC headers, in that order.</li>
 		<li>Added *groovy* and *scala* to *web.prettyPrintExtensions*</li>
-		<li>Added short commit id column to log and history tables (<a href='https://github.com/gitblit/gitblit/issues/464'>issue 464</a>)</li>
+		<li>Added short commit id column to log and history tables (<a href='https://github.com/gitblit-org/gitblit/issues/464'>issue 464</a>)</li>
 		<li>Teams can now specify the *admin*, *create*, and *fork* roles to simplify user administration</li>
 		<li>Use https Gravatar urls to avoid browser complaints</li>
-		<li>Added frm to default pretty print extensions (<a href='https://github.com/gitblit/gitblit/issues/452'>issue 452</a>)</li>
-		<li>Expose ReceivePack to Groovy push hooks (<a href='https://github.com/gitblit/gitblit/issues/421'>issue 421</a>)</li>
-		<li>Redirect to summary page when refreshing the empty repository page on a repository that is not empty (<a href='https://github.com/gitblit/gitblit/issues/425'>issue 425</a>)</li>
-		<li>Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (<a href='https://github.com/gitblit/gitblit/issues/422'>issue 422</a>)</li>
+		<li>Added frm to default pretty print extensions (<a href='https://github.com/gitblit-org/gitblit/issues/452'>issue 452</a>)</li>
+		<li>Expose ReceivePack to Groovy push hooks (<a href='https://github.com/gitblit-org/gitblit/issues/421'>issue 421</a>)</li>
+		<li>Redirect to summary page when refreshing the empty repository page on a repository that is not empty (<a href='https://github.com/gitblit-org/gitblit/issues/425'>issue 425</a>)</li>
+		<li>Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (<a href='https://github.com/gitblit-org/gitblit/issues/422'>issue 422</a>)</li>
 		<li>LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list. If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, then User.canAdmin() is controlled by LDAP administrative team membership.  Otherwise, User.canAdmin() is controlled by Gitblit.</li>
-		<li>Support servlet container authentication for existing UserModels (<a href='https://github.com/gitblit/gitblit/issues/364'>issue 364</a>)</li>
+		<li>Support servlet container authentication for existing UserModels (<a href='https://github.com/gitblit-org/gitblit/issues/364'>issue 364</a>)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li> Implemented discrete repository permissions (<a href='https://github.com/gitblit/gitblit/issues/332'>issue 332</a>)<br/> <br/>   - V (view in web ui, RSS feeds, download zip)<br/>   - R (clone)<br/>   - RW (clone and push)<br/>   - RWC (clone and push with ref creation)<br/>   - RWD (clone and push with ref creation, deletion)<br/>   - RW+ (clone and push with ref creation, deletion, rewind)<br/>   <br/> While not as sophisticated as Gitolite, this does give finer access controls.  These permissions fit in cleanly with the existing users.conf and users.properties files.  In Gitblit &lt;= 1.1.0, all your existing user accounts have RW+ access.   If you are upgrading to 1.2.0, the RW+ access is *preserved* and you will have to lower/adjust accordingly.<br/> </li>
-		<li>Implemented *case-insensitive* regex repository permission matching (<a href='https://github.com/gitblit/gitblit/issues/332'>issue 332</a>)<br/> This allows you to specify a permission like `RW:mygroup/.*` to grant push privileges to all repositories within the *mygroup* project/folder.</li>
+		<li> Implemented discrete repository permissions (<a href='https://github.com/gitblit-org/gitblit/issues/332'>issue 332</a>)<br/> <br/>   - V (view in web ui, RSS feeds, download zip)<br/>   - R (clone)<br/>   - RW (clone and push)<br/>   - RWC (clone and push with ref creation)<br/>   - RWD (clone and push with ref creation, deletion)<br/>   - RW+ (clone and push with ref creation, deletion, rewind)<br/>   <br/> While not as sophisticated as Gitolite, this does give finer access controls.  These permissions fit in cleanly with the existing users.conf and users.properties files.  In Gitblit &lt;= 1.1.0, all your existing user accounts have RW+ access.   If you are upgrading to 1.2.0, the RW+ access is *preserved* and you will have to lower/adjust accordingly.<br/> </li>
+		<li>Implemented *case-insensitive* regex repository permission matching (<a href='https://github.com/gitblit-org/gitblit/issues/332'>issue 332</a>)<br/> This allows you to specify a permission like `RW:mygroup/.*` to grant push privileges to all repositories within the *mygroup* project/folder.</li>
 		<li>Added DELETE, CREATE, and NON-FAST-FORWARD ref change logging</li>
 		<li>Added support for personal repositories. Personal repositories can be created by accounts with the *create* permission and are stored in *git.repositoriesFolder/~username*.  Each user with personal repositories will have a user page, something like the GitHub profile page.  Personal repositories have all the same features as common repositories, except personal repositories can be renamed by their owner.</li>
-		<li>Added support for server-side forking of a repository to a personal repository (<a href='https://github.com/gitblit/gitblit/issues/433'>issue 433</a>) In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access list of its origin.  i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required &lt;u&gt;however&lt;/u&gt; it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back to Gitblit.</li>
+		<li>Added support for server-side forking of a repository to a personal repository (<a href='https://github.com/gitblit-org/gitblit/issues/433'>issue 433</a>) In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access list of its origin.  i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required &lt;u&gt;however&lt;/u&gt; it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back to Gitblit.</li>
 		<li>Added optional *create-on-push* support</li>
 		<li>Added **experimental** JGit-based garbage collection service.  This service is disabled by default.</li>
-		<li>Added support for X509 client certificate authentication.  (<a href='https://github.com/gitblit/gitblit/issues/402'>issue 402</a>) You can require all git servlet access be authenticated by a client certificate.  You may also specify the OID fingerprint to use for mapping a certificate to a username.  It should be noted that the user account MUST already exist in Gitblit for this authentication mechanism to work; this mechanism can not be used to automatically create user accounts from a certificate.</li>
+		<li>Added support for X509 client certificate authentication.  (<a href='https://github.com/gitblit-org/gitblit/issues/402'>issue 402</a>) You can require all git servlet access be authenticated by a client certificate.  You may also specify the OID fingerprint to use for mapping a certificate to a username.  It should be noted that the user account MUST already exist in Gitblit for this authentication mechanism to work; this mechanism can not be used to automatically create user accounts from a certificate.</li>
 		<li>Revised clean install certificate generation to create a Gitblit GO Certificate Authority certificate; an SSL certificate signed by the CA certificate; and to create distinct server key and server trust stores.  &lt;u&gt;The store files have been renamed!&lt;/u&gt;</li>
 		<li>Added support for Gitblit GO to require usage of client certificates to access the entire server.</li>
 		<li>Added **Gitblit Certificate Authority**, an x509 PKI management tool for Gitblit GO to encourage use of x509 client certificate authentication.</li>
 		<li>Added web.shortCommitId setting to control length of shortened commit ids</li>
-		<li>Added alternate compressed download formats: tar.gz, tar.xz, tar.bzip2 (<a href='https://github.com/gitblit/gitblit/issues/470'>issue 470</a>)</li>
+		<li>Added alternate compressed download formats: tar.gz, tar.xz, tar.bzip2 (<a href='https://github.com/gitblit-org/gitblit/issues/470'>issue 470</a>)</li>
 		<li>Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.</li>
-		<li>Added support for X-Forwarded-Context for Apache subdomain proxy configurations (<a href='https://github.com/gitblit/gitblit/issues/431'>issue 431</a>)</li>
-		<li>Delete branch feature (<a href='https://github.com/gitblit/gitblit/issues/417'>issue 417</a>)</li>
-		<li>Added line links to blob view (<a href='https://github.com/gitblit/gitblit/issues/426'>issue 426</a>)</li>
+		<li>Added support for X-Forwarded-Context for Apache subdomain proxy configurations (<a href='https://github.com/gitblit-org/gitblit/issues/431'>issue 431</a>)</li>
+		<li>Delete branch feature (<a href='https://github.com/gitblit-org/gitblit/issues/417'>issue 417</a>)</li>
+		<li>Added line links to blob view (<a href='https://github.com/gitblit-org/gitblit/issues/426'>issue 426</a>)</li>
 		<li>Added HTML sendmail hook script and Gitblit.sendHtmlMail method</li>
 		<li>Added RedmineUserService</li>
 		<li>Support for committer verification.  Requires use of *--no-ff* when merging branches or pull requests.  See setup page for details.</li>
@@ -2087,19 +2087,19 @@ You will need to move a few files around when upgrading.  Please review the <a h
 		<li>Fixed MailExecutor's failure to cope with mail server connection troubles resulting in 100% CPU usage</li>
 		<li>Fixed generated urls in Groovy *sendmail* hook script for grouped repositories</li>
 		<li>Fixed generated urls in RSS feeds for grouped repositories</li>
-		<li>Fixed nullpointer exception in git servlet security filter (<a href='https://github.com/gitblit/gitblit/issues/419'>issue 419</a>)</li>
-		<li>Eliminated an unnecessary repository enumeration call on the root page which should result in faster page loads (<a href='https://github.com/gitblit/gitblit/issues/399'>issue 399</a>)</li>
+		<li>Fixed nullpointer exception in git servlet security filter (<a href='https://github.com/gitblit-org/gitblit/issues/419'>issue 419</a>)</li>
+		<li>Eliminated an unnecessary repository enumeration call on the root page which should result in faster page loads (<a href='https://github.com/gitblit-org/gitblit/issues/399'>issue 399</a>)</li>
 		<li>Gitblit could not delete a Lucene index in a working copy on index upgrade</li>
-		<li>Do not index submodule links (<a href='https://github.com/gitblit/gitblit/issues/415'>issue 415</a>)</li>
-		<li>Restore original user or team object on failure to update (<a href='https://github.com/gitblit/gitblit/issues/414'>issue 414</a>)</li>
-		<li>Fixes to relative path determination in repository search algorithm for symlinks (<a href='https://github.com/gitblit/gitblit/issues/412'>issue 412</a>)</li>
-		<li>Fix to GitServlet to allow pushing to symlinked repositories (<a href='https://github.com/gitblit/gitblit/issues/412'>issue 412</a>)</li>
-		<li>Repository URL now uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (<a href='https://github.com/gitblit/gitblit/issues/411'>issue 411</a>)</li>
-		<li>Output real RAW content, not simulated RAW content (<a href='https://github.com/gitblit/gitblit/issues/410'>issue 410</a>)</li>
-		<li>Fixed Lucene charset encoding bug when reindexing a repository (<a href='https://github.com/gitblit/gitblit/issues/408'>issue 408</a>)</li>
-		<li>Fixed search box linking to Lucene page for grouped repository on Tomcat (<a href='https://github.com/gitblit/gitblit/issues/407'>issue 407</a>)</li>
-		<li>Fixed null pointer in LdapUserSerivce if account has a null email address (<a href='https://github.com/gitblit/gitblit/issues/406'>issue 406</a>)</li>
-		<li>Really fixed failure to update a GO setting from the manager (<a href='https://github.com/gitblit/gitblit/issues/381'>issue 381</a>)</li>
+		<li>Do not index submodule links (<a href='https://github.com/gitblit-org/gitblit/issues/415'>issue 415</a>)</li>
+		<li>Restore original user or team object on failure to update (<a href='https://github.com/gitblit-org/gitblit/issues/414'>issue 414</a>)</li>
+		<li>Fixes to relative path determination in repository search algorithm for symlinks (<a href='https://github.com/gitblit-org/gitblit/issues/412'>issue 412</a>)</li>
+		<li>Fix to GitServlet to allow pushing to symlinked repositories (<a href='https://github.com/gitblit-org/gitblit/issues/412'>issue 412</a>)</li>
+		<li>Repository URL now uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (<a href='https://github.com/gitblit-org/gitblit/issues/411'>issue 411</a>)</li>
+		<li>Output real RAW content, not simulated RAW content (<a href='https://github.com/gitblit-org/gitblit/issues/410'>issue 410</a>)</li>
+		<li>Fixed Lucene charset encoding bug when reindexing a repository (<a href='https://github.com/gitblit-org/gitblit/issues/408'>issue 408</a>)</li>
+		<li>Fixed search box linking to Lucene page for grouped repository on Tomcat (<a href='https://github.com/gitblit-org/gitblit/issues/407'>issue 407</a>)</li>
+		<li>Fixed null pointer in LdapUserSerivce if account has a null email address (<a href='https://github.com/gitblit-org/gitblit/issues/406'>issue 406</a>)</li>
+		<li>Really fixed failure to update a GO setting from the manager (<a href='https://github.com/gitblit-org/gitblit/issues/381'>issue 381</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
@@ -2111,16 +2111,16 @@ You will need to move a few files around when upgrading.  Please review the <a h
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Identified repository list is now cached by default to reduce disk io and to improve performance (<a href='https://github.com/gitblit/gitblit/issues/399'>issue 399</a>)</li>
+		<li>Identified repository list is now cached by default to reduce disk io and to improve performance (<a href='https://github.com/gitblit-org/gitblit/issues/399'>issue 399</a>)</li>
 		<li>Preliminary bare repository submodule support</li>
 		<li> *git.submoduleUrlPatterns* is a space-delimited list of regular expressions for extracting a repository name from a submodule url.<br/> For example, `git.submoduleUrlPatterns = .*?://github.com/(.*)` would extract *gitblit/gitblit.git* from *git://github.git/gitblit/gitblit.git*<br/> **Note:** You may not need this control to work with submodules, but it is there if you do.<br/>   - If there are no matches from *git.submoduleUrlPatterns* then the repository name is assumed to be whatever comes after the last `/` character *(e.g. gitblit.git)*<br/>   - Gitblit will try to locate this repository relative to the current repository *(e.g. myfolder/myrepo.git, myfolder/mysubmodule.git)* and then at the root level *(mysubmodule.git)* if that fails.<br/>   - Submodule references in a working copy will be properly identified as gitlinks, but Gitblit will not traverse into the working copy submodule repository.<br/> </li>
-		<li> Added a repository setting to control authorization as AUTHENTICATED or NAMED. (<a href='https://github.com/gitblit/gitblit/issues/413'>issue 413</a>)<br/><br/> NAMED is the original behavior for authorizing against a list of permitted users or permitted teams.<br/> AUTHENTICATED allows restricted access for any authenticated user.  This is a looser authorization control.<br/> </li>
+		<li> Added a repository setting to control authorization as AUTHENTICATED or NAMED. (<a href='https://github.com/gitblit-org/gitblit/issues/413'>issue 413</a>)<br/><br/> NAMED is the original behavior for authorizing against a list of permitted users or permitted teams.<br/> AUTHENTICATED allows restricted access for any authenticated user.  This is a looser authorization control.<br/> </li>
 		<li>Added default authorization control setting (AUTHENTICATED or NAMED)</li>
-		<li>Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (<a href='https://github.com/gitblit/gitblit/issues/399'>issue 399</a>)</li>
-		<li>Added setting to specify regex exclusions for repositories (<a href='https://github.com/gitblit/gitblit/issues/399'>issue 399</a>)</li>
-		<li>Blob page now supports displaying images (<a href='https://github.com/gitblit/gitblit/issues/302'>issue 302</a>)</li>
+		<li>Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (<a href='https://github.com/gitblit-org/gitblit/issues/399'>issue 399</a>)</li>
+		<li>Added setting to specify regex exclusions for repositories (<a href='https://github.com/gitblit-org/gitblit/issues/399'>issue 399</a>)</li>
+		<li>Blob page now supports displaying images (<a href='https://github.com/gitblit-org/gitblit/issues/302'>issue 302</a>)</li>
 		<li>Non-image binary files can now be downloaded using the RAW link</li>
-		<li>Support StartTLS in LdapUserService (<a href='https://github.com/gitblit/gitblit/issues/418'>issue 418</a>)</li>
+		<li>Support StartTLS in LdapUserService (<a href='https://github.com/gitblit-org/gitblit/issues/418'>issue 418</a>)</li>
 		<li>Added Korean translation</li>
 	</ul>
    	<h4>new settings</h4>
@@ -2161,26 +2161,26 @@ You will need to move a few files around when upgrading.  Please review the <a h
    	<h4>fixes</h4>
 	<ul>
 		<li>Fixed bug in Lucene search where old/stale blobs were never properly deleted during incremental updates.  This resulted in duplicate blob entries in the index.</li>
-		<li>Fixed intermittent bug in identifying line numbers in Lucene search (<a href='https://github.com/gitblit/gitblit/issues/401'>issue 401</a>)</li>
-		<li>Adjust repository identification algorithm to handle the scenario where a repository name collides with a group/folder name (e.g. foo.git and foo/bar.git) (<a href='https://github.com/gitblit/gitblit/issues/400'>issue 400</a>)</li>
-		<li>Fixed bug where a repository set as *authenticated push* did not have anonymous clone access (<a href='https://github.com/gitblit/gitblit/issues/392'>issue 392</a>)</li>
+		<li>Fixed intermittent bug in identifying line numbers in Lucene search (<a href='https://github.com/gitblit-org/gitblit/issues/401'>issue 401</a>)</li>
+		<li>Adjust repository identification algorithm to handle the scenario where a repository name collides with a group/folder name (e.g. foo.git and foo/bar.git) (<a href='https://github.com/gitblit-org/gitblit/issues/400'>issue 400</a>)</li>
+		<li>Fixed bug where a repository set as *authenticated push* did not have anonymous clone access (<a href='https://github.com/gitblit-org/gitblit/issues/392'>issue 392</a>)</li>
 		<li>Fixed bug in Basic authentication if passwords had a colon</li>
-		<li>Fixed bug where the Gitblit Manager could not update a setting that was not referenced in reference.properties (<a href='https://github.com/gitblit/gitblit/issues/381'>issue 381</a>)</li>
+		<li>Fixed bug where the Gitblit Manager could not update a setting that was not referenced in reference.properties (<a href='https://github.com/gitblit-org/gitblit/issues/381'>issue 381</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>**Updated Lucene index version which will force a rebuild of ALL your Lucene indexes** Make sure to properly set *web.blobEncodings* before starting Gitblit if you are updating!  (<a href='https://github.com/gitblit/gitblit/issues/393'>issue 393</a>)</li>
-		<li>Changed default layout for web ui from Fixed-Width layout to Responsive layout (<a href='https://github.com/gitblit/gitblit/issues/397'>issue 397</a>)</li>
+		<li>**Updated Lucene index version which will force a rebuild of ALL your Lucene indexes** Make sure to properly set *web.blobEncodings* before starting Gitblit if you are updating!  (<a href='https://github.com/gitblit-org/gitblit/issues/393'>issue 393</a>)</li>
+		<li>Changed default layout for web ui from Fixed-Width layout to Responsive layout (<a href='https://github.com/gitblit-org/gitblit/issues/397'>issue 397</a>)</li>
 		<li>IUserService interface has changed to better accomodate custom authentication and/or custom authorization. The default `users.conf` now supports persisting display names and email addresses.</li>
 		<li>Updated Japanese translation</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Added setting to allow specification of a robots.txt file (<a href='https://github.com/gitblit/gitblit/issues/395'>issue 395</a>)</li>
-		<li>Added setting to control Responsive layout or Fixed-Width layout (<a href='https://github.com/gitblit/gitblit/issues/397'>issue 397</a>) Responsive layout is now the default.  This layout gracefully scales the web ui from a desktop layout to a mobile layout by hiding page components.  It is easy to try, just resize your browser or point your Android/iOS device to the url of your Gitblit install.</li>
-		<li>Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and the server default charset. (<a href='https://github.com/gitblit/gitblit/issues/393'>issue 393</a>)</li>
-		<li>Exposed JGit internal configuration settings in gitblit.properties/web.xml (<a href='https://github.com/gitblit/gitblit/issues/389'>issue 389</a>) Review your `gitblit.properties` or `web.xml` for detailed explanations of these settings.</li>
-		<li>Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (<a href='https://github.com/gitblit/gitblit/issues/384'>issue 384</a>)</li>
+		<li>Added setting to allow specification of a robots.txt file (<a href='https://github.com/gitblit-org/gitblit/issues/395'>issue 395</a>)</li>
+		<li>Added setting to control Responsive layout or Fixed-Width layout (<a href='https://github.com/gitblit-org/gitblit/issues/397'>issue 397</a>) Responsive layout is now the default.  This layout gracefully scales the web ui from a desktop layout to a mobile layout by hiding page components.  It is easy to try, just resize your browser or point your Android/iOS device to the url of your Gitblit install.</li>
+		<li>Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and the server default charset. (<a href='https://github.com/gitblit-org/gitblit/issues/393'>issue 393</a>)</li>
+		<li>Exposed JGit internal configuration settings in gitblit.properties/web.xml (<a href='https://github.com/gitblit-org/gitblit/issues/389'>issue 389</a>) Review your `gitblit.properties` or `web.xml` for detailed explanations of these settings.</li>
+		<li>Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (<a href='https://github.com/gitblit-org/gitblit/issues/384'>issue 384</a>)</li>
 		<li>Added Ivy 2.2.0 dependency which enables Groovy Grapes, a mechanism to resolve and retrieve library dependencies from a Maven 2 repository within a Groovy push hook script</li>
 		<li>Added setting to control Groovy Grape root folder (location where resolved dependencies are stored) [Grape](http://groovy.codehaus.org/Grape) allows you to add Maven dependencies to your pre-/post-receive hook script classpath.</li>
 		<li>Added LDAP User Service with many new *realm.ldap* keys</li>
@@ -2260,7 +2260,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed bug where you could not remove all selections from a RepositoryModel list (permitted users, permitted teams, hook scripts, federation sets, etc) (<a href='https://github.com/gitblit/gitblit/issues/377'>issue 377</a>)</li>
+		<li>Fixed bug where you could not remove all selections from a RepositoryModel list (permitted users, permitted teams, hook scripts, federation sets, etc) (<a href='https://github.com/gitblit-org/gitblit/issues/377'>issue 377</a>)</li>
 		<li>Automatically set *java.awt.headless=true* for Gitblit GO</li>
 	</ul>
    	<h4>contributors</h4>
@@ -2281,10 +2281,10 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed absolute path/canonical path discrepancy between Gitblit and JGit regarding use of symlinks (<a href='https://github.com/gitblit/gitblit/issues/374'>issue 374</a>)</li>
-		<li>Fixed row layout on activity page (<a href='https://github.com/gitblit/gitblit/issues/375'>issue 375</a>)</li>
+		<li>Fixed absolute path/canonical path discrepancy between Gitblit and JGit regarding use of symlinks (<a href='https://github.com/gitblit-org/gitblit/issues/374'>issue 374</a>)</li>
+		<li>Fixed row layout on activity page (<a href='https://github.com/gitblit-org/gitblit/issues/375'>issue 375</a>)</li>
 		<li>Fixed Centos service script</li>
-		<li>Fixed EditRepositoryPage for IE8; missing save button (<a href='https://github.com/gitblit/gitblit/issues/376'>issue 376</a>)</li>
+		<li>Fixed EditRepositoryPage for IE8; missing save button (<a href='https://github.com/gitblit-org/gitblit/issues/376'>issue 376</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
@@ -2331,41 +2331,41 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>Fixed session fixation vulnerability where the session identifier was not reset during the login process (<a href='https://github.com/gitblit/gitblit/issues/358'>issue 358</a>)</li>
+		<li>Fixed session fixation vulnerability where the session identifier was not reset during the login process (<a href='https://github.com/gitblit-org/gitblit/issues/358'>issue 358</a>)</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
-		<li>Ensure that Welcome message is parsed using UTF-8 encoding (<a href='https://github.com/gitblit/gitblit/issues/370'>issue 370</a>)</li>
-		<li>Activity page chart layout broken by Google (<a href='https://github.com/gitblit/gitblit/issues/369'>issue 369</a>)</li>
-		<li>Uppercase repositories not selectable in edit palettes (<a href='https://github.com/gitblit/gitblit/issues/367'>issue 367</a>)</li>
-		<li>Not all git notes were properly displayed on the commit page (<a href='https://github.com/gitblit/gitblit/issues/366'>issue 366</a>)</li>
-		<li>Activity page now displays all local branches (<a href='https://github.com/gitblit/gitblit/issues/361'>issue 361</a>)</li>
-		<li>Fixed (harmless) nullpointer on pushing to an empty repository (<a href='https://github.com/gitblit/gitblit/issues/365'>issue 365</a>)</li>
-		<li>Fixed possible nullpointer from the servlet container on startup (<a href='https://github.com/gitblit/gitblit/issues/363'>issue 363</a>)</li>
-		<li>Fixed UTF-8 encoding bug on diff page (<a href='https://github.com/gitblit/gitblit/issues/362'>issue 362</a>)</li>
-		<li>Fixed timezone bugs on the activity page (<a href='https://github.com/gitblit/gitblit/issues/350'>issue 350</a>)</li>
-		<li>Prevent add/edit team with no selected repositories (<a href='https://github.com/gitblit/gitblit/issues/352'>issue 352</a>)</li>
+		<li>Ensure that Welcome message is parsed using UTF-8 encoding (<a href='https://github.com/gitblit-org/gitblit/issues/370'>issue 370</a>)</li>
+		<li>Activity page chart layout broken by Google (<a href='https://github.com/gitblit-org/gitblit/issues/369'>issue 369</a>)</li>
+		<li>Uppercase repositories not selectable in edit palettes (<a href='https://github.com/gitblit-org/gitblit/issues/367'>issue 367</a>)</li>
+		<li>Not all git notes were properly displayed on the commit page (<a href='https://github.com/gitblit-org/gitblit/issues/366'>issue 366</a>)</li>
+		<li>Activity page now displays all local branches (<a href='https://github.com/gitblit-org/gitblit/issues/361'>issue 361</a>)</li>
+		<li>Fixed (harmless) nullpointer on pushing to an empty repository (<a href='https://github.com/gitblit-org/gitblit/issues/365'>issue 365</a>)</li>
+		<li>Fixed possible nullpointer from the servlet container on startup (<a href='https://github.com/gitblit-org/gitblit/issues/363'>issue 363</a>)</li>
+		<li>Fixed UTF-8 encoding bug on diff page (<a href='https://github.com/gitblit-org/gitblit/issues/362'>issue 362</a>)</li>
+		<li>Fixed timezone bugs on the activity page (<a href='https://github.com/gitblit-org/gitblit/issues/350'>issue 350</a>)</li>
+		<li>Prevent add/edit team with no selected repositories (<a href='https://github.com/gitblit-org/gitblit/issues/352'>issue 352</a>)</li>
 		<li>Disallow browser autocomplete on add/edit user/team/repository pages</li>
-		<li>Fixed username case-sensitivity issues (<a href='https://github.com/gitblit/gitblit/issues/339'>issue 339</a>)</li>
-		<li>Disregard searching a subfolder if Gitblit does not have filesystem permissions (<a href='https://github.com/gitblit/gitblit/issues/347'>issue 347</a>)</li>
+		<li>Fixed username case-sensitivity issues (<a href='https://github.com/gitblit-org/gitblit/issues/339'>issue 339</a>)</li>
+		<li>Disregard searching a subfolder if Gitblit does not have filesystem permissions (<a href='https://github.com/gitblit-org/gitblit/issues/347'>issue 347</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
-		<li>Reject pushes to a repository with a working copy (i.e. non-bare repository) (<a href='https://github.com/gitblit/gitblit/issues/345'>issue 345</a>)</li>
-		<li>Changed default web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (<a href='https://github.com/gitblit/gitblit/issues/346'>issue 346</a>)</li>
-		<li>Expanded commit age coloring from 2 days to 30 days (<a href='https://github.com/gitblit/gitblit/issues/353'>issue 353</a>)</li>
+		<li>Reject pushes to a repository with a working copy (i.e. non-bare repository) (<a href='https://github.com/gitblit-org/gitblit/issues/345'>issue 345</a>)</li>
+		<li>Changed default web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (<a href='https://github.com/gitblit-org/gitblit/issues/346'>issue 346</a>)</li>
+		<li>Expanded commit age coloring from 2 days to 30 days (<a href='https://github.com/gitblit-org/gitblit/issues/353'>issue 353</a>)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>Added optional Lucene branch indexing (<a href='https://github.com/gitblit/gitblit/issues/312'>issue 312</a>) Repository branches may be optionally indexed by Lucene for improved searching.  To use this feature you must specify which branches to index within the *Edit Repository* page; _no repositories are automatically indexed_.  Gitblit will build or incrementally update enrolled repositories on a 2 minute cycle. (i.e you will have to wait 2-3 minutes after respecifying indexed branches or pushing new commits before Gitblit will build/update the repository Lucene index.)<br/> If a repository has Lucene-indexed branches the *search* form on the repository pages will redirect to the root-level Lucene search page and only the content of those branches can be searched.&lt;br/&gt;<br/> If the repository does not specify any indexed branches then repository commit-traversal search is used.<br/><br/> **Note:** Initial indexing of an existing repository can be memory-exhaustive. Be sure to provide your Gitblit server adequate heap space to index your repositories (e.g. -Xmx1024M).&lt;br/&gt;<br/> See the [setup](setup.html) page for additional details.</li>
-		<li>Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (<a href='https://github.com/gitblit/gitblit/issues/350'>issue 350</a>)</li>
-		<li>Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (<a href='https://github.com/gitblit/gitblit/issues/355'>issue 355</a>)</li>
-		<li>On the Repositories page show a bang *!* character in the color swatch of a repository with a working copy (<a href='https://github.com/gitblit/gitblit/issues/345'>issue 345</a>) Push requests to these repositories will be rejected.</li>
-		<li>On all non-bare Repository pages show *WORKING COPY* in the upper right corner (<a href='https://github.com/gitblit/gitblit/issues/345'>issue 345</a>)</li>
+		<li>Added optional Lucene branch indexing (<a href='https://github.com/gitblit-org/gitblit/issues/312'>issue 312</a>) Repository branches may be optionally indexed by Lucene for improved searching.  To use this feature you must specify which branches to index within the *Edit Repository* page; _no repositories are automatically indexed_.  Gitblit will build or incrementally update enrolled repositories on a 2 minute cycle. (i.e you will have to wait 2-3 minutes after respecifying indexed branches or pushing new commits before Gitblit will build/update the repository Lucene index.)<br/> If a repository has Lucene-indexed branches the *search* form on the repository pages will redirect to the root-level Lucene search page and only the content of those branches can be searched.&lt;br/&gt;<br/> If the repository does not specify any indexed branches then repository commit-traversal search is used.<br/><br/> **Note:** Initial indexing of an existing repository can be memory-exhaustive. Be sure to provide your Gitblit server adequate heap space to index your repositories (e.g. -Xmx1024M).&lt;br/&gt;<br/> See the [setup](setup.html) page for additional details.</li>
+		<li>Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (<a href='https://github.com/gitblit-org/gitblit/issues/350'>issue 350</a>)</li>
+		<li>Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (<a href='https://github.com/gitblit-org/gitblit/issues/355'>issue 355</a>)</li>
+		<li>On the Repositories page show a bang *!* character in the color swatch of a repository with a working copy (<a href='https://github.com/gitblit-org/gitblit/issues/345'>issue 345</a>) Push requests to these repositories will be rejected.</li>
+		<li>On all non-bare Repository pages show *WORKING COPY* in the upper right corner (<a href='https://github.com/gitblit-org/gitblit/issues/345'>issue 345</a>)</li>
 		<li>New setting to prevent display/serving non-bare repositories</li>
 		<li>Added *protect-refs.groovy*</li>
 		<li>Allow setting default branch (relinking HEAD) to a branch or a tag</li>
-		<li>Added Ubuntu service init script (<a href='https://github.com/gitblit/gitblit/issues/368'>issue 368</a>)</li>
+		<li>Added Ubuntu service init script (<a href='https://github.com/gitblit-org/gitblit/issues/368'>issue 368</a>)</li>
 		<li>Added partial Japanese translation</li>
 	</ul>
    	<h4>new settings</h4>
@@ -2417,7 +2417,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Fixed bug when upgrading from users.properties to users.conf (<a href='https://github.com/gitblit/gitblit/issues/337'>issue 337</a>)</li>
+		<li>Fixed bug when upgrading from users.properties to users.conf (<a href='https://github.com/gitblit-org/gitblit/issues/337'>issue 337</a>)</li>
 	</ul>
    	<h4>contributors</h4>
 	<ul>
@@ -2437,7 +2437,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4>fixes</h4>
 	<ul>
-		<li>Include missing icon resource for the manager (<a href='https://github.com/gitblit/gitblit/issues/336'>issue 336</a>)</li>
+		<li>Include missing icon resource for the manager (<a href='https://github.com/gitblit-org/gitblit/issues/336'>issue 336</a>)</li>
 		<li>Fixed sendmail.groovy message content with incorrect tag/branch labels</li>
 	</ul>
    	<h4>contributors</h4>
@@ -2459,12 +2459,12 @@ You will need to move a few files around when upgrading.  Please review the <a h
    	<h4>fixes</h4>
 	<ul>
 		<li>Several a bugs in FileUserService related to cleaning up old repository permissions on a rename or delete</li>
-		<li>Renaming a repository into a new subfolder failed (<a href='https://github.com/gitblit/gitblit/issues/329'>issue 329</a>)</li>
+		<li>Renaming a repository into a new subfolder failed (<a href='https://github.com/gitblit-org/gitblit/issues/329'>issue 329</a>)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
 		<li>Dropped display of trailing .git from repository names</li>
-		<li>Gitblit GO is now monolithic like the WAR build. (<a href='https://github.com/gitblit/gitblit/issues/326'>issue 326</a>) This change helps adoption of GO in environments without an internet connection or with a restricted connection.</li>
+		<li>Gitblit GO is now monolithic like the WAR build. (<a href='https://github.com/gitblit-org/gitblit/issues/326'>issue 326</a>) This change helps adoption of GO in environments without an internet connection or with a restricted connection.</li>
 		<li>Unit testing framework has been migrated to JUnit4 syntax and the test suite has been redesigned to run all unit tests, including rpc, federation, and git push/clone tests</li>
 	</ul>
    	<h4>additions</h4>
@@ -2477,10 +2477,10 @@ You will need to move a few files around when upgrading.  Please review the <a h
 		<li>Teams for specifying user-repository access in bulk.  Teams may also specify mailing lists addresses and pre- &amp; post- receive hook scripts.</li>
 		<li>Gravatar integration</li>
 		<li>Activity page for aggregated repository activity.  This is a timeline of commit activity over the last N days for one or more repositories.</li>
-		<li>*Filters* menu for the Repositories page and Activity page.  You can filter by federation set, team, and simple custom regular expressions.  Custom expressions can be stored in `gitblit.properties` or `web.xml` or directly defined in your url (<a href='https://github.com/gitblit/gitblit/issues/323'>issue 323</a>)</li>
+		<li>*Filters* menu for the Repositories page and Activity page.  You can filter by federation set, team, and simple custom regular expressions.  Custom expressions can be stored in `gitblit.properties` or `web.xml` or directly defined in your url (<a href='https://github.com/gitblit-org/gitblit/issues/323'>issue 323</a>)</li>
 		<li>Flash-based 1-step *copy to clipboard* of the primary repository url based on Clippy</li>
 		<li>JavaScript-based 3-step (click, ctrl+c, enter) *copy to clipboard* of the primary repository url in the event that you do not want to use Flash on your installation</li>
-		<li>Empty repositories now link to an *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (<a href='https://github.com/gitblit/gitblit/issues/327'>issue 327</a>)</li>
+		<li>Empty repositories now link to an *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (<a href='https://github.com/gitblit-org/gitblit/issues/327'>issue 327</a>)</li>
 		<li>Repositories with a *gh-pages* branch will now have a *pages* link which will serve the content of this branch.  All resource requests are against the repository, Gitblit does not checkout/export this branch to a temporary filesystem.  Jekyll templating is not supported.</li>
 		<li>Gitblit Express bundle to get started running Gitblit on RedHat OpenShift cloud &lt;span class=&quot;label label-warning&quot;&gt;BETA&lt;/span&gt;</li>
 	</ul>
@@ -2544,25 +2544,25 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4 style="color:red;">security</h4>
 	<ul>
-		<li>fixed security hole when cloning clone-restricted repository with TortoiseGit (<a href='https://github.com/gitblit/gitblit/issues/324'>issue 324</a>)</li>
+		<li>fixed security hole when cloning clone-restricted repository with TortoiseGit (<a href='https://github.com/gitblit-org/gitblit/issues/324'>issue 324</a>)</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
 		<li>federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard. **This breaks 0.6.0 federation clients/servers.**</li>
 		<li>collision on rename for repositories and users</li>
-		<li>Gitblit can now browse the Linux kernel repository (<a href='https://github.com/gitblit/gitblit/issues/321'>issue 321</a>)</li>
-		<li>Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (<a href='https://github.com/gitblit/gitblit/issues/319'>issue 319</a>)</li>
-		<li>Set the RSS content type of syndication feeds for Firefox 4 (<a href='https://github.com/gitblit/gitblit/issues/318'>issue 318</a>)</li>
+		<li>Gitblit can now browse the Linux kernel repository (<a href='https://github.com/gitblit-org/gitblit/issues/321'>issue 321</a>)</li>
+		<li>Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (<a href='https://github.com/gitblit-org/gitblit/issues/319'>issue 319</a>)</li>
+		<li>Set the RSS content type of syndication feeds for Firefox 4 (<a href='https://github.com/gitblit-org/gitblit/issues/318'>issue 318</a>)</li>
 		<li>RSS feeds are now properly encoded to UTF-8</li>
 		<li>RSS feeds now properly generate parameterized links if *web.mountParameters=false*</li>
-		<li>Null pointer exception if did not set federation strategy (<a href='https://github.com/gitblit/gitblit/issues/316'>issue 316</a>)</li>
+		<li>Null pointer exception if did not set federation strategy (<a href='https://github.com/gitblit-org/gitblit/issues/316'>issue 316</a>)</li>
 		<li>Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
 		<li>updated ui with Twitter Bootstrap CSS toolkit</li>
-		<li>repositories list performance by caching repository sizes (<a href='https://github.com/gitblit/gitblit/issues/323'>issue 323</a>)</li>
-		<li>summary page performance by caching metric calculations (<a href='https://github.com/gitblit/gitblit/issues/321'>issue 321</a>)</li>
+		<li>repositories list performance by caching repository sizes (<a href='https://github.com/gitblit-org/gitblit/issues/323'>issue 323</a>)</li>
+		<li>summary page performance by caching metric calculations (<a href='https://github.com/gitblit-org/gitblit/issues/321'>issue 321</a>)</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
@@ -2679,16 +2679,16 @@ You will need to move a few files around when upgrading.  Please review the <a h
 
    	<h4>fixes</h4>
 	<ul>
-		<li>active repositories with a HEAD that pointed to an empty branch caused internal errors (<a href='https://github.com/gitblit/gitblit/issues/310'>issue 310</a>)</li>
-		<li>bare-cloned repositories were listed as (empty) and were not clickable (<a href='https://github.com/gitblit/gitblit/issues/309'>issue 309</a>)</li>
-		<li>default port for Gitblit GO is now 8443 to be more linux/os x friendly (<a href='https://github.com/gitblit/gitblit/issues/308'>issue 308</a>)</li>
-		<li>repositories can now be reliably deleted and renamed (<a href='https://github.com/gitblit/gitblit/issues/306'>issue 306</a>)</li>
+		<li>active repositories with a HEAD that pointed to an empty branch caused internal errors (<a href='https://github.com/gitblit-org/gitblit/issues/310'>issue 310</a>)</li>
+		<li>bare-cloned repositories were listed as (empty) and were not clickable (<a href='https://github.com/gitblit-org/gitblit/issues/309'>issue 309</a>)</li>
+		<li>default port for Gitblit GO is now 8443 to be more linux/os x friendly (<a href='https://github.com/gitblit-org/gitblit/issues/308'>issue 308</a>)</li>
+		<li>repositories can now be reliably deleted and renamed (<a href='https://github.com/gitblit-org/gitblit/issues/306'>issue 306</a>)</li>
 		<li>always show root repository group first, i.e. do not sort root group with other groups</li>
 		<li>tone-down repository group header color</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
-		<li>users can now change their passwords (<a href='https://github.com/gitblit/gitblit/issues/297'>issue 297</a>)</li>
+		<li>users can now change their passwords (<a href='https://github.com/gitblit-org/gitblit/issues/297'>issue 297</a>)</li>
 		<li>optionally display repository on-disk size on repositories page</li>
 		<li>forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers</li>
 	</ul>
@@ -2755,7 +2755,7 @@ You will need to move a few files around when upgrading.  Please review the <a h
 	</table>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2022-04-09</p>
+<footer class="footer"><p class="pull-right">generated 2022-12-18</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>

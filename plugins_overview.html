@@ -111,23 +111,23 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gitblit-1.9.3.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gitblit-1.9.3.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gitblit-1.9.3.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://hub.docker.com/r/gitblit/gitblit'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/manager-1.9.3.zip'>Gitblit Manager</a></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/fedclient-1.9.3.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/manager-1.9.3.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/fedclient-1.9.3.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases/download/v1.9.3/gbapi-1.9.3.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gbapi-1.9.3.zip'>API Library</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit/releases'>GitHub (1.9.0+)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases'>GitHub (1.9.0+)</a></li>
 <li><a href='https://cloudsmith.io/~gitblit/repos/gitblit/groups/'>Cloudsmith (1.3.0-1.8.0)</a></li>
 <li class='divider'></li>
-<li><a href='http://gitblit.github.io/gitblit-maven'>Maven Repository</a></li>
+<li><a href='http://gitblit-org.github.io/gitblit-maven'>Maven Repository</a></li>
 </ul></li> <!-- End Menu -->
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>links<b class='caret'></b></a>
@@ -136,8 +136,8 @@
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit/gitblit'>Github</a></li>
-<li><a href='https://github.com/gitblit/gitblit'>Issues</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit'>Github</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit'>Issues</a></li>
 <li><a href='http://groups.google.com/group/gitblit'>Discussion</a></li>
 <li><a href='https://twitter.com/gitblit'>Twitter</a></li>
 <li><a href='https://www.openhub.net/p/gitblit'>OpenHub</a></li>
@@ -175,11 +175,11 @@ Plugin-Provider: gitblit.com
 </code></pre><p>Through this command interface plugins can be started, stopped, disabled, enabled, installed, uninstalled, listed, etc. Each command is supports the <code>--help</code> argument which will guide you in understanding the options and usage of the command.</p><p>You may watch an Asciinema screencast of how to use the SSH transport and the plugin manager <a href="https://asciinema.org/a/9342">here</a>.</p>
 <h3 class="section" id='H6'><a href="#H6" class="sectionlink"><i class="icon-share-alt"> </i></a>Default Plugin Registry</h3><p>Gitblit provides a simple default registry of plugins. The registry is a JSON file and it lists plugin metadata and download locations.</p>
 <pre><code>plugins.registry = http://plugins.gitblit.com/plugins.json
-</code></pre><p>The <a href="http://plugins.gitblit.com">default plugins registry</a> is currently hosted in a <a href="https://github.com/gitblit/gitblit-registry">Git repository on Github</a>. You can view the default registry file <a href="http://plugins.gitblit.com/plugins.json">here</a>. The default plugin registry is also a Maven-2 compatible repository.</p>
+</code></pre><p>The <a href="http://plugins.gitblit.com">default plugins registry</a> is currently hosted in a <a href="https://github.com/gitblit-org/gitblit-registry">Git repository on Github</a>. You can view the default registry file <a href="http://plugins.gitblit.com/plugins.json">here</a>. The default plugin registry is also a Maven-2 compatible repository.</p>
 <h3 class="section" id='H7'><a href="#H7" class="sectionlink"><i class="icon-share-alt"> </i></a>Contributing Plugins to the Default Registry</h3><p>If you develop your own plugins that you want hosted by or linked in the default registry, open a pull request for the registry repository. Any contributed binaries hosted in this repository must have Maven metadata and the SHA-1 &amp; MD5 checksums. By default, Gitblit enforces checksum validation on all downloads.</p>
 <h3 class="section" id='H8'><a href="#H8" class="sectionlink"><i class="icon-share-alt"> </i></a>Hosting your Own Registry / Allowing Multiple Registries</h3><p>The <code>plugins.json</code> file is parameterized with the <code>${self}</code> placeholder. This parameter is substituted on download with with the source URL of the registry file. This allows you to clone and serve your own copy of this git repository or just serve your own <code>plugins.json</code> on your own network.</p><p>Gitblit also supports loading multiple plugin registries. Just place another <strong>properly formatted</strong> <code>.json</code> file in <code>${baseFolder}/plugins</code> and Gitblit will load that as an additional registry.
 <!-- End Markdown -->
-<div ><ul class="pager"> <li class="next"><a href="plugins_extensions.html">extension points &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2022-04-09</p>
+<div ><ul class="pager"> <li class="next"><a href="plugins_extensions.html">extension points &rarr;</a></li></ul></div><footer class="footer"><p class="pull-right">generated 2022-12-18</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
