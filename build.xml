@@ -722,9 +722,13 @@
 		Update the gh-pages branch with the current site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="updateGhPages">
+	<target name="updateGhPages" depends="prepare">
 		<!-- Build gh-pages branch -->
-		<mx:ghpages repositorydir="${basedir}" obliterate="true" />
+		<mx:ghpages repositorydir="${basedir}" obliterate="true">
+			<keep>
+				<file name="CNAME"/>
+			</keep>
+		</mx:ghpages>
 	</target>
 
 
