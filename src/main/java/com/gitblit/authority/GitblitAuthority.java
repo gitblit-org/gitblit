@@ -281,7 +281,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		this.userService = loadUsers(folder);
 		System.out.println(Constants.baseFolder$ + " set to " + folder);
 		if (userService == null) {
-			JOptionPane.showMessageDialog(this, MessageFormat.format("Sorry, {0} doesn't look like a Gitblit GO installation.", folder));
+			JOptionPane.showMessageDialog(this, MessageFormat.format("Sorry, {0} doesn''t look like a Gitblit GO installation.", folder));
 		} else {
 			// build empty certificate model for all users
 			Map<String, UserCertificateModel> map = new HashMap<String, UserCertificateModel>();

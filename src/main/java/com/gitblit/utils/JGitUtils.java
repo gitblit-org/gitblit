@@ -795,7 +795,7 @@ public class JGitUtils {
 			}
 		} catch (Throwable t) {
 			if (throwError) {
-				error(t, repository, "{0} can't find {1} in tree {2}", path, tree.name());
+				error(t, repository, "{0} can''t find {1} in tree {2}", path, tree.name());
 			}
 		} finally {
 			rw.dispose();
@@ -837,7 +837,7 @@ public class JGitUtils {
 			ObjectLoader ldr = repository.open(blob.getId(), Constants.OBJ_BLOB);
 			content = ldr.getCachedBytes();
 		} catch (Throwable t) {
-			error(t, repository, "{0} can't find blob {1}", objectId);
+			error(t, repository, "{0} can''t find blob {1}", objectId);
 		} finally {
 			rw.dispose();
 		}
@@ -2117,7 +2117,7 @@ public class JGitUtils {
 				}
 			}
 		} catch (Throwable t) {
-			error(t, repository, "{0} can't find {1} in commit {2}", path, commit.name());
+			error(t, repository, "{0} can''t find {1} in commit {2}", path, commit.name());
 		} finally {
 			rw.dispose();
 			tw.close();

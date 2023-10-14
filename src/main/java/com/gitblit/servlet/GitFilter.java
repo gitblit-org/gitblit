@@ -294,7 +294,7 @@ public class GitFilter extends AccessRestrictionFilter {
 				// confirm valid characters in repository name
 				Character c = StringUtils.findInvalidCharacter(repository);
 				if (c != null) {
-					logger.error(MessageFormat.format("Invalid character '{0}' in repository name {1}!", c, repository));
+					logger.error(MessageFormat.format("Invalid character ''{0}'' in repository name {1}!", c, repository));
 					return null;
 				}
 
