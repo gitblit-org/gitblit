@@ -134,6 +134,12 @@ public class StringUtilsTest extends GitblitUnitTest {
 	}
 
 	@Test
+	public void testSHA256() throws Exception {
+		assertEquals("badf72532e259f2b67a40475486c7e71bf48bc71d7b0d43d8e99acfb3ac24e1b",
+					 StringUtils.getSHA256("margaret@london.uk"));
+	}
+
+	@Test
 	public void testMD5() throws Exception {
 		assertEquals("77fb8d95331f0d557472f6776d3aedf6",
 				StringUtils.getMD5("blob 16\000what is up, doc?"));
