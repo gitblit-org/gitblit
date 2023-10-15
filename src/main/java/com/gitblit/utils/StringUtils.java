@@ -336,6 +336,28 @@ public class StringUtils {
 	{
 		return getDigest(bytes, "SHA-1");
 	}
+
+
+	/**
+	 * Calculates the SHA256 of the string.
+	 *
+	 * @param text
+	 * @return sha256 of the string
+	 */
+	public static String getSHA256(String text)
+	{
+		return getDigest(text, "SHA-256");
+	}
+
+	/**
+	 * Calculates the SHA256 of the byte array.
+	 *
+	 * @param bytes
+	 * @return sha256 of the byte array
+	 */
+	public static String getSHA256(byte[] bytes)
+	{
+		return getDigest(bytes, "SHA-256");
 	}
 
 	/**
