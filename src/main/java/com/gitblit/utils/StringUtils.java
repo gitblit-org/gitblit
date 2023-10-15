@@ -273,30 +273,20 @@ public class StringUtils {
 		return input;
 	}
 
-	/**
-	 * Calculates the SHA1 of the string.
-	 *
-	 * @param text
-	 * @return sha1 of the string
-	 */
-	public static String getSHA1(String text) {
-		try {
-			byte[] bytes = text.getBytes("iso-8859-1");
-			return getSHA1(bytes);
-		} catch (UnsupportedEncodingException u) {
-			throw new RuntimeException(u);
-		}
-	}
 
 	/**
-	 * Calculates the SHA1 of the byte array.
+	 * Calculates the hash sum of the byte array.
 	 *
 	 * @param bytes
-	 * @return sha1 of the byte array
+	 * 			byte array to hash
+	 * @param algorithm
+	 * 			Message digest algorithm name, e.g MD5, SHA-1 or SHA-256.
+	 * @return sha sum of the byte array
 	 */
-	public static String getSHA1(byte[] bytes) {
+	private static String getDigest(byte[] bytes, String algorithm)
+	{
 		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			MessageDigest md = MessageDigest.getInstance(algorithm);
 			md.update(bytes, 0, bytes.length);
 			byte[] digest = md.digest();
 			return toHex(digest);
@@ -305,36 +295,69 @@ public class StringUtils {
 		}
 	}
 
+
 	/**
-	 * Calculates the MD5 of the string.
+	 * Calculates the hash of the string.
 	 *
-	 * @param string
-	 * @return md5 of the string
+	 * @param text
+	 * 			string to hash
+	 * @param algorithm
+	 * 			Message digest algorithm name, e.g MD5, SHA-1 or SHA-256.
+	 * @return sha1 of the string
 	 */
-	public static String getMD5(String string) {
+	private static String getDigest(String text, String algorithm)
+	{
 		try {
-			return getMD5(string.getBytes("iso-8859-1"));
+			byte[] bytes = text.getBytes("iso-8859-1");
+			return getDigest(bytes, algorithm);
 		} catch (UnsupportedEncodingException u) {
 			throw new RuntimeException(u);
 		}
 	}
 
 	/**
+	 * Calculates the SHA1 of the string.
+	 *
+	 * @param text
+	 * @return sha1 of the string
+	 */
+	public static String getSHA1(String text)
+	{
+		return getDigest(text, "SHA-1");
+	}
+
+	/**
+	 * Calculates the SHA1 of the byte array.
+	 *
+	 * @param bytes
+	 * @return sha1 of the byte array
+	 */
+	public static String getSHA1(byte[] bytes)
+	{
+		return getDigest(bytes, "SHA-1");
+	}
+	}
+
+	/**
 	 * Calculates the MD5 of the string.
 	 *
-	 * @param string
+	 * @param text
 	 * @return md5 of the string
 	 */
-	public static String getMD5(byte [] bytes) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.reset();
-			md.update(bytes);
-			byte[] digest = md.digest();
-			return toHex(digest);
-		} catch (NoSuchAlgorithmException t) {
-			throw new RuntimeException(t);
-		}
+	public static String getMD5(String text)
+	{
+		return getDigest(text, "MD5");
+	}
+
+	/**
+	 * Calculates the MD5 of the byte array.
+	 *
+	 * @param bytes
+	 * @return md5 of the string
+	 */
+	public static String getMD5(byte [] bytes)
+	{
+		return getDigest(bytes, "MD5");
 	}
 
 	/**
