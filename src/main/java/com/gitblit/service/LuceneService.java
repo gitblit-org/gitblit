@@ -172,7 +172,7 @@ public class LuceneService implements Runnable {
 				Repository repository = repositoryManager.getRepository(model.name);
 				if (repository == null) {
 					if (repositoryManager.isCollectingGarbage(model.name)) {
-						logger.info(MessageFormat.format("Skipping Lucene index of {0}, busy garbage collecting", repositoryName));
+						logger.info("Skipping Lucene index of {}, busy garbage collecting", repositoryName);
 					}
 					continue;
 				}
@@ -200,9 +200,8 @@ public class LuceneService implements Runnable {
 
 				if (result.success) {
 					if (result.commitCount > 0) {
-						String msg = "Built {0} Lucene index from {1} commits and {2} files across {3} branches in {4} secs";
-						logger.info(MessageFormat.format(msg, model.name, result.commitCount,
-								result.blobCount, result.branchCount, result.duration()));
+						logger.info("Built {} Lucene index from {} commits and {} files across {} branches in {} secs",
+									model.name, result.commitCount,	result.blobCount, result.branchCount, result.duration());
 					}
 				} else {
 					String msg = "Could not build {0} Lucene index!";
@@ -213,17 +212,15 @@ public class LuceneService implements Runnable {
 				IndexResult result = updateIndex(model, repository);
 				if (result.success) {
 					if (result.commitCount > 0) {
-						String msg = "Updated {0} Lucene index with {1} commits and {2} files across {3} branches in {4} secs";
-						logger.info(MessageFormat.format(msg, model.name, result.commitCount,
-								result.blobCount, result.branchCount, result.duration()));
+						logger.info("Updated {} Lucene index with {} commits and {} files across {} branches in {} secs",
+									model.name, result.commitCount, result.blobCount, result.branchCount, result.duration());
 					}
 				} else {
-					String msg = "Could not update {0} Lucene index!";
-					logger.error(MessageFormat.format(msg, model.name));
+					logger.error("Could not update {} Lucene index!", model.name);
 				}
 			}
 		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Lucene indexing failure for {0}", model.name), t);
+			logger.error("Lucene indexing failure for {}", model.name, t);
 		}
 	}
 
@@ -239,7 +236,7 @@ public class LuceneService implements Runnable {
 				searcher.getIndexReader().close();
 			}
 		} catch (Exception e) {
-			logger.error("Failed to close index searcher for " + repositoryName, e);
+			logger.error("Failed to close index searcher for {}", repositoryName, e);
 		}
 
 		try {
@@ -248,7 +245,7 @@ public class LuceneService implements Runnable {
 				writer.close();
 			}
 		} catch (Exception e) {
-			logger.error("Failed to close index writer for " + repositoryName, e);
+			logger.error("Failed to close index writer for {}", repositoryName, e);
 		}
 	}
 
@@ -262,7 +259,7 @@ public class LuceneService implements Runnable {
 			try {
 				writers.get(writer).close();
 			} catch (Throwable t) {
-				logger.error("Failed to close Lucene writer for " + writer, t);
+				logger.error("Failed to close Lucene writer for {}", writer, t);
 			}
 		}
 		writers.clear();
@@ -272,7 +269,7 @@ public class LuceneService implements Runnable {
 			try {
 				searchers.get(searcher).getIndexReader().close();
 			} catch (Throwable t) {
-				logger.error("Failed to close Lucene searcher for " + searcher, t);
+				logger.error("Failed to close Lucene searcher for {}", searcher, t);
 			}
 		}
 		searchers.clear();
@@ -594,7 +591,7 @@ public class LuceneService implements Runnable {
 			resetIndexSearcher(model.name);
 			result.success();
 		} catch (Exception e) {
-			logger.error("Exception while reindexing " + model.name, e);
+			logger.error("Exception while reindexing {}", model.name, e);
 		}
 		return result;
 	}
@@ -673,7 +670,7 @@ public class LuceneService implements Runnable {
 			result.commitCount++;
 			result.success = index(repositoryName, doc);
 		} catch (Exception e) {
-			logger.error(MessageFormat.format("Exception while indexing commit {0} in {1}", commit.getId().getName(), repositoryName), e);
+			logger.error("Exception while indexing commit {} in {}", commit.getId().getName(), repositoryName, e);
 		}
 		return result;
 	}
@@ -701,10 +698,10 @@ public class LuceneService implements Runnable {
 		writer.commit();
 		int numDocsAfter = writer.numDocs();
 		if (numDocsBefore == numDocsAfter) {
-			logger.debug(MessageFormat.format("no records found to delete {0}", query.toString()));
+			logger.debug("no records found to delete {}", query.toString());
 			return false;
 		} else {
-			logger.debug(MessageFormat.format("deleted {0} records with {1}", numDocsBefore - numDocsAfter, query.toString()));
+			logger.debug("deleted {} records with {}", numDocsBefore - numDocsAfter, query.toString());
 			return true;
 		}
 	}
@@ -833,7 +830,7 @@ public class LuceneService implements Runnable {
 			}
 			result.success = true;
 		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Exception while updating {0} Lucene index", model.name), t);
+			logger.error("Exception while updating {} Lucene index", model.name, t);
 		}
 		return result;
 	}
@@ -876,7 +873,7 @@ public class LuceneService implements Runnable {
 			resetIndexSearcher(repositoryName);
 			return true;
 		} catch (Exception e) {
-			logger.error(MessageFormat.format("Exception while incrementally updating {0} Lucene index", repositoryName), e);
+			logger.error("Exception while incrementally updating {} Lucene index", repositoryName, e);
 		}
 		return false;
 	}
@@ -1049,7 +1046,7 @@ public class LuceneService implements Runnable {
 				results.add(result);
 			}
 		} catch (Exception e) {
-			logger.error(MessageFormat.format("Exception while searching for {0}", text), e);
+			logger.error("Exception while searching for {}", text, e);
 		}
 		return new ArrayList<SearchResult>(results);
 	}

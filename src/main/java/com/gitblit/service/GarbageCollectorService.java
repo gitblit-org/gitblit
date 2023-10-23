@@ -15,7 +15,6 @@
  */
 package com.gitblit.service;
 
-import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -143,7 +142,7 @@ public class GarbageCollectorService implements Runnable {
 				break;
 			}
 			if (isCollectingGarbage(repositoryName)) {
-				logger.warn(MessageFormat.format("Already collecting garbage from {0}?!?", repositoryName));
+				logger.warn("Already collecting garbage from {}?!?", repositoryName);
 				continue;
 			}
 			boolean garbageCollected = false;
@@ -153,12 +152,12 @@ public class GarbageCollectorService implements Runnable {
 				model = repositoryManager.getRepositoryModel(repositoryName);
 				repository = repositoryManager.getRepository(repositoryName);
 				if (repository == null) {
-					logger.warn(MessageFormat.format("GCExecutor is missing repository {0}?!?", repositoryName));
+					logger.warn("GCExecutor is missing repository {}?!?", repositoryName);
 					continue;
 				}
 
 				if (!repositoryManager.isIdle(repository)) {
-					logger.debug(MessageFormat.format("GCExecutor is skipping {0} because it is not idle", repositoryName));
+					logger.debug("GCExecutor is skipping {} because it is not idle", repositoryName);
 					continue;
 				}
 
@@ -166,11 +165,11 @@ public class GarbageCollectorService implements Runnable {
 				// disabling *all* access to this repository from Gitblit.
 				// Think of this as a clutch in a manual transmission vehicle.
 				if (!setGCStatus(repositoryName, GCStatus.COLLECTING)) {
-					logger.warn(MessageFormat.format("Can not acquire GC lock for {0}, skipping", repositoryName));
+					logger.warn("Can not acquire GC lock for {}, skipping", repositoryName);
 					continue;
 				}
 
-				logger.debug(MessageFormat.format("GCExecutor locked idle repository {0}", repositoryName));
+				logger.debug("GCExecutor locked idle repository {}", repositoryName);
 
 				Git git = new Git(repository);
 				GarbageCollectCommand gc = git.gc();
@@ -196,7 +195,7 @@ public class GarbageCollectorService implements Runnable {
 				boolean hasGarbage = sizeOfLooseObjects > 0;
 				if (hasGarbage && (hasEnoughGarbage || shouldCollectGarbage)) {
 					long looseKB = sizeOfLooseObjects/1024L;
-					logger.info(MessageFormat.format("Collecting {1} KB of loose objects from {0}", repositoryName, looseKB));
+					logger.info("Collecting {} KB of loose objects from {}", looseKB, repositoryName );
 
 					// do the deed
 					gc.call();
@@ -204,7 +203,7 @@ public class GarbageCollectorService implements Runnable {
 					garbageCollected = true;
 				}
 			} catch (Exception e) {
-				logger.error("Error collecting garbage in " + repositoryName, e);
+				logger.error("Error collecting garbage in {}", repositoryName, e);
 			} finally {
 				// cleanup
 				if (repository != null) {
@@ -219,7 +218,7 @@ public class GarbageCollectorService implements Runnable {
 
 				// reset the GC lock
 				releaseLock(repositoryName);
-				logger.debug(MessageFormat.format("GCExecutor released GC lock for {0}", repositoryName));
+				logger.debug("GCExecutor released GC lock for {}", repositoryName);
 			}
 		}
 

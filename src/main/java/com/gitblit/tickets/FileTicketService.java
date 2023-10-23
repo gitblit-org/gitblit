@@ -17,7 +17,6 @@ package com.gitblit.tickets;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -274,8 +273,7 @@ public class FileTicketService extends ITicketService {
 						}
 					}
 				} catch (Exception e) {
-					log.error("failed to deserialize {}/{}\n{}",
-							new Object [] { repository, journal, e.getMessage()});
+					log.error("failed to deserialize {}/{}\n{}", repository, journal, e.getMessage());
 					log.error(null, e);
 				}
 			}
@@ -481,8 +479,7 @@ public class FileTicketService extends ITicketService {
 			FileUtils.writeContent(file, journal);
 			success = true;
 		} catch (Throwable t) {
-			log.error(MessageFormat.format("Failed to commit ticket {0,number,0} to {1}",
-					ticketId, db.getDirectory()), t);
+			log.error("Failed to commit ticket {} to {}", ticketId, db.getDirectory(), t);
 		} finally {
 			db.close();
 		}

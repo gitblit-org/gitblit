@@ -181,7 +181,7 @@ public class RedisTicketService extends ITicketService {
 			Boolean exists = jedis.exists(key(repository, KeyType.journal, ticketId));
 			return exists != null && exists;
 		} catch (JedisException e) {
-			log.error("failed to check hasTicket from Redis @ " + getUrl(), e);
+			log.error("failed to check hasTicket from Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -205,7 +205,7 @@ public class RedisTicketService extends ITicketService {
 				ids.add(ticketId);
 			}
 		} catch (JedisException e) {
-			log.error("failed to assign new ticket id in Redis @ " + getUrl(), e);
+			log.error("failed to assign new ticket id in Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -241,7 +241,7 @@ public class RedisTicketService extends ITicketService {
 			long ticketNumber = jedis.incr(key);
 			return ticketNumber;
 		} catch (JedisException e) {
-			log.error("failed to assign new ticket id in Redis @ " + getUrl(), e);
+			log.error("failed to assign new ticket id in Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -300,7 +300,7 @@ public class RedisTicketService extends ITicketService {
 			// sort the tickets by creation
 			Collections.sort(list);
 		} catch (JedisException e) {
-			log.error("failed to retrieve tickets from Redis @ " + getUrl(), e);
+			log.error("failed to retrieve tickets from Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -338,7 +338,7 @@ public class RedisTicketService extends ITicketService {
 			log.debug("rebuilt ticket {} from Redis @ {}", ticketId, getUrl());
 			return ticket;
 		} catch (JedisException e) {
-			log.error("failed to retrieve ticket from Redis @ " + getUrl(), e);
+			log.error("failed to retrieve ticket from Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -371,7 +371,7 @@ public class RedisTicketService extends ITicketService {
 			}
 			return changes;
 		} catch (JedisException e) {
-			log.error("failed to retrieve journal from Redis @ " + getUrl(), e);
+			log.error("failed to retrieve journal from Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -454,9 +454,9 @@ public class RedisTicketService extends ITicketService {
 			t.exec();
 
 			success = true;
-			log.debug("deleted ticket {} from Redis @ {}", "" + ticket.number, getUrl());
+			log.debug("deleted ticket {} from Redis @ {}", ticket.number, getUrl());
 		} catch (JedisException e) {
-			log.error("failed to delete ticket from Redis @ " + getUrl(), e);
+			log.error("failed to delete ticket from Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -497,10 +497,10 @@ public class RedisTicketService extends ITicketService {
 			t.rpush(key(repository, KeyType.journal, ticketId), journal);
 			t.exec();
 
-			log.debug("updated ticket {} in Redis @ {}", "" + ticketId, getUrl());
+			log.debug("updated ticket {} in Redis @ {}", ticketId, getUrl());
 			return true;
 		} catch (JedisException e) {
-			log.error("failed to update ticket cache in Redis @ " + getUrl(), e);
+			log.error("failed to update ticket cache in Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -532,7 +532,7 @@ public class RedisTicketService extends ITicketService {
 			}
 			success = true;
 		} catch (JedisException e) {
-			log.error("failed to delete all tickets in Redis @ " + getUrl(), e);
+			log.error("failed to delete all tickets in Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
@@ -561,7 +561,7 @@ public class RedisTicketService extends ITicketService {
 			t.exec();
 			success = true;
 		} catch (JedisException e) {
-			log.error("failed to rename tickets in Redis @ " + getUrl(), e);
+			log.error("failed to rename tickets in Redis @ {}", getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {

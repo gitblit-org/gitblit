@@ -16,7 +16,6 @@
 package com.gitblit.tickets;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -169,20 +168,19 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 						if (!ids.contains(ticketId)) {
 							ids.add(ticketId);
 							TicketModel ticket = getTicket(repository, ticketId);
-							log.info(MessageFormat.format("indexing ticket #{0,number,0}: {1}",
-									ticketId, ticket.title));
+							log.info("indexing ticket #{}: {}",	ticketId, ticket.title);
 							indexer.index(ticket);
 						}
 					}
 					long end = System.nanoTime();
-					log.info("incremental indexing of {0} ticket(s) completed in {1} msecs",
+					log.info("incremental indexing of {} ticket(s) completed in {} msecs",
 							ids.size(), TimeUnit.NANOSECONDS.toMillis(end - start));
 				} finally {
 					db.close();
 				}
 				break;
 			default:
-				log.warn("Unexpected receive type {} in BranchTicketService.onRefsChanged" + cmd.getType());
+				log.warn("Unexpected receive type {} in BranchTicketService.onRefsChanged", cmd.getType());
 				break;
 			}
 		} catch (Exception e) {
@@ -216,10 +214,10 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 				Result res = cmd.rename();
 				switch (res) {
 				case RENAMED:
-					log.info(db.getDirectory() + " " + cmd.getRefLogMessage());
+					log.info("{} {}", db.getDirectory(), cmd.getRefLogMessage());
 					return getTicketsBranch(db);
 				default:
-					log.error("failed to rename " + oldRef.getName() + " => " + BRANCH + " (" + res.name() + ")");
+					log.error("failed to rename {} => {} ({})", oldRef.getName(), BRANCH, res.name());
 				}
 			} catch (IOException e) {
 				log.error("failed to rename tickets branch", e);
@@ -288,7 +286,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 				return JGitUtils.getStringContent(db, tree, file, Constants.ENCODING);
 			}
 		} catch (IOException e) {
-			log.error("failed to read " + file, e);
+			log.error("failed to read {}", file, e);
 		} finally {
 			if (rw != null) {
 				rw.close();
@@ -506,8 +504,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 						}
 					}
 				} catch (Exception e) {
-					log.error("failed to deserialize {}/{}\n{}",
-							new Object [] { repository, path.path, e.getMessage()});
+					log.error("failed to deserialize {}/{}\n{}", repository, path.path, e.getMessage());
 					log.error(null, e);
 				}
 			}
@@ -701,8 +698,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 				success = commitIndex(db, index, deletedBy, "- " + ticket.number);
 
 			} catch (Throwable t) {
-				log.error(MessageFormat.format("Failed to delete ticket {0,number,0} from {1}",
-						ticket.number, db.getDirectory()), t);
+				log.error("Failed to delete ticket {} from {}",	ticket.number, db.getDirectory(), t);
 			} finally {
 				// release the treewalk
 				if (treeWalk != null) {
@@ -733,8 +729,7 @@ public class BranchTicketService extends ITicketService implements RefsChangedLi
 			success = commitIndex(db, index, change.author, "#" + ticketId);
 
 		} catch (Throwable t) {
-			log.error(MessageFormat.format("Failed to commit ticket {0,number,0} to {1}",
-					ticketId, db.getDirectory()), t);
+			log.error("Failed to commit ticket {} to {}", ticketId, db.getDirectory(), t);
 		} finally {
 			db.close();
 		}

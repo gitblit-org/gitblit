@@ -34,10 +34,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
@@ -96,6 +96,8 @@ public class TicketNotifier {
 	private final String addPattern = "<span style=\"color:darkgreen;\">+{0}</span>";
 	private final String delPattern = "<span style=\"color:darkred;\">-{0}</span>";
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	public TicketNotifier(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
@@ -152,7 +154,7 @@ public class TicketNotifier {
 
 			return mailing;
 		} catch (Exception e) {
-			Logger.getLogger(getClass()).error("failed to queue mailing for #" + ticket.number, e);
+			log.error("failed to queue mailing for #{}", ticket.number, e);
 		}
 		return null;
 	}
@@ -203,7 +205,7 @@ public class TicketNotifier {
 				diffstat = DiffUtils.getDiffStat(repo, base, patchset.tip);
 				commits = JGitUtils.getRevLog(repo, base, patchset.tip);
 			} catch (Exception e) {
-				Logger.getLogger(getClass()).error("failed to get changed paths", e);
+				log.error("failed to get changed paths", e);
 			} finally {
 				if (repo != null) {
 					repo.close();
@@ -552,9 +554,7 @@ public class TicketNotifier {
 					if (user.canView(repository)) {
 						toAddresses.add(user.emailAddress);
 					} else {
-						LoggerFactory.getLogger(getClass()).warn(
-								MessageFormat.format("ticket {0}-{1,number,0}: {2} can not receive notification",
-										repository.name, ticket.number, user.username));
+						log.warn("ticket {}-{}: {} can not receive notification", repository.name, ticket.number, user.username);
 					}
 				}
 			}
@@ -594,9 +594,7 @@ public class TicketNotifier {
 					if (user.canView(repository)) {
 						ccAddresses.add(user.emailAddress);
 					} else {
-						LoggerFactory.getLogger(getClass()).warn(
-								MessageFormat.format("ticket {0}-{1,number,0}: {2} can not receive notification",
-										repository.name, ticket.number, user.username));
+						log.warn("ticket {}-{}: {} can not receive notification", repository.name, ticket.number, user.username);
 					}
 				}
 			}
