@@ -119,7 +119,7 @@ public class MirrorService implements Runnable {
 
 				repository = repositoryManager.getRepository(repositoryName);
 				if (repository == null) {
-					logger.warn(MessageFormat.format("MirrorExecutor is missing repository {0}?!?", repositoryName));
+					logger.warn("MirrorExecutor is missing repository {}?!?", repositoryName);
 					continue;
 				}
 
@@ -204,7 +204,7 @@ public class MirrorService implements Runnable {
 					}
 				}
 			} catch (Exception e) {
-				logger.error("Error updating mirror " + repositoryName, e);
+				logger.error("Error updating mirror {}", repositoryName, e);
 			} finally {
 				// cleanup
 				if (repository != null) {

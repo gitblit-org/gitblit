@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -99,8 +98,7 @@ public abstract class FederationPullService implements Runnable {
 				FederationPullStatus is = registration.getLowestStatus();
 				if (is.ordinal() < was.ordinal()) {
 					// the status for this registration has downgraded
-					logger.warn("Federation pull status of {0} is now {1}", registration.name,
-							is.name());
+					logger.warn("Federation pull status of {} is now {}", registration.name, is.name());
 					if (registration.notifyOnError) {
 						String message = "Federation pull of " + registration.name + " @ "
 								+ registration.url + " is now at " + is.name();
@@ -110,9 +108,7 @@ public abstract class FederationPullService implements Runnable {
 					}
 				}
 			} catch (Throwable t) {
-				logger.error(MessageFormat.format(
-						"Failed to pull from federated gitblit ({0} @ {1})", registration.name,
-						registration.url), t);
+				logger.error("Failed to pull from federated gitblit ({} @ {})", registration.name, registration.url, t);
 			} finally {
 				reschedule(registration);
 			}
@@ -133,9 +129,8 @@ public abstract class FederationPullService implements Runnable {
 		// confirm valid characters in server alias
 		Character c = StringUtils.findInvalidCharacter(registrationFolder);
 		if (c != null) {
-			logger.error(MessageFormat
-					.format("Illegal character ''{0}'' in folder name ''{1}'' of federation registration {2}!",
-							c, registrationFolder, registration.name));
+			logger.error("Illegal character '{}' in folder name '{}' of federation registration {}!",
+							c, registrationFolder, registration.name);
 			return;
 		}
 		File repositoriesFolder = gitblit.getRepositoriesFolder();
@@ -147,9 +142,8 @@ public abstract class FederationPullService implements Runnable {
 			String cloneUrl = entry.getKey();
 			RepositoryModel repository = entry.getValue();
 			if (!repository.hasCommits) {
-				logger.warn(MessageFormat.format(
-						"Skipping federated repository {0} from {1} @ {2}. Repository is EMPTY.",
-						repository.name, registration.name, registration.url));
+				logger.warn("Skipping federated repository {} from {} @ {}. Repository is EMPTY.",
+						repository.name, registration.name, registration.url);
 				registration.updateStatus(repository, FederationPullStatus.SKIPPED);
 				continue;
 			}
@@ -181,7 +175,7 @@ public abstract class FederationPullService implements Runnable {
 			Repository existingRepository = gitblit.getRepository(repositoryName);
 
 			if (existingRepository == null && gitblit.isCollectingGarbage(repositoryName)) {
-				logger.warn(MessageFormat.format("Skipping local repository {0}, busy collecting garbage", repositoryName));
+				logger.warn("Skipping local repository {}, busy collecting garbage", repositoryName);
 				continue;
 			}
 
@@ -196,9 +190,8 @@ public abstract class FederationPullService implements Runnable {
 				}
 				existingRepository.close();
 				if (!origin.startsWith(registration.url)) {
-					logger.warn(MessageFormat
-							.format("Skipping federated repository {0} from {1} @ {2}. Origin does not match, consider EXCLUDING.",
-									repository.name, registration.name, registration.url));
+					logger.warn("Skipping federated repository {} from {} @ {}. Origin does not match, consider EXCLUDING.",
+									repository.name, registration.name, registration.url);
 					registration.updateStatus(repository, FederationPullStatus.SKIPPED);
 					continue;
 				}
@@ -207,8 +200,7 @@ public abstract class FederationPullService implements Runnable {
 			// clone/pull this repository
 			CredentialsProvider credentials = new UsernamePasswordCredentialsProvider(
 					Constants.FEDERATION_USER, registration.token);
-			logger.info(MessageFormat.format("Pulling federated repository {0} from {1} @ {2}",
-					repository.name, registration.name, registration.url));
+			logger.info("Pulling federated repository {} from {} @ {}", repository.name, registration.name, registration.url);
 
 			CloneResult result = JGitUtils.cloneRepository(registrationFolderFile, repository.name,
 					cloneUrl, registration.bare, credentials);
@@ -220,7 +212,7 @@ public abstract class FederationPullService implements Runnable {
 				repository.federationStrategy = FederationStrategy.EXCLUDE;
 				repository.isFrozen = registration.mirror;
 				repository.showRemoteBranches = !registration.mirror;
-				logger.info(MessageFormat.format("     cloning {0}", repository.name));
+				logger.info("     cloning {}", repository.name);
 				registration.updateStatus(repository, FederationPullStatus.MIRRORED);
 			} else {
 				// fetch and update
@@ -240,8 +232,7 @@ public abstract class FederationPullService implements Runnable {
 								String hash = ref.getReferencedObjectId().getName();
 
 								JGitUtils.setBranchRef(r, branch, hash);
-								logger.info(MessageFormat.format("     resetting {0} of {1} to {2}", branch,
-										repository.name, hash));
+								logger.info("     resetting {} of {} to {}", branch, repository.name, hash);
 							}
 						}
 
@@ -252,8 +243,7 @@ public abstract class FederationPullService implements Runnable {
 							newHead = repository.HEAD;
 						}
 						JGitUtils.setHEADtoRef(r, newHead);
-						logger.info(MessageFormat.format("     resetting HEAD of {0} to {1}",
-								repository.name, newHead));
+						logger.info("     resetting HEAD of {} to {}", repository.name, newHead);
 						registration.updateStatus(repository, FederationPullStatus.MIRRORED);
 					} else {
 						// indicate no commits pulled
@@ -401,9 +391,7 @@ public abstract class FederationPullService implements Runnable {
 		} catch (ForbiddenException e) {
 			// ignore forbidden exceptions
 		} catch (IOException e) {
-			logger.warn(MessageFormat.format(
-					"Failed to retrieve USERS from federated gitblit ({0} @ {1})",
-					registration.name, registration.url), e);
+			logger.warn("Failed to retrieve USERS from federated gitblit ({} @ {})", registration.name, registration.url, e);
 		}
 
 		try {
@@ -422,9 +410,7 @@ public abstract class FederationPullService implements Runnable {
 		} catch (ForbiddenException e) {
 			// ignore forbidden exceptions
 		} catch (IOException e) {
-			logger.warn(MessageFormat.format(
-					"Failed to retrieve TEAMS from federated gitblit ({0} @ {1})",
-					registration.name, registration.url), e);
+			logger.warn("Failed to retrieve TEAMS from federated gitblit ({} @ {})", registration.name, registration.url, e);
 		}
 
 		try {
@@ -441,9 +427,7 @@ public abstract class FederationPullService implements Runnable {
 		} catch (ForbiddenException e) {
 			// ignore forbidden exceptions
 		} catch (IOException e) {
-			logger.warn(MessageFormat.format(
-					"Failed to retrieve SETTINGS from federated gitblit ({0} @ {1})",
-					registration.name, registration.url), e);
+			logger.warn("Failed to retrieve SETTINGS from federated gitblit ({} @ {})",	registration.name, registration.url, e);
 		}
 
 		try {
@@ -463,9 +447,7 @@ public abstract class FederationPullService implements Runnable {
 		} catch (ForbiddenException e) {
 			// ignore forbidden exceptions
 		} catch (IOException e) {
-			logger.warn(MessageFormat.format(
-					"Failed to retrieve SCRIPTS from federated gitblit ({0} @ {1})",
-					registration.name, registration.url), e);
+			logger.warn("Failed to retrieve SCRIPTS from federated gitblit ({} @ {})", registration.name, registration.url, e);
 		}
 	}
 
@@ -487,6 +469,6 @@ public abstract class FederationPullService implements Runnable {
 			federationName = addr.getHostName();
 		}
 		FederationUtils.acknowledgeStatus(addr.getHostAddress(), registration);
-		logger.info(MessageFormat.format("Pull status sent to {0}", registration.url));
+		logger.info("Pull status sent to {}", registration.url);
 	}
 }

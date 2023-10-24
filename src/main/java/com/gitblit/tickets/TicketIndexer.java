@@ -17,7 +17,6 @@ package com.gitblit.tickets;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -214,10 +213,10 @@ public class TicketIndexer {
 			closeSearcher();
 			int numDocsAfter = writer.numDocs();
 			if (numDocsBefore == numDocsAfter) {
-				log.debug(MessageFormat.format("no records found to delete in {0}", repository));
+				log.debug("no records found to delete in {}", repository);
 				return false;
 			} else {
-				log.debug(MessageFormat.format("deleted {0} records in {1}", numDocsBefore - numDocsAfter, repository));
+				log.debug("deleted {} records in {}", numDocsBefore - numDocsAfter, repository);
 				return true;
 			}
 		} catch (Exception e) {
@@ -287,7 +286,7 @@ public class TicketIndexer {
 			IndexWriter writer = getWriter();
 			return delete(ticket.repository, ticket.number, writer);
 		} catch (Exception e) {
-			log.error("Failed to delete ticket " + ticket.number, e);
+			log.error("Failed to delete ticket {}", ticket.number, e);
 		}
 		return false;
 	}
@@ -311,10 +310,10 @@ public class TicketIndexer {
 		closeSearcher();
 		int numDocsAfter = writer.numDocs();
 		if (numDocsBefore == numDocsAfter) {
-			log.debug(MessageFormat.format("no records found to delete in {0}", repository));
+			log.debug("no records found to delete in {}", repository);
 			return false;
 		} else {
-			log.debug(MessageFormat.format("deleted {0} records in {1}", numDocsBefore - numDocsAfter, repository));
+			log.debug("deleted {} records in {}", numDocsBefore - numDocsAfter, repository);
 			return true;
 		}
 	}
@@ -383,7 +382,7 @@ public class TicketIndexer {
 				results.add(result);
 			}
 		} catch (Exception e) {
-			log.error(MessageFormat.format("Exception while searching for {0}", text), e);
+			log.error("Exception while searching for {}", text, e);
 		}
 		return new ArrayList<QueryResult>(results);
 	}
@@ -435,7 +434,7 @@ public class TicketIndexer {
 				results.add(result);
 			}
 		} catch (Exception e) {
-			log.error(MessageFormat.format("Exception while searching for {0}", queryText), e);
+			log.error("Exception while searching for {}", queryText, e);
 		}
 		return new ArrayList<QueryResult>(results);
 	}

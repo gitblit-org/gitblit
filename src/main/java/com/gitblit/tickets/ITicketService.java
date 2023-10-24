@@ -363,7 +363,7 @@ public abstract class ITicketService implements IManager {
 			}
 			labelsCache.put(key,  Collections.unmodifiableList(list));
 		} catch (Exception e) {
-			log.error("invalid tickets settings for " + repository, e);
+			log.error("invalid tickets settings for {}", repository, e);
 		} finally {
 			db.close();
 		}
@@ -408,7 +408,7 @@ public abstract class ITicketService implements IManager {
 			config.setString(LABEL, label, COLOR, lb.color);
 			config.save();
 		} catch (IOException e) {
-			log.error("failed to create label " + label + " in " + repository, e);
+			log.error("failed to create label {} in {}", label, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -436,7 +436,7 @@ public abstract class ITicketService implements IManager {
 
 			return true;
 		} catch (IOException e) {
-			log.error("failed to update label " + label + " in " + repository, e);
+			log.error("failed to update label {} in {}", label, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -477,7 +477,7 @@ public abstract class ITicketService implements IManager {
 
 			return true;
 		} catch (IOException e) {
-			log.error("failed to rename label " + oldName + " in " + repository, e);
+			log.error("failed to rename label {} in {}", oldName, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -508,7 +508,7 @@ public abstract class ITicketService implements IManager {
 
 			return true;
 		} catch (IOException e) {
-			log.error("failed to delete label " + label + " in " + repository, e);
+			log.error("failed to delete label {} in {}", label, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -543,15 +543,14 @@ public abstract class ITicketService implements IManager {
 					try {
 						milestone.due = new SimpleDateFormat(DUE_DATE_PATTERN).parse(due);
 					} catch (ParseException e) {
-						log.error("failed to parse {} milestone {} due date \"{}\"",
-								new Object [] { repository, name, due });
+						log.error("failed to parse {} milestone {} due date \"{}\"", repository, name, due, e);
 					}
 				}
 				list.add(milestone);
 			}
 			milestonesCache.put(key, Collections.unmodifiableList(list));
 		} catch (Exception e) {
-			log.error("invalid tickets settings for " + repository, e);
+			log.error("invalid tickets settings for {}", repository, e);
 		} finally {
 			db.close();
 		}
@@ -617,7 +616,7 @@ public abstract class ITicketService implements IManager {
 
 			milestonesCache.remove(repository.name);
 		} catch (IOException e) {
-			log.error("failed to create milestone " + milestone + " in " + repository, e);
+			log.error("failed to create milestone {} in {}", milestone, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -651,7 +650,7 @@ public abstract class ITicketService implements IManager {
 			milestonesCache.remove(repository.name);
 			return true;
 		} catch (IOException e) {
-			log.error("failed to update milestone " + milestone + " in " + repository, e);
+			log.error("failed to update milestone {} in {}", milestone, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -724,7 +723,7 @@ public abstract class ITicketService implements IManager {
 
 			return true;
 		} catch (IOException e) {
-			log.error("failed to rename milestone " + oldName + " in " + repository, e);
+			log.error("failed to rename milestone {} in {}", oldName, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -788,7 +787,7 @@ public abstract class ITicketService implements IManager {
 			}
 			return true;
 		} catch (IOException e) {
-			log.error("failed to delete milestone " + milestone + " in " + repository, e);
+			log.error("failed to delete milestone {} in {}", milestone, repository, e);
 		} finally {
 			if (db != null) {
 				db.close();
@@ -1219,8 +1218,7 @@ public abstract class ITicketService implements IManager {
 		TicketModel ticket = getTicket(repository, ticketId);
 		boolean success = deleteTicketImpl(repository, ticket, deletedBy);
 		if (success) {
-			log.info(MessageFormat.format("Deleted {0} ticket #{1,number,0}: {2}",
-					repository.name, ticketId, ticket.title));
+			log.info("Deleted {} ticket #{}: {}", repository.name, ticketId, ticket.title);
 			ticketsCache.invalidate(new TicketKey(repository, ticketId));
 			indexer.delete(ticket);
 			return true;
