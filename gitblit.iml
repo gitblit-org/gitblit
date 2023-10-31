@@ -988,13 +988,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jsoup-1.7.3.jar">
+      <library name="jsoup-1.16.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jsoup-1.7.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jsoup-1.16.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jsoup-1.7.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jsoup-1.16.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -191,7 +191,7 @@ dependencies:
 - compile 'redis.clients:jedis:2.6.2' :war
 - compile 'ro.fortsoft.pf4j:pf4j:0.9.0' :war
 - compile 'org.apache.tika:tika-core:1.5' :war
-- compile 'org.jsoup:jsoup:1.7.3' :war
+- compile 'org.jsoup:jsoup:1.16.2' :war
 - compile 'com.sun.activation:javax.activation:1.2.0' :war :manager :fedclient
 - test 'junit:junit:4.12'
 # Dependencies for Selenium web page testing
