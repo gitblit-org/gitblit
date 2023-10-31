@@ -9,13 +9,13 @@
 	<classpathentry kind="lib" path="ext/guice-5.1.0.jar" sourcepath="ext/src/guice-5.1.0.jar" />
 	<classpathentry kind="lib" path="ext/javax.inject-1.jar" sourcepath="ext/src/javax.inject-1.jar" />
 	<classpathentry kind="lib" path="ext/aopalliance-1.0.jar" sourcepath="ext/src/aopalliance-1.0.jar" />
-	<classpathentry kind="lib" path="ext/guava-31.1-jre.jar" sourcepath="ext/src/guava-31.1-jre.jar" />
+	<classpathentry kind="lib" path="ext/guava-32.1.3-jre.jar" sourcepath="ext/src/guava-32.1.3-jre.jar" />
 	<classpathentry kind="lib" path="ext/failureaccess-1.0.1.jar" sourcepath="ext/src/failureaccess-1.0.1.jar" />
 	<classpathentry kind="lib" path="ext/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar" />
 	<classpathentry kind="lib" path="ext/jsr305-3.0.2.jar" sourcepath="ext/src/jsr305-3.0.2.jar" />
-	<classpathentry kind="lib" path="ext/checker-qual-3.12.0.jar" sourcepath="ext/src/checker-qual-3.12.0.jar" />
-	<classpathentry kind="lib" path="ext/error_prone_annotations-2.11.0.jar" sourcepath="ext/src/error_prone_annotations-2.11.0.jar" />
-	<classpathentry kind="lib" path="ext/j2objc-annotations-1.3.jar" sourcepath="ext/src/j2objc-annotations-1.3.jar" />
+	<classpathentry kind="lib" path="ext/checker-qual-3.37.0.jar" sourcepath="ext/src/checker-qual-3.37.0.jar" />
+	<classpathentry kind="lib" path="ext/error_prone_annotations-2.21.1.jar" sourcepath="ext/src/error_prone_annotations-2.21.1.jar" />
+	<classpathentry kind="lib" path="ext/j2objc-annotations-2.8.jar" sourcepath="ext/src/j2objc-annotations-2.8.jar" />
 	<classpathentry kind="lib" path="ext/guice-servlet-5.1.0-gb2.jar" sourcepath="ext/src/guice-servlet-5.1.0-gb2.jar" />
 	<classpathentry kind="lib" path="ext/annotations-12.0.jar" sourcepath="ext/src/annotations-12.0.jar" />
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17.jar" />
@@ -72,7 +72,7 @@
 	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.69.jar" sourcepath="ext/src/bcpkix-jdk15on-1.69.jar" />
 	<classpathentry kind="lib" path="ext/eddsa-0.2.0.jar" sourcepath="ext/src/eddsa-0.2.0.jar" />
 	<classpathentry kind="lib" path="ext/sshd-core-1.7.0.jar" sourcepath="ext/src/sshd-core-1.7.0.jar" />
-	<classpathentry kind="lib" path="ext/mina-core-2.0.21.jar" sourcepath="ext/src/mina-core-2.0.21.jar" />
+	<classpathentry kind="lib" path="ext/mina-core-2.0.25.jar" sourcepath="ext/src/mina-core-2.0.25.jar" />
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/src/rome-0.9.jar" />
 	<classpathentry kind="lib" path="ext/jdom-1.0.jar" sourcepath="ext/src/jdom-1.0.jar" />
 	<classpathentry kind="lib" path="ext/gson-2.10.jar" sourcepath="ext/src/gson-2.10.jar" />
@@ -80,7 +80,7 @@
 	<classpathentry kind="lib" path="ext/unboundid-ldapsdk-2.3.8.jar" sourcepath="ext/src/unboundid-ldapsdk-2.3.8.jar" />
 	<classpathentry kind="lib" path="ext/ivy-2.2.0.jar" sourcepath="ext/src/ivy-2.2.0.jar" />
 	<classpathentry kind="lib" path="ext/jcalendar-1.3.2.jar" />
-	<classpathentry kind="lib" path="ext/commons-compress-1.22.jar" sourcepath="ext/src/commons-compress-1.22.jar" />
+	<classpathentry kind="lib" path="ext/commons-compress-1.24.0.jar" sourcepath="ext/src/commons-compress-1.24.0.jar" />
 	<classpathentry kind="lib" path="ext/commons-io-2.11.0.jar" sourcepath="ext/src/commons-io-2.11.0.jar" />
 	<classpathentry kind="lib" path="ext/force-partner-api-24.0.0.jar" sourcepath="ext/src/force-partner-api-24.0.0.jar" />
 	<classpathentry kind="lib" path="ext/force-wsc-24.0.0.jar" sourcepath="ext/src/force-wsc-24.0.0.jar" />

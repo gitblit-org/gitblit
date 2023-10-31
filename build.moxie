@@ -115,7 +115,7 @@ properties: {
   selenium.version : 2.28.0
   wikitext.version : 1.4
   sshd.version: 1.7.0
-  mina.version: 2.0.21
+  mina.version: 2.0.25
   guice.version : 5.1.0
   # Gitblit maintains a fork of guice-servlet
   guice-servlet.version : 5.1.0-gb2
@@ -135,7 +135,7 @@ properties: {
 dependencies:
 - compile 'com.google.inject:guice:${guice.version}' :war :fedclient
 - compile 'com.google.inject.extensions:guice-servlet:${guice-servlet.version}' :war
-- compile 'com.google.guava:guava:31.1-jre' :war :fedclient
+- compile 'com.google.guava:guava:32.1.3-jre' :war :fedclient
 - compile 'com.intellij:annotations:12.0' :war
 - compile 'log4j:log4j:1.2.17' :war :fedclient :manager
 - compile 'org.slf4j:slf4j-api:${slf4j.version}' :war :fedclient :manager
@@ -180,7 +180,7 @@ dependencies:
 - compile 'com.unboundid:unboundid-ldapsdk:2.3.8' :war
 - compile 'org.apache.ivy:ivy:2.2.0' :war
 - compile 'com.toedter:jcalendar:1.3.2' :authority
-- compile 'org.apache.commons:commons-compress:1.22' :war
+- compile 'org.apache.commons:commons-compress:1.24.0' :war
 - compile 'commons-io:commons-io:2.11.0' :war
 - compile 'com.force.api:force-partner-api:24.0.0' :war
 - compile 'org.freemarker:freemarker:2.3.22' :war
