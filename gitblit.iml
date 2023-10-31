@@ -145,35 +145,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="log4j-1.2.17.jar">
+      <library name="reload4j-1.2.25.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/log4j-1.2.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/reload4j-1.2.25.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/log4j-1.2.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/reload4j-1.2.25.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-api-1.7.29.jar">
+      <library name="slf4j-api-1.7.36.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.36.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-log4j12-1.7.29.jar">
+      <library name="slf4j-reload4j-1.7.36.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-reload4j-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-reload4j-1.7.36.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
