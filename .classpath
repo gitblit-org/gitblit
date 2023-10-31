@@ -94,7 +94,7 @@
 	<classpathentry kind="lib" path="ext/jedis-2.6.2.jar" sourcepath="ext/src/jedis-2.6.2.jar" />
 	<classpathentry kind="lib" path="ext/commons-pool2-2.0.jar" sourcepath="ext/src/commons-pool2-2.0.jar" />
 	<classpathentry kind="lib" path="ext/pf4j-0.9.0.jar" sourcepath="ext/src/pf4j-0.9.0.jar" />
-	<classpathentry kind="lib" path="ext/tika-core-1.5.jar" sourcepath="ext/src/tika-core-1.5.jar" />
+	<classpathentry kind="lib" path="ext/tika-core-1.28.5.jar" sourcepath="ext/src/tika-core-1.28.5.jar" />
 	<classpathentry kind="lib" path="ext/jsoup-1.16.2.jar" sourcepath="ext/src/jsoup-1.16.2.jar" />
 	<classpathentry kind="lib" path="ext/javax.activation-1.2.0.jar" sourcepath="ext/src/javax.activation-1.2.0.jar" />
 	<classpathentry kind="lib" path="ext/junit-4.12.jar" sourcepath="ext/src/junit-4.12.jar" />

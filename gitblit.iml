@@ -977,13 +977,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="tika-core-1.5.jar">
+      <library name="tika-core-1.28.5.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/tika-core-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/tika-core-1.28.5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/tika-core-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/tika-core-1.28.5.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
