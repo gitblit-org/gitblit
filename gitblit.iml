@@ -48,13 +48,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="guava-31.1-jre.jar">
+      <library name="guava-32.1.3-jre.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guava-31.1-jre.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/guava-32.1.3-jre.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guava-31.1-jre.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/guava-32.1.3-jre.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -90,35 +90,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="checker-qual-3.12.0.jar">
+      <library name="checker-qual-3.37.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/checker-qual-3.12.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/checker-qual-3.37.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/checker-qual-3.12.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/checker-qual-3.37.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="error_prone_annotations-2.11.0.jar">
+      <library name="error_prone_annotations-2.21.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/error_prone_annotations-2.11.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/error_prone_annotations-2.21.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/error_prone_annotations-2.11.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/error_prone_annotations-2.21.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="j2objc-annotations-1.3.jar">
+      <library name="j2objc-annotations-2.8.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/j2objc-annotations-1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/j2objc-annotations-2.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/j2objc-annotations-1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/j2objc-annotations-2.8.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -145,35 +145,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="log4j-1.2.17.jar">
+      <library name="reload4j-1.2.25.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/log4j-1.2.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/reload4j-1.2.25.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/log4j-1.2.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/reload4j-1.2.25.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-api-1.7.29.jar">
+      <library name="slf4j-api-1.7.36.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.36.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-log4j12-1.7.29.jar">
+      <library name="slf4j-reload4j-1.7.36.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-reload4j-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-reload4j-1.7.36.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -183,9 +183,7 @@
           <root url="jar://$MODULE_DIR$/ext/javax.mail-1.5.6.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/javax.mail-1.5.6.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -588,9 +586,7 @@
           <root url="jar://$MODULE_DIR$/ext/jsch-0.1.54.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jsch-0.1.54.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -599,9 +595,7 @@
           <root url="jar://$MODULE_DIR$/ext/jzlib-1.1.1.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jzlib-1.1.1.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -621,9 +615,7 @@
           <root url="jar://$MODULE_DIR$/ext/httpclient-4.5.2.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/httpclient-4.5.2.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -632,9 +624,7 @@
           <root url="jar://$MODULE_DIR$/ext/httpcore-4.4.4.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/httpcore-4.4.4.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -654,9 +644,7 @@
           <root url="jar://$MODULE_DIR$/ext/commons-codec-1.9.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-codec-1.9.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -671,47 +659,43 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcprov-jdk15on-1.69.jar">
+      <library name="bcprov-jdk18on-1.76.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk18on-1.76.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk18on-1.76.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcmail-jdk15on-1.69.jar">
+      <library name="bcmail-jdk18on-1.76.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk18on-1.76.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="bcutil-jdk18on-1.76.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/bcutil-jdk18on-1.76.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcutil-jdk18on-1.76.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcutil-jdk15on-1.69.jar">
+      <library name="bcpkix-jdk18on-1.76.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcutil-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk18on-1.76.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcutil-jdk15on-1.69.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="bcpkix-jdk15on-1.69.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk15on-1.69.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcpkix-jdk15on-1.69.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -737,13 +721,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="mina-core-2.0.21.jar">
+      <library name="mina-core-2.0.22.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.22.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.22.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -823,13 +807,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="commons-compress-1.22.jar">
+      <library name="commons-compress-1.24.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.22.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.24.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.22.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.24.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -977,24 +961,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="tika-core-1.5.jar">
+      <library name="tika-core-1.28.3.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/tika-core-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/tika-core-1.28.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/tika-core-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/tika-core-1.28.3.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jsoup-1.7.3.jar">
+      <library name="jsoup-1.14.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jsoup-1.7.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jsoup-1.14.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jsoup-1.7.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jsoup-1.14.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -1015,9 +999,7 @@
           <root url="jar://$MODULE_DIR$/ext/junit-4.12.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/junit-4.12.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
@@ -1169,9 +1151,7 @@
           <root url="jar://$MODULE_DIR$/ext/objenesis-2.6.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/objenesis-2.6.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="inheritedJdk" />
