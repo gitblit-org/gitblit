@@ -18,7 +18,7 @@ package com.gitblit.utils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -38,7 +38,7 @@ public class JSoupXssFilter implements XssFilter {
 
 	 @Inject
 	 public JSoupXssFilter() {
-		 none = new Cleaner(Whitelist.none());
+		 none = new Cleaner(Safelist.none());
 		 relaxed = new Cleaner(getRelaxedWhiteList());
 	}
 
@@ -64,8 +64,8 @@ public class JSoupXssFilter implements XssFilter {
 	 * https://github.com/github/markup/tree/master#html-sanitization
 	 * @return a loose HTML whitelist
 	 */
-	protected Whitelist getRelaxedWhiteList() {
-		return new Whitelist()
+	protected Safelist getRelaxedWhiteList() {
+		return new Safelist()
         .addTags(
                 "a", "b", "blockquote", "br", "caption", "cite", "code", "col",
                 "colgroup", "dd", "del", "div", "dl", "dt", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr",

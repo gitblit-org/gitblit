@@ -48,13 +48,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="guava-31.1-jre.jar">
+      <library name="guava-32.1.3-jre.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guava-31.1-jre.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/guava-32.1.3-jre.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guava-31.1-jre.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/guava-32.1.3-jre.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -90,35 +90,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="checker-qual-3.12.0.jar">
+      <library name="checker-qual-3.37.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/checker-qual-3.12.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/checker-qual-3.37.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/checker-qual-3.12.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/checker-qual-3.37.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="error_prone_annotations-2.11.0.jar">
+      <library name="error_prone_annotations-2.21.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/error_prone_annotations-2.11.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/error_prone_annotations-2.21.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/error_prone_annotations-2.11.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/error_prone_annotations-2.21.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="j2objc-annotations-1.3.jar">
+      <library name="j2objc-annotations-2.8.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/j2objc-annotations-1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/j2objc-annotations-2.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/j2objc-annotations-1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/j2objc-annotations-2.8.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -145,35 +145,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="log4j-1.2.17.jar">
+      <library name="reload4j-1.2.25.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/log4j-1.2.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/reload4j-1.2.25.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/log4j-1.2.17.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/reload4j-1.2.25.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-api-1.7.29.jar">
+      <library name="slf4j-api-1.7.36.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.7.36.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="slf4j-log4j12-1.7.29.jar">
+      <library name="slf4j-reload4j-1.7.36.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/slf4j-reload4j-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.7.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-reload4j-1.7.36.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -737,13 +737,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="mina-core-2.0.21.jar">
+      <library name="mina-core-2.0.25.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.25.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.21.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.25.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -823,13 +823,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="commons-compress-1.22.jar">
+      <library name="commons-compress-1.24.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.22.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.24.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.22.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.24.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -977,24 +977,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="tika-core-1.5.jar">
+      <library name="tika-core-1.28.5.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/tika-core-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/tika-core-1.28.5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/tika-core-1.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/tika-core-1.28.5.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jsoup-1.7.3.jar">
+      <library name="jsoup-1.16.2.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jsoup-1.7.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jsoup-1.16.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jsoup-1.7.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jsoup-1.16.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
