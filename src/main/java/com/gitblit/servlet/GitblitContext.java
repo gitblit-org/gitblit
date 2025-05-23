@@ -32,6 +32,7 @@ import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import com.gitblit.instance.GitblitInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +87,8 @@ public class GitblitContext extends GuiceServletContextListener {
 	private final IStoredSettings goSettings;
 
 	private final File goBaseFolder;
+
+	private final GitblitInstance instance = new GitblitInstance();
 
 	/**
 	 * Construct a Gitblit WAR/Express context.
@@ -224,6 +227,10 @@ public class GitblitContext extends GuiceServletContextListener {
 				logger.error(null, t);
 			}
 		}
+
+		instance.init(runtime);
+		// The instance is up and running. Make it count.
+		instance.start();
 	}
 
 	private String lookupBaseFolderFromJndi() {
