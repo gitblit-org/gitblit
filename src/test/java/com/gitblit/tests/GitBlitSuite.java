@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.gitblit.instance.GitblitInstanceIdTest;
 import com.gitblit.utils.TimeUtilsTest;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
@@ -74,7 +75,8 @@ import com.gitblit.utils.JGitUtils;
 		ModelUtilsTest.class, JnaUtilsTest.class, LdapSyncServiceTest.class, FileTicketServiceTest.class,
 		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class,
 		SshKeysDispatcherTest.class, UITicketTest.class, PathUtilsTest.class, SshKerberosAuthenticationTest.class,
-		GravatarTest.class, FilestoreManagerTest.class, FilestoreServletTest.class, TicketReferenceTest.class })
+		GravatarTest.class, FilestoreManagerTest.class, FilestoreServletTest.class, TicketReferenceTest.class,
+		GitblitInstanceIdTest.class })
 public class GitBlitSuite {
 
 	public static final File BASEFOLDER = new File("data");
