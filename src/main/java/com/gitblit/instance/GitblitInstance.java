@@ -2,13 +2,21 @@ package com.gitblit.instance;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.utils.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.gitblit.utils.JsonUtils.sendJsonString;
+
 public class GitblitInstance
 {
     private final static String STATS_URL = "https://instats.gitblit.dev/hiitsme/";
+    private final static Logger LOG = LoggerFactory.getLogger(GitblitInstance.class);
 
     private IRuntimeManager runtimeManager;
 
@@ -16,6 +24,7 @@ public class GitblitInstance
 
     private GitblitInstanceReport report;
 
+    private ScheduledExecutorService executor;
 
 
     /**
@@ -34,6 +43,7 @@ public class GitblitInstance
         // Initialize ID
         GitblitInstanceId instanceId = new GitblitInstanceId(runtimeManager.getBaseFolder());
         this.instanceId = instanceId.getId().toString();
+        LOG.info(this.instanceId);
 
         GitblitInstanceStat instanceStat;
 
@@ -60,6 +70,15 @@ public class GitblitInstance
         }
     }
 
+    public void stop()
+    {
+        if (this.executor != null && !this.executor.isShutdown() && !this.executor.isTerminated()) {
+            this.executor.shutdownNow();
+            System.out.println("Gitblit instance reporting task stopped.");
+        }
+    }
+
+
 
     /**
      * Determine if the reporting task should run.
@@ -80,8 +99,9 @@ public class GitblitInstance
 
         // Check if we are running in a test environment
         IStoredSettings settings = this.runtimeManager.getSettings();
-        if (! settings.getString("gitblit.testReportingURL", "").isEmpty()) {
+        if (! settings.getString("gitblit.testReportingUrl", "").isEmpty()) {
             // Force reporting to run overriding any test settings
+            LOG.debug("Enabled reporting to test server URL: {}", settings.getString("gitblit.testReportingUrl", ""));
             return true;
         }
         if (settings.getBoolean("gitblit.testRun", false)) {
@@ -119,17 +139,31 @@ public class GitblitInstance
     {
         this.executor = Executors.newSingleThreadScheduledExecutor();
 
-        String baseUrl = STATS_URL;
+        String statsUrl = STATS_URL;
         int delay = 24;
         int period = 24 * 60; // 24 hours in minutes
         TimeUnit unit = TimeUnit.MINUTES;
+        long retryInterval = 60 * 60 * 1000; // 1 hour in milliseconds
+        final long retryTimeout = 20 * 60 * 60 * 1000; // 20 hours in milliseconds
 
+        // If we are running in a test environment, we will send the reports more frequently
+        String testUrl = this.runtimeManager.getSettings().getString("gitblit.testReportingUrl", "");
+        if (! testUrl.isEmpty()) {
+            statsUrl = testUrl;
+            delay = 10;
+            period = 24;
+            unit = TimeUnit.SECONDS;
+            retryInterval = 10 * 1000; // 10 seconds in milliseconds
+        }
+
+        final String baseUrl = statsUrl;
+        final long retryIntervalFinal = retryInterval;
         this.executor.scheduleAtFixedRate(new Runnable()
         {
             @Override
             public void run()
             {
-                sendMyStats(baseUrl + instanceId);
+                sendMyStats(baseUrl + instanceId, retryIntervalFinal, retryTimeout);
             }
         }, delay, period, unit);
     }
@@ -139,11 +173,40 @@ public class GitblitInstance
      *
      * This will send a JSON object to the server with the instance report.
      *
-     * @param server
+     * @param reportUrl
      *            The URL to send the report to.
+     * @param retryInterval
+     *           The interval in milliseconds to wait before retrying to send the report if it failed.
+     * @param retryTimeout
+     *           The timeout in milliseconds to give up sending the report if it fails repeatedly.
      */
-    private void sendMyStats(String server)
+    private void sendMyStats(String reportUrl, long retryInterval, long retryTimeout)
     {
+        // Create a HTTP POST request payload
+        String report = JsonUtils.toJsonString(this.report.fromNow());
+
+        int status = 0;
+        long timeToGiveup = System.currentTimeMillis() + retryTimeout;
+        while (status != 200 && System.currentTimeMillis() < timeToGiveup) {
+            try {
+                status = sendJsonString(reportUrl, report, "gitblitta", "countmein".toCharArray());
+                if (status != 200) {
+                    LOG.debug("Error sending stats to " + reportUrl + ": " + status);
+                }
+            }
+            catch (IOException e) {
+                LOG.debug("Exception sending stats to " + reportUrl + ": " + e.getMessage());
+            }
+
+            if (status != 200) {
+                try {
+                    Thread.sleep(retryInterval);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return; // exit if interrupted
+                }
+            }
+        }
     }
 
 }

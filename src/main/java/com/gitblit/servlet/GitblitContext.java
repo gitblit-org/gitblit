@@ -310,6 +310,8 @@ public class GitblitContext extends GuiceServletContextListener {
 			}
 		}
 
+		this.instance.stop();
+
 		for (IManager manager : managers) {
 			logger.debug("stopping {}", manager.getClass().getSimpleName());
 			manager.stop();
