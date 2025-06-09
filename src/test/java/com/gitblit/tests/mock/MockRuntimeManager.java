@@ -52,6 +52,8 @@ public class MockRuntimeManager implements IRuntimeManager {
 
 	public MockRuntimeManager(IStoredSettings settings) {
 		this.settings = settings;
+		// Insert marker that this is running as a test
+		settings.overrideSetting("gitblit.testRun", "true");
 
 		this.serverStatus = new ServerStatus();
 		this.serverStatus.servletContainer = "MockServer";
@@ -92,6 +94,11 @@ public class MockRuntimeManager implements IRuntimeManager {
 	@Override
 	public Date getBootDate() {
 		return serverStatus.bootDate;
+	}
+
+	public void setStatus(ServerStatus status)
+	{
+		this.serverStatus = status;
 	}
 
 	@Override

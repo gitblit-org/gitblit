@@ -31,7 +31,10 @@ import com.gitblit.servlet.GitblitContext;
 public class GitblitUnitTest extends org.junit.Assert {
 
 	public static IStoredSettings settings() {
-		return runtime().getSettings();
+		IStoredSettings settings = runtime().getSettings();
+		// Insert marker that this is running as a test
+		settings.overrideSetting("gitblit.testRun", "true");
+		return settings;
 	}
 
 	public static IRuntimeManager runtime() {

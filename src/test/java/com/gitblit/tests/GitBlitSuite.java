@@ -28,6 +28,7 @@ import java.util.zip.ZipInputStream;
 
 import com.gitblit.instance.GitblitInstanceIdTest;
 import com.gitblit.instance.GitblitInstanceStatTest;
+import com.gitblit.instance.GitblitInstanceTest;
 import com.gitblit.utils.TimeUtilsTest;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
@@ -77,7 +78,7 @@ import com.gitblit.utils.JGitUtils;
 		BranchTicketServiceTest.class, RedisTicketServiceTest.class, AuthenticationManagerTest.class,
 		SshKeysDispatcherTest.class, UITicketTest.class, PathUtilsTest.class, SshKerberosAuthenticationTest.class,
 		GravatarTest.class, FilestoreManagerTest.class, FilestoreServletTest.class, TicketReferenceTest.class,
-		GitblitInstanceIdTest.class, GitblitInstanceStatTest.class })
+		GitblitInstanceIdTest.class, GitblitInstanceStatTest.class, GitblitInstanceTest.class })
 public class GitBlitSuite {
 
 	public static final File BASEFOLDER = new File("data");

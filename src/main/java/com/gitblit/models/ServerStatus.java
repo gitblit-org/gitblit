@@ -51,9 +51,9 @@ public class ServerStatus implements Serializable {
 
 	public String servletContainer;
 
-	public ServerStatus() {
+	public ServerStatus(String version) {
 		this.bootDate = new Date();
-		this.version = Constants.getVersion();
+		this.version = version;
 		this.releaseDate = Constants.getBuildDate();
 
 		this.heapMaximum = Runtime.getRuntime().maxMemory();
@@ -74,6 +74,10 @@ public class ServerStatus implements Serializable {
 		put("os.arch");
 		put("os.name");
 		put("os.version");
+	}
+
+	public ServerStatus() {
+		this(Constants.getVersion());
 	}
 
 	private void put(String key) {
