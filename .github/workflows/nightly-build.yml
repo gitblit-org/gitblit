@@ -189,7 +189,7 @@ jobs:
         env:
           GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
         run: |
-          dgoss run  -p 8080:8080  -p 8443:8443  gitblit/gitblit:nightly
+          dgoss run -e GITBLIT_GOSS_TEST=true -p 8080:8080  -p 8443:8443  gitblit/gitblit:nightly
 
       - name: Test docker container - bind mount
         env:
@@ -201,7 +201,7 @@ jobs:
           echo "include = gitblit-docker.properties" >> gitblit-data/etc/gitblit.properties
           sed -e '/mode: / d' -e '/group: / d' goss.yaml > gitblit-data/goss.yaml
           cp goss_wait.yaml gitblit-data/
-          GOSS_FILES_PATH=gitblit-data dgoss run -p 8080:8080  -p 8443:8443 -v "$PWD/gitblit-data":/var/opt/gitblit gitblit/gitblit:nightly
+          GOSS_FILES_PATH=gitblit-data dgoss run -e GITBLIT_GOSS_TEST=true -p 8080:8080  -p 8443:8443 -v "$PWD/gitblit-data":/var/opt/gitblit gitblit/gitblit:nightly
           [ -d gitblit-data/srv/git ] || exit 1
           [ -f gitblit-data/etc/defaults.properties ] || exit 1
           grep --quiet "This should not be overwritten"  gitblit-data/etc/gitblit.properties || exit 1
@@ -211,7 +211,7 @@ jobs:
         env:
           GOSS_WAIT_OPTS: "-r 15s -s 5s > /dev/null"
         run: |
-          dgoss run  -p 8080:8080  -p 8443:8443 --tmpfs /var/opt/gitblit/temp gitblit/gitblit:nightly
+          dgoss run -e GITBLIT_GOSS_TEST=true -p 8080:8080  -p 8443:8443 --tmpfs /var/opt/gitblit/temp gitblit/gitblit:nightly
 
       # Delete the artifact unless this is the official Gitblit repo
       - uses: geekyeggo/delete-artifact@v5
