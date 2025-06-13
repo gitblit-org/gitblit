@@ -6,11 +6,11 @@ r34: {
     id: ${project.version}
     date: ${project.buildDate}
     note: ''
-          From 1.10.0 on Gitblit requires Java 8 as minimum Java version.
+          Should you have disabled the Flash-based copy-to-clipboard function because it wasn't working anymore (`web.allowFlashCopyToClipboard = false`), you may want to rethink this and enable it again. The configuration property has the same name, but the mechanism was exchanged. Flash is gone, and a modern JavaScript solution is now used to copy text directly to the clipboard (via clipboard.js).
 
-          Should you have disabled the Flash-based copy-to-clipboard function because it wasn't working anymore (web.allowFlashCopyToClipboard = false), you may want to rethink this and enable it again. The configuration property has the same name, but the mechanism was exchanged. Flash is gone, and a modern JavaScript solution is now used to copy text directly to the clipboard (via clipboard.js).
+          The setting `server.requireClientCertificates` now has three values: `required`, `optional` and `none`. While `required` is synonymous to the old `true` value, and `optional` is synonymous to the old `false` value, the new `none` value results in the server never asking the client to present any client certificate at all. The old values `true` and `false` can still be used and keep their meaning.
 
-          The setting 'server.requireClientCertificates' now has three values: required, optional and none. While 'required' is synonymous to the old 'true' value, and 'optional' is synonymous to the old 'false' value, the new 'none' value results in the server never asking the client to present any client certificate at all. The old values 'true' and 'false' can still be used and keep their meaning.
+          From 1.10.0 on Gitblit requires Java 8 as minimal Java version.
 
           ''
     html: ~
@@ -18,9 +18,9 @@ r34: {
           Highlights:
 
           * Support for ECDSA and Ed25519 SSH keys
-          * Move to Java 8
           * Explicitly disable requesting optional client TLS certificates
           * Copy-to-clipboard button is back and working
+          * Minimal required Java version is Java 8
 
           While old DSA SSH host keys can still be used, a new Gitblit installation will no longer
           generate a DSA host key. The default set of host keys is now RSA, ECDSA and Ed25519.
@@ -40,30 +40,41 @@ r34: {
       - Fix errors in Bugtraq preventing display of commit completely.
       - Fix misaligned images in primary repository URL display. (issue-1437)
       - Fix incorrect text being copied by copy button on tickets page
+      - Fix broken language files.
+      - Fix problems with single quotes in message texts. (pr-1455 by @losiki)
     changes:
       - Minimum Java required increased to Java 8. (pr-1218 by @paladox)
-      - Add feedback on invalid keys to SSH key form. (issue-984, pr-1239 by @martinspielmann)
-      - Replace old Flash-based Clippy copy-paste buttons to copy repository URLs and other text to the clipboard with a modern JavaScript-based approach via clipboard.js. (issue-1241, issue-965, pr-1438 by @flaix)
+      - Added feedback on invalid keys to SSH key form. (issue-984, pr-1239 by @martinspielmann)
+      - Replaced old Flash-based Clippy copy-paste buttons to copy repository URLs and other text to the clipboard with a modern JavaScript-based approach via clipboard.js. (issue-1241, issue-965, pr-1438 by @flaix)
+      - Updated various dependencies that had known CVEs.
+      - Updated Git clients list on empty repository page.
+      - Improved Chinese translation of "fork".
+      - Switched logging library from Log4j1 to reload4j.
     additions:
       - Option to explicitly disable optional client TLS certificates. (issue-1137, pr-1138 by @oddeirik)
       - Support for ECDSA and Ed25519 (EdDSA) user keys. (pr-1427, pr-1272)
       - New ECDSA and EdDSA host key types. (issue-1354, pr-1429 by @flaix)
       - French version of empty repository page. (by @piradix)
-      - Add support for Jenkins access token. Use setting 'groovy.jenkinsToken'. (issue-1423, pr-1425 by @TDesjardins)
+      - Add support for Jenkins access token. Use setting `groovy.jenkinsToken`. (issue-1423, pr-1425 by @TDesjardins)
     dependencyChanges:
       - update to JavaMail 1.5.6 (pr-1217 by @paladox)
       - update to Google Guice 5.1.0
-      - update to Google Guava 31.1-jre
+      - update to Google Guava 32.1.3-jre
       - update to Google Gson 2.10
       - update to Apache commons-io 2.11.0
       - update to Apache commons-codec 1.9
-      - update to Apache commons-compress 1.22
+      - update to Apache commons-compress 1.24
+      - update to Apache Tika 1.28.5
       - update to libpam4j 1.11
       - update to MINA SSHD 1.7.0
+      - update to MINA Core 2.0.25
       - update to BouncyCastle 1.69
       - update to Jetty 9.4.49.v20220914 (pr-1213 by @paladox, plus more)
       - update to JGit 4.11.9.201909030838-r (pr-1252 by @jvanhercke, plus more)
       - update to Bugtraq v0.4
+      - update to JSoup 1.16.2
+      - update to slf4j 1.7.36
+      - replace log4j1 with reload4j
       - added clipboard.js, replacing Clippy
     settings:
       - { name: 'server.requireClientCertificates', defaultValue: 'optional' }
@@ -79,6 +90,8 @@ r34: {
       - @xxcdd
       - @piradix
       - Tino Desjardins
+      - @xxl-cc
+      - Egor Shchegolkov
 }
 
 #
