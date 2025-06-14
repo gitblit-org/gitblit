@@ -93,8 +93,11 @@ public class EditUserPage extends RootSubPage {
 			super.setupPage(getString("gb.edit"), userModel.username);
 		}
 
-		final Model<String> confirmPassword = new Model<String>(
-				StringUtils.isEmpty(userModel.password) ? "" : userModel.password);
+		final Model<String> confirmPassword = new Model<String>("");
+
+		// Saving current password of user and clearing the one in the model so that it doesn't show up in the page.
+		final String oldPassword = userModel.password;
+		userModel.password = "";
 		CompoundPropertyModel<UserModel> model = new CompoundPropertyModel<UserModel>(userModel);
 
 		// build list of projects including all repositories wildcards
@@ -149,13 +152,15 @@ public class EditUserPage extends RootSubPage {
 				boolean rename = !StringUtils.isEmpty(oldName)
 						&& !oldName.equalsIgnoreCase(username);
 				if (app().authentication().supportsCredentialChanges(userModel)) {
-					if (!userModel.password.equals(confirmPassword.getObject())) {
-						error(getString("gb.passwordsDoNotMatch"));
-						return;
-					}
-					String password = userModel.password;
-					if (!PasswordHash.isHashedEntry(password)) {
-						// This is a plain text password.
+
+					if (!StringUtils.isEmpty(userModel.password)) {
+						// The password was changed
+						String password = userModel.password;
+						if (!password.equals(confirmPassword.getObject())) {
+							error(getString("gb.passwordsDoNotMatch"));
+							return;
+						}
+
 						// Check length.
 						int minLength = app().settings().getInteger(Keys.realm.minPasswordLength, 5);
 						if (minLength < 4) {
@@ -170,16 +175,19 @@ public class EditUserPage extends RootSubPage {
 						// change the cookie
 						userModel.cookie = userModel.createCookie();
 
-						// Optionally store the password MD5 digest.
+						// Optionally store the password hash digest.
 						String type = app().settings().getString(Keys.realm.passwordStorage, PasswordHash.getDefaultType().name());
 						PasswordHash pwdh = PasswordHash.instanceOf(type);
 						if (pwdh != null) { // Hash the password
 							userModel.password = pwdh.toHashedEntry(password, username);
 						}
-					} else if (rename
-							&& password.toUpperCase().startsWith(PasswordHash.Type.CMD5.name())) {
-						error(getString("gb.combinedMd5Rename"));
-						return;
+					} else {
+						if (rename && oldPassword.toUpperCase().startsWith(PasswordHash.Type.CMD5.name())) {
+							error(getString("gb.combinedMd5Rename"));
+							return;
+						}
+						// Set back saved password so that it is kept in the DB.
+						userModel.password = oldPassword;
 					}
 				}
 
@@ -251,10 +259,12 @@ public class EditUserPage extends RootSubPage {
 		form.add(new TextField<String>("username").setEnabled(editCredentials));
 		NonTrimmedPasswordTextField passwordField = new NonTrimmedPasswordTextField("password");
 		passwordField.setResetPassword(false);
+		passwordField.setRequired(false);
 		form.add(passwordField.setEnabled(editCredentials));
 		NonTrimmedPasswordTextField confirmPasswordField = new NonTrimmedPasswordTextField("confirmPassword",
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
+		confirmPasswordField.setRequired(false);
 		form.add(confirmPasswordField.setEnabled(editCredentials));
 		form.add(new TextField<String>("displayName").setEnabled(editDisplayName));
 		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));

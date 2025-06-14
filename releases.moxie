@@ -34,6 +34,7 @@ r34: {
     security:
       - Fix path traversal vulnerability which allowed access to "/resources//../WEB-INF/". (CVE-2022-31268) This was fixed by updating Jetty. (issue-1409)
       - Fix exploit circumventing SSH authentication. Many thanks to András Veres-Szentkirályi (silentsignal.eu) for the report. (CVE-2024-28080)
+      - Fix vulnerability exposing user password hashes to administrators when an administrator edits a user's properties. Many thanks to Gerhard Klostermeier (syss.de) for the report.
     fixes:
       - Fix crash in Gitblit Authority when users were deleted from Gitblit but still had entries (certificates) in the Authority. (issue-1359, pr-1435)
       - Fix tab-to-space conversion to work like tabs. (pr-1065 by @QuentinC)
@@ -97,6 +98,7 @@ r34: {
       - @xxl-cc
       - Egor Shchegolkov
       - András Veres-Szentkirályi
+      - Gerhard Klostermeier
 }
 
 #
