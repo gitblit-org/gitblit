@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.10.0 release
 #
 r34: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.10.0 released
+    id: 1.10.0
+    date: 2025-06-14
     note: ''
           This release fixes a vulnerability allowing an attacker to circumvent authentication on the SSH transport. Users are urged to update to this version.
 
@@ -2185,6 +2185,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r34
-release: &r33
-releases: &r[1..33]
+snapshot: ~
+release: &r34
+releases: &r[1..34]

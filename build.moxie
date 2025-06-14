@@ -10,12 +10,12 @@ name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.10.0-SNAPSHOT
+version: 1.10.0
 inceptionYear: 2011
 
 # Current stable release
-releaseVersion: 1.9.3
-releaseDate: 2022-04-09
+releaseVersion: 1.10.0
+releaseDate: 2025-06-14
 
 # Project urls
 url: 'http://gitblit.com'
