@@ -220,7 +220,7 @@ public class GitBlitSuite {
 			}
 			cloneOrFetch("helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
 			cloneOrFetch("ticgit.git", TICGIT_REPO_SOURCE.getAbsolutePath());
-			cloneOrFetch("test/jgit.git", "https://github.com/eclipse/jgit.git");
+			cloneOrFetch("test/jgit.git", "https://github.com/eclipse-jgit/jgit.git");
 			cloneOrFetch("test/helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
 			cloneOrFetch("test/ambition.git", AMBITION_REPO_SOURCE.getAbsolutePath());
 			cloneOrFetch("test/gitective.git", GITECTIVE_REPO_SOURCE.getAbsolutePath());
