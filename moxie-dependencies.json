@@ -1,6 +1,6 @@
 {
     "ring" : "0",
-    "name" : "gitblit 1.10.0-SNAPSHOT",
+    "name" : "gitblit 1.10.0",
     "children" : [
     {
         "ring" : "1",
@@ -22,7 +22,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "guava 31.1-jre",
+        "name" : "guava 32.1.3-jre",
         "children" : [
         {
             "ring" : "2",
@@ -41,17 +41,17 @@
     ,
         {
             "ring" : "2",
-            "name" : "checker-qual 3.12.0"
+            "name" : "checker-qual 3.37.0"
         }
     ,
         {
             "ring" : "2",
-            "name" : "error_prone_annotations 2.11.0"
+            "name" : "error_prone_annotations 2.21.1"
         }
     ,
         {
             "ring" : "2",
-            "name" : "j2objc-annotations 1.3"
+            "name" : "j2objc-annotations 2.8"
         }
     
         ]
@@ -70,17 +70,17 @@
 ,
     {
         "ring" : "1",
-        "name" : "log4j 1.2.17"
+        "name" : "reload4j 1.2.25"
     }
 ,
     {
         "ring" : "1",
-        "name" : "slf4j-api 1.7.29"
+        "name" : "slf4j-api 1.7.36"
     }
 ,
     {
         "ring" : "1",
-        "name" : "slf4j-log4j12 1.7.29"
+        "name" : "slf4j-reload4j 1.7.36"
     }
 ,
     {
@@ -103,47 +103,47 @@
 ,
     {
         "ring" : "1",
-        "name" : "jetty-servlet 9.4.49.v20220914"
+        "name" : "jetty-servlet 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-security 9.4.49.v20220914"
+        "name" : "jetty-security 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-server 9.4.49.v20220914"
+        "name" : "jetty-server 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-continuation 9.4.49.v20220914"
+        "name" : "jetty-continuation 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-http 9.4.49.v20220914"
+        "name" : "jetty-http 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-io 9.4.49.v20220914"
+        "name" : "jetty-io 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-util 9.4.49.v20220914"
+        "name" : "jetty-util 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-webapp 9.4.49.v20220914"
+        "name" : "jetty-webapp 9.4.57.v20241219"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jetty-xml 9.4.49.v20220914"
+        "name" : "jetty-xml 9.4.57.v20241219"
     }
 ,
     {
@@ -334,25 +334,25 @@
 ,
     {
         "ring" : "1",
-        "name" : "bcprov-jdk15on 1.69"
+        "name" : "bcprov-jdk18on 1.81"
     }
 ,
     {
         "ring" : "1",
-        "name" : "bcmail-jdk15on 1.69",
+        "name" : "bcmail-jdk18on 1.81"
+    }
+,
+    {
+        "ring" : "1",
+        "name" : "bcpkix-jdk18on 1.81",
         "children" : [
         {
             "ring" : "2",
-            "name" : "bcutil-jdk15on 1.69"
+            "name" : "bcutil-jdk18on 1.81"
         }
     
         ]
     
-    }
-,
-    {
-        "ring" : "1",
-        "name" : "bcpkix-jdk15on 1.69"
     }
 ,
     {
@@ -367,7 +367,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "mina-core 2.0.21"
+        "name" : "mina-core 2.0.27"
     }
 ,
     {
@@ -390,7 +390,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "groovy-all 2.4.4"
+        "name" : "groovy-all 2.4.21"
     }
 ,
     {
@@ -400,7 +400,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "ivy 2.2.0"
+        "name" : "ivy 2.5.3"
     }
 ,
     {
@@ -410,12 +410,20 @@
 ,
     {
         "ring" : "1",
-        "name" : "commons-compress 1.22"
+        "name" : "commons-compress 1.27.1"
     }
 ,
     {
         "ring" : "1",
-        "name" : "commons-io 2.11.0"
+        "name" : "commons-io 2.19.0",
+        "children" : [
+        {
+            "ring" : "2",
+            "name" : "commons-lang3 3.16.0"
+        }
+    
+        ]
+    
     }
 ,
     {
@@ -492,12 +500,12 @@
 ,
     {
         "ring" : "1",
-        "name" : "tika-core 1.5"
+        "name" : "tika-core 1.28.5"
     }
 ,
     {
         "ring" : "1",
-        "name" : "jsoup 1.7.3"
+        "name" : "jsoup 1.16.2"
     }
 ,
     {
@@ -507,7 +515,7 @@
 ,
     {
         "ring" : "1",
-        "name" : "junit 4.12",
+        "name" : "junit 4.13.1",
         "children" : [
         {
             "ring" : "2",

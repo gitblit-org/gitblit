@@ -111,18 +111,18 @@
 <li class='dropdown'> <!-- Menu -->
 <a class='dropdown-toggle' href='#' data-toggle='dropdown'>downloads<b class='caret'></b></a>
 <ul class='dropdown-menu'>
-<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.zip'>Gitblit GO (Windows)</a></li>
-<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
-<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gitblit-1.9.3.war'>Gitblit WAR</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.10.0/gitblit-1.10.0.zip'>Gitblit GO (Windows)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.10.0/gitblit-1.10.0.tar.gz'>Gitblit GO (Linux/OSX)</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.10.0/gitblit-1.10.0.war'>Gitblit WAR</a></li>
 <li class='divider'></li>
 <li><a href='https://hub.docker.com/r/gitblit/gitblit'>Gitblit GO (Docker)</a></li>
 <li class='divider'></li>
 <li><a href='http://plugins.gitblit.com'>Plugins Registry</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/manager-1.9.3.zip'>Gitblit Manager</a></li>
-<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/fedclient-1.9.3.zip'>Federation Client</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.10.0/manager-1.10.0.zip'>Gitblit Manager</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.10.0/fedclient-1.10.0.zip'>Federation Client</a></li>
 <li class='divider'></li>
-<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.9.3/gbapi-1.9.3.zip'>API Library</a></li>
+<li><a href='https://github.com/gitblit-org/gitblit/releases/download/v1.10.0/gbapi-1.10.0.zip'>API Library</a></li>
 <li class='divider'></li>
 <li><a href='https://github.com/gitblit-org/gitblit/releases'>GitHub (1.9.0+)</a></li>
 <li><a href='https://cloudsmith.io/~gitblit/repos/gitblit/groups/'>Cloudsmith (1.3.0-1.8.0)</a></li>
@@ -159,47 +159,25 @@
 <!-- Begin Markdown -->
 
 <!-- CURRENT RELEASE -->
-	<h3 id="1.9.3" class="section"><a href="#1.9.3" class="sectionlink"><i class="icon-share-alt"> </i></a>Current Release (1.9.3) <small>this is the current stable release</small></h3>
+	<h3 id="1.10.0" class="section"><a href="#1.10.0" class="sectionlink"><i class="icon-share-alt"> </i></a>Current Release (1.10.0) <small>this is the current stable release</small></h3>
 	<table class="table">
 		<tbody>
 			<tr>
-				<td style="background-color:inherit;width:100px">2022-04-09</td>
+				<td style="background-color:inherit;width:100px">2025-06-14</td>
 				<td style="background-color:inherit;">	
 	
-		<blockquote><p>!! IMPORTANT SECURITY FIX FOR CONFIG USER SERVICE !!<br /><br />There is a security vulnerability in version 1.9.2, which allows an attacker to gain<br />elevated access rights. This is present when the Config User Service is used as the<br />user service, which is the default.<br /><br />Version 1.9.2 introduced a new implementation to store user data in the user config file<br />which holds user name, password, access rights etc. This was done to solve problems with<br />very large user bases (<a href='https://github.com/gitblit-org/gitblit/pull/1364'>pull request #1364</a>). This new implementation does not properly escape all<br />control characters, like newline and tab. As a result, a normal user, when logged into<br />Gitblit, can edit his profile data and enter values in e.g. the email address that are<br />interpreted as control characters in the text file stored on disk. This allows the malicious<br />user to give themselves e.g. elevated access rights on their account.<br /><br />This is fixed in 1.9.3. Updates of existing installations should be made to 1.9.3, not 1.9.2.<br /><br />Many thanks to Github user @YYHYlh for finding and reporting this issue (<a href='https://github.com/gitblit-org/gitblit/issues/1410'>issue 1410</a>).<br /></p></blockquote>		
+		<blockquote><p>Highlights:<br /><br />* Support for ECDSA and Ed25519 SSH keys<br />* Fix vulnerability that allowed SSH authentication to be circumvented<br />* Explicitly disable requesting optional client TLS certificates<br />* Copy-to-clipboard button is back and working<br />* Minimal required Java version is Java 8<br /><br />While old DSA SSH host keys can still be used, a new Gitblit installation will no longer<br />generate a DSA host key. The default set of host keys is now RSA, ECDSA and Ed25519.<br /><br />Snapshot builds of the current master branch are now available as Docker containers on<br />Docker Hub under the &quot;Nightly&quot; tag.<br /></p></blockquote>		
 
 		<div class="alert alert-info">
 			<h4>Note</h4>
-			The 1.9 minor version is the last to support Java 7. From 1.10 on Gitblit will require Java 8.<p />
-		</div>
-
-   	<h4 style="color:red;">security</h4>
-	<ul>
-		<li>Fix escaping control characters in config user service, resolving a security vulnerability. (<a href='https://github.com/gitblit-org/gitblit/issues/1410'>issue 1410</a>)</li>
-	</ul>
-</td>
-			</tr>
-		</tbody>
-	</table>
-
-<!-- NEXT RELEASE -->
-	<h3 id="1.10.0-SNAPSHOT" class="section"><a href="#1.10.0-SNAPSHOT" class="sectionlink"><i class="icon-share-alt"> </i></a>Next Release (1.10.0-SNAPSHOT) <small>these changes are queued for an upcoming release</small></h3>
-	<table class="table">
-		<tbody>
-			<tr>
-				<td style="background-color:inherit;width:100px">PENDING</td>
-				<td style="background-color:inherit;">	
-	
-		<blockquote><p>Highlights:<br /><br />* Support for ECDSA and Ed25519 SSH keys<br />* Move to Java 8<br />* Explicitly disable requesting optional client TLS certificates<br />* Copy-to-clipboard button is back and working<br /><br />While old DSA SSH host keys can still be used, a new Gitblit installation will no longer<br />generate a DSA host key. The default set of host keys is now RSA, ECDSA and Ed25519.<br /><br />Snapshot builds of the current master branch are now available as Docker containers on<br />Docker Hub under the &quot;Nightly&quot; tag.<br /></p></blockquote>		
-
-		<div class="alert alert-info">
-			<h4>Note</h4>
-			From 1.10.0 on Gitblit requires Java 8 as minimum Java version.<p /><p />Should you have disabled the Flash-based copy-to-clipboard function because it wasn't working anymore (web.allowFlashCopyToClipboard = false), you may want to rethink this and enable it again. The configuration property has the same name, but the mechanism was exchanged. Flash is gone, and a modern JavaScript solution is now used to copy text directly to the clipboard (via clipboard.js).<p /><p />The setting 'server.requireClientCertificates' now has three values: required, optional and none. While 'required' is synonymous to the old 'true' value, and 'optional' is synonymous to the old 'false' value, the new 'none' value results in the server never asking the client to present any client certificate at all. The old values 'true' and 'false' can still be used and keep their meaning.<p /><p />
+			This release fixes a vulnerability allowing an attacker to circumvent authentication on the SSH transport. Users are urged to update to this version.<p /><p />Should you have disabled the Flash-based copy-to-clipboard function because it wasn't working anymore (`web.allowFlashCopyToClipboard = false`), you may want to rethink this and enable it again. The configuration property has the same name, but the mechanism was exchanged. Flash is gone, and a modern JavaScript solution is now used to copy text directly to the clipboard (via clipboard.js).<p /><p />The setting `server.requireClientCertificates` now has three values: `required`, `optional` and `none`. While `required` is synonymous to the old `true` value, and `optional` is synonymous to the old `false` value, the new `none` value results in the server never asking the client to present any client certificate at all. The old values `true` and `false` can still be used and keep their meaning.<p /><p />From 1.10.0 on Gitblit requires Java 8 as minimal Java version.<p /><p />
 		</div>
 
    	<h4 style="color:red;">security</h4>
 	<ul>
 		<li>Fix path traversal vulnerability which allowed access to &quot;/resources//../WEB-INF/&quot;. (CVE-2022-31268) This was fixed by updating Jetty. (<a href='https://github.com/gitblit-org/gitblit/issues/1409'>issue 1409</a>)</li>
+		<li>Fix exploit circumventing SSH authentication. Many thanks to András Veres-Szentkirályi (silentsignal.eu) for the report. (CVE-2024-28080)</li>
+		<li>Fix vulnerability exposing user password hashes to administrators when an administrator edits a user's properties. Many thanks to Gerhard Klostermeier (syss.de) for the report.</li>
 	</ul>
    	<h4>fixes</h4>
 	<ul>
@@ -212,12 +190,19 @@
 		<li>Fix errors in Bugtraq preventing display of commit completely.</li>
 		<li>Fix misaligned images in primary repository URL display. (<a href='https://github.com/gitblit-org/gitblit/issues/1437'>issue 1437</a>)</li>
 		<li>Fix incorrect text being copied by copy button on tickets page</li>
+		<li>Fix broken language files.</li>
+		<li>Fix problems with single quotes in message texts. (<a href='https://github.com/gitblit-org/gitblit/pull/1455'>pull request #1455</a> by @losiki)</li>
 	</ul>
    	<h4>changes</h4>
 	<ul>
 		<li>Minimum Java required increased to Java 8. (<a href='https://github.com/gitblit-org/gitblit/pull/1218'>pull request #1218</a> by @paladox)</li>
-		<li>Add feedback on invalid keys to SSH key form. (<a href='https://github.com/gitblit-org/gitblit/issues/984'>issue 984</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1239'>pull request #1239</a> by @martinspielmann)</li>
-		<li>Replace old Flash-based Clippy copy-paste buttons to copy repository URLs and other text to the clipboard with a modern JavaScript-based approach via clipboard.js. (<a href='https://github.com/gitblit-org/gitblit/issues/1241'>issue 1241</a>, <a href='https://github.com/gitblit-org/gitblit/issues/965'>issue 965</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1438'>pull request #1438</a> by @flaix)</li>
+		<li>Added feedback on invalid keys to SSH key form. (<a href='https://github.com/gitblit-org/gitblit/issues/984'>issue 984</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1239'>pull request #1239</a> by @martinspielmann)</li>
+		<li>Replaced old Flash-based Clippy copy-paste buttons to copy repository URLs and other text to the clipboard with a modern JavaScript-based approach via clipboard.js. (<a href='https://github.com/gitblit-org/gitblit/issues/1241'>issue 1241</a>, <a href='https://github.com/gitblit-org/gitblit/issues/965'>issue 965</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1438'>pull request #1438</a> by @flaix)</li>
+		<li>Updated various dependencies that had known CVEs.</li>
+		<li>Updated Git clients list on empty repository page.</li>
+		<li>Improved Chinese translation of &quot;fork&quot;.</li>
+		<li>Switched logging library from Log4j1 to reload4j.</li>
+		<li>Updating the BouncyCastle version required to switch from bc*-jdk15on to bc*-jdk18on</li>
 	</ul>
    	<h4>additions</h4>
 	<ul>
@@ -225,7 +210,7 @@
 		<li>Support for ECDSA and Ed25519 (EdDSA) user keys. (<a href='https://github.com/gitblit-org/gitblit/pull/1427'>pull request #1427</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1272'>pull request #1272</a>)</li>
 		<li>New ECDSA and EdDSA host key types. (<a href='https://github.com/gitblit-org/gitblit/issues/1354'>issue 1354</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1429'>pull request #1429</a> by @flaix)</li>
 		<li>French version of empty repository page. (by @piradix)</li>
-		<li>Add support for Jenkins access token. Use setting 'groovy.jenkinsToken'. (<a href='https://github.com/gitblit-org/gitblit/issues/1423'>issue 1423</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1425'>pull request #1425</a> by @TDesjardins)</li>
+		<li>Add support for Jenkins access token. Use setting `groovy.jenkinsToken`. (<a href='https://github.com/gitblit-org/gitblit/issues/1423'>issue 1423</a>, <a href='https://github.com/gitblit-org/gitblit/pull/1425'>pull request #1425</a> by @TDesjardins)</li>
 	</ul>
    	<h4>new settings</h4>
 	<table class="table">
@@ -237,18 +222,26 @@
 	<ul>
 		<li>update to JavaMail 1.5.6 (<a href='https://github.com/gitblit-org/gitblit/pull/1217'>pull request #1217</a> by @paladox)</li>
 		<li>update to Google Guice 5.1.0</li>
-		<li>update to Google Guava 31.1-jre</li>
+		<li>update to Google Guava 32.1.3-jre</li>
 		<li>update to Google Gson 2.10</li>
-		<li>update to Apache commons-io 2.11.0</li>
+		<li>update to Apache commons-io 2.19</li>
 		<li>update to Apache commons-codec 1.9</li>
-		<li>update to Apache commons-compress 1.22</li>
+		<li>update to Apache commons-compress 1.27.1</li>
+		<li>update to Apache Tika 1.28.5</li>
 		<li>update to libpam4j 1.11</li>
 		<li>update to MINA SSHD 1.7.0</li>
-		<li>update to BouncyCastle 1.69</li>
-		<li>update to Jetty 9.4.49.v20220914 (<a href='https://github.com/gitblit-org/gitblit/pull/1213'>pull request #1213</a> by @paladox, plus more)</li>
+		<li>update to MINA Core 2.0.27</li>
+		<li>update to BouncyCastle 1.81</li>
+		<li>update to Jetty 9.4.57.v20241219 (<a href='https://github.com/gitblit-org/gitblit/pull/1213'>pull request #1213</a> by @paladox, plus more)</li>
 		<li>update to JGit 4.11.9.201909030838-r (<a href='https://github.com/gitblit-org/gitblit/pull/1252'>pull request #1252</a> by @jvanhercke, plus more)</li>
 		<li>update to Bugtraq v0.4</li>
+		<li>update to JSoup 1.16.2</li>
+		<li>update to Groovy 2.4.21</li>
+		<li>update to Ivy 2.5.3</li>
+		<li>update to slf4j 1.7.36</li>
+		<li>replace log4j1 with reload4j</li>
 		<li>added clipboard.js, replacing Clippy</li>
+		<li>update to JUnit 4.13.1</li>
 	</ul>
    	<h4>contributors</h4>
 	<ul>
@@ -257,8 +250,12 @@
 		<li>@piradix</li>
 		<li>@QuentinC</li>
 		<li>@xxcdd</li>
+		<li>@xxl-cc</li>
+		<li>András Veres-Szentkirályi</li>
 		<li>Edward Rudd</li>
+		<li>Egor Shchegolkov</li>
 		<li>Florian Zschocke</li>
+		<li>Gerhard Klostermeier</li>
 		<li>Jan Vanhercke</li>
 		<li>Martin Spielmann</li>
 		<li>Odd Eirik Nes</li>
@@ -269,6 +266,8 @@
 		</tbody>
 	</table>
 
+<!-- NEXT RELEASE -->
+
 <div>
 	<ul class="pager">
 		<li class="next"><a href="releases.html">All Releases &rarr;</a></li>
@@ -276,7 +275,7 @@
 </div>
 
 <!-- End Markdown -->
-<footer class="footer"><p class="pull-right">generated 2022-12-18</p>
+<footer class="footer"><p class="pull-right">generated 2025-06-14</p>
 <p>The content of this page is licensed under the <a href="http://creativecommons.org/licenses/by/3.0">Creative Commons Attribution 3.0 License</a>.</p>
 </footer>
 </div>
