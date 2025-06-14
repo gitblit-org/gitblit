@@ -6,6 +6,8 @@ r34: {
     id: ${project.version}
     date: ${project.buildDate}
     note: ''
+          This release fixes a vulnerability allowing an attacker to circumvent authentication on the SSH transport. Users are urged to update to this version.
+
           Should you have disabled the Flash-based copy-to-clipboard function because it wasn't working anymore (`web.allowFlashCopyToClipboard = false`), you may want to rethink this and enable it again. The configuration property has the same name, but the mechanism was exchanged. Flash is gone, and a modern JavaScript solution is now used to copy text directly to the clipboard (via clipboard.js).
 
           The setting `server.requireClientCertificates` now has three values: `required`, `optional` and `none`. While `required` is synonymous to the old `true` value, and `optional` is synonymous to the old `false` value, the new `none` value results in the server never asking the client to present any client certificate at all. The old values `true` and `false` can still be used and keep their meaning.
@@ -18,6 +20,7 @@ r34: {
           Highlights:
 
           * Support for ECDSA and Ed25519 SSH keys
+          * Fix vulnerability that allowed SSH authentication to be circumvented
           * Explicitly disable requesting optional client TLS certificates
           * Copy-to-clipboard button is back and working
           * Minimal required Java version is Java 8
@@ -30,6 +33,7 @@ r34: {
           ''
     security:
       - Fix path traversal vulnerability which allowed access to "/resources//../WEB-INF/". (CVE-2022-31268) This was fixed by updating Jetty. (issue-1409)
+      - Fix exploit circumventing SSH authentication. Many thanks to András Veres-Szentkirályi (silentsignal.eu) for the report. (CVE-2024-28080)
     fixes:
       - Fix crash in Gitblit Authority when users were deleted from Gitblit but still had entries (certificates) in the Authority. (issue-1359, pr-1435)
       - Fix tab-to-space conversion to work like tabs. (pr-1065 by @QuentinC)
@@ -92,6 +96,7 @@ r34: {
       - Tino Desjardins
       - @xxl-cc
       - Egor Shchegolkov
+      - András Veres-Szentkirályi
 }
 
 #

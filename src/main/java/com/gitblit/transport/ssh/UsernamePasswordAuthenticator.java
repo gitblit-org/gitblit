@@ -45,14 +45,11 @@ public class UsernamePasswordAuthenticator implements PasswordAuthenticator {
 	@Override
 	public boolean authenticate(String username, String password, ServerSession session) {
 		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
-		if (client.getUser() != null) {
-			log.info("{} has already authenticated!", username);
-			return true;
-		}
 
 		username = username.toLowerCase(Locale.US);
 		UserModel user = authManager.authenticate(username, password.toCharArray(), null);
 		if (user != null) {
+// TODO: Check if the user was set in the client and if it is the same as this user. Do not allow changing the user during the SSH auth process.
 			client.setUser(user);
 			return true;
 		}

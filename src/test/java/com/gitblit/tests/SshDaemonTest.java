@@ -16,10 +16,12 @@
 package com.gitblit.tests;
 
 import java.io.File;
+import java.security.KeyPair;
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.future.AuthFuture;
 import org.apache.sshd.client.session.ClientSession;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
@@ -42,11 +44,72 @@ public class SshDaemonTest extends SshUnitTest {
 	String url = GitBlitSuite.sshDaemonUrl;
 
 	@Test
+	public void testPasswordAuthentication() throws Exception {
+		SshClient client = getClient();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
+
+		session.addPasswordIdentity(password);
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertTrue(authFuture.isSuccess());
+	}
+
+	@Test
 	public void testPublicKeyAuthentication() throws Exception {
 		SshClient client = getClient();
 		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
+
 		session.addPublicKeyIdentity(rwKeyPair);
-		assertTrue(session.auth().await());
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertTrue(authFuture.isSuccess());
+	}
+
+	@Test
+	public void testWrongPublicKeyAuthentication() throws Exception {
+		SshClient client = getClient();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
+		KeyPair attackKeyPair = generator.generateKeyPair();
+
+		session.addPublicKeyIdentity(attackKeyPair);
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertFalse(authFuture.isSuccess());
+	}
+
+	@Test
+	public void testWrongPublicKeyThenPasswordAuthentication() throws Exception {
+		SshClient client = getClient();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
+		KeyPair otherKeyPair = generator.generateKeyPair();
+
+		session.addPublicKeyIdentity(otherKeyPair);
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertFalse(authFuture.isSuccess());
+
+		session.addPasswordIdentity(password);
+		authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertTrue(authFuture.isSuccess());
+	}
+
+	@Test
+	public void testWrongPublicKeyThenWrongPasswordAuthentication() throws Exception {
+		SshClient client = getClient();
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
+		KeyPair otherKeyPair = generator.generateKeyPair();
+		KeyPair attackKeyPair = new KeyPair(rwKeyPair.getPublic(), otherKeyPair.getPrivate());
+
+		session.addPublicKeyIdentity(attackKeyPair);
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertFalse(authFuture.isSuccess());
+
+		session.addPasswordIdentity("nothing");
+		authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertFalse(authFuture.isSuccess());
 	}
 
 	@Test

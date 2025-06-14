@@ -54,10 +54,7 @@ public class SshKrbAuthenticator extends GSSAuthenticator {
 	public boolean validateIdentity(ServerSession session, String identity) {
 		log.info("identify with kerberos {}", identity);
 		SshDaemonClient client = session.getAttribute(SshDaemonClient.KEY);
-		if (client.getUser() != null) {
-			log.info("{} has already authenticated!", identity);
-			return true;
-		}
+
 		String username = identity.toLowerCase(Locale.US);
 		if (stripDomain) {
 			int p = username.indexOf('@');
@@ -67,6 +64,7 @@ public class SshKrbAuthenticator extends GSSAuthenticator {
 		}
 		UserModel user = authManager.authenticate(username);
 		if (user != null) {
+// TODO: Check if the user was set in the client and if it is the same as this user. Do not allow changing the user during the SSH auth process.
 			client.setUser(user);
 			return true;
 		}
