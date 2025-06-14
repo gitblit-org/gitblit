@@ -6,7 +6,7 @@ BEGIN { on=0 ; skip=1 ; block=0 ; section=""}
 
 /r[0-9]+: *{/ { on=1 ; next }
 /^[[:blank:]]*}[[:blank:]]*$/ { if (on) {
-                                	print "[Full release notes on gitblit.com](http://gitblit.com/releases.html#" relId ")"
+                                	print "[Full release notes on gitblit.com](http://www.gitblit.com/releases.html#" relId ")"
                                 	exit 0
                                 }
                               }
