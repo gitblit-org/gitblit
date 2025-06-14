@@ -211,101 +211,101 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-servlet-9.4.49.v20220914.jar">
+      <library name="jetty-servlet-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-servlet-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-servlet-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-servlet-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-servlet-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-security-9.4.49.v20220914.jar">
+      <library name="jetty-security-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-security-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-security-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-security-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-security-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-server-9.4.49.v20220914.jar">
+      <library name="jetty-server-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-server-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-server-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-server-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-server-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-continuation-9.4.49.v20220914.jar">
+      <library name="jetty-continuation-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-continuation-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-continuation-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-continuation-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-continuation-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-http-9.4.49.v20220914.jar">
+      <library name="jetty-http-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-http-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-http-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-http-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-http-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-io-9.4.49.v20220914.jar">
+      <library name="jetty-io-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-io-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-io-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-io-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-io-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-util-9.4.49.v20220914.jar">
+      <library name="jetty-util-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-util-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-util-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-util-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-util-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-webapp-9.4.49.v20220914.jar">
+      <library name="jetty-webapp-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-webapp-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-webapp-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-xml-9.4.49.v20220914.jar">
+      <library name="jetty-xml-9.4.57.v20241219.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-xml-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-xml-9.4.57.v20241219.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-xml-9.4.49.v20220914.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-xml-9.4.57.v20241219.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -671,46 +671,46 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcprov-jdk15on-1.69.jar">
+      <library name="bcprov-jdk18on-1.81.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk18on-1.81.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk18on-1.81.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcmail-jdk15on-1.69.jar">
+      <library name="bcmail-jdk18on-1.81.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk18on-1.81.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk18on-1.81.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcutil-jdk15on-1.69.jar">
+      <library name="bcpkix-jdk18on-1.81.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcutil-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk18on-1.81.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcutil-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcpkix-jdk18on-1.81.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="bcpkix-jdk15on-1.69.jar">
+      <library name="bcutil-jdk18on-1.81.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/bcpkix-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/bcutil-jdk18on-1.81.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/bcpkix-jdk15on-1.69.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/bcutil-jdk18on-1.81.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -737,13 +737,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="mina-core-2.0.25.jar">
+      <library name="mina-core-2.0.27.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.25.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/mina-core-2.0.27.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.25.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/mina-core-2.0.27.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -781,13 +781,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="groovy-all-2.4.4.jar">
+      <library name="groovy-all-2.4.21.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/groovy-all-2.4.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/groovy-all-2.4.21.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/groovy-all-2.4.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/groovy-all-2.4.21.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -803,13 +803,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="ivy-2.2.0.jar">
+      <library name="ivy-2.5.3.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/ivy-2.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/ivy-2.5.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/ivy-2.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/ivy-2.5.3.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -823,24 +823,35 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="commons-compress-1.24.0.jar">
+      <library name="commons-compress-1.27.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.24.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/commons-compress-1.27.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.24.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/commons-compress-1.27.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="commons-io-2.11.0.jar">
+      <library name="commons-io-2.19.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-io-2.11.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/commons-io-2.19.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-io-2.11.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/commons-io-2.19.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="commons-lang3-3.16.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/commons-lang3-3.16.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/commons-lang3-3.16.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -1010,13 +1021,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
-      <library name="junit-4.12.jar">
+      <library name="junit-4.13.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/junit-4.12.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/junit-4.13.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/junit-4.12.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/junit-4.13.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -17,6 +17,7 @@ package com.gitblit.tickets;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -640,7 +641,7 @@ public class TicketNotifier {
 			for (String line : lines) {
 				sb.append(line).append('\n');
 			}
-		} catch (IOException e) {
+		} catch (UncheckedIOException e) {
 
 		} finally {
 			if (is != null) {

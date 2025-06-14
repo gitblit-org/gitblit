@@ -55,6 +55,7 @@ r34: {
       - Updated Git clients list on empty repository page.
       - Improved Chinese translation of "fork".
       - Switched logging library from Log4j1 to reload4j.
+      - Updating the BouncyCastle version required to switch from bc*-jdk15on to bc*-jdk18on
     additions:
       - Option to explicitly disable optional client TLS certificates. (issue-1137, pr-1138 by @oddeirik)
       - Support for ECDSA and Ed25519 (EdDSA) user keys. (pr-1427, pr-1272)
@@ -66,21 +67,24 @@ r34: {
       - update to Google Guice 5.1.0
       - update to Google Guava 32.1.3-jre
       - update to Google Gson 2.10
-      - update to Apache commons-io 2.11.0
+      - update to Apache commons-io 2.19
       - update to Apache commons-codec 1.9
-      - update to Apache commons-compress 1.24
+      - update to Apache commons-compress 1.27.1
       - update to Apache Tika 1.28.5
       - update to libpam4j 1.11
       - update to MINA SSHD 1.7.0
-      - update to MINA Core 2.0.25
-      - update to BouncyCastle 1.69
-      - update to Jetty 9.4.49.v20220914 (pr-1213 by @paladox, plus more)
+      - update to MINA Core 2.0.27
+      - update to BouncyCastle 1.81
+      - update to Jetty 9.4.57.v20241219 (pr-1213 by @paladox, plus more)
       - update to JGit 4.11.9.201909030838-r (pr-1252 by @jvanhercke, plus more)
       - update to Bugtraq v0.4
       - update to JSoup 1.16.2
+      - update to Groovy 2.4.21
+      - update to Ivy 2.5.3
       - update to slf4j 1.7.36
       - replace log4j1 with reload4j
       - added clipboard.js, replacing Clippy
+      - update to JUnit 4.13.1
     settings:
       - { name: 'server.requireClientCertificates', defaultValue: 'optional' }
     contributors:
