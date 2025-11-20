@@ -45,6 +45,7 @@ package com.gitblit.git;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.Duration;
 
 import org.eclipse.jgit.lib.BatchingProgressMonitor;
 import org.eclipse.jgit.lib.Constants;
@@ -61,7 +62,7 @@ class SideBandProgressMonitor extends BatchingProgressMonitor {
 	}
 
 	@Override
-	protected void onUpdate(String taskName, int workCurr) {
+	protected void onUpdate(String taskName, int workCurr, Duration dur) {
 		StringBuilder s = new StringBuilder();
 		format(s, taskName, workCurr);
 		s.append("   \r"); //$NON-NLS-1$
@@ -69,7 +70,7 @@ class SideBandProgressMonitor extends BatchingProgressMonitor {
 	}
 
 	@Override
-	protected void onEndTask(String taskName, int workCurr) {
+	protected void onEndTask(String taskName, int workCurr, Duration dur) {
 		StringBuilder s = new StringBuilder();
 		format(s, taskName, workCurr);
 		s.append(", done\n"); //$NON-NLS-1$
@@ -83,7 +84,7 @@ class SideBandProgressMonitor extends BatchingProgressMonitor {
 	}
 
 	@Override
-	protected void onUpdate(String taskName, int cmp, int totalWork, int pcnt) {
+	protected void onUpdate(String taskName, int cmp, int totalWork, int pcnt, Duration dur) {
 		StringBuilder s = new StringBuilder();
 		format(s, taskName, cmp, totalWork, pcnt);
 		s.append("   \r"); //$NON-NLS-1$
@@ -91,7 +92,7 @@ class SideBandProgressMonitor extends BatchingProgressMonitor {
 	}
 
 	@Override
-	protected void onEndTask(String taskName, int cmp, int totalWork, int pcnt) {
+	protected void onEndTask(String taskName, int cmp, int totalWork, int pcnt, Duration dur) {
 		StringBuilder s = new StringBuilder();
 		format(s, taskName, cmp, totalWork, pcnt);
 		s.append("\n"); //$NON-NLS-1$

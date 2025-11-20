@@ -2970,18 +2970,19 @@ public class JGitUtils {
 	 */
 	public static long getTicketNumberFromCommitBranch(Repository repository, RevCommit commit) {
 		// try lookup by change ref
-		Map<AnyObjectId, Set<Ref>> map = repository.getAllRefsByPeeledObjectId();
-		Set<Ref> refs = map.get(commit.getId());
-		if (!ArrayUtils.isEmpty(refs)) {
-			for (Ref ref : refs) {
-				long number = PatchsetCommand.getTicketNumber(ref.getName());
+		try {
+			Map<AnyObjectId, Set<Ref>> map = repository.getAllRefsByPeeledObjectId();
+			Set<Ref> refs = map.get(commit.getId());
+			if (!ArrayUtils.isEmpty(refs)) {
+				for (Ref ref : refs) {
+					long number = PatchsetCommand.getTicketNumber(ref.getName());
 				
-				if (number > 0) {
-					return number;
+					if (number > 0) {
+						return number;
+					}
 				}
 			}
-		}
-		
+		} catch(IOException e) { }	
 		return 0;
 	}
 	

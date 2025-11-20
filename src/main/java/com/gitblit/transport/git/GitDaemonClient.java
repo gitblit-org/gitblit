@@ -44,6 +44,7 @@ package com.gitblit.transport.git;
  */
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,7 +55,6 @@ import org.eclipse.jgit.transport.Daemon;
 import org.eclipse.jgit.transport.PacketLineIn;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.eclipse.jgit.util.io.SafeBufferedOutputStream;
 
 /** Active network client of {@link Daemon}. */
 public class GitDaemonClient {
@@ -108,7 +108,7 @@ public class GitDaemonClient {
 	void execute(final Socket sock) throws IOException,
 			ServiceNotEnabledException, ServiceNotAuthorizedException {
 		rawIn = new BufferedInputStream(sock.getInputStream());
-		rawOut = new SafeBufferedOutputStream(sock.getOutputStream());
+		rawOut = new BufferedOutputStream(sock.getOutputStream());
 
 		if (0 < daemon.getTimeout())
 			sock.setSoTimeout(daemon.getTimeout() * 1000);

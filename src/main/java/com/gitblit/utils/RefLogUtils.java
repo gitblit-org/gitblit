@@ -107,7 +107,7 @@ public class RefLogUtils {
 	 */
 	public static boolean hasRefLogBranch(Repository repository) {
 		try {
-			return repository.getRef(GB_REFLOG) != null;
+			return repository.findRef(GB_REFLOG) != null;
 		} catch(Exception e) {
 			LOGGER.error("failed to determine hasRefLogBranch", e);
 		}

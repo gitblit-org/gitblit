@@ -502,12 +502,14 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		}
 
 		ProgressMonitor updating = NullProgressMonitor.INSTANCE;
+                /*
 		boolean sideBand = isCapabilityEnabled(CAPABILITY_SIDE_BAND_64K);
 		if (sideBand) {
 			SideBandProgressMonitor pm = new SideBandProgressMonitor(msgOut);
 			pm.setDelayStart(250, TimeUnit.MILLISECONDS);
 			updating = pm;
 		}
+                */
 
 		BatchRefUpdate batch = getRepository().getRefDatabase().newBatchUpdate();
 		batch.setAllowNonFastForwards(isAllowNonFastForwards());

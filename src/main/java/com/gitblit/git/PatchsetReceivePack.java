@@ -247,6 +247,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		ticketNotifier.sendAll();
 	}
 
+        /*
 	@Override
 	protected void validateCommands() {
 		// workaround for JGit's awful scoping choices
@@ -262,6 +263,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 		super.validateCommands();
 	}
+        */
 
 	/** Execute commands to update references. */
 	@Override
@@ -295,12 +297,14 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		ProgressMonitor updating = NullProgressMonitor.INSTANCE;
+                /*
 		boolean sideBand = isCapabilityEnabled(CAPABILITY_SIDE_BAND_64K);
 		if (sideBand) {
 			SideBandProgressMonitor pm = new SideBandProgressMonitor(msgOut);
 			pm.setDelayStart(250, TimeUnit.MILLISECONDS);
 			updating = pm;
 		}
+                */
 
 		BatchRefUpdate batch = getRepository().getRefDatabase().newBatchUpdate();
 		batch.setAllowNonFastForwards(isAllowNonFastForwards());
@@ -1272,7 +1276,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		String message = MessageFormat.format("Merged #{0,number,0} \"{1}\"", ticket.number, ticket.title);
 		Ref oldRef = null;
 		try {
-			oldRef = getRepository().getRef(ticket.mergeTo);
+			oldRef = getRepository().findRef(ticket.mergeTo);
 		} catch (IOException e) {
 			LOGGER.error("failed to get ref for " + ticket.mergeTo, e);
 		}

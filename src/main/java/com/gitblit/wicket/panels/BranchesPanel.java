@@ -202,9 +202,9 @@ public class BranchesPanel extends BasePanel {
 				final String branch = entry.getName();
 				Ref ref = null;
 				try {
-					ref = r.getRef(branch);
+					ref = r.findRef(branch);
 					if (ref == null && !branch.startsWith(Constants.R_HEADS)) {
-						ref = r.getRef(Constants.R_HEADS + branch);
+						ref = r.findRef(Constants.R_HEADS + branch);
 					}
 				} catch (IOException e) {
 				}
