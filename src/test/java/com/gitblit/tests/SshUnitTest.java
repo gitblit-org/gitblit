@@ -25,17 +25,25 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.auth.pubkey.PublicKeyAuthenticationReporter;
 import org.apache.sshd.client.channel.ClientChannel;
 import org.apache.sshd.client.channel.ClientChannelEvent;
 import org.apache.sshd.client.config.keys.ClientIdentityLoader;
 import org.apache.sshd.client.future.AuthFuture;
 import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.apache.sshd.common.NamedResource;
+import org.apache.sshd.common.session.SessionContext;
+import org.apache.sshd.common.signature.Signature;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -45,6 +53,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.transport.ssh.IPublicKeyManager;
@@ -54,6 +63,7 @@ import com.gitblit.transport.ssh.SshKey;
 /**
  * Base class for SSH unit tests.
  */
+@Ignore("abstract ssh test base")
 public abstract class SshUnitTest extends GitblitUnitTest {
 
 	protected static final AtomicBoolean started = new AtomicBoolean(false);
@@ -156,15 +166,28 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 	}
 
 	protected SshClient getClient() {
+		return getClient(null, null);
+	}
+
+	protected SshClient getClient(List<NamedFactory<Signature>> signatureFactories,
+			PublicKeyAuthenticationReporter publicKeyAuthenticationReporter) {
 		SshClient client = SshClient.setUpDefaultClient();
+		if (signatureFactories != null) {
+			client.setSignatureFactories(signatureFactories);
+		}
+		if (publicKeyAuthenticationReporter != null) {
+			client.setPublicKeyAuthenticationReporter(publicKeyAuthenticationReporter);
+		}
 		client.setClientIdentityLoader(new ClientIdentityLoader() {	// Ignore the files under ~/.ssh
 				@Override
-				public boolean isValidLocation(String location) throws IOException {
-					return true;
+				public boolean isValidLocation(NamedResource location) throws IOException {
+					return false;
 				}
+
 				@Override
-				public KeyPair loadClientIdentity(String location, FilePasswordProvider provider) throws IOException, GeneralSecurityException {
-					return null;
+				public Iterable<KeyPair> loadClientIdentities(SessionContext session, NamedResource location, FilePasswordProvider provider)
+						throws IOException, GeneralSecurityException {
+					return Collections.emptyList();
 				}
 			});
 		client.setServerKeyVerifier(new ServerKeyVerifier() {
@@ -175,6 +198,48 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 		});
 		client.start();
 		return client;
+	}
+
+	protected static class SignatureCaptureReporter implements PublicKeyAuthenticationReporter {
+		private final List<String> attempts = new ArrayList<String>();
+		private final List<String> signatures = new ArrayList<String>();
+
+		@Override
+		public void signalAuthenticationAttempt(ClientSession session, String service, KeyPair identity, String signature)
+				throws Exception {
+			attempts.add(signature);
+		}
+
+		@Override
+		public void signalAuthenticationExhausted(ClientSession session, String service) throws Exception {
+		}
+
+		@Override
+		public void signalIdentitySkipped(ClientSession session, String service, KeyPair identity) throws Exception {
+		}
+
+		@Override
+		public void signalSignatureAttempt(ClientSession session, String service, KeyPair identity, String signature,
+				byte[] signedData) throws Exception {
+			signatures.add(signature);
+		}
+
+		@Override
+		public void signalAuthenticationSuccess(ClientSession session, String service, KeyPair identity) throws Exception {
+		}
+
+		@Override
+		public void signalAuthenticationFailure(ClientSession session, String service, KeyPair identity, boolean partial,
+				List<String> serverMethods) throws Exception {
+		}
+
+		public List<String> getAttempts() {
+			return attempts;
+		}
+
+		public List<String> getSignatures() {
+			return signatures;
+		}
 	}
 
 	protected String testSshCommand(String cmd) throws IOException, InterruptedException {
@@ -202,9 +267,8 @@ public abstract class SshUnitTest extends GitblitUnitTest {
 		ByteArrayOutputStream err = new ByteArrayOutputStream();
 		channel.setOut(out);
 		channel.setErr(err);
-		channel.open();
-
-		channel.waitFor(EnumSet.of(ClientChannelEvent.CLOSED, ClientChannelEvent.EOF), 0);
+		channel.open().verify();
+		channel.waitFor(EnumSet.of(ClientChannelEvent.CLOSED), 30000);
 
 		String result = out.toString().trim();
 		channel.close(false);

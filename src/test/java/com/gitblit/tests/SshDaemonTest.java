@@ -17,12 +17,16 @@ package com.gitblit.tests;
 
 import java.io.File;
 import java.security.KeyPair;
+import java.util.Arrays;
 import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.future.AuthFuture;
 import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.NamedFactory;
+import org.apache.sshd.common.signature.BuiltinSignatures;
+import org.apache.sshd.common.signature.Signature;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -63,6 +67,16 @@ public class SshDaemonTest extends SshUnitTest {
 		AuthFuture authFuture = session.auth();
 		assertTrue(authFuture.await());
 		assertTrue(authFuture.isSuccess());
+	}
+
+	@Test
+	public void testPublicKeyAuthenticationRsaSha256() throws Exception {
+		assertPublicKeyAuthenticationWithSignature(BuiltinSignatures.rsaSHA256, "rsa-sha2-256");
+	}
+
+	@Test
+	public void testPublicKeyAuthenticationRsaSha512() throws Exception {
+		assertPublicKeyAuthenticationWithSignature(BuiltinSignatures.rsaSHA512, "rsa-sha2-512");
 	}
 
 	@Test
@@ -150,5 +164,23 @@ public class SshDaemonTest extends SshUnitTest {
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		repositories().updateRepositoryModel(model.name, model, false);
+	}
+
+	private void assertPublicKeyAuthenticationWithSignature(BuiltinSignatures signatureFactory, String signatureName)
+			throws Exception {
+		SignatureCaptureReporter reporter = new SignatureCaptureReporter();
+		List<NamedFactory<Signature>> signatureFactories = Arrays.<NamedFactory<Signature>>asList(signatureFactory);
+		SshClient client = getClient(signatureFactories, reporter);
+		ClientSession session = client.connect(username, "localhost", GitBlitSuite.sshPort).verify().getSession();
+
+		session.addPublicKeyIdentity(rwKeyPair);
+		AuthFuture authFuture = session.auth();
+		assertTrue(authFuture.await());
+		assertTrue(authFuture.isSuccess());
+		assertTrue("client did not attempt " + signatureName,
+				reporter.getAttempts().contains(signatureName) || reporter.getSignatures().contains(signatureName));
+		assertFalse("client fell back to ssh-rsa",
+				reporter.getAttempts().contains("ssh-rsa") || reporter.getSignatures().contains("ssh-rsa"));
+		client.stop();
 	}
 }

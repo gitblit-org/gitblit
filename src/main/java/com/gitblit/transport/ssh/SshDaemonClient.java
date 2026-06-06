@@ -17,58 +17,68 @@ package com.gitblit.transport.ssh;
 
 import java.net.SocketAddress;
 
-import org.apache.sshd.common.AttributeStore.AttributeKey;
+import org.apache.sshd.common.AttributeRepository.AttributeKey;
+import org.apache.sshd.server.session.ServerSession;
 
 import com.gitblit.models.UserModel;
 
-/**
- *
- * @author Eric Myrhe
- *
- */
 public class SshDaemonClient {
-	public static final AttributeKey<SshDaemonClient> KEY = new AttributeKey<SshDaemonClient>();
+    public static final AttributeKey<SshDaemonClient> KEY = new AttributeKey<SshDaemonClient>();
 
-	private final SocketAddress remoteAddress;
+    private final SocketAddress remoteAddress;
 
-	private volatile UserModel user;
-	private volatile SshKey key;
-	private volatile String repositoryName;
+    private volatile UserModel user;
+    private volatile SshKey key;
+    private volatile String repositoryName;
 
-	SshDaemonClient(SocketAddress peer) {
-		this.remoteAddress = peer;
-	}
+    SshDaemonClient(SocketAddress peer) {
+        this.remoteAddress = peer;
+    }
 
-	public SocketAddress getRemoteAddress() {
-		return remoteAddress;
-	}
+    public static SshDaemonClient get(ServerSession session) {
+        SshDaemonClient client = session.getAttribute(KEY);
+        if (client != null) {
+            return client;
+        }
+        synchronized (session) {
+            client = session.getAttribute(KEY);
+            if (client == null) {
+                client = new SshDaemonClient(session.getIoSession().getRemoteAddress());
+                session.setAttribute(KEY, client);
+            }
+            return client;
+        }
+    }
 
-	public UserModel getUser() {
-		return user;
-	}
+    public SocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
 
-	public void setUser(UserModel user) {
-		this.user = user;
-	}
+    public UserModel getUser() {
+        return user;
+    }
 
-	public String getUsername() {
-		return user == null ? null : user.username;
-	}
+    public void setUser(UserModel user) {
+        this.user = user;
+    }
 
-	public void setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
-	}
+    public String getUsername() {
+        return user == null ? null : user.username;
+    }
 
-	public String getRepositoryName() {
-		return repositoryName;
-	}
+    public void setRepositoryName(String repositoryName) {
+        this.repositoryName = repositoryName;
+    }
 
-	public SshKey getKey() {
-		return key;
-	}
+    public String getRepositoryName() {
+        return repositoryName;
+    }
 
-	public void setKey(SshKey key) {
-		this.key = key;
-	}
+    public SshKey getKey() {
+        return key;
+    }
 
+    public void setKey(SshKey key) {
+        this.key = key;
+    }
 }
