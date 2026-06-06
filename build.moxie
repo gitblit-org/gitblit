@@ -114,8 +114,7 @@ properties: {
   bouncycastle.version : 1.81
   selenium.version : 2.28.0
   wikitext.version : 1.4
-  sshd.version: 1.7.0
-  mina.version: 2.0.27
+  sshd.version: 2.14.0
   guice.version : 5.1.0
   # Gitblit maintains a fork of guice-servlet
   guice-servlet.version : 5.1.0-gb2
@@ -173,7 +172,6 @@ dependencies:
 - compile 'org.bouncycastle:bcpkix-jdk18on:${bouncycastle.version}' :war
 - compile 'net.i2p.crypto:eddsa:0.2.0' :war !org.easymock
 - compile 'org.apache.sshd:sshd-core:${sshd.version}' :war !org.easymock
-- compile 'org.apache.mina:mina-core:${mina.version}' :war !org.easymock
 - compile 'rome:rome:0.9' :war :manager :api
 - compile 'com.google.code.gson:gson:2.10' :war :fedclient :manager :api
 - compile 'org.codehaus.groovy:groovy-all:${groovy.version}' :war

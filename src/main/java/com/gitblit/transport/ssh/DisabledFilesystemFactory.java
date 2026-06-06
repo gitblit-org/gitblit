@@ -17,21 +17,20 @@ package com.gitblit.transport.ssh;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Path;
 
 import org.apache.sshd.common.file.FileSystemFactory;
-import org.apache.sshd.common.session.Session;
+import org.apache.sshd.common.session.SessionContext;
 
 public class DisabledFilesystemFactory implements FileSystemFactory {
 
-	 /**
-     * Create user specific file system.
-     *
-     * @param session The session created for the user
-     * @return The current {@link FileSystem} for the provided session
-     * @throws java.io.IOException when the filesystem can not be created
-     */
     @Override
-	public FileSystem createFileSystem(Session session) throws IOException {
-    	return null;
+    public Path getUserHomeDir(SessionContext session) throws IOException {
+        return null;
+    }
+
+    @Override
+    public FileSystem createFileSystem(SessionContext session) throws IOException {
+        return null;
     }
 }
