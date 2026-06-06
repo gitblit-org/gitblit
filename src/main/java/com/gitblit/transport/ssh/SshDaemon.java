@@ -22,17 +22,28 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
+import org.apache.sshd.common.config.keys.KeyEntryResolver;
 import org.apache.sshd.common.io.IoServiceFactoryFactory;
 import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
 import org.apache.sshd.core.CoreModuleProperties;
+import org.apache.sshd.common.util.io.output.SecureByteArrayOutputStream;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.util.security.bouncycastle.BouncyCastleSecurityProviderRegistrar;
+import org.apache.sshd.common.util.security.eddsa.EdDSASecurityProviderRegistrar;
+import org.apache.sshd.common.util.security.eddsa.OpenSSHEd25519PrivateKeyEntryDecoder;
 import org.apache.sshd.server.SshServer;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
+import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.eclipse.jgit.internal.JGitText;
 import org.slf4j.Logger;
@@ -76,15 +87,24 @@ public class SshDaemon {
         if (SecurityUtils.isBouncyCastleRegistered()) {
             log.info("BouncyCastle is registered as a JCE provider");
         }
+        SecurityUtils.registerSecurityProvider(new EdDSASecurityProviderRegistrar());
+        if (SecurityUtils.isProviderRegistered("EdDSA")) {
+            log.info("EdDSA is registered as a JCE provider");
+        }
 
         File rsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-rsa-hostkey.pem");
         File dsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-dsa-hostkey.pem");
         File ecdsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-ecdsa-hostkey.pem");
+        File eddsaKeyStore = new File(gitblit.getBaseFolder(), "ssh-eddsa-hostkey.pem");
+        File ed25519KeyStore = new File(gitblit.getBaseFolder(), "ssh-ed25519-hostkey.pem");
         generateKeyPair(rsaKeyStore, "RSA", 2048);
         generateKeyPair(ecdsaKeyStore, "ECDSA", 256);
+        generateKeyPair(eddsaKeyStore, "EdDSA", 0);
         FileKeyPairProvider hostKeyPairProvider = new FileKeyPairProvider();
         hostKeyPairProvider.setFiles(new String[] {
                 ecdsaKeyStore.getPath(),
+                eddsaKeyStore.getPath(),
+                ed25519KeyStore.getPath(),
                 rsaKeyStore.getPath(),
                 dsaKeyStore.getPath()
         });
@@ -199,26 +219,54 @@ public class SshDaemon {
         }
     }
 
-    protected void generateKeyPair(File file, String algorithm, int keySize) {
+    static void generateKeyPair(File file, String algorithm, int keySize) {
         if (file.exists()) {
             return;
         }
         try {
-            log.info(keySize > 0 ? "Generating {}-{} SSH host keypair..." : "Generating {} SSH host keypair...",
-                    algorithm, Integer.valueOf(keySize));
-
-            KeyPairGenerator generator = KeyPairGenerator.getInstance(algorithm);
-            if (keySize > 0) {
+            KeyPairGenerator generator = SecurityUtils.getKeyPairGenerator(algorithm);
+            if (keySize != 0) {
                 generator.initialize(keySize);
+                log.info("Generating {}-{} SSH host keypair...", algorithm, Integer.valueOf(keySize));
+            } else {
+                log.info("Generating {} SSH host keypair...", algorithm);
             }
             KeyPair kp = generator.generateKeyPair();
-            Files.createParentDirs(file);
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                try (PemWriter writer = new PemWriter(new OutputStreamWriter(fos))) {
-                    writer.writeObject(new JcaMiscPEMGenerator(kp));
+
+            Files.touch(file);
+            try {
+                JnaUtils.setFilemode(file, JnaUtils.S_IRUSR | JnaUtils.S_IWUSR);
+            } catch (UnsatisfiedLinkError | UnsupportedOperationException e) {
+                // Unsupported platform-specific chmod path.
+            }
+
+            try (FileOutputStream os = new FileOutputStream(file)) {
+                try (PemWriter w = new PemWriter(new OutputStreamWriter(os))) {
+                    if ("ED25519".equals(algorithm)) {
+                        AsymmetricKeyParameter keyParam = PrivateKeyFactory.createKey(kp.getPrivate().getEncoded());
+                        byte[] encKey = OpenSSHPrivateKeyUtil.encodePrivateKey(keyParam);
+                        w.writeObject(new PemObject("OPENSSH PRIVATE KEY", encKey));
+                    } else if ("EdDSA".equals(algorithm)) {
+                        PrivateKey privateKey = kp.getPrivate();
+                        if (privateKey instanceof EdDSAPrivateKey) {
+                            OpenSSHEd25519PrivateKeyEntryDecoder encoder =
+                                    (OpenSSHEd25519PrivateKeyEntryDecoder) SecurityUtils.getOpenSSHEDDSAPrivateKeyEntryDecoder();
+                            EdDSAPrivateKey dsaPrivateKey = (EdDSAPrivateKey) privateKey;
+                            EdDSAPublicKey dsaPublicKey = encoder.recoverPublicKey(dsaPrivateKey);
+                            SecureByteArrayOutputStream encos = new SecureByteArrayOutputStream();
+                            String type = encoder.encodePrivateKey(encos, dsaPrivateKey, dsaPublicKey);
+                            SecureByteArrayOutputStream bos = new SecureByteArrayOutputStream();
+                            KeyEntryResolver.encodeString(bos, type);
+                            encos.writeTo(bos);
+                            w.writeObject(new PemObject("EDDSA PRIVATE KEY", bos.toByteArray()));
+                        } else {
+                            log.warn("Unable to encode EdDSA key, got key type {}", privateKey.getClass().getCanonicalName());
+                        }
+                    } else {
+                        w.writeObject(new JcaMiscPEMGenerator(kp));
+                    }
                 }
             }
-            JnaUtils.setFilemode(file, JnaUtils.S_IFREG | 0400);
         } catch (Exception e) {
             log.error("Unable to generate " + algorithm + " keypair", e);
         }

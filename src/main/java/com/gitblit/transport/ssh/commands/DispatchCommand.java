@@ -244,16 +244,17 @@ public abstract class DispatchCommand extends BaseCommand implements ExtensionPo
         }
     }
 
-    protected BaseCommand getCommand() throws UnloggedFailure {
-        String cmd = commandName;
-        if (aliasToCommand.containsKey(cmd)) {
-            cmd = aliasToCommand.get(cmd);
-        }
+	protected BaseCommand getCommand() throws UnloggedFailure {
+		Map<String, Class<? extends BaseCommand>> commandMap = getMap();
+		String cmd = commandName;
+		if (aliasToCommand.containsKey(cmd)) {
+			cmd = aliasToCommand.get(cmd);
+		}
 
-        Class<? extends BaseCommand> clazz = getMap().get(cmd);
-        if (clazz == null) {
-            throw new UnloggedFailure(STATUS_NOT_FOUND, "fatal: '" + commandName + "' is not a registered command");
-        }
+		Class<? extends BaseCommand> clazz = commandMap.get(cmd);
+		if (clazz == null) {
+			throw new UnloggedFailure(STATUS_NOT_FOUND, "fatal: '" + commandName + "' is not a registered command");
+		}
 
         BaseCommand command = dispatchers.get(cmd);
         if (command == null) {

@@ -20,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -114,6 +116,7 @@ public class GitBlitSuite {
 	public static String password = "admin";
 
 	private static AtomicBoolean started = new AtomicBoolean(false);
+	private static AtomicBoolean repositoriesInitialized = new AtomicBoolean(false);
 
 	public static Repository getHelloworldRepository() {
 		return getRepository("helloworld.git");
@@ -153,7 +156,7 @@ public class GitBlitSuite {
 
 	public static boolean startGitblit() throws Exception {
 		if (started.get()) {
-			// already started
+			ensureTestRepositories();
 			return false;
 		}
 
@@ -176,10 +179,11 @@ public class GitBlitSuite {
 			}
 		});
 
-		// Wait a few seconds for it to be running
-		Thread.sleep(5000);
+		waitForPort("http", port);
+		waitForPort("ssh", sshPort);
 
 		started.set(true);
+		ensureTestRepositories();
 		return true;
 	}
 
@@ -189,6 +193,7 @@ public class GitBlitSuite {
 
 		// Wait a few seconds for it to be running
 		Thread.sleep(5000);
+		started.set(false);
 	}
 
 	public static void deleteRefChecksFolder() throws IOException {
@@ -204,32 +209,6 @@ public class GitBlitSuite {
 		//need be deleted before Gitblit server instance is started
 		deleteRefChecksFolder();
 		startGitblit();
-
-		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
-			if (!HELLOWORLD_REPO_SOURCE.exists()) {
-				unzipRepository(HELLOWORLD_REPO_SOURCE.getPath() + ".zip", HELLOWORLD_REPO_SOURCE.getParentFile());
-			}
-			if (!TICGIT_REPO_SOURCE.exists()) {
-				unzipRepository(TICGIT_REPO_SOURCE.getPath() + ".zip", TICGIT_REPO_SOURCE.getParentFile());
-			}
-			if (!AMBITION_REPO_SOURCE.exists()) {
-				unzipRepository(AMBITION_REPO_SOURCE.getPath() + ".zip", AMBITION_REPO_SOURCE.getParentFile());
-			}
-			if (!GITECTIVE_REPO_SOURCE.exists()) {
-				unzipRepository(GITECTIVE_REPO_SOURCE.getPath() + ".zip", GITECTIVE_REPO_SOURCE.getParentFile());
-			}
-			cloneOrFetch("helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
-			cloneOrFetch("ticgit.git", TICGIT_REPO_SOURCE.getAbsolutePath());
-			cloneOrFetch("test/jgit.git", "https://github.com/eclipse-jgit/jgit.git");
-			cloneOrFetch("test/helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
-			cloneOrFetch("test/ambition.git", AMBITION_REPO_SOURCE.getAbsolutePath());
-			cloneOrFetch("test/gitective.git", GITECTIVE_REPO_SOURCE.getAbsolutePath());
-
-			showRemoteBranches("ticgit.git");
-			automaticallyTagBranchTips("ticgit.git");
-			showRemoteBranches("test/jgit.git");
-			automaticallyTagBranchTips("test/jgit.git");
-		}
 	}
 
 	@AfterClass
@@ -245,6 +224,56 @@ public class GitBlitSuite {
 			System.out.println("Error: " + t.getMessage());
 		}
 		System.out.println("done.");
+	}
+
+	private static void ensureTestRepositories() throws Exception {
+		if (repositoriesInitialized.get()) {
+			return;
+		}
+		synchronized (repositoriesInitialized) {
+			if (repositoriesInitialized.get()) {
+				return;
+			}
+			if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
+				if (!HELLOWORLD_REPO_SOURCE.exists()) {
+					unzipRepository(HELLOWORLD_REPO_SOURCE.getPath() + ".zip", HELLOWORLD_REPO_SOURCE.getParentFile());
+				}
+				if (!TICGIT_REPO_SOURCE.exists()) {
+					unzipRepository(TICGIT_REPO_SOURCE.getPath() + ".zip", TICGIT_REPO_SOURCE.getParentFile());
+				}
+				if (!AMBITION_REPO_SOURCE.exists()) {
+					unzipRepository(AMBITION_REPO_SOURCE.getPath() + ".zip", AMBITION_REPO_SOURCE.getParentFile());
+				}
+				if (!GITECTIVE_REPO_SOURCE.exists()) {
+					unzipRepository(GITECTIVE_REPO_SOURCE.getPath() + ".zip", GITECTIVE_REPO_SOURCE.getParentFile());
+				}
+				cloneOrFetch("helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
+				cloneOrFetch("ticgit.git", TICGIT_REPO_SOURCE.getAbsolutePath());
+				cloneOrFetch("test/jgit.git", "https://github.com/eclipse-jgit/jgit.git");
+				cloneOrFetch("test/helloworld.git", HELLOWORLD_REPO_SOURCE.getAbsolutePath());
+				cloneOrFetch("test/ambition.git", AMBITION_REPO_SOURCE.getAbsolutePath());
+				cloneOrFetch("test/gitective.git", GITECTIVE_REPO_SOURCE.getAbsolutePath());
+
+				showRemoteBranches("ticgit.git");
+				automaticallyTagBranchTips("ticgit.git");
+				showRemoteBranches("test/jgit.git");
+				automaticallyTagBranchTips("test/jgit.git");
+			}
+			repositoriesInitialized.set(true);
+		}
+	}
+
+	private static void waitForPort(String service, int port) throws Exception {
+		long deadline = System.currentTimeMillis() + 30000L;
+		while (System.currentTimeMillis() < deadline) {
+			try (Socket socket = new Socket()) {
+				socket.connect(new InetSocketAddress("127.0.0.1", port), 500);
+				return;
+			} catch (IOException e) {
+				Thread.sleep(250L);
+			}
+		}
+		throw new IOException("Timed out waiting for " + service + " port " + port);
 	}
 
 	private static void showRemoteBranches(String repositoryName) {
